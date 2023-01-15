@@ -18,15 +18,16 @@
 ## [1.2. Hub and Spoke (Dual Region)](./1-hub-and-spoke/2-hub-spoke-dual-region/)
 ![Hub and Spoke (Dual Region)](./images/hub-spoke-dual-region.png)
 
-
 # [2. Virtual WAN](./2-virtual-wan/)
 
 ## [2.1. Virtual WAN (Single Hub)](./2-virtual-wan/1-vwan-single-hub/)
 ![Virtual WAN (Single Hub)](./images/vwan-single-hub.png)
 ## [2.2. Virtual WAN (Dual Hub)](./2-virtual-wan/2-vwan-dual-hub/)
-## [2.3. Virtual WAN (Dual Hub - Mixed)](./2-virtual-wan/3-vwan-dual-hub-mixed/)
+![Virtual WAN (Dual Hub)](./images/vwan-dual-hub.png)
+## [2.3. Virtual WAN (Single Hub - Mixed)](./2-virtual-wan/3-vwan-single-hub-mixed/)
+![Virtual WAN (Dual Hub)](./images/vwan-single-hub-mixed.png)
+## [2.4. Virtual WAN (Dual Hub - Mixed)](./2-virtual-wan/4-vwan-dual-hub-mixed/)
 ![Virtual WAN (Dual Hub)](./images/vwan-dual-hub-mixed.png)
 
 
 # [3. Virtual Network Manager](./3-virtual-network-manager/)
-
