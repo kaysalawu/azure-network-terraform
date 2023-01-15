@@ -3,12 +3,14 @@
 
 ## Overview
 
+This terraform code deploys a multi-hub (multi-region) virtual WAN architecture playground to observe dynamic routing patterns. In this architecture, we integrate the standard hub `hub1` to the virtual WAN hub `vHub1` via a connection. And we integrate the standard hub `hub2` to the virtual WAN hub `vHub2` via a VPN connection.
+
 This terraform code deploys a virtual WAN architecture playground that demonstrates dynamic routing patterns. Virtual WAN hub `vHub1` depicts the standard patterns for connecting direct and indirect VNET spokes to the virtual hub. Virtual WAN hub `vHub2` depicts a scenario where we integrate a standard Hub to the virtual WAN hub via VPN.
 
 ![Virtual WAN (Dual Hub)](../../images/vwan-dual-hub-mixed.png)
 
 VNET hubs:
- - `Hub1` (region1) connected to `vHub1` via VWAN VNET connection
+ - `Hub1` (region1) connected to `vHub1` via virtual WAN VNET connection
  - `Hub2` (region2) is a branch connected to `vHub2` via IPsec VPN
 
  Spokes:
@@ -39,7 +41,7 @@ git clone https://github.com/kaysalawu/azure-network-terraform.git
 
 2. Change to the lab directory
 ```sh
-cd ~/azure-network-terraform/2-virtual-wan/4-vwan-dual-hub-mixed
+cd ~/azure-network-terraform/2-virtual-wan/4-virtual-wan-dual-hub-mixed
 ```
 
 ## Deploy the Lab

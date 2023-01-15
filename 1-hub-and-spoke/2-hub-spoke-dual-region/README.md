@@ -2,7 +2,7 @@
 
 ## Overview
 
-This terraform code deploys a hub and spoke architecture playground that demonstrates dynamic routing with Azure Route Server (ARS) and a Network Virtual Appiance (NVA).
+This terraform code deploys a multi-region hub and spoke topology playground to observe dynamic routing with Azure Route Server (ARS) and a Network Virtual Appiance (NVA).
 
 ![Hub and Spoke (Dual region)](../../images/hub-spoke-dual-region.png)
 
@@ -12,7 +12,7 @@ VNET hubs:
 
  Spokes:
  - Direct spokes `Spoke1`, `Spoke2` (region1) with VNET peering to the `Hub1`
- - Direct spokes `Spoke4`, `Spoke5` (region1) with VNET peering to the `Hub2`
+ - Direct spokes `Spoke4`, `Spoke5` (region2) with VNET peering to the `Hub2`
  - Isolated `Spoke3` (region1) reachable from `Hub1` via Private Link Service
  - Isolated `Spoke6` (region2) reachable from `Hub2` via Private Link Service
 
@@ -36,7 +36,7 @@ git clone https://github.com/kaysalawu/azure-network-terraform.git
 
 2. Change to the lab directory
 ```sh
-cd ~/azure-network-terraform/1-hub-and-spoke/1-hub-spoke-dual-region/
+cd ~/azure-network-terraform/1-hub-and-spoke/2-hub-spoke-dual-region
 ```
 
 ## Deploy the Lab

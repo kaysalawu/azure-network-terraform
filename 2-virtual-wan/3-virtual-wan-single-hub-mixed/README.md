@@ -3,7 +3,7 @@
 
 ## Overview
 
-This terraform code deploys a virtual WAN architecture playground that demonstrates dynamic routing patterns. Virtual WAN hub `vHub2` depicts a scenario where we integrate a standard Hub to the virtual WAN hub via VPN.
+This terraform code deploys a virtual WAN architecture playground to observe dynamic routing patterns. In this architecture, we integrate a standard hub `hub1` (as a branch) to the virtual WAN hub `vHub1` via a VPN connection.
 
 ![Virtual WAN - Single Hub (Mixed)](../../images/vwan-single-hub-mixed.png)
 
@@ -34,7 +34,7 @@ git clone https://github.com/kaysalawu/azure-network-terraform.git
 
 2. Change to the lab directory
 ```sh
-cd ~/azure-network-terraform/2-virtual-wan/3-vwan-single-hub-mixed
+cd ~/azure-network-terraform/2-virtual-wan/3-virtual-wan-single-hub-mixed
 ```
 
 ## Deploy the Lab
@@ -51,7 +51,7 @@ terraform apply
 Delete the resource group to remove all resources installed. Run the following Azure CLI command:
 
 ```sh
-az group delete --name VwanS3RG --yes --no-wait
+az group delete --name VwanS4RG --yes --no-wait
 ```
 
 ## [Troubleshooting](../../troubleshooting/)
