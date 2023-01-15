@@ -127,7 +127,7 @@ resource "azurerm_vpn_site" "vhub1_site_branch1" {
   }
 }
 
-# ergw
+/*# ergw
 #----------------------------
 
 resource "azurerm_express_route_gateway" "vhub1" {
@@ -136,7 +136,7 @@ resource "azurerm_express_route_gateway" "vhub1" {
   location            = local.vhub1_location
   virtual_hub_id      = azurerm_virtual_hub.vhub1.id
   scale_units         = 1
-}
+}*/
 
 # route tables
 #----------------------------

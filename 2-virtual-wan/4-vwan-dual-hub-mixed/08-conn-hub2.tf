@@ -37,13 +37,6 @@ resource "azurerm_virtual_network_peering" "hub2_to_spoke5_peering" {
 # nva
 ####################################################
 
-# config
-
-resource "local_file" "hub2_router" {
-  content  = local.hub2_router_init
-  filename = "_output/hub2-router.sh"
-}
-
 locals {
   hub2_router_route_map_name_nh = "NEXT-HOP"
   hub2_router_init = templatefile("../../scripts/nva-hub.sh", {

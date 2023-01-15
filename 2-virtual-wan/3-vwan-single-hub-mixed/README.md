@@ -1,20 +1,22 @@
-# Hub and Spoke - Single Region
+
+# Virtual WAN - Single Hub (Mixed)
 
 ## Overview
 
-This terraform code deploys a hub and spoke architecture playground that demonstrates dynamic routing with Azure Route Server (ARS) and a Network Virtual Appiance (NVA).
+This terraform code deploys a virtual WAN architecture playground that demonstrates dynamic routing patterns. Virtual WAN hub `vHub2` depicts a scenario where we integrate a standard Hub to the virtual WAN hub via VPN.
 
-![Hub and Spoke (Single region)](../../images/hub-spoke-single-region.png)
+![Virtual WAN - Single Hub (Mixed)](../../images/vwan-single-hub-mixed.png)
 
-VNET Hub:
- - `Hub1` (region1) with ARS and NVA (cisco-csr-1000v)
+VNET hubs:
+ - `Hub2` (region2) is a branch connected to `vHub2` via IPsec VPN
 
  Spokes:
- - Direct spokes `Spoke1`, `Spoke2` (region1) with VNET peering to the `Hub1`
- - Isolated `Spoke3` (region1) reachable from `Hub1` via Private Link Service
+ - Direct spoke `Spoke4` (region2) connected to VWAN hub `vHub2`
+ - Indirect spoke `Spoke5` (region2) with VNET peering to the `Hub2`
+ - Isolated `Spoke6` (region2) reachable from `Hub2` via Private Link Service
 
- Onprem:
- - `Branch1` (region1) simulated in a VNET with a router (cisco-csr-1000v)
+ Onprem branches:
+ - `Branch3` (region2) simulated in a VNET with a router (cisco-csr-1000v)
 
 ## Prerequisites
 
@@ -32,7 +34,7 @@ git clone https://github.com/kaysalawu/azure-network-terraform.git
 
 2. Change to the lab directory
 ```sh
-cd ~/azure-network-terraform/1-hub-and-spoke/1-hub-spoke-single-region/
+cd ~/azure-network-terraform/2-virtual-wan/3-vwan-single-hub-mixed
 ```
 
 ## Deploy the Lab
@@ -49,7 +51,7 @@ terraform apply
 Delete the resource group to remove all resources installed. Run the following Azure CLI command:
 
 ```sh
-az group delete --name HubSpokeS1RG --yes --no-wait
+az group delete --name VwanS3RG --yes --no-wait
 ```
 
 ## [Troubleshooting](../../troubleshooting/)

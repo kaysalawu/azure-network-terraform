@@ -55,13 +55,6 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke3_peering" {
 # nva
 ####################################################
 
-# config
-
-resource "local_file" "hub1_router" {
-  content  = local.hub1_router_init
-  filename = "_output/hub1-router.sh"
-}
-
 locals {
   hub1_router_route_map_name_nh = "NEXT-HOP"
   hub1_router_init = templatefile("../../scripts/nva-hub.sh", {
@@ -380,7 +373,7 @@ locals {
   ]
 }
 
-resource "azurerm_virtual_hub_route_table_route" "vhub1_routes" {
+/*resource "azurerm_virtual_hub_route_table_route" "vhub1_routes" {
   for_each          = { for k, v in local.vhub1_routes : k => v }
   name              = each.value.name
   route_table_id    = each.value.route_table_id
@@ -388,4 +381,4 @@ resource "azurerm_virtual_hub_route_table_route" "vhub1_routes" {
   destinations      = each.value.destinations
   next_hop_type     = "ResourceId"
   next_hop          = each.value.next_hop
-}
+}*/

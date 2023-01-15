@@ -6,13 +6,6 @@
 # router
 #----------------------------
 
-# config
-
-resource "local_file" "branch3_nva" {
-  content  = local.branch3_nva_init
-  filename = "_output/branch3-nva.sh"
-}
-
 locals {
   branch3_nva_init = templatefile("../../scripts/nva-branch.sh", {
     LOCAL_ASN = local.branch3_nva_asn
@@ -89,6 +82,18 @@ locals {
   })
 }
 
+# addresses
+
+resource "azurerm_public_ip" "branch3_nva_pip" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.branch3_prefix}nva-pip"
+  location            = local.branch3_location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+}
+
+# vm
+
 module "branch3_nva" {
   source               = "../../modules/csr-branch"
   resource_group       = azurerm_resource_group.rg.name
@@ -141,3 +146,18 @@ resource "azurerm_subnet_route_table_association" "branch3_default_route_azure" 
   }
 }
 
+####################################################
+# output files
+####################################################
+
+locals {
+  branch3_files = {
+    "output/branch3-nva.sh" = local.branch3_nva_init
+  }
+}
+
+resource "local_file" "branch3_files" {
+  for_each = local.branch3_files
+  filename = each.key
+  content  = each.value
+}
