@@ -34,6 +34,6 @@ locals {
     { name = "spoke6 ", dns = local.spoke6_vm_dns, ip = local.spoke6_vm_addr, ping = false },
   ]
   vm_startup = templatefile("../../scripts/server.sh", {
-    TARGETS = concat(local.vm_script_targets_region1, local.vm_script_targets_region2)
+    TARGETS = local.vm_script_targets_region2
   })
 }

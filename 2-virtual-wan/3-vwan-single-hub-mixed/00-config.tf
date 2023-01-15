@@ -31,14 +31,14 @@ locals {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones
-    TARGETS              = concat(local.vm_script_targets_region1, local.vm_script_targets_region2)
+    TARGETS              = local.vm_script_targets_region2
   })
 
   branch_unbound_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones
-    TARGETS              = concat(local.vm_script_targets_region1, local.vm_script_targets_region2)
+    TARGETS              = local.vm_script_targets_region2
   }
 
   onprem_local_records = [
