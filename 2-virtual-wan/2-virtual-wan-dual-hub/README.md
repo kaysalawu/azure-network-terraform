@@ -3,26 +3,15 @@
 
 ## Overview
 
-This terraform code deploys a multi-hub (multi-region) virtual WAN architecture playground to observe dynamic routing patterns. In this architecture, we integrate the standard hubs to the virtual WAN hubs.
+This terraform code deploys a multi-hub (multi-region) virtual WAN architecture playground to observe dynamic routing patterns.
+
+In this architecture, we integrate standard hubs (`hub1` and `hub2`) to the virtual WAN hubs (`vHub1` and `vHub2`) via a virtual WAN connections. Direct spokes (`Spoke1` and `Spoke4`) are connected to their respective virtual WAN hubs via VNET connections. `Spoke2` and `Spoke5` are indirect spokes from a virtual WAN perspective; are connected via standard VNET peering to `Hub1` and `Hub2` respectively. 
+
+The isolated spokes (`Spoke3` and `Spoke6`) do not have VNET peering to their respective hubs (`Hub1` and `Hub2`), but are reachable via Private Link Service through a private endpoint in each hub.
+
+`Branch1` and `Branch3`are the on-premises networks which are simulated in VNETs using multi-NIC Cisco-CSR-100V NVA appliances.
 
 ![Virtual WAN (Single Hub)](../../images/vwan-dual-hub.png)
-
-VNET hubs:
- - `Hub1` (region1) connected to `vHub1` via VWAN VNET connection
- - `Hub2` (region2) connected to `vHub2` via VWAN VNET connection
-
- Spokes:
- - Direct spoke `Spoke1` (region1) connected to VWAN hub `vHub1`
- - Direct spoke `Spoke4` (region2) connected to VWAN hub `vHub2`
- - Indirect spoke `Spoke2` (region1) with VNET peering to the `Hub1`
- - Indirect spoke `Spoke5` (region2) with VNET peering to the `Hub2`
- - Isolated `Spoke3` (region1) reachable from `Hub1` via Private Link Service
- - Isolated `Spoke6` (region2) reachable from `Hub2` via Private Link Service
-
- Onprem branches:
- - `Branch1` (region1) simulated in a VNET with a router (cisco-csr-1000v)
- - `Branch3` (region2) simulated in a VNET with a router (cisco-csr-1000v)
-
 
 ## Prerequisites
 

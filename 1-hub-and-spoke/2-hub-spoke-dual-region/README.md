@@ -2,23 +2,22 @@
 
 ## Overview
 
-This terraform code deploys a multi-region hub and spoke topology playground to observe dynamic routing with Azure Route Server (ARS) and a Network Virtual Appiance (NVA).
+This terraform code deploys a multi-region standard hub and spoke topology playground.
+
+`Hub1` has an Azure Route Server (ARS) with BGP session to a Network Virtual Appliance (NVA) using a Cisco-CSR-100V router. The direct spokes `Spoke1` and `Spoke2` have VNET peering to `Hub1`. An isolated `Spoke3` does not have VNET peering to the ``Hub1, but is reachable from the hub via Private Link Service.
+
+`Hub2` has an ARS with BGP session to an NVA using a Cisco-CSR-100V router. The direct spokes `Spoke4` and `Spoke5` have VNET peering to `Hub2`. An isolated `Spoke6` does not have VNET peering to the `Hub2`, but is reachable from the hub via Private Link Service.
+
+The hubs are connected together via IPsec VPN and BGP dynamic routing to allow multi-region network reachability.
+
+`Branch1` and `Branch3`are the on-premises networks which are simulated in VNETs using multi-NIC Cisco-CSR-100V NVA appliances.
 
 ![Hub and Spoke (Dual region)](../../images/hub-spoke-dual-region.png)
 
-VNET hubs:
- - `Hub1` (region1) with ARS and NVA (cisco-csr-1000v)
- - `Hub2` (region2) with ARS and NVA (cisco-csr-1000v)
+### Recommended additional reading
 
- Spokes:
- - Direct spokes `Spoke1`, `Spoke2` (region1) with VNET peering to the `Hub1`
- - Direct spokes `Spoke4`, `Spoke5` (region2) with VNET peering to the `Hub2`
- - Isolated `Spoke3` (region1) reachable from `Hub1` via Private Link Service
- - Isolated `Spoke6` (region2) reachable from `Hub2` via Private Link Service
-
- Onprem:
- - `Branch1` (region1) simulated in a VNET with a router (cisco-csr-1000v)
- - `Branch3` (region2) simulated in a VNET with a router (cisco-csr-1000v)
+1. [DIY vWAN: double Hub VNET and Azure Route Server](https://github.com/cynthiatreger/double-hub-vnet-and-ars) by [Cynthia Treger](https://github.com/cynthiatreger)
+2. [Routing through Network Virtual Appliances with Azure Private Link](https://github.com/mddazure/azure-privatelink-routing) by [Marc De Droog](https://github.com/mddazure)
 
 ## Prerequisites
 
