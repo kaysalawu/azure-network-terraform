@@ -27,7 +27,7 @@ git clone https://github.com/kaysalawu/azure-network-terraform.git
 
 2. Change to the lab directory
 ```sh
-cd ~/azure-network-terraform/2-virtual-wan/1-virtual-wan-single-hub
+cd azure-network-terraform/2-virtual-wan/1-virtual-wan-single-hub
 ```
 
 ## Deploy the Lab
@@ -39,14 +39,20 @@ terraform plan
 terraform apply
 ```
 
+## Troubleshooting
+
+See the [troubleshooting](../../troubleshooting/) section for tips on how to resolve common issues that may occur during the deployment of the lab.
+
 ## Cleanup
 
-Delete the resource group to remove all resources installed. Run the following Azure CLI command:
-
+1. Change to the lab directory
 ```sh
-az group delete --name VwanS1RG --yes --no-wait
+cd azure-network-terraform/2-virtual-wan/1-virtual-wan-single-hub
 ```
 
-## [Troubleshooting](../../troubleshooting/)
+2. Delete the resource group to remove all resources installed.\
+Run the following Azure CLI command:
 
-Go to the [troubleshooting](../../troubleshooting/) section for tips on how to resolve common issues that may occur during the deployment of the lab.
+```sh
+az group delete -g VwanS1RG --no-wait
+```

@@ -33,7 +33,7 @@ git clone https://github.com/kaysalawu/azure-network-terraform.git
 
 2. Change to the lab directory
 ```sh
-cd ~/azure-network-terraform/1-hub-and-spoke/2-hub-spoke-dual-region
+cd azure-network-terraform/1-hub-and-spoke/2-hub-spoke-dual-region
 ```
 
 ## Deploy the Lab
@@ -45,14 +45,20 @@ terraform plan
 terraform apply
 ```
 
+## Troubleshooting
+
+See the [troubleshooting](../../troubleshooting/) section for tips on how to resolve common issues that may occur during the deployment of the lab.
+
 ## Cleanup
 
-Delete the resource group to remove all resources installed. Run the following Azure CLI command:
-
+1. Change to the lab directory
 ```sh
-az group delete --name HubSpokeS2RG --yes --no-wait
+cd azure-network-terraform/1-hub-and-spoke/2-hub-spoke-dual-region
 ```
 
-## [Troubleshooting](../../troubleshooting/)
+2. Delete the resource group to remove all resources installed.\
+Run the following Azure CLI command:
 
-Go to the [troubleshooting](../../troubleshooting/) section for tips on how to resolve common issues that may occur during the deployment of the lab.
+```sh
+az group delete -g HubSpokeS2RG --no-wait
+```
