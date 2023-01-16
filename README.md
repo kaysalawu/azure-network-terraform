@@ -28,7 +28,6 @@ This [terraform code](./1-hub-and-spoke/2-hub-spoke-dual-region/) deploys a mult
 
 ## [2.1. Virtual WAN (Single Hub)](./2-virtual-wan/1-virtual-wan-single-hub/)
 This [terraform code](./2-virtual-wan/1-virtual-wan-single-hub/) deploys a virtual WAN architecture playground to observe dynamic routing patterns. In this architecture, we integrate a standard hub `hub1` to the virtual WAN hub `vHub1` via a connection.
-<br/>
 ![Virtual WAN (Single Hub)](./images/vwan-single-hub.png)
 
 ## [2.2. Virtual WAN (Dual Hub)](./2-virtual-wan/2-virtual-wan-dual-hub/)

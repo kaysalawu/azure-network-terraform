@@ -3,21 +3,15 @@
 
 ## Overview
 
-This terraform code deploys a virtual WAN architecture playground to observe dynamic routing patterns. In this architecture, we integrate a standard hub `hub1` to the virtual WAN hub `vHub1` via a connection.
+This terraform code deploys a virtual WAN architecture playground to observe dynamic routing patterns. 
+
+In this architecture, we integrate a standard hub (`hub1`) to the virtual WAN hub (`vHub1`) via a virtual WAN connection. `vHub1` has a direct spoke (`Spoke1`) connected using a virtual WAN connection. `Spoke2` is an indirect spoke from a virtual WAN perspective; and is connected via standard VNET peering to `Hub1`. 
+
+The isolated spoke (`Spoke3`) does not have VNET peering to the `Hub1`, but is reachable via Private Link Service through a private endpoint in `Hub1`.
+
+`Branch1` is the on-premises network which is simulated in a VNET using a multi-NIC Cisco-CSR-100V NVA appliance.
 
 ![Virtual WAN (Single Hub)](../../images/vwan-single-hub.png)
-
-VNET hubs:
- - `Hub1` (region1) connected to `vHub1` via VWAN VNET connection
-
- Spokes:
- - Direct spoke `Spoke1` (region1) connected to VWAN hub `vHub1`
- - Indirect spoke `Spoke2` (region1) with VNET peering to the `Hub1`
- - Isolated `Spoke3` (region1) reachable from `Hub1` via Private Link Service
-
- Onprem branches:
- - `Branch1` (region1) simulated in a VNET with a router (cisco-csr-1000v)
-
 
 ## Prerequisites
 

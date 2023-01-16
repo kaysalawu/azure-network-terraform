@@ -4,17 +4,16 @@
 
 This terraform code deploys a hub and spoke topology playground to observe dynamic routing with Azure Route Server (ARS) and a Network Virtual Appiance (NVA).
 
+`Hub1` ARS with BGP session to a Network Virtual Appliance (NVA) using a Cisco-CSR-100V router. The direct spokes `Spoke1` and `Spoke2` have VNET peering to `Hub1`. An isolated `Spoke3` does not have VNET peering to the hub, but is reachable from `Hub1` via Private Link Service.
+ 
+`Branch1` is the on-premises network which is simulated in a VNET using a multi-NIC Cisco-CSR-100V NVA appliance. 
+
 ![Hub and Spoke (Single region)](../../images/hub-spoke-single-region.png)
 
-VNET Hub:
- - `Hub1` (region1) with ARS and NVA (cisco-csr-1000v)
+### Recommended additional reading
 
- Spokes:
- - Direct spokes `Spoke1`, `Spoke2` (region1) with VNET peering to the `Hub1`
- - Isolated `Spoke3` (region1) reachable from `Hub1` via Private Link Service
+1. [Routing through Network Virtual Appliances with Azure Private Link](https://github.com/mddazure/azure-privatelink-routing) by [Marc De Droog](https://github.com/mddazure)
 
- Onprem:
- - `Branch1` (region1) simulated in a VNET with a router (cisco-csr-1000v)
 
 ## Prerequisites
 

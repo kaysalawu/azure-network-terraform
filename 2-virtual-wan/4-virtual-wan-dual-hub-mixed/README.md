@@ -3,27 +3,17 @@
 
 ## Overview
 
-This terraform code deploys a multi-hub (multi-region) virtual WAN architecture playground to observe dynamic routing patterns. In this architecture, we integrate the standard hub `hub1` to the virtual WAN hub `vHub1` via a connection. And we integrate the standard hub `hub2` to the virtual WAN hub `vHub2` via a VPN connection.
+This terraform code deploys a multi-hub (multi-region) virtual WAN architecture playground to observe dynamic routing patterns.
 
-This terraform code deploys a virtual WAN architecture playground that demonstrates dynamic routing patterns. Virtual WAN hub `vHub1` depicts the standard patterns for connecting direct and indirect VNET spokes to the virtual hub. Virtual WAN hub `vHub2` depicts a scenario where we integrate a standard Hub to the virtual WAN hub via VPN.
+For one region, we integrate the standard hub (`hub1`) to the virtual WAN hub (`vHub1`) via a virtual WAN connection. `vHub1` has a direct spoke (`Spoke1`) connected via a virtual WAN connection. `Spoke2` is an indirect spoke from a virtual WAN perspective; and is connected via standard VNET peering to `Hub1`. 
+
+For the second region, we integrate the standard hub (`hub2`) to the virtual WAN hub (`vHub2`) via an IPsec VPN connection. `vHub2` has a direct spoke (`Spoke4`) connected via a virtual WAN connection. `Spoke5` is an indirect spoke from a virtual WAN perspective; and is connected via standard VNET peering to `Hub2`. 
+
+The isolated spokes (`Spoke3` and `Spoke6`) do not have VNET peering to their respective hubs (`Hub1` and `Hub2`), but are reachable via Private Link Service through a private endpoint in each hub.
+
+`Branch1` and `Branch3`are the on-premises networks which are simulated in VNETs using multi-NIC Cisco-CSR-100V NVA appliances.
 
 ![Virtual WAN (Dual Hub)](../../images/vwan-dual-hub-mixed.png)
-
-VNET hubs:
- - `Hub1` (region1) connected to `vHub1` via virtual WAN VNET connection
- - `Hub2` (region2) is a branch connected to `vHub2` via IPsec VPN
-
- Spokes:
- - Direct spoke `Spoke1` (region1) connected to VWAN hub `vHub1`
- - Direct spoke `Spoke4` (region2) connected to VWAN hub `vHub2`
- - Indirect spoke `Spoke2` (region1) with VNET peering to the `Hub1`
- - Indirect spoke `Spoke5` (region2) with VNET peering to the `Hub2`
- - Isolated `Spoke3` (region1) reachable from `Hub1` via Private Link Service
- - Isolated `Spoke6` (region2) reachable from `Hub2` via Private Link Service
-
- Onprem branches:
- - `Branch1` (region1) simulated in a VNET with a router (cisco-csr-1000v)
- - `Branch3` (region2) simulated in a VNET with a router (cisco-csr-1000v)
 
 ## Prerequisites
 
