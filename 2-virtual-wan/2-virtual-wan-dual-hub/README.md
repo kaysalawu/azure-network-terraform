@@ -13,7 +13,7 @@ The isolated spokes (`Spoke3` and `Spoke6`) do not have VNET peering to their re
 
 ![Virtual WAN (Single Hub)](../../images/vwan-dual-hub.png)
 
-## Prerequisites
+## Lab Prerequisites
 
 Ensure you meet all requirements in the [prerequisites](../../prerequisites/) before proceeding.
 

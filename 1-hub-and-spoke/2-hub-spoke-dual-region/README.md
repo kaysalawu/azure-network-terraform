@@ -19,7 +19,7 @@ The hubs are connected together via IPsec VPN and BGP dynamic routing to allow m
 1. [DIY vWAN: double Hub VNET and Azure Route Server](https://github.com/cynthiatreger/double-hub-vnet-and-ars) by [Cynthia Treger](https://github.com/cynthiatreger)
 2. [Routing through Network Virtual Appliances with Azure Private Link](https://github.com/mddazure/azure-privatelink-routing) by [Marc De Droog](https://github.com/mddazure)
 
-## Prerequisites
+## Lab Prerequisites
 
 Ensure you meet all requirements in the [prerequisites](../../prerequisites/) before proceeding.
 

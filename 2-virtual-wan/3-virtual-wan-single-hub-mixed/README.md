@@ -13,7 +13,7 @@ The isolated spoke (`Spoke6`) does not have VNET peering to the `Hub2`, but is r
 
 ![Virtual WAN - Single Hub (Mixed)](../../images/vwan-single-hub-mixed.png)
 
-## Prerequisites
+## Lab Prerequisites
 
 Ensure you meet all requirements in the [prerequisites](../../prerequisites/) before proceeding.
 

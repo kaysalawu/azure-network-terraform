@@ -15,7 +15,7 @@ This terraform code deploys a hub and spoke topology playground to observe dynam
 1. [Routing through Network Virtual Appliances with Azure Private Link](https://github.com/mddazure/azure-privatelink-routing) by [Marc De Droog](https://github.com/mddazure)
 
 
-## Prerequisites
+## Lab Prerequisites
 
 Ensure you meet all requirements in the [prerequisites](../../prerequisites/) before proceeding.
 
