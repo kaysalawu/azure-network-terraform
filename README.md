@@ -1,6 +1,7 @@
 
 # Azure Network Topology - Terraform Examples
 
+## Table of Contents
 <!-- TOC -->
 - [1. Hub and Spoke](#1-hub-and-spoke)
     - [1.1. Hub and Spoke (Single Region)](#1-1-hub-spoke-single-region)
@@ -41,6 +42,7 @@ This [terraform code](./2-virtual-wan/3-virtual-wan-single-hub-mixed/) deploys a
 ### [2.4. Virtual WAN (Dual Hub - Mixed)](./2-virtual-wan/4-virtual-wan-dual-hub-mixed/)
 This [terraform code](./2-virtual-wan/4-virtual-wan-dual-hub-mixed/) deploys a multi-hub (multi-region) virtual WAN architecture playground to observe dynamic routing patterns. In this architecture, we integrate the standard hub `hub1` to the virtual WAN hub `vHub1` via a connection. And we integrate the standard hub `hub2` to the virtual WAN hub `vHub2` via a VPN connection.
 ![Virtual WAN (Dual Hub)](./images/vwan-dual-hub-mixed.png)
+
 ## [3. Virtual Network Manager](./3-virtual-network-manager/)
 
 ## [4. General](./4-general/)
