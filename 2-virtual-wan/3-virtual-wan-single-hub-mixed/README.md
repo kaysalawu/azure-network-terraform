@@ -15,9 +15,7 @@ The isolated spoke (`Spoke6`) does not have VNET peering to the `Hub2`, but is r
 
 ## Prerequisites
 
-1. Ensure that you have setup [Azure Cloud Shell](https://learn.microsoft.com/en-us/azure/cloud-shell/overview) environment.
-2. (Optional) If you prefer to run the code on a local terminal, ensure that you have installed and configured [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) and [Terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli), and ignore step 3.
-3. Launch a `Cloud Shell` terminal to be used for the remaining steps.
+Ensure you meet all requirements in the [prerequisites](../../prerequisites/) before proceeding.
 
 ## Clone the Lab
 

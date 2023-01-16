@@ -21,7 +21,7 @@ This [terraform code](./1-hub-and-spoke/1-hub-spoke-single-region/) deploys a hu
 ![Hub and Spoke (Single Region)](./images/hub-spoke-single-region.png)
 
 ## [1.2. Hub and Spoke (Dual Region)](./1-hub-and-spoke/2-hub-spoke-dual-region/)
-This [terraform code](./1-hub-and-spoke/2-hub-spoke-dual-region/) deploys a multi-region hub and spoke topology playground to observe dynamic routing with Azure Route Server (ARS) and a Network Virtual Appiance (NVA).
+This [terraform code](./1-hub-and-spoke/2-hub-spoke-dual-region/) deploys a multi-region hub and spoke topology playground to observe dynamic routing with Azure Route Server (ARS) and Network Virtual Appiances (NVA).
 ![Hub and Spoke (Dual Region)](./images/hub-spoke-dual-region.png)
 
 # [2. Virtual WAN](./2-virtual-wan/)
