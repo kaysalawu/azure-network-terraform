@@ -10,9 +10,10 @@ This terraform code deploys a hub and spoke topology playground to observe dynam
 
 ![Hub and Spoke (Single region)](../../images/hub-spoke-single-region.png)
 
-### Recommended additional reading
+### Recommended reading
 
 1. [Routing through Network Virtual Appliances with Azure Private Link](https://github.com/mddazure/azure-privatelink-routing) by [Marc De Droog](https://github.com/mddazure)
+2. [Lab: High Available NVAs with Azure Route Server](https://github.com/dmauser/azure-routeserver/tree/main/ars-nhip#lab-high-available-nvas-with-azure-route-server)
 
 
 ## Lab Prerequisites
@@ -35,7 +36,7 @@ cd azure-network-terraform/1-hub-and-spoke/1-hub-spoke-single-region
 ## Deploy the Lab
 
 To deploy the lab run the following terraform commands and type **yes** at the prompt:
-```sh
+```hcl
 terraform init
 terraform plan
 terraform apply

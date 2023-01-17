@@ -15,6 +15,11 @@ The isolated spokes (`Spoke3` and `Spoke6`) do not have VNET peering to their re
 
 ![Virtual WAN (Dual Hub)](../../images/vwan-dual-hub-mixed.png)
 
+### Recommended reading
+
+1. [Routing through Network Virtual Appliances with Azure Private Link](https://github.com/mddazure/azure-privatelink-routing) by [Marc De Droog](https://github.com/mddazure)
+2. [Lab: High Available NVAs with Azure Route Server](https://github.com/dmauser/azure-routeserver/tree/main/ars-nhip#lab-high-available-nvas-with-azure-route-server)
+
 ## Lab Prerequisites
 
 Ensure you meet all requirements in the [prerequisites](../../prerequisites/) before proceeding.

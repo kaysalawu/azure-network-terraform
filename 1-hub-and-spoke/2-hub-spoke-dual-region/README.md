@@ -14,10 +14,11 @@ The hubs are connected together via IPsec VPN and BGP dynamic routing to allow m
 
 ![Hub and Spoke (Dual region)](../../images/hub-spoke-dual-region.png)
 
-### Recommended additional reading
+### Recommended reading
 
 1. [DIY vWAN: double Hub VNET and Azure Route Server](https://github.com/cynthiatreger/double-hub-vnet-and-ars) by [Cynthia Treger](https://github.com/cynthiatreger)
 2. [Routing through Network Virtual Appliances with Azure Private Link](https://github.com/mddazure/azure-privatelink-routing) by [Marc De Droog](https://github.com/mddazure)
+3. [Lab: High Available NVAs with Azure Route Server](https://github.com/dmauser/azure-routeserver/tree/main/ars-nhip#lab-high-available-nvas-with-azure-route-server)
 
 ## Lab Prerequisites
 
