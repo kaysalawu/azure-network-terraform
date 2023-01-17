@@ -13,11 +13,14 @@ The isolated spoke (`Spoke3`) does not have VNET peering to the `Hub1`, but is r
 
 ![Virtual WAN (Single Hub)](../../images/vwan-single-hub.png)
 
-## Prerequisites
+### Recommended reading
 
-1. Ensure that you have setup [Azure Cloud Shell](https://learn.microsoft.com/en-us/azure/cloud-shell/overview) environment.
-2. (Optional) If you prefer to run the code on a local terminal, ensure that you have installed and configured [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) and [Terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli), and ignore step 3.
-3. Launch a `Cloud Shell` terminal to be used for the remaining steps.
+1. [Routing through Network Virtual Appliances with Azure Private Link](https://github.com/mddazure/azure-privatelink-routing) by [Marc De Droog](https://github.com/mddazure)
+2. [Lab: High Available NVAs with Azure Route Server](https://github.com/dmauser/azure-routeserver/tree/main/ars-nhip#lab-high-available-nvas-with-azure-route-server)
+
+## Lab Prerequisites
+
+Ensure you meet all requirements in the [prerequisites](../../prerequisites/) before proceeding.
 
 ## Clone the Lab
 
@@ -29,7 +32,7 @@ git clone https://github.com/kaysalawu/azure-network-terraform.git
 
 2. Change to the lab directory
 ```sh
-cd ~/azure-network-terraform/2-virtual-wan/1-virtual-wan-single-hub
+cd azure-network-terraform/2-virtual-wan/1-virtual-wan-single-hub
 ```
 
 ## Deploy the Lab
@@ -41,14 +44,20 @@ terraform plan
 terraform apply
 ```
 
+## Troubleshooting
+
+See the [troubleshooting](../../troubleshooting/) section for tips on how to resolve common issues that may occur during the deployment of the lab.
+
 ## Cleanup
 
-Delete the resource group to remove all resources installed. Run the following Azure CLI command:
-
+1. Change to the lab directory
 ```sh
-az group delete --name VwanS1RG --yes --no-wait
+cd azure-network-terraform/2-virtual-wan/1-virtual-wan-single-hub
 ```
 
-## [Troubleshooting](../../troubleshooting/)
+2. Delete the resource group to remove all resources installed.\
+Run the following Azure CLI command:
 
-Go to the [troubleshooting](../../troubleshooting/) section for tips on how to resolve common issues that may occur during the deployment of the lab.
+```sh
+az group delete -g VwanS1RG --no-wait
+```
