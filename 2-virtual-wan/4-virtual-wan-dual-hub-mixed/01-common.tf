@@ -76,19 +76,19 @@ resource "azurerm_network_security_rule" "nsg_region1_main_inbound_allow_all" {
   description                 = "Inbound Allow RFC1918"
 }
 
-resource "azurerm_network_security_rule" "nsg_region1_main_inbound_allow_tcp_mypip" {
+resource "azurerm_network_security_rule" "nsg_region1_main_inbound_allow_web_external" {
   resource_group_name         = azurerm_resource_group.rg.name
   network_security_group_name = azurerm_network_security_group.nsg_region1_main.name
-  name                        = "inbound-allow-tcp-mypip"
+  name                        = "inbound-allow-web-external"
   direction                   = "Inbound"
   access                      = "Allow"
   priority                    = 110
-  source_address_prefix       = local.mypip
+  source_address_prefix       = "0.0.0.0/0"
   source_port_range           = "*"
-  destination_address_prefix  = "*"
-  destination_port_range      = "*"
+  destination_address_prefix  = "VirtualNetwork"
+  destination_port_ranges     = ["80", "8080", "443"]
   protocol                    = "Tcp"
-  description                 = "Allow inbound SSH"
+  description                 = "Allow inbound web traffic"
 }
 
 resource "azurerm_network_security_rule" "nsg_region1_main_outbound_allow_rfc1918" {
@@ -182,7 +182,7 @@ resource "azurerm_network_security_group" "nsg_region1_appgw" {
   location            = local.region1
 }
 
-resource "azurerm_network_security_rule" "nsg_region1_nva_inbound_allow_appgw_v2sku" {
+resource "azurerm_network_security_rule" "nsg_region1_appgw_inbound_allow_appgw_v2sku" {
   resource_group_name         = azurerm_resource_group.rg.name
   network_security_group_name = azurerm_network_security_group.nsg_region1_appgw.name
   name                        = "inbound-allow-appgw-v2sku"
@@ -195,6 +195,21 @@ resource "azurerm_network_security_rule" "nsg_region1_nva_inbound_allow_appgw_v2
   destination_port_range      = "65200-65535"
   protocol                    = "*"
   description                 = "Allow Inbound Azure infrastructure communication"
+}
+
+resource "azurerm_network_security_rule" "nsg_region1_appgw_inbound_allow_web_external" {
+  resource_group_name         = azurerm_resource_group.rg.name
+  network_security_group_name = azurerm_network_security_group.nsg_region1_appgw.name
+  name                        = "inbound-allow-web-external"
+  direction                   = "Inbound"
+  access                      = "Allow"
+  priority                    = 110
+  source_address_prefix       = "0.0.0.0/0"
+  source_port_range           = "*"
+  destination_address_prefix  = "VirtualNetwork"
+  destination_port_ranges     = ["80", "8080", "443"]
+  protocol                    = "Tcp"
+  description                 = "Allow inbound web traffic"
 }
 
 # default
@@ -216,10 +231,10 @@ resource "azurerm_network_security_group" "nsg_region2_main" {
   location            = local.region2
 }
 
-resource "azurerm_network_security_rule" "nsg_region2_main_inbound_allow_rfc1918" {
+resource "azurerm_network_security_rule" "nsg_region2_main_inbound_allow_all" {
   resource_group_name         = azurerm_resource_group.rg.name
   network_security_group_name = azurerm_network_security_group.nsg_region2_main.name
-  name                        = "inbound-allow-rfc1918"
+  name                        = "inbound-allow-all"
   direction                   = "Inbound"
   access                      = "Allow"
   priority                    = 100
@@ -229,6 +244,21 @@ resource "azurerm_network_security_rule" "nsg_region2_main_inbound_allow_rfc1918
   destination_port_range      = "*"
   protocol                    = "*"
   description                 = "Inbound Allow RFC1918"
+}
+
+resource "azurerm_network_security_rule" "nsg_region2_main_inbound_allow_web_external" {
+  resource_group_name         = azurerm_resource_group.rg.name
+  network_security_group_name = azurerm_network_security_group.nsg_region2_main.name
+  name                        = "inbound-allow-web-external"
+  direction                   = "Inbound"
+  access                      = "Allow"
+  priority                    = 110
+  source_address_prefix       = "0.0.0.0/0"
+  source_port_range           = "*"
+  destination_address_prefix  = "VirtualNetwork"
+  destination_port_ranges     = ["80", "8080", "443"]
+  protocol                    = "Tcp"
+  description                 = "Allow inbound web traffic"
 }
 
 resource "azurerm_network_security_rule" "nsg_region2_main_outbound_allow_rfc1918" {
@@ -270,18 +300,18 @@ resource "azurerm_network_security_rule" "nsg_region2_nva_inbound_allow_rfc1918"
 }
 
 resource "azurerm_network_security_rule" "nsg_region2_nva_outbound_allow_rfc1918" {
-  resource_group_name         = azurerm_resource_group.rg.name
-  network_security_group_name = azurerm_network_security_group.nsg_region2_nva.name
-  name                        = "outbound-allow-rfc1918"
-  direction                   = "Outbound"
-  access                      = "Allow"
-  priority                    = 100
-  source_address_prefixes     = local.rfc1918_prefixes
-  source_port_range           = "*"
-  destination_address_prefix  = "*"
-  destination_port_range      = "*"
-  protocol                    = "*"
-  description                 = "Outbound Allow RFC1918"
+  resource_group_name          = azurerm_resource_group.rg.name
+  network_security_group_name  = azurerm_network_security_group.nsg_region2_nva.name
+  name                         = "outbound-allow-rfc1918"
+  direction                    = "Outbound"
+  access                       = "Allow"
+  priority                     = 100
+  source_address_prefix        = "*"
+  source_port_range            = "*"
+  destination_address_prefixes = local.rfc1918_prefixes
+  destination_port_range       = "*"
+  protocol                     = "*"
+  description                  = "Outbound Allow RFC1918"
 }
 
 resource "azurerm_network_security_rule" "nsg_region2_nva_inbound_allow_ipsec" {
@@ -322,7 +352,7 @@ resource "azurerm_network_security_group" "nsg_region2_appgw" {
   location            = local.region2
 }
 
-resource "azurerm_network_security_rule" "nsg_region2_nva_inbound_allow_appgw_v2sku" {
+resource "azurerm_network_security_rule" "nsg_region2_appgw_inbound_allow_appgw_v2sku" {
   resource_group_name         = azurerm_resource_group.rg.name
   network_security_group_name = azurerm_network_security_group.nsg_region2_appgw.name
   name                        = "inbound-allow-appgw-v2sku"
@@ -335,6 +365,21 @@ resource "azurerm_network_security_rule" "nsg_region2_nva_inbound_allow_appgw_v2
   destination_port_range      = "65200-65535"
   protocol                    = "*"
   description                 = "Allow Inbound Azure infrastructure communication"
+}
+
+resource "azurerm_network_security_rule" "nsg_region2_appgw_inbound_allow_web_external" {
+  resource_group_name         = azurerm_resource_group.rg.name
+  network_security_group_name = azurerm_network_security_group.nsg_region2_appgw.name
+  name                        = "inbound-allow-web-external"
+  direction                   = "Inbound"
+  access                      = "Allow"
+  priority                    = 110
+  source_address_prefix       = "0.0.0.0/0"
+  source_port_range           = "*"
+  destination_address_prefix  = "VirtualNetwork"
+  destination_port_ranges     = ["80", "8080", "443"]
+  protocol                    = "Tcp"
+  description                 = "Allow inbound web traffic"
 }
 
 # default
