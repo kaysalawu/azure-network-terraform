@@ -87,7 +87,7 @@ locals {
 resource "azurerm_public_ip" "branch1_nva_pip" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = "${local.branch1_prefix}nva-pip"
-  location            = local.region1
+  location            = local.branch1_location
   sku                 = "Standard"
   allocation_method   = "Static"
 }
