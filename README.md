@@ -1,10 +1,9 @@
 
 # Azure Network Topology - Terraform Examples
 
-## Table of Contents
+Table of Contents
 <!-- TOC -->
 - [Azure Network Topology - Terraform Examples](#azure-network-topology---terraform-examples)
-  - [Table of Contents](#table-of-contents)
   - [1. Hub and Spoke](#1-hub-and-spoke)
     - [1.1. Hub and Spoke (Single Region)](#11-hub-and-spoke-single-region)
     - [1.2. Hub and Spoke (Dual Region)](#12-hub-and-spoke-dual-region)
