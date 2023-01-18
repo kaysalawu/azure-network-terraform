@@ -297,5 +297,6 @@ variable "tags" {
 variable "public_ip_address_id" {
   description = "Public IP address of application gateway"
   type        = string
+  default     = ""
 }
 

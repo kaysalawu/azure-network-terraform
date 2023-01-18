@@ -451,7 +451,7 @@ resource "azurerm_application_gateway" "main" {
 resource "azurerm_monitor_diagnostic_setting" "pip-diag" {
   count                      = var.log_analytics_workspace_name != null || var.storage_account_name != null ? 1 : 0
   name                       = lower("pip-${var.app_gateway_name}-diag")
-  target_resource_id         = var.public_ip_address_id
+  target_resource_id         = azurerm_public_ip.pip.id
   storage_account_id         = var.storage_account_name != null ? data.azurerm_storage_account.storeacc.0.id : null
   log_analytics_workspace_id = data.azurerm_log_analytics_workspace.logws.0.id
 
