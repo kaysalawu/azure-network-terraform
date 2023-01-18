@@ -11,7 +11,7 @@ The isolated spoke (`Spoke6`) does not have VNET peering to the `Hub2`, but is r
 
 `Branch3` is the on-premises network which is simulated in a VNET using a multi-NIC Cisco-CSR-100V NVA appliance.
 
-![Virtual WAN - Single Hub (Mixed)](../../images/vwan-single-hub-mixed.png)
+![Virtual WAN - Single Hub (VPN)](../../images/vwan-single-hub-vpn.png)
 
 ### Recommended reading
 
@@ -32,7 +32,7 @@ git clone https://github.com/kaysalawu/azure-network-terraform.git
 
 2. Change to the lab directory
 ```sh
-cd azure-network-terraform/2-virtual-wan/3-virtual-wan-single-hub-mixed
+cd azure-network-terraform/2-virtual-wan/3-virtual-wan-single-hub-vpn
 ```
 
 ## Deploy the Lab
@@ -52,7 +52,7 @@ See the [troubleshooting](../../troubleshooting/) section for tips on how to res
 
 1. Change to the lab directory
 ```sh
-cd azure-network-terraform/2-virtual-wan/3-virtual-wan-single-hub-mixed
+cd azure-network-terraform/2-virtual-wan/3-virtual-wan-single-hub-vpn
 ```
 
 2. Delete the resource group to remove all resources installed.\

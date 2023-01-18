@@ -1,5 +1,5 @@
 
-# Virtual WAN - Single Hub (Mixed)
+# Virtual WAN - Single Hub
 
 ## Overview
 
@@ -11,7 +11,7 @@ The isolated spoke (`Spoke3`) does not have VNET peering to the `Hub1`, but is r
 
 `Branch1` is the on-premises network which is simulated in a VNET using a multi-NIC Cisco-CSR-100V NVA appliance.
 
-![Virtual WAN (Single Hub)](../../images/vwan-single-hub.png)
+![Virtual WAN - Single Hub](../../images/vwan-single-hub.png)
 
 ### Recommended reading
 
