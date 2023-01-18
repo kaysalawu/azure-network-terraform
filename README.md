@@ -1,19 +1,17 @@
 
-# Azure Network Topology - Terraform Examples
+**Azure Network Topology - Terraform Examples**
 
-Table of Contents
 <!-- TOC -->
-- [Azure Network Topology - Terraform Examples](#azure-network-topology---terraform-examples)
-  - [1. Hub and Spoke](#1-hub-and-spoke)
-    - [1.1. Hub and Spoke (Single Region)](#11-hub-and-spoke-single-region)
-    - [1.2. Hub and Spoke (Dual Region)](#12-hub-and-spoke-dual-region)
-  - [2. Virtual WAN](#2-virtual-wan)
-    - [2.1. Virtual WAN (Single Hub)](#21-virtual-wan-single-hub)
-    - [2.2. Virtual WAN (Dual Hub)](#22-virtual-wan-dual-hub)
-    - [2.3. Virtual WAN (Single Hub - Mixed)](#23-virtual-wan-single-hub---mixed)
-    - [2.4. Virtual WAN (Dual Hub - Mixed)](#24-virtual-wan-dual-hub---mixed)
-  - [3. Virtual Network Manager](#3-virtual-network-manager)
-  - [4. General](#4-general)
+- [1. Hub and Spoke](#1-hub-and-spoke)
+  - [1.1. Hub and Spoke (Single Region)](#11-hub-and-spoke-single-region)
+  - [1.2. Hub and Spoke (Dual Region)](#12-hub-and-spoke-dual-region)
+- [2. Virtual WAN](#2-virtual-wan)
+  - [2.1. Virtual WAN (Single Hub)](#21-virtual-wan-single-hub)
+  - [2.2. Virtual WAN (Dual Hub)](#22-virtual-wan-dual-hub)
+  - [2.3. Virtual WAN (Single Hub - Mixed)](#23-virtual-wan-single-hub---mixed)
+  - [2.4. Virtual WAN (Dual Hub - Mixed)](#24-virtual-wan-dual-hub---mixed)
+- [3. Virtual Network Manager](#3-virtual-network-manager)
+- [4. General](#4-general)
 <!-- /TOC -->
 
 ## [1. Hub and Spoke](./1-hub-and-spoke/)
