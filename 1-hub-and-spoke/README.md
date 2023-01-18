@@ -1,11 +1,10 @@
 
-# Hub and Spoke
+# Hub and Spoke <!-- omit from toc -->
 
 Table of Contents
 <!-- TOC -->
-- [Hub and Spoke](#hub-and-spoke)
-  - [1. Hub and Spoke (Single Region)](#1-hub-and-spoke-single-region)
-  - [2. Hub and Spoke (Dual Region)](#2-hub-and-spoke-dual-region)
+- [1. Hub and Spoke (Single Region)](#1-hub-and-spoke-single-region)
+- [2. Hub and Spoke (Dual Region)](#2-hub-and-spoke-dual-region)
 <!-- /TOC -->
 
 The terraform codes in this collection cover different hub and spoke network patterns using standard VNET solutions.
