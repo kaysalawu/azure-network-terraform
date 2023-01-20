@@ -1,4 +1,5 @@
-rg=BXRG
+rg=$1
+echo -e "\nResource group: $rg\n"
 
 for vhubname in `az network vhub list -g $rg --query "[].id" -o tsv | rev | cut -d'/' -f1 | rev`
 do

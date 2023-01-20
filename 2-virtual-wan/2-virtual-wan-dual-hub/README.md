@@ -1,5 +1,13 @@
 
-# Virtual WAN - Dual Hub
+# Virtual WAN - Dual Hub <!-- omit from toc -->
+
+Table of Contents
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+- [Deploy the Lab](#deploy-the-lab)
+- [Troubleshooting](#troubleshooting)
+- [Testing](#testing)
+- [Cleanup](#cleanup)
 
 ## Overview
 
@@ -13,31 +21,23 @@ The isolated spokes (`Spoke3` and `Spoke6`) do not have VNET peering to their re
 
 ![Virtual WAN - Dual Hub](../../images/vwan-dual-hub.png)
 
-### Recommended reading
-
-1. [Routing through Network Virtual Appliances with Azure Private Link](https://github.com/mddazure/azure-privatelink-routing) by [Marc De Droog](https://github.com/mddazure)
-2. [Lab: High Available NVAs with Azure Route Server](https://github.com/dmauser/azure-routeserver/tree/main/ars-nhip#lab-high-available-nvas-with-azure-route-server)
-
-## Lab Prerequisites
+## Prerequisites
 
 Ensure you meet all requirements in the [prerequisites](../../prerequisites/) before proceeding.
 
-## Clone the Lab
+## Deploy the Lab
 
-Open a Cloud Shell terminal and run the following command:
 1. Clone the Git Repository for the Labs
 ```sh
 git clone https://github.com/kaysalawu/azure-network-terraform.git
 ```
 
-2. Change to the lab directory
+2. Navigate to the lab directory
 ```sh
 cd azure-network-terraform/2-virtual-wan/2-virtual-wan-dual-hub
 ```
 
-## Deploy the Lab
-
-To deploy the lab run the following terraform commands and type **yes** at the prompt:
+3. Run the following terraform commands and type **yes** at the prompt:
 ```sh
 terraform init
 terraform plan
@@ -48,9 +48,11 @@ terraform apply
 
 See the [troubleshooting](../../troubleshooting/) section for tips on how to resolve common issues that may occur during the deployment of the lab.
 
+## Testing
+
 ## Cleanup
 
-1. Change to the lab directory
+1. Navigate to the lab directory
 ```sh
 cd azure-network-terraform/2-virtual-wan/2-virtual-wan-dual-hub
 ```

@@ -1,5 +1,5 @@
 
-# Virtual WAN - Single Hub (Mixed) <!-- omit from toc -->
+# Secure Virtual WAN - Single Hub <!-- omit from toc -->
 
 Table of Contents- [Overview](#overview)
 - [Overview](#overview)
@@ -13,13 +13,13 @@ Table of Contents- [Overview](#overview)
 
 This terraform code deploys a virtual WAN architecture playground to observe dynamic routing patterns. 
 
-In this architecture, we integrate a standard hub (`hub2`) to the virtual WAN hub (`vHub2`) via an IPsec VPN connection. `vHub2` has a direct spoke (`Spoke4`) connected using a virtual WAN connection. `Spoke5` is an indirect spoke from a virtual WAN perspective; and is connected via standard VNET peering to `Hub2`. 
+In this architecture, we integrate a standard hub (`hub1`) to the secure virtual WAN hub (`vHub1`) via a virtual WAN connection. `vHub1` has a direct spoke (`Spoke1`) connected using a virtual WAN connection. `Spoke2` is an indirect spoke from a virtual WAN perspective; and is connected via standard VNET peering to `Hub1`. 
 
-The isolated spoke (`Spoke6`) does not have VNET peering to the `Hub2`, but is reachable via Private Link Service through a private endpoint in `Hub2`.
+The isolated spoke (`Spoke3`) does not have VNET peering to the `Hub1`, but is reachable via Private Link Service through a private endpoint in `Hub1`.
 
-`Branch3` is the on-premises network which is simulated in a VNET using a multi-NIC Cisco-CSR-100V NVA appliance.
+`Branch1` is the on-premises network which is simulated in a VNET using a multi-NIC Cisco-CSR-100V NVA appliance.
 
-![Virtual WAN - Single Hub (VPN)](../../images/vwan-single-hub-vpn.png)
+![Virtual WAN - Single Hub](../../images/secure-vwan-single-hub.png)
 
 ## Prerequisites
 
@@ -34,7 +34,7 @@ git clone https://github.com/kaysalawu/azure-network-terraform.git
 
 2. Navigate to the lab directory
 ```sh
-cd azure-network-terraform/2-virtual-wan/3-virtual-wan-single-hub-vpn
+cd azure-network-terraform/2-virtual-wan/5-secure-virtual-wan-single-hub
 ```
 
 3. Run the following terraform commands and type **yes** at the prompt:
@@ -54,12 +54,12 @@ See the [troubleshooting](../../troubleshooting/) section for tips on how to res
 
 1. Navigate to the lab directory
 ```sh
-cd azure-network-terraform/2-virtual-wan/3-virtual-wan-single-hub-vpn
+cd azure-network-terraform/2-virtual-wan/5-secure-virtual-wan-single-hub
 ```
 
 2. Delete the resource group to remove all resources installed.\
-Run the following Azure CLI command
+Run the following Azure CLI command:
 
 ```sh
-az group delete -g VwanS3RG --no-wait
+az group delete -g VwanS1RG --no-wait
 ```
