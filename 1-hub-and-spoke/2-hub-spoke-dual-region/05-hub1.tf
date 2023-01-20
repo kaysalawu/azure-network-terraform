@@ -80,7 +80,6 @@ resource "azurerm_route_table" "hub1_vpngw_rt" {
 locals {
   hub1_vpngw_routes = {
     spoke2 = local.spoke2_address_space[0],
-    spoke3 = local.spoke3_address_space[0],
   }
 }
 
@@ -185,10 +184,6 @@ resource "azurerm_private_dns_resolver_forwarding_rule" "hub1_onprem" {
     ip_address = local.branch1_dns_addr
     port       = 53
   }
-  target_dns_servers {
-    ip_address = local.branch2_dns_addr
-    port       = 53
-  }
 }
 
 # private endpoint
@@ -214,4 +209,3 @@ resource "azurerm_private_dns_a_record" "hub1_spoke3_pe" {
   ttl                 = 300
   records             = [azurerm_private_endpoint.hub1_spoke3_pe.private_service_connection[0].private_ip_address, ]
 }
-

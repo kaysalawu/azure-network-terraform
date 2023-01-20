@@ -80,7 +80,6 @@ resource "azurerm_route_table" "hub2_vpngw_rt" {
 locals {
   hub2_vpngw_routes = {
     spoke5 = local.spoke5_address_space[0],
-    spoke6 = local.spoke6_address_space[0],
   }
 }
 
