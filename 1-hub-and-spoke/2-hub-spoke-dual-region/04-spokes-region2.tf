@@ -124,6 +124,8 @@ module "spoke6" {
 # ilb
 #----------------------------
 
+# internal load balancer
+
 module "spoke6_lb" {
   source                                 = "../../modules/azlb"
   resource_group_name                    = azurerm_resource_group.rg.name
@@ -149,6 +151,8 @@ module "spoke6_lb" {
     }
   ]
 }
+
+# private link service
 
 module "spoke6_pls" {
   source           = "../../modules/privatelink"

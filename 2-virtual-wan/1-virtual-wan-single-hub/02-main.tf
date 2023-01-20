@@ -18,7 +18,6 @@ locals {
 
   vm_script_targets_region1 = [
     { name = "branch1", dns = local.branch1_vm_dns, ip = local.branch1_vm_addr },
-    #{ name = "branch2", dns = local.branch2_vm_dns, ip = local.branch2_vm_addr },
     { name = "hub1   ", dns = local.hub1_vm_dns, ip = local.hub1_vm_addr },
     { name = "hub1-pe", dns = local.hub1_pep_dns, ping = false },
     { name = "spoke1 ", dns = local.spoke1_vm_dns, ip = local.spoke1_vm_addr },
@@ -34,6 +33,6 @@ locals {
     { name = "spoke6 ", dns = local.spoke6_vm_dns, ip = local.spoke6_vm_addr, ping = false },
   ]
   vm_startup = templatefile("../../scripts/server.sh", {
-    TARGETS = concat(local.vm_script_targets_region1)
+    TARGETS = local.vm_script_targets_region1
   })
 }

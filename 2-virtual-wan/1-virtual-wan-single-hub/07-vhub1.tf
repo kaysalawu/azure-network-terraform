@@ -64,22 +64,3 @@ resource "azurerm_vpn_site" "vhub1_site_branch1" {
     }
   }
 }
-
-# route tables
-#----------------------------
-
-# blue
-
-resource "azurerm_virtual_hub_route_table" "vhub1_rt_blue" {
-  name           = "${local.vhub1_prefix}rt-blue"
-  virtual_hub_id = azurerm_virtual_hub.vhub1.id
-  labels         = ["blue", ]
-}
-
-# red
-
-resource "azurerm_virtual_hub_route_table" "vhub1_rt_red" {
-  name           = "${local.vhub1_prefix}rt-red"
-  virtual_hub_id = azurerm_virtual_hub.vhub1.id
-  labels         = ["red", ]
-}
