@@ -6,7 +6,7 @@ Contents- [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Deploy the Lab](#deploy-the-lab)
 - [Troubleshooting](#troubleshooting)
-- [Testing and Observation](#testing-and-observation)
+- [Testing](#testing-and-observation)
   - [1. Ping IP](#1-ping-ip)
   - [2. Ping DNS](#2-ping-dns)
   - [3. Curl DNS](#3-curl-dns)
@@ -56,13 +56,13 @@ terraform apply
 
 See the [troubleshooting](../../troubleshooting/) section for tips on how to resolve common issues that may occur during the deployment of the lab.
 
-## Testing and Observation
+## Testing
 
 Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of tests. Serial console access has been configured for all virtual mchines. You can [access the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal) of a virtual machine from the Azure portal. 
 
 Login to virtual machine `VwanS4-spoke1-vm` via the serial console.
-- username = *"azureuser"* 
-- password = *"Password123"*
+- username = **azureuser**
+- password = **Password123**
 
 ![VwanS4-spoke1-vm](../../images/demos/vwans4-spoke1-vm.png)
 
@@ -70,7 +70,7 @@ Run the following tests from inside the serial console.
 
 ### 1. Ping IP
 
-This scripts pings the IP addresses of some test virtual machines and reports reachability and round trip time.
+This script pings the IP addresses of some test virtual machines and reports reachability and round trip time.
 
 Run the IP ping test
 ```sh
@@ -94,7 +94,7 @@ spoke5  - 10.5.0.5 -OK 5.342 ms
 
 ### 2. Ping DNS
 
-This scripts pings the DNS name of some test virtual machines and reports reachability and round trip time.
+This script pings the DNS name of some test virtual machines and reports reachability and round trip time.
 
 Run the DNS ping test
 ```sh
@@ -146,7 +146,7 @@ azureuser@VwanS4-spoke1-vm:~$ curl-dns
 200 (0.115386s) - 10.5.0.5 - vm.spoke5.az.corp.net
 000 (2.000373s) -  - vm.spoke6.az.corp.net
 ```
-We can see that spoke3 `vm.spoke3.az.corp.net` returns a **000** HTTP response code. This is expected as there is no Vnet peering to `Spoke3` from `Hub1`. But `Spoke3` web application is reachable via Private Link Service `pep.hub1.az.corp.net`. This is also true for `Spoke6` virtual machine `vm.spoke6.az.corp.net` 
+We can see that spoke3 `vm.spoke3.az.corp.net` returns a **000** HTTP response code. This is expected as there is no Vnet peering to `Spoke3` from `Hub1`. But `Spoke3` web application is reachable via Private Link Service private endpoint `pep.hub1.az.corp.net`. The same explanation applies to `Spoke6` virtual machine `vm.spoke6.az.corp.net` 
 
 ### 4. Private Link Service
 
@@ -240,12 +240,14 @@ AddressPrefixes    AsPath             NextHopType
 Let's login to the onprem router `VwanS4-branch1-nva` and observe its dynamic routes.
 
 1. Login to virtual machine `VwanS4-branch1-nva` via the serial console. 
-2. In the console, type *"azureuser"* as the username and *"Password123"* as the password.
+2. Enter username and password 
+   - username = **azureuser**
+   - password = **Password123**
 3. Enter the Cisco enable mode
 ```sh
 enable
 ```
-4. Display the routing table
+1. Display the routing table
 ```sh
 show ip route
 ```

@@ -6,6 +6,7 @@ Contents
 - [Prerequisites](#prerequisites)
 - [Deploy the Lab](#deploy-the-lab)
 - [Troubleshooting](#troubleshooting)
+- [Testing](#testing)
 - [Cleanup](#cleanup)
 
 ## Overview
@@ -45,6 +46,7 @@ terraform apply
 
 ## Troubleshooting
 
+## Testing
 
 ## Cleanup
 

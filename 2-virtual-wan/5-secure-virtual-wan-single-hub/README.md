@@ -50,21 +50,6 @@ See the [troubleshooting](../../troubleshooting/) section for tips on how to res
 
 ## Testing
 
-### Ping IP <!-- omit from toc -->
-
-
-### Ping DNS <!-- omit from toc -->
-
-
-### Curl DNS <!-- omit from toc -->
-
-
-### Private Link Service <!-- omit from toc -->
-
-
-### Routing Tables <!-- omit from toc -->
-
-
 ## Cleanup
 
 1. Navigate to the lab directory
