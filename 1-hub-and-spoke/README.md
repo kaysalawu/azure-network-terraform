@@ -1,7 +1,7 @@
 
 # Hub and Spoke <!-- omit from toc -->
 
-Table of Contents
+Contents
 <!-- TOC -->
 - [1. Hub and Spoke (Single Region)](#1-hub-and-spoke-single-region)
 - [2. Hub and Spoke (Dual Region)](#2-hub-and-spoke-dual-region)

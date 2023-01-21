@@ -31,10 +31,10 @@ module "branch1" {
 
   vm_config = [
     {
-      name             = "vm1"
-      custom_data      = base64encode(local.vm_startup)
-      private_ip       = local.branch1_vm_addr
-      use_vm_extension = true
+      name        = "vm1"
+      custom_data = base64encode(local.vm_startup)
+      private_ip  = local.branch1_vm_addr
+      #use_vm_extension = true
     },
   ]
 

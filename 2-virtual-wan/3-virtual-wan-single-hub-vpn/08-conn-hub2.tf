@@ -156,7 +156,9 @@ resource "azurerm_vpn_gateway_connection" "vhub2_site_branch3_conn" {
       labels = [
         "default",
       ]
-      route_table_ids = []
+      route_table_ids = [
+        azurerm_virtual_hub.vhub2.default_route_table_id,
+      ]
     }
   }
 }
@@ -187,13 +189,9 @@ resource "azurerm_vpn_gateway_connection" "vhub2_site_hub2_conn" {
     propagated_route_table {
       labels = [
         "default",
-        "blue",
-        "red"
       ]
       route_table_ids = [
-        #azurerm_virtual_hub.vhub2.default_route_table_id,
-        #azurerm_virtual_hub_route_table.vhub2_rt_blue.id,
-        #azurerm_virtual_hub_route_table.vhub2_rt_red.id,
+        azurerm_virtual_hub.vhub2.default_route_table_id,
       ]
     }
   }
@@ -211,12 +209,14 @@ resource "azurerm_virtual_hub_connection" "spoke4_vnet_conn" {
   remote_virtual_network_id = module.spoke4.vnet.id
 
   routing {
-    associated_route_table_id = azurerm_virtual_hub_route_table.vhub2_rt_red.id
+    associated_route_table_id = azurerm_virtual_hub.vhub2.default_route_table_id
     propagated_route_table {
       labels = [
         "default",
       ]
-      route_table_ids = []
+      route_table_ids = [
+        azurerm_virtual_hub.vhub2.default_route_table_id,
+      ]
     }
   }
 }

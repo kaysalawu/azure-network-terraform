@@ -23,8 +23,8 @@ module "hub1" {
   nsg_subnets = {
     "main" = azurerm_network_security_group.nsg_region1_main.id
     "nva"  = azurerm_network_security_group.nsg_region1_nva.id
-    "ilb"  = azurerm_network_security_group.nsg_region1_default.id
-    "dns"  = azurerm_network_security_group.nsg_region1_default.id
+    #"ilb"  = azurerm_network_security_group.nsg_region1_default.id
+    #"dns"  = azurerm_network_security_group.nsg_region1_default.id
   }
 
   vnet_config = [

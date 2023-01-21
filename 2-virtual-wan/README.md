@@ -1,7 +1,7 @@
 
 # Virtual WAN <!-- omit from toc -->
 
-Table of Contents
+Contents
 <!-- TOC -->
 - [1. Virtual WAN - Single Hub](#1-virtual-wan---single-hub)
 - [2. Virtual WAN - Dual Hub](#2-virtual-wan---dual-hub)

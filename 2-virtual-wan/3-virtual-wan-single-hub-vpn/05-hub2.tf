@@ -27,8 +27,8 @@ module "hub2" {
   nsg_subnets = {
     "main" = azurerm_network_security_group.nsg_region2_main.id
     "nva"  = azurerm_network_security_group.nsg_region2_nva.id
-    "ilb"  = azurerm_network_security_group.nsg_region2_default.id
-    "dns"  = azurerm_network_security_group.nsg_region2_default.id
+    #"ilb"  = azurerm_network_security_group.nsg_region2_default.id
+    #"dns"  = azurerm_network_security_group.nsg_region2_default.id
   }
 
   vnet_config = [
@@ -75,7 +75,6 @@ resource "azurerm_route_table" "hub2_vpngw_rt" {
 locals {
   hub2_vpngw_routes = {
     spoke5 = local.spoke5_address_space[0],
-    spoke6 = local.spoke6_address_space[0],
   }
 }
 

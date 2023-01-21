@@ -1,7 +1,7 @@
 
 # Azure Network Architecture - Terraform Examples <!-- omit from toc -->
 
-Table of Contents
+Contents
 <!-- TOC -->
 - [1. Hub and Spoke](#1-hub-and-spoke)
   - [1.1. Hub and Spoke - Single Region](#11-hub-and-spoke---single-region)
@@ -22,14 +22,14 @@ Table of Contents
 
 This code deploys a hub and spoke topology playground to observe dynamic routing with Azure Route Server (ARS) and a Network Virtual Appiance (NVA).
 
-![Hub and Spoke - Single Region](./images/hub-spoke-single-region.png)
+![Hub and Spoke - Single Region](./images/scenarios//hub-spoke-single-region.png)
 
 ### 1.2. Hub and Spoke - Dual Region
 [Terraform Code](./1-hub-and-spoke/2-hub-spoke-dual-region/)
 
 This code deploys a multi-region standard hub and spoke topology playground to observe dynamic routing with Azure Route Server (ARS) and a Network Virtual Appiance (NVA).
 
-![Hub and Spoke - Dual Region](./images/hub-spoke-dual-region.png)
+![Hub and Spoke - Dual Region](./images/scenarios//hub-spoke-dual-region.png)
 
 ## [2. Virtual WAN](./2-virtual-wan/)
 
@@ -39,7 +39,7 @@ This code deploys a multi-region standard hub and spoke topology playground to o
 
 This code deploys a virtual WAN architecture playground to observe dynamic routing patterns. 
 
-![Virtual WAN - Single Hub](./images/vwan-single-hub.png)
+![Virtual WAN - Single Hub](./images/scenarios//vwan-single-hub.png)
 
 
 ### 2.2. Virtual WAN - Dual Hub
@@ -47,7 +47,7 @@ This code deploys a virtual WAN architecture playground to observe dynamic routi
 
 This code deploys a multi-hub (multi-region) virtual WAN architecture playground to observe dynamic routing patterns. In this architecture, we integrate the standard hubs to the virtual WAN hubs.
 
-![Virtual WAN - Dual Hub](./images/vwan-dual-hub.png)
+![Virtual WAN - Dual Hub](./images/scenarios//vwan-dual-hub.png)
 
 
 ### 2.3. Virtual WAN - Single Hub (VPN)
@@ -55,7 +55,7 @@ This code deploys a multi-hub (multi-region) virtual WAN architecture playground
 
 This code deploys a virtual WAN architecture playground to observe dynamic routing patterns. In this architecture, we integrate a standard hub `hub1` (as a branch) to the virtual WAN hub `vHub1` via a VPN connection.
 
-![Virtual WAN - Single Hub (VPN)](./images/vwan-single-hub-vpn.png)
+![Virtual WAN - Single Hub (VPN)](./images/scenarios//vwan-single-hub-vpn.png)
 
 
 ### 2.4. Virtual WAN - Dual Hub (Mixed)
@@ -63,7 +63,7 @@ This code deploys a virtual WAN architecture playground to observe dynamic routi
 
 This code deploys a multi-hub (multi-region) virtual WAN architecture playground to observe dynamic routing patterns. In this architecture, we integrate the standard hub `hub1` to the virtual WAN hub `vHub1` via a connection. And we integrate the standard hub `hub2` to the virtual WAN hub `vHub2` via a VPN connection.
 
-![Virtual WAN - Dual Hub (Mixed)](./images/vwan-dual-hub-mixed.png)
+![Virtual WAN - Dual Hub (Mixed)](./images/scenarios//vwan-dual-hub-mixed.png)
 
 ## [3. Virtual Network Manager](./3-virtual-network-manager/)
 
