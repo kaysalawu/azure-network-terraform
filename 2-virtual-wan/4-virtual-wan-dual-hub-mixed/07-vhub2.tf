@@ -96,22 +96,3 @@ resource "azurerm_vpn_site" "vhub2_site_hub2" {
     }
   }
 }
-
-# route tables
-#----------------------------
-
-# blue
-
-resource "azurerm_virtual_hub_route_table" "vhub2_rt_blue" {
-  name           = "${local.vhub2_prefix}rt-blue"
-  virtual_hub_id = azurerm_virtual_hub.vhub2.id
-  labels         = ["blue"]
-}
-
-# red
-
-resource "azurerm_virtual_hub_route_table" "vhub2_rt_red" {
-  name           = "${local.vhub2_prefix}rt-red"
-  virtual_hub_id = azurerm_virtual_hub.vhub2.id
-  labels         = ["red"]
-}

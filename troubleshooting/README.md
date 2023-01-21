@@ -1,7 +1,7 @@
 
 # Troubleshooting <!-- omit from toc -->
 
-Common error messages
+Errors
 - [1. Network Security Group - Context Deadline Exceeded](#1-network-security-group---context-deadline-exceeded)
 - [2. Network Security Group - Already Exists](#2-network-security-group---already-exists)
 
@@ -11,6 +11,8 @@ There are scenarios where you might encounter errors after running terraform to 
 The folowing are some of the common errors and how to resolve them.
 
 ## 1. Network Security Group - Context Deadline Exceeded
+
+This occurs when terraform times out on associating the NSG to a subnet.
 
 **Examples:**
 
@@ -39,6 +41,8 @@ terraform apply
 
 ## 2. Network Security Group - Already Exists
 
+This occurs when terraform is trying to apply an NSG rule to a subnet which already has the NSG associated with the subnet from the previous terraform run.
+
 **Examples:**
 
 ```sh
@@ -53,13 +57,11 @@ terraform apply
  Error encountered!!!
 ```
 
-Terraform is trying to apply an NSG rule to a subnet which already has NSG associated with it.
-
 **Resolution:**
 
-Remove the NSG associated with the subnet
+Remove the NSG associated with the subnet. Subtitute the values of your resource group, subnet name and virtual network name below and run the CLI command:
 ```sh
-RG=<resource Group>
+RG=<Resource Group>
 Subnet=<Subnet name>
 Vnet=<VNET name>
 az network vnet subnet update -g $RG -n $Subnet --vnet-name $Vnet --network-security-group ""

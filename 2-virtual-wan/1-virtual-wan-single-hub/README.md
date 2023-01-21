@@ -58,14 +58,14 @@ See the [troubleshooting](../../troubleshooting/) section for tips on how to res
 
 Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of tests. Serial console access has been configured for all virtual mchines. You can [access the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal) of a virtual machine from the Azure portal. 
 
-Login to virtual machine via the serial console. 
+Login to virtual machine `VwanS1-spoke1-vm` via the serial console. 
 
-In the console, type *"azureuser"* as the username and *"Password123"* as the password.
+- username = *"azureuser"* 
+- password = *"Password123"*
 
-The screenshot below shows an example for virtual machine `VwanS1-spoke1-vm`.
-![VwanS1-spoke1-vm](../../images/demos/spoke1-vm.png)
+![VwanS1-spoke1-vm](../../images/demos/vwans1-spoke1-vm.png)
 
-The following tests are run from inside the serial console.
+Run the following tests from inside the serial console.
 
 ### 1. Ping IP
 
@@ -131,7 +131,7 @@ azureuser@VwanS1-spoke1-vm:~$ curl-dns
 200 (0.048311s) - 10.2.0.5 - vm.spoke2.az.corp.net
 000 (2.000521s) -  - vm.spoke3.az.corp.net
 ```
-We can see that spoke3 (vm.spoke3.az.corp.net) returns a **000** response code. This is expected as there is no Vnet peering to `Spoke3` from `Hub1`. But `Spoke3` web application is reachable via Private Link Service (pep.hub1.az.corp.net).
+We can see that spoke3 (vm.spoke3.az.corp.net) returns a **000** HTTP response code. This is expected as there is no Vnet peering to `Spoke3` from `Hub1`. But `Spoke3` web application is reachable via Private Link Service (pep.hub1.az.corp.net).
 
 ### 4. Private Link Service
 
@@ -154,13 +154,13 @@ azureuser@VwanS1-spoke1-vm:~$ curl pep.hub1.az.corp.net
   "remote-ip": "10.3.3.4"
 }
 ```
-The `hostname` and `local-ip` indicate the server running the application - in this case `Spoke3` virtual machine. The `remote-ip` (as seen by the web application) is an IP address in the Private Link Service NAT subnet.
+The `hostname` and `local-ip` field belong to the server running the web application - in this case `Spoke3` virtual machine. The `remote-ip` field (as seen by the web server) is the IP address in the Private Link Service NAT subnets.
 
 Repeat steps 1-4 for all other virtual machines.
 
 ### 5. Virtual WAN Routes
 
-1. ensure you are in the lab directory `azure-network-terraform/2-virtual-wan/1-virtual-wan-single-hub`
+1. Ensure you are in the lab directory `azure-network-terraform/2-virtual-wan/1-virtual-wan-single-hub`
 2. Display the virtual WAN routing table(s)
 
 ```sh
@@ -195,6 +195,11 @@ enable
 ```
 4. Display the routing table
 ```sh
+show ip route
+```
+
+Sample output
+```sh
 VwanS1-branch1-nva-vm#show ip route
 [Truncated]
 ...
@@ -225,6 +230,7 @@ B        192.168.11.0/24 [20/0] via 192.168.11.12, 00:57:43
 S        192.168.11.12/32 is directly connected, Tunnel1
 S        192.168.11.13/32 is directly connected, Tunnel0
 ```
+
 5. Show BGP information
 ```sh
 VwanS1-branch1-nva-vm#show ip bgp

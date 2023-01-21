@@ -185,7 +185,7 @@ resource "azurerm_vpn_gateway_connection" "vhub2_site_hub2_conn" {
   }
 
   routing {
-    associated_route_table = azurerm_virtual_hub.vhub2.default_route_table_id
+    associated_route_table = azurerm_virtual_hub.vhub1.default_route_table_id
     propagated_route_table {
       labels = [
         "default",
@@ -210,7 +210,7 @@ resource "azurerm_virtual_hub_connection" "spoke4_vnet_conn" {
   remote_virtual_network_id = module.spoke4.vnet.id
 
   routing {
-    associated_route_table_id = azurerm_virtual_hub_route_table.vhub2_rt_red.id
+    associated_route_table_id = azurerm_virtual_hub.vhub1.default_route_table_id
     propagated_route_table {
       labels = [
         "default",
@@ -280,43 +280,4 @@ resource "azurerm_virtual_network_gateway_connection" "hub2_vhub2_lng1" {
   virtual_network_gateway_id = module.hub2.vpngw.id
   local_network_gateway_id   = azurerm_local_network_gateway.hub2_vhub2_lng1.id
   shared_key                 = local.psk
-}
-
-####################################################
-# static routes
-####################################################
-
-locals {
-  vhub2_routes = [
-    # static routes used by all RTs to reach spoke3
-    {
-      name           = "${local.vhub2_prefix}rt-red-spoke3"
-      destinations   = local.spoke3_address_space
-      route_table_id = azurerm_virtual_hub_route_table.vhub2_rt_red.id
-      next_hop       = azurerm_virtual_hub_connection.hub1_vnet_conn.id
-    },
-    {
-      name           = "${local.vhub2_prefix}rt-blue-spoke3"
-      destinations   = local.spoke3_address_space
-      route_table_id = azurerm_virtual_hub_route_table.vhub2_rt_blue.id
-      next_hop       = azurerm_virtual_hub_connection.hub1_vnet_conn.id
-    },
-
-    {
-      name           = "${local.vhub2_prefix}rt-default-spoke3"
-      destinations   = local.spoke3_address_space
-      route_table_id = azurerm_virtual_hub.vhub2.default_route_table_id
-      next_hop       = azurerm_virtual_hub_connection.hub1_vnet_conn.id
-    },
-  ]
-}
-
-resource "azurerm_virtual_hub_route_table_route" "vhub2_routes" {
-  for_each          = { for k, v in local.vhub2_routes : k => v }
-  name              = each.value.name
-  route_table_id    = each.value.route_table_id
-  destinations_type = "CIDR"
-  destinations      = each.value.destinations
-  next_hop_type     = "ResourceId"
-  next_hop          = each.value.next_hop
 }

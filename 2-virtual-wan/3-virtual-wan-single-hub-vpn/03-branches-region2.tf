@@ -34,6 +34,7 @@ module "branch3" {
       name        = "vm1"
       custom_data = base64encode(local.vm_startup)
       private_ip  = local.branch3_vm_addr
+      #use_vm_extension = true
     },
   ]
 
