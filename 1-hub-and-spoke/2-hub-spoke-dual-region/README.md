@@ -20,7 +20,7 @@ The hubs are connected together via IPsec VPN and BGP dynamic routing to allow m
 
 `Branch1` and `Branch3`are the on-premises networks which are simulated in VNETs using multi-NIC Cisco-CSR-100V NVA appliances.
 
-![Hub and Spoke (Dual region)](../../images/labs/hub-spoke-dual-region.png)
+![Hub and Spoke (Dual region)](../../images/scenarios//hub-spoke-dual-region.png)
 
 ## Prerequisites
 

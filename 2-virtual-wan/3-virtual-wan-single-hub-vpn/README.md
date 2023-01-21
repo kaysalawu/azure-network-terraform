@@ -19,7 +19,7 @@ The isolated spoke (`Spoke6`) does not have VNET peering to the `Hub2`, but is r
 
 `Branch3` is the on-premises network which is simulated in a VNET using a multi-NIC Cisco-CSR-100V NVA appliance.
 
-![Virtual WAN - Single Hub (VPN)](../../images/labs/vwan-single-hub-vpn.png)
+![Virtual WAN - Single Hub (VPN)](../../images/scenarios//vwan-single-hub-vpn.png)
 
 ## Prerequisites
 

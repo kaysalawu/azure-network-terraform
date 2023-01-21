@@ -25,7 +25,7 @@ The isolated spoke (`Spoke3`) does not have VNET peering to the `Hub1`, but is r
 
 `Branch1` is the on-premises network which is simulated in a VNET using a multi-NIC Cisco-CSR-100V NVA appliance.
 
-![Virtual WAN - Single Hub](../../images/labs/vwan-single-hub.png)
+![Virtual WAN - Single Hub](../../images/scenarios//vwan-single-hub.png)
 
 ## Prerequisites
 
@@ -63,7 +63,7 @@ Login to virtual machine via the serial console.
 In the console, type *"azureuser"* as the username and *"Password123"* as the password.
 
 The screenshot below shows an example for virtual machine `VwanS1-spoke1-vm`.
-![VwanS1-spoke1-vm](../../images/test/spoke1-vm.png)
+![VwanS1-spoke1-vm](../../images/demos/spoke1-vm.png)
 
 The following tests are run from inside the serial console.
 
