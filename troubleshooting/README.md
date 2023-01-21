@@ -2,14 +2,15 @@
 # Troubleshooting <!-- omit from toc -->
 
 Common error messages
-- [Context Deadline Exceeded](#context-deadline-exceeded)
+- [1. Network Security Group - Context Deadline Exceeded](#1-network-security-group---context-deadline-exceeded)
+- [2. Network Security Group - Already Exists](#2-network-security-group---already-exists)
 
 
 There are scenarios where you might encounter errors after running terraform to deploy any of the labs. This could be as a result of occassional race conditions that come up because some terraform resources are dependent on Azure resources that take a long time to deploy - such as virtual network gateways.
 
 The folowing are some of the common errors and how to resolve them.
 
-## Context Deadline Exceeded
+## 1. Network Security Group - Context Deadline Exceeded
 
 **Examples:**
 
@@ -33,5 +34,39 @@ Error: retrieving Subnet: (Name "HubSpokeS1-hub1-dns-in" / Virtual Network Name 
 Apply terraform again.
 ```sh
 terraform plam
+terraform apply
+```
+
+## 2. Network Security Group - Already Exists
+
+**Examples:**
+
+```sh
+╷
+│ Error: A resource with the ID "/subscriptions/ec265026-bc67-44f6-92bc-9849685d921d/resourceGroups/VwanS4RG/providers/Microsoft.Network/virtualNetworks/VwanS4-hub2-vnet/subnets/VwanS4-hub2-main" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_subnet_network_security_group_association" for more information.
+│ 
+│   with module.hub2.azurerm_subnet_network_security_group_association.this["main"],
+│   on ../../modules/base/main.tf line 19, in resource "azurerm_subnet_network_security_group_association" "this":
+│   19: resource "azurerm_subnet_network_security_group_association" "this" {
+│ 
+╵
+ Error encountered!!!
+```
+
+Terraform is trying to apply an NSG rule to a subnet which already has NSG associated with it.
+
+**Resolution:**
+
+Remove the NSG associated with the subnet
+```sh
+RG=<resource Group>
+Subnet=<Subnet name>
+Vnet=<VNET name>
+az network vnet subnet update -g $RG -n $Subnet --vnet-name $Vnet --network-security-group ""
+```
+
+Re-apply terraform
+```sh
+terraform plan
 terraform apply
 ```

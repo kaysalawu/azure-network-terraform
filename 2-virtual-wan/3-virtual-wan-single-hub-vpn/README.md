@@ -1,7 +1,7 @@
 
 # Virtual WAN - Single Hub (Mixed) <!-- omit from toc -->
 
-Table of Contents- [Overview](#overview)
+Contents- [Overview](#overview)
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Deploy the Lab](#deploy-the-lab)
@@ -19,7 +19,7 @@ The isolated spoke (`Spoke6`) does not have VNET peering to the `Hub2`, but is r
 
 `Branch3` is the on-premises network which is simulated in a VNET using a multi-NIC Cisco-CSR-100V NVA appliance.
 
-![Virtual WAN - Single Hub (VPN)](../../images/vwan-single-hub-vpn.png)
+![Virtual WAN - Single Hub (VPN)](../../images/labs/vwan-single-hub-vpn.png)
 
 ## Prerequisites
 
@@ -49,6 +49,21 @@ terraform apply
 See the [troubleshooting](../../troubleshooting/) section for tips on how to resolve common issues that may occur during the deployment of the lab.
 
 ## Testing
+
+### Ping IP <!-- omit from toc -->
+
+
+### Ping DNS <!-- omit from toc -->
+
+
+### Curl DNS <!-- omit from toc -->
+
+
+### Private Link Service <!-- omit from toc -->
+
+
+### Routing Tables <!-- omit from toc -->
+
 
 ## Cleanup
 

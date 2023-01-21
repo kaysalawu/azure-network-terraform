@@ -1,7 +1,7 @@
 
 # Secure Virtual WAN - Dual Hub <!-- omit from toc -->
 
-Table of contents
+Contents
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Deploy the Lab](#deploy-the-lab)
@@ -19,7 +19,7 @@ The isolated spokes (`Spoke3` and `Spoke6`) do not have VNET peering to their re
 
 `Branch1` and `Branch3`are the on-premises networks which are simulated in VNETs using multi-NIC Cisco-CSR-100V NVA appliances.
 
-![Virtual WAN - Dual Hub](../../images/secure-vwan-dual-hub.png)
+![Virtual WAN - Dual Hub](../../images/labs/secure-vwan-dual-hub.png)
 
 ## Prerequisites
 
@@ -49,6 +49,43 @@ terraform apply
 See the [troubleshooting](../../troubleshooting/) section for tips on how to resolve common issues that may occur during the deployment of the lab.
 
 ## Testing
+
+Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of tests. 
+
+Serial console access has been configured for all virtual mchines. You can [access the serial console of a virtual machine](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal) from the Azure portal. 
+
+Login to virtual machine `VwanS1-spoke1-vm` via the serial console. 
+
+In the console, type *"azureuser"* as the username and *"Password123"* as the password.
+[]()
+
+The following tests are run from inside the serial console.
+
+### 1. Ping IP <!-- omit from toc -->
+
+This scripts pings the IP addresses of some test virtual machines and reports reachability and round trip time.
+
+Type `ping-ip` and press enter. 
+```sh
+ping-ip
+```
+Sample results
+```sh
+```
+
+
+
+### Ping DNS <!-- omit from toc -->
+
+
+### Curl DNS <!-- omit from toc -->
+
+
+### Private Link Service <!-- omit from toc -->
+
+
+### Routing Tables <!-- omit from toc -->
+
 
 ## Cleanup
 

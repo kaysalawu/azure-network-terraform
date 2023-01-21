@@ -29,7 +29,7 @@ module "hub2" {
     "main" = azurerm_network_security_group.nsg_region2_main.id
     "nva"  = azurerm_network_security_group.nsg_region2_nva.id
     "ilb"  = azurerm_network_security_group.nsg_region2_default.id
-    "dns"  = azurerm_network_security_group.nsg_region2_default.id
+    #"dns"  = azurerm_network_security_group.nsg_region2_default.id
   }
 
   vnet_config = [

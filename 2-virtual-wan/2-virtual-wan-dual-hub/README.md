@@ -1,7 +1,7 @@
 
 # Virtual WAN - Dual Hub <!-- omit from toc -->
 
-Table of Contents
+Contents
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Deploy the Lab](#deploy-the-lab)
@@ -19,7 +19,7 @@ The isolated spokes (`Spoke3` and `Spoke6`) do not have VNET peering to their re
 
 `Branch1` and `Branch3`are the on-premises networks which are simulated in VNETs using multi-NIC Cisco-CSR-100V NVA appliances.
 
-![Virtual WAN - Dual Hub](../../images/vwan-dual-hub.png)
+![Virtual WAN - Dual Hub](../../images/labs/vwan-dual-hub.png)
 
 ## Prerequisites
 
@@ -49,6 +49,21 @@ terraform apply
 See the [troubleshooting](../../troubleshooting/) section for tips on how to resolve common issues that may occur during the deployment of the lab.
 
 ## Testing
+
+### Ping IP <!-- omit from toc -->
+
+
+### Ping DNS <!-- omit from toc -->
+
+
+### Curl DNS <!-- omit from toc -->
+
+
+### Private Link Service <!-- omit from toc -->
+
+
+### Routing Tables <!-- omit from toc -->
+
 
 ## Cleanup
 
