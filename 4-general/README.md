@@ -1,4 +1,0 @@
-
-# General
-
-(Work in Progress)
