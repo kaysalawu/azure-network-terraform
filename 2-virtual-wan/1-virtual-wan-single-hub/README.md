@@ -156,7 +156,7 @@ azureuser@VwanS1-spoke1-vm:~$ curl pep.hub1.az.corp.net
 ```
 The `hostname` and `local-ip` indicate the server running the application - in this case `Spoke3` virtual machine. The `remote-ip` (as seen by the web application) is an IP address in the Private Link Service NAT subnet.
 
-Repeat steps 1-4 for all other virtual machine.
+Repeat steps 1-4 for all other virtual machines.
 
 ### 5. Virtual WAN Routes
 
