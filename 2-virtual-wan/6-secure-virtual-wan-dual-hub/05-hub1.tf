@@ -175,6 +175,10 @@ resource "azurerm_private_dns_resolver_forwarding_rule" "hub1_onprem" {
     ip_address = local.branch1_dns_addr
     port       = 53
   }
+  target_dns_servers {
+    ip_address = local.branch3_dns_addr
+    port       = 53
+  }
 }
 
 # private endpoint

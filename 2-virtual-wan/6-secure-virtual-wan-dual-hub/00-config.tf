@@ -22,8 +22,8 @@ locals {
   default_region      = "westeurope"
   subnets_without_nsg = ["GatewaySubnet"]
 
-  onprem_domain = "corp.net"
-  cloud_domain  = "az.corp.net"
+  onprem_domain = "corp"
+  cloud_domain  = "az.corp"
 
   rfc1918_prefixes = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
 

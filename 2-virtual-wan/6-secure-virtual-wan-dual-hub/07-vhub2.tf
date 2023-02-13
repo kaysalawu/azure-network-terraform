@@ -89,3 +89,24 @@ resource "azurerm_firewall" "vhub2" {
     public_ip_count = 1
   }
 }
+
+# rules
+#----------------------------
+
+resource "azurerm_firewall_policy_rule_collection_group" "vhub2_policy1" {
+  name               = "${local.vhub2_prefix}policy1"
+  firewall_policy_id = azurerm_firewall_policy.vhub2.id
+  priority           = 100
+  network_rule_collection {
+    name     = "net-rule1-tcp"
+    priority = 400
+    action   = "Allow"
+    rule {
+      name                  = "net-rule1-tcp-udp-all"
+      protocols             = ["TCP", "UDP"]
+      source_addresses      = ["*"]
+      destination_addresses = ["*", ]
+      destination_ports     = ["*", ]
+    }
+  }
+}
