@@ -10,7 +10,7 @@ Terraform seializes some resource creation which creates situations where some r
 
 The folowing are some of the common errors and how to resolve them.
 
-## 1. Network Security Group - Context Deadline Exceeded
+## 1. Network Security Group - "Context Deadline Exceeded"
 
 This occurs when terraform times out on associating the NSG to a subnet.
 
@@ -39,7 +39,7 @@ terraform plam
 terraform apply
 ```
 
-## 2. Network Security Group - Already Exists
+## 2. Network Security Group - "Already Exists"
 
 This occurs when terraform is trying to apply an NSG rule to a subnet which already has the NSG associated with the subnet from the previous terraform run.
 
@@ -72,7 +72,7 @@ Re-apply terraform
 terraform plan
 terraform apply
 ```
-## 3. Subnet - Already Exists
+## 3. Subnet - "Already Exists"
 
 This occurs when terraform is attempting to create a subnet which already exists from a previous terraform run.
 

@@ -1,7 +1,7 @@
 #! /bin/bash
 
 apt update
-apt install -y wget python3-pip python3-dev \
+apt install -y wget python3-pip python3-dev git build-essential \
 tcpdump fping dnsutils traceroute tcptraceroute nmap hping3 iperf3 net-tools \
 speedtest-cli
 
@@ -18,7 +18,7 @@ import socket
 from flask import Flask, request
 app = Flask(__name__)
 
-@app.route("/")
+@app.route("/"
 def default():
     hostname = socket.gethostname()
     address = socket.gethostbyname(hostname)

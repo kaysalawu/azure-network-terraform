@@ -50,6 +50,7 @@ _run.*
 _dev.*
 _delete.*
 _env.txt
+*poc
 
 
 
