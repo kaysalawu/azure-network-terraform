@@ -41,4 +41,7 @@ jobs:
         to: ${{ secrets.TELEGRAM_TO}}
         token: ${{ secrets.TELEGRAM_TOKEN}}
         message: |
-          ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
+          job: ${{ github.job }} 
+          worflow: ${{ github.workflow }}
+          repo: ${{ github.repository }} 
+          status: ${{ job.status }}
