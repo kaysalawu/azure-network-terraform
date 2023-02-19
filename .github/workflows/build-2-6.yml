@@ -34,11 +34,11 @@ jobs:
       run: terraform plan
     #- name: Terraform Apply
     #  run: terraform apply -auto-approve -parallelism 50
-    #- name: send tele msg
-    #  if: always()
-    #  uses: appleboy/telegram-action@master
-    #  with: 
-    #    to: ${{ secrets.telegram_to}}
-    #    token: ${{ secrets.telegram_token}}
-    #    message: |
-    #      ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
+    - name: send tele msg
+      if: always()
+      uses: appleboy/telegram-action@master
+      with: 
+        to: ${{ secrets.TELEGRAM_TO}}
+        token: ${{ secrets.TELEGRAM_TOKEN}}
+        message: |
+          ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
