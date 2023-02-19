@@ -22,8 +22,8 @@ locals {
   default_region      = "westeurope"
   subnets_without_nsg = ["GatewaySubnet"]
 
-  onprem_domain = "corp"
-  cloud_domain  = "az.corp"
+  onprem_domain = "corp.net"
+  cloud_domain  = "az.corp.net"
 
   rfc1918_prefixes = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
 
@@ -31,14 +31,14 @@ locals {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones
-    TARGETS              = concat(local.vm_script_targets_region1, local.vm_script_targets_region2)
+    TARGETS              = local.vm_script_targets_region1
   })
 
   branch_unbound_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones
-    TARGETS              = concat(local.vm_script_targets_region1, local.vm_script_targets_region2)
+    TARGETS              = local.vm_script_targets_region1
   }
 
   onprem_local_records = [
@@ -48,7 +48,7 @@ locals {
     { name = (local.branch4_vm_dns), record = local.branch4_vm_addr },
   ]
   onprem_forward_zones = [
-    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr, ] },
+    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, ] },
     { zone = ".", targets = ["168.63.129.16"] },
   ]
   onprem_redirected_hosts = []

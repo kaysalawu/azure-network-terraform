@@ -27,7 +27,7 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke2_peering" {
   #allow_gateway_transit        = true
 }
 
-####################################################
+/*####################################################
 # nva
 ####################################################
 
@@ -137,7 +137,7 @@ resource "azurerm_subnet_route_table_association" "spoke2_routes_hub1" {
   lifecycle {
     ignore_changes = all
   }
-}
+}*/
 
 ####################################################
 # vpn-site connection
@@ -229,7 +229,7 @@ resource "azurerm_virtual_hub_connection" "hub1_vnet_conn" {
   }
 }
 
-####################################################
+/*####################################################
 # bgp connections
 ####################################################
 
@@ -242,4 +242,4 @@ resource "azurerm_virtual_hub_bgp_connection" "vhub1_hub1_bgp_conn" {
   peer_ip        = local.hub1_nva_addr
 
   virtual_network_connection_id = azurerm_virtual_hub_connection.hub1_vnet_conn.id
-}
+}*/

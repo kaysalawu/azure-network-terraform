@@ -103,7 +103,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "vhub1_policy1" {
     action   = "Allow"
     rule {
       name                  = "net-rule1-tcp-udp-all"
-      protocols             = ["TCP", "UDP"]
+      protocols             = ["TCP", "UDP", "ICMP", ]
       source_addresses      = ["*"]
       destination_addresses = ["*", ]
       destination_ports     = ["*", ]

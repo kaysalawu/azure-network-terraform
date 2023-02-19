@@ -12,9 +12,12 @@ terraform {
       source  = "megaport/megaport"
       version = "0.1.9"
     }
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "=3.43.0"
+    }
   }
 }
-
 provider "azapi" {
 }
 
