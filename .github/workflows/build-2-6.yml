@@ -27,8 +27,9 @@ jobs:
     - name: Terraform Init
       id: init
       run: terraform init
-    #- name: Terraform Plan
-    #  run: terraform plan
+    - name: Terraform Plan
+      id: plan
+      run: terraform plan
     #- name: Terraform Apply
     #  run: terraform apply -auto-approve -parallelism 50
     #- name: send tele msg
