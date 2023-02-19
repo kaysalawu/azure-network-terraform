@@ -25,6 +25,7 @@ resource "azurerm_network_interface" "this" {
   dns_servers          = var.dns_servers
   tags                 = var.tags
   enable_ip_forwarding = var.enable_ip_forwarding
+  enable_accelerated_networking = var.enable_accelerated_networking
   ip_configuration {
     name                          = "${local.prefix}nic-ip-config"
     subnet_id                     = var.subnet

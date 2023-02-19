@@ -90,15 +90,16 @@ variable "vnet_config" {
 
 variable "vm_config" {
   type = list(object({
-    name                 = string
-    dns_host             = optional(string)
-    zone                 = optional(string, null)
-    size                 = optional(string, "Standard_B1s")
-    private_ip           = optional(string, null)
-    public_ip            = optional(string, null)
-    custom_data          = optional(string, null)
-    enable_ip_forwarding = optional(bool, false)
-    use_vm_extension     = optional(bool, false)
+    name                          = string
+    dns_host                      = optional(string)
+    zone                          = optional(string, null)
+    size                          = optional(string, "Standard_B1s")
+    private_ip                    = optional(string, null)
+    public_ip                     = optional(string, null)
+    custom_data                   = optional(string, null)
+    enable_ip_forwarding          = optional(bool, false)
+    enable_accelerated_networking = optional(bool, false)
+    use_vm_extension              = optional(bool, false)
   }))
   default = []
 }

@@ -122,6 +122,8 @@ module "vm" {
   admin_username   = var.admin_username
   admin_password   = var.admin_password
   private_dns_zone = try(azurerm_private_dns_zone.this[0].name, "")
+
+  enable_accelerated_networking = var.vm_config[0].enable_accelerated_networking
 }
 
 # nat

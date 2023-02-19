@@ -90,6 +90,12 @@ variable "enable_ip_forwarding" {
   default     = false
 }
 
+variable "enable_accelerated_networking" {
+  description = "enable accelerated networking"
+  type        = bool
+  default     = false
+}
+
 variable "custom_data" {
   description = "base64 string containing virtual machine custom data"
   type        = string
