@@ -1,5 +1,5 @@
 ---
-name: 'build-2-vwan-6'
+name: 'build-2-6'
 env: 
   folder: 2-virtual-wan/6-secure-virtual-wan-dual-hub
 on:
