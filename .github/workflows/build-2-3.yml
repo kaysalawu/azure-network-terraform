@@ -1,0 +1,47 @@
+---
+name: 'build-2-6'
+env: 
+  folder: 2-virtual-wan/3-virtual-wan-single-hub-vpn
+on:
+  workflow_dispatch:    
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    env:
+      ARM_CLIENT_ID: ${{secrets.ARM_CLIENT_ID}}
+      ARM_CLIENT_SECRET: ${{secrets.ARM_CLIENT_SECRET}}
+      ARM_SUBSCRIPTION_ID: ${{secrets.ARM_SUBSCRIPTION_ID}}
+      ARM_TENANT_ID: ${{secrets.ARM_TENANT_ID}}
+      GOOGLE_CREDENTIALS: ${{secrets.GOOGLE_CREDENTIALS}}
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./${{env.folder}}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Plan
+      run: terraform plan
+    - name: Terraform Apply
+      run: terraform apply -auto-approve -parallelism 50
+    - name: send tele msg
+      if: always()
+      uses: appleboy/telegram-action@master
+      with: 
+        to: ${{ secrets.TELEGRAM_TO}}
+        token: ${{ secrets.TELEGRAM_TOKEN}}
+        message: |
+          job: ${{ github.job }} 
+          worflow: ${{ github.workflow }}
+          repo: ${{ github.repository }} 
+          status: ${{ job.status }}
