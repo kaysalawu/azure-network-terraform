@@ -9,8 +9,7 @@ jobs:
   terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
-    env: 
-      #GOOGLE_CREDENTIALS: ${{secrets.GOOGLE_CREDENTIALS}}
+
     defaults:
       run:
         shell: bash
