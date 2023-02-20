@@ -86,13 +86,13 @@ resource "azurerm_subnet" "this" {
 #----------------------------
 
 module "dns" {
-  count            = length(var.dns_config) == 0 ? 0 : 1
+  for_each         = length(var.dns_config) == 0 ? {} : { for x in var.vm_config : x.name => x }
   source           = "../../modules/debian"
   resource_group   = var.resource_group
   prefix           = var.prefix
   name             = var.dns_config[0].name
   location         = var.location
-  subnet           = [for k, v in azurerm_subnet.this : v.id if length(regexall("main", k)) > 0][0]
+  subnet           = azurerm_subnet.this["${each.value.subnet}"].id
   private_ip       = var.dns_config[0].private_ip
   use_vm_extension = var.dns_config[0].use_vm_extension
   custom_data      = var.dns_config[0].custom_data
@@ -112,7 +112,7 @@ module "vm" {
   prefix           = var.prefix
   name             = each.key
   location         = var.location
-  subnet           = [for k, v in azurerm_subnet.this : v.id if length(regexall("main", k)) > 0][0]
+  subnet           = azurerm_subnet.this["${each.value.subnet}"].id
   private_ip       = each.value.private_ip
   use_vm_extension = each.value.use_vm_extension
   custom_data      = each.value.custom_data

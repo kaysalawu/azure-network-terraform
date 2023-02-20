@@ -100,6 +100,7 @@ variable "vm_config" {
     enable_ip_forwarding          = optional(bool, false)
     enable_accelerated_networking = optional(bool, false)
     use_vm_extension              = optional(bool, false)
+    subnet                        = string
   }))
   default = []
 }
