@@ -19,14 +19,14 @@ This terraform code deploys a multi-region Secured Virtual Network (Vnet) hub an
 
 ![Secured Hub and Spoke (Dual Region)](./images/scenarios/1-2-hub-spoke-azfw-dual-region.png)
 
-### 1.3. Hub and Spoke Secure using NVA - Single Region
+### 1.3. Hub and Spoke using NVA - Single Region
 [Terraform Code](./1-hub-and-spoke/3-hub-spoke-nva-single-region/)
 
 This terraform code deploys a single-region standard Virtual Network (Vnet) hub and spoke topology using Virtual Network Appliances (NVA) in the hub.
 
 ![Hub and Spoke using NVA (Single Region)](./images/scenarios/1-3-hub-spoke-nva-single-region.png)
 
-### 1.4. Hub and Spoke Secure using NVA - Dual Region
+### 1.4. Hub and Spoke using NVA - Dual Region
 [Terraform Code](./1-hub-and-spoke/4-hub-spoke-nva-dual-region/)
 
 This terraform code deploys a multi-region Virtual Network (Vnet) hub and spoke topology with dynamic routing using Network Virtual Aplliance (NVA) and Azure Route Server (ARS).
