@@ -15,7 +15,7 @@ The terraform codes in this collection cover different hub and spoke network pat
 
 This [terraform code](../2-virtual-wan/1-vwan-single-region/) deploys a single-region Virtual WAN (Vwan) testbed to observe traffic routing patterns.
 
-![Virtual WAN (Single Region)](../images/scenarios/2-2-vwan-dual-region.png)
+![Virtual WAN (Single Region)](../images/scenarios/2-1-vwan-single-region.png)
 
 Standard Virtual Network (Vnet) hub (`Hub1`) connects to the Vwan hub (`vHub1`) via a Vwan connection. Direct spoke (`Spoke1`) is connected to the Vwan hub (`vHub1`). `Spoke2`is an indirect spoke from a Vwan perspective; and is connected via standard Vnet peering to `Hub1`. `Spoke2` uses the Network Virtual Applinace (NVA) in the standard Vnet hub (`Hub1`) as the next hop for traffic to all destinations.
 
