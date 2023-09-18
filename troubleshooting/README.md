@@ -5,9 +5,9 @@ Errors
 - [1. Network Security Group - "Context Deadline Exceeded"](#1-network-security-group---context-deadline-exceeded)
 - [2. Network Security Group - "Already Exists"](#2-network-security-group---already-exists)
 - [3. Subnet - "Already Exists"](#3-subnet---already-exists)
-- [4. Backend Adress Pool - Error Updating](#4-backend-adress-pool---error-updating)
-- [5. Azure Firewall Diagnostic Setting - Already Exists](#5-azure-firewall-diagnostic-setting---already-exists)
-- [6. Virtual Machine Extension - Already Exists](#6-virtual-machine-extension---already-exists)
+- [4. Backend Adress Pool - "Error Updating"](#4-backend-adress-pool---error-updating)
+- [5. Azure Firewall Diagnostic Setting - "Already Exists"](#5-azure-firewall-diagnostic-setting---already-exists)
+- [6. Virtual Machine Extension - "Already Exists"](#6-virtual-machine-extension---already-exists)
 
 Terraform seializes some resource creation which creates situations where some resources wait for a long time for dependent resources to be created. There are scenarios where you might encounter errors after running terraform to deploy any of the labs. This could be as a result of occassional race conditions that come up because some terraform resources are dependent on Azure resources that take a long time to deploy - such as virtual network gateways.
 
@@ -98,7 +98,7 @@ terraform plan
 terraform apply
 ```
 
-## 4. Backend Adress Pool - Error Updating
+## 4. Backend Adress Pool - "Error Updating"
 
 This error could occur when terraform is trying to update the backend address pool of a load balancer. This could be as a result of the load balancer being in a state of updating from a previous terraform run, or as a result of race condition encountered when deploying multiple terraform resources at the same time.
 
@@ -127,7 +127,7 @@ terraform plan
 terraform apply
 ```
 
-## 5. Azure Firewall Diagnostic Setting - Already Exists
+## 5. Azure Firewall Diagnostic Setting - "Already Exists"
 
 This error could occur when terraform is trying to create a diagnostic setting for Azure Firewall. This could be as a result of the diagnostic setting already existing from a previous terraform run, or as a result of race condition encountered when deploying multiple terraform resources at the same time.
 
@@ -181,7 +181,7 @@ terraform plan
 terraform apply
 ```
 
-## 6. Virtual Machine Extension - Already Exists
+## 6. Virtual Machine Extension - "Already Exists"
 
 This error could occur when terraform is trying to create a virtual machine extension. This could be as a result of the virtual machine extension already existing from a previous terraform run, or as a result of race condition encountered when deploying multiple terraform resources at the same time.
 
