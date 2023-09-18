@@ -1,0 +1,1 @@
+../../0-templates/01-config.tf

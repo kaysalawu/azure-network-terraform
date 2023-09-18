@@ -1,9 +1,7 @@
 #! /bin/bash
 
 apt update
-apt install -y wget python3-pip python3-dev \
-tcpdump fping dnsutils traceroute tcptraceroute nmap hping3 iperf3 net-tools \
-speedtest-cli
+apt install -y python3-pip python3-dev tcpdump dnsutils traceroute net-tools
 
 # web server
 pip3 install Flask requests
@@ -35,9 +33,9 @@ def path1():
     address = socket.gethostbyname(hostname)
     data_dict = {}
     data_dict['app'] = 'PATH1-APP'
-    data_dict['name'] = hostname
-    data_dict['address'] = address
-    data_dict['remote'] = request.remote_addr
+    data_dict['hostname'] = hostname
+    data_dict['local-ip'] = address
+    data_dict['remote-ip'] = request.remote_addr
     data_dict['headers'] = dict(request.headers)
     return data_dict
 
@@ -47,9 +45,9 @@ def path2():
     address = socket.gethostbyname(hostname)
     data_dict = {}
     data_dict['app'] = 'PATH2-APP'
-    data_dict['name'] = hostname
-    data_dict['address'] = address
-    data_dict['remote'] = request.remote_addr
+    data_dict['hostname'] = hostname
+    data_dict['local-ip'] = address
+    data_dict['remote-ip'] = request.remote_addr
     data_dict['headers'] = dict(request.headers)
     return data_dict
 
@@ -75,7 +73,7 @@ echo -e "\n ping ip ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.ping, true) ~}
 %{~ if try(target.ip, "") != "" ~}
-echo "${target.name} - ${target.ip} -\$(ping -qc2 -W1 ${target.ip} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "${target.name} - ${target.ip} -\$(timeout 3 ping -qc2 -W1 ${target.ip} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 %{ endif ~}
 %{ endif ~}
 %{ endfor ~}
@@ -89,7 +87,7 @@ echo -e "\n ping dns ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.ping, true) ~}
 %{~ if try(target.ip, "") != "" ~}
-echo "${target.dns} - \$(dig +short ${target.dns} | tail -n1) -\$(ping -qc2 -W1 ${target.dns} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "${target.dns} - \$(dig +short ${target.dns} | tail -n1) -\$(timeout 3 ping -qc2 -W1 ${target.dns} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 %{ endif ~}
 %{ endif ~}
 %{ endfor ~}
@@ -102,7 +100,7 @@ cat <<EOF > /usr/local/bin/curl-ip
 echo -e "\n curl ip ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.ip, "") != "" ~}
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.ip}) - ${target.name} (${target.ip})"
+echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.ip}) - ${target.name} (${target.ip})"
 %{ endif ~}
 %{ endfor ~}
 EOF
@@ -113,7 +111,7 @@ chmod a+x /usr/local/bin/curl-ip
 cat <<EOF > /usr/local/bin/curl-dns
 echo -e "\n curl dns ...\n"
 %{ for target in TARGETS ~}
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.dns}) - ${target.dns}"
+echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.dns}) - ${target.dns}"
 %{ endfor ~}
 EOF
 chmod a+x /usr/local/bin/curl-dns
@@ -123,9 +121,12 @@ chmod a+x /usr/local/bin/curl-dns
 cat <<EOF > /usr/local/bin/trace-ip
 echo -e "\n trace ip ...\n"
 %{ for target in TARGETS ~}
+%{~ if try(target.ping, true) ~}
 %{~ if try(target.ip, "") != "" ~}
-traceroute ${target.ip}
-echo -e "${target.name}\n"
+echo -e "\n${target.name}"
+echo -e "-------------------------------------"
+timeout 9 tracepath ${target.ip}
+%{ endif ~}
 %{ endif ~}
 %{ endfor ~}
 EOF

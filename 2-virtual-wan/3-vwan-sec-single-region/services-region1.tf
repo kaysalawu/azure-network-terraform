@@ -1,0 +1,1 @@
+../../0-templates/services/services-region1.tf

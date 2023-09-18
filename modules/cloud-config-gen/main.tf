@@ -1,6 +1,7 @@
 
 locals {
   cloud_config = templatefile(local.template, merge(var.config_variables, {
+    packages          = var.packages
     boot_commands     = var.boot_commands
     container_args    = var.container_args
     container_image   = var.container_image
@@ -10,7 +11,6 @@ locals {
     files             = local.files
     run_commands      = var.run_commands
     users             = var.users
-    authenticate_gcr  = var.authenticate_gcr
   }))
   files = {
     for path, attrs in var.files : path => {

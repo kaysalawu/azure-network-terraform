@@ -1,5 +1,13 @@
 #cloud-config
 
+package_update: true
+%{ if length(packages) > 0 ~}
+packages:
+%{ for package in packages ~}
+  - ${package}
+%{ endfor ~}
+%{ endif ~}
+
 %{ if length(users) > 0 ~}
 users:
 %{ for user in users ~}

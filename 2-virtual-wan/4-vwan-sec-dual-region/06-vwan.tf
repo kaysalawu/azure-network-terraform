@@ -1,0 +1,1 @@
+../../0-templates/vwan/06-vwan.tf

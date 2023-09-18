@@ -75,13 +75,6 @@ resource "azurerm_lb_nat_rule" "this" {
   frontend_ip_configuration_name = var.type == "public" ? local.frontend_ip_configuration_name_public : local.frontend_ip_configuration_name_private
 }
 
-resource "azurerm_network_interface_backend_address_pool_association" "this" {
-  for_each                = { for x in var.backends : x.name => x }
-  network_interface_id    = each.value.network_interface_id
-  ip_configuration_name   = each.value.ip_configuration_name
-  backend_address_pool_id = azurerm_lb_backend_address_pool.this.id
-}
-
 resource "azurerm_private_dns_a_record" "this" {
   count               = var.type == "public" ? 0 : 1
   resource_group_name = var.resource_group_name
@@ -90,3 +83,13 @@ resource "azurerm_private_dns_a_record" "this" {
   ttl                 = 300
   records             = [azurerm_lb.this.frontend_ip_configuration[0].private_ip_address, ]
 }
+
+resource "azurerm_network_interface_backend_address_pool_association" "this" {
+  count                   = length(var.backends)
+  network_interface_id    = var.backends[count.index].network_interface_id
+  ip_configuration_name   = var.backends[count.index].ip_configuration_name
+  backend_address_pool_id = azurerm_lb_backend_address_pool.this.id
+  depends_on              = [azurerm_lb_backend_address_pool.this]
+}
+
+

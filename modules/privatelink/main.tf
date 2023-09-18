@@ -24,6 +24,9 @@ resource "azurerm_private_link_service" "this" {
       nat_ip_configuration
     ]
   }
+  timeouts {
+    create = "60m"
+  }
 }
 
 # private dns

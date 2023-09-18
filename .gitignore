@@ -4,7 +4,7 @@
 *.tfstate.backup
 .terraform/
 *.hcl
-terraform.tfvars
+*.tfvars
 vars.tfvars
 #*.json
 #*backend*
@@ -31,8 +31,7 @@ plugins/
 *artifact
 *certs
 *anthos-keys
-helper*
-output/
+backend.tf
 
 # Skaffold
 bin/
@@ -50,6 +49,4 @@ _run.*
 _dev.*
 _delete.*
 _env.txt
-
-
 

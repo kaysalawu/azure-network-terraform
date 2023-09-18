@@ -66,7 +66,7 @@ resource "azurerm_linux_virtual_machine" "this" {
   admin_username = var.admin_username
   admin_password = var.admin_password
   boot_diagnostics {
-    storage_account_uri = var.storage_account.primary_blob_endpoint
+    storage_account_uri = null
   }
   disable_password_authentication = false
 
