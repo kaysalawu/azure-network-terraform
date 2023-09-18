@@ -7,7 +7,7 @@ Errors
 - [3. Subnet - "Already Exists"](#3-subnet---already-exists)
 - [4. Backend Adress Pool - Error Updating](#4-backend-adress-pool---error-updating)
 - [5. Azure Firewall Diagnostic Setting - Already Exists](#5-azure-firewall-diagnostic-setting---already-exists)
-- [5. Virtual Machine Extension - Already Exists](#5-virtual-machine-extension---already-exists)
+- [6. Virtual Machine Extension - Already Exists](#6-virtual-machine-extension---already-exists)
 
 Terraform seializes some resource creation which creates situations where some resources wait for a long time for dependent resources to be created. There are scenarios where you might encounter errors after running terraform to deploy any of the labs. This could be as a result of occassional race conditions that come up because some terraform resources are dependent on Azure resources that take a long time to deploy - such as virtual network gateways.
 
@@ -181,7 +181,7 @@ terraform plan
 terraform apply
 ```
 
-## 5. Virtual Machine Extension - Already Exists
+## 6. Virtual Machine Extension - Already Exists
 
 This error could occur when terraform is trying to create a virtual machine extension. This could be as a result of the virtual machine extension already existing from a previous terraform run, or as a result of race condition encountered when deploying multiple terraform resources at the same time.
 
