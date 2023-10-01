@@ -1,5 +1,7 @@
 
 locals {
+  prefix = trimprefix(trimsuffix("${substr(var.env, 0, 1)}-${var.prefix}-", "-"), "-")
+
   firewall_categories_metric = ["AllMetrics"]
   firewall_categories_log = [
     "AzureFirewallApplicationRule",
@@ -13,7 +15,7 @@ locals {
 
 resource "azurerm_virtual_hub" "this" {
   resource_group_name = var.resource_group
-  name                = "${var.prefix}hub"
+  name                = "${local.prefix}hub"
   location            = var.location
   virtual_wan_id      = var.virtual_wan_id
   address_prefix      = var.address_prefix
@@ -30,7 +32,7 @@ resource "azurerm_virtual_hub" "this" {
 resource "azurerm_vpn_gateway" "this" {
   count               = var.enable_s2s_vpn_gateway ? 1 : 0
   resource_group_name = var.resource_group
-  name                = "${var.prefix}vpngw"
+  name                = "${local.prefix}vpngw"
   location            = var.location
   virtual_hub_id      = azurerm_virtual_hub.this.id
 
@@ -59,7 +61,7 @@ resource "random_id" "azfw" {
 resource "azurerm_firewall" "this" {
   count               = var.security_config[0].enable_firewall ? 1 : 0
   resource_group_name = var.resource_group
-  name                = "${var.prefix}azfw-${random_id.azfw.hex}"
+  name                = "${local.prefix}azfw-${random_id.azfw.hex}"
   location            = var.location
   sku_tier            = "Standard"
   sku_name            = "AZFW_Hub"
@@ -77,7 +79,7 @@ resource "azurerm_firewall" "this" {
 
 resource "azurerm_monitor_diagnostic_setting" "this" {
   count                      = var.security_config[0].enable_firewall ? 1 : 0
-  name                       = "${var.prefix}azfw-diag"
+  name                       = "${local.prefix}azfw-diag"
   target_resource_id         = azurerm_firewall.this[0].id
   log_analytics_workspace_id = var.log_analytics_workspace_id
   storage_account_id         = var.storage_account_id

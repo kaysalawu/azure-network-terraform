@@ -1,8 +1,4 @@
 
-locals {
-  #spoke3_vm_public_ip = module.spoke3.vm_public_ip[local.spoke3_vm_name]
-}
-
 ####################################################
 # spoke1
 ####################################################
@@ -13,8 +9,12 @@ module "spoke1" {
   source          = "../../modules/base"
   resource_group  = azurerm_resource_group.rg.name
   prefix          = trimsuffix(local.spoke1_prefix, "-")
+  env             = "prod"
   location        = local.spoke1_location
   storage_account = module.common.storage_accounts["region1"]
+  tags = {
+    "nodeType" = "spoke"
+  }
 
   private_dns_zone_name = azurerm_private_dns_zone.global.name
   private_dns_prefix    = local.spoke1_dns_zone
@@ -58,8 +58,12 @@ module "spoke2" {
   source          = "../../modules/base"
   resource_group  = azurerm_resource_group.rg.name
   prefix          = trimsuffix(local.spoke2_prefix, "-")
+  env             = "prod"
   location        = local.spoke2_location
   storage_account = module.common.storage_accounts["region1"]
+  tags = {
+    "nodeType" = "spoke"
+  }
 
   private_dns_zone_name = azurerm_private_dns_zone.global.name
   private_dns_prefix    = local.spoke2_dns_zone
@@ -102,8 +106,12 @@ module "spoke3" {
   source          = "../../modules/base"
   resource_group  = azurerm_resource_group.rg.name
   prefix          = trimsuffix(local.spoke3_prefix, "-")
+  env             = "prod"
   location        = local.spoke3_location
   storage_account = module.common.storage_accounts["region1"]
+  tags = {
+    "nodeType" = "spoke"
+  }
 
   private_dns_zone_name = azurerm_private_dns_zone.global.name
   private_dns_prefix    = local.spoke3_dns_zone

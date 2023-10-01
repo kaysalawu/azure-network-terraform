@@ -19,6 +19,7 @@ modulez/
 *destroy.sh
 clean.sh
 plan.sh
+prepare.sh
 *rendered
 *keys/
 *test/

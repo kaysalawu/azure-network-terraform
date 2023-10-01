@@ -1,5 +1,10 @@
 
 locals {
+  prefix = trimprefix(trimsuffix("${substr(var.env, 0, 1)}-${var.prefix}-", "-"), "-")
+  tags = merge(
+    { env = var.env, prefix = var.prefix },
+    var.tags
+  )
   private_prefixes = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "100.64.0.0/10"]
 }
 
@@ -16,10 +21,11 @@ resource "random_id" "storage_accounts" {
 resource "azurerm_storage_account" "storage_accounts" {
   for_each                 = var.regions
   resource_group_name      = var.resource_group
-  name                     = lower("${var.prefix}${each.key}${random_id.storage_accounts.hex}")
+  name                     = replace(lower("${local.prefix}${each.key}${random_id.storage_accounts.hex}"), "-", "")
   location                 = each.value
   account_replication_type = "LRS"
   account_tier             = "Standard"
+  tags                     = var.tags
 }
 
 ####################################################
@@ -33,10 +39,11 @@ resource "random_id" "analytics_workspaces" {
 resource "azurerm_log_analytics_workspace" "analytics_workspaces" {
   for_each            = var.regions
   resource_group_name = var.resource_group
-  name                = "${var.prefix}-${each.key}-analytics-ws-${random_id.analytics_workspaces.hex}"
+  name                = "${local.prefix}-${each.key}-analytics-ws-${random_id.analytics_workspaces.hex}"
   location            = each.value
   sku                 = "PerGB2018"
   retention_in_days   = 30
+  tags                = var.tags
 }
 
 locals {
@@ -48,12 +55,6 @@ locals {
   ]
 }
 
-# my public ip
-
-/*data "http" "mypip" {
-  url = "http://ipv4.icanhazip.com"
-}*/
-
 ####################################################
 # nsg
 ####################################################
@@ -64,8 +65,9 @@ locals {
 resource "azurerm_network_security_group" "nsg_default" {
   for_each            = var.regions
   resource_group_name = var.resource_group
-  name                = "${var.prefix}-nsg-${each.value}-default"
+  name                = "${local.prefix}-nsg-${each.value}-default"
   location            = each.value
+  tags                = var.tags
 }
 
 # vm
@@ -74,8 +76,9 @@ resource "azurerm_network_security_group" "nsg_default" {
 resource "azurerm_network_security_group" "nsg_main" {
   for_each            = var.regions
   resource_group_name = var.resource_group
-  name                = "${var.prefix}-nsg-${each.key}-main"
+  name                = "${local.prefix}-nsg-${each.key}-main"
   location            = each.value
+  tags                = var.tags
 }
 
 resource "azurerm_network_security_rule" "nsg_main_private" {
@@ -100,8 +103,9 @@ resource "azurerm_network_security_rule" "nsg_main_private" {
 resource "azurerm_network_security_group" "nsg_nva" {
   for_each            = var.regions
   resource_group_name = var.resource_group
-  name                = "${var.prefix}-nsg-${each.value}-nva"
+  name                = "${local.prefix}-nsg-${each.value}-nva"
   location            = each.value
+  tags                = var.tags
 }
 
 resource "azurerm_network_security_rule" "nsg_nva_private" {
@@ -158,8 +162,9 @@ resource "azurerm_network_security_rule" "nsg_nva_outbound_allow_ipsec" {
 resource "azurerm_network_security_group" "nsg_appgw" {
   for_each            = var.regions
   resource_group_name = var.resource_group
-  name                = "${var.prefix}-nsg-${each.value}-appgw"
+  name                = "${local.prefix}-nsg-${each.value}-appgw"
   location            = each.value
+  tags                = var.tags
 }
 
 resource "azurerm_network_security_rule" "nsg_appgw_inbound_allow_appgw_v2sku" {

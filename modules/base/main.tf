@@ -1,10 +1,16 @@
 
 locals {
-  prefix = var.prefix == "" ? "" : join("-", [var.prefix, ""])
+  prefix = trimprefix("${substr(var.env, 0, 1)}-${var.prefix}", "-")
   subnet_ids_with_nat = [
     for x in var.vnet_config[0].subnets : azurerm_subnet.this[x].id
     if contains(var.vnet_config[0].subnet_names_nat_gateway, x)
   ]
+  tags = merge(
+    var.tags,
+    {
+      env = var.env
+    }
+  )
 }
 
 # vnet
@@ -15,6 +21,7 @@ resource "azurerm_virtual_network" "this" {
   name                = "${local.prefix}vnet"
   address_space       = var.vnet_config[0].address_space
   location            = var.location
+  tags                = local.tags
 }
 
 # subnets
@@ -86,6 +93,7 @@ resource "azurerm_private_dns_resolver" "this" {
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
   ]
+  tags = local.tags
 }
 
 resource "azurerm_private_dns_resolver_inbound_endpoint" "this" {
@@ -140,6 +148,7 @@ resource "azurerm_public_ip" "nat" {
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
   ]
+  tags = local.tags
 }
 
 resource "azurerm_nat_gateway" "nat" {
@@ -155,6 +164,7 @@ resource "azurerm_nat_gateway" "nat" {
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
   ]
+  tags = local.tags
 }
 
 resource "azurerm_nat_gateway_public_ip_association" "nat" {
@@ -179,10 +189,11 @@ module "vm" {
   for_each              = { for x in var.vm_config : x.name => x }
   source                = "../../modules/linux"
   resource_group        = var.resource_group
-  prefix                = var.prefix
+  prefix                = local.prefix
   name                  = each.key
   dns_host              = each.value.dns_host
   location              = var.location
+  vm_size               = each.value.size
   subnet                = azurerm_subnet.this[each.value.subnet].id
   private_ip            = each.value.private_ip
   source_image          = each.value.source_image
@@ -204,6 +215,7 @@ module "vm" {
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
   ]
+  tags = local.tags
 }
 
 # vpngw
@@ -224,6 +236,7 @@ resource "azurerm_public_ip" "vpngw_pip0" {
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
   ]
+  tags = local.tags
 }
 
 resource "azurerm_public_ip" "vpngw_pip1" {
@@ -241,6 +254,7 @@ resource "azurerm_public_ip" "vpngw_pip1" {
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
   ]
+  tags = local.tags
 }
 
 resource "azurerm_virtual_network_gateway" "vpngw" {
@@ -253,6 +267,7 @@ resource "azurerm_virtual_network_gateway" "vpngw" {
   sku                 = var.vnet_config[0].vpn_gateway_sku
   enable_bgp          = true
   active_active       = true
+  tags                = local.tags
 
   ip_configuration {
     name                          = "${local.prefix}ip-config0"
@@ -293,6 +308,7 @@ resource "azurerm_public_ip" "ergw_pip" {
   location            = var.location
   sku                 = "Standard"
   allocation_method   = "Static"
+  tags                = local.tags
   timeouts {
     create = "60m"
   }
@@ -333,6 +349,7 @@ resource "azurerm_public_ip" "ars_pip" {
   location            = var.location
   sku                 = "Standard"
   allocation_method   = "Static"
+  tags                = local.tags
   timeouts {
     create = "60m"
   }
@@ -351,6 +368,7 @@ resource "azurerm_route_server" "ars" {
   public_ip_address_id             = azurerm_public_ip.ars_pip[0].id
   subnet_id                        = azurerm_subnet.this["RouteServerSubnet"].id
   branch_to_branch_traffic_enabled = true
+  tags                             = local.tags
 
   lifecycle {
     ignore_changes = [
@@ -376,6 +394,7 @@ resource "azurerm_log_analytics_workspace" "azfw" {
   resource_group_name = var.resource_group
   name                = "${local.prefix}azfw-ws"
   location            = var.location
+  tags                = local.tags
 }
 
 # firewall public ip
@@ -387,6 +406,7 @@ resource "azurerm_public_ip" "fw_pip" {
   location            = var.location
   sku                 = "Standard"
   allocation_method   = "Static"
+  tags                = local.tags
   timeouts {
     create = "60m"
   }
@@ -405,6 +425,7 @@ resource "azurerm_public_ip" "fw_mgt_pip" {
   location            = var.location
   sku                 = "Standard"
   allocation_method   = "Static"
+  tags                = local.tags
   timeouts {
     create = "60m"
   }
@@ -424,6 +445,7 @@ resource "azurerm_firewall" "azfw" {
   sku_name            = "AZFW_VNet"
   sku_tier            = try(var.vnet_config[0].firewall_sku, "Basic")
   firewall_policy_id  = try(var.vnet_config[0].firewall_policy_id, null)
+  tags                = local.tags
 
   ip_configuration {
     name                 = "${local.prefix}ip-config"
@@ -467,6 +489,7 @@ resource "azurerm_storage_account" "azfw" {
   location                 = var.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
+  tags                     = local.tags
 }
 
 # diagnostic setting

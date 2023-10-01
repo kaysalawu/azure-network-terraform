@@ -12,6 +12,9 @@ module "branch3" {
   prefix          = trimsuffix(local.branch3_prefix, "-")
   location        = local.branch3_location
   storage_account = module.common.storage_accounts["region2"]
+  tags = {
+    "nodeType" = "branch"
+  }
 
   nsg_subnet_map = {
     #"${local.branch3_prefix}main" = module.common.nsg_main["region2"].id
@@ -33,7 +36,7 @@ module "branch3" {
       private_ip       = local.branch3_vm_addr
       custom_data      = base64encode(local.vm_startup)
       source_image     = "ubuntu"
-      use_vm_extension = true
+      use_vm_extension = false
       dns_servers      = [local.branch3_dns_addr, ]
       delay_creation   = "120s"
     },

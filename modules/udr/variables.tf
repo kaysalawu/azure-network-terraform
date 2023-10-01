@@ -1,4 +1,11 @@
 
+variable "env" {
+  description = "environment"
+  type        = string
+  default     = ""
+}
+
+
 variable "resource_group" {
   type = string
 }

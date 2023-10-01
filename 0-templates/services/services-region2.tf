@@ -131,4 +131,3 @@ resource "azurerm_private_dns_a_record" "hub2_spoke6_pe" {
   ttl                 = 300
   records             = [azurerm_private_endpoint.hub2_spoke6_pe.private_service_connection[0].private_ip_address, ]
 }
-

@@ -1,6 +1,6 @@
 
 locals {
-  prefix = var.prefix == "" ? "" : format("%s-", var.prefix)
+  prefix = trimprefix(trimsuffix("${substr(var.env, 0, 1)}-${var.prefix}-", "-"), "-")
 }
 
 # privatelink service

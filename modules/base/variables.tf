@@ -9,6 +9,12 @@ variable "prefix" {
   type        = string
 }
 
+variable "env" {
+  description = "env prefix to append to all resources"
+  type        = string
+  default     = ""
+}
+
 variable "location" {
   description = "vnet region location"
   type        = string
@@ -17,7 +23,7 @@ variable "location" {
 variable "tags" {
   description = "tags for all hub resources"
   type        = map(any)
-  default     = null
+  default     = {}
 }
 
 variable "storage_account" {
@@ -119,6 +125,7 @@ variable "vm_config" {
     source_image         = optional(string, "ubuntu")
     dns_servers          = optional(list(string), [])
     delay_creation       = optional(string, "0s")
+    size                 = optional(string, "Standard_B1s")
   }))
   default = []
 }

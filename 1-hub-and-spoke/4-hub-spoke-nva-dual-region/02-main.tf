@@ -8,6 +8,13 @@ locals {
 }
 
 ####################################################
+# Data
+####################################################
+
+data "azurerm_subscription" "current" {
+}
+
+####################################################
 # providers
 ####################################################
 
@@ -93,9 +100,11 @@ data "http" "my_public_ip" {
 module "common" {
   source         = "../../modules/common"
   resource_group = azurerm_resource_group.rg.name
+  env            = "common"
   prefix         = local.prefix
   firewall_sku   = local.firewall_sku
   regions        = local.regions
+  tags           = {}
 }
 
 resource "azurerm_private_dns_zone" "global" {
@@ -119,7 +128,6 @@ locals {
   hub2_vpngw_asn = "65515"
   hub2_ergw_asn  = "65515"
   hub2_ars_asn   = "65515"
-  #mypip         = chomp(data.http.mypip.response_body)
 
   vm_script_targets_region1 = [
     { name = "branch1", dns = local.branch1_vm_fqdn, ip = local.branch1_vm_addr },
@@ -154,8 +162,11 @@ locals {
     FORWARD_ZONES        = local.onprem_forward_zones
     TARGETS              = local.vm_script_targets_region1
   }
-  branch_unbound_conf    = templatefile("../../scripts/unbound/unbound.conf", local.unbound_vars)
-  branch_unbound_startup = templatefile("../../scripts/unbound/unbound.sh", local.unbound_vars)
+  branch_unbound_conf         = templatefile("../../scripts/unbound/unbound.conf", local.unbound_vars)
+  branch_unbound_startup      = templatefile("../../scripts/unbound/unbound.sh", local.unbound_vars)
+  branch_dnsmasq_startup      = templatefile("../../scripts/dnsmasq/dnsmasq.sh", local.unbound_vars)
+  branch_dnsmasq_cloud_config = templatefile("../../scripts/dnsmasq/cloud-config", local.unbound_vars)
+  branch_unbound_cloud_config = templatefile("../../scripts/unbound/cloud-config", local.unbound_vars)
   branch_unbound_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
@@ -176,7 +187,7 @@ locals {
 
 module "unbound" {
   source   = "../../modules/cloud-config-gen"
-  packages = ["tcpdump", "bind9-utils", "dnsutils", "net-tools", "unbound"]
+  packages = ["tcpdump", "dnsutils", "net-tools", "unbound"]
   files = {
     "/var/log/unbound"          = { owner = "root", permissions = "0755", content = "" }
     "/etc/unbound/unbound.conf" = { owner = "root", permissions = "0640", content = local.branch_unbound_conf }
@@ -184,6 +195,16 @@ module "unbound" {
   run_commands = [
     "systemctl restart unbound",
     "systemctl enable unbound",
+  ]
+}
+
+module "dnsmasq" {
+  source   = "../../modules/cloud-config-gen"
+  packages = ["dnsmasq"]
+  files    = {}
+  run_commands = [
+    "systemctl restart dnsmasq",
+    "systemctl enable dnsmasq",
   ]
 }
 
@@ -275,6 +296,7 @@ module "fw_policy_rule_collection_group" {
 locals {
   main_files = {
     "output/unbound.conf" = module.unbound.cloud_config
+    "output/dnsmasq.sh"   = local.branch_dnsmasq_startup
   }
 }
 

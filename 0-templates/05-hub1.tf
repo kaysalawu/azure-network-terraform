@@ -7,8 +7,12 @@ module "hub1" {
   source          = "../../modules/base"
   resource_group  = azurerm_resource_group.rg.name
   prefix          = trimsuffix(local.hub1_prefix, "-")
+  env             = "prod"
   location        = local.hub1_location
   storage_account = module.common.storage_accounts["region1"]
+  tags = {
+    "nodeType" = "hub"
+  }
 
   private_dns_zone_name = azurerm_private_dns_zone.global.name
   private_dns_prefix    = local.hub1_dns_zone
