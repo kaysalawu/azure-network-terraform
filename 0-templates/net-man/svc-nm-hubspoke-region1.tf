@@ -91,7 +91,7 @@ resource "azurerm_network_manager_deployment" "conn_config_hub_spoke_region1" {
 ####################################################
 
 resource "null_resource" "policy_cleanup_region1" {
-  count = length(local.policy_cleanup_commands_global)
+  count = length(local.policy_cleanup_commands_region1)
   triggers = {
     create = ":"
     delete = local.policy_cleanup_commands_region1[count.index]

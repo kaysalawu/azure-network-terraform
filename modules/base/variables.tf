@@ -10,9 +10,9 @@ variable "prefix" {
 }
 
 variable "env" {
-  description = "env prefix to append to all resources"
+  description = "environment name"
   type        = string
-  default     = ""
+  default     = "dev"
 }
 
 variable "location" {

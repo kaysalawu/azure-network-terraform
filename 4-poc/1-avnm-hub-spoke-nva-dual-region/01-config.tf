@@ -274,7 +274,7 @@ locals {
   spoke1_location = local.region1
   spoke1_address_space = [
     "53.200.16.0/21",
-    "172.16.1.0/20",
+    "172.16.0.0/20",
   ]
   spoke1_dns_zone = "spoke1"
   spoke1_tags     = { env = "spoke1" }
@@ -303,7 +303,7 @@ locals {
   spoke2_location = local.region1
   spoke2_address_space = [
     "53.200.24.0/21",
-    "172.16.1.0/20",
+    "172.16.0.0/20",
   ]
   spoke2_dns_zone = "spoke2"
   spoke2_tags     = { env = "spoke2" }
@@ -332,7 +332,7 @@ locals {
   spoke3_location = local.region1
   spoke3_address_space = [
     "53.200.32.0/21",
-    "172.16.1.0/20",
+    "172.16.0.0/20",
   ]
   spoke3_dns_zone = "spoke3"
   spoke3_tags     = { env = "spoke3" }
@@ -361,7 +361,7 @@ locals {
   spoke4_location = local.region2
   spoke4_address_space = [
     "53.200.40.0/21",
-    "172.16.1.0/20",
+    "172.16.0.0/20",
   ]
   spoke4_dns_zone = "spoke4"
   spoke4_tags     = { env = "spoke4" }
@@ -390,7 +390,7 @@ locals {
   spoke5_location = local.region2
   spoke5_address_space = [
     "53.200.56.0/21",
-    "172.16.1.0/20",
+    "172.16.0.0/20",
   ]
   spoke5_dns_zone = "spoke5"
   spoke5_tags     = { env = "spoke5" }
@@ -419,7 +419,7 @@ locals {
   spoke6_location = local.region2
   spoke6_address_space = [
     "53.200.64.0/21",
-    "172.16.1.0/20",
+    "172.16.0.0/20",
   ]
   spoke6_dns_zone = "spoke6"
   spoke6_tags     = { env = "spoke6" }

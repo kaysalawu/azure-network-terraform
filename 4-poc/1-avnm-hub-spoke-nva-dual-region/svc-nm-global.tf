@@ -1,14 +1,4 @@
 
-locals {
-  policy_ng_spokes_prod = templatefile("../../policies/net-man/ng-spokes-prod.json", {
-    NETWORK_GROUP_ID = azurerm_network_manager_network_group.ng_spokes_prod.id
-  })
-  policy_cleanup_commands_global = [
-    "az policy assignment delete -n ${local.prefix}-ng-spokes-prod",
-    "az policy definition delete -n ${local.prefix}-ng-spokes-prod",
-  ]
-}
-
 ####################################################
 # network manager
 ####################################################

@@ -1,6 +1,6 @@
 
 locals {
-  prefix = trimprefix(trimsuffix("${substr(var.env, 0, 1)}-${var.prefix}-", "-"), "-")
+  prefix = var.prefix == "" ? "" : format("%s-", var.prefix)
 
   firewall_categories_metric = ["AllMetrics"]
   firewall_categories_log = [

@@ -4,12 +4,6 @@ variable "resource_group" {
   type        = any
 }
 
-variable "env" {
-  description = "environment"
-  type        = string
-  default     = ""
-}
-
 variable "prefix" {
   description = "prefix to append before all resources"
   type        = string
@@ -23,7 +17,7 @@ variable "location" {
 variable "tags" {
   description = "tags for all hub resources"
   type        = map(any)
-  default     = null
+  default     = {}
 }
 
 variable "nat_ip_config" {

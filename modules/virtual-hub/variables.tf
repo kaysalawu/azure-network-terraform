@@ -4,6 +4,12 @@ variable "prefix" {
   type        = string
 }
 
+variable "tags" {
+  description = "A map of tags to apply to all resources"
+  type        = map(any)
+  default     = {}
+}
+
 variable "resource_group" {
   description = "Name of the resource group"
   type        = string

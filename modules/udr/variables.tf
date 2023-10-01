@@ -1,17 +1,16 @@
 
-variable "env" {
-  description = "environment"
-  type        = string
-  default     = ""
-}
-
-
 variable "resource_group" {
   type = string
 }
 
 variable "prefix" {
   type = string
+}
+
+variable "tags" {
+  description = "A map of tags to apply to all resources"
+  type        = map(any)
+  default     = {}
 }
 
 variable "location" {

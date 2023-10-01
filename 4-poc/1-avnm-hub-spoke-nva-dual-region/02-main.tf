@@ -3,7 +3,7 @@
 ####################################################
 
 locals {
-  prefix       = "Ne31"
+  prefix       = "Poc41"
   my_public_ip = chomp(data.http.my_public_ip.response_body)
 }
 

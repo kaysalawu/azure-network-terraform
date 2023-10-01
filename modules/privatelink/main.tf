@@ -1,6 +1,6 @@
 
 locals {
-  prefix = trimprefix(trimsuffix("${substr(var.env, 0, 1)}-${var.prefix}-", "-"), "-")
+  prefix = var.prefix == "" ? "" : format("%s-", var.prefix)
 }
 
 # privatelink service
@@ -9,6 +9,7 @@ resource "azurerm_private_link_service" "this" {
   resource_group_name = var.resource_group
   name                = "${local.prefix}pls"
   location            = var.location
+  tags                = var.tags
 
   nat_ip_configuration {
     name               = "${local.prefix}${var.nat_ip_config[0].name}"

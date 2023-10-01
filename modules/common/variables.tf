@@ -5,9 +5,9 @@ variable "prefix" {
 }
 
 variable "env" {
-  description = "The environment to use for all resources"
+  description = "environment name"
   type        = string
-  default     = ""
+  default     = "dev"
 }
 
 variable "tags" {

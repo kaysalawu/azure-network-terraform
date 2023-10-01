@@ -1,6 +1,6 @@
 
 locals {
-  prefix = var.prefix == "" ? "${var.name}" : join("-", [var.prefix, var.name, ""])
+  prefix = var.prefix == "" ? "${var.name}" : format("%s-%s-", var.prefix, var.name)
 }
 
 # public ip
