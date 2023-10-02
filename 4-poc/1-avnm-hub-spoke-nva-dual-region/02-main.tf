@@ -305,6 +305,21 @@ module "fw_policy_rule_collection_group" {
 }
 
 ####################################################
+# network manager
+####################################################
+
+resource "azurerm_network_manager" "netman" {
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  name                = "${local.prefix}-netman"
+  scope_accesses      = ["Connectivity", "SecurityAdmin"]
+  description         = "global"
+  scope {
+    subscription_ids = [data.azurerm_subscription.current.id]
+  }
+}
+
+####################################################
 # output files
 ####################################################
 

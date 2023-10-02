@@ -1,25 +1,20 @@
 
-####################################################
-# network manager
-####################################################
-
-resource "azurerm_network_manager" "netman" {
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = local.region1
-  name                = "${local.prefix}-netman"
-  scope_accesses      = ["Connectivity", "SecurityAdmin"]
-  description         = "global"
-  scope {
-    subscription_ids = [data.azurerm_subscription.current.id]
-  }
+locals {
+  policy_ng_hubs_prod = templatefile("../../policies/net-man/ng-hubs-prod.json", {
+    NETWORK_GROUP_ID = azurerm_network_manager_network_group.ng_hubs_prod.id
+  })
+  policy_cleanup_commands_hubs = [
+    "az policy assignment delete -n ${local.prefix}-ng-hubs-prod",
+    "az policy definition delete -n ${local.prefix}-ng-hubs-prod",
+  ]
 }
-/*
+
 ####################################################
 # network groups
 ####################################################
 
-resource "azurerm_network_manager_network_group" "ng_spokes_prod" {
-  name               = "${local.prefix}-ng-spokes-prod"
+resource "azurerm_network_manager_network_group" "ng_hubs_prod" {
+  name               = "${local.prefix}-ng-hubs-prod"
   network_manager_id = azurerm_network_manager.netman.id
 }
 
@@ -27,22 +22,22 @@ resource "azurerm_network_manager_network_group" "ng_spokes_prod" {
 # policy definitions
 ####################################################
 
-resource "azurerm_policy_definition" "ng_spokes_prod" {
-  name         = "${local.prefix}-ng-spokes-prod"
+resource "azurerm_policy_definition" "ng_hubs_prod" {
+  name         = "${local.prefix}-ng-hubs-prod"
   policy_type  = "Custom"
   mode         = "Microsoft.Network.Data"
-  display_name = "All spokes in prod"
+  display_name = "All hubs in prod region1"
   metadata     = templatefile("../../policies/net-man/metadata.json", {})
-  policy_rule  = local.policy_ng_spokes_prod
+  policy_rule  = local.policy_ng_hubs_prod
 }
 
 ####################################################
 # policy assignments
 ####################################################
 
-resource "azurerm_subscription_policy_assignment" "ng_spokes_prod" {
-  name                 = "${local.prefix}-ng-spokes-prod"
-  policy_definition_id = azurerm_policy_definition.ng_spokes_prod.id
+resource "azurerm_subscription_policy_assignment" "ng_hubs_prod" {
+  name                 = "${local.prefix}-ng-hubs-prod"
+  policy_definition_id = azurerm_policy_definition.ng_hubs_prod.id
   subscription_id      = data.azurerm_subscription.current.id
 }
 
@@ -51,15 +46,19 @@ resource "azurerm_subscription_policy_assignment" "ng_spokes_prod" {
 ####################################################
 
 # connectivity
+#---------------------------
 
-resource "azurerm_network_manager_connectivity_configuration" "conn_config_spokes" {
-  name                  = "${local.prefix}-conn-config-spokes"
+resource "azurerm_network_manager_connectivity_configuration" "conn_config_hubs" {
+  name                  = "${local.prefix}-conn-config-hubs"
   network_manager_id    = azurerm_network_manager.netman.id
   connectivity_topology = "Mesh"
   applies_to_group {
     group_connectivity = "None"
-    network_group_id   = azurerm_network_manager_network_group.ng_spokes_prod.id
+    network_group_id   = azurerm_network_manager_network_group.ng_hubs_prod.id
   }
+  depends_on = [
+    module.hub1
+  ]
 }
 
 ####################################################
@@ -68,15 +67,15 @@ resource "azurerm_network_manager_connectivity_configuration" "conn_config_spoke
 
 # connectivity
 
-resource "azurerm_network_manager_deployment" "conn_config_spokes" {
+resource "azurerm_network_manager_deployment" "conn_config_hubs" {
   network_manager_id = azurerm_network_manager.netman.id
   location           = local.region1
   scope_access       = "Connectivity"
   configuration_ids = [
-    azurerm_network_manager_connectivity_configuration.conn_config_spokes.id
+    azurerm_network_manager_connectivity_configuration.conn_config_hubs.id
   ]
   triggers = {
-    connectivity_configuration_ids = azurerm_network_manager_connectivity_configuration.conn_config_spokes.id
+    connectivity_configuration_ids = azurerm_network_manager_connectivity_configuration.conn_config_hubs.id
   }
 }
 
@@ -84,11 +83,11 @@ resource "azurerm_network_manager_deployment" "conn_config_spokes" {
 # cleanup
 ####################################################
 
-resource "null_resource" "policy_cleanup_global" {
-  count = length(local.policy_cleanup_commands_global)
+resource "null_resource" "policy_cleanup_hubs" {
+  count = length(local.policy_cleanup_commands_hubs)
   triggers = {
     create = ":"
-    delete = local.policy_cleanup_commands_global[count.index]
+    delete = local.policy_cleanup_commands_hubs[count.index]
   }
   provisioner "local-exec" {
     command = self.triggers.create
@@ -98,8 +97,8 @@ resource "null_resource" "policy_cleanup_global" {
     command = self.triggers.delete
   }
   depends_on = [
-    azurerm_policy_definition.ng_spokes_prod,
-    azurerm_subscription_policy_assignment.ng_spokes_prod,
+    azurerm_policy_definition.ng_hubs_prod,
+    azurerm_subscription_policy_assignment.ng_hubs_prod,
   ]
 }
 
@@ -109,7 +108,7 @@ resource "null_resource" "policy_cleanup_global" {
 
 locals {
   netman_files = {
-    "output/policies/azpol-ng-spokes.json" = local.policy_ng_spokes_prod
+    "output/policies/pol-ng-hubs.json" = local.policy_ng_hubs_prod
   }
 }
 
@@ -118,4 +117,3 @@ resource "local_file" "netman_files" {
   filename = each.key
   content  = each.value
 }
-*/
