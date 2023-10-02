@@ -51,7 +51,7 @@ resource "azurerm_subscription_policy_assignment" "ng_spokes_prod_region2" {
 
 resource "azurerm_network_manager_connectivity_configuration" "conn_config_hub_spoke_region2" {
   name                  = "${local.prefix}-conn-config-hub-spoke-region2"
-  network_manager_id    = azurerm_network_manager.network_manager_instance.id
+  network_manager_id    = azurerm_network_manager.netman.id
   connectivity_topology = "HubAndSpoke"
   hub {
     resource_id   = module.hub2.vnet.id
@@ -76,7 +76,7 @@ resource "azurerm_network_manager_connectivity_configuration" "conn_config_hub_s
 #---------------------------
 
 resource "azurerm_network_manager_deployment" "conn_config_hub_spoke_region2" {
-  network_manager_id = azurerm_network_manager.network_manager_instance.id
+  network_manager_id = azurerm_network_manager.netman.id
   location           = local.region2
   scope_access       = "Connectivity"
   configuration_ids = [

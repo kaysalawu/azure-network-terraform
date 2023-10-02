@@ -22,8 +22,8 @@ variable "subnet_id" {
 }
 
 variable "destinations" {
-  type    = set(string)
-  default = []
+  type    = map(any)
+  default = {}
 }
 
 variable "next_hop_type" {

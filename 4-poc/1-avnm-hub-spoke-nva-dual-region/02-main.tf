@@ -3,7 +3,7 @@
 ####################################################
 
 locals {
-  prefix       = "Poc41"
+  prefix       = "Poc1"
   my_public_ip = chomp(data.http.my_public_ip.response_body)
 }
 
@@ -41,20 +41,35 @@ locals {
     region1 = local.region1
     region2 = local.region2
   }
-  main_udr_destinations = concat(
-    local.udr_azure_destinations_region1,
-    local.udr_onprem_destinations_region1,
-    local.udr_azure_destinations_region2,
-    local.udr_onprem_destinations_region2,
-  )
-  hub1_gateway_udr_destinations = concat(
-    local.udr_azure_destinations_region1,
-    local.udr_azure_destinations_region2,
-  )
-  hub2_gateway_udr_destinations = concat(
-    local.udr_azure_destinations_region1,
-    local.udr_azure_destinations_region2,
-  )
+
+  default_udr_destinations = {
+    "default" = "0.0.0.0/0"
+  }
+
+  hub1_nva_udr_destinations = {
+    "spoke4" = local.spoke4_address_space[0]
+    "spoke5" = local.spoke5_address_space[0]
+    "hub2"   = local.hub2_address_space[0]
+  }
+
+  hub2_nva_udr_destinations = {
+    "spoke1" = local.spoke1_address_space[0]
+    "spoke2" = local.spoke2_address_space[0]
+    "hub1"   = local.hub1_address_space[0]
+  }
+
+  hub1_gateway_udr_destinations = {
+    "spoke1" = local.spoke1_address_space[0]
+    "spoke2" = local.spoke2_address_space[0]
+    "hub1"   = local.hub1_address_space[0]
+  }
+
+  hub2_gateway_udr_destinations = {
+    "spoke4" = local.spoke4_address_space[0]
+    "spoke5" = local.spoke5_address_space[0]
+    "hub2"   = local.hub2_address_space[0]
+  }
+
   firewall_sku = "Basic"
 
   hub1_features = {
@@ -70,7 +85,7 @@ locals {
 
   hub2_features = {
     enable_private_dns_resolver = true
-    enable_ars                  = true
+    enable_ars                  = false
     enable_vpn_gateway          = true
     enable_er_gateway           = false
 

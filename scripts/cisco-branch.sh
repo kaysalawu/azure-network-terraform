@@ -52,6 +52,17 @@ interface ${k}
 ip address ${v} 255.255.255.255
 %{~ endfor }
 !
+ip access-list extended NAT-ACL
+%{~ for v in NAT_ACL_PREFIXES }
+permit ip ${v.network} ${v.inverse_mask} any
+%{~ endfor }
+interface GigabitEthernet2
+ip nat inside
+interface GigabitEthernet1
+ip nat outside
+exit
+ip nat inside source list NAT-ACL interface GigabitEthernet1 overload
+!
 %{~ for route in STATIC_ROUTES }
 ip route ${route.network} ${route.mask} ${route.next_hop}
 %{~ endfor }

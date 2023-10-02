@@ -26,33 +26,6 @@ locals {
   cloud_domain     = "az.corp"
   azuredns         = "168.63.129.16"
   private_prefixes = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "100.64.0.0/10"]
-
-  # TODO: change udr definitions from list to map
-  udr_azure_destinations_region1 = [
-    local.spoke1_address_space[0],
-    local.spoke2_address_space[0],
-    local.hub1_subnets["${local.hub1_prefix}main"].address_prefixes[0],
-    local.hub1_subnets["${local.hub1_prefix}pep"].address_prefixes[0],
-    local.hub1_subnets["${local.hub1_prefix}pls"].address_prefixes[0],
-    local.hub1_subnets["${local.hub1_prefix}dns-in"].address_prefixes[0],
-  ]
-
-  udr_onprem_destinations_region1 = [
-    local.branch1_subnets["${local.branch1_prefix}main"].address_prefixes[0],
-  ]
-
-  udr_azure_destinations_region2 = [
-    local.spoke4_address_space[0],
-    local.spoke5_address_space[0],
-    local.hub2_subnets["${local.hub2_prefix}main"].address_prefixes[0],
-    local.hub2_subnets["${local.hub2_prefix}pep"].address_prefixes[0],
-    local.hub2_subnets["${local.hub2_prefix}pls"].address_prefixes[0],
-    local.hub2_subnets["${local.hub2_prefix}dns-in"].address_prefixes[0],
-  ]
-
-  udr_onprem_destinations_region2 = [
-    local.branch3_subnets["${local.branch3_prefix}main"].address_prefixes[0],
-  ]
 }
 
 # vhub1
@@ -182,8 +155,8 @@ locals {
   branch1_subnets = {
     ("${local.branch1_prefix}main") = { address_prefixes = ["10.10.0.0/24"] }
     ("${local.branch1_prefix}ext")  = { address_prefixes = ["10.10.1.0/24"] }
-    ("${local.branch1_prefix}int")  = { address_prefixes = ["10.10.200.0/24"] }
-    ("GatewaySubnet")               = { address_prefixes = ["10.10.200.0/24"] }
+    ("${local.branch1_prefix}int")  = { address_prefixes = ["10.10.2.0/24"] }
+    ("GatewaySubnet")               = { address_prefixes = ["10.10.3.0/24"] }
   }
   branch1_ext_default_gw = cidrhost(local.branch1_subnets["${local.branch1_prefix}ext"].address_prefixes[0], 1)
   branch1_int_default_gw = cidrhost(local.branch1_subnets["${local.branch1_prefix}int"].address_prefixes[0], 1)
@@ -193,7 +166,7 @@ locals {
   branch1_dns_addr       = cidrhost(local.branch1_subnets["${local.branch1_prefix}main"].address_prefixes[0], 6)
   branch1_nva_loopback0  = "192.168.10.10"
   branch1_nva_tun_range0 = "10.10.10.0/30"
-  branch1_nva_tun_range1 = "10.10.10.200/30"
+  branch1_nva_tun_range1 = "10.10.10.4/30"
   branch1_nva_tun_range2 = "10.10.10.8/30"
   branch1_nva_tun_range3 = "10.10.10.12/30"
   branch1_bgp_apipa_0    = cidrhost(local.bgp_apipa_range3, 2)
@@ -274,7 +247,7 @@ locals {
   spoke1_location = local.region1
   spoke1_address_space = [
     "53.200.16.0/21",
-    "172.16.0.0/20",
+    "172.16.16.0/21",
   ]
   spoke1_dns_zone = "spoke1"
   spoke1_tags     = { env = "spoke1" }
@@ -303,7 +276,7 @@ locals {
   spoke2_location = local.region1
   spoke2_address_space = [
     "53.200.24.0/21",
-    "172.16.0.0/20",
+    "172.16.24.0/21",
   ]
   spoke2_dns_zone = "spoke2"
   spoke2_tags     = { env = "spoke2" }
@@ -332,7 +305,7 @@ locals {
   spoke3_location = local.region1
   spoke3_address_space = [
     "53.200.32.0/21",
-    "172.16.0.0/20",
+    "172.16.32.0/21",
   ]
   spoke3_dns_zone = "spoke3"
   spoke3_tags     = { env = "spoke3" }
@@ -361,7 +334,7 @@ locals {
   spoke4_location = local.region2
   spoke4_address_space = [
     "53.200.40.0/21",
-    "172.16.0.0/20",
+    "172.16.40.0/21",
   ]
   spoke4_dns_zone = "spoke4"
   spoke4_tags     = { env = "spoke4" }
@@ -390,7 +363,7 @@ locals {
   spoke5_location = local.region2
   spoke5_address_space = [
     "53.200.56.0/21",
-    "172.16.0.0/20",
+    "172.16.56.0/21",
   ]
   spoke5_dns_zone = "spoke5"
   spoke5_tags     = { env = "spoke5" }
@@ -419,7 +392,7 @@ locals {
   spoke6_location = local.region2
   spoke6_address_space = [
     "53.200.64.0/21",
-    "172.16.0.0/20",
+    "172.16.64.0/21",
   ]
   spoke6_dns_zone = "spoke6"
   spoke6_tags     = { env = "spoke6" }

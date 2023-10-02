@@ -14,6 +14,7 @@ module "spoke4" {
   storage_account = module.common.storage_accounts["region2"]
   tags = {
     "nodeType" = "spoke"
+    "env"      = "prod"
   }
 
   private_dns_zone_name = azurerm_private_dns_zone.global.name
@@ -63,6 +64,7 @@ module "spoke5" {
   storage_account = module.common.storage_accounts["region2"]
   tags = {
     "nodeType" = "spoke"
+    "env"      = "prod"
   }
 
   private_dns_zone_name = azurerm_private_dns_zone.global.name
@@ -111,6 +113,7 @@ module "spoke6" {
   storage_account = module.common.storage_accounts["region2"]
   tags = {
     "nodeType" = "spoke"
+    "env"      = "prod"
   }
 
   private_dns_zone_name = azurerm_private_dns_zone.global.name

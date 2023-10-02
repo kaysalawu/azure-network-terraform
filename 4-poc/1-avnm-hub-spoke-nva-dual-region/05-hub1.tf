@@ -12,6 +12,7 @@ module "hub1" {
   storage_account = module.common.storage_accounts["region1"]
   tags = {
     "nodeType" = "hub"
+    "env"      = "prod"
   }
 
   private_dns_zone_name = azurerm_private_dns_zone.global.name

@@ -15,7 +15,7 @@ resource "random_id" "storage_accounts" {
 resource "azurerm_storage_account" "storage_accounts" {
   for_each                 = var.regions
   resource_group_name      = var.resource_group
-  name                     = lower("${local.prefix}${each.key}${random_id.storage_accounts.hex}")
+  name                     = lower("${var.prefix}${each.key}${random_id.storage_accounts.hex}")
   location                 = each.value
   account_replication_type = "LRS"
   account_tier             = "Standard"

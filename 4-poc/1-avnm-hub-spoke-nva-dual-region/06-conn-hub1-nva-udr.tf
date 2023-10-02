@@ -11,6 +11,8 @@ locals {
 # udr
 #----------------------------
 
+# main
+
 module "spoke1_udr_main" {
   source                 = "../../modules/udr"
   resource_group         = azurerm_resource_group.rg.name
@@ -19,7 +21,7 @@ module "spoke1_udr_main" {
   subnet_id              = module.spoke1.subnets["${local.spoke1_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub1_nva_ilb_addr
-  destinations           = local.main_udr_destinations
+  destinations           = local.default_udr_destinations
   depends_on             = [module.hub1]
 }
 
@@ -30,6 +32,8 @@ module "spoke1_udr_main" {
 # udr
 #----------------------------
 
+# main
+
 module "spoke2_udr_main" {
   source                 = "../../modules/udr"
   resource_group         = azurerm_resource_group.rg.name
@@ -38,7 +42,7 @@ module "spoke2_udr_main" {
   subnet_id              = module.spoke2.subnets["${local.spoke2_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub1_nva_ilb_addr
-  destinations           = local.main_udr_destinations
+  destinations           = local.default_udr_destinations
   depends_on             = [module.hub1]
 }
 
@@ -50,8 +54,8 @@ module "spoke2_udr_main" {
 #----------------------------
 
 locals {
-  hub1_cisco_nva_route_map_name_nh = "NEXT-HOP"
-  hub1_cisco_nva_init = templatefile("../../scripts/cisco-hub.sh", {
+  hub1_router_route_map_name_nh = "NEXT-HOP"
+  hub1_nva_vars = {
     LOCAL_ASN = local.hub1_nva_asn
     LOOPBACK0 = local.hub1_nva_loopback0
     LOOPBACKS = {
@@ -59,50 +63,39 @@ locals {
     }
     INT_ADDR = local.hub1_nva_addr
     VPN_PSK  = local.psk
-
-    MASQUERADE = []
-
-    ROUTE_MAPS = [
-      {
-        name   = local.hub1_cisco_nva_route_map_name_nh
-        action = "permit"
-        rule   = 100
-        commands = [
-          "match ip address prefix-list all",
-          "set ip next-hop ${local.hub1_nva_ilb_addr}"
-        ]
-      }
-    ]
-
-    TUNNELS = []
-
-    STATIC_ROUTES = [
-      { network = "0.0.0.0", mask = "0.0.0.0", next_hop = local.hub1_default_gw_nva },
-    ]
-
-    BGP_SESSIONS            = []
-    BGP_ADVERTISED_NETWORKS = []
-  })
+  }
+  hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
+    TARGETS           = local.vm_script_targets
+    IPTABLES_RULES    = []
+    ROUTE_MAPS        = []
+    TUNNELS           = []
+    QUAGGA_ZEBRA_CONF = ""
+    QUAGGA_BGPD_CONF  = ""
+    }
+  ))
 }
 
-# nva
-
 module "hub1_nva" {
-  source               = "../../modules/csr-hub"
+  source               = "../../modules/linux"
   resource_group       = azurerm_resource_group.rg.name
+  prefix               = ""
   name                 = "${local.hub1_prefix}nva"
   location             = local.hub1_location
-  enable_ip_forwarding = true
-  enable_public_ip     = true
   subnet               = module.hub1.subnets["${local.hub1_prefix}nva"].id
   private_ip           = local.hub1_nva_addr
+  enable_ip_forwarding = true
+  enable_public_ip     = true
+  source_image         = "ubuntu"
   storage_account      = module.common.storage_accounts["region1"]
   admin_username       = local.username
   admin_password       = local.password
-  custom_data          = base64encode(local.hub1_cisco_nva_init)
+  custom_data          = base64encode(local.hub1_linux_nva_init)
 }
 
 # udr
+#----------------------------
+
+# gateway
 
 module "hub1_udr_gateway" {
   source                 = "../../modules/udr"
@@ -116,6 +109,8 @@ module "hub1_udr_gateway" {
   depends_on             = [module.hub1, ]
 }
 
+# main
+
 module "hub1_udr_main" {
   source                 = "../../modules/udr"
   resource_group         = azurerm_resource_group.rg.name
@@ -124,7 +119,7 @@ module "hub1_udr_main" {
   subnet_id              = module.hub1.subnets["${local.hub1_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub1_nva_ilb_addr
-  destinations           = local.main_udr_destinations
+  destinations           = local.default_udr_destinations
   depends_on             = [module.hub1, ]
 }
 
@@ -236,7 +231,7 @@ resource "azurerm_virtual_network_gateway_connection" "hub1_branch1_lng" {
 
 locals {
   hub1_files = {
-    "output/hub1-cisco-nva.sh" = local.hub1_cisco_nva_init
+    "output/hub1-linux-nva.sh" = local.hub1_linux_nva_init
   }
 }
 
