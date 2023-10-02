@@ -125,12 +125,10 @@ echo "branch1 - 10.10.0.5 -\$(ping -qc2 -W1 10.10.0.5 2>&1 | awk -F'/' 'END{ pri
 echo "hub1    - 53.200.112.5 -\$(ping -qc2 -W1 53.200.112.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "spoke1  - 53.200.16.5 -\$(ping -qc2 -W1 53.200.16.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "spoke2  - 53.200.24.5 -\$(ping -qc2 -W1 53.200.24.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke3  - 53.200.32.5 -\$(ping -qc2 -W1 53.200.32.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "branch3 - 10.30.0.5 -\$(ping -qc2 -W1 10.30.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "hub2    - 53.200.224.5 -\$(ping -qc2 -W1 53.200.224.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "spoke4  - 53.200.40.5 -\$(ping -qc2 -W1 53.200.40.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "spoke5  - 53.200.56.5 -\$(ping -qc2 -W1 53.200.56.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke6  - 53.200.64.5 -\$(ping -qc2 -W1 53.200.64.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "internet - icanhazip.com -\$(ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 EOF
 chmod a+x /usr/local/bin/ping-ip
@@ -143,12 +141,10 @@ echo "vm.branch1.corp - \$(dig +short vm.branch1.corp | tail -n1) -\$(ping -qc2 
 echo "vm.hub1.az.corp - \$(dig +short vm.hub1.az.corp | tail -n1) -\$(ping -qc2 -W1 vm.hub1.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "vm.spoke1.az.corp - \$(dig +short vm.spoke1.az.corp | tail -n1) -\$(ping -qc2 -W1 vm.spoke1.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "vm.spoke2.az.corp - \$(dig +short vm.spoke2.az.corp | tail -n1) -\$(ping -qc2 -W1 vm.spoke2.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "vm.spoke3.az.corp - \$(dig +short vm.spoke3.az.corp | tail -n1) -\$(ping -qc2 -W1 vm.spoke3.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "vm.branch3.corp - \$(dig +short vm.branch3.corp | tail -n1) -\$(ping -qc2 -W1 vm.branch3.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "vm.hub2.az.corp - \$(dig +short vm.hub2.az.corp | tail -n1) -\$(ping -qc2 -W1 vm.hub2.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "vm.spoke4.az.corp - \$(dig +short vm.spoke4.az.corp | tail -n1) -\$(ping -qc2 -W1 vm.spoke4.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "vm.spoke5.az.corp - \$(dig +short vm.spoke5.az.corp | tail -n1) -\$(ping -qc2 -W1 vm.spoke5.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "vm.spoke6.az.corp - \$(dig +short vm.spoke6.az.corp | tail -n1) -\$(ping -qc2 -W1 vm.spoke6.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "icanhazip.com - \$(dig +short icanhazip.com | tail -n1) -\$(ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 EOF
 chmod a+x /usr/local/bin/ping-dns
@@ -203,8 +199,6 @@ traceroute 53.200.16.5
 echo -e "spoke1 \n"
 traceroute 53.200.24.5
 echo -e "spoke2 \n"
-traceroute 53.200.32.5
-echo -e "spoke3 \n"
 traceroute 10.30.0.5
 echo -e "branch3\n"
 traceroute 53.200.224.5
@@ -213,8 +207,6 @@ traceroute 53.200.40.5
 echo -e "spoke4 \n"
 traceroute 53.200.56.5
 echo -e "spoke5 \n"
-traceroute 53.200.64.5
-echo -e "spoke6 \n"
 traceroute icanhazip.com
 echo -e "internet\n"
 EOF

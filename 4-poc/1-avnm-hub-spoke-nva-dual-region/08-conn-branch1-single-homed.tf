@@ -157,6 +157,8 @@ module "branch1_udr_main" {
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.branch1_nva_int_addr
   destinations           = local.default_udr_destinations
+
+  disable_bgp_route_propagation = true
 }
 
 ####################################################

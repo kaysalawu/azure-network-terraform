@@ -35,3 +35,8 @@ variable "next_hop_in_ip_address" {
   type    = string
   default = null
 }
+
+variable "disable_bgp_route_propagation" {
+  type    = bool
+  default = false
+}

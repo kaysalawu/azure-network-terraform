@@ -112,8 +112,7 @@ module "spoke6" {
   location        = local.spoke6_location
   storage_account = module.common.storage_accounts["region2"]
   tags = {
-    "nodeType" = "spoke"
-    "env"      = "prod"
+    "env" = "prod"
   }
 
   private_dns_zone_name = azurerm_private_dns_zone.global.name

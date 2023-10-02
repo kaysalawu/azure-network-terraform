@@ -10,7 +10,7 @@ resource "azurerm_route_table" "this" {
   name                = "${local.prefix}rt"
   location            = var.location
 
-  disable_bgp_route_propagation = false
+  disable_bgp_route_propagation = var.disable_bgp_route_propagation
 }
 
 # subnet association
