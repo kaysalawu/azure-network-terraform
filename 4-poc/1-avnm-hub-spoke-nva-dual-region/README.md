@@ -4,7 +4,7 @@
 
 This POC deploys a dual region hub and spoke architecture using Azure Virtual Network Manager.
 
-![POC1)](./images/scenarios/../../../../images/poc/poc1-avnm-hub-spoke-nva-dual-region.png)
+![POC1)](./images/scenarios/../../../../images/poc/poc1-avnm-hub-spoke-nva-dual-regions.png)
 
 ### DNS
 - Private DNS Zone per region
