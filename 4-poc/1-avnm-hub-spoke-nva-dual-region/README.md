@@ -1,5 +1,5 @@
 
-# Virtual Network Manager Hub and Spoke - Dual Region <!-- omit from toc -->
+# Virtual Network Manager (Hub and Spoke) - Dual Region <!-- omit from toc -->
 ## Poc1 <!-- omit from toc -->
 
 This POC deploys a dual region hub and spoke architecture using Azure Virtual Network Manager.
