@@ -58,9 +58,9 @@ resource "azurerm_network_manager_connectivity_configuration" "conn_config_hub_s
     resource_type = "Microsoft.Network/virtualNetworks"
   }
   applies_to_group {
-    group_connectivity  = "DirectlyConnected"
+    group_connectivity  = "None"
     network_group_id    = azurerm_network_manager_network_group.ng_spokes_prod_region1.id
-    global_mesh_enabled = true
+    global_mesh_enabled = false
     use_hub_gateway     = true
   }
   depends_on = [

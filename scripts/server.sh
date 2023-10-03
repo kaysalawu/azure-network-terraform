@@ -87,7 +87,7 @@ echo -e "\n ping dns ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.ping, true) ~}
 %{~ if try(target.ip, "") != "" ~}
-echo "${target.dns} - \$(dig +short ${target.dns} | tail -n1) -\$(timeout 3 ping -qc2 -W1 ${target.dns} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "${target.dns} - \$(timeout 3 dig +short ${target.dns} | tail -n1) -\$(timeout 3 ping -qc2 -W1 ${target.dns} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 %{ endif ~}
 %{ endif ~}
 %{ endfor ~}

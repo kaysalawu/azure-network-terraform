@@ -304,17 +304,17 @@ locals {
   spoke3_prefix   = local.prefix == "" ? "spoke3-" : join("-", [local.prefix, "spoke3-"])
   spoke3_location = local.region1
   spoke3_address_space = [
-    "53.200.32.0/21",
+    "10.3.0.0/16",
     "172.16.32.0/21",
   ]
   spoke3_dns_zone = "spoke3"
   spoke3_tags     = { env = "spoke3" }
   spoke3_subnets = {
-    ("${local.spoke3_prefix}main")  = { address_prefixes = ["53.200.32.0/24"] }
-    ("${local.spoke3_prefix}appgw") = { address_prefixes = ["53.200.33.0/24"] }
-    ("${local.spoke3_prefix}ilb")   = { address_prefixes = ["53.200.34.0/24"] }
-    ("${local.spoke3_prefix}pls")   = { address_prefixes = ["53.200.35.0/24"] }
-    ("${local.spoke3_prefix}pep")   = { address_prefixes = ["53.200.36.0/24"] }
+    ("${local.spoke3_prefix}main")  = { address_prefixes = ["10.3.0.0/24"] }
+    ("${local.spoke3_prefix}appgw") = { address_prefixes = ["10.3.1.0/24"] }
+    ("${local.spoke3_prefix}ilb")   = { address_prefixes = ["10.3.2.0/24"] }
+    ("${local.spoke3_prefix}pls")   = { address_prefixes = ["10.3.3.0/24"] }
+    ("${local.spoke3_prefix}pep")   = { address_prefixes = ["10.3.4.0/24"] }
   }
   spoke3_vm_addr      = cidrhost(local.spoke3_subnets["${local.spoke3_prefix}main"].address_prefixes[0], 5)
   spoke3_ilb_addr     = cidrhost(local.spoke3_subnets["${local.spoke3_prefix}ilb"].address_prefixes[0], 99)
@@ -391,17 +391,17 @@ locals {
   spoke6_prefix   = local.prefix == "" ? "spoke6-" : join("-", [local.prefix, "spoke6-"])
   spoke6_location = local.region2
   spoke6_address_space = [
-    "53.200.64.0/21",
+    "10.6.0.0/16",
     "172.16.64.0/21",
   ]
   spoke6_dns_zone = "spoke6"
   spoke6_tags     = { env = "spoke6" }
   spoke6_subnets = {
-    ("${local.spoke6_prefix}main")  = { address_prefixes = ["53.200.64.0/24"] }
-    ("${local.spoke6_prefix}appgw") = { address_prefixes = ["53.200.65.0/24"] }
-    ("${local.spoke6_prefix}ilb")   = { address_prefixes = ["53.200.66.0/24"] }
-    ("${local.spoke6_prefix}pls")   = { address_prefixes = ["53.200.67.0/24"] }
-    ("${local.spoke6_prefix}pep")   = { address_prefixes = ["53.200.68.0/24"] }
+    ("${local.spoke6_prefix}main")  = { address_prefixes = ["10.6.0.0/24"] }
+    ("${local.spoke6_prefix}appgw") = { address_prefixes = ["10.6.1.0/24"] }
+    ("${local.spoke6_prefix}ilb")   = { address_prefixes = ["10.6.2.0/24"] }
+    ("${local.spoke6_prefix}pls")   = { address_prefixes = ["10.6.3.0/24"] }
+    ("${local.spoke6_prefix}pep")   = { address_prefixes = ["10.6.4.0/24"] }
   }
   spoke6_vm_addr      = cidrhost(local.spoke6_subnets["${local.spoke6_prefix}main"].address_prefixes[0], 5)
   spoke6_ilb_addr     = cidrhost(local.spoke6_subnets["${local.spoke6_prefix}ilb"].address_prefixes[0], 99)

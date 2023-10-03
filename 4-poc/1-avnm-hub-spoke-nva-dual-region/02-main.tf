@@ -171,6 +171,7 @@ locals {
   vm_startup = templatefile("../../scripts/server.sh", {
     TARGETS = local.vm_script_targets
   })
+
   unbound_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
@@ -324,9 +325,67 @@ resource "azurerm_network_manager" "netman" {
 ####################################################
 
 locals {
+  ouput_values = templatefile("./scripts/values.sh", {
+    HUB1_VNET_NAME    = module.hub1.vnet.name
+    HUB2_VNET_NAME    = module.hub2.vnet.name
+    SPOKE1_VNET_NAME  = module.spoke1.vnet.name
+    SPOKE2_VNET_NAME  = module.spoke2.vnet.name
+    SPOKE3_VNET_NAME  = module.spoke3.vnet.name
+    SPOKE4_VNET_NAME  = module.spoke4.vnet.name
+    SPOKE5_VNET_NAME  = module.spoke5.vnet.name
+    SPOKE6_VNET_NAME  = module.spoke6.vnet.name
+    BRANCH1_VNET_NAME = module.branch1.vnet.name
+    BRANCH3_VNET_NAME = module.branch3.vnet.name
+
+    HUB1_VNET_RANGES    = join(", ", module.hub1.vnet.address_space)
+    HUB2_VNET_RANGES    = join(", ", module.hub2.vnet.address_space)
+    SPOKE1_VNET_RANGES  = join(", ", module.spoke1.vnet.address_space)
+    SPOKE2_VNET_RANGES  = join(", ", module.spoke2.vnet.address_space)
+    SPOKE3_VNET_RANGES  = join(", ", module.spoke3.vnet.address_space)
+    SPOKE4_VNET_RANGES  = join(", ", module.spoke4.vnet.address_space)
+    SPOKE5_VNET_RANGES  = join(", ", module.spoke5.vnet.address_space)
+    SPOKE6_VNET_RANGES  = join(", ", module.spoke6.vnet.address_space)
+    BRANCH1_VNET_RANGES = join(", ", module.branch1.vnet.address_space)
+    BRANCH3_VNET_RANGES = join(", ", module.branch3.vnet.address_space)
+
+    HUB1_VM_NAME    = module.hub1.vm["vm"].name
+    HUB2_VM_NAME    = module.hub2.vm["vm"].name
+    SPOKE1_VM_NAME  = module.spoke1.vm["vm"].name
+    SPOKE2_VM_NAME  = module.spoke2.vm["vm"].name
+    SPOKE3_VM_NAME  = module.spoke3.vm["vm"].name
+    SPOKE4_VM_NAME  = module.spoke4.vm["vm"].name
+    SPOKE5_VM_NAME  = module.spoke5.vm["vm"].name
+    SPOKE6_VM_NAME  = module.spoke6.vm["vm"].name
+    BRANCH1_VM_NAME = module.branch1.vm["vm"].name
+    BRANCH3_VM_NAME = module.branch3.vm["vm"].name
+
+    HUB1_VM_IP    = module.hub1.vm["vm"].private_ip_address
+    HUB2_VM_IP    = module.hub2.vm["vm"].private_ip_address
+    SPOKE1_VM_IP  = module.spoke1.vm["vm"].private_ip_address
+    SPOKE2_VM_IP  = module.spoke2.vm["vm"].private_ip_address
+    SPOKE3_VM_IP  = module.spoke3.vm["vm"].private_ip_address
+    SPOKE4_VM_IP  = module.spoke4.vm["vm"].private_ip_address
+    SPOKE5_VM_IP  = module.spoke5.vm["vm"].private_ip_address
+    SPOKE6_VM_IP  = module.spoke6.vm["vm"].private_ip_address
+    BRANCH1_VM_IP = module.branch1.vm["vm"].private_ip_address
+    BRANCH3_VM_IP = module.branch3.vm["vm"].private_ip_address
+
+    HUB1_SUBNETS    = { for k, v in module.hub1.subnets : k => v.address_prefixes[0] }
+    HUB2_SUBNETS    = { for k, v in module.hub2.subnets : k => v.address_prefixes[0] }
+    SPOKE1_SUBNETS  = { for k, v in module.spoke1.subnets : k => v.address_prefixes[0] }
+    SPOKE2_SUBNETS  = { for k, v in module.spoke2.subnets : k => v.address_prefixes[0] }
+    SPOKE3_SUBNETS  = { for k, v in module.spoke3.subnets : k => v.address_prefixes[0] }
+    SPOKE4_SUBNETS  = { for k, v in module.spoke4.subnets : k => v.address_prefixes[0] }
+    SPOKE5_SUBNETS  = { for k, v in module.spoke5.subnets : k => v.address_prefixes[0] }
+    SPOKE6_SUBNETS  = { for k, v in module.spoke6.subnets : k => v.address_prefixes[0] }
+    BRANCH1_SUBNETS = { for k, v in module.branch1.subnets : k => v.address_prefixes[0] }
+    BRANCH3_SUBNETS = { for k, v in module.branch3.subnets : k => v.address_prefixes[0] }
+  })
+
   main_files = {
     "output/unbound.conf" = module.unbound.cloud_config
     "output/dnsmasq.sh"   = local.branch_dnsmasq_startup
+    "output/values.sh"    = local.ouput_values
   }
 }
 
