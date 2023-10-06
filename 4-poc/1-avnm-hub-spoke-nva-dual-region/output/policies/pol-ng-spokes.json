@@ -13,7 +13,7 @@
           },
           {
             "field": "location",
-            "equals": "northeurope"
+            "equals": "westeurope"
           },
           {
             "anyOf": [
@@ -30,7 +30,7 @@
   "then": {
     "effect": "addToNetworkGroup",
     "details": {
-      "networkGroupId": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Poc1RG/providers/Microsoft.Network/networkManagers/Poc1-netman/networkGroups/Poc1-ng-spokes-prod-region2"
+      "networkGroupId": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Poc1RG/providers/Microsoft.Network/networkManagers/Poc1-netman/networkGroups/Poc1-ng-spokes-prod-region1"
     }
   }
 }
