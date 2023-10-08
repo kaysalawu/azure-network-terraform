@@ -99,4 +99,5 @@ neighbor 192.168.30.30 remote-as 65003
 neighbor 192.168.30.30 ebgp-multihop 255
 neighbor 192.168.30.30 soft-reconfiguration inbound
 neighbor 192.168.30.30 update-source Loopback0
+neighbor 192.168.30.30 route-map NEXT-HOP out
 network 10.10.0.0 mask 255.255.255.0

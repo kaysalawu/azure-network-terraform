@@ -19,6 +19,10 @@ output "vm_public_ip" {
   value = { for k, v in module.vm : k => v.vm.public_ip_address }
 }
 
+output "private_dns_zone" {
+  value = try(azurerm_private_dns_zone.this[0], {})
+}
+
 output "private_dns_inbound_ep" {
   value = try(azurerm_private_dns_resolver_inbound_endpoint.this[0], {})
 }
@@ -27,7 +31,7 @@ output "private_dns_outbound_ep" {
   value = try(azurerm_private_dns_resolver_outbound_endpoint.this[0], {})
 }
 
-output "ars_ublic_pip" {
+output "ars_public_pip" {
   value = try(azurerm_public_ip.ars_pip[0], {})
 }
 

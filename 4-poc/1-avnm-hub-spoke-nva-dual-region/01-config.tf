@@ -22,8 +22,8 @@ locals {
   default_region      = "westeurope"
   subnets_without_nsg = ["GatewaySubnet"]
 
-  onprem_domain    = "corp"
-  cloud_domain     = "az.corp"
+  onprem_domain    = "co.net"
+  cloud_domain     = "cloud.co.net"
   azuredns         = "168.63.129.16"
   private_prefixes = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "100.64.0.0/10"]
 }
@@ -87,7 +87,6 @@ locals {
   hub1_nva_addr          = cidrhost(local.hub1_subnets["${local.hub1_prefix}nva"].address_prefixes[0], 9)
   hub1_nva_ilb_addr      = cidrhost(local.hub1_subnets["${local.hub1_prefix}ilb"].address_prefixes[0], 99)
   hub1_dns_in_addr       = cidrhost(local.hub1_subnets["${local.hub1_prefix}dns-in"].address_prefixes[0], 4)
-  hub1_dns_out_addr      = cidrhost(local.hub1_subnets["${local.hub1_prefix}dns-out"].address_prefixes[0], 4)
   hub1_vpngw_bgp_ip      = cidrhost(local.hub1_subnets["GatewaySubnet"].address_prefixes[0], 254)
   hub1_nva_loopback0     = "53.200.11.11"
   hub1_nva_tun_range0    = "53.200.123.0/30"
@@ -129,7 +128,6 @@ locals {
   hub2_nva_addr          = cidrhost(local.hub2_subnets["${local.hub2_prefix}nva"].address_prefixes[0], 9)
   hub2_nva_ilb_addr      = cidrhost(local.hub2_subnets["${local.hub2_prefix}ilb"].address_prefixes[0], 99)
   hub2_dns_in_addr       = cidrhost(local.hub2_subnets["${local.hub2_prefix}dns-in"].address_prefixes[0], 4)
-  hub2_dns_out_addr      = cidrhost(local.hub2_subnets["${local.hub2_prefix}dns-out"].address_prefixes[0], 4)
   hub2_vpngw_bgp_ip      = cidrhost(local.hub2_subnets["GatewaySubnet"].address_prefixes[0], 254)
   hub2_nva_loopback0     = "53.200.22.22"
   hub2_nva_tun_range0    = "53.200.235.0/30"

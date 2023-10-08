@@ -16,8 +16,8 @@ module "spoke4" {
   location        = local.spoke4_location
   storage_account = module.common.storage_accounts["region2"]
 
-  private_dns_zone_name = azurerm_private_dns_zone.global.name
-  private_dns_prefix    = local.spoke4_dns_zone
+  private_dns_zone_name   = azurerm_private_dns_zone.global.name
+  private_dns_zone_prefix = local.spoke4_dns_zone
 
   nsg_subnet_map = {
     "${local.spoke4_prefix}main"  = module.common.nsg_main["region2"].id
@@ -61,8 +61,8 @@ module "spoke5" {
   location        = local.spoke5_location
   storage_account = module.common.storage_accounts["region2"]
 
-  private_dns_zone_name = azurerm_private_dns_zone.global.name
-  private_dns_prefix    = local.spoke5_dns_zone
+  private_dns_zone_name   = azurerm_private_dns_zone.global.name
+  private_dns_zone_prefix = local.spoke5_dns_zone
 
   nsg_subnet_map = {
     "${local.spoke5_prefix}main"  = module.common.nsg_main["region2"].id
@@ -105,8 +105,8 @@ module "spoke6" {
   location        = local.spoke6_location
   storage_account = module.common.storage_accounts["region2"]
 
-  private_dns_zone_name = azurerm_private_dns_zone.global.name
-  private_dns_prefix    = local.spoke6_dns_zone
+  private_dns_zone_name   = azurerm_private_dns_zone.global.name
+  private_dns_zone_prefix = local.spoke6_dns_zone
 
   nsg_subnet_map = {
     "${local.spoke6_prefix}main"  = module.common.nsg_main["region2"].id

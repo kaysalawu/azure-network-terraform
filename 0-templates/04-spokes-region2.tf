@@ -16,8 +16,8 @@ module "spoke4" {
     "nodeType" = "spoke"
   }
 
-  private_dns_zone_name = azurerm_private_dns_zone.global.name
-  private_dns_prefix    = local.spoke4_dns_zone
+  private_dns_zone_name   = azurerm_private_dns_zone.global.name
+  private_dns_zone_prefix = local.spoke4_dns_zone
 
   nsg_subnet_map = {
     "${local.spoke4_prefix}main"  = module.common.nsg_main["region2"].id
@@ -65,8 +65,8 @@ module "spoke5" {
     "nodeType" = "spoke"
   }
 
-  private_dns_zone_name = azurerm_private_dns_zone.global.name
-  private_dns_prefix    = local.spoke5_dns_zone
+  private_dns_zone_name   = azurerm_private_dns_zone.global.name
+  private_dns_zone_prefix = local.spoke5_dns_zone
 
   nsg_subnet_map = {
     "${local.spoke5_prefix}main"  = module.common.nsg_main["region2"].id
@@ -113,8 +113,8 @@ module "spoke6" {
     "nodeType" = "spoke"
   }
 
-  private_dns_zone_name = azurerm_private_dns_zone.global.name
-  private_dns_prefix    = local.spoke6_dns_zone
+  private_dns_zone_name   = azurerm_private_dns_zone.global.name
+  private_dns_zone_prefix = local.spoke6_dns_zone
 
   nsg_subnet_map = {
     "${local.spoke6_prefix}main"  = module.common.nsg_main["region2"].id

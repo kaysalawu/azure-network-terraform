@@ -58,15 +58,41 @@ resource "azurerm_subnet_network_security_group_association" "this" {
 # dns
 #----------------------------
 
+# dns zone
+
+resource "azurerm_private_dns_zone" "this" {
+  count               = var.create_private_dns_zone ? 1 : 0
+  resource_group_name = var.resource_group
+  name                = var.private_dns_zone_name
+  tags                = var.tags
+}
+
 # zone links
 
 resource "azurerm_private_dns_zone_virtual_network_link" "internal" {
   count                 = var.private_dns_zone_name == null ? 0 : 1
   resource_group_name   = var.resource_group
   name                  = "${local.prefix}vnet-link"
-  private_dns_zone_name = var.private_dns_zone_name
+  private_dns_zone_name = var.create_private_dns_zone ? azurerm_private_dns_zone.this[0].name : var.private_dns_zone_name
   virtual_network_id    = azurerm_virtual_network.this.id
   registration_enabled  = true
+  timeouts {
+    create = "60m"
+  }
+}
+
+# zone links to external vnets
+
+resource "azurerm_private_dns_zone_virtual_network_link" "external" {
+  for_each              = var.private_dns_zone_linked_external_vnets
+  resource_group_name   = var.resource_group
+  name                  = "${local.prefix}${each.key}-vnet-link"
+  private_dns_zone_name = var.create_private_dns_zone ? azurerm_private_dns_zone.this[0].name : var.private_dns_zone_name
+  virtual_network_id    = each.value
+  registration_enabled  = false
+  depends_on = [
+    azurerm_private_dns_zone_virtual_network_link.internal,
+  ]
   timeouts {
     create = "60m"
   }
@@ -180,27 +206,26 @@ resource "azurerm_subnet_nat_gateway_association" "nat" {
 #----------------------------
 
 module "vm" {
-  for_each              = { for x in var.vm_config : x.name => x }
-  source                = "../../modules/linux"
-  resource_group        = var.resource_group
-  prefix                = trimsuffix(local.prefix, "-")
-  name                  = each.key
-  dns_host              = each.value.dns_host
-  location              = var.location
-  vm_size               = each.value.size
-  subnet                = azurerm_subnet.this[each.value.subnet].id
-  private_ip            = each.value.private_ip
-  source_image          = each.value.source_image
-  use_vm_extension      = each.value.use_vm_extension
-  custom_data           = each.value.custom_data
-  enable_public_ip      = each.value.enable_public_ip
-  dns_servers           = each.value.dns_servers
-  storage_account       = var.storage_account
-  admin_username        = var.admin_username
-  admin_password        = var.admin_password
-  private_dns_zone_name = var.private_dns_zone_name == null ? "" : var.private_dns_zone_name
-  private_dns_prefix    = var.private_dns_prefix == null ? "" : var.private_dns_prefix
-  delay_creation        = each.value.delay_creation
+  for_each                = { for x in var.vm_config : x.name => x }
+  source                  = "../../modules/linux"
+  resource_group          = var.resource_group
+  prefix                  = trimsuffix(local.prefix, "-")
+  name                    = each.key
+  location                = var.location
+  vm_size                 = each.value.size
+  subnet                  = azurerm_subnet.this[each.value.subnet].id
+  private_ip              = each.value.private_ip
+  source_image            = each.value.source_image
+  use_vm_extension        = each.value.use_vm_extension
+  custom_data             = each.value.custom_data
+  enable_public_ip        = each.value.enable_public_ip
+  dns_servers             = each.value.dns_servers
+  storage_account         = var.storage_account
+  admin_username          = var.admin_username
+  admin_password          = var.admin_password
+  private_dns_zone_name   = var.create_private_dns_zone ? azurerm_private_dns_zone.this[0].name : var.private_dns_zone_name == null ? "" : var.private_dns_zone_name
+  private_dns_zone_prefix = var.private_dns_zone_prefix == null ? "" : var.private_dns_zone_prefix
+  delay_creation          = each.value.delay_creation
   depends_on = [
     azurerm_public_ip.nat,
     azurerm_nat_gateway.nat,

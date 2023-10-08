@@ -10,8 +10,8 @@ module "hub1" {
   location        = local.hub1_location
   storage_account = module.common.storage_accounts["region1"]
 
-  private_dns_zone_name = azurerm_private_dns_zone.global.name
-  private_dns_prefix    = local.hub1_dns_zone
+  private_dns_zone_name   = azurerm_private_dns_zone.global.name
+  private_dns_zone_prefix = local.hub1_dns_zone
 
   nsg_subnet_map = {
     "${local.hub1_prefix}main" = module.common.nsg_main["region1"].id

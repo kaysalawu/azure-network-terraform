@@ -122,7 +122,7 @@ module "common" {
   tags           = {}
 }
 
-resource "azurerm_private_dns_zone" "global" {
+resource "azurerm_private_dns_zone" "az_co" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = local.cloud_domain
   timeouts {
@@ -177,6 +177,14 @@ locals {
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones
     TARGETS              = local.vm_script_targets_region1
+    ACCESS_CONTROL_PREFIXES = concat(
+      local.private_prefixes,
+      [
+        "127.0.0.0/8",
+        "35.199.192.0/19",
+        "53.200.0.0/16",
+      ]
+    )
   }
   branch_unbound_conf         = templatefile("../../scripts/unbound/unbound.conf", local.unbound_vars)
   branch_unbound_startup      = templatefile("../../scripts/unbound/unbound.sh", local.unbound_vars)
@@ -383,9 +391,8 @@ locals {
   })
 
   main_files = {
-    "output/unbound.conf" = module.unbound.cloud_config
-    "output/dnsmasq.sh"   = local.branch_dnsmasq_startup
-    "output/values.sh"    = local.ouput_values
+    "output/branch-unbound.sh" = local.branch_unbound_startup
+    "output/values.sh"         = local.ouput_values
   }
 }
 

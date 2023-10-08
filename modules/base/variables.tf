@@ -50,19 +50,25 @@ variable "ssh_public_key" {
   default     = null
 }
 
+variable "create_private_dns_zone" {
+  description = "create private dns zone"
+  type        = bool
+  default     = false
+}
+
 variable "private_dns_zone_name" {
   description = "private dns zone name"
   type        = string
   default     = null
 }
 
-variable "private_dns_prefix" {
+variable "private_dns_zone_prefix" {
   description = "private dns prefix"
   type        = string
   default     = null
 }
 
-variable "dns_zone_linked_vnets" {
+variable "private_dns_zone_linked_external_vnets" {
   description = "private dns zone"
   type        = map(any)
   default     = {}

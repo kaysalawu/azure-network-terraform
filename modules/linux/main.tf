@@ -106,10 +106,34 @@ SETTINGS
 }
 
 resource "azurerm_private_dns_a_record" "this" {
-  count               = var.private_dns_zone_name == "" || var.dns_host == "" ? 0 : 1
+  count               = var.private_dns_zone_name == "" ? 0 : 1
   resource_group_name = var.resource_group
-  name                = lower("${var.dns_host}")
+  name                = lower("${var.name}")
   zone_name           = var.private_dns_zone_name
   ttl                 = 300
   records             = [azurerm_linux_virtual_machine.this.private_ip_address]
+}
+
+locals {
+  cleanup_commands = [
+    "az vm extension delete -g ${var.resource_group} --vm-name ${trimsuffix(local.prefix, "-")} --name ${trimsuffix(local.prefix, "-")} --no-wait",
+  ]
+}
+
+resource "null_resource" "cleanup_commands" {
+  count = var.use_vm_extension ? length(local.cleanup_commands) : 0
+  triggers = {
+    create = ":"
+    delete = local.cleanup_commands[count.index]
+  }
+  provisioner "local-exec" {
+    command = self.triggers.create
+  }
+  provisioner "local-exec" {
+    when    = destroy
+    command = self.triggers.delete
+  }
+  depends_on = [
+    azurerm_virtual_machine_extension.this
+  ]
 }

@@ -15,8 +15,12 @@ module "hub1" {
     "env"      = "prod"
   }
 
-  private_dns_zone_name = azurerm_private_dns_zone.global.name
-  private_dns_prefix    = local.hub1_dns_zone
+  create_private_dns_zone = true
+  private_dns_zone_name   = "hub1.${local.cloud_domain}"
+  private_dns_zone_linked_external_vnets = {
+    "spoke1" = module.spoke1.vnet.id
+    "spoke2" = module.spoke2.vnet.id
+  }
 
   nsg_subnet_map = {
     "${local.hub1_prefix}main" = module.common.nsg_main["region1"].id
@@ -49,7 +53,6 @@ module "hub1" {
   vm_config = [
     {
       name         = "vm"
-      dns_host     = local.hub1_vm_dns_host
       subnet       = "${local.hub1_prefix}main"
       private_ip   = local.hub1_vm_addr
       custom_data  = base64encode(local.vm_startup)

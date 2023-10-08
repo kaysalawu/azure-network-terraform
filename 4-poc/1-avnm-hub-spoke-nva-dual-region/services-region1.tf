@@ -8,16 +8,21 @@
 
 # onprem
 
-resource "azurerm_private_dns_resolver_dns_forwarding_ruleset" "hub1_onprem" {
+resource "azurerm_private_dns_resolver_dns_forwarding_ruleset" "hub1" {
   resource_group_name                        = azurerm_resource_group.rg.name
-  name                                       = "${local.hub1_prefix}onprem"
+  name                                       = "${local.hub1_prefix}ruleset"
   location                                   = local.hub1_location
   private_dns_resolver_outbound_endpoint_ids = [module.hub1.private_dns_outbound_ep.id]
 }
 
+# rules
+#---------------------------
+
+# onprem
+
 resource "azurerm_private_dns_resolver_forwarding_rule" "hub1_onprem" {
   name                      = "${local.hub1_prefix}onprem"
-  dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.hub1_onprem.id
+  dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.hub1.id
   domain_name               = "${local.onprem_domain}."
   enabled                   = true
   target_dns_servers {
@@ -30,21 +35,32 @@ resource "azurerm_private_dns_resolver_forwarding_rule" "hub1_onprem" {
   }
 }
 
+# cloud
+
+resource "azurerm_private_dns_resolver_forwarding_rule" "hub1_cloud" {
+  name                      = "${local.hub1_prefix}cloud"
+  dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.hub1.id
+  domain_name               = "${local.cloud_domain}."
+  enabled                   = true
+  target_dns_servers {
+    ip_address = local.hub2_dns_in_addr
+    port       = 53
+  }
+}
+
 # links
 #---------------------------
 
 locals {
   dns_zone_linked_rulesets_hub1_onprem = {
-    "hub1"   = module.hub1.vnet.id
-    "spoke1" = module.spoke1.vnet.id
-    "spoke2" = module.spoke2.vnet.id
+    "hub1-onprem" = module.hub1.vnet.id
   }
 }
 
-resource "azurerm_private_dns_resolver_virtual_network_link" "hub1" {
+resource "azurerm_private_dns_resolver_virtual_network_link" "hub1_onprem" {
   for_each                  = local.dns_zone_linked_rulesets_hub1_onprem
   name                      = "${local.prefix}${each.key}-vnet-link"
-  dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.hub1_onprem.id
+  dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.hub1.id
   virtual_network_id        = each.value
 }
 
@@ -63,7 +79,7 @@ module "spoke3_lb" {
   location                               = local.spoke3_location
   prefix                                 = trimsuffix(local.spoke3_prefix, "-")
   type                                   = "private"
-  private_dns_zone                       = azurerm_private_dns_zone.global.name
+  private_dns_zone                       = module.spoke3.private_dns_zone.name
   dns_host                               = local.spoke3_ilb_dns_host
   frontend_subnet_id                     = module.spoke3.subnets["${local.spoke3_prefix}ilb"].id
   frontend_private_ip_address_allocation = "Static"
@@ -91,7 +107,7 @@ module "spoke3_pls" {
   resource_group   = azurerm_resource_group.rg.name
   location         = local.spoke3_location
   prefix           = trimsuffix(local.spoke3_prefix, "-")
-  private_dns_zone = azurerm_private_dns_zone.global.name
+  private_dns_zone = module.spoke3.private_dns_zone.name
   dns_host         = local.spoke3_ilb_dns_host
 
   nat_ip_config = [
@@ -127,7 +143,7 @@ resource "azurerm_private_endpoint" "hub1_spoke3_pe" {
 resource "azurerm_private_dns_a_record" "hub1_spoke3_pe" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = local.hub1_pep_dns_host
-  zone_name           = azurerm_private_dns_zone.global.name
+  zone_name           = module.spoke3.private_dns_zone.name
   ttl                 = 300
   records             = [azurerm_private_endpoint.hub1_spoke3_pe.private_service_connection[0].private_ip_address, ]
 }

@@ -14,8 +14,8 @@ module "hub2" {
     "nodeType" = "hub"
   }
 
-  private_dns_zone_name = azurerm_private_dns_zone.global.name
-  private_dns_prefix    = local.hub2_dns_zone
+  private_dns_zone_name   = azurerm_private_dns_zone.global.name
+  private_dns_zone_prefix = local.hub2_dns_zone
 
   nsg_subnet_map = {
     "${local.hub2_prefix}main" = module.common.nsg_main["region2"].id

@@ -17,8 +17,11 @@ module "spoke4" {
     "env"      = "prod"
   }
 
-  private_dns_zone_name = azurerm_private_dns_zone.global.name
-  private_dns_prefix    = local.spoke4_dns_zone
+  create_private_dns_zone = true
+  private_dns_zone_name   = "spoke4.${local.cloud_domain}"
+  private_dns_zone_linked_external_vnets = {
+    "hub2" = module.hub2.vnet.id
+  }
 
   nsg_subnet_map = {
     "${local.spoke4_prefix}main"  = module.common.nsg_main["region2"].id
@@ -37,10 +40,10 @@ module "spoke4" {
   vm_config = [
     {
       name         = "vm"
-      dns_host     = local.spoke4_vm_dns_host
       subnet       = "${local.spoke4_prefix}main"
       private_ip   = local.spoke4_vm_addr
       custom_data  = base64encode(local.vm_startup)
+      dns_servers  = [local.hub2_dns_in_addr, ]
       source_image = "ubuntu"
     }
   ]
@@ -67,8 +70,11 @@ module "spoke5" {
     "env"      = "prod"
   }
 
-  private_dns_zone_name = azurerm_private_dns_zone.global.name
-  private_dns_prefix    = local.spoke5_dns_zone
+  create_private_dns_zone = true
+  private_dns_zone_name   = "spoke5.${local.cloud_domain}"
+  private_dns_zone_linked_external_vnets = {
+    "hub2" = module.hub2.vnet.id
+  }
 
   nsg_subnet_map = {
     "${local.spoke5_prefix}main"  = module.common.nsg_main["region2"].id
@@ -86,10 +92,10 @@ module "spoke5" {
   vm_config = [
     {
       name         = "vm"
-      dns_host     = local.spoke5_vm_dns_host
       subnet       = "${local.spoke5_prefix}main"
       private_ip   = local.spoke5_vm_addr
       custom_data  = base64encode(local.vm_startup)
+      dns_servers  = [local.hub2_dns_in_addr, ]
       source_image = "ubuntu"
     }
   ]
@@ -115,8 +121,11 @@ module "spoke6" {
     "env" = "prod"
   }
 
-  private_dns_zone_name = azurerm_private_dns_zone.global.name
-  private_dns_prefix    = local.spoke6_dns_zone
+  create_private_dns_zone = true
+  private_dns_zone_name   = "spoke6.${local.cloud_domain}"
+  private_dns_zone_linked_external_vnets = {
+    "hub2" = module.hub2.vnet.id
+  }
 
   nsg_subnet_map = {
     "${local.spoke6_prefix}main"  = module.common.nsg_main["region2"].id
@@ -135,11 +144,11 @@ module "spoke6" {
   vm_config = [
     {
       name             = "vm"
-      dns_host         = local.spoke6_vm_dns_host
       subnet           = "${local.spoke6_prefix}main"
       private_ip       = local.spoke6_vm_addr
       enable_public_ip = true
       custom_data      = base64encode(local.vm_startup)
+      dns_servers      = [local.hub2_dns_in_addr, ]
       source_image     = "ubuntu"
     }
   ]

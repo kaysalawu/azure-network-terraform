@@ -112,7 +112,10 @@ locals {
         peer_ip         = local.branch3_nva_loopback0
         source_loopback = true
         ebgp_multihop   = true
-        route_map       = {}
+        route_map = {
+          name      = local.branch1_nva_route_map_name_nh
+          direction = "out"
+        }
       },
     ]
 
