@@ -58,7 +58,7 @@ locals {
 locals {
   hub1_prefix        = local.prefix == "" ? "hub1-" : join("-", [local.prefix, "hub1-"])
   hub1_location      = local.region1
-  hub1_address_space = ["53.200.112.0/20"]
+  hub1_address_space = ["53.200.112.0/20", ]
   hub1_nat_ranges = {
     "branch1" = {
       "egress-static"  = "53.200.124.0/24"
@@ -106,7 +106,7 @@ locals {
 locals {
   hub2_prefix        = local.prefix == "" ? "hub2-" : join("-", [local.prefix, "hub2-"])
   hub2_location      = local.region2
-  hub2_address_space = ["53.200.224.0/20"]
+  hub2_address_space = ["53.200.224.0/20", ]
   hub2_dns_zone      = "hub2"
   hub2_tags          = { env = "hub2" }
   hub2_subnets = {
@@ -146,7 +146,7 @@ locals {
 locals {
   branch1_prefix        = local.prefix == "" ? "branch1-" : join("-", [local.prefix, "branch1-"])
   branch1_location      = local.region1
-  branch1_address_space = ["10.10.0.0/16"]
+  branch1_address_space = ["10.10.0.0/16", ]
   branch1_nva_asn       = "65001"
   branch1_dns_zone      = "branch1.${local.onprem_domain}"
   branch1_tags          = { env = "branch1" }
@@ -179,7 +179,7 @@ locals {
 locals {
   branch2_prefix        = local.prefix == "" ? "branch2-" : join("-", [local.prefix, "branch2-"])
   branch2_location      = local.region1
-  branch2_address_space = ["10.20.0.0/16"]
+  branch2_address_space = ["10.20.0.0/16", ]
   branch2_nva_asn       = "65002"
   branch2_dns_zone      = "branch2.${local.onprem_domain}"
   branch2_tags          = { env = "branch2" }
@@ -210,7 +210,7 @@ locals {
 locals {
   branch3_prefix        = local.prefix == "" ? "branch3-" : join("-", [local.prefix, "branch3-"])
   branch3_location      = local.region2
-  branch3_address_space = ["10.30.0.0/16"]
+  branch3_address_space = ["10.30.0.0/16", ]
   branch3_nva_asn       = "65003"
   branch3_dns_zone      = "branch3.${local.onprem_domain}"
   branch3_tags          = { env = "branch3" }
@@ -241,14 +241,11 @@ locals {
 #----------------------------
 
 locals {
-  spoke1_prefix   = local.prefix == "" ? "spoke1-" : join("-", [local.prefix, "spoke1-"])
-  spoke1_location = local.region1
-  spoke1_address_space = [
-    "53.200.16.0/21",
-    "172.16.16.0/21",
-  ]
-  spoke1_dns_zone = "spoke1"
-  spoke1_tags     = { env = "spoke1" }
+  spoke1_prefix        = local.prefix == "" ? "spoke1-" : join("-", [local.prefix, "spoke1-"])
+  spoke1_location      = local.region1
+  spoke1_address_space = ["53.200.16.0/21", "172.16.16.0/21", ]
+  spoke1_dns_zone      = "spoke1"
+  spoke1_tags          = { env = "spoke1" }
   spoke1_subnets = {
     ("${local.spoke1_prefix}main")  = { address_prefixes = ["53.200.16.0/24"] }
     ("${local.spoke1_prefix}appgw") = { address_prefixes = ["53.200.17.0/24"] }
@@ -270,14 +267,11 @@ locals {
 #----------------------------
 
 locals {
-  spoke2_prefix   = local.prefix == "" ? "spoke2-" : join("-", [local.prefix, "spoke2-"])
-  spoke2_location = local.region1
-  spoke2_address_space = [
-    "53.200.24.0/21",
-    "172.16.24.0/21",
-  ]
-  spoke2_dns_zone = "spoke2"
-  spoke2_tags     = { env = "spoke2" }
+  spoke2_prefix        = local.prefix == "" ? "spoke2-" : join("-", [local.prefix, "spoke2-"])
+  spoke2_location      = local.region1
+  spoke2_address_space = ["53.200.24.0/21", "172.16.24.0/21", ]
+  spoke2_dns_zone      = "spoke2"
+  spoke2_tags          = { env = "spoke2" }
   spoke2_subnets = {
     ("${local.spoke2_prefix}main")  = { address_prefixes = ["53.200.24.0/24"] }
     ("${local.spoke2_prefix}appgw") = { address_prefixes = ["53.200.25.0/24"] }
@@ -299,14 +293,11 @@ locals {
 #----------------------------
 
 locals {
-  spoke3_prefix   = local.prefix == "" ? "spoke3-" : join("-", [local.prefix, "spoke3-"])
-  spoke3_location = local.region1
-  spoke3_address_space = [
-    "10.3.0.0/16",
-    "172.16.32.0/21",
-  ]
-  spoke3_dns_zone = "spoke3"
-  spoke3_tags     = { env = "spoke3" }
+  spoke3_prefix        = local.prefix == "" ? "spoke3-" : join("-", [local.prefix, "spoke3-"])
+  spoke3_location      = local.region1
+  spoke3_address_space = ["10.3.0.0/16", "172.16.32.0/21", ]
+  spoke3_dns_zone      = "spoke3"
+  spoke3_tags          = { env = "spoke3" }
   spoke3_subnets = {
     ("${local.spoke3_prefix}main")  = { address_prefixes = ["10.3.0.0/24"] }
     ("${local.spoke3_prefix}appgw") = { address_prefixes = ["10.3.1.0/24"] }
@@ -328,14 +319,11 @@ locals {
 #----------------------------
 
 locals {
-  spoke4_prefix   = local.prefix == "" ? "spoke4-" : join("-", [local.prefix, "spoke4-"])
-  spoke4_location = local.region2
-  spoke4_address_space = [
-    "53.200.40.0/21",
-    "172.16.40.0/21",
-  ]
-  spoke4_dns_zone = "spoke4"
-  spoke4_tags     = { env = "spoke4" }
+  spoke4_prefix        = local.prefix == "" ? "spoke4-" : join("-", [local.prefix, "spoke4-"])
+  spoke4_location      = local.region2
+  spoke4_address_space = ["53.200.40.0/21", "172.16.40.0/21", ]
+  spoke4_dns_zone      = "spoke4"
+  spoke4_tags          = { env = "spoke4" }
   spoke4_subnets = {
     ("${local.spoke4_prefix}main")  = { address_prefixes = ["53.200.40.0/24"] }
     ("${local.spoke4_prefix}appgw") = { address_prefixes = ["53.200.41.0/24"] }
@@ -357,14 +345,11 @@ locals {
 #----------------------------
 
 locals {
-  spoke5_prefix   = local.prefix == "" ? "spoke5-" : join("-", [local.prefix, "spoke5-"])
-  spoke5_location = local.region2
-  spoke5_address_space = [
-    "53.200.56.0/21",
-    "172.16.56.0/21",
-  ]
-  spoke5_dns_zone = "spoke5"
-  spoke5_tags     = { env = "spoke5" }
+  spoke5_prefix        = local.prefix == "" ? "spoke5-" : join("-", [local.prefix, "spoke5-"])
+  spoke5_location      = local.region2
+  spoke5_address_space = ["53.200.56.0/21", "172.16.56.0/21", ]
+  spoke5_dns_zone      = "spoke5"
+  spoke5_tags          = { env = "spoke5" }
   spoke5_subnets = {
     ("${local.spoke5_prefix}main")  = { address_prefixes = ["53.200.56.0/24"] }
     ("${local.spoke5_prefix}appgw") = { address_prefixes = ["53.200.57.0/24"] }
@@ -386,14 +371,11 @@ locals {
 #----------------------------
 
 locals {
-  spoke6_prefix   = local.prefix == "" ? "spoke6-" : join("-", [local.prefix, "spoke6-"])
-  spoke6_location = local.region2
-  spoke6_address_space = [
-    "10.6.0.0/16",
-    "172.16.64.0/21",
-  ]
-  spoke6_dns_zone = "spoke6"
-  spoke6_tags     = { env = "spoke6" }
+  spoke6_prefix        = local.prefix == "" ? "spoke6-" : join("-", [local.prefix, "spoke6-"])
+  spoke6_location      = local.region2
+  spoke6_address_space = ["10.6.0.0/16", "172.16.64.0/21", ]
+  spoke6_dns_zone      = "spoke6"
+  spoke6_tags          = { env = "spoke6" }
   spoke6_subnets = {
     ("${local.spoke6_prefix}main")  = { address_prefixes = ["10.6.0.0/24"] }
     ("${local.spoke6_prefix}appgw") = { address_prefixes = ["10.6.1.0/24"] }
