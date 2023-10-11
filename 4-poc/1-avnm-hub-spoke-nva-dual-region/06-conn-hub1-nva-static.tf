@@ -1,5 +1,5 @@
 locals {
-  hub1_bgp_asn       = module.hub1.vpngw.bgp_settings[0].asn
+  hub1_vpngw_bgp_asn = module.hub1.vpngw.bgp_settings[0].asn
   hub1_vpngw_bgp_ip0 = module.hub1.vpngw.bgp_settings[0].peering_addresses[0].default_addresses[0]
   hub1_vpngw_bgp_ip1 = module.hub1.vpngw.bgp_settings[0].peering_addresses[1].default_addresses[0]
 }
@@ -89,7 +89,7 @@ module "hub1_nva" {
   private_ip           = local.hub1_nva_addr
   enable_ip_forwarding = true
   enable_public_ip     = true
-  source_image         = "ubuntu"
+  source_image         = "ubuntu-22"
   storage_account      = module.common.storage_accounts["region1"]
   admin_username       = local.username
   admin_password       = local.password
