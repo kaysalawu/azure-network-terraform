@@ -130,13 +130,13 @@ variable "source_image_reference" {
       sku       = "18.04-LTS"
       version   = "latest"
     }
-    "ubuntu-22" = {
+    "ubuntu-20" = {
       publisher = "Canonical"
       offer     = "0001-com-ubuntu-server-focal"
       sku       = "20_04-lts"
       version   = "latest"
     }
-    "ubuntu-22" = {
+    "ubuntu-20" = {
       publisher = "Canonical"
       offer     = "0001-com-ubuntu-server-jammy"
       sku       = "22_04-lts-gen2"
@@ -154,7 +154,7 @@ variable "source_image_reference" {
 variable "source_image" {
   description = "source image"
   type        = string
-  default     = "ubuntu"
+  default     = "ubuntu-20"
 }
 
 variable "delay_creation" {

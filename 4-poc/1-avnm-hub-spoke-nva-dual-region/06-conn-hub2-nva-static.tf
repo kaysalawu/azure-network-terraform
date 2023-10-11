@@ -89,7 +89,7 @@ module "hub2_nva" {
   private_ip           = local.hub2_nva_addr
   enable_ip_forwarding = true
   enable_public_ip     = true
-  source_image         = "ubuntu-22"
+  source_image         = "ubuntu-20"
   storage_account      = module.common.storage_accounts["region1"]
   admin_username       = local.username
   admin_password       = local.password

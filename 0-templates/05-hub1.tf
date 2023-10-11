@@ -56,7 +56,7 @@ module "hub1" {
       subnet       = "${local.hub1_prefix}main"
       private_ip   = local.hub1_vm_addr
       custom_data  = base64encode(local.vm_startup)
-      source_image = "ubuntu-22"
+      source_image = "ubuntu-20"
     }
   ]
 }

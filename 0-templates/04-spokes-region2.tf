@@ -44,7 +44,7 @@ module "spoke4" {
       private_ip   = local.spoke4_vm_addr
       custom_data  = base64encode(local.vm_startup)
       dns_servers  = [local.hub2_dns_in_addr, ]
-      source_image = "ubuntu-22"
+      source_image = "ubuntu-20"
     }
   ]
   depends_on = [
@@ -96,7 +96,7 @@ module "spoke5" {
       private_ip   = local.spoke5_vm_addr
       custom_data  = base64encode(local.vm_startup)
       dns_servers  = [local.hub2_dns_in_addr, ]
-      source_image = "ubuntu-22"
+      source_image = "ubuntu-20"
     }
   ]
   depends_on = [
@@ -149,7 +149,7 @@ module "spoke6" {
       enable_public_ip = true
       custom_data      = base64encode(local.vm_startup)
       dns_servers      = [local.hub2_dns_in_addr, ]
-      source_image     = "ubuntu-22"
+      source_image     = "ubuntu-20"
     }
   ]
   depends_on = [

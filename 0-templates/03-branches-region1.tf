@@ -35,7 +35,7 @@ module "branch1" {
       subnet           = "${local.branch1_prefix}main"
       private_ip       = local.branch1_vm_addr
       custom_data      = base64encode(local.vm_startup)
-      source_image     = "ubuntu-22"
+      source_image     = "ubuntu-20"
       use_vm_extension = false
       dns_servers      = [local.branch1_dns_addr, ]
       delay_creation   = "120s"

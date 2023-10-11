@@ -30,7 +30,7 @@ locals {
   }
 }
 
-resource "azurerm_network_manager_static_member" "ng_spokes_prod_region2_spoke4" {
+resource "azurerm_network_manager_static_member" "ng_spokes_prod_region2" {
   for_each                  = local.ng_spokes_prod_region2_static_members
   name                      = "${local.prefix}-ng-spokes-prod-region2-${each.key}"
   network_group_id          = azurerm_network_manager_network_group.ng_spokes_prod_region2.id
@@ -59,7 +59,8 @@ resource "azurerm_network_manager_connectivity_configuration" "conn_config_hub_s
     use_hub_gateway     = true
   }
   depends_on = [
-    module.hub2
+    module.hub2,
+    azurerm_network_manager_static_member.ng_spokes_prod_region2,
   ]
 }
 
@@ -80,6 +81,9 @@ resource "azurerm_network_manager_deployment" "conn_config_hub_spoke_region2" {
   triggers = {
     connectivity_configuration_ids = azurerm_network_manager_connectivity_configuration.conn_config_hub_spoke_region2.id
   }
+  depends_on = [
+    azurerm_network_manager_static_member.ng_spokes_prod_region2,
+  ]
 }
 
 ####################################################

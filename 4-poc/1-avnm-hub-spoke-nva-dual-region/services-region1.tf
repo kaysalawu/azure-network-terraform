@@ -123,9 +123,8 @@ module "spoke3_pls" {
   ]
 }
 
-####################################################
 # private endpoint
-####################################################
+#----------------------------
 
 resource "azurerm_private_endpoint" "hub1_spoke3_pe" {
   resource_group_name = azurerm_resource_group.rg.name
@@ -147,3 +146,8 @@ resource "azurerm_private_dns_a_record" "hub1_spoke3_pe" {
   ttl                 = 300
   records             = [azurerm_private_endpoint.hub1_spoke3_pe.private_service_connection[0].private_ip_address, ]
 }
+
+####################################################
+# private link
+####################################################
+
