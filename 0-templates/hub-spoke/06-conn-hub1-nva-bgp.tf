@@ -1,5 +1,5 @@
 locals {
-  hub1_bgp_asn       = module.hub1.vpngw.bgp_settings[0].asn
+  hub1_vpngw_bgp_asn = module.hub1.vpngw.bgp_settings[0].asn
   hub1_vpngw_bgp_ip0 = module.hub1.vpngw.bgp_settings[0].peering_addresses[0].default_addresses[0]
   hub1_vpngw_bgp_ip1 = module.hub1.vpngw.bgp_settings[0].peering_addresses[1].default_addresses[0]
   hub1_ars_bgp0      = tolist(module.hub1.ars.virtual_router_ips)[0]
@@ -48,6 +48,8 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke1_peering" {
 # udr
 #----------------------------
 
+# main
+
 module "spoke1_udr_main" {
   source                 = "../../modules/udr"
   resource_group         = azurerm_resource_group.rg.name
@@ -56,8 +58,10 @@ module "spoke1_udr_main" {
   subnet_id              = module.spoke1.subnets["${local.spoke1_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub1_nva_ilb_addr
-  destinations           = local.main_udr_destinations
+  destinations           = local.default_udr_destinations
   depends_on             = [module.hub1]
+
+  disable_bgp_route_propagation = true
 }
 
 ####################################################
@@ -100,6 +104,8 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke2_peering" {
 # udr
 #----------------------------
 
+# main
+
 module "spoke2_udr_main" {
   source                 = "../../modules/udr"
   resource_group         = azurerm_resource_group.rg.name
@@ -108,8 +114,10 @@ module "spoke2_udr_main" {
   subnet_id              = module.spoke2.subnets["${local.spoke2_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub1_nva_ilb_addr
-  destinations           = local.main_udr_destinations
+  destinations           = local.default_udr_destinations
   depends_on             = [module.hub1]
+
+  disable_bgp_route_propagation = true
 }
 
 ####################################################
@@ -129,8 +137,6 @@ locals {
     }
     INT_ADDR = local.hub1_nva_addr
     VPN_PSK  = local.psk
-
-    MASQUERADE = []
 
     ROUTE_MAPS = [
       {
@@ -209,10 +215,10 @@ module "hub1_nva" {
   resource_group       = azurerm_resource_group.rg.name
   name                 = "${local.hub1_prefix}nva"
   location             = local.hub1_location
-  enable_ip_forwarding = true
-  enable_public_ip     = true
   subnet               = module.hub1.subnets["${local.hub1_prefix}nva"].id
   private_ip           = local.hub1_nva_addr
+  enable_ip_forwarding = true
+  enable_public_ip     = true
   storage_account      = module.common.storage_accounts["region1"]
   admin_username       = local.username
   admin_password       = local.password
@@ -220,6 +226,9 @@ module "hub1_nva" {
 }
 
 # udr
+#----------------------------
+
+# gateway
 
 module "hub1_udr_gateway" {
   source                 = "../../modules/udr"
@@ -233,6 +242,8 @@ module "hub1_udr_gateway" {
   depends_on             = [module.hub1, ]
 }
 
+# main
+
 module "hub1_udr_main" {
   source                 = "../../modules/udr"
   resource_group         = azurerm_resource_group.rg.name
@@ -241,8 +252,10 @@ module "hub1_udr_main" {
   subnet_id              = module.hub1.subnets["${local.hub1_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub1_nva_ilb_addr
-  destinations           = local.main_udr_destinations
+  destinations           = local.default_udr_destinations
   depends_on             = [module.hub1, ]
+
+  disable_bgp_route_propagation = true
 }
 
 ####################################################

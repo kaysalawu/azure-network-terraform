@@ -44,6 +44,15 @@ ip address 10.11.11.11 255.255.255.255
 interface Loopback1
 ip address 10.11.2.99 255.255.255.255
 !
+ip access-list extended NAT-ACL
+permit ip 10.0.0.0 0.255.255.255 any
+permit ip 172.16.0.0 0.15.255.255 any
+permit ip 192.168.0.0 0.0.255.255 any
+interface GigabitEthernet1
+ip nat outside
+ip nat inside
+exit
+ip nat inside source list NAT-ACL interface GigabitEthernet1 overload
 !
 ip route 0.0.0.0 0.0.0.0 10.11.1.1
 ip route 10.22.22.22 255.255.255.255 Tunnel0

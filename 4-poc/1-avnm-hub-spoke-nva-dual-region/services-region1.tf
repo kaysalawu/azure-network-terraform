@@ -52,13 +52,13 @@ resource "azurerm_private_dns_resolver_forwarding_rule" "hub1_cloud" {
 #---------------------------
 
 locals {
-  dns_zone_linked_rulesets_hub1_onprem = {
+  dns_zone_linked_rulesets_hub1 = {
     "hub1-onprem" = module.hub1.vnet.id
   }
 }
 
 resource "azurerm_private_dns_resolver_virtual_network_link" "hub1_onprem" {
-  for_each                  = local.dns_zone_linked_rulesets_hub1_onprem
+  for_each                  = local.dns_zone_linked_rulesets_hub1
   name                      = "${local.prefix}${each.key}-vnet-link"
   dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.hub1.id
   virtual_network_id        = each.value

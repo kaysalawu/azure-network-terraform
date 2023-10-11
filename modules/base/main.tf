@@ -70,7 +70,7 @@ resource "azurerm_private_dns_zone" "this" {
 # zone links
 
 resource "azurerm_private_dns_zone_virtual_network_link" "internal" {
-  count                 = var.private_dns_zone_name == null ? 0 : 1
+  count                 = var.create_private_dns_zone ? 1 : 0
   resource_group_name   = var.resource_group
   name                  = "${local.prefix}vnet-link"
   private_dns_zone_name = var.create_private_dns_zone ? azurerm_private_dns_zone.this[0].name : var.private_dns_zone_name
@@ -515,7 +515,7 @@ resource "azurerm_storage_account" "azfw" {
 
 resource "azurerm_monitor_diagnostic_setting" "azfw" {
   count                      = var.vnet_config[0].enable_firewall ? 1 : 0
-  name                       = "${local.prefix}azfw-diag"
+  name                       = "${local.prefix}azfw-diag-${random_id.azfw[0].hex}"
   target_resource_id         = azurerm_firewall.azfw[0].id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.azfw[0].id
   storage_account_id         = azurerm_storage_account.azfw[0].id

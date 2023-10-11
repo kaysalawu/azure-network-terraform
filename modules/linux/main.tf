@@ -90,9 +90,16 @@ resource "azurerm_linux_virtual_machine" "this" {
   depends_on = [time_sleep.this]
 }
 
+# extension
+
+resource "random_id" "extension" {
+  count       = var.use_vm_extension ? 1 : 0
+  byte_length = 4
+}
+
 resource "azurerm_virtual_machine_extension" "this" {
   count                = var.use_vm_extension ? 1 : 0
-  name                 = trimsuffix(local.prefix, "-")
+  name                 = "${local.prefix}${random_id.extension.0.hex}"
   virtual_machine_id   = azurerm_linux_virtual_machine.this.id
   publisher            = "Microsoft.Azure.Extensions"
   type                 = "CustomScript"
@@ -119,6 +126,8 @@ locals {
     "az vm extension delete -g ${var.resource_group} --vm-name ${trimsuffix(local.prefix, "-")} --name ${trimsuffix(local.prefix, "-")} --no-wait",
   ]
 }
+
+# cleanup
 
 resource "null_resource" "cleanup_commands" {
   count = var.use_vm_extension ? length(local.cleanup_commands) : 0

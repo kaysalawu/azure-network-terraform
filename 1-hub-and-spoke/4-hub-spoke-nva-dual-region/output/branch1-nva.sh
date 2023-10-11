@@ -10,17 +10,17 @@ proposal AZURE-IKE-PROPOSAL
 match address local 10.10.1.9
 !
 crypto ikev2 keyring AZURE-KEYRING
-peer 20.71.19.236
-address 20.71.19.236
+peer 20.8.17.184
+address 20.8.17.184
 pre-shared-key changeme
-peer 20.71.19.63
-address 20.71.19.63
+peer 20.8.19.121
+address 20.8.19.121
 pre-shared-key changeme
 !
 crypto ikev2 profile AZURE-IKE-PROPOSAL
 match address local 10.10.1.9
-match identity remote address 20.71.19.236 255.255.255.255
-match identity remote address 20.71.19.63 255.255.255.255
+match identity remote address 20.8.17.184 255.255.255.255
+match identity remote address 20.8.19.121 255.255.255.255
 authentication remote pre-share
 authentication local pre-share
 keyring local AZURE-KEYRING
@@ -40,7 +40,7 @@ ip address 10.10.10.1 255.255.255.252
 tunnel mode ipsec ipv4
 ip tcp adjust-mss 1350
 tunnel source 10.10.1.9
-tunnel destination 20.71.19.236
+tunnel destination 20.8.17.184
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
 interface Tunnel1
@@ -48,11 +48,20 @@ ip address 10.10.10.5 255.255.255.252
 tunnel mode ipsec ipv4
 ip tcp adjust-mss 1350
 tunnel source 10.10.1.9
-tunnel destination 20.71.19.63
+tunnel destination 20.8.19.121
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
 interface Loopback0
 ip address 192.168.10.10 255.255.255.255
+!
+ip access-list extended NAT-ACL
+permit ip 10.10.0.0 0.0.0.255 any
+interface GigabitEthernet2
+ip nat inside
+interface GigabitEthernet1
+ip nat outside
+exit
+ip nat inside source list NAT-ACL interface GigabitEthernet1 overload
 !
 ip route 0.0.0.0 0.0.0.0 10.10.1.1
 ip route 10.11.7.5 255.255.255.255 Tunnel0

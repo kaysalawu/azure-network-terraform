@@ -124,13 +124,25 @@ variable "source_image_reference" {
   description = "source image reference"
   type        = map(any)
   default = {
-    "ubuntu" = {
+    "ubuntu-18" = {
+      publisher = "Canonical"
+      offer     = "UbuntuServer"
+      sku       = "18.04-LTS"
+      version   = "latest"
+    }
+    "ubuntu-22" = {
       publisher = "Canonical"
       offer     = "0001-com-ubuntu-server-focal"
       sku       = "20_04-lts"
       version   = "latest"
     }
-    "debian" = {
+    "ubuntu-22" = {
+      publisher = "Canonical"
+      offer     = "0001-com-ubuntu-server-jammy"
+      sku       = "22_04-lts-gen2"
+      version   = "latest"
+    }
+    "debian-10" = {
       publisher = "Debian"
       offer     = "debian-10"
       sku       = "10"

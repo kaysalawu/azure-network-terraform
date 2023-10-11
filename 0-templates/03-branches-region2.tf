@@ -35,7 +35,7 @@ module "branch3" {
       subnet           = "${local.branch3_prefix}main"
       private_ip       = local.branch3_vm_addr
       custom_data      = base64encode(local.vm_startup)
-      source_image     = "ubuntu"
+      source_image     = "ubuntu-22"
       use_vm_extension = false
       dns_servers      = [local.branch3_dns_addr, ]
       delay_creation   = "120s"
@@ -45,7 +45,7 @@ module "branch3" {
       subnet           = "${local.branch3_prefix}main"
       private_ip       = local.branch3_dns_addr
       custom_data      = base64encode(local.branch_unbound_startup)
-      source_image     = "debian"
+      source_image     = "debian-10"
       use_vm_extension = true
     }
   ]

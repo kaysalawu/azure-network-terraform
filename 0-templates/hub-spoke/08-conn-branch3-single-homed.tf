@@ -3,7 +3,15 @@
 # branch3
 ####################################################
 
-# router
+locals {
+  branch3_network       = cidrhost(local.branch3_subnets["${local.branch3_prefix}main"].address_prefixes[0], 0)
+  branch3_mask          = cidrnetmask(local.branch3_subnets["${local.branch3_prefix}main"].address_prefixes[0])
+  branch3_inverse_mask_ = [for octet in split(".", local.branch3_mask) : 255 - tonumber(octet)]
+  branch3_inverse_mask  = join(".", local.branch3_inverse_mask_)
+}
+
+# nva
+#----------------------------
 
 locals {
   branch3_nva_route_map_name_nh = "NEXT-HOP"
@@ -13,6 +21,10 @@ locals {
     LOOPBACKS = {}
     EXT_ADDR  = local.branch3_nva_ext_addr
     VPN_PSK   = local.psk
+
+    NAT_ACL_PREFIXES = [
+      { network = local.branch3_network, inverse_mask = local.branch3_inverse_mask }
+    ]
 
     ROUTE_MAPS = [
       {
@@ -60,22 +72,22 @@ locals {
       { network = local.hub2_vpngw_bgp_ip0, mask = "255.255.255.255", next_hop = "Tunnel0" },
       { network = local.hub2_vpngw_bgp_ip1, mask = "255.255.255.255", next_hop = "Tunnel1" },
       {
-        network  = cidrhost(local.branch3_subnets["${local.branch3_prefix}main"].address_prefixes[0], 0)
-        mask     = cidrnetmask(local.branch3_subnets["${local.branch3_prefix}main"].address_prefixes[0])
+        network  = local.branch3_network
+        mask     = local.branch3_mask
         next_hop = local.branch3_int_default_gw
       },
     ]
 
     BGP_SESSIONS = [
       {
-        peer_asn        = local.hub2_bgp_asn,
+        peer_asn        = local.hub2_vpngw_bgp_asn,
         peer_ip         = local.hub2_vpngw_bgp_ip0,
         source_loopback = true
         ebgp_multihop   = true
         route_map       = {}
       },
       {
-        peer_asn        = local.hub2_bgp_asn
+        peer_asn        = local.hub2_vpngw_bgp_asn
         peer_ip         = local.hub2_vpngw_bgp_ip1
         source_loopback = true
         ebgp_multihop   = true
@@ -113,6 +125,9 @@ module "branch3_nva" {
 }
 
 # udr
+#----------------------------
+
+# main
 
 module "branch3_udr_main" {
   source                 = "../../modules/udr"
@@ -122,7 +137,9 @@ module "branch3_udr_main" {
   subnet_id              = module.branch3.subnets["${local.branch3_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.branch3_nva_int_addr
-  destinations           = ["10.0.0.0/8"]
+  destinations           = local.default_udr_destinations
+
+  disable_bgp_route_propagation = true
 }
 
 ####################################################
