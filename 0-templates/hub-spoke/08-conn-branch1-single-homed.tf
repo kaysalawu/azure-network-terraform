@@ -154,17 +154,20 @@ module "branch1_nva" {
 # main
 
 module "branch1_udr_main" {
-  source                 = "../../modules/udr"
-  resource_group         = azurerm_resource_group.rg.name
-  prefix                 = "${local.branch1_prefix}-main"
-  location               = local.branch1_location
-  subnet_id              = module.branch1.subnets["${local.branch1_prefix}main"].id
-  next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.branch1_nva_int_addr
-  destinations           = local.default_udr_destinations
-  depends_on             = [module.branch1, ]
-
+  source                        = "../../modules/udr"
+  resource_group                = azurerm_resource_group.rg.name
+  prefix                        = "${local.branch1_prefix}-main"
+  location                      = local.branch1_location
+  subnet_id                     = module.branch1.subnets["${local.branch1_prefix}main"].id
+  next_hop_type                 = "VirtualAppliance"
+  next_hop_in_ip_address        = local.branch1_nva_int_addr
+  destinations                  = local.default_udr_destinations
   disable_bgp_route_propagation = true
+  delay_creation                = "120s"
+  depends_on = [
+    module.branch1,
+    module.branch1_nva,
+  ]
 }
 
 ####################################################

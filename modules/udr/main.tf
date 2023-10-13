@@ -13,6 +13,15 @@ resource "azurerm_route_table" "this" {
   disable_bgp_route_propagation = var.disable_bgp_route_propagation
 }
 
+# delay
+
+resource "time_sleep" "this" {
+  depends_on = [
+    azurerm_route_table.this
+  ]
+  create_duration = var.delay_creation
+}
+
 # subnet association
 
 resource "azurerm_subnet_route_table_association" "this" {
@@ -30,4 +39,5 @@ resource "azurerm_route" "this" {
   address_prefix         = each.value
   next_hop_type          = var.next_hop_type
   next_hop_in_ip_address = var.next_hop_in_ip_address
+  depends_on             = [time_sleep.this]
 }

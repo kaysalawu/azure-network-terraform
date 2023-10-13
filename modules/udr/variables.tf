@@ -40,3 +40,9 @@ variable "disable_bgp_route_propagation" {
   type    = bool
   default = false
 }
+
+variable "delay_creation" {
+  description = "delay creation of vm by sepcified seconds"
+  type        = string
+  default     = "0s"
+}
