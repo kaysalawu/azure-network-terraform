@@ -65,12 +65,26 @@ locals {
           psk     = local.psk
         }
       },
+      {
+        ike = {
+          name    = "Tunnel2"
+          address = cidrhost(local.branch3_nva_tun_range2, 1)
+          mask    = cidrnetmask(local.branch3_nva_tun_range2)
+          source  = local.branch3_nva_ext_addr
+          dest    = local.branch1_nva_ext_addr
+        },
+        ipsec = {
+          peer_ip = local.branch1_nva_ext_addr
+          psk     = local.psk
+        }
+      },
     ]
 
     STATIC_ROUTES = [
       { network = "0.0.0.0", mask = "0.0.0.0", next_hop = local.branch3_ext_default_gw },
       { network = local.hub2_vpngw_bgp_ip0, mask = "255.255.255.255", next_hop = "Tunnel0" },
       { network = local.hub2_vpngw_bgp_ip1, mask = "255.255.255.255", next_hop = "Tunnel1" },
+      { network = local.branch1_nva_loopback0, mask = "255.255.255.255", next_hop = "Tunnel2" },
       {
         network  = local.branch3_network
         mask     = local.branch3_mask
@@ -92,6 +106,16 @@ locals {
         source_loopback = true
         ebgp_multihop   = true
         route_map       = {}
+      },
+      {
+        peer_asn        = local.branch1_nva_asn
+        peer_ip         = local.branch1_nva_loopback0
+        source_loopback = true
+        ebgp_multihop   = true
+        route_map = {
+          name      = local.branch3_nva_route_map_name_nh
+          direction = "out"
+        }
       },
     ]
 
@@ -138,6 +162,7 @@ module "branch3_udr_main" {
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.branch3_nva_int_addr
   destinations           = local.default_udr_destinations
+  depends_on             = [module.branch3, ]
 
   disable_bgp_route_propagation = true
 }

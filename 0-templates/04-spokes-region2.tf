@@ -33,7 +33,6 @@ module "spoke4" {
     {
       address_space = local.spoke4_address_space
       subnets       = local.spoke4_subnets
-      #subnets_nat_gateway = ["${local.spoke4_prefix}main", ]
     }
   ]
 
@@ -135,9 +134,9 @@ module "spoke6" {
 
   vnet_config = [
     {
-      address_space = local.spoke6_address_space
-      subnets       = local.spoke6_subnets
-      #subnets_nat_gateway = ["${local.spoke6_prefix}main", ]
+      address_space            = local.spoke6_address_space
+      subnets                  = local.spoke6_subnets
+      nat_gateway_subnet_names = ["${local.spoke6_prefix}main", ]
     }
   ]
 

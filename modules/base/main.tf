@@ -1,10 +1,10 @@
 
 locals {
   prefix = var.prefix == "" ? "" : format("%s-", var.prefix)
-  subnet_ids_with_nat = [
-    for x in var.vnet_config[0].subnets : azurerm_subnet.this[x].id
-    if contains(var.vnet_config[0].subnet_names_nat_gateway, x)
-  ]
+  nat_gateway_subnet_ids = {
+    for k, v in var.vnet_config[0].subnets : k => azurerm_subnet.this[k].id
+    if contains(var.vnet_config[0].nat_gateway_subnet_names, k)
+  }
 }
 
 # vnet
@@ -155,7 +155,7 @@ resource "azurerm_private_dns_resolver_virtual_network_link" "this" {
 #----------------------------
 
 resource "azurerm_public_ip" "nat" {
-  count               = length(var.vnet_config[0].subnet_names_nat_gateway) > 0 ? 1 : 0
+  count               = length(var.vnet_config[0].nat_gateway_subnet_names) > 0 ? 1 : 0
   resource_group_name = var.resource_group
   name                = "${local.prefix}natgw"
   location            = var.location
@@ -172,7 +172,7 @@ resource "azurerm_public_ip" "nat" {
 }
 
 resource "azurerm_nat_gateway" "nat" {
-  count               = length(var.vnet_config[0].subnet_names_nat_gateway) > 0 ? 1 : 0
+  count               = length(var.vnet_config[0].nat_gateway_subnet_names) > 0 ? 1 : 0
   resource_group_name = var.resource_group
   name                = "${local.prefix}natgw"
   location            = var.location
@@ -188,7 +188,7 @@ resource "azurerm_nat_gateway" "nat" {
 }
 
 resource "azurerm_nat_gateway_public_ip_association" "nat" {
-  count                = length(var.vnet_config[0].subnet_names_nat_gateway) > 0 ? 1 : 0
+  count                = length(var.vnet_config[0].nat_gateway_subnet_names) > 0 ? 1 : 0
   nat_gateway_id       = azurerm_nat_gateway.nat[0].id
   public_ip_address_id = azurerm_public_ip.nat[0].id
   timeouts {
@@ -196,11 +196,11 @@ resource "azurerm_nat_gateway_public_ip_association" "nat" {
   }
 }
 
-resource "azurerm_subnet_nat_gateway_association" "nat" {
-  for_each       = toset(local.subnet_ids_with_nat)
-  nat_gateway_id = azurerm_nat_gateway.nat[each.key].id
+/* resource "azurerm_subnet_nat_gateway_association" "nat" {
+  for_each       = length(var.vnet_config[0].nat_gateway_subnet_names) > 0 ? try(toset(local.nat_gateway_subnet_ids), toset([])) : toset([])
+  nat_gateway_id = azurerm_nat_gateway.nat[0].id
   subnet_id      = each.value
-}
+} */
 
 # vm
 #----------------------------
@@ -230,7 +230,7 @@ module "vm" {
     azurerm_public_ip.nat,
     azurerm_nat_gateway.nat,
     azurerm_nat_gateway_public_ip_association.nat,
-    azurerm_subnet_nat_gateway_association.nat,
+    #azurerm_subnet_nat_gateway_association.nat,
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
   ]

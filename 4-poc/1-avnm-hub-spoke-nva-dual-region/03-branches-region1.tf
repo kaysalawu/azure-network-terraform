@@ -24,8 +24,9 @@ module "branch1" {
 
   vnet_config = [
     {
-      address_space = local.branch1_address_space
-      subnets       = local.branch1_subnets
+      address_space            = local.branch1_address_space
+      subnets                  = local.branch1_subnets
+      nat_gateway_subnet_names = ["${local.branch1_prefix}main", ]
     }
   ]
 
@@ -41,12 +42,11 @@ module "branch1" {
       delay_creation   = "120s"
     },
     {
-      name             = "dns"
-      subnet           = "${local.branch1_prefix}main"
-      private_ip       = local.branch1_dns_addr
-      custom_data      = base64encode(local.branch_unbound_startup)
-      source_image     = "debian-10"
-      use_vm_extension = true
+      name         = "dns"
+      subnet       = "${local.branch1_prefix}main"
+      private_ip   = local.branch1_dns_addr
+      custom_data  = base64encode(local.branch_unbound_startup)
+      source_image = "ubuntu-20"
     }
   ]
   depends_on = [

@@ -1,6 +1,6 @@
 
 locals {
-  policy_ng_spokes_prod_region2 = templatefile("../../policies/net-man/ng-spokes-prod-region.json", {
+  policy_ng_spokes_prod_region2 = templatefile("../../policies/avnm/ng-spokes-prod-region.json", {
     NETWORK_GROUP_ID = azurerm_network_manager_network_group.ng_spokes_prod_region2.id
     LOCATION         = local.region2
   })
@@ -10,13 +10,17 @@ locals {
   ]
 }
 
+resource "random_id" "policy_region2" {
+  byte_length = 4
+}
+
 ####################################################
 # network groups
 ####################################################
 
 resource "azurerm_network_manager_network_group" "ng_spokes_prod_region2" {
   name               = "${local.prefix}-ng-spokes-prod-region2"
-  network_manager_id = azurerm_network_manager.netman.id
+  network_manager_id = azurerm_network_manager.avnm.id
 }
 
 ####################################################
@@ -24,11 +28,11 @@ resource "azurerm_network_manager_network_group" "ng_spokes_prod_region2" {
 ####################################################
 
 resource "azurerm_policy_definition" "ng_spokes_prod_region2" {
-  name         = "${local.prefix}-ng-spokes-prod-region2"
+  name         = "${local.prefix}-ng-spokes-prod-region2-${random_id.policy_region2.hex}"
   policy_type  = "Custom"
   mode         = "Microsoft.Network.Data"
   display_name = "All spokes in prod region2"
-  metadata     = templatefile("../../policies/net-man/metadata.json", {})
+  metadata     = templatefile("../../policies/avnm/metadata.json", {})
   policy_rule  = local.policy_ng_spokes_prod_region2
 }
 
@@ -37,7 +41,7 @@ resource "azurerm_policy_definition" "ng_spokes_prod_region2" {
 ####################################################
 
 resource "azurerm_subscription_policy_assignment" "ng_spokes_prod_region2" {
-  name                 = "${local.prefix}-ng-spokes-prod-region2"
+  name                 = "${local.prefix}-ng-spokes-prod-region2-${random_id.policy_region2.hex}"
   policy_definition_id = azurerm_policy_definition.ng_spokes_prod_region2.id
   subscription_id      = data.azurerm_subscription.current.id
 }
@@ -51,16 +55,16 @@ resource "azurerm_subscription_policy_assignment" "ng_spokes_prod_region2" {
 
 resource "azurerm_network_manager_connectivity_configuration" "conn_config_hub_spoke_region2" {
   name                  = "${local.prefix}-conn-config-hub-spoke-region2"
-  network_manager_id    = azurerm_network_manager.network_manager_instance.id
+  network_manager_id    = azurerm_network_manager.avnm.id
   connectivity_topology = "HubAndSpoke"
   hub {
     resource_id   = module.hub2.vnet.id
     resource_type = "Microsoft.Network/virtualNetworks"
   }
   applies_to_group {
-    group_connectivity  = "DirectlyConnected"
+    group_connectivity  = "None"
     network_group_id    = azurerm_network_manager_network_group.ng_spokes_prod_region2.id
-    global_mesh_enabled = true
+    global_mesh_enabled = false
     use_hub_gateway     = true
   }
   depends_on = [
@@ -73,10 +77,9 @@ resource "azurerm_network_manager_connectivity_configuration" "conn_config_hub_s
 ####################################################
 
 # connectivity
-#---------------------------
 
 resource "azurerm_network_manager_deployment" "conn_config_hub_spoke_region2" {
-  network_manager_id = azurerm_network_manager.network_manager_instance.id
+  network_manager_id = azurerm_network_manager.avnm.id
   location           = local.region2
   scope_access       = "Connectivity"
   configuration_ids = [
@@ -115,13 +118,13 @@ resource "null_resource" "policy_cleanup_region2" {
 ####################################################
 
 locals {
-  netman_files_region2 = {
+  avnm_files_region2 = {
     "output/policies/pol-ng-spokes.json" = local.policy_ng_spokes_prod_region2
   }
 }
 
-resource "local_file" "netman_files_region2" {
-  for_each = local.netman_files_region2
+resource "local_file" "avnm_files_region2" {
+  for_each = local.avnm_files_region2
   filename = each.key
   content  = each.value
 }

@@ -22,7 +22,6 @@ module "spoke1" {
   private_dns_zone_linked_external_vnets = {
     "hub1" = module.hub1.vnet.id
   }
-  #private_dns_zone_prefix = local.spoke1_dns_zone
 
   nsg_subnet_map = {
     "${local.spoke1_prefix}main"  = module.common.nsg_main["region1"].id
@@ -76,7 +75,6 @@ module "spoke2" {
   private_dns_zone_linked_external_vnets = {
     "hub1" = module.hub1.vnet.id
   }
-  #private_dns_zone_prefix    = local.spoke2_dns_zone
 
   nsg_subnet_map = {
     "${local.spoke2_prefix}main"  = module.common.nsg_main["region1"].id
@@ -128,7 +126,6 @@ module "spoke3" {
   private_dns_zone_linked_external_vnets = {
     "hub1" = module.hub1.vnet.id
   }
-  #private_dns_zone_prefix    = local.spoke3_dns_zone
 
   nsg_subnet_map = {
     "${local.spoke3_prefix}main"  = module.common.nsg_main["region1"].id
@@ -138,9 +135,9 @@ module "spoke3" {
 
   vnet_config = [
     {
-      address_space = local.spoke3_address_space
-      subnets       = local.spoke3_subnets
-      #subnets_nat_gateway = ["${local.spoke3_prefix}main", ]
+      address_space       = local.spoke3_address_space
+      subnets             = local.spoke3_subnets
+      subnets_nat_gateway = ["${local.spoke3_prefix}main", ]
     }
   ]
 

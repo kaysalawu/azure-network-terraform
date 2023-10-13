@@ -1,6 +1,6 @@
 
 locals {
-  policy_ng_hubs_prod = templatefile("../../policies/net-man/ng-hubs-prod.json", {
+  policy_ng_hubs_prod = templatefile("../../policies/avnm/ng-hubs-prod.json", {
     NETWORK_GROUP_ID = azurerm_network_manager_network_group.ng_hubs_prod.id
   })
   policy_cleanup_commands_hubs = [
@@ -15,7 +15,7 @@ locals {
 
 resource "azurerm_network_manager_network_group" "ng_hubs_prod" {
   name               = "${local.prefix}-ng-hubs-prod"
-  network_manager_id = azurerm_network_manager.netman.id
+  network_manager_id = azurerm_network_manager.avnm.id
 }
 
 ####################################################
@@ -27,7 +27,7 @@ resource "azurerm_policy_definition" "ng_hubs_prod" {
   policy_type  = "Custom"
   mode         = "Microsoft.Network.Data"
   display_name = "All hubs in prod region1"
-  metadata     = templatefile("../../policies/net-man/metadata.json", {})
+  metadata     = templatefile("../../policies/avnm/metadata.json", {})
   policy_rule  = local.policy_ng_hubs_prod
 }
 
@@ -50,7 +50,7 @@ resource "azurerm_subscription_policy_assignment" "ng_hubs_prod" {
 
 resource "azurerm_network_manager_connectivity_configuration" "conn_config_hubs" {
   name                  = "${local.prefix}-conn-config-hubs"
-  network_manager_id    = azurerm_network_manager.netman.id
+  network_manager_id    = azurerm_network_manager.avnm.id
   connectivity_topology = "Mesh"
   applies_to_group {
     group_connectivity = "None"
@@ -68,7 +68,7 @@ resource "azurerm_network_manager_connectivity_configuration" "conn_config_hubs"
 # connectivity
 
 resource "azurerm_network_manager_deployment" "conn_config_hubs" {
-  network_manager_id = azurerm_network_manager.netman.id
+  network_manager_id = azurerm_network_manager.avnm.id
   location           = local.region1
   scope_access       = "Connectivity"
   configuration_ids = [
@@ -107,13 +107,13 @@ resource "null_resource" "policy_cleanup_hubs" {
 ####################################################
 
 locals {
-  netman_files = {
+  avnm_files = {
     "output/policies/pol-ng-hubs.json" = local.policy_ng_hubs_prod
   }
 }
 
-resource "local_file" "netman_files" {
-  for_each = local.netman_files
+resource "local_file" "avnm_files" {
+  for_each = local.avnm_files
   filename = each.key
   content  = each.value
 }

@@ -3,8 +3,8 @@
 ####################################################
 
 locals {
-  prefix       = "Poc1"
-  my_public_ip = chomp(data.http.my_public_ip.response_body)
+  prefix = "Poc1"
+  #my_public_ip = chomp(data.http.my_public_ip.response_body)
 }
 
 ####################################################
@@ -41,29 +41,24 @@ locals {
     region1 = local.region1
     region2 = local.region2
   }
-
   default_udr_destinations = {
     "default" = "0.0.0.0/0"
   }
-
   hub1_nva_udr_destinations = {
     "spoke4" = local.spoke4_address_space[0]
     "spoke5" = local.spoke5_address_space[0]
     "hub2"   = local.hub2_address_space[0]
   }
-
   hub2_nva_udr_destinations = {
     "spoke1" = local.spoke1_address_space[0]
     "spoke2" = local.spoke2_address_space[0]
     "hub1"   = local.hub1_address_space[0]
   }
-
   hub1_gateway_udr_destinations = {
     "spoke1" = local.spoke1_address_space[0]
     "spoke2" = local.spoke2_address_space[0]
     "hub1"   = local.hub1_address_space[0]
   }
-
   hub2_gateway_udr_destinations = {
     "spoke4" = local.spoke4_address_space[0]
     "spoke5" = local.spoke5_address_space[0]
@@ -104,27 +99,38 @@ resource "azurerm_resource_group" "rg" {
 
 # my public ip
 
-data "http" "my_public_ip" {
+/* data "http" "my_public_ip" {
   url = "http://ipv4.icanhazip.com"
-}
+} */
 
 ####################################################
 # common resources
 ####################################################
 
 module "common" {
-  source         = "../../modules/common"
-  resource_group = azurerm_resource_group.rg.name
-  env            = "common"
-  prefix         = local.prefix
-  firewall_sku   = local.firewall_sku
-  regions        = local.regions
-  tags           = {}
+  source           = "../../modules/common"
+  resource_group   = azurerm_resource_group.rg.name
+  env              = "common"
+  prefix           = local.prefix
+  firewall_sku     = local.firewall_sku
+  regions          = local.regions
+  private_prefixes = local.private_prefixes
+  tags             = {}
 }
 
-resource "azurerm_private_dns_zone" "az_co" {
+# private dns zones
+
+resource "azurerm_private_dns_zone" "global" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = local.cloud_domain
+  timeouts {
+    create = "60m"
+  }
+}
+
+resource "azurerm_private_dns_zone" "pl_blob" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "privatelink.blob.core.windows.net"
   timeouts {
     create = "60m"
   }
@@ -317,10 +323,10 @@ module "fw_policy_rule_collection_group" {
 # network manager
 ####################################################
 
-resource "azurerm_network_manager" "netman" {
+resource "azurerm_network_manager" "avnm" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  name                = "${local.prefix}-netman"
+  name                = "${local.prefix}-avnm"
   scope_accesses      = ["Connectivity", "SecurityAdmin"]
   description         = "global"
   scope {
@@ -334,49 +340,49 @@ resource "azurerm_network_manager" "netman" {
 
 locals {
   ouput_values = templatefile("./scripts/values.sh", {
-    HUB1_VNET_NAME    = module.hub1.vnet.name
-    HUB2_VNET_NAME    = module.hub2.vnet.name
-    SPOKE1_VNET_NAME  = module.spoke1.vnet.name
-    SPOKE2_VNET_NAME  = module.spoke2.vnet.name
-    SPOKE3_VNET_NAME  = module.spoke3.vnet.name
-    SPOKE4_VNET_NAME  = module.spoke4.vnet.name
-    SPOKE5_VNET_NAME  = module.spoke5.vnet.name
-    SPOKE6_VNET_NAME  = module.spoke6.vnet.name
-    BRANCH1_VNET_NAME = module.branch1.vnet.name
-    BRANCH3_VNET_NAME = module.branch3.vnet.name
+    HUB1_VNET_NAME    = try(module.hub1.vnet.name, "")
+    HUB2_VNET_NAME    = try(module.hub2.vnet.name, "")
+    SPOKE1_VNET_NAME  = try(module.spoke1.vnet.name, "")
+    SPOKE2_VNET_NAME  = try(module.spoke2.vnet.name, "")
+    SPOKE3_VNET_NAME  = try(module.spoke3.vnet.name, "")
+    SPOKE4_VNET_NAME  = try(module.spoke4.vnet.name, "")
+    SPOKE5_VNET_NAME  = try(module.spoke5.vnet.name, "")
+    SPOKE6_VNET_NAME  = try(module.spoke6.vnet.name, "")
+    BRANCH1_VNET_NAME = try(module.branch1.vnet.name, "")
+    BRANCH3_VNET_NAME = try(module.branch3.vnet.name, "")
 
-    HUB1_VNET_RANGES    = join(", ", module.hub1.vnet.address_space)
-    HUB2_VNET_RANGES    = join(", ", module.hub2.vnet.address_space)
-    SPOKE1_VNET_RANGES  = join(", ", module.spoke1.vnet.address_space)
-    SPOKE2_VNET_RANGES  = join(", ", module.spoke2.vnet.address_space)
-    SPOKE3_VNET_RANGES  = join(", ", module.spoke3.vnet.address_space)
-    SPOKE4_VNET_RANGES  = join(", ", module.spoke4.vnet.address_space)
-    SPOKE5_VNET_RANGES  = join(", ", module.spoke5.vnet.address_space)
-    SPOKE6_VNET_RANGES  = join(", ", module.spoke6.vnet.address_space)
-    BRANCH1_VNET_RANGES = join(", ", module.branch1.vnet.address_space)
-    BRANCH3_VNET_RANGES = join(", ", module.branch3.vnet.address_space)
+    HUB1_VNET_RANGES    = try(join(", ", module.hub1.vnet.address_space), "")
+    HUB2_VNET_RANGES    = try(join(", ", module.hub2.vnet.address_space), "")
+    SPOKE1_VNET_RANGES  = try(join(", ", module.spoke1.vnet.address_space), "")
+    SPOKE2_VNET_RANGES  = try(join(", ", module.spoke2.vnet.address_space), "")
+    SPOKE3_VNET_RANGES  = try(join(", ", module.spoke3.vnet.address_space), "")
+    SPOKE4_VNET_RANGES  = try(join(", ", module.spoke4.vnet.address_space), "")
+    SPOKE5_VNET_RANGES  = try(join(", ", module.spoke5.vnet.address_space), "")
+    SPOKE6_VNET_RANGES  = try(join(", ", module.spoke6.vnet.address_space), "")
+    BRANCH1_VNET_RANGES = try(join(", ", module.branch1.vnet.address_space), "")
+    BRANCH3_VNET_RANGES = try(join(", ", module.branch3.vnet.address_space), "")
 
-    HUB1_VM_NAME    = module.hub1.vm["vm"].name
-    HUB2_VM_NAME    = module.hub2.vm["vm"].name
-    SPOKE1_VM_NAME  = module.spoke1.vm["vm"].name
-    SPOKE2_VM_NAME  = module.spoke2.vm["vm"].name
-    SPOKE3_VM_NAME  = module.spoke3.vm["vm"].name
-    SPOKE4_VM_NAME  = module.spoke4.vm["vm"].name
-    SPOKE5_VM_NAME  = module.spoke5.vm["vm"].name
-    SPOKE6_VM_NAME  = module.spoke6.vm["vm"].name
-    BRANCH1_VM_NAME = module.branch1.vm["vm"].name
-    BRANCH3_VM_NAME = module.branch3.vm["vm"].name
+    HUB1_VM_NAME    = try(module.hub1.vm["vm"].name, "")
+    HUB2_VM_NAME    = try(module.hub2.vm["vm"].name, "")
+    SPOKE1_VM_NAME  = try(module.spoke1.vm["vm"].name, "")
+    SPOKE2_VM_NAME  = try(module.spoke2.vm["vm"].name, "")
+    SPOKE3_VM_NAME  = try(module.spoke3.vm["vm"].name, "")
+    SPOKE4_VM_NAME  = try(module.spoke4.vm["vm"].name, "")
+    SPOKE5_VM_NAME  = try(module.spoke5.vm["vm"].name, "")
+    SPOKE6_VM_NAME  = try(module.spoke6.vm["vm"].name, "")
+    BRANCH1_VM_NAME = try(module.branch1.vm["vm"].name, "")
+    BRANCH3_VM_NAME = try(module.branch3.vm["vm"].name, "")
 
-    HUB1_VM_IP    = module.hub1.vm["vm"].private_ip_address
-    HUB2_VM_IP    = module.hub2.vm["vm"].private_ip_address
-    SPOKE1_VM_IP  = module.spoke1.vm["vm"].private_ip_address
-    SPOKE2_VM_IP  = module.spoke2.vm["vm"].private_ip_address
-    SPOKE3_VM_IP  = module.spoke3.vm["vm"].private_ip_address
-    SPOKE4_VM_IP  = module.spoke4.vm["vm"].private_ip_address
-    SPOKE5_VM_IP  = module.spoke5.vm["vm"].private_ip_address
-    SPOKE6_VM_IP  = module.spoke6.vm["vm"].private_ip_address
-    BRANCH1_VM_IP = module.branch1.vm["vm"].private_ip_address
-    BRANCH3_VM_IP = module.branch3.vm["vm"].private_ip_address
+    HUB1_VM_IP    = try(module.hub1.vm["vm"].private_ip_address, "")
+    HUB2_VM_IP    = try(module.hub2.vm["vm"].private_ip_address, "")
+    SPOKE1_VM_IP  = try(module.spoke1.vm["vm"].private_ip_address, "")
+    SPOKE2_VM_IP  = try(module.spoke2.vm["vm"].private_ip_address, "")
+    SPOKE3_VM_IP  = try(module.spoke3.vm["vm"].private_ip_address, "")
+    SPOKE4_VM_IP  = try(module.spoke4.vm["vm"].private_ip_address, "")
+    SPOKE5_VM_IP  = try(module.spoke5.vm["vm"].private_ip_address, "")
+    SPOKE6_VM_IP  = try(module.spoke6.vm["vm"].private_ip_address, "")
+    BRANCH1_VM_IP = try(module.branch1.vm["vm"].private_ip_address, "")
+    BRANCH3_VM_IP = try(module.branch3.vm["vm"].private_ip_address, "")
 
     HUB1_SUBNETS    = { for k, v in module.hub1.subnets : k => v.address_prefixes[0] }
     HUB2_SUBNETS    = { for k, v in module.hub2.subnets : k => v.address_prefixes[0] }
@@ -393,6 +399,7 @@ locals {
   main_files = {
     "output/branch-unbound.sh" = local.branch_unbound_startup
     "output/values.sh"         = local.ouput_values
+    "output/server.sh"         = local.vm_startup
   }
 }
 

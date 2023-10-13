@@ -24,29 +24,28 @@ module "branch1" {
 
   vnet_config = [
     {
-      address_space = local.branch1_address_space
-      subnets       = local.branch1_subnets
+      address_space            = local.branch1_address_space
+      subnets                  = local.branch1_subnets
+      nat_gateway_subnet_names = ["${local.branch1_prefix}main", ]
     }
   ]
 
   vm_config = [
     {
-      name             = "vm"
-      subnet           = "${local.branch1_prefix}main"
-      private_ip       = local.branch1_vm_addr
-      custom_data      = base64encode(local.vm_startup)
-      source_image     = "ubuntu-20"
-      use_vm_extension = false
-      dns_servers      = [local.branch1_dns_addr, ]
-      delay_creation   = "120s"
+      name           = "vm"
+      subnet         = "${local.branch1_prefix}main"
+      private_ip     = local.branch1_vm_addr
+      custom_data    = base64encode(local.vm_startup)
+      source_image   = "ubuntu-20"
+      dns_servers    = [local.branch1_dns_addr, ]
+      delay_creation = "120s"
     },
     {
-      name             = "dns"
-      subnet           = "${local.branch1_prefix}main"
-      private_ip       = local.branch1_dns_addr
-      custom_data      = base64encode(local.branch_unbound_startup)
-      source_image     = "debian-10"
-      use_vm_extension = true
+      name         = "dns"
+      subnet       = "${local.branch1_prefix}main"
+      private_ip   = local.branch1_dns_addr
+      custom_data  = base64encode(local.branch_unbound_startup)
+      source_image = "ubuntu-20"
     }
   ]
   depends_on = [

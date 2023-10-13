@@ -1,7 +1,6 @@
 
 locals {
-  prefix           = var.prefix == "" ? "" : format("%s-", var.prefix)
-  private_prefixes = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "100.64.0.0/10"]
+  prefix = var.prefix == "" ? "" : format("%s-", var.prefix)
 }
 
 ####################################################
@@ -83,7 +82,7 @@ resource "azurerm_network_security_rule" "nsg_main_private" {
   direction                   = "Inbound"
   access                      = "Allow"
   priority                    = 100
-  source_address_prefixes     = local.private_prefixes
+  source_address_prefixes     = var.private_prefixes
   source_port_range           = "*"
   destination_address_prefix  = "*"
   destination_port_range      = "*"
@@ -110,7 +109,7 @@ resource "azurerm_network_security_rule" "nsg_nva_private" {
   direction                   = "Inbound"
   access                      = "Allow"
   priority                    = 140
-  source_address_prefixes     = local.private_prefixes
+  source_address_prefixes     = var.private_prefixes
   source_port_range           = "*"
   destination_address_prefix  = "*"
   destination_port_range      = "*"

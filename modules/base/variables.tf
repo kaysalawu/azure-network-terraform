@@ -95,7 +95,7 @@ variable "vnet_config" {
     enable_private_dns_resolver = optional(bool, false)
     enable_ars                  = optional(bool, false)
     enable_er_gateway           = optional(bool, false)
-    subnet_names_nat_gateway    = optional(list(string), [])
+    nat_gateway_subnet_names    = optional(list(string), [])
     subnet_names_private_dns    = optional(list(string), [])
 
     private_dns_inbound_subnet_name  = optional(string, null)
@@ -117,12 +117,11 @@ variable "vnet_config" {
 variable "vm_config" {
   type = list(object({
     name                 = string
-    dns_host             = optional(string, "")
     subnet               = string
     vnet_number          = optional(string, 0)
     dns_host             = optional(string)
     zone                 = optional(string, null)
-    size                 = optional(string, "Standard_B1s")
+    size                 = optional(string, "Standard_B2s")
     private_ip           = optional(string, null)
     enable_public_ip     = optional(bool, false)
     custom_data          = optional(string, null)
@@ -131,7 +130,6 @@ variable "vm_config" {
     source_image         = optional(string, "ubuntu")
     dns_servers          = optional(list(string), [])
     delay_creation       = optional(string, "0s")
-    size                 = optional(string, "Standard_B1s")
   }))
   default = []
 }

@@ -42,7 +42,8 @@ forward-zone:
         forward-addr: 168.63.129.16
 EOF
 
-sleep 10
+systemctl stop systemd-resolved
+systemctl disable systemd-resolved
 systemctl restart unbound
 systemctl enable unbound
 

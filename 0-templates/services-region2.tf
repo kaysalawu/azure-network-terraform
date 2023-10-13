@@ -123,9 +123,8 @@ module "spoke6_pls" {
   ]
 }
 
-####################################################
 # private endpoint
-####################################################
+#----------------------------
 
 resource "azurerm_private_endpoint" "hub2_spoke6_pe" {
   resource_group_name = azurerm_resource_group.rg.name
@@ -143,7 +142,61 @@ resource "azurerm_private_endpoint" "hub2_spoke6_pe" {
 resource "azurerm_private_dns_a_record" "hub2_spoke6_pe" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = local.hub2_pep_dns_host
-  zone_name           = module.spoke6.private_dns_zone.name
+  zone_name           = module.hub2.private_dns_zone.name
   ttl                 = 300
   records             = [azurerm_private_endpoint.hub2_spoke6_pe.private_service_connection[0].private_ip_address, ]
 }
+
+####################################################
+# private link
+####################################################
+
+locals {
+  private_dns_zone_linked_vnets_region2 = {
+    "hub2" = module.hub2.vnet.id
+  }
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "pl_blob_region2" {
+  for_each              = local.private_dns_zone_linked_vnets_region2
+  resource_group_name   = azurerm_resource_group.rg.name
+  name                  = "${local.prefix}${each.key}-vnet-link"
+  private_dns_zone_name = azurerm_private_dns_zone.pl_blob.name
+  virtual_network_id    = each.value
+  registration_enabled  = false
+  timeouts {
+    create = "60m"
+  }
+}
+
+# storage account
+
+resource "azurerm_storage_account" "pl_blob_region2" {
+  resource_group_name      = azurerm_resource_group.rg.name
+  name                     = lower("${local.prefix}pl2")
+  location                 = local.region2
+  account_replication_type = "LRS"
+  account_tier             = "Standard"
+}
+
+# private endpoint
+
+resource "azurerm_private_endpoint" "pl_blob_region2" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.prefix}pl2-endpoint"
+  location            = local.region2
+  subnet_id           = module.hub2.subnets["${local.hub2_prefix}pep"].id
+
+  private_service_connection {
+    name                           = "${local.prefix}pl2-svc-conn"
+    private_connection_resource_id = azurerm_storage_account.pl_blob_region2.id
+    is_manual_connection           = false
+    subresource_names              = ["blob"]
+  }
+
+  private_dns_zone_group {
+    name                 = "${local.prefix}pl2-dns-zone-group"
+    private_dns_zone_ids = [azurerm_private_dns_zone.pl_blob.id]
+  }
+}
+

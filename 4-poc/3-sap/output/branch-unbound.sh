@@ -26,17 +26,17 @@ server:
         access-control: 53.200.0.0/16 allow
 
         # local data records
-        local-data: "vm.branch1.co.net 300 IN A 10.10.0.5"
-        local-data: "vm.branch2.co.net 300 IN A 10.20.0.5"
-        local-data: "vm.branch3.co.net 300 IN A 10.30.0.5"
+        local-data: "vm.branch1.corp 300 IN A 10.10.0.5"
+        local-data: "vm.branch2.corp 300 IN A 10.20.0.5"
+        local-data: "vm.branch3.corp 300 IN A 10.30.0.5"
 
         # hosts redirected to PrivateLink
 
 
 forward-zone:
-        name: "cloud.co.net."
-        forward-addr: 53.200.117.4
-        forward-addr: 53.200.229.4
+        name: "az.corp."
+        forward-addr: 10.11.5.4
+        forward-addr: 10.22.5.4
 
 forward-zone:
         name: "."

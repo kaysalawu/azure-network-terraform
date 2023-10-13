@@ -22,10 +22,16 @@ locals {
   default_region      = "westeurope"
   subnets_without_nsg = ["GatewaySubnet"]
 
-  onprem_domain    = "co.net"
-  cloud_domain     = "cloud.co.net"
-  azuredns         = "168.63.129.16"
-  private_prefixes = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "100.64.0.0/10"]
+  onprem_domain = "co.net"
+  cloud_domain  = "cloud.co.net"
+  azuredns      = "168.63.129.16"
+  private_prefixes = [
+    "10.0.0.0/8",
+    "172.16.0.0/12",
+    "192.168.0.0/16",
+    "100.64.0.0/10",
+    "53.200.0.0/16"
+  ]
 }
 
 # vhub1

@@ -3,6 +3,8 @@
 package_update: true
 packages:
   - dnsmasq
+  - dnsutils
+  - net-tools
 
 runcmd:
   - systemctl restart dnsmasq

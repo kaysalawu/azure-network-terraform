@@ -3,7 +3,7 @@
 apt update
 apt install -y python3-pip python3-dev tcpdump dnsutils traceroute net-tools
 
-# web server
+# web server #
 pip3 install Flask requests
 
 mkdir /var/flaskapp

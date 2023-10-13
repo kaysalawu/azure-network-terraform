@@ -1,5 +1,5 @@
 locals {
-  hub1_bgp_asn       = module.hub1.vpngw.bgp_settings[0].asn
+  hub1_vpngw_bgp_asn = module.hub1.vpngw.bgp_settings[0].asn
   hub1_vpngw_bgp_ip0 = module.hub1.vpngw.bgp_settings[0].peering_addresses[0].default_addresses[0]
   hub1_vpngw_bgp_ip1 = module.hub1.vpngw.bgp_settings[0].peering_addresses[1].default_addresses[0]
   hub1_firewall_ip   = module.hub1.firewall.ip_configuration[0].private_ip_address
@@ -46,6 +46,8 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke1_peering" {
 # udr
 #----------------------------
 
+# main
+
 module "spoke1_udr_main" {
   source                 = "../../modules/udr"
   resource_group         = azurerm_resource_group.rg.name
@@ -54,8 +56,10 @@ module "spoke1_udr_main" {
   subnet_id              = module.spoke1.subnets["${local.spoke1_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub1_firewall_ip
-  destinations           = local.main_udr_destinations
+  destinations           = local.default_udr_destinations
   depends_on             = [module.hub1]
+
+  disable_bgp_route_propagation = true
 }
 
 ####################################################
@@ -98,6 +102,8 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke2_peering" {
 # udr
 #----------------------------
 
+# main
+
 module "spoke2_udr_main" {
   source                 = "../../modules/udr"
   resource_group         = azurerm_resource_group.rg.name
@@ -106,8 +112,10 @@ module "spoke2_udr_main" {
   subnet_id              = module.spoke2.subnets["${local.spoke2_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub1_firewall_ip
-  destinations           = local.main_udr_destinations
+  destinations           = local.default_udr_destinations
   depends_on             = [module.hub1]
+
+  disable_bgp_route_propagation = true
 }
 
 ####################################################
@@ -115,6 +123,9 @@ module "spoke2_udr_main" {
 ####################################################
 
 # udr
+#----------------------------
+
+# gateway
 
 module "hub1_udr_gateway" {
   source                 = "../../modules/udr"
@@ -128,6 +139,8 @@ module "hub1_udr_gateway" {
   depends_on             = [module.hub1, ]
 }
 
+# main
+
 module "hub1_udr_main" {
   source                 = "../../modules/udr"
   resource_group         = azurerm_resource_group.rg.name
@@ -136,8 +149,10 @@ module "hub1_udr_main" {
   subnet_id              = module.hub1.subnets["${local.hub1_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub1_firewall_ip
-  destinations           = local.main_udr_destinations
+  destinations           = local.default_udr_destinations
   depends_on             = [module.hub1, ]
+
+  disable_bgp_route_propagation = true
 }
 
 ####################################################
@@ -161,20 +176,6 @@ resource "azurerm_local_network_gateway" "hub1_branch1_lng" {
   }
 }
 
-# branch3
-
-resource "azurerm_local_network_gateway" "hub1_branch3_lng" {
-  resource_group_name = azurerm_resource_group.rg.name
-  name                = "${local.hub1_prefix}branch3-lng"
-  location            = local.hub1_location
-  gateway_address     = azurerm_public_ip.branch3_nva_pip.ip_address
-  address_space       = ["${local.branch3_nva_loopback0}/32", ]
-  bgp_settings {
-    asn                 = local.branch3_nva_asn
-    bgp_peering_address = local.branch3_nva_loopback0
-  }
-}
-
 # lng connection
 #----------------------------
 
@@ -188,21 +189,6 @@ resource "azurerm_virtual_network_gateway_connection" "hub1_branch1_lng" {
   enable_bgp                 = true
   virtual_network_gateway_id = module.hub1.vpngw.id
   local_network_gateway_id   = azurerm_local_network_gateway.hub1_branch1_lng.id
-  shared_key                 = local.psk
-  egress_nat_rule_ids        = []
-  ingress_nat_rule_ids       = []
-}
-
-# branch3
-
-resource "azurerm_virtual_network_gateway_connection" "hub1_branch3_lng" {
-  resource_group_name        = azurerm_resource_group.rg.name
-  name                       = "${local.hub1_prefix}branch3-lng-conn"
-  location                   = local.hub1_location
-  type                       = "IPsec"
-  enable_bgp                 = true
-  virtual_network_gateway_id = module.hub1.vpngw.id
-  local_network_gateway_id   = azurerm_local_network_gateway.hub1_branch3_lng.id
   shared_key                 = local.psk
   egress_nat_rule_ids        = []
   ingress_nat_rule_ids       = []

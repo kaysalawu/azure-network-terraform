@@ -123,9 +123,8 @@ module "spoke3_pls" {
   ]
 }
 
-####################################################
 # private endpoint
-####################################################
+#----------------------------
 
 resource "azurerm_private_endpoint" "hub1_spoke3_pe" {
   resource_group_name = azurerm_resource_group.rg.name
@@ -146,4 +145,57 @@ resource "azurerm_private_dns_a_record" "hub1_spoke3_pe" {
   zone_name           = module.spoke3.private_dns_zone.name
   ttl                 = 300
   records             = [azurerm_private_endpoint.hub1_spoke3_pe.private_service_connection[0].private_ip_address, ]
+}
+
+####################################################
+# private link
+####################################################
+
+locals {
+  private_dns_zone_linked_vnets_region1 = {
+    "hub1" = module.hub1.vnet.id
+  }
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "pl_blob_region1" {
+  for_each              = local.private_dns_zone_linked_vnets_region1
+  resource_group_name   = azurerm_resource_group.rg.name
+  name                  = "${local.prefix}${each.key}-vnet-link"
+  private_dns_zone_name = azurerm_private_dns_zone.pl_blob.name
+  virtual_network_id    = each.value
+  registration_enabled  = false
+  timeouts {
+    create = "60m"
+  }
+}
+
+# storage account
+
+resource "azurerm_storage_account" "pl_blob_region1" {
+  resource_group_name      = azurerm_resource_group.rg.name
+  name                     = lower("${local.prefix}pl1")
+  location                 = local.region1
+  account_replication_type = "LRS"
+  account_tier             = "Standard"
+}
+
+# private endpoint
+
+resource "azurerm_private_endpoint" "pl_blob_region1" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.prefix}pl1-endpoint"
+  location            = local.region1
+  subnet_id           = module.hub1.subnets["${local.hub1_prefix}pep"].id
+
+  private_service_connection {
+    name                           = "${local.prefix}pl1-svc-conn"
+    private_connection_resource_id = azurerm_storage_account.pl_blob_region1.id
+    is_manual_connection           = false
+    subresource_names              = ["blob"]
+  }
+
+  private_dns_zone_group {
+    name                 = "${local.prefix}pl1-dns-zone-group"
+    private_dns_zone_ids = [azurerm_private_dns_zone.pl_blob.id]
+  }
 }
