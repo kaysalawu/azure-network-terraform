@@ -27,7 +27,7 @@ terraform {
   required_providers {
     megaport = {
       source  = "megaport/megaport"
-      version = "0.1.9"
+      version = "0.3.0"
     }
   }
 }
@@ -368,16 +368,16 @@ locals {
     BRANCH1_VM_IP = try(module.branch1.vm["vm"].private_ip_address, "")
     BRANCH3_VM_IP = try(module.branch3.vm["vm"].private_ip_address, "")
 
-    HUB1_SUBNETS    = { for k, v in module.hub1.subnets : k => v.address_prefixes[0] }
-    HUB2_SUBNETS    = { for k, v in module.hub2.subnets : k => v.address_prefixes[0] }
-    SPOKE1_SUBNETS  = { for k, v in module.spoke1.subnets : k => v.address_prefixes[0] }
-    SPOKE2_SUBNETS  = { for k, v in module.spoke2.subnets : k => v.address_prefixes[0] }
-    SPOKE3_SUBNETS  = { for k, v in module.spoke3.subnets : k => v.address_prefixes[0] }
-    SPOKE4_SUBNETS  = { for k, v in module.spoke4.subnets : k => v.address_prefixes[0] }
-    SPOKE5_SUBNETS  = { for k, v in module.spoke5.subnets : k => v.address_prefixes[0] }
-    SPOKE6_SUBNETS  = { for k, v in module.spoke6.subnets : k => v.address_prefixes[0] }
-    BRANCH1_SUBNETS = { for k, v in module.branch1.subnets : k => v.address_prefixes[0] }
-    BRANCH3_SUBNETS = { for k, v in module.branch3.subnets : k => v.address_prefixes[0] }
+    HUB1_SUBNETS    = try({ for k, v in module.hub1.subnets : k => v.address_prefixes[0] }, "")
+    HUB2_SUBNETS    = try({ for k, v in module.hub2.subnets : k => v.address_prefixes[0] }, "")
+    SPOKE1_SUBNETS  = try({ for k, v in module.spoke1.subnets : k => v.address_prefixes[0] }, "")
+    SPOKE2_SUBNETS  = try({ for k, v in module.spoke2.subnets : k => v.address_prefixes[0] }, "")
+    SPOKE3_SUBNETS  = try({ for k, v in module.spoke3.subnets : k => v.address_prefixes[0] }, "")
+    SPOKE4_SUBNETS  = try({ for k, v in module.spoke4.subnets : k => v.address_prefixes[0] }, "")
+    SPOKE5_SUBNETS  = try({ for k, v in module.spoke5.subnets : k => v.address_prefixes[0] }, "")
+    SPOKE6_SUBNETS  = try({ for k, v in module.spoke6.subnets : k => v.address_prefixes[0] }, "")
+    BRANCH1_SUBNETS = try({ for k, v in module.branch1.subnets : k => v.address_prefixes[0] }, "")
+    BRANCH3_SUBNETS = try({ for k, v in module.branch3.subnets : k => v.address_prefixes[0] }, "")
   })
 
   main_files = {

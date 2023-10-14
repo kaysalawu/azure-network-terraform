@@ -59,7 +59,6 @@ module "spoke4_vm" {
   depends_on = [
     module.common,
     module.hub2,
-    module.hub2_nva,
   ]
 }
 
@@ -123,7 +122,6 @@ module "spoke5_vm" {
   depends_on = [
     module.common,
     module.hub2,
-    module.hub2_nva,
   ]
 }
 
@@ -186,6 +184,5 @@ module "spoke6_vm" {
   depends_on = [
     module.common,
     module.hub2,
-    module.hub2_nva,
   ]
 }

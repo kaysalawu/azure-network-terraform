@@ -57,7 +57,7 @@ module "branch3_dns" {
 # workload
 #----------------------------
 
-module "branch3_web" {
+module "branch3_vm" {
   source           = "../../modules/linux"
   resource_group   = azurerm_resource_group.rg.name
   prefix           = local.branch3_prefix

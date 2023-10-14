@@ -196,11 +196,11 @@ resource "azurerm_nat_gateway_public_ip_association" "nat" {
   }
 }
 
-/* resource "azurerm_subnet_nat_gateway_association" "nat" {
-  for_each       = length(var.vnet_config[0].nat_gateway_subnet_names) > 0 ? try(toset(local.nat_gateway_subnet_ids), toset([])) : toset([])
+resource "azurerm_subnet_nat_gateway_association" "nat" {
+  for_each       = length(var.vnet_config[0].nat_gateway_subnet_names) > 0 ? toset(values(local.nat_gateway_subnet_ids)) : toset([])
   nat_gateway_id = azurerm_nat_gateway.nat[0].id
   subnet_id      = each.value
-} */
+}
 
 # vm
 #----------------------------

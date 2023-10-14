@@ -49,14 +49,25 @@ module "hub1" {
       firewall_policy_id = local.hub1_features.firewall_policy_id
     }
   ]
+}
 
-  vm_config = [
-    /* {
-      name         = "vm"
-      subnet       = "${local.hub1_prefix}main"
-      private_ip   = local.hub1_vm_addr
-      custom_data  = base64encode(local.vm_startup)
-      source_image = "ubuntu-20"
-    } */
+# workload
+
+module "hub1_vm" {
+  source                = "../../modules/linux"
+  resource_group        = azurerm_resource_group.rg.name
+  prefix                = local.hub1_prefix
+  name                  = "vm"
+  location              = local.hub1_location
+  subnet                = module.hub1.subnets["${local.hub1_prefix}main"].id
+  private_ip            = local.hub1_vm_addr
+  custom_data           = base64encode(local.vm_startup)
+  dns_servers           = [local.hub1_dns_in_addr, ]
+  storage_account       = module.common.storage_accounts["region1"]
+  private_dns_zone_name = "hub1.${local.cloud_domain}"
+  tags                  = local.hub1_tags
+  depends_on = [
+    module.common,
+    module.hub1,
   ]
 }
