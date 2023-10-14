@@ -128,8 +128,6 @@ locals {
   })
 }
 
-# vm
-
 module "branch3_nva" {
   source               = "../../modules/csr-branch"
   resource_group       = azurerm_resource_group.rg.name
@@ -156,14 +154,13 @@ module "branch3_nva" {
 module "branch3_udr_main" {
   source                        = "../../modules/udr"
   resource_group                = azurerm_resource_group.rg.name
-  prefix                        = "${local.branch3_prefix}-main"
+  prefix                        = "${local.branch3_prefix}main"
   location                      = local.branch3_location
   subnet_id                     = module.branch3.subnets["${local.branch3_prefix}main"].id
   next_hop_type                 = "VirtualAppliance"
   next_hop_in_ip_address        = local.branch3_nva_int_addr
-  destinations                  = local.default_udr_destinations
+  destinations                  = local.private_prefixes_map
   disable_bgp_route_propagation = true
-  delay_creation                = "120s"
   depends_on = [
     module.branch3,
     module.branch3_nva,

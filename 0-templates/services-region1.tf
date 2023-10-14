@@ -92,9 +92,9 @@ module "spoke3_lb" {
 
   backends = [
     {
-      name                  = module.spoke3.vm["vm"].name
-      ip_configuration_name = module.spoke3.vm_interface["vm"].ip_configuration[0].name
-      network_interface_id  = module.spoke3.vm_interface["vm"].id
+      name                  = module.spoke3_vm.vm.name
+      ip_configuration_name = module.spoke3_vm.interface.ip_configuration[0].name
+      network_interface_id  = module.spoke3_vm.interface.id
     }
   ]
 }

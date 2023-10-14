@@ -7,7 +7,7 @@ output "subnets" {
   value = azurerm_subnet.this
 }
 
-output "vm" {
+/* output "vm" {
   value = { for k, v in module.vm : k => v.vm }
 }
 
@@ -17,7 +17,7 @@ output "vm_interface" {
 
 output "vm_public_ip" {
   value = { for k, v in module.vm : k => v.vm.public_ip_address }
-}
+} */
 
 output "private_dns_zone" {
   value = try(azurerm_private_dns_zone.this[0], {})

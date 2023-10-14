@@ -1,14 +1,25 @@
 
 locals {
-  prefix = var.prefix == "" ? "${var.name}" : format("%s-%s-", var.prefix, var.name)
+  name = var.prefix == "" ? "${var.name}" : format("%s%s-", var.prefix, var.name)
+  cleanup_commands = [
+    "az vm extension delete -g ${var.resource_group} --vm-name ${local.name}-vm --name ${local.name}-vm-${random_id.this.hex} --no-wait",
+  ]
+}
+
+# random
+#----------------------------
+
+resource "random_id" "this" {
+  byte_length = 4
 }
 
 # public ip
+#----------------------------
 
 resource "azurerm_public_ip" "this" {
   count               = var.enable_public_ip == true ? 1 : 0
   resource_group_name = var.resource_group
-  name                = "${local.prefix}pip"
+  name                = "${local.name}pip"
   location            = var.location
   sku                 = "Standard"
   allocation_method   = "Static"
@@ -16,16 +27,17 @@ resource "azurerm_public_ip" "this" {
 }
 
 # interface
+#----------------------------
 
 resource "azurerm_network_interface" "this" {
   resource_group_name  = var.resource_group
-  name                 = "${local.prefix}nic"
+  name                 = "${local.name}nic"
   location             = var.location
   dns_servers          = var.dns_servers
   tags                 = var.tags
   enable_ip_forwarding = var.enable_ip_forwarding
   ip_configuration {
-    name                          = "${local.prefix}nic-ip-config"
+    name                          = "${local.name}nic-ip-config"
     subnet_id                     = var.subnet
     private_ip_address_allocation = var.private_ip == null ? "Dynamic" : "Static"
     private_ip_address            = var.private_ip == null ? null : var.private_ip
@@ -37,6 +49,7 @@ resource "azurerm_network_interface" "this" {
 }
 
 # delay
+#----------------------------
 
 resource "time_sleep" "this" {
   depends_on = [
@@ -46,10 +59,11 @@ resource "time_sleep" "this" {
 }
 
 # vm
+#----------------------------
 
 resource "azurerm_linux_virtual_machine" "this" {
   resource_group_name = var.resource_group
-  name                = trimsuffix(local.prefix, "-")
+  name                = trimsuffix(local.name, "-")
   location            = var.location
   zone                = var.zone
   size                = var.vm_size
@@ -59,7 +73,7 @@ resource "azurerm_linux_virtual_machine" "this" {
     azurerm_network_interface.this.id
   ]
   os_disk {
-    name                 = "${local.prefix}os-disk"
+    name                 = "${local.name}os-disk"
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
@@ -69,7 +83,7 @@ resource "azurerm_linux_virtual_machine" "this" {
     sku       = var.source_image_reference[var.source_image].sku
     version   = var.source_image_reference[var.source_image].version
   }
-  computer_name  = trimsuffix(local.prefix, "-")
+  computer_name  = trimsuffix(local.name, "-")
   admin_username = var.admin_username
   admin_password = var.admin_password
   boot_diagnostics {
@@ -90,15 +104,9 @@ resource "azurerm_linux_virtual_machine" "this" {
   depends_on = [time_sleep.this]
 }
 
-# extension
-
-resource "random_id" "extension" {
-  byte_length = 4
-}
-
 resource "azurerm_virtual_machine_extension" "this" {
   count                = var.use_vm_extension ? 1 : 0
-  name                 = "${local.prefix}${random_id.extension.hex}"
+  name                 = "${local.name}vm-${random_id.this.hex}"
   virtual_machine_id   = azurerm_linux_virtual_machine.this.id
   publisher            = "Microsoft.Azure.Extensions"
   type                 = "CustomScript"
@@ -111,6 +119,9 @@ resource "azurerm_virtual_machine_extension" "this" {
 SETTINGS
 }
 
+# dns
+#----------------------------
+
 resource "azurerm_private_dns_a_record" "this" {
   count               = var.private_dns_zone_name == "" ? 0 : 1
   resource_group_name = var.resource_group
@@ -120,13 +131,8 @@ resource "azurerm_private_dns_a_record" "this" {
   records             = [azurerm_linux_virtual_machine.this.private_ip_address]
 }
 
-locals {
-  cleanup_commands = [
-    "az vm extension delete -g ${var.resource_group} --vm-name ${trimsuffix(local.prefix, "-")} --name ${local.prefix}${random_id.extension.hex} --no-wait",
-  ]
-}
-
 # cleanup
+#----------------------------
 
 resource "null_resource" "cleanup_commands" {
   count = var.use_vm_extension ? length(local.cleanup_commands) : 0

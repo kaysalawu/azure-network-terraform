@@ -159,7 +159,7 @@ module "branch3_nva" {
 module "branch3_udr_main" {
   source                 = "../../modules/udr"
   resource_group         = azurerm_resource_group.rg.name
-  prefix                 = "${local.branch3_prefix}-main"
+  prefix                 = "${local.branch3_prefix}main"
   location               = local.branch3_location
   subnet_id              = module.branch3.subnets["${local.branch3_prefix}main"].id
   next_hop_type          = "VirtualAppliance"

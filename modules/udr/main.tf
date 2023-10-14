@@ -34,7 +34,7 @@ resource "azurerm_subnet_route_table_association" "this" {
 resource "azurerm_route" "this" {
   for_each               = var.destinations
   resource_group_name    = var.resource_group
-  name                   = "${local.prefix}${each.key}-${replace(replace(each.value, ".", "-"), "/", "_")}"
+  name                   = "${local.prefix}${each.key}--${replace(replace(each.value, ".", "-"), "/", "_")}"
   route_table_name       = azurerm_route_table.this.name
   address_prefix         = each.value
   next_hop_type          = var.next_hop_type

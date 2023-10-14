@@ -51,12 +51,12 @@ module "hub2" {
   ]
 
   vm_config = [
-    {
+    /* {
       name         = "vm"
       subnet       = "${local.hub2_prefix}main"
       private_ip   = local.hub2_vm_addr
       custom_data  = base64encode(local.vm_startup)
       source_image = "ubuntu-20"
-    }
+    } */
   ]
 }

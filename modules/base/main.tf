@@ -205,7 +205,7 @@ resource "azurerm_nat_gateway_public_ip_association" "nat" {
 # vm
 #----------------------------
 
-module "vm" {
+/* module "vm" {
   for_each                = { for x in var.vm_config : x.name => x }
   source                  = "../../modules/linux"
   resource_group          = var.resource_group
@@ -235,7 +235,7 @@ module "vm" {
     azurerm_subnet_network_security_group_association.this,
   ]
   tags = var.tags
-}
+} */
 
 # vpngw
 #----------------------------

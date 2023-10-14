@@ -51,16 +51,15 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke1_peering" {
 # main
 
 module "spoke1_udr_main" {
-  source                 = "../../modules/udr"
-  resource_group         = azurerm_resource_group.rg.name
-  prefix                 = "${local.spoke1_prefix}main"
-  location               = local.spoke1_location
-  subnet_id              = module.spoke1.subnets["${local.spoke1_prefix}main"].id
-  next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub1_nva_ilb_addr
-  destinations           = local.default_udr_destinations
-  depends_on             = [module.hub1]
-
+  source                        = "../../modules/udr"
+  resource_group                = azurerm_resource_group.rg.name
+  prefix                        = "${local.spoke1_prefix}main"
+  location                      = local.spoke1_location
+  subnet_id                     = module.spoke1.subnets["${local.spoke1_prefix}main"].id
+  next_hop_type                 = "VirtualAppliance"
+  next_hop_in_ip_address        = local.hub1_nva_ilb_addr
+  destinations                  = local.default_udr_destinations
+  depends_on                    = [module.hub1]
   disable_bgp_route_propagation = true
 }
 
@@ -107,16 +106,15 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke2_peering" {
 # main
 
 module "spoke2_udr_main" {
-  source                 = "../../modules/udr"
-  resource_group         = azurerm_resource_group.rg.name
-  prefix                 = "${local.spoke2_prefix}main"
-  location               = local.spoke2_location
-  subnet_id              = module.spoke2.subnets["${local.spoke2_prefix}main"].id
-  next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub1_nva_ilb_addr
-  destinations           = local.default_udr_destinations
-  depends_on             = [module.hub1]
-
+  source                        = "../../modules/udr"
+  resource_group                = azurerm_resource_group.rg.name
+  prefix                        = "${local.spoke2_prefix}main"
+  location                      = local.spoke2_location
+  subnet_id                     = module.spoke2.subnets["${local.spoke2_prefix}main"].id
+  next_hop_type                 = "VirtualAppliance"
+  next_hop_in_ip_address        = local.hub1_nva_ilb_addr
+  destinations                  = local.default_udr_destinations
+  depends_on                    = [module.hub1]
   disable_bgp_route_propagation = true
 }
 

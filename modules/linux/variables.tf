@@ -51,7 +51,7 @@ variable "public_ip" {
 variable "vm_size" {
   description = "size of vm"
   type        = string
-  default     = "Standard_B1s"
+  default     = "Standard_B2s"
 }
 
 variable "ssh_public_key" {
@@ -81,7 +81,7 @@ variable "admin_username" {
 variable "admin_password" {
   description = "private dns zone name"
   type        = string
-  default     = "azureuser"
+  default     = "Password123"
 }
 
 variable "enable_ip_forwarding" {
