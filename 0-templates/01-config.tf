@@ -72,7 +72,7 @@ locals {
       "ingress-static" = "10.11.80.0/24"
     }
   }
-  hub1_dns_zone = "hub1"
+  hub1_dns_zone = "hub1.${local.cloud_domain}"
   hub1_tags     = { "nodeType" = "hub" }
   hub1_subnets = {
     ("${local.hub1_prefix}main")      = { address_prefixes = ["10.11.0.0/24"] }
@@ -100,11 +100,11 @@ locals {
   hub1_nva_tun_range1    = "10.11.51.4/30"
   hub1_vpngw_bgp_apipa_0 = cidrhost(local.bgp_apipa_range1, 1)
   hub1_vpngw_bgp_apipa_1 = cidrhost(local.bgp_apipa_range2, 1)
-  hub1_vm_dns_host       = "vm.${local.hub1_dns_zone}"
-  hub1_ilb_dns_host      = "ilb.${local.hub1_dns_zone}"
-  hub1_pep_dns_host      = "pep.${local.hub1_dns_zone}"
-  hub1_vm_fqdn           = "${local.hub1_vm_dns_host}.${local.cloud_domain}"
-  hub1_pep_fqdn          = "${local.hub1_pep_dns_host}.${local.cloud_domain}"
+  hub1_vm_host           = "vm"
+  hub1_ilb_host          = "ilb"
+  hub1_spoke3_pep_host   = "spoke3.p"
+  hub1_vm_fqdn           = "${local.hub1_vm_host}.${local.hub1_dns_zone}"
+  hub1_spoke3_pep_fqdn   = "${local.hub1_spoke3_pep_host}.${local.hub1_dns_zone}"
 }
 
 # hub2
@@ -114,7 +114,7 @@ locals {
   hub2_prefix        = local.prefix == "" ? "hub2-" : join("-", [local.prefix, "hub2-"])
   hub2_location      = local.region2
   hub2_address_space = ["10.22.0.0/16", ]
-  hub2_dns_zone      = "hub2"
+  hub2_dns_zone      = "hub2.${local.cloud_domain}"
   hub2_tags          = { "nodeType" = "hub" }
   hub2_subnets = {
     ("${local.hub2_prefix}main")      = { address_prefixes = ["10.22.0.0/24"] }
@@ -140,11 +140,11 @@ locals {
   hub2_nva_tun_range0    = "10.22.50.0/30"
   hub2_nva_tun_range1    = "10.22.51.4/30"
   hub2_vpngw_bgp_apipa_0 = cidrhost(local.bgp_apipa_range5, 1)
-  hub2_vm_dns_host       = "vm.${local.hub2_dns_zone}"
-  hub2_ilb_dns_host      = "ilb.${local.hub2_dns_zone}"
-  hub2_pep_dns_host      = "pep.${local.hub2_dns_zone}"
-  hub2_vm_fqdn           = "${local.hub2_vm_dns_host}.${local.cloud_domain}"
-  hub2_pep_fqdn          = "${local.hub2_pep_dns_host}.${local.cloud_domain}"
+  hub2_vm_host           = "vm"
+  hub2_ilb_host          = "ilb"
+  hub2_spoke6_pep_host   = "spoke6.p"
+  hub2_vm_fqdn           = "${local.hub2_vm_host}.${local.hub2_dns_zone}"
+  hub2_spoke6_pep_fqdn   = "${local.hub2_spoke6_pep_host}.${local.hub2_dns_zone}"
 }
 
 # branch1
@@ -177,8 +177,8 @@ locals {
   branch1_nva_tun_range3 = "10.10.10.12/30"
   branch1_bgp_apipa_0    = cidrhost(local.bgp_apipa_range3, 2)
   branch1_bgp_apipa_1    = cidrhost(local.bgp_apipa_range4, 2)
-  branch1_vm_dns_host    = "vm.branch1"
-  branch1_vm_fqdn        = "${local.branch1_vm_dns_host}.${local.onprem_domain}"
+  branch1_vm_host        = "vm.branch1"
+  branch1_vm_fqdn        = "${local.branch1_vm_host}.${local.onprem_domain}"
 }
 
 # branch2
@@ -209,8 +209,8 @@ locals {
   branch2_nva_tun_range1 = "10.20.20.4/30"
   branch2_nva_tun_range2 = "10.20.20.8/30"
   branch2_nva_tun_range3 = "10.20.20.12/30"
-  branch2_vm_dns_host    = "vm.branch2"
-  branch2_vm_fqdn        = "${local.branch2_vm_dns_host}.${local.onprem_domain}"
+  branch2_vm_host        = "vm.branch2"
+  branch2_vm_fqdn        = "${local.branch2_vm_host}.${local.onprem_domain}"
 }
 
 # branch3
@@ -243,8 +243,8 @@ locals {
   branch3_nva_tun_range3 = "10.30.30.12/30"
   branch3_bgp_apipa_0    = cidrhost(local.bgp_apipa_range7, 2)
   branch3_bgp_apipa_1    = cidrhost(local.bgp_apipa_range8, 2)
-  branch3_vm_dns_host    = "vm.branch3"
-  branch3_vm_fqdn        = "${local.branch3_vm_dns_host}.${local.onprem_domain}"
+  branch3_vm_host        = "vm.branch3"
+  branch3_vm_fqdn        = "${local.branch3_vm_host}.${local.onprem_domain}"
 }
 
 # spoke1
@@ -254,7 +254,7 @@ locals {
   spoke1_prefix        = local.prefix == "" ? "spoke1-" : join("-", [local.prefix, "spoke1-"])
   spoke1_location      = local.region1
   spoke1_address_space = ["10.1.0.0/16"]
-  spoke1_dns_zone      = "spoke1"
+  spoke1_dns_zone      = "spoke1.${local.cloud_domain}"
   spoke1_tags          = { "nodeType" = "spoke" }
   spoke1_subnets = {
     ("${local.spoke1_prefix}main")  = { address_prefixes = ["10.1.0.0/24"] }
@@ -263,14 +263,14 @@ locals {
     ("${local.spoke1_prefix}pls")   = { address_prefixes = ["10.1.3.0/24"] }
     ("${local.spoke1_prefix}pep")   = { address_prefixes = ["10.1.4.0/24"] }
   }
-  spoke1_vm_addr      = cidrhost(local.spoke1_subnets["${local.spoke1_prefix}main"].address_prefixes[0], 5)
-  spoke1_ilb_addr     = cidrhost(local.spoke1_subnets["${local.spoke1_prefix}ilb"].address_prefixes[0], 99)
-  spoke1_pl_nat_addr  = cidrhost(local.spoke1_subnets["${local.spoke1_prefix}main"].address_prefixes[0], 50)
-  spoke1_appgw_addr   = cidrhost(local.spoke1_subnets["${local.spoke1_prefix}appgw"].address_prefixes[0], 99)
-  spoke1_vm_dns_host  = "vm.${local.spoke1_dns_zone}"
-  spoke1_ilb_dns_host = "ilb.${local.spoke1_dns_zone}"
-  spoke1_pep_dns_host = "pep.${local.spoke1_dns_zone}"
-  spoke1_vm_fqdn      = "${local.spoke1_vm_dns_host}.${local.cloud_domain}"
+  spoke1_vm_addr     = cidrhost(local.spoke1_subnets["${local.spoke1_prefix}main"].address_prefixes[0], 5)
+  spoke1_ilb_addr    = cidrhost(local.spoke1_subnets["${local.spoke1_prefix}ilb"].address_prefixes[0], 99)
+  spoke1_pl_nat_addr = cidrhost(local.spoke1_subnets["${local.spoke1_prefix}main"].address_prefixes[0], 50)
+  spoke1_appgw_addr  = cidrhost(local.spoke1_subnets["${local.spoke1_prefix}appgw"].address_prefixes[0], 99)
+  spoke1_vm_host     = "vm"
+  spoke1_ilb_host    = "ilb"
+  spoke1_pep_host    = "pep"
+  spoke1_vm_fqdn     = "${local.spoke1_vm_host}.${local.spoke1_dns_zone}"
 }
 
 # spoke2
@@ -280,7 +280,7 @@ locals {
   spoke2_prefix        = local.prefix == "" ? "spoke2-" : join("-", [local.prefix, "spoke2-"])
   spoke2_location      = local.region1
   spoke2_address_space = ["10.2.0.0/16"]
-  spoke2_dns_zone      = "spoke2"
+  spoke2_dns_zone      = "spoke2.${local.cloud_domain}"
   spoke2_tags          = { "nodeType" = "spoke" }
   spoke2_subnets = {
     ("${local.spoke2_prefix}main")  = { address_prefixes = ["10.2.0.0/24"] }
@@ -289,14 +289,14 @@ locals {
     ("${local.spoke2_prefix}pls")   = { address_prefixes = ["10.2.3.0/24"] }
     ("${local.spoke2_prefix}pep")   = { address_prefixes = ["10.2.4.0/24"] }
   }
-  spoke2_vm_addr      = cidrhost(local.spoke2_subnets["${local.spoke2_prefix}main"].address_prefixes[0], 5)
-  spoke2_ilb_addr     = cidrhost(local.spoke2_subnets["${local.spoke2_prefix}ilb"].address_prefixes[0], 99)
-  spoke2_pl_nat_addr  = cidrhost(local.spoke2_subnets["${local.spoke2_prefix}main"].address_prefixes[0], 50)
-  spoke2_appgw_addr   = cidrhost(local.spoke2_subnets["${local.spoke2_prefix}appgw"].address_prefixes[0], 99)
-  spoke2_vm_dns_host  = "vm.${local.spoke2_dns_zone}"
-  spoke2_ilb_dns_host = "ilb.${local.spoke2_dns_zone}"
-  spoke2_pep_dns_host = "pep.${local.spoke2_dns_zone}"
-  spoke2_vm_fqdn      = "${local.spoke2_vm_dns_host}.${local.cloud_domain}"
+  spoke2_vm_addr     = cidrhost(local.spoke2_subnets["${local.spoke2_prefix}main"].address_prefixes[0], 5)
+  spoke2_ilb_addr    = cidrhost(local.spoke2_subnets["${local.spoke2_prefix}ilb"].address_prefixes[0], 99)
+  spoke2_pl_nat_addr = cidrhost(local.spoke2_subnets["${local.spoke2_prefix}main"].address_prefixes[0], 50)
+  spoke2_appgw_addr  = cidrhost(local.spoke2_subnets["${local.spoke2_prefix}appgw"].address_prefixes[0], 99)
+  spoke2_vm_host     = "vm"
+  spoke2_ilb_host    = "ilb"
+  spoke2_pep_host    = "pep"
+  spoke2_vm_fqdn     = "${local.spoke2_vm_host}.${local.spoke2_dns_zone}"
 }
 
 # spoke3
@@ -306,7 +306,7 @@ locals {
   spoke3_prefix        = local.prefix == "" ? "spoke3-" : join("-", [local.prefix, "spoke3-"])
   spoke3_location      = local.region1
   spoke3_address_space = ["10.3.0.0/16", ]
-  spoke3_dns_zone      = "spoke3"
+  spoke3_dns_zone      = "spoke3.${local.cloud_domain}"
   spoke3_tags          = { "nodeType" = "spoke" }
   spoke3_subnets = {
     ("${local.spoke3_prefix}main")  = { address_prefixes = ["10.3.0.0/24"] }
@@ -315,14 +315,14 @@ locals {
     ("${local.spoke3_prefix}pls")   = { address_prefixes = ["10.3.3.0/24"] }
     ("${local.spoke3_prefix}pep")   = { address_prefixes = ["10.3.4.0/24"] }
   }
-  spoke3_vm_addr      = cidrhost(local.spoke3_subnets["${local.spoke3_prefix}main"].address_prefixes[0], 5)
-  spoke3_ilb_addr     = cidrhost(local.spoke3_subnets["${local.spoke3_prefix}ilb"].address_prefixes[0], 99)
-  spoke3_pl_nat_addr  = cidrhost(local.spoke3_subnets["${local.spoke3_prefix}pls"].address_prefixes[0], 50)
-  spoke3_appgw_addr   = cidrhost(local.spoke3_subnets["${local.spoke3_prefix}appgw"].address_prefixes[0], 99)
-  spoke3_vm_dns_host  = "vm.${local.spoke3_dns_zone}"
-  spoke3_ilb_dns_host = "ilb.${local.spoke3_dns_zone}"
-  spoke3_pep_dns_host = "pep.${local.spoke3_dns_zone}"
-  spoke3_vm_fqdn      = "${local.spoke3_vm_dns_host}.${local.cloud_domain}"
+  spoke3_vm_addr     = cidrhost(local.spoke3_subnets["${local.spoke3_prefix}main"].address_prefixes[0], 5)
+  spoke3_ilb_addr    = cidrhost(local.spoke3_subnets["${local.spoke3_prefix}ilb"].address_prefixes[0], 99)
+  spoke3_pl_nat_addr = cidrhost(local.spoke3_subnets["${local.spoke3_prefix}pls"].address_prefixes[0], 50)
+  spoke3_appgw_addr  = cidrhost(local.spoke3_subnets["${local.spoke3_prefix}appgw"].address_prefixes[0], 99)
+  spoke3_vm_host     = "vm"
+  spoke3_ilb_host    = "ilb"
+  spoke3_pep_host    = "pep"
+  spoke3_vm_fqdn     = "${local.spoke3_vm_host}.${local.spoke3_dns_zone}"
 }
 
 # spoke4
@@ -332,7 +332,7 @@ locals {
   spoke4_prefix        = local.prefix == "" ? "spoke4-" : join("-", [local.prefix, "spoke4-"])
   spoke4_location      = local.region2
   spoke4_address_space = ["10.4.0.0/16", ]
-  spoke4_dns_zone      = "spoke4"
+  spoke4_dns_zone      = "spoke4.${local.cloud_domain}"
   spoke4_tags          = { "nodeType" = "spoke" }
   spoke4_subnets = {
     ("${local.spoke4_prefix}main")  = { address_prefixes = ["10.4.0.0/24"] }
@@ -341,14 +341,14 @@ locals {
     ("${local.spoke4_prefix}pls")   = { address_prefixes = ["10.4.3.0/24"] }
     ("${local.spoke4_prefix}pep")   = { address_prefixes = ["10.4.4.0/24"] }
   }
-  spoke4_vm_addr      = cidrhost(local.spoke4_subnets["${local.spoke4_prefix}main"].address_prefixes[0], 5)
-  spoke4_ilb_addr     = cidrhost(local.spoke4_subnets["${local.spoke4_prefix}ilb"].address_prefixes[0], 99)
-  spoke4_pl_nat_addr  = cidrhost(local.spoke4_subnets["${local.spoke4_prefix}main"].address_prefixes[0], 50)
-  spoke4_appgw_addr   = cidrhost(local.spoke4_subnets["${local.spoke4_prefix}appgw"].address_prefixes[0], 99)
-  spoke4_vm_dns_host  = "vm.${local.spoke4_dns_zone}"
-  spoke4_ilb_dns_host = "ilb.${local.spoke4_dns_zone}"
-  spoke4_pep_dns_host = "pep.${local.spoke4_dns_zone}"
-  spoke4_vm_fqdn      = "${local.spoke4_vm_dns_host}.${local.cloud_domain}"
+  spoke4_vm_addr     = cidrhost(local.spoke4_subnets["${local.spoke4_prefix}main"].address_prefixes[0], 5)
+  spoke4_ilb_addr    = cidrhost(local.spoke4_subnets["${local.spoke4_prefix}ilb"].address_prefixes[0], 99)
+  spoke4_pl_nat_addr = cidrhost(local.spoke4_subnets["${local.spoke4_prefix}main"].address_prefixes[0], 50)
+  spoke4_appgw_addr  = cidrhost(local.spoke4_subnets["${local.spoke4_prefix}appgw"].address_prefixes[0], 99)
+  spoke4_vm_host     = "vm"
+  spoke4_ilb_host    = "ilb"
+  spoke4_pep_host    = "pep"
+  spoke4_vm_fqdn     = "${local.spoke4_vm_host}.${local.spoke4_dns_zone}"
 }
 
 # spoke5
@@ -358,7 +358,7 @@ locals {
   spoke5_prefix        = local.prefix == "" ? "spoke5-" : join("-", [local.prefix, "spoke5-"])
   spoke5_location      = local.region2
   spoke5_address_space = ["10.5.0.0/16", ]
-  spoke5_dns_zone      = "spoke5"
+  spoke5_dns_zone      = "spoke5.${local.cloud_domain}"
   spoke5_tags          = { "nodeType" = "spoke" }
   spoke5_subnets = {
     ("${local.spoke5_prefix}main")  = { address_prefixes = ["10.5.0.0/24"] }
@@ -367,14 +367,14 @@ locals {
     ("${local.spoke5_prefix}pls")   = { address_prefixes = ["10.5.3.0/24"] }
     ("${local.spoke5_prefix}pep")   = { address_prefixes = ["10.5.4.0/24"] }
   }
-  spoke5_vm_addr      = cidrhost(local.spoke5_subnets["${local.spoke5_prefix}main"].address_prefixes[0], 5)
-  spoke5_ilb_addr     = cidrhost(local.spoke5_subnets["${local.spoke5_prefix}ilb"].address_prefixes[0], 99)
-  spoke5_pl_nat_addr  = cidrhost(local.spoke5_subnets["${local.spoke5_prefix}main"].address_prefixes[0], 50)
-  spoke5_appgw_addr   = cidrhost(local.spoke5_subnets["${local.spoke5_prefix}appgw"].address_prefixes[0], 99)
-  spoke5_vm_dns_host  = "vm.${local.spoke5_dns_zone}"
-  spoke5_ilb_dns_host = "ilb.${local.spoke5_dns_zone}"
-  spoke5_pep_dns_host = "pep.${local.spoke5_dns_zone}"
-  spoke5_vm_fqdn      = "${local.spoke5_vm_dns_host}.${local.cloud_domain}"
+  spoke5_vm_addr     = cidrhost(local.spoke5_subnets["${local.spoke5_prefix}main"].address_prefixes[0], 5)
+  spoke5_ilb_addr    = cidrhost(local.spoke5_subnets["${local.spoke5_prefix}ilb"].address_prefixes[0], 99)
+  spoke5_pl_nat_addr = cidrhost(local.spoke5_subnets["${local.spoke5_prefix}main"].address_prefixes[0], 50)
+  spoke5_appgw_addr  = cidrhost(local.spoke5_subnets["${local.spoke5_prefix}appgw"].address_prefixes[0], 99)
+  spoke5_vm_host     = "vm"
+  spoke5_ilb_host    = "ilb"
+  spoke5_pep_host    = "pep"
+  spoke5_vm_fqdn     = "${local.spoke5_vm_host}.${local.spoke5_dns_zone}"
 }
 
 # spoke6
@@ -384,7 +384,7 @@ locals {
   spoke6_prefix        = local.prefix == "" ? "spoke6-" : join("-", [local.prefix, "spoke6-"])
   spoke6_location      = local.region2
   spoke6_address_space = ["10.6.0.0/16", ]
-  spoke6_dns_zone      = "spoke6"
+  spoke6_dns_zone      = "spoke6.${local.cloud_domain}"
   spoke6_tags          = { "nodeType" = "spoke" }
   spoke6_subnets = {
     ("${local.spoke6_prefix}main")  = { address_prefixes = ["10.6.0.0/24"] }
@@ -393,12 +393,12 @@ locals {
     ("${local.spoke6_prefix}pls")   = { address_prefixes = ["10.6.3.0/24"] }
     ("${local.spoke6_prefix}pep")   = { address_prefixes = ["10.6.4.0/24"] }
   }
-  spoke6_vm_addr      = cidrhost(local.spoke6_subnets["${local.spoke6_prefix}main"].address_prefixes[0], 5)
-  spoke6_ilb_addr     = cidrhost(local.spoke6_subnets["${local.spoke6_prefix}ilb"].address_prefixes[0], 99)
-  spoke6_pl_nat_addr  = cidrhost(local.spoke6_subnets["${local.spoke6_prefix}main"].address_prefixes[0], 50)
-  spoke6_appgw_addr   = cidrhost(local.spoke6_subnets["${local.spoke6_prefix}appgw"].address_prefixes[0], 99)
-  spoke6_vm_dns_host  = "vm.${local.spoke6_dns_zone}"
-  spoke6_ilb_dns_host = "ilb.${local.spoke6_dns_zone}"
-  spoke6_pep_dns_host = "pep.${local.spoke6_dns_zone}"
-  spoke6_vm_fqdn      = "${local.spoke6_vm_dns_host}.${local.cloud_domain}"
+  spoke6_vm_addr     = cidrhost(local.spoke6_subnets["${local.spoke6_prefix}main"].address_prefixes[0], 5)
+  spoke6_ilb_addr    = cidrhost(local.spoke6_subnets["${local.spoke6_prefix}ilb"].address_prefixes[0], 99)
+  spoke6_pl_nat_addr = cidrhost(local.spoke6_subnets["${local.spoke6_prefix}main"].address_prefixes[0], 50)
+  spoke6_appgw_addr  = cidrhost(local.spoke6_subnets["${local.spoke6_prefix}appgw"].address_prefixes[0], 99)
+  spoke6_vm_host     = "vm"
+  spoke6_ilb_host    = "ilb"
+  spoke6_pep_host    = "pep"
+  spoke6_vm_fqdn     = "${local.spoke6_vm_host}.${local.spoke6_dns_zone}"
 }

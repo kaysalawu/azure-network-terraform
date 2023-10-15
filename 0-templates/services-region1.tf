@@ -80,7 +80,7 @@ module "spoke3_lb" {
   prefix                                 = trimsuffix(local.spoke3_prefix, "-")
   type                                   = "private"
   private_dns_zone                       = module.spoke3.private_dns_zone.name
-  dns_host                               = local.spoke3_ilb_dns_host
+  dns_host                               = local.spoke3_ilb_host
   frontend_subnet_id                     = module.spoke3.subnets["${local.spoke3_prefix}ilb"].id
   frontend_private_ip_address_allocation = "Static"
   frontend_private_ip_address            = local.spoke3_ilb_addr
@@ -108,7 +108,7 @@ module "spoke3_pls" {
   location         = local.spoke3_location
   prefix           = trimsuffix(local.spoke3_prefix, "-")
   private_dns_zone = module.spoke3.private_dns_zone.name
-  dns_host         = local.spoke3_ilb_dns_host
+  dns_host         = local.spoke3_ilb_host
 
   nat_ip_config = [
     {
@@ -139,10 +139,10 @@ resource "azurerm_private_endpoint" "hub1_spoke3_pe" {
   }
 }
 
-resource "azurerm_private_dns_a_record" "hub1_spoke3_pe" {
+resource "azurerm_private_dns_a_record" "hub1_spoke3_pep" {
   resource_group_name = azurerm_resource_group.rg.name
-  name                = local.hub1_pep_dns_host
-  zone_name           = module.spoke3.private_dns_zone.name
+  name                = local.hub1_spoke3_pep_host
+  zone_name           = module.hub1.private_dns_zone.name
   ttl                 = 300
   records             = [azurerm_private_endpoint.hub1_spoke3_pe.private_service_connection[0].private_ip_address, ]
 }

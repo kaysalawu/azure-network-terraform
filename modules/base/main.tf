@@ -197,9 +197,9 @@ resource "azurerm_nat_gateway_public_ip_association" "nat" {
 }
 
 resource "azurerm_subnet_nat_gateway_association" "nat" {
-  for_each       = length(var.vnet_config[0].nat_gateway_subnet_names) > 0 ? toset(values(local.nat_gateway_subnet_ids)) : toset([])
-  nat_gateway_id = azurerm_nat_gateway.nat[0].id
+  for_each       = { for s in var.vnet_config[0].nat_gateway_subnet_names : s => local.nat_gateway_subnet_ids[s] }
   subnet_id      = each.value
+  nat_gateway_id = azurerm_nat_gateway.nat[0].id
 }
 
 # vm
@@ -513,6 +513,25 @@ resource "azurerm_storage_account" "azfw" {
 
 # diagnostic setting
 
+resource "null_resource" "azfw_diag_delete_existing" {
+  count = var.vnet_config[0].enable_firewall ? 1 : 0
+  triggers = {
+    delete = "az monitor diagnostic-settings delete --name ${local.prefix}azfw-diag-${random_id.azfw[0].hex} --resource ${azurerm_firewall.azfw[0].id}"
+  }
+  provisioner "local-exec" {
+    command = self.triggers.delete
+  }
+  provisioner "local-exec" {
+    when    = destroy
+    command = self.triggers.delete
+  }
+  depends_on = [
+    azurerm_firewall.azfw,
+    azurerm_log_analytics_workspace.azfw,
+    azurerm_storage_account.azfw,
+  ]
+}
+
 resource "azurerm_monitor_diagnostic_setting" "azfw" {
   count                      = var.vnet_config[0].enable_firewall ? 1 : 0
   name                       = "${local.prefix}azfw-diag-${random_id.azfw[0].hex}"
@@ -523,15 +542,15 @@ resource "azurerm_monitor_diagnostic_setting" "azfw" {
   dynamic "metric" {
     for_each = var.metric_categories_firewall
     content {
-      category = metric.value
+      category = metric.value.category
       enabled  = true
     }
   }
 
   dynamic "enabled_log" {
-    for_each = var.log_categories_firewall
+    for_each = { for k, v in var.log_categories_firewall : k => v if v.enabled }
     content {
-      category = enabled_log.value
+      category = enabled_log.value.category
     }
   }
   timeouts {
@@ -541,5 +560,7 @@ resource "azurerm_monitor_diagnostic_setting" "azfw" {
     azurerm_firewall.azfw,
     azurerm_log_analytics_workspace.azfw,
     azurerm_storage_account.azfw,
+    null_resource.azfw_diag_delete_existing,
   ]
 }
+
