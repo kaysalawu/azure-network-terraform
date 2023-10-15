@@ -44,15 +44,9 @@ locals {
   default_udr_destinations = {
     "default" = "0.0.0.0/0"
   }
-  hub1_appliance_udr_destinations = {
-    "spoke4" = local.spoke4_address_space[0]
-    "spoke5" = local.spoke5_address_space[0]
-    "hub2"   = local.hub2_address_space[0]
+  hub1_nva_udr_destinations = {
   }
-  hub2_appliance_udr_destinations = {
-    "spoke1" = local.spoke1_address_space[0]
-    "spoke2" = local.spoke2_address_space[0]
-    "hub1"   = local.hub1_address_space[0]
+  hub2_nva_udr_destinations = {
   }
   hub1_gateway_udr_destinations = {
     "spoke1" = local.spoke1_address_space[0]
@@ -75,7 +69,7 @@ locals {
 
   hub1_features = {
     enable_private_dns_resolver = true
-    enable_ars                  = false
+    enable_ars                  = true
     enable_vpn_gateway          = true
     enable_er_gateway           = false
 
@@ -86,7 +80,7 @@ locals {
 
   hub2_features = {
     enable_private_dns_resolver = true
-    enable_ars                  = false
+    enable_ars                  = true
     enable_vpn_gateway          = true
     enable_er_gateway           = false
 

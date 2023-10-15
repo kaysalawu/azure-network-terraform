@@ -57,11 +57,17 @@ locals {
   hub1_gateway_udr_destinations = {
     "spoke1" = local.spoke1_address_space[0]
     "spoke2" = local.spoke2_address_space[0]
-    "hub1"   = local.hub1_address_space[0]
-  }
-  hub2_gateway_udr_destinations = {
     "spoke4" = local.spoke4_address_space[0]
     "spoke5" = local.spoke5_address_space[0]
+    "hub1"   = local.hub1_address_space[0]
+    "hub2"   = local.hub2_address_space[0]
+  }
+  hub2_gateway_udr_destinations = {
+    "spoke1" = local.spoke1_address_space[0]
+    "spoke2" = local.spoke2_address_space[0]
+    "spoke4" = local.spoke4_address_space[0]
+    "spoke5" = local.spoke5_address_space[0]
+    "hub1"   = local.hub1_address_space[0]
     "hub2"   = local.hub2_address_space[0]
   }
 
