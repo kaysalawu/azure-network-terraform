@@ -34,7 +34,7 @@ resource "azurerm_virtual_network_peering" "hub2_to_hub1_peering" {
 
 # hub1
 
-module "hub1_udr_nva" {
+module "hub1_udr_appliance" {
   source                 = "../../modules/udr"
   resource_group         = azurerm_resource_group.rg.name
   prefix                 = "${local.hub1_prefix}nva"
@@ -48,7 +48,7 @@ module "hub1_udr_nva" {
 
 # hub2
 
-module "hub2_udr_nva" {
+module "hub2_udr_applicance" {
   source                 = "../../modules/udr"
   resource_group         = azurerm_resource_group.rg.name
   prefix                 = "${local.hub2_prefix}nva"

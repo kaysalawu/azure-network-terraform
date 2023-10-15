@@ -61,7 +61,7 @@ module "spoke4_udr_main" {
     local.default_udr_destinations,
     { "hub2" = local.hub2_address_space[0] }
   )
-  depends_on = [module.hub2]
+  depends_on = [module.hub2, ]
 
   disable_bgp_route_propagation = true
 }
@@ -121,7 +121,7 @@ module "spoke5_udr_main" {
     local.default_udr_destinations,
     { "hub2" = local.hub2_address_space[0] }
   )
-  depends_on = [module.hub2]
+  depends_on = [module.hub2, ]
 
   disable_bgp_route_propagation = true
 }
