@@ -1,4 +1,8 @@
 
+resource "random_id" "services_region1" {
+  byte_length = 2
+}
+
 ####################################################
 # dns resolver ruleset
 ####################################################
@@ -118,6 +122,7 @@ module "spoke3_pls" {
       lb_frontend_ids = [module.spoke3_lb.frontend_ip_configuration[0].id, ]
     }
   ]
+
   depends_on = [
     module.spoke3_lb,
   ]
@@ -126,25 +131,25 @@ module "spoke3_pls" {
 # private endpoint
 #----------------------------
 
-resource "azurerm_private_endpoint" "hub1_spoke3_pe" {
+resource "azurerm_private_endpoint" "hub1_spoke3_pls_pep" {
   resource_group_name = azurerm_resource_group.rg.name
-  name                = "${local.hub1_prefix}spoke3-pe"
+  name                = "${local.hub1_prefix}spoke3-pls-pep"
   location            = local.hub1_location
   subnet_id           = module.hub1.subnets["${local.hub1_prefix}pep"].id
 
   private_service_connection {
-    name                           = "${local.hub1_prefix}spoke3-pe-psc"
+    name                           = "${local.hub1_prefix}spoke3-pls-svc-conn"
     private_connection_resource_id = module.spoke3_pls.private_link_service_id
     is_manual_connection           = false
   }
 }
 
-resource "azurerm_private_dns_a_record" "hub1_spoke3_pep" {
+resource "azurerm_private_dns_a_record" "hub1_spoke3_pls_pep" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = local.hub1_spoke3_pep_host
   zone_name           = module.hub1.private_dns_zone.name
   ttl                 = 300
-  records             = [azurerm_private_endpoint.hub1_spoke3_pe.private_service_connection[0].private_ip_address, ]
+  records             = [azurerm_private_endpoint.hub1_spoke3_pls_pep.private_service_connection[0].private_ip_address, ]
 }
 
 ####################################################
@@ -152,36 +157,20 @@ resource "azurerm_private_dns_a_record" "hub1_spoke3_pep" {
 ####################################################
 
 locals {
-  private_dns_zone_privatelink_blob_linked_vnets = {
-    "hub1" = module.hub1.vnet.id
-    "hub2" = module.hub2.vnet.id
-  }
-  private_dns_zone_privatelink_appservice_linked_vnets = {
-    "hub1" = module.hub1.vnet.id
-    "hub2" = module.hub2.vnet.id
+  private_dns_zone_privatelink_vnet_links_hub1 = {
+    "pl-blob" = azurerm_private_dns_zone.privatelink_blob.name
+    "pl-apps" = azurerm_private_dns_zone.privatelink_appservice.name
   }
 }
 
 # links
 
-resource "azurerm_private_dns_zone_virtual_network_link" "privatelink_blob" {
-  for_each              = local.private_dns_zone_privatelink_blob_linked_vnets
+resource "azurerm_private_dns_zone_virtual_network_link" "hub1_privatelink_vnet_links" {
+  for_each              = local.private_dns_zone_privatelink_vnet_links_hub1
   resource_group_name   = azurerm_resource_group.rg.name
-  name                  = "${local.prefix}${each.key}-vnet-link"
-  private_dns_zone_name = azurerm_private_dns_zone.privatelink_blob.name
-  virtual_network_id    = each.value
-  registration_enabled  = false
-  timeouts {
-    create = "60m"
-  }
-}
-
-resource "azurerm_private_dns_zone_virtual_network_link" "privatelink_appservice" {
-  for_each              = local.private_dns_zone_privatelink_appservice_linked_vnets
-  resource_group_name   = azurerm_resource_group.rg.name
-  name                  = "${local.prefix}${each.key}-vnet-link"
-  private_dns_zone_name = azurerm_private_dns_zone.privatelink_app_service.name
-  virtual_network_id    = each.value
+  name                  = "${local.hub1_prefix}${each.key}-vnet-link"
+  private_dns_zone_name = each.value
+  virtual_network_id    = module.hub1.vnet.id
   registration_enabled  = false
   timeouts {
     create = "60m"
@@ -190,43 +179,43 @@ resource "azurerm_private_dns_zone_virtual_network_link" "privatelink_appservice
 
 # app service
 
-module "spoke3_app_service" {
+module "spoke3_apps" {
   source            = "../../modules/app-service"
   resource_group    = azurerm_resource_group.rg.name
   location          = local.spoke3_location
   prefix            = lower(local.spoke3_prefix)
-  name              = "httpbin"
+  name              = random_id.services_region1.hex
   docker_image_name = "kennethreitz/httpbin:latest"
-  depends_on        = [azurerm_private_dns_zone_virtual_network_link.pl_blob_region1]
+  depends_on        = [azurerm_private_dns_zone_virtual_network_link.hub1_privatelink_vnet_links]
 }
 
 # storage account
 
-resource "azurerm_storage_account" "pl_blob_region1" {
+resource "azurerm_storage_account" "spoke3_sa" {
   resource_group_name      = azurerm_resource_group.rg.name
-  name                     = lower("${local.prefix}pl1")
-  location                 = local.region1
+  name                     = lower(replace(("${local.spoke3_prefix}sa${random_id.services_region1.hex}"), "-", ""))
+  location                 = local.spoke3_location
   account_replication_type = "LRS"
   account_tier             = "Standard"
 }
-
+/*
 # private endpoint
 
-resource "azurerm_private_endpoint" "pl_blob_region1" {
+resource "azurerm_private_endpoint" "spoke3_blob_pep" {
   resource_group_name = azurerm_resource_group.rg.name
-  name                = "${local.prefix}pl1-endpoint"
-  location            = local.region1
+  name                = "${local.hub1_prefix}spoke3-blob-pep"
+  location            = local.hub1_location
   subnet_id           = module.hub1.subnets["${local.hub1_prefix}pep"].id
 
   private_service_connection {
-    name                           = "${local.prefix}pl1-svc-conn"
-    private_connection_resource_id = azurerm_storage_account.pl_blob_region1.id
+    name                           = "${local.hub1_prefix}spoke3-blob-svc-conn"
+    private_connection_resource_id = azurerm_storage_account.spoke3_storage_account.id
     is_manual_connection           = false
     subresource_names              = ["blob"]
   }
 
   private_dns_zone_group {
     name                 = "${local.prefix}pl1-dns-zone-group"
-    private_dns_zone_ids = [azurerm_private_dns_zone.pl_blob.id]
+    private_dns_zone_ids = [azurerm_private_dns_zone.privatelink_blob.id]
   }
-}
+}*/
