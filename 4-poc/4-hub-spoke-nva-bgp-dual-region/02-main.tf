@@ -3,7 +3,7 @@
 ####################################################
 
 locals {
-  prefix = "Hs14"
+  prefix = "Poc4"
   #my_public_ip = chomp(data.http.my_public_ip.response_body)
 }
 
@@ -45,14 +45,8 @@ locals {
     "default" = "0.0.0.0/0"
   }
   hub1_appliance_udr_destinations = {
-    "spoke4" = local.spoke4_address_space[0]
-    "spoke5" = local.spoke5_address_space[0]
-    "hub2"   = local.hub2_address_space[0]
   }
   hub2_appliance_udr_destinations = {
-    "spoke1" = local.spoke1_address_space[0]
-    "spoke2" = local.spoke2_address_space[0]
-    "hub1"   = local.hub1_address_space[0]
   }
   hub1_gateway_udr_destinations = {
     "spoke1" = local.spoke1_address_space[0]
@@ -75,7 +69,7 @@ locals {
 
   hub1_features = {
     enable_private_dns_resolver = true
-    enable_ars                  = false
+    enable_ars                  = true
     enable_vpn_gateway          = true
     enable_er_gateway           = false
 
@@ -86,7 +80,7 @@ locals {
 
   hub2_features = {
     enable_private_dns_resolver = true
-    enable_ars                  = false
+    enable_ars                  = true
     enable_vpn_gateway          = true
     enable_er_gateway           = false
 
@@ -134,17 +128,9 @@ resource "azurerm_private_dns_zone" "global" {
   }
 }
 
-resource "azurerm_private_dns_zone" "privatelink_blob" {
+resource "azurerm_private_dns_zone" "pl_blob" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = "privatelink.blob.core.windows.net"
-  timeouts {
-    create = "60m"
-  }
-}
-
-resource "azurerm_private_dns_zone" "privatelink_appservice" {
-  resource_group_name = azurerm_resource_group.rg.name
-  name                = "privatelink.azurewebsites.net"
   timeouts {
     create = "60m"
   }
@@ -392,9 +378,6 @@ locals {
     SPOKE6_SUBNETS  = try({ for k, v in module.spoke6.subnets : k => v.address_prefixes[0] }, "")
     BRANCH1_SUBNETS = try({ for k, v in module.branch1.subnets : k => v.address_prefixes[0] }, "")
     BRANCH3_SUBNETS = try({ for k, v in module.branch3.subnets : k => v.address_prefixes[0] }, "")
-
-    SPOKE3_APP_SERVICE_URL = try(module.spoke3_app_service.url, "")
-    SPOKE6_APP_SERVICE_URL = try(module.spoke6_app_service.url, "")
   })
 
   main_files = {

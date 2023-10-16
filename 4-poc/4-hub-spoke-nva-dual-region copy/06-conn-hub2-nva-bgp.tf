@@ -1,1 +1,0 @@
-../../0-templates/hub-spoke/06-conn-hub2-nva-bgp.tf

@@ -1,1 +1,0 @@
-../../0-templates/hub-spoke/07-conn-interhub.tf

@@ -152,21 +152,52 @@ resource "azurerm_private_dns_a_record" "hub2_spoke6_pep" {
 ####################################################
 
 locals {
-  private_dns_zone_linked_vnets_region2 = {
+  private_dns_zone_privatelink_blob_linked_vnets = {
+    "hub1" = module.hub1.vnet.id
+    "hub2" = module.hub2.vnet.id
+  }
+  private_dns_zone_privatelink_appservice_linked_vnets = {
+    "hub1" = module.hub1.vnet.id
     "hub2" = module.hub2.vnet.id
   }
 }
 
-resource "azurerm_private_dns_zone_virtual_network_link" "pl_blob_region2" {
-  for_each              = local.private_dns_zone_linked_vnets_region2
+# links
+
+resource "azurerm_private_dns_zone_virtual_network_link" "privatelink_blob" {
+  for_each              = local.private_dns_zone_privatelink_blob_linked_vnets
   resource_group_name   = azurerm_resource_group.rg.name
   name                  = "${local.prefix}${each.key}-vnet-link"
-  private_dns_zone_name = azurerm_private_dns_zone.pl_blob.name
+  private_dns_zone_name = azurerm_private_dns_zone.privatelink_blob.name
   virtual_network_id    = each.value
   registration_enabled  = false
   timeouts {
     create = "60m"
   }
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "privatelink_appservice" {
+  for_each              = local.private_dns_zone_privatelink_appservice_linked_vnets
+  resource_group_name   = azurerm_resource_group.rg.name
+  name                  = "${local.prefix}${each.key}-vnet-link"
+  private_dns_zone_name = azurerm_private_dns_zone.privatelink_app_service.name
+  virtual_network_id    = each.value
+  registration_enabled  = false
+  timeouts {
+    create = "60m"
+  }
+}
+
+# app service
+
+module "spoke6_app_service" {
+  source            = "../../modules/app-service"
+  resource_group    = azurerm_resource_group.rg.name
+  location          = local.spoke6_location
+  prefix            = lower(local.spoke6_prefix)
+  name              = "httpbin"
+  docker_image_name = "kennethreitz/httpbin:latest"
+  depends_on        = [azurerm_private_dns_zone_virtual_network_link.pl_blob_region1]
 }
 
 # storage account
