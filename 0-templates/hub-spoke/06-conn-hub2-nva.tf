@@ -169,6 +169,7 @@ module "hub2_nva" {
   admin_username       = local.username
   admin_password       = local.password
   custom_data          = base64encode(local.hub2_linux_nva_init)
+  depends_on           = [module.hub2, ]
 }
 
 # udr

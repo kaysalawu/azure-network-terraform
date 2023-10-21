@@ -27,7 +27,7 @@ terraform {
   required_providers {
     megaport = {
       source  = "megaport/megaport"
-      version = "0.3.0"
+      version = "0.1.9"
     }
   }
 }
@@ -134,9 +134,17 @@ resource "azurerm_private_dns_zone" "global" {
   }
 }
 
-resource "azurerm_private_dns_zone" "pl_blob" {
+resource "azurerm_private_dns_zone" "privatelink_blob" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = "privatelink.blob.core.windows.net"
+  timeouts {
+    create = "60m"
+  }
+}
+
+resource "azurerm_private_dns_zone" "privatelink_appservice" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "privatelink.azurewebsites.net"
   timeouts {
     create = "60m"
   }
@@ -329,63 +337,6 @@ module "fw_policy_rule_collection_group" {
 ####################################################
 
 locals {
-  ouput_values = templatefile("../../scripts/outputs/dual-region.sh", {
-    HUB1_VNET_NAME    = try(module.hub1.vnet.name, "")
-    HUB2_VNET_NAME    = try(module.hub2.vnet.name, "")
-    SPOKE1_VNET_NAME  = try(module.spoke1.vnet.name, "")
-    SPOKE2_VNET_NAME  = try(module.spoke2.vnet.name, "")
-    SPOKE3_VNET_NAME  = try(module.spoke3.vnet.name, "")
-    SPOKE4_VNET_NAME  = try(module.spoke4.vnet.name, "")
-    SPOKE5_VNET_NAME  = try(module.spoke5.vnet.name, "")
-    SPOKE6_VNET_NAME  = try(module.spoke6.vnet.name, "")
-    BRANCH1_VNET_NAME = try(module.branch1.vnet.name, "")
-    BRANCH3_VNET_NAME = try(module.branch3.vnet.name, "")
-
-    HUB1_VNET_RANGES    = try(join(", ", module.hub1.vnet.address_space), "")
-    HUB2_VNET_RANGES    = try(join(", ", module.hub2.vnet.address_space), "")
-    SPOKE1_VNET_RANGES  = try(join(", ", module.spoke1.vnet.address_space), "")
-    SPOKE2_VNET_RANGES  = try(join(", ", module.spoke2.vnet.address_space), "")
-    SPOKE3_VNET_RANGES  = try(join(", ", module.spoke3.vnet.address_space), "")
-    SPOKE4_VNET_RANGES  = try(join(", ", module.spoke4.vnet.address_space), "")
-    SPOKE5_VNET_RANGES  = try(join(", ", module.spoke5.vnet.address_space), "")
-    SPOKE6_VNET_RANGES  = try(join(", ", module.spoke6.vnet.address_space), "")
-    BRANCH1_VNET_RANGES = try(join(", ", module.branch1.vnet.address_space), "")
-    BRANCH3_VNET_RANGES = try(join(", ", module.branch3.vnet.address_space), "")
-
-    HUB1_VM_NAME    = try(module.hub1.vm["vm"].name, "")
-    HUB2_VM_NAME    = try(module.hub2.vm["vm"].name, "")
-    SPOKE1_VM_NAME  = try(module.spoke1.vm["vm"].name, "")
-    SPOKE2_VM_NAME  = try(module.spoke2.vm["vm"].name, "")
-    SPOKE3_VM_NAME  = try(module.spoke3.vm["vm"].name, "")
-    SPOKE4_VM_NAME  = try(module.spoke4.vm["vm"].name, "")
-    SPOKE5_VM_NAME  = try(module.spoke5.vm["vm"].name, "")
-    SPOKE6_VM_NAME  = try(module.spoke6.vm["vm"].name, "")
-    BRANCH1_VM_NAME = try(module.branch1.vm["vm"].name, "")
-    BRANCH3_VM_NAME = try(module.branch3.vm["vm"].name, "")
-
-    HUB1_VM_IP    = try(module.hub1.vm["vm"].private_ip_address, "")
-    HUB2_VM_IP    = try(module.hub2.vm["vm"].private_ip_address, "")
-    SPOKE1_VM_IP  = try(module.spoke1.vm["vm"].private_ip_address, "")
-    SPOKE2_VM_IP  = try(module.spoke2.vm["vm"].private_ip_address, "")
-    SPOKE3_VM_IP  = try(module.spoke3.vm["vm"].private_ip_address, "")
-    SPOKE4_VM_IP  = try(module.spoke4.vm["vm"].private_ip_address, "")
-    SPOKE5_VM_IP  = try(module.spoke5.vm["vm"].private_ip_address, "")
-    SPOKE6_VM_IP  = try(module.spoke6.vm["vm"].private_ip_address, "")
-    BRANCH1_VM_IP = try(module.branch1.vm["vm"].private_ip_address, "")
-    BRANCH3_VM_IP = try(module.branch3.vm["vm"].private_ip_address, "")
-
-    HUB1_SUBNETS    = try({ for k, v in module.hub1.subnets : k => v.address_prefixes[0] }, "")
-    HUB2_SUBNETS    = try({ for k, v in module.hub2.subnets : k => v.address_prefixes[0] }, "")
-    SPOKE1_SUBNETS  = try({ for k, v in module.spoke1.subnets : k => v.address_prefixes[0] }, "")
-    SPOKE2_SUBNETS  = try({ for k, v in module.spoke2.subnets : k => v.address_prefixes[0] }, "")
-    SPOKE3_SUBNETS  = try({ for k, v in module.spoke3.subnets : k => v.address_prefixes[0] }, "")
-    SPOKE4_SUBNETS  = try({ for k, v in module.spoke4.subnets : k => v.address_prefixes[0] }, "")
-    SPOKE5_SUBNETS  = try({ for k, v in module.spoke5.subnets : k => v.address_prefixes[0] }, "")
-    SPOKE6_SUBNETS  = try({ for k, v in module.spoke6.subnets : k => v.address_prefixes[0] }, "")
-    BRANCH1_SUBNETS = try({ for k, v in module.branch1.subnets : k => v.address_prefixes[0] }, "")
-    BRANCH3_SUBNETS = try({ for k, v in module.branch3.subnets : k => v.address_prefixes[0] }, "")
-  })
-
   main_files = {
     "output/branch-unbound.sh" = local.branch_unbound_startup
     "output/values.sh"         = local.ouput_values

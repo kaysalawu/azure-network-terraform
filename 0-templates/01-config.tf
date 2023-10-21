@@ -22,8 +22,8 @@ locals {
   default_region      = "westeurope"
   subnets_without_nsg = ["GatewaySubnet"]
 
-  onprem_domain = "corp"
-  cloud_domain  = "az.corp"
+  onprem_domain = "co.net"
+  cloud_domain  = "az.co.net"
   azuredns      = "168.63.129.16"
   private_prefixes = [
     "10.0.0.0/8",

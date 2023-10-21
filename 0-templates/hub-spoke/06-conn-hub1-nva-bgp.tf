@@ -221,6 +221,7 @@ module "hub1_nva" {
   admin_username       = local.username
   admin_password       = local.password
   custom_data          = base64encode(local.hub1_cisco_nva_init)
+  depends_on           = [module.hub1, ]
 }
 
 # udr
