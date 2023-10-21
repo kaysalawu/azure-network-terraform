@@ -14,7 +14,8 @@ locals {
 #----------------------------
 
 locals {
-  branch1_nva_route_map_name_nh = "NEXT-HOP"
+  branch1_nva_route_map_onprem = "ONPREM"
+  branch1_nva_route_map_azure  = "AZURE"
   branch1_nva_init = templatefile("../../scripts/cisco-branch.sh", {
     LOCAL_ASN = local.branch1_nva_asn
     LOOPBACK0 = local.branch1_nva_loopback0
@@ -28,12 +29,20 @@ locals {
 
     ROUTE_MAPS = [
       {
-        name   = local.branch1_nva_route_map_name_nh
+        name   = local.branch1_nva_route_map_onprem
         action = "permit"
         rule   = 100
         commands = [
           "match ip address prefix-list all",
           "set as-path prepend ${local.branch1_nva_asn} ${local.branch1_nva_asn} ${local.branch1_nva_asn}"
+        ]
+      },
+      {
+        name   = local.branch1_nva_route_map_azure
+        action = "permit"
+        rule   = 110
+        commands = [
+          "match ip address prefix-list all",
         ]
       }
     ]
@@ -98,14 +107,20 @@ locals {
         peer_ip         = local.hub1_vpngw_bgp_ip0,
         source_loopback = true
         ebgp_multihop   = true
-        route_map       = {}
+        route_map = {
+          name      = local.branch1_nva_route_map_azure
+          direction = "out"
+        }
       },
       {
         peer_asn        = local.hub1_vpngw_bgp_asn
         peer_ip         = local.hub1_vpngw_bgp_ip1
         source_loopback = true
         ebgp_multihop   = true
-        route_map       = {}
+        route_map = {
+          name      = local.branch1_nva_route_map_azure
+          direction = "out"
+        }
       },
       {
         peer_asn        = local.branch3_nva_asn
@@ -113,7 +128,7 @@ locals {
         source_loopback = true
         ebgp_multihop   = true
         route_map = {
-          name      = local.branch1_nva_route_map_name_nh
+          name      = local.branch1_nva_route_map_onprem
           direction = "out"
         }
       },
@@ -127,8 +142,6 @@ locals {
     ]
   })
 }
-
-# vm
 
 module "branch1_nva" {
   source               = "../../modules/csr-branch"
@@ -154,17 +167,19 @@ module "branch1_nva" {
 # main
 
 module "branch1_udr_main" {
-  source                 = "../../modules/udr"
-  resource_group         = azurerm_resource_group.rg.name
-  prefix                 = "${local.branch1_prefix}main"
-  location               = local.branch1_location
-  subnet_id              = module.branch1.subnets["${local.branch1_prefix}main"].id
-  next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.branch1_nva_int_addr
-  destinations           = local.default_udr_destinations
-  depends_on             = [module.branch1, ]
-
+  source                        = "../../modules/udr"
+  resource_group                = azurerm_resource_group.rg.name
+  prefix                        = "${local.branch1_prefix}main"
+  location                      = local.branch1_location
+  subnet_id                     = module.branch1.subnets["${local.branch1_prefix}main"].id
+  next_hop_type                 = "VirtualAppliance"
+  next_hop_in_ip_address        = local.branch1_nva_int_addr
+  destinations                  = local.private_prefixes_map
   disable_bgp_route_propagation = true
+  depends_on = [
+    module.branch1,
+    module.branch1_nva,
+  ]
 }
 
 ####################################################

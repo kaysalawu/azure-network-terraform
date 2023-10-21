@@ -32,9 +32,9 @@ resource "azurerm_virtual_network_peering" "hub2_to_hub1_peering" {
 # udr
 ####################################################
 
-# hub1 nva
+# hub1
 
-module "hub1_udr_nva" {
+module "hub1_udr_appliance" {
   source                 = "../../modules/udr"
   resource_group         = azurerm_resource_group.rg.name
   prefix                 = "${local.hub1_prefix}nva"
@@ -42,13 +42,13 @@ module "hub1_udr_nva" {
   subnet_id              = module.hub1.subnets["${local.hub1_prefix}nva"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub2_nva_ilb_addr
-  destinations           = local.hub1_nva_udr_destinations
+  destinations           = local.hub1_appliance_udr_destinations
   depends_on             = [module.hub1, ]
 }
 
-# hub2 nva
+# hub2
 
-module "hub2_udr_nva" {
+module "hub2_udr_applicance" {
   source                 = "../../modules/udr"
   resource_group         = azurerm_resource_group.rg.name
   prefix                 = "${local.hub2_prefix}nva"
@@ -56,7 +56,7 @@ module "hub2_udr_nva" {
   subnet_id              = module.hub2.subnets["${local.hub2_prefix}nva"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub1_nva_ilb_addr
-  destinations           = local.hub2_nva_udr_destinations
+  destinations           = local.hub2_appliance_udr_destinations
   depends_on             = [module.hub2, ]
 }
 

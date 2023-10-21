@@ -80,12 +80,13 @@ locals {
     ("${local.hub1_prefix}ilb")       = { address_prefixes = ["10.11.2.0/24"] }
     ("${local.hub1_prefix}pls")       = { address_prefixes = ["10.11.3.0/24"], enable_private_link_policies = [true] }
     ("${local.hub1_prefix}pep")       = { address_prefixes = ["10.11.4.0/24"], enable_private_endpoint_policies = [true] }
-    ("${local.hub1_prefix}dns-in")    = { address_prefixes = ["10.11.5.0/24"], delegate = ["dns"] }
-    ("${local.hub1_prefix}dns-out")   = { address_prefixes = ["10.11.6.0/24"], delegate = ["dns"] }
+    ("${local.hub1_prefix}dns-in")    = { address_prefixes = ["10.11.5.0/24"], delegate = ["Microsoft.Network/dnsResolvers"] }
+    ("${local.hub1_prefix}dns-out")   = { address_prefixes = ["10.11.6.0/24"], delegate = ["Microsoft.Network/dnsResolvers"] }
     ("GatewaySubnet")                 = { address_prefixes = ["10.11.7.0/24"] }
     ("RouteServerSubnet")             = { address_prefixes = ["10.11.8.0/24"] }
     ("AzureFirewallSubnet")           = { address_prefixes = ["10.11.9.0/24"] }
     ("AzureFirewallManagementSubnet") = { address_prefixes = ["10.11.10.0/24"] }
+    ("${local.hub1_prefix}apps")      = { address_prefixes = ["10.11.11.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
   }
   hub1_default_gw_main   = cidrhost(local.hub1_subnets["${local.hub1_prefix}main"].address_prefixes[0], 1)
   hub1_default_gw_nva    = cidrhost(local.hub1_subnets["${local.hub1_prefix}nva"].address_prefixes[0], 1)
@@ -93,7 +94,6 @@ locals {
   hub1_nva_addr          = cidrhost(local.hub1_subnets["${local.hub1_prefix}nva"].address_prefixes[0], 9)
   hub1_nva_ilb_addr      = cidrhost(local.hub1_subnets["${local.hub1_prefix}ilb"].address_prefixes[0], 99)
   hub1_dns_in_addr       = cidrhost(local.hub1_subnets["${local.hub1_prefix}dns-in"].address_prefixes[0], 4)
-  hub1_dns_out_addr      = cidrhost(local.hub1_subnets["${local.hub1_prefix}dns-out"].address_prefixes[0], 4)
   hub1_vpngw_bgp_ip      = cidrhost(local.hub1_subnets["GatewaySubnet"].address_prefixes[0], 254)
   hub1_nva_loopback0     = "10.11.11.11"
   hub1_nva_tun_range0    = "10.11.50.0/30"
@@ -122,12 +122,13 @@ locals {
     ("${local.hub2_prefix}ilb")       = { address_prefixes = ["10.22.2.0/24"] }
     ("${local.hub2_prefix}pls")       = { address_prefixes = ["10.22.3.0/24"], enable_private_link_service_network_policies = [true] }
     ("${local.hub2_prefix}pep")       = { address_prefixes = ["10.22.4.0/24"], enable_private_endpoint_network_policies = [true] }
-    ("${local.hub2_prefix}dns-in")    = { address_prefixes = ["10.22.5.0/24"], delegate = ["dns"] }
-    ("${local.hub2_prefix}dns-out")   = { address_prefixes = ["10.22.6.0/24"], delegate = ["dns"] }
+    ("${local.hub2_prefix}dns-in")    = { address_prefixes = ["10.22.5.0/24"], delegate = ["Microsoft.Network/dnsResolvers"] }
+    ("${local.hub2_prefix}dns-out")   = { address_prefixes = ["10.22.6.0/24"], delegate = ["Microsoft.Network/dnsResolvers"] }
     ("GatewaySubnet")                 = { address_prefixes = ["10.22.7.0/24"] }
     ("RouteServerSubnet")             = { address_prefixes = ["10.22.8.0/24"] }
     ("AzureFirewallSubnet")           = { address_prefixes = ["10.22.9.0/24"] }
     ("AzureFirewallManagementSubnet") = { address_prefixes = ["10.22.10.0/24"] }
+    ("${local.hub2_prefix}apps")      = { address_prefixes = ["10.22.11.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
   }
   hub2_default_gw_main   = cidrhost(local.hub2_subnets["${local.hub2_prefix}main"].address_prefixes[0], 1)
   hub2_default_gw_nva    = cidrhost(local.hub2_subnets["${local.hub2_prefix}nva"].address_prefixes[0], 1)
@@ -262,6 +263,7 @@ locals {
     ("${local.spoke1_prefix}ilb")   = { address_prefixes = ["10.1.2.0/24"] }
     ("${local.spoke1_prefix}pls")   = { address_prefixes = ["10.1.3.0/24"] }
     ("${local.spoke1_prefix}pep")   = { address_prefixes = ["10.1.4.0/24"] }
+    ("${local.spoke1_prefix}apps")  = { address_prefixes = ["10.1.5.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
   }
   spoke1_vm_addr     = cidrhost(local.spoke1_subnets["${local.spoke1_prefix}main"].address_prefixes[0], 5)
   spoke1_ilb_addr    = cidrhost(local.spoke1_subnets["${local.spoke1_prefix}ilb"].address_prefixes[0], 99)
@@ -288,6 +290,7 @@ locals {
     ("${local.spoke2_prefix}ilb")   = { address_prefixes = ["10.2.2.0/24"] }
     ("${local.spoke2_prefix}pls")   = { address_prefixes = ["10.2.3.0/24"] }
     ("${local.spoke2_prefix}pep")   = { address_prefixes = ["10.2.4.0/24"] }
+    ("${local.spoke2_prefix}apps")  = { address_prefixes = ["10.2.5.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
   }
   spoke2_vm_addr     = cidrhost(local.spoke2_subnets["${local.spoke2_prefix}main"].address_prefixes[0], 5)
   spoke2_ilb_addr    = cidrhost(local.spoke2_subnets["${local.spoke2_prefix}ilb"].address_prefixes[0], 99)
@@ -314,6 +317,7 @@ locals {
     ("${local.spoke3_prefix}ilb")   = { address_prefixes = ["10.3.2.0/24"] }
     ("${local.spoke3_prefix}pls")   = { address_prefixes = ["10.3.3.0/24"] }
     ("${local.spoke3_prefix}pep")   = { address_prefixes = ["10.3.4.0/24"] }
+    ("${local.spoke3_prefix}apps")  = { address_prefixes = ["10.3.5.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
   }
   spoke3_vm_addr     = cidrhost(local.spoke3_subnets["${local.spoke3_prefix}main"].address_prefixes[0], 5)
   spoke3_ilb_addr    = cidrhost(local.spoke3_subnets["${local.spoke3_prefix}ilb"].address_prefixes[0], 99)
@@ -340,6 +344,7 @@ locals {
     ("${local.spoke4_prefix}ilb")   = { address_prefixes = ["10.4.2.0/24"] }
     ("${local.spoke4_prefix}pls")   = { address_prefixes = ["10.4.3.0/24"] }
     ("${local.spoke4_prefix}pep")   = { address_prefixes = ["10.4.4.0/24"] }
+    ("${local.spoke4_prefix}apps")  = { address_prefixes = ["10.4.5.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
   }
   spoke4_vm_addr     = cidrhost(local.spoke4_subnets["${local.spoke4_prefix}main"].address_prefixes[0], 5)
   spoke4_ilb_addr    = cidrhost(local.spoke4_subnets["${local.spoke4_prefix}ilb"].address_prefixes[0], 99)
@@ -366,6 +371,7 @@ locals {
     ("${local.spoke5_prefix}ilb")   = { address_prefixes = ["10.5.2.0/24"] }
     ("${local.spoke5_prefix}pls")   = { address_prefixes = ["10.5.3.0/24"] }
     ("${local.spoke5_prefix}pep")   = { address_prefixes = ["10.5.4.0/24"] }
+    ("${local.spoke5_prefix}apps")  = { address_prefixes = ["10.5.5.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
   }
   spoke5_vm_addr     = cidrhost(local.spoke5_subnets["${local.spoke5_prefix}main"].address_prefixes[0], 5)
   spoke5_ilb_addr    = cidrhost(local.spoke5_subnets["${local.spoke5_prefix}ilb"].address_prefixes[0], 99)
@@ -392,6 +398,7 @@ locals {
     ("${local.spoke6_prefix}ilb")   = { address_prefixes = ["10.6.2.0/24"] }
     ("${local.spoke6_prefix}pls")   = { address_prefixes = ["10.6.3.0/24"] }
     ("${local.spoke6_prefix}pep")   = { address_prefixes = ["10.6.4.0/24"] }
+    ("${local.spoke6_prefix}apps")  = { address_prefixes = ["10.6.5.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
   }
   spoke6_vm_addr     = cidrhost(local.spoke6_subnets["${local.spoke6_prefix}main"].address_prefixes[0], 5)
   spoke6_ilb_addr    = cidrhost(local.spoke6_subnets["${local.spoke6_prefix}ilb"].address_prefixes[0], 99)

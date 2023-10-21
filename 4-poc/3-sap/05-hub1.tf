@@ -15,12 +15,9 @@ module "hub1" {
     "env"      = "prod"
   }
 
-  create_private_dns_zone = true
-  private_dns_zone_name   = "hub1.${local.cloud_domain}"
-  private_dns_zone_linked_external_vnets = {
-    "spoke1" = module.spoke1.vnet.id
-    "spoke2" = module.spoke2.vnet.id
-  }
+  create_private_dns_zone                = true
+  private_dns_zone_name                  = "hub1.${local.cloud_domain}"
+  private_dns_zone_linked_external_vnets = {}
 
   nsg_subnet_map = {
     "${local.hub1_prefix}main" = module.common.nsg_main["region1"].id
@@ -41,6 +38,7 @@ module "hub1" {
       enable_vpn_gateway          = local.hub1_features.enable_vpn_gateway
       enable_er_gateway           = local.hub1_features.enable_er_gateway
 
+      er_gateway_sku  = "Standard"
       vpn_gateway_sku = "VpnGw2AZ"
       vpn_gateway_asn = local.hub1_vpngw_asn
 

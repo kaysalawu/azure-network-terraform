@@ -48,6 +48,7 @@ vm_ip = ${SPOKE3_VM_IP}
 %{~ for k,v in SPOKE3_SUBNETS }
 ${k} = ${v}
 %{~ endfor }
+app_service_url = ${SPOKE3_APP_SERVICE_URL}
 
 # spoke4
 #----------------------------------------
@@ -78,6 +79,7 @@ vm_ip = ${SPOKE6_VM_IP}
 %{~ for k,v in SPOKE6_SUBNETS }
 ${k} = ${v}
 %{~ endfor }
+app_service_url = ${SPOKE6_APP_SERVICE_URL}
 
 # branch1
 #----------------------------------------

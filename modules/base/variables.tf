@@ -105,6 +105,8 @@ variable "vnet_config" {
     firewall_sku       = optional(string, "Basic")
     firewall_policy_id = optional(string, null)
 
+    er_gateway_sku = optional(string, "Standard")
+
     enable_vpn_gateway                     = optional(bool, false)
     vpn_gateway_sku                        = optional(string, "VpnGw2AZ")
     vpn_gateway_asn                        = optional(string, 65515)
@@ -272,6 +274,36 @@ variable "log_categories_firewall" {
         "days"    = 0,
         "enabled" = false
       }
+    }
+  ]
+}
+
+variable "delegation" {
+  type = list(object({
+    name = string
+    service_delegation = list(object({
+      name    = string
+      actions = list(string)
+    }))
+  }))
+  default = [
+    {
+      name = "Microsoft.Web/serverFarms"
+      service_delegation = [
+        {
+          name    = "Microsoft.Web/serverFarms"
+          actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+        }
+      ]
+    },
+    {
+      name = "Microsoft.Network.dnsResolvers"
+      service_delegation = [
+        {
+          name    = "Microsoft.Network/dnsResolvers"
+          actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+        }
+      ]
     }
   ]
 }

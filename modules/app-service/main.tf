@@ -16,10 +16,15 @@ resource "azurerm_service_plan" "this" {
 # Httpbin App Service
 
 resource "azurerm_linux_web_app" "this" {
-  resource_group_name = var.resource_group
-  name                = "${local.name}app"
-  location            = var.location
-  service_plan_id     = azurerm_service_plan.this.id
+  resource_group_name       = var.resource_group
+  name                      = "${local.name}app"
+  location                  = var.location
+  service_plan_id           = azurerm_service_plan.this.id
+  virtual_network_subnet_id = var.subnet_id
+
+  app_settings = {
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
+  }
 
   logs {
     detailed_error_messages = true
@@ -38,7 +43,8 @@ resource "azurerm_linux_web_app" "this" {
     always_on = true
 
     application_stack {
-      docker_image_name = var.docker_image_name
+      docker_image_name   = var.docker_image_name
+      docker_registry_url = "https://index.docker.io"
     }
   }
 }

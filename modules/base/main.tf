@@ -30,7 +30,7 @@ resource "azurerm_subnet" "this" {
 
   dynamic "delegation" {
     iterator = delegation
-    for_each = contains(try(each.value.delegate, []), "dns") ? [1] : []
+    for_each = contains(try(each.value.delegate, []), "Microsoft.Network/dnsResolvers") ? [1] : []
     content {
       name = "Microsoft.Network.dnsResolvers"
       service_delegation {
@@ -366,7 +366,7 @@ resource "azurerm_public_ip" "ars_pip" {
   resource_group_name = var.resource_group
   name                = "${local.prefix}ars-pip"
   location            = var.location
-  sku                 = "Standard"
+  sku                 = var.vnet_config[0].er_gateway_sku
   allocation_method   = "Static"
   tags                = var.tags
   timeouts {

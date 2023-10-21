@@ -1,6 +1,6 @@
 
 resource "random_id" "services_region1" {
-  byte_length = 2
+  byte_length = 3
 }
 
 ####################################################
@@ -122,7 +122,6 @@ module "spoke3_pls" {
       lb_frontend_ids = [module.spoke3_lb.frontend_ip_configuration[0].id, ]
     }
   ]
-
   depends_on = [
     module.spoke3_lb,
   ]
@@ -164,6 +163,7 @@ locals {
 }
 
 # links
+#----------------------------
 
 resource "azurerm_private_dns_zone_virtual_network_link" "hub1_privatelink_vnet_links" {
   for_each              = local.private_dns_zone_privatelink_vnet_links_hub1
@@ -178,6 +178,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "hub1_privatelink_vnet_
 }
 
 # app service
+#----------------------------
 
 module "spoke3_apps" {
   source            = "../../modules/app-service"
@@ -186,10 +187,12 @@ module "spoke3_apps" {
   prefix            = lower(local.spoke3_prefix)
   name              = random_id.services_region1.hex
   docker_image_name = "kennethreitz/httpbin:latest"
-  depends_on        = [azurerm_private_dns_zone_virtual_network_link.hub1_privatelink_vnet_links]
+  #subnet_id         = module.spoke3.subnets["${local.spoke3_prefix}main"].id
+  depends_on = [azurerm_private_dns_zone_virtual_network_link.hub1_privatelink_vnet_links]
 }
 
 # storage account
+#----------------------------
 
 resource "azurerm_storage_account" "spoke3_sa" {
   resource_group_name      = azurerm_resource_group.rg.name
@@ -198,10 +201,10 @@ resource "azurerm_storage_account" "spoke3_sa" {
   account_replication_type = "LRS"
   account_tier             = "Standard"
 }
-/*
+
 # private endpoint
 
-resource "azurerm_private_endpoint" "spoke3_blob_pep" {
+resource "azurerm_private_endpoint" "hub1_spoke3_blob_pep" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = "${local.hub1_prefix}spoke3-blob-pep"
   location            = local.hub1_location
@@ -209,13 +212,13 @@ resource "azurerm_private_endpoint" "spoke3_blob_pep" {
 
   private_service_connection {
     name                           = "${local.hub1_prefix}spoke3-blob-svc-conn"
-    private_connection_resource_id = azurerm_storage_account.spoke3_storage_account.id
+    private_connection_resource_id = azurerm_storage_account.spoke3_sa.id
     is_manual_connection           = false
     subresource_names              = ["blob"]
   }
 
   private_dns_zone_group {
-    name                 = "${local.prefix}pl1-dns-zone-group"
+    name                 = "${local.hub1_prefix}spoke3-blob-zg"
     private_dns_zone_ids = [azurerm_private_dns_zone.privatelink_blob.id]
   }
-}*/
+}

@@ -21,8 +21,12 @@ module "spoke1_udr_main" {
   subnet_id              = module.spoke1.subnets["${local.spoke1_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub1_nva_ilb_addr
-  destinations           = local.default_udr_destinations
-  depends_on             = [module.hub1]
+
+  destinations = merge(
+    local.default_udr_destinations,
+    { "hub1" = local.hub1_address_space[0] }
+  )
+  depends_on = [module.hub1, ]
 
   disable_bgp_route_propagation = true
 }
@@ -44,8 +48,12 @@ module "spoke2_udr_main" {
   subnet_id              = module.spoke2.subnets["${local.spoke2_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub1_nva_ilb_addr
-  destinations           = local.default_udr_destinations
-  depends_on             = [module.hub1]
+
+  destinations = merge(
+    local.default_udr_destinations,
+    { "hub1" = local.hub1_address_space[0] }
+  )
+  depends_on = [module.hub1]
 
   disable_bgp_route_propagation = true
 }
@@ -123,8 +131,12 @@ module "hub1_udr_main" {
   subnet_id              = module.hub1.subnets["${local.hub1_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub1_nva_ilb_addr
-  destinations           = local.default_udr_destinations
-  depends_on             = [module.hub1, ]
+
+  destinations = merge(
+    local.default_udr_destinations,
+    { "hub1" = local.hub1_address_space[0] }
+  )
+  depends_on = [module.hub1, ]
 
   disable_bgp_route_propagation = true
 }

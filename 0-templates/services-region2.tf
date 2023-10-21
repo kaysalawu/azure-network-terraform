@@ -1,4 +1,8 @@
 
+resource "random_id" "services_region2" {
+  byte_length = 3
+}
+
 ####################################################
 # dns resolver ruleset
 ####################################################
@@ -126,25 +130,25 @@ module "spoke6_pls" {
 # private endpoint
 #----------------------------
 
-resource "azurerm_private_endpoint" "hub2_spoke6_pe" {
+resource "azurerm_private_endpoint" "hub2_spoke6_pls_pep" {
   resource_group_name = azurerm_resource_group.rg.name
-  name                = "${local.hub2_prefix}spoke6-pe"
+  name                = "${local.hub2_prefix}spoke6-pls-pep"
   location            = local.hub2_location
   subnet_id           = module.hub2.subnets["${local.hub2_prefix}pep"].id
 
   private_service_connection {
-    name                           = "${local.hub2_prefix}spoke6-pe-psc"
+    name                           = "${local.hub2_prefix}spoke6-pls-svc-conn"
     private_connection_resource_id = module.spoke6_pls.private_link_service_id
     is_manual_connection           = false
   }
 }
 
-resource "azurerm_private_dns_a_record" "hub2_spoke6_pep" {
+resource "azurerm_private_dns_a_record" "hub2_spoke6_pls_pep" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = local.hub2_spoke6_pep_host
   zone_name           = module.hub2.private_dns_zone.name
   ttl                 = 300
-  records             = [azurerm_private_endpoint.hub2_spoke6_pe.private_service_connection[0].private_ip_address, ]
+  records             = [azurerm_private_endpoint.hub2_spoke6_pls_pep.private_service_connection[0].private_ip_address, ]
 }
 
 ####################################################
@@ -154,33 +158,19 @@ resource "azurerm_private_dns_a_record" "hub2_spoke6_pep" {
 locals {
   private_dns_zone_privatelink_vnet_links_hub2 = {
     "pl-blob" = azurerm_private_dns_zone.privatelink_blob.name
-  }
-  private_dns_zone_privatelink_appservice_linked_vnets = {
-    "hub1" = module.hub1.vnet.id
-    "hub2" = module.hub2.vnet.id
+    "pl-apps" = azurerm_private_dns_zone.privatelink_appservice.name
   }
 }
 
 # links
-/*
-resource "azurerm_private_dns_zone_virtual_network_link" "hub2_vnet" {
+#----------------------------
+
+resource "azurerm_private_dns_zone_virtual_network_link" "hub2_privatelink_vnet_links" {
   for_each              = local.private_dns_zone_privatelink_vnet_links_hub2
   resource_group_name   = azurerm_resource_group.rg.name
-  name                  = "${local.prefix}${each.key}-vnet-link"
-  private_dns_zone_name = azurerm_private_dns_zone.privatelink_blob.name
-  virtual_network_id    = each.value
-  registration_enabled  = false
-  timeouts {
-    create = "60m"
-  }
-}
-
-resource "azurerm_private_dns_zone_virtual_network_link" "privatelink_appservice" {
-  for_each              = local.private_dns_zone_privatelink_appservice_linked_vnets
-  resource_group_name   = azurerm_resource_group.rg.name
-  name                  = "${local.prefix}${each.key}-vnet-link"
-  private_dns_zone_name = azurerm_private_dns_zone.privatelink_app_service.name
-  virtual_network_id    = each.value
+  name                  = "${local.hub2_prefix}${each.key}-vnet-link"
+  private_dns_zone_name = each.value
+  virtual_network_id    = module.hub2.vnet.id
   registration_enabled  = false
   timeouts {
     create = "60m"
@@ -188,44 +178,47 @@ resource "azurerm_private_dns_zone_virtual_network_link" "privatelink_appservice
 }
 
 # app service
+#----------------------------
 
-module "spoke6_appservice" {
+module "spoke6_apps" {
   source            = "../../modules/app-service"
   resource_group    = azurerm_resource_group.rg.name
   location          = local.spoke6_location
   prefix            = lower(local.spoke6_prefix)
-  name              = "httpbin"
+  name              = random_id.services_region2.hex
   docker_image_name = "kennethreitz/httpbin:latest"
-  depends_on        = [azurerm_private_dns_zone_virtual_network_link.pl_blob_region1]
+  #subnet_id         = module.spoke6.subnets["${local.spoke6_prefix}pls"].id
+  depends_on = [azurerm_private_dns_zone_virtual_network_link.hub2_privatelink_vnet_links]
 }
 
 # storage account
+#----------------------------
 
-resource "azurerm_storage_account" "pl_blob_region2" {
+resource "azurerm_storage_account" "spoke6_sa" {
   resource_group_name      = azurerm_resource_group.rg.name
-  name                     = lower("${local.prefix}pl2")
-  location                 = local.region2
+  name                     = lower(replace(("${local.spoke6_prefix}sa${random_id.services_region2.hex}"), "-", ""))
+  location                 = local.spoke6_location
   account_replication_type = "LRS"
   account_tier             = "Standard"
 }
 
 # private endpoint
 
-resource "azurerm_private_endpoint" "pl_blob_region2" {
+resource "azurerm_private_endpoint" "hub2_spoke6_blob_pep" {
   resource_group_name = azurerm_resource_group.rg.name
-  name                = "${local.prefix}pl2-endpoint"
-  location            = local.region2
+  name                = "${local.hub2_prefix}spoke6-blob-pep"
+  location            = local.hub2_location
   subnet_id           = module.hub2.subnets["${local.hub2_prefix}pep"].id
 
   private_service_connection {
-    name                           = "${local.prefix}pl2-svc-conn"
-    private_connection_resource_id = azurerm_storage_account.pl_blob_region2.id
+    name                           = "${local.hub2_prefix}spoke6-blob-svc-conn"
+    private_connection_resource_id = azurerm_storage_account.spoke6_sa.id
     is_manual_connection           = false
     subresource_names              = ["blob"]
   }
 
   private_dns_zone_group {
-    name                 = "${local.prefix}pl2-dns-zone-group"
-    private_dns_zone_ids = [azurerm_private_dns_zone.pl_blob.id]
+    name                 = "${local.hub2_prefix}spoke6-blob-zg"
+    private_dns_zone_ids = [azurerm_private_dns_zone.privatelink_blob.id]
   }
-}*/
+}

@@ -30,3 +30,9 @@ variable "docker_image_name" {
   type        = string
   default     = "kennethreitz/httpbin:latest"
 }
+
+variable "subnet_id" {
+  description = "subnet id to deploy app service"
+  type        = string
+  default     = null
+}

@@ -36,18 +36,29 @@ module "spoke4" {
     }
   ]
 
-  vm_config = [
-    {
-      name         = "vm"
-      subnet       = "${local.spoke4_prefix}main"
-      private_ip   = local.spoke4_vm_addr
-      custom_data  = base64encode(local.vm_startup)
-      dns_servers  = [local.hub2_dns_in_addr, ]
-      source_image = "ubuntu-20"
-    }
-  ]
   depends_on = [
     module.common,
+  ]
+}
+
+# workload
+
+module "spoke4_vm" {
+  source                = "../../modules/linux"
+  resource_group        = azurerm_resource_group.rg.name
+  prefix                = local.spoke4_prefix
+  name                  = "vm"
+  location              = local.spoke4_location
+  subnet                = module.spoke4.subnets["${local.spoke4_prefix}main"].id
+  private_ip            = local.spoke4_vm_addr
+  custom_data           = base64encode(local.vm_startup)
+  dns_servers           = [local.hub2_dns_in_addr, ]
+  storage_account       = module.common.storage_accounts["region2"]
+  private_dns_zone_name = "spoke4.${local.cloud_domain}"
+  tags                  = local.spoke4_tags
+  depends_on = [
+    module.common,
+    module.hub2,
   ]
 }
 
@@ -88,18 +99,29 @@ module "spoke5" {
     }
   ]
 
-  vm_config = [
-    {
-      name         = "vm"
-      subnet       = "${local.spoke5_prefix}main"
-      private_ip   = local.spoke5_vm_addr
-      custom_data  = base64encode(local.vm_startup)
-      dns_servers  = [local.hub2_dns_in_addr, ]
-      source_image = "ubuntu-20"
-    }
-  ]
   depends_on = [
     module.common,
+  ]
+}
+
+# workload
+
+module "spoke5_vm" {
+  source                = "../../modules/linux"
+  resource_group        = azurerm_resource_group.rg.name
+  prefix                = local.spoke5_prefix
+  name                  = "vm"
+  location              = local.spoke5_location
+  subnet                = module.spoke5.subnets["${local.spoke5_prefix}main"].id
+  private_ip            = local.spoke5_vm_addr
+  custom_data           = base64encode(local.vm_startup)
+  dns_servers           = [local.hub2_dns_in_addr, ]
+  storage_account       = module.common.storage_accounts["region2"]
+  private_dns_zone_name = "spoke5.${local.cloud_domain}"
+  tags                  = local.spoke5_tags
+  depends_on = [
+    module.common,
+    module.hub2,
   ]
 }
 
@@ -140,18 +162,27 @@ module "spoke6" {
     }
   ]
 
-  vm_config = [
-    {
-      name             = "vm"
-      subnet           = "${local.spoke6_prefix}main"
-      private_ip       = local.spoke6_vm_addr
-      enable_public_ip = true
-      custom_data      = base64encode(local.vm_startup)
-      dns_servers      = [local.hub2_dns_in_addr, ]
-      source_image     = "ubuntu-20"
-    }
-  ]
   depends_on = [
     module.common,
+  ]
+}
+
+# workload
+
+module "spoke6_vm" {
+  source                = "../../modules/linux"
+  resource_group        = azurerm_resource_group.rg.name
+  prefix                = local.spoke6_prefix
+  name                  = "vm"
+  location              = local.spoke6_location
+  subnet                = module.spoke6.subnets["${local.spoke6_prefix}main"].id
+  private_ip            = local.spoke6_vm_addr
+  custom_data           = base64encode(local.vm_startup)
+  storage_account       = module.common.storage_accounts["region2"]
+  private_dns_zone_name = "spoke6.${local.cloud_domain}"
+  tags                  = local.spoke6_tags
+  depends_on = [
+    module.common,
+    module.hub2,
   ]
 }
