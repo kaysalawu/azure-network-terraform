@@ -3,9 +3,13 @@
 ####################################################
 
 locals {
-  prefix       = "Hs11"
-  my_public_ip = chomp(data.http.my_public_ip.response_body)
+  prefix = "Hs11"
+  #my_public_ip = chomp(data.http.my_public_ip.response_body)
 }
+
+####################################################
+# Data
+####################################################
 
 ####################################################
 # providers
@@ -33,13 +37,17 @@ locals {
   regions = {
     region1 = local.region1
   }
-  main_udr_destinations = concat(
-    local.udr_azure_destinations_region1,
-    local.udr_onprem_destinations_region1,
-  )
-  hub1_gateway_udr_destinations = concat(
-    local.udr_azure_destinations_region1,
-  )
+  default_udr_destinations = {
+    "default" = "0.0.0.0/0"
+  }
+  hub1_gateway_udr_destinations = {
+    "spoke1" = local.spoke1_address_space[0]
+    "spoke2" = local.spoke2_address_space[0]
+    "spoke4" = local.spoke4_address_space[0]
+    "spoke5" = local.spoke5_address_space[0]
+    "hub1"   = local.hub1_address_space[0]
+    "hub2"   = local.hub2_address_space[0]
+  }
   firewall_sku = "Basic"
 
   hub1_features = {
@@ -63,25 +71,46 @@ resource "azurerm_resource_group" "rg" {
 
 # my public ip
 
-data "http" "my_public_ip" {
+/* data "http" "my_public_ip" {
   url = "http://ipv4.icanhazip.com"
-}
+} */
 
 ####################################################
 # common resources
 ####################################################
 
 module "common" {
-  source         = "../../modules/common"
-  resource_group = azurerm_resource_group.rg.name
-  prefix         = local.prefix
-  firewall_sku   = local.firewall_sku
-  regions        = local.regions
+  source           = "../../modules/common"
+  resource_group   = azurerm_resource_group.rg.name
+  env              = "common"
+  prefix           = local.prefix
+  firewall_sku     = local.firewall_sku
+  regions          = local.regions
+  private_prefixes = local.private_prefixes
+  tags             = {}
 }
+
+# private dns zones
 
 resource "azurerm_private_dns_zone" "global" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = local.cloud_domain
+  timeouts {
+    create = "60m"
+  }
+}
+
+resource "azurerm_private_dns_zone" "privatelink_blob" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "privatelink.blob.core.windows.net"
+  timeouts {
+    create = "60m"
+  }
+}
+
+resource "azurerm_private_dns_zone" "privatelink_appservice" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "privatelink.azurewebsites.net"
   timeouts {
     create = "60m"
   }
@@ -95,12 +124,11 @@ locals {
   hub1_vpngw_asn = "65515"
   hub1_ergw_asn  = "65515"
   hub1_ars_asn   = "65515"
-  #mypip         = chomp(data.http.mypip.response_body)
 
   vm_script_targets_region1 = [
     { name = "branch1", dns = local.branch1_vm_fqdn, ip = local.branch1_vm_addr },
     { name = "hub1   ", dns = local.hub1_vm_fqdn, ip = local.hub1_vm_addr },
-    { name = "hub1-pe", dns = local.hub1_pep_fqdn, ping = false },
+    { name = "hub1-spoke3-pep", dns = local.hub1_spoke3_pep_fqdn, ping = false },
     { name = "spoke1 ", dns = local.spoke1_vm_fqdn, ip = local.spoke1_vm_addr },
     { name = "spoke2 ", dns = local.spoke2_vm_fqdn, ip = local.spoke2_vm_addr },
     { name = "spoke3 ", dns = local.spoke3_vm_fqdn, ip = local.spoke3_vm_addr, ping = false },
@@ -120,10 +148,18 @@ locals {
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones
     TARGETS              = local.vm_script_targets_region1
+    ACCESS_CONTROL_PREFIXES = concat(
+      local.private_prefixes,
+      [
+        "127.0.0.0/8",
+        "35.199.192.0/19",
+      ]
+    )
   }
   branch_unbound_conf         = templatefile("../../scripts/unbound/unbound.conf", local.unbound_vars)
   branch_unbound_startup      = templatefile("../../scripts/unbound/unbound.sh", local.unbound_vars)
   branch_dnsmasq_startup      = templatefile("../../scripts/dnsmasq/dnsmasq.sh", local.unbound_vars)
+  branch_dnsmasq_cloud_config = templatefile("../../scripts/dnsmasq/cloud-config", local.unbound_vars)
   branch_unbound_cloud_config = templatefile("../../scripts/unbound/cloud-config", local.unbound_vars)
   branch_unbound_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
@@ -137,7 +173,14 @@ locals {
     { name = (local.branch3_vm_fqdn), record = local.branch3_vm_addr },
   ]
   onprem_forward_zones = [
-    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "privatelink.blob.core.windows.net.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "privatelink.azurewebsites.net.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "privatelink.database.windows.net.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "privatelink.table.cosmos.azure.com.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "privatelink.queue.core.windows.net.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "privatelink.file.core.windows.net.", targets = [local.hub1_dns_in_addr, ], },
     { zone = ".", targets = [local.azuredns, ] },
   ]
   onprem_redirected_hosts = []
@@ -145,7 +188,7 @@ locals {
 
 module "unbound" {
   source   = "../../modules/cloud-config-gen"
-  packages = ["tcpdump", "bind9-utils", "dnsutils", "net-tools", "unbound"]
+  packages = ["tcpdump", "dnsutils", "net-tools", "unbound"]
   files = {
     "/var/log/unbound"          = { owner = "root", permissions = "0755", content = "" }
     "/etc/unbound/unbound.conf" = { owner = "root", permissions = "0640", content = local.branch_unbound_conf }
@@ -153,6 +196,16 @@ module "unbound" {
   run_commands = [
     "systemctl restart unbound",
     "systemctl enable unbound",
+  ]
+}
+
+module "dnsmasq" {
+  source   = "../../modules/cloud-config-gen"
+  packages = ["dnsmasq"]
+  files    = {}
+  run_commands = [
+    "systemctl restart dnsmasq",
+    "systemctl enable dnsmasq",
   ]
 }
 
@@ -243,7 +296,8 @@ module "fw_policy_rule_collection_group" {
 
 locals {
   main_files = {
-    "output/unbound.conf" = module.unbound.cloud_config
+    "output/branch-unbound.sh" = local.branch_unbound_startup
+    "output/server.sh"         = local.vm_startup
   }
 }
 
