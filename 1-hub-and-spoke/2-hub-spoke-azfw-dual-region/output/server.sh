@@ -21,10 +21,10 @@ def default():
     hostname = socket.gethostname()
     address = socket.gethostbyname(hostname)
     data_dict = {}
-    data_dict['hostname'] = hostname
-    data_dict['local-ip'] = address
-    data_dict['remote-ip'] = request.remote_addr
-    data_dict['headers'] = dict(request.headers)
+    data_dict['Hostname'] = hostname
+    data_dict['Local-IP'] = address
+    data_dict['Remote-IP'] = request.remote_addr
+    data_dict['Headers'] = dict(request.headers)
     return data_dict
 
 @app.route("/path1")
@@ -33,10 +33,10 @@ def path1():
     address = socket.gethostbyname(hostname)
     data_dict = {}
     data_dict['app'] = 'PATH1-APP'
-    data_dict['hostname'] = hostname
-    data_dict['local-ip'] = address
-    data_dict['remote-ip'] = request.remote_addr
-    data_dict['headers'] = dict(request.headers)
+    data_dict['Hostname'] = hostname
+    data_dict['Local-IP'] = address
+    data_dict['Remote-IP'] = request.remote_addr
+    data_dict['Headers'] = dict(request.headers)
     return data_dict
 
 @app.route("/path2")
@@ -45,10 +45,10 @@ def path2():
     address = socket.gethostbyname(hostname)
     data_dict = {}
     data_dict['app'] = 'PATH2-APP'
-    data_dict['hostname'] = hostname
-    data_dict['local-ip'] = address
-    data_dict['remote-ip'] = request.remote_addr
-    data_dict['headers'] = dict(request.headers)
+    data_dict['Hostname'] = hostname
+    data_dict['Local-IP'] = address
+    data_dict['Remote-IP'] = request.remote_addr
+    data_dict['Headers'] = dict(request.headers)
     return data_dict
 
 if __name__ == "__main__":
@@ -86,14 +86,14 @@ chmod a+x /usr/local/bin/ping-ip
 
 cat <<EOF > /usr/local/bin/ping-dns
 echo -e "\n ping dns ...\n"
-echo "vm.branch1.corp - \$(timeout 3 dig +short vm.branch1.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.branch1.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "vm.hub1.az.corp - \$(timeout 3 dig +short vm.hub1.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.hub1.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "vm.spoke1.az.corp - \$(timeout 3 dig +short vm.spoke1.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.spoke1.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "vm.spoke2.az.corp - \$(timeout 3 dig +short vm.spoke2.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.spoke2.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "vm.branch3.corp - \$(timeout 3 dig +short vm.branch3.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.branch3.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "vm.hub2.az.corp - \$(timeout 3 dig +short vm.hub2.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.hub2.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "vm.spoke4.az.corp - \$(timeout 3 dig +short vm.spoke4.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.spoke4.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "vm.spoke5.az.corp - \$(timeout 3 dig +short vm.spoke5.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.spoke5.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "vm.branch1.co.net - \$(timeout 3 dig +short vm.branch1.co.net | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.branch1.co.net 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "vm.hub1.az.co.net - \$(timeout 3 dig +short vm.hub1.az.co.net | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.hub1.az.co.net 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "vm.spoke1.az.co.net - \$(timeout 3 dig +short vm.spoke1.az.co.net | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.spoke1.az.co.net 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "vm.spoke2.az.co.net - \$(timeout 3 dig +short vm.spoke2.az.co.net | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.spoke2.az.co.net 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "vm.branch3.co.net - \$(timeout 3 dig +short vm.branch3.co.net | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.branch3.co.net 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "vm.hub2.az.co.net - \$(timeout 3 dig +short vm.hub2.az.co.net | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.hub2.az.co.net 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "vm.spoke4.az.co.net - \$(timeout 3 dig +short vm.spoke4.az.co.net | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.spoke4.az.co.net 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "vm.spoke5.az.co.net - \$(timeout 3 dig +short vm.spoke5.az.co.net | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.spoke5.az.co.net 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "icanhazip.com - \$(timeout 3 dig +short icanhazip.com | tail -n1) -\$(timeout 3 ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 EOF
 chmod a+x /usr/local/bin/ping-dns
@@ -120,18 +120,18 @@ chmod a+x /usr/local/bin/curl-ip
 
 cat <<EOF > /usr/local/bin/curl-dns
 echo -e "\n curl dns ...\n"
-echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.branch1.corp) - vm.branch1.corp"
-echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.hub1.az.corp) - vm.hub1.az.corp"
-echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke3.p.hub1.az.corp) - spoke3.p.hub1.az.corp"
-echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke1.az.corp) - vm.spoke1.az.corp"
-echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke2.az.corp) - vm.spoke2.az.corp"
-echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke3.az.corp) - vm.spoke3.az.corp"
-echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.branch3.corp) - vm.branch3.corp"
-echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.hub2.az.corp) - vm.hub2.az.corp"
-echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke6.p.hub2.az.corp) - spoke6.p.hub2.az.corp"
-echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke4.az.corp) - vm.spoke4.az.corp"
-echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke5.az.corp) - vm.spoke5.az.corp"
-echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke6.az.corp) - vm.spoke6.az.corp"
+echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.branch1.co.net) - vm.branch1.co.net"
+echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.hub1.az.co.net) - vm.hub1.az.co.net"
+echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke3.p.hub1.az.co.net) - spoke3.p.hub1.az.co.net"
+echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke1.az.co.net) - vm.spoke1.az.co.net"
+echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke2.az.co.net) - vm.spoke2.az.co.net"
+echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke3.az.co.net) - vm.spoke3.az.co.net"
+echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.branch3.co.net) - vm.branch3.co.net"
+echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.hub2.az.co.net) - vm.hub2.az.co.net"
+echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke6.p.hub2.az.co.net) - spoke6.p.hub2.az.co.net"
+echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke4.az.co.net) - vm.spoke4.az.co.net"
+echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke5.az.co.net) - vm.spoke5.az.co.net"
+echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke6.az.co.net) - vm.spoke6.az.co.net"
 echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
 EOF
 chmod a+x /usr/local/bin/curl-dns

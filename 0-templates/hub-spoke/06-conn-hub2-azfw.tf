@@ -157,8 +157,12 @@ module "hub2_udr_main" {
   subnet_id              = module.hub2.subnets["${local.hub2_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub2_firewall_ip
-  destinations           = local.default_udr_destinations
-  depends_on             = [module.hub2, ]
+
+  destinations = merge(
+    local.default_udr_destinations,
+    { "hub2" = local.hub2_address_space[0] }
+  )
+  depends_on = [module.hub2, ]
 
   disable_bgp_route_propagation = true
 }

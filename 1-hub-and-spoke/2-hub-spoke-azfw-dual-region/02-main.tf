@@ -11,9 +11,6 @@ locals {
 # Data
 ####################################################
 
-data "azurerm_subscription" "current" {
-}
-
 ####################################################
 # providers
 ####################################################
@@ -223,6 +220,13 @@ locals {
   ]
   onprem_forward_zones = [
     { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
+    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
+    { zone = "privatelink.blob.core.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
+    { zone = "privatelink.azurewebsites.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
+    { zone = "privatelink.database.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
+    { zone = "privatelink.table.cosmos.azure.com.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
+    { zone = "privatelink.queue.core.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
+    { zone = "privatelink.file.core.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
     { zone = ".", targets = [local.azuredns, ] },
   ]
   onprem_redirected_hosts = []
@@ -339,7 +343,6 @@ module "fw_policy_rule_collection_group" {
 locals {
   main_files = {
     "output/branch-unbound.sh" = local.branch_unbound_startup
-    "output/values.sh"         = local.ouput_values
     "output/server.sh"         = local.vm_startup
   }
 }

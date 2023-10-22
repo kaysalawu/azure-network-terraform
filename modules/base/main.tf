@@ -406,12 +406,17 @@ resource "azurerm_route_server" "ars" {
 # azure firewall
 #----------------------------
 
+resource "random_id" "azfw" {
+  count       = var.vnet_config[0].enable_firewall ? 1 : 0
+  byte_length = 4
+}
+
 # workspace
 
 resource "azurerm_log_analytics_workspace" "azfw" {
   count               = var.vnet_config[0].enable_firewall ? 1 : 0
   resource_group_name = var.resource_group
-  name                = "${local.prefix}azfw-ws"
+  name                = "${local.prefix}azfw-ws-${random_id.azfw[0].hex}"
   location            = var.location
   tags                = var.tags
 }
@@ -492,13 +497,6 @@ resource "azurerm_firewall" "azfw" {
     azurerm_virtual_network_gateway.vpngw,
     azurerm_virtual_network_gateway.ergw,
   ]
-}
-
-# storage account
-
-resource "random_id" "azfw" {
-  count       = var.vnet_config[0].enable_firewall ? 1 : 0
-  byte_length = 4
 }
 
 resource "azurerm_storage_account" "azfw" {
