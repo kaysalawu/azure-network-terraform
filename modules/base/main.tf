@@ -29,16 +29,16 @@ resource "azurerm_subnet" "this" {
   address_prefixes     = each.value.address_prefixes
 
   dynamic "delegation" {
-    iterator = delegation
-    for_each = contains(try(each.value.delegate, []), "Microsoft.Network/dnsResolvers") ? [1] : []
+    for_each = [for d in var.delegation : d if contains(try(each.value.delegate, []), d.name)]
     content {
-      name = "Microsoft.Network.dnsResolvers"
+      name = delegation.value.name
       service_delegation {
-        actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
-        name    = "Microsoft.Network/dnsResolvers"
+        name    = delegation.value.service_delegation[0].name
+        actions = delegation.value.service_delegation[0].actions
       }
     }
   }
+
   private_endpoint_network_policies_enabled     = try(each.value.address_prefixes.enable_private_endpoint_policies[0], false)
   private_link_service_network_policies_enabled = try(each.value.address_prefixes.enable_private_link_policies[0], false)
 }

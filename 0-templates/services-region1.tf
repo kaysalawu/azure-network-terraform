@@ -1,6 +1,6 @@
 
 resource "random_id" "services_region1" {
-  byte_length = 3
+  byte_length = 2
 }
 
 ####################################################
@@ -186,9 +186,30 @@ module "spoke3_apps" {
   location          = local.spoke3_location
   prefix            = lower(local.spoke3_prefix)
   name              = random_id.services_region1.hex
-  docker_image_name = "kennethreitz/httpbin:latest"
-  #subnet_id         = module.spoke3.subnets["${local.spoke3_prefix}main"].id
-  depends_on = [azurerm_private_dns_zone_virtual_network_link.hub1_privatelink_vnet_links]
+  docker_image_name = "ksalawu/web:latest"
+  subnet_id         = module.spoke3.subnets["${local.spoke3_prefix}apps"].id
+  depends_on        = [azurerm_private_dns_zone_virtual_network_link.hub1_privatelink_vnet_links]
+}
+
+# private endpoint
+
+resource "azurerm_private_endpoint" "hub1_spoke3_apps_pep" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.hub1_prefix}spoke3-apps-pep"
+  location            = local.hub1_location
+  subnet_id           = module.hub1.subnets["${local.hub1_prefix}pep"].id
+
+  private_service_connection {
+    name                           = "${local.hub1_prefix}spoke3-apps-svc-conn"
+    private_connection_resource_id = module.spoke3_apps.app_service_id
+    is_manual_connection           = false
+    subresource_names              = ["sites"]
+  }
+
+  private_dns_zone_group {
+    name                 = "${local.hub1_prefix}spoke3-apps-zg"
+    private_dns_zone_ids = [azurerm_private_dns_zone.privatelink_appservice.id]
+  }
 }
 
 # storage account
