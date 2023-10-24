@@ -1,8 +1,3 @@
-locals {
-  hub1_vpngw_bgp_asn = module.hub1.vpngw.bgp_settings[0].asn
-  hub1_vpngw_bgp_ip0 = module.hub1.vpngw.bgp_settings[0].peering_addresses[0].default_addresses[0]
-  hub1_vpngw_bgp_ip1 = module.hub1.vpngw.bgp_settings[0].peering_addresses[1].default_addresses[0]
-}
 
 ####################################################
 # spoke1
@@ -169,7 +164,6 @@ module "hub1_nva" {
   admin_username       = local.username
   admin_password       = local.password
   custom_data          = base64encode(local.hub1_linux_nva_init)
-  depends_on           = [module.hub1, ]
 }
 
 # udr

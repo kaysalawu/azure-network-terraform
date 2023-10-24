@@ -35,10 +35,6 @@ module "spoke4" {
       subnets       = local.spoke4_subnets
     }
   ]
-
-  depends_on = [
-    module.common,
-  ]
 }
 
 # workload
@@ -58,7 +54,6 @@ module "spoke4_vm" {
   delay_creation        = "90s"
   tags                  = local.spoke4_tags
   depends_on = [
-    module.common,
     module.hub2,
   ]
 }
@@ -99,10 +94,6 @@ module "spoke5" {
       subnets       = local.spoke5_subnets
     }
   ]
-
-  depends_on = [
-    module.common,
-  ]
 }
 
 # workload
@@ -122,7 +113,6 @@ module "spoke5_vm" {
   delay_creation        = "90s"
   tags                  = local.spoke5_tags
   depends_on = [
-    module.common,
     module.hub2,
   ]
 }
@@ -163,10 +153,6 @@ module "spoke6" {
       nat_gateway_subnet_names = ["${local.spoke6_prefix}main", ]
     }
   ]
-
-  depends_on = [
-    module.common,
-  ]
 }
 
 # workload
@@ -185,7 +171,6 @@ module "spoke6_vm" {
   delay_creation        = "90s"
   tags                  = local.spoke6_tags
   depends_on = [
-    module.common,
     module.hub2,
   ]
 }

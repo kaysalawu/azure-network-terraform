@@ -1,12 +1,8 @@
 
 locals {
-  vhub2_router_bgp_ip0   = module.vhub2.router_bgp_ip0
-  vhub2_router_bgp_ip1   = module.vhub2.router_bgp_ip1
-  vhub2_vpngw_public_ip0 = module.vhub2.vpn_gateway_public_ip0
-  vhub2_vpngw_public_ip1 = module.vhub2.vpn_gateway_public_ip1
-  vhub2_vpngw_bgp_ip0    = module.vhub2.vpn_gateway_bgp_ip0
-  vhub2_vpngw_bgp_ip1    = module.vhub2.vpn_gateway_bgp_ip1
-  hub2_nva_public_ip     = module.hub2_nva.public_ip
+  vhub2_router_bgp_ip0 = module.vhub2.router_bgp_ip0
+  vhub2_router_bgp_ip1 = module.vhub2.router_bgp_ip1
+  hub2_nva_public_ip   = module.hub2_nva.public_ip
 }
 
 ####################################################
@@ -97,8 +93,8 @@ locals {
         INTERFACE = "eth0"
         STATIC_ROUTES = [
           { prefix = "0.0.0.0/0", next_hop = local.hub2_default_gw_nva },
-          { prefix = "${local.vhub2_router_bgp_ip0}/32", next_hop = local.hub2_default_gw_nva },
-          { prefix = "${local.vhub2_router_bgp_ip1}/32", next_hop = local.hub2_default_gw_nva },
+          { prefix = "${module.vhub2.router_bgp_ip0}/32", next_hop = local.hub2_default_gw_nva },
+          { prefix = "${module.vhub2.router_bgp_ip1}/32", next_hop = local.hub2_default_gw_nva },
           { prefix = local.spoke5_address_space[0], next_hop = local.hub2_default_gw_nva },
         ]
       }
@@ -109,7 +105,7 @@ locals {
         BGP_SESSIONS = [
           {
             peer_asn      = local.vhub2_bgp_asn
-            peer_ip       = local.vhub2_router_bgp_ip0
+            peer_ip       = module.vhub2.router_bgp_ip0
             ebgp_multihop = true
             route_map = {
               #name      = local.hub2_router_route_map_name_nh
@@ -118,7 +114,7 @@ locals {
           },
           {
             peer_asn      = local.vhub2_bgp_asn
-            peer_ip       = local.vhub2_router_bgp_ip1
+            peer_ip       = module.vhub2.router_bgp_ip1
             ebgp_multihop = true
             route_map = {
               #name      = local.hub2_router_route_map_name_nh
@@ -272,7 +268,7 @@ resource "azurerm_vpn_site" "vhub2_site_branch3" {
 
 resource "azurerm_vpn_gateway_connection" "vhub2_site_branch3_conn" {
   name                      = "${local.vhub2_prefix}site-branch3-conn"
-  vpn_gateway_id            = module.vhub2.vpn_gateway.id
+  vpn_gateway_id            = module.vhub2.vpngw.id
   remote_vpn_site_id        = azurerm_vpn_site.vhub2_site_branch3.id
   internet_security_enabled = true
 
@@ -283,9 +279,9 @@ resource "azurerm_vpn_gateway_connection" "vhub2_site_branch3_conn" {
     vpn_site_link_id = azurerm_vpn_site.vhub2_site_branch3.link[0].id
   }
 
-  # only enable routing if routing intent is not used
+  # disable routing when routing intent is used
   dynamic "routing" {
-    for_each = local.vhub2_features.security.use_routing_intent ? [] : [1]
+    for_each = local.vhub2_features.security.enable_routing_intent ? [] : [1]
     content {
       associated_route_table = module.vhub2.virtual_hub.default_route_table_id
       propagated_route_table {
@@ -316,9 +312,9 @@ resource "azurerm_virtual_hub_connection" "spoke4_vnet_conn" {
   remote_virtual_network_id = module.spoke4.vnet.id
   internet_security_enabled = true
 
-  # only enable routing if routing intent is not used
+  # disable routing when routing intent is used
   dynamic "routing" {
-    for_each = local.vhub2_features.security.use_routing_intent ? [] : [1]
+    for_each = local.vhub2_features.security.enable_routing_intent ? [] : [1]
     content {
       associated_route_table_id = data.azurerm_virtual_hub_route_table.vhub2_default.id
       propagated_route_table {
@@ -353,9 +349,9 @@ resource "azurerm_virtual_hub_connection" "hub2_vnet_conn" {
   remote_virtual_network_id = module.hub2.vnet.id
   internet_security_enabled = false
 
-  # only enable routing if routing intent is not used
+  # disable routing when routing intent is used
   dynamic "routing" {
-    for_each = local.vhub2_features.security.use_routing_intent ? [] : [1]
+    for_each = local.vhub2_features.security.enable_routing_intent ? [] : [1]
     content {
       associated_route_table_id = data.azurerm_virtual_hub_route_table.vhub2_default.id
       propagated_route_table {
@@ -395,7 +391,7 @@ locals {
 }
 
 resource "azurerm_virtual_hub_route_table_route" "vhub2_default_rt_static_routes" {
-  for_each          = local.vhub2_features.security.enable_firewall ? local.vhub2_default_rt_static_routes : {}
+  for_each          = local.vhub2_features.security.create_firewall ? local.vhub2_default_rt_static_routes : {}
   route_table_id    = data.azurerm_virtual_hub_route_table.vhub2_default.id
   name              = each.key
   destinations_type = "CIDR"
@@ -406,7 +402,7 @@ resource "azurerm_virtual_hub_route_table_route" "vhub2_default_rt_static_routes
 }
 
 resource "azurerm_virtual_hub_route_table_route" "vhub2_custom_rt_static_routes" {
-  for_each          = local.vhub2_features.security.enable_firewall ? local.vhub2_custom_rt_static_routes : {}
+  for_each          = local.vhub2_features.security.create_firewall ? local.vhub2_custom_rt_static_routes : {}
   route_table_id    = azurerm_virtual_hub_route_table.vhub2_custom[0].id
   name              = each.key
   destinations_type = "CIDR"

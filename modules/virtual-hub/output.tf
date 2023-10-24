@@ -1,21 +1,21 @@
 
-output "vpn_gateway" {
+output "vpngw" {
   value = azurerm_vpn_gateway.this[0]
 }
 
-output "vpn_gateway_public_ip0" {
+output "vpngw_public_ip0" {
   value = try(tolist(azurerm_vpn_gateway.this[0].bgp_settings[0].instance_0_bgp_peering_address[0].tunnel_ips)[1], {})
 }
 
-output "vpn_gateway_public_ip1" {
+output "vpngw_public_ip1" {
   value = try(tolist(azurerm_vpn_gateway.this[0].bgp_settings[0].instance_1_bgp_peering_address[0].tunnel_ips)[1], {})
 }
 
-output "vpn_gateway_bgp_ip0" {
+output "vpngw_bgp_ip0" {
   value = try(tolist(azurerm_vpn_gateway.this[0].bgp_settings[0].instance_0_bgp_peering_address[0].default_ips)[0], {})
 }
 
-output "vpn_gateway_bgp_ip1" {
+output "vpngw_bgp_ip1" {
   value = try(tolist(azurerm_vpn_gateway.this[0].bgp_settings[0].instance_1_bgp_peering_address[0].default_ips)[0], {})
 }
 

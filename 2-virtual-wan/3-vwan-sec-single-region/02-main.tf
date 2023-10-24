@@ -46,7 +46,7 @@ locals {
     enable_vpn_gateway          = false
     enable_er_gateway           = false
 
-    enable_firewall    = false
+    create_firewall    = false
     firewall_sku       = local.firewall_sku
     firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
   }
@@ -57,10 +57,10 @@ locals {
     enable_p2s_vpn_gateway = false
 
     security = {
-      enable_firewall    = true
-      use_routing_intent = true
-      firewall_sku       = local.firewall_sku
-      firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
+      create_firewall       = true
+      enable_routing_intent = true
+      firewall_sku          = local.firewall_sku
+      firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region1"].id
     }
   }
 }

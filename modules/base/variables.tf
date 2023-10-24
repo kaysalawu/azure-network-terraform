@@ -101,7 +101,7 @@ variable "vnet_config" {
     private_dns_inbound_subnet_name  = optional(string, null)
     private_dns_outbound_subnet_name = optional(string, null)
 
-    enable_firewall    = optional(bool, false)
+    create_firewall    = optional(bool, false)
     firewall_sku       = optional(string, "Basic")
     firewall_policy_id = optional(string, null)
 

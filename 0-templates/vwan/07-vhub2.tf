@@ -1,7 +1,11 @@
 
+####################################################
+# virtual hub
+####################################################
+
 module "vhub2" {
   source         = "../../modules/virtual-hub"
-  prefix         = local.vhub2_prefix
+  prefix         = trimsuffix(local.prefix, "-")
   resource_group = azurerm_resource_group.rg.name
   location       = local.vhub2_location
   virtual_wan_id = azurerm_virtual_wan.vwan.id
@@ -14,6 +18,9 @@ module "vhub2" {
   enable_s2s_vpn_gateway = local.vhub2_features.enable_s2s_vpn_gateway
   enable_p2s_vpn_gateway = local.vhub2_features.enable_p2s_vpn_gateway
 
+  enable_routing_intent = local.vhub2_features.security.enable_routing_intent
+  routing_policies      = local.vhub2_features.security.routing_policies
+
   bgp_config = [
     {
       asn                   = local.vhub2_bgp_asn
@@ -24,7 +31,7 @@ module "vhub2" {
 
   security_config = [
     {
-      enable_firewall    = local.vhub2_features.security.enable_firewall
+      create_firewall    = local.vhub2_features.security.create_firewall
       firewall_sku       = local.vhub2_features.security.firewall_sku
       firewall_policy_id = local.vhub2_features.security.firewall_policy_id
     }
@@ -46,7 +53,7 @@ data "azurerm_virtual_hub_route_table" "vhub2_none" {
 }
 
 resource "azurerm_virtual_hub_route_table" "vhub2_custom" {
-  count          = local.vhub2_features.security.use_routing_intent ? 0 : 1
+  count          = local.vhub2_features.security.enable_routing_intent ? 0 : 1
   name           = "custom"
   virtual_hub_id = module.vhub2.virtual_hub.id
   labels         = ["custom"]

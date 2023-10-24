@@ -52,7 +52,7 @@ variable "bgp_config" {
 
 variable "security_config" {
   type = list(object({
-    enable_firewall    = optional(bool, false)
+    create_firewall    = optional(bool, false)
     firewall_sku       = optional(string, "Basic")
     firewall_policy_id = optional(string, null)
   }))
@@ -75,4 +75,31 @@ variable "enable_er_gateway" {
   description = "Enable ExpressRoute gateway"
   type        = bool
   default     = false
+}
+
+variable "hub_routing_preference" {
+  description = "Hub routing preference: ExpressRoute | ASPath | VpnGateway"
+  type        = string
+  default     = "ASPath"
+}
+
+variable "sku" {
+  description = "SKU of the virtual hub: Basic | Standard"
+  type        = string
+  default     = "Standard"
+}
+
+variable "enable_routing_intent" {
+  description = "Enable routing intent"
+  type        = bool
+  default     = false
+}
+
+variable "routing_policies" {
+  type = map(object({
+    name         = string
+    destinations = list(string)
+    next_hop     = string
+  }))
+  default = {}
 }

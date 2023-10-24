@@ -40,7 +40,7 @@ module "hub1" {
       enable_ergw                 = true
       enable_vpngw                = true
       enable_ars                  = false
-      enable_firewall             = true
+      create_firewall             = true
 
       vpngw_config = [{ asn = local.hub1_vpngw_asn }]
       firewall_config = [

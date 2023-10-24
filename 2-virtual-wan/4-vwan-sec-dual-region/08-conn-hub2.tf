@@ -1,0 +1,1 @@
+../../0-templates/vwan/08-conn-hub2.tf

@@ -1,11 +1,3 @@
-locals {
-  hub2_vpngw_bgp_asn = module.hub2.vpngw.bgp_settings[0].asn
-  hub2_vpngw_bgp_ip0 = module.hub2.vpngw.bgp_settings[0].peering_addresses[0].default_addresses[0]
-  hub2_vpngw_bgp_ip1 = module.hub2.vpngw.bgp_settings[0].peering_addresses[1].default_addresses[0]
-  hub2_ars_bgp0      = tolist(module.hub2.ars.virtual_router_ips)[0]
-  hub2_ars_bgp1      = tolist(module.hub2.ars.virtual_router_ips)[1]
-  hub2_ars_bgp_asn   = module.hub2.ars.virtual_router_asn
-}
 
 ####################################################
 # spoke4
@@ -221,7 +213,6 @@ module "hub2_nva" {
   admin_username       = local.username
   admin_password       = local.password
   custom_data          = base64encode(local.hub2_cisco_nva_init)
-  depends_on           = [module.hub2, ]
 }
 
 # udr

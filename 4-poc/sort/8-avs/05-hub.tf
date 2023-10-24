@@ -44,7 +44,7 @@ module "hub" {
       enable_ergw                 = true
       enable_vpngw                = false
       enable_ars                  = true
-      enable_firewall             = false
+      create_firewall             = false
 
       vpngw_config = [
         {

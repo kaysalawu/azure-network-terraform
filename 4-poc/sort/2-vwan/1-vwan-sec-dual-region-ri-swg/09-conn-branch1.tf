@@ -57,8 +57,8 @@ locals {
 
     STATIC_ROUTES = [
       { network = "0.0.0.0", mask = "0.0.0.0", next_hop = local.branch1_ext_default_gw },
-      { network = local.vhub1_vpngw_bgp_ip0, mask = "255.255.255.255", next_hop = "Tunnel0" },
-      { network = local.vhub1_vpngw_bgp_ip1, mask = "255.255.255.255", next_hop = "Tunnel1" },
+      { network = disable routing when routing intent is used_bgp_ip0, mask = "255.255.255.255", next_hop = "Tunnel0" },
+      { network = disable routing when routing intent is used_bgp_ip1, mask = "255.255.255.255", next_hop = "Tunnel1" },
       {
         network  = cidrhost(local.branch1_subnets["${local.branch1_prefix}main"].address_prefixes[0], 0)
         mask     = cidrnetmask(local.branch1_subnets["${local.branch1_prefix}main"].address_prefixes[0])
@@ -69,14 +69,14 @@ locals {
     BGP_SESSIONS = [
       {
         peer_asn        = local.vhub1_bgp_asn,
-        peer_ip         = local.vhub1_vpngw_bgp_ip0,
+        peer_ip         = disable routing when routing intent is used_bgp_ip0,
         source_loopback = true
         ebgp_multihop   = true
         route_map       = {}
       },
       {
         peer_asn        = local.vhub1_bgp_asn
-        peer_ip         = local.vhub1_vpngw_bgp_ip1
+        peer_ip         = disable routing when routing intent is used_bgp_ip1
         source_loopback = true
         ebgp_multihop   = true
         route_map       = {}

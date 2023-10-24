@@ -49,9 +49,6 @@ module "branch3_dns" {
   custom_data      = base64encode(local.branch_unbound_startup)
   storage_account  = module.common.storage_accounts["region2"]
   tags             = local.branch3_tags
-  depends_on = [
-    module.branch3,
-  ]
 }
 
 # workload
@@ -72,7 +69,7 @@ module "branch3_vm" {
   storage_account  = module.common.storage_accounts["region2"]
   tags             = local.branch3_tags
   depends_on = [
+    module.branch3,
     module.branch3_dns,
-    module.branch3_nva,
   ]
 }

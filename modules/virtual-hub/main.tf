@@ -14,15 +14,32 @@ locals {
 #----------------------------
 
 resource "azurerm_virtual_hub" "this" {
-  resource_group_name = var.resource_group
-  name                = "${local.prefix}hub"
-  location            = var.location
-  virtual_wan_id      = var.virtual_wan_id
-  address_prefix      = var.address_prefix
+  resource_group_name    = var.resource_group
+  name                   = "${local.prefix}hub"
+  location               = var.location
+  virtual_wan_id         = var.virtual_wan_id
+  address_prefix         = var.address_prefix
+  sku                    = var.sku
+  hub_routing_preference = var.hub_routing_preference
   timeouts {
     create = "60m"
   }
 }
+
+/* resource "azurerm_virtual_hub_routing_intent" "this" {
+  count          = var.enable_hub_routing_intent ? 1 : 0
+  name           = "${local.prefix}hub-ri-policy"
+  virtual_hub_id = azurerm_virtual_hub.example.id
+
+  dynamic "routing_policy" {
+    for_each = var.routing_policies
+    content {
+      name         = routing_policy.value.name
+      destinations = routing_policy.value.destinations
+      next_hop     = routing_policy.value.next_hop
+    }
+  }
+} */
 
 # vpngw
 #----------------------------
@@ -59,7 +76,7 @@ resource "random_id" "azfw" {
 }
 
 resource "azurerm_firewall" "this" {
-  count               = var.security_config[0].enable_firewall ? 1 : 0
+  count               = var.security_config[0].create_firewall ? 1 : 0
   resource_group_name = var.resource_group
   name                = "${local.prefix}azfw-${random_id.azfw.hex}"
   location            = var.location
@@ -78,12 +95,12 @@ resource "azurerm_firewall" "this" {
 # diagnostic setting
 
 resource "random_id" "diag" {
-  count       = var.security_config[0].enable_firewall ? 1 : 0
+  count       = var.security_config[0].create_firewall ? 1 : 0
   byte_length = 4
 }
 
 resource "azurerm_monitor_diagnostic_setting" "this" {
-  count                      = var.security_config[0].enable_firewall ? 1 : 0
+  count                      = var.security_config[0].create_firewall ? 1 : 0
   name                       = "${local.prefix}azfw-diag-${random_id.diag[count.index].hex}"
   target_resource_id         = azurerm_firewall.this[0].id
   log_analytics_workspace_id = var.log_analytics_workspace_id

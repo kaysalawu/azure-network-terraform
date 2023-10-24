@@ -79,7 +79,7 @@ locals {
     enable_vpn_gateway          = true
     enable_er_gateway           = false
 
-    enable_firewall    = false
+    create_firewall    = false
     firewall_sku       = local.firewall_sku
     firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
   }
@@ -90,7 +90,7 @@ locals {
     enable_vpn_gateway          = true
     enable_er_gateway           = false
 
-    enable_firewall    = false
+    create_firewall    = false
     firewall_sku       = local.firewall_sku
     firewall_policy_id = azurerm_firewall_policy.firewall_policy["region2"].id
   }

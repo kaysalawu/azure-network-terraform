@@ -211,35 +211,3 @@ resource "azurerm_private_endpoint" "hub1_spoke3_apps_pep" {
     private_dns_zone_ids = [azurerm_private_dns_zone.privatelink_appservice.id]
   }
 }
-
-# storage account
-#----------------------------
-
-resource "azurerm_storage_account" "spoke3_sa" {
-  resource_group_name      = azurerm_resource_group.rg.name
-  name                     = lower(replace(("${local.spoke3_prefix}sa${random_id.services_region1.hex}"), "-", ""))
-  location                 = local.spoke3_location
-  account_replication_type = "LRS"
-  account_tier             = "Standard"
-}
-
-# private endpoint
-
-resource "azurerm_private_endpoint" "hub1_spoke3_blob_pep" {
-  resource_group_name = azurerm_resource_group.rg.name
-  name                = "${local.hub1_prefix}spoke3-blob-pep"
-  location            = local.hub1_location
-  subnet_id           = module.hub1.subnets["${local.hub1_prefix}pep"].id
-
-  private_service_connection {
-    name                           = "${local.hub1_prefix}spoke3-blob-svc-conn"
-    private_connection_resource_id = azurerm_storage_account.spoke3_sa.id
-    is_manual_connection           = false
-    subresource_names              = ["blob"]
-  }
-
-  private_dns_zone_group {
-    name                 = "${local.hub1_prefix}spoke3-blob-zg"
-    private_dns_zone_ids = [azurerm_private_dns_zone.privatelink_blob.id]
-  }
-}

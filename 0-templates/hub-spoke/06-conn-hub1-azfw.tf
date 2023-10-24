@@ -1,9 +1,3 @@
-locals {
-  hub1_vpngw_bgp_asn = module.hub1.vpngw.bgp_settings[0].asn
-  hub1_vpngw_bgp_ip0 = module.hub1.vpngw.bgp_settings[0].peering_addresses[0].default_addresses[0]
-  hub1_vpngw_bgp_ip1 = module.hub1.vpngw.bgp_settings[0].peering_addresses[1].default_addresses[0]
-  hub1_firewall_ip   = module.hub1.firewall.ip_configuration[0].private_ip_address
-}
 
 ####################################################
 # spoke1
@@ -55,7 +49,7 @@ module "spoke1_udr_main" {
   location               = local.spoke1_location
   subnet_id              = module.spoke1.subnets["${local.spoke1_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub1_firewall_ip
+  next_hop_in_ip_address = module.hub1.firewall_private_ip
 
   destinations = merge(
     local.default_udr_destinations,
@@ -115,7 +109,7 @@ module "spoke2_udr_main" {
   location               = local.spoke2_location
   subnet_id              = module.spoke2.subnets["${local.spoke2_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub1_firewall_ip
+  next_hop_in_ip_address = module.hub1.firewall_private_ip
 
   destinations = merge(
     local.default_udr_destinations,
@@ -142,7 +136,7 @@ module "hub1_udr_gateway" {
   location               = local.hub1_location
   subnet_id              = module.hub1.subnets["GatewaySubnet"].id
   next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub1_firewall_ip
+  next_hop_in_ip_address = module.hub1.firewall_private_ip
   destinations           = local.hub1_gateway_udr_destinations
   depends_on             = [module.hub1, ]
 }
@@ -156,7 +150,7 @@ module "hub1_udr_main" {
   location               = local.hub1_location
   subnet_id              = module.hub1.subnets["${local.hub1_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub1_firewall_ip
+  next_hop_in_ip_address = module.hub1.firewall_private_ip
 
   destinations = merge(
     local.default_udr_destinations,

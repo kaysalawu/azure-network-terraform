@@ -19,7 +19,7 @@ module "spoke4_udr_main" {
   location               = local.spoke4_location
   subnet_id              = module.spoke4.subnets["${local.spoke4_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub2_firewall_ip
+  next_hop_in_ip_address = module.hub2.firewall_private_ip
   destinations           = local.main_udr_destinations
   depends_on             = [module.hub2]
 }
@@ -38,7 +38,7 @@ module "spoke5_udr_main" {
   location               = local.spoke5_location
   subnet_id              = module.spoke5.subnets["${local.spoke5_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub2_firewall_ip
+  next_hop_in_ip_address = module.hub2.firewall_private_ip
   destinations           = local.main_udr_destinations
   depends_on             = [module.hub2]
 }
@@ -56,7 +56,7 @@ module "hub2_udr_gateway" {
   location               = local.hub2_location
   subnet_id              = module.hub2.subnets["GatewaySubnet"].id
   next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub2_firewall_ip
+  next_hop_in_ip_address = module.hub2.firewall_private_ip
   destinations           = local.hub2_gateway_udr_destinations
   depends_on             = [module.hub2, ]
 }
@@ -68,7 +68,7 @@ module "hub2_udr_main" {
   location               = local.hub2_location
   subnet_id              = module.hub2.subnets["${local.hub2_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub2_firewall_ip
+  next_hop_in_ip_address = module.hub2.firewall_private_ip
   destinations           = local.main_udr_destinations
   depends_on             = [module.hub2, ]
 }

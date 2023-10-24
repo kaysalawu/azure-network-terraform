@@ -61,7 +61,7 @@ module "hub1_udr_appliance" {
   location               = local.hub1_location
   subnet_id              = module.hub1.subnets["AzureFirewallSubnet"].id
   next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub2_firewall_ip
+  next_hop_in_ip_address = module.hub2.firewall_private_ip
   destinations           = local.hub1_appliance_udr_destinations
   depends_on             = [module.hub1, ]
 }
@@ -75,7 +75,7 @@ module "hub2_udr_applicance" {
   location               = local.hub2_location
   subnet_id              = module.hub2.subnets["AzureFirewallSubnet"].id
   next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub1_firewall_ip
+  next_hop_in_ip_address = module.hub1.firewall_private_ip
   destinations           = local.hub2_appliance_udr_destinations
   depends_on             = [module.hub2, ]
 }
