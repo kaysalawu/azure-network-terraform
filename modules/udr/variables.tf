@@ -7,6 +7,12 @@ variable "prefix" {
   type = string
 }
 
+variable "tags" {
+  description = "A map of tags to apply to all resources"
+  type        = map(any)
+  default     = {}
+}
+
 variable "location" {
   type = string
 }
@@ -16,8 +22,8 @@ variable "subnet_id" {
 }
 
 variable "destinations" {
-  type    = set(string)
-  default = []
+  type    = map(any)
+  default = {}
 }
 
 variable "next_hop_type" {
@@ -28,4 +34,15 @@ variable "next_hop_type" {
 variable "next_hop_in_ip_address" {
   type    = string
   default = null
+}
+
+variable "disable_bgp_route_propagation" {
+  type    = bool
+  default = false
+}
+
+variable "delay_creation" {
+  description = "delay creation of vm by sepcified seconds"
+  type        = string
+  default     = "0s"
 }

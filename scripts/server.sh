@@ -1,9 +1,9 @@
 #! /bin/bash
 
 apt update
-apt install -y python3-pip python3-dev tcpdump dnsutils traceroute net-tools
+apt install -y python3-pip python3-dev tcpdump dnsutils net-tools
 
-# web server
+# web server #
 pip3 install Flask requests
 
 mkdir /var/flaskapp
@@ -21,10 +21,10 @@ def default():
     hostname = socket.gethostname()
     address = socket.gethostbyname(hostname)
     data_dict = {}
-    data_dict['hostname'] = hostname
-    data_dict['local-ip'] = address
-    data_dict['remote-ip'] = request.remote_addr
-    data_dict['headers'] = dict(request.headers)
+    data_dict['Hostname'] = hostname
+    data_dict['Local-IP'] = address
+    data_dict['Remote-IP'] = request.remote_addr
+    data_dict['Headers'] = dict(request.headers)
     return data_dict
 
 @app.route("/path1")
@@ -33,10 +33,10 @@ def path1():
     address = socket.gethostbyname(hostname)
     data_dict = {}
     data_dict['app'] = 'PATH1-APP'
-    data_dict['hostname'] = hostname
-    data_dict['local-ip'] = address
-    data_dict['remote-ip'] = request.remote_addr
-    data_dict['headers'] = dict(request.headers)
+    data_dict['Hostname'] = hostname
+    data_dict['Local-IP'] = address
+    data_dict['Remote-IP'] = request.remote_addr
+    data_dict['Headers'] = dict(request.headers)
     return data_dict
 
 @app.route("/path2")
@@ -45,10 +45,10 @@ def path2():
     address = socket.gethostbyname(hostname)
     data_dict = {}
     data_dict['app'] = 'PATH2-APP'
-    data_dict['hostname'] = hostname
-    data_dict['local-ip'] = address
-    data_dict['remote-ip'] = request.remote_addr
-    data_dict['headers'] = dict(request.headers)
+    data_dict['Hostname'] = hostname
+    data_dict['Local-IP'] = address
+    data_dict['Remote-IP'] = request.remote_addr
+    data_dict['Headers'] = dict(request.headers)
     return data_dict
 
 if __name__ == "__main__":
@@ -87,7 +87,7 @@ echo -e "\n ping dns ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.ping, true) ~}
 %{~ if try(target.ip, "") != "" ~}
-echo "${target.dns} - \$(dig +short ${target.dns} | tail -n1) -\$(timeout 3 ping -qc2 -W1 ${target.dns} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "${target.dns} - \$(timeout 3 dig +short ${target.dns} | tail -n1) -\$(timeout 3 ping -qc2 -W1 ${target.dns} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 %{ endif ~}
 %{ endif ~}
 %{ endfor ~}

@@ -1,4 +1,8 @@
 
+locals {
+  name = var.name == "" ? "" : join("-", [var.name, ""])
+}
+
 # interface
 
 resource "azurerm_network_interface" "this" {

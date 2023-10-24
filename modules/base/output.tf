@@ -7,7 +7,7 @@ output "subnets" {
   value = azurerm_subnet.this
 }
 
-output "vm" {
+/* output "vm" {
   value = { for k, v in module.vm : k => v.vm }
 }
 
@@ -17,6 +17,10 @@ output "vm_interface" {
 
 output "vm_public_ip" {
   value = { for k, v in module.vm : k => v.vm.public_ip_address }
+} */
+
+output "private_dns_zone" {
+  value = try(azurerm_private_dns_zone.this[0], {})
 }
 
 output "private_dns_inbound_ep" {
@@ -27,7 +31,7 @@ output "private_dns_outbound_ep" {
   value = try(azurerm_private_dns_resolver_outbound_endpoint.this[0], {})
 }
 
-output "ars_ublic_pip" {
+output "ars_public_pip" {
   value = try(azurerm_public_ip.ars_pip[0], {})
 }
 
@@ -47,6 +51,18 @@ output "ars" {
   value = try(azurerm_route_server.ars[0], {})
 }
 
+output "ars_bgp_asn" {
+  value = try(azurerm_route_server.ars[0].virtual_router_asn, {})
+}
+
+output "ars_bgp_ip1" {
+  value = try(tolist(azurerm_route_server.ars[0].virtual_router_ips)[0], {})
+}
+
+output "ars_bgp_ip2" {
+  value = try(tolist(azurerm_route_server.ars[0].virtual_router_ips)[1], {})
+}
+
 output "ergw" {
   value = try(azurerm_virtual_network_gateway.ergw[0], {})
 }
@@ -55,6 +71,26 @@ output "vpngw" {
   value = try(azurerm_virtual_network_gateway.vpngw[0], {})
 }
 
+output "vpngw_bgp_asn" {
+  value = try(azurerm_virtual_network_gateway.vpngw[0].bgp_settings[0].asn, {})
+}
+
+output "vpngw_bgp_ip0" {
+  value = try(azurerm_virtual_network_gateway.vpngw[0].bgp_settings[0].peering_addresses[0].default_addresses[0], {})
+}
+
+output "vpngw_bgp_ip1" {
+  value = try(azurerm_virtual_network_gateway.vpngw[0].bgp_settings[0].peering_addresses[1].default_addresses[0], {})
+}
+
 output "firewall" {
   value = try(azurerm_firewall.azfw[0], {})
+}
+
+output "firewall_public_ip" {
+  value = try(azurerm_public_ip.fw_pip[0], null)
+}
+
+output "firewall_private_ip" {
+  value = try(azurerm_firewall.azfw[0].ip_configuration[0].private_ip_address, {})
 }

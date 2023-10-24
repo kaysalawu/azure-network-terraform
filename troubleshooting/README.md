@@ -8,6 +8,7 @@ Errors
 - [4. Backend Adress Pool - "Error Updating"](#4-backend-adress-pool---error-updating)
 - [5. Azure Firewall Diagnostic Setting - "Already Exists"](#5-azure-firewall-diagnostic-setting---already-exists)
 - [6. Virtual Machine Extension - "Already Exists"](#6-virtual-machine-extension---already-exists)
+- [7. Azure Policy Assignment - "Already Exists"](#7-azure-policy-assignment---already-exists)
 
 Terraform seializes some resource creation which creates situations where some resources wait for a long time for dependent resources to be created. There are scenarios where you might encounter errors after running terraform to deploy any of the labs. This could be as a result of occassional race conditions that come up because some terraform resources are dependent on Azure resources that take a long time to deploy - such as virtual network gateways.
 
@@ -42,6 +43,8 @@ terraform plam
 terraform apply
 ```
 
+Repeat the above steps for all similar errors.
+
 ## 2. Network Security Group - "Already Exists"
 
 This occurs when terraform is trying to apply an NSG rule to a subnet which already has the NSG associated with the subnet from the previous terraform run.
@@ -55,9 +58,6 @@ This occurs when terraform is trying to apply an NSG rule to a subnet which alre
 │   with module.hub2.azurerm_subnet_network_security_group_association.this["main"],
 │   on ../../modules/base/main.tf line 19, in resource "azurerm_subnet_network_security_group_association" "this":
 │   19: resource "azurerm_subnet_network_security_group_association" "this" {
-│
-╵
- Error encountered!!!
 ```
 
 **Solution:**
@@ -75,6 +75,9 @@ Re-apply terraform
 terraform plan
 terraform apply
 ```
+
+Repeat the above steps for all similar errors.
+
 ## 3. Subnet - "Already Exists"
 
 This occurs when terraform is attempting to create a subnet which already exists from a previous terraform run.
@@ -98,6 +101,8 @@ terraform plan
 terraform apply
 ```
 
+Repeat the above steps for all similar errors.
+
 ## 4. Backend Adress Pool - "Error Updating"
 
 This error could occur when terraform is trying to update the backend address pool of a load balancer. This could be as a result of the load balancer being in a state of updating from a previous terraform run, or as a result of race condition encountered when deploying multiple terraform resources at the same time.
@@ -115,8 +120,6 @@ This error could occur when terraform is trying to update the backend address po
 │ network.LoadBalancerBackendAddressPoolsClient#CreateOrUpdate: Failure sending request: StatusCode=409 -- Original Error: Code="AnotherOperationInProgress" Message="Another operation on this or dependent resource is in
 │ progress. To retrieve status of the operation use uri:
 │ https://management.azure.com/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/providers/Microsoft.Network/locations/westeurope/operations/5d66a0e0-e08b-4ecf-aee5-0ff5a461962b?api-version=2022-07-01." Details=[]
-
- Error encountered!!!
  ```
 
  **Solution:**
@@ -126,6 +129,8 @@ Re-apply terraform
 terraform plan
 terraform apply
 ```
+
+Repeat the above steps for all similar errors.
 
 ## 5. Azure Firewall Diagnostic Setting - "Already Exists"
 
@@ -139,9 +144,6 @@ This error could occur when terraform is trying to create a diagnostic setting f
 │   with module.vhub2.azurerm_monitor_diagnostic_setting.this[0],
 │   on ../../modules/virtual-hub/main.tf line 74, in resource "azurerm_monitor_diagnostic_setting" "this":
 │   74: resource "azurerm_monitor_diagnostic_setting" "this" {
-│
-╵
- Error encountered!!!
  ```
 
  **Solution 1:**
@@ -193,9 +195,6 @@ This error could occur when terraform is trying to create a virtual machine exte
 │   with module.branch1.module.vm["dns"].azurerm_virtual_machine_extension.this[0],
 │   on ../../modules/linux/main.tf line 93, in resource "azurerm_virtual_machine_extension" "this":
 │   93: resource "azurerm_virtual_machine_extension" "this" {
-│
-╵
- Error encountered!!!
 ```
 
  **Solution:**
@@ -214,3 +213,48 @@ This error could occur when terraform is trying to create a virtual machine exte
   terraform plan
   terraform apply
   ```
+
+  Repeat the above steps for all similar errors.
+
+  ## 7. Azure Policy Assignment - "Already Exists"
+
+This error could occur when terraform is trying to create an Azure policy assignment. This could be as a result of the policy asignment already existing from a previous terraform run, or as a result of race condition encountered when deploying multiple terraform resources at the same time.
+
+**Example:**
+
+```sh
+Error: A resource with the ID "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/providers/Microsoft.Authorization/policyAssignments/Ne31-ng-spokes-prod-region1" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_subscription_policy_assignment" for more information.
+│
+│   with azurerm_subscription_policy_assignment.ng_spokes_prod_region1,
+│   on svc-nm-common.tf line 57, in resource "azurerm_subscription_policy_assignment" "ng_spokes_prod_region1":
+│   57: resource "azurerm_subscription_policy_assignment" "ng_spokes_prod_region1" {
+│
+│ A resource with the ID
+│ "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/providers/Microsoft.Authorization/policyAssignments/Ne31-ng-spokes-prod-region1"
+│ already exists - to be managed via Terraform this resource needs to be imported into the
+│ State. Please see the resource documentation for "azurerm_subscription_policy_assignment"
+│ for more information.
+```
+
+ **Solution:**
+
+ Delete the policy assignment using azure CLI and re-apply terraform.
+
+  1. Run the command below to delete the policy assignment. Substitute the policy assignment name with the name of the policy assignment in the error message above.
+
+  ```sh
+  az policy assignment delete --name <policy_assignment_name>
+  ```
+
+  In this example, the command will be:
+
+  ```sh
+  az policy assignment delete --name Ne31-ng-spokes-prod-region1
+  ```
+
+  2. Re-apply terraform
+  ```sh
+  terraform plan
+  terraform apply
+  ```
+

@@ -14,12 +14,6 @@ variable "name" {
   type        = string
 }
 
-variable "dns_host" {
-  description = "dns host prefix"
-  type        = string
-  default     = ""
-}
-
 variable "location" {
   description = "vnet region location"
   type        = string
@@ -57,7 +51,7 @@ variable "public_ip" {
 variable "vm_size" {
   description = "size of vm"
   type        = string
-  default     = "Standard_B1s"
+  default     = "Standard_B2s"
 }
 
 variable "ssh_public_key" {
@@ -87,7 +81,7 @@ variable "admin_username" {
 variable "admin_password" {
   description = "private dns zone name"
   type        = string
-  default     = "azureuser"
+  default     = "Password123"
 }
 
 variable "enable_ip_forwarding" {
@@ -120,7 +114,7 @@ variable "private_dns_zone_name" {
   default     = ""
 }
 
-variable "private_dns_prefix" {
+variable "private_dns_zone_prefix" {
   description = "private dns zone prefix"
   type        = string
   default     = ""
@@ -130,13 +124,19 @@ variable "source_image_reference" {
   description = "source image reference"
   type        = map(any)
   default = {
-    "ubuntu" = {
+    "ubuntu-18" = {
+      publisher = "Canonical"
+      offer     = "UbuntuServer"
+      sku       = "18.04-LTS"
+      version   = "latest"
+    }
+    "ubuntu-20" = {
       publisher = "Canonical"
       offer     = "0001-com-ubuntu-server-focal"
       sku       = "20_04-lts"
       version   = "latest"
     }
-    "debian" = {
+    "debian-10" = {
       publisher = "Debian"
       offer     = "debian-10"
       sku       = "10"
@@ -148,7 +148,7 @@ variable "source_image_reference" {
 variable "source_image" {
   description = "source image"
   type        = string
-  default     = "ubuntu"
+  default     = "ubuntu-20"
 }
 
 variable "delay_creation" {

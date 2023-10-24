@@ -17,7 +17,7 @@ variable "location" {
 variable "tags" {
   description = "tags for all hub resources"
   type        = map(any)
-  default     = null
+  default     = {}
 }
 
 variable "nat_ip_config" {

@@ -184,3 +184,12 @@ echo -e "${target.name}\n"
 %{ endfor ~}
 EOF
 chmod a+x /usr/local/bin/trace-ip
+
+# dns-info
+
+cat <<EOF > /usr/local/bin/dns-info
+echo -e "\n resolvectl ...\n"
+resolvectl status
+EOF
+chmod a+x /usr/local/bin/dns-info
+

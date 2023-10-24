@@ -1,6 +1,6 @@
 
 locals {
-  prefix = var.prefix == "" ? "" : join("-", [var.prefix, ""])
+  prefix = var.prefix == "" ? "" : format("%s-", var.prefix)
 }
 
 resource "azurerm_firewall_policy_rule_collection_group" "this" {

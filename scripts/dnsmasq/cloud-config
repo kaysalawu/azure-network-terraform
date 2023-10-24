@@ -1,0 +1,14 @@
+#cloud-config
+
+package_update: true
+packages:
+  - dnsmasq
+  - dnsutils
+  - net-tools
+
+runcmd:
+  - systemctl restart dnsmasq
+  - systemctl enable dnsmasq
+
+bootcmd:
+ - sleep 120

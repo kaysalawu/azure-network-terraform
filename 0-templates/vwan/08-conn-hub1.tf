@@ -1,13 +1,4 @@
 
-locals {
-  vhub1_router_bgp_ip0   = module.vhub1.router_bgp_ip0
-  vhub1_router_bgp_ip1   = module.vhub1.router_bgp_ip1
-  vhub1_vpngw_public_ip0 = module.vhub1.vpn_gateway_public_ip0
-  vhub1_vpngw_public_ip1 = module.vhub1.vpn_gateway_public_ip1
-  vhub1_vpngw_bgp_ip0    = module.vhub1.vpn_gateway_bgp_ip0
-  vhub1_vpngw_bgp_ip1    = module.vhub1.vpn_gateway_bgp_ip1
-}
-
 ####################################################
 # spoke2
 ####################################################
@@ -42,6 +33,8 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke2_peering" {
 # udr
 #----------------------------
 
+# main
+
 module "spoke2_udr_main" {
   source                 = "../../modules/udr"
   resource_group         = azurerm_resource_group.rg.name
@@ -50,11 +43,14 @@ module "spoke2_udr_main" {
   subnet_id              = module.spoke2.subnets["${local.spoke2_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub1_nva_ilb_addr
-  destinations = concat(
-    ["0.0.0.0/0"],
-    local.main_udr_destinations
+
+  destinations = merge(
+    local.default_udr_destinations,
+    { "hub1" = local.hub1_address_space[0] }
   )
   depends_on = [module.hub1]
+
+  disable_bgp_route_propagation = true
 }
 
 ####################################################
@@ -76,7 +72,7 @@ locals {
     VPN_PSK  = local.psk
   }
   hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
-    TARGETS        = local.vm_script_targets_region1
+    TARGETS        = local.vm_script_targets
     IPTABLES_RULES = []
     ROUTE_MAPS = [
       {
@@ -96,8 +92,8 @@ locals {
         INTERFACE = "eth0"
         STATIC_ROUTES = [
           { prefix = "0.0.0.0/0", next_hop = local.hub1_default_gw_nva },
-          { prefix = "${local.vhub1_router_bgp_ip0}/32", next_hop = local.hub1_default_gw_nva },
-          { prefix = "${local.vhub1_router_bgp_ip1}/32", next_hop = local.hub1_default_gw_nva },
+          { prefix = "${module.vhub1.router_bgp_ip0}/32", next_hop = local.hub1_default_gw_nva },
+          { prefix = "${module.vhub1.router_bgp_ip1}/32", next_hop = local.hub1_default_gw_nva },
           { prefix = local.spoke2_address_space[0], next_hop = local.hub1_default_gw_nva },
         ]
       }
@@ -108,7 +104,7 @@ locals {
         BGP_SESSIONS = [
           {
             peer_asn      = local.vhub1_bgp_asn
-            peer_ip       = local.vhub1_router_bgp_ip0
+            peer_ip       = module.vhub1.router_bgp_ip0
             ebgp_multihop = true
             route_map = {
               #name      = local.hub1_router_route_map_name_nh
@@ -117,7 +113,7 @@ locals {
           },
           {
             peer_asn      = local.vhub1_bgp_asn
-            peer_ip       = local.vhub1_router_bgp_ip1
+            peer_ip       = module.vhub1.router_bgp_ip1
             ebgp_multihop = true
             route_map = {
               #name      = local.hub1_router_route_map_name_nh
@@ -128,7 +124,7 @@ locals {
         BGP_ADVERTISED_PREFIXES = [
           local.hub1_subnets["${local.hub1_prefix}main"].address_prefixes[0],
           local.spoke2_address_space[0],
-          #"${local.spoke3_vm_public_ip}/32"
+          #"${local.spoke6_vm_public_ip}/32"
         ]
       }
     ))
@@ -146,7 +142,7 @@ module "hub1_nva" {
   private_ip           = local.hub1_nva_addr
   enable_ip_forwarding = true
   enable_public_ip     = true
-  source_image         = "ubuntu"
+  source_image         = "ubuntu-20"
   storage_account      = module.common.storage_accounts["region1"]
   admin_username       = local.username
   admin_password       = local.password
@@ -163,20 +159,15 @@ module "hub1_udr_main" {
   subnet_id              = module.hub1.subnets["${local.hub1_prefix}main"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub1_nva_ilb_addr
-  destinations           = local.main_udr_destinations
-  depends_on             = [module.hub1]
+
+  destinations = merge(
+    local.default_udr_destinations,
+    { "hub1" = local.hub1_address_space[0] }
+  )
+  depends_on = [module.hub1, ]
+
+  disable_bgp_route_propagation = true
 }
-/*
-module "hub1_udr_nva" {
-  source         = "../../modules/udr"
-  resource_group = azurerm_resource_group.rg.name
-  prefix         = "${local.hub1_prefix}nva"
-  location       = local.hub1_location
-  subnet_id      = module.hub1.subnets["${local.hub1_prefix}nva"].id
-  next_hop_type  = "Internet"
-  destinations   = ["${local.spoke3_vm_public_ip}/32", ]
-  depends_on     = [module.hub1]
-}*/
 
 ####################################################
 # internal lb
@@ -271,7 +262,7 @@ resource "azurerm_vpn_site" "vhub1_site_branch1" {
 
 resource "azurerm_vpn_gateway_connection" "vhub1_site_branch1_conn" {
   name                      = "${local.vhub1_prefix}site-branch1-conn"
-  vpn_gateway_id            = module.vhub1.vpn_gateway.id
+  vpn_gateway_id            = module.vhub1.vpngw.id
   remote_vpn_site_id        = azurerm_vpn_site.vhub1_site_branch1.id
   internet_security_enabled = true
 
@@ -282,9 +273,9 @@ resource "azurerm_vpn_gateway_connection" "vhub1_site_branch1_conn" {
     vpn_site_link_id = azurerm_vpn_site.vhub1_site_branch1.link[0].id
   }
 
-  # only enable routing if routing intent is not used
+  # disable routing when routing intent is used
   dynamic "routing" {
-    for_each = local.vhub1_features.security.use_routing_intent ? [] : [1]
+    for_each = local.vhub1_features.security.enable_routing_intent ? [] : [1]
     content {
       associated_route_table = module.vhub1.virtual_hub.default_route_table_id
       propagated_route_table {
@@ -315,9 +306,9 @@ resource "azurerm_virtual_hub_connection" "spoke1_vnet_conn" {
   remote_virtual_network_id = module.spoke1.vnet.id
   internet_security_enabled = true
 
-  # only enable routing if routing intent is not used
+  # disable routing when routing intent is used
   dynamic "routing" {
-    for_each = local.vhub1_features.security.use_routing_intent ? [] : [1]
+    for_each = local.vhub1_features.security.enable_routing_intent ? [] : [1]
     content {
       associated_route_table_id = data.azurerm_virtual_hub_route_table.vhub1_default.id
       propagated_route_table {
@@ -352,9 +343,9 @@ resource "azurerm_virtual_hub_connection" "hub1_vnet_conn" {
   remote_virtual_network_id = module.hub1.vnet.id
   internet_security_enabled = false
 
-  # only enable routing if routing intent is not used
+  # disable routing when routing intent is used
   dynamic "routing" {
-    for_each = local.vhub1_features.security.use_routing_intent ? [] : [1]
+    for_each = local.vhub1_features.security.enable_routing_intent ? [] : [1]
     content {
       associated_route_table_id = data.azurerm_virtual_hub_route_table.vhub1_default.id
       propagated_route_table {
@@ -394,7 +385,7 @@ locals {
 }
 
 resource "azurerm_virtual_hub_route_table_route" "vhub1_default_rt_static_routes" {
-  for_each          = local.vhub1_features.security.enable_firewall ? local.vhub1_default_rt_static_routes : {}
+  for_each          = local.vhub1_features.security.create_firewall ? local.vhub1_default_rt_static_routes : {}
   route_table_id    = data.azurerm_virtual_hub_route_table.vhub1_default.id
   name              = each.key
   destinations_type = "CIDR"
@@ -405,7 +396,7 @@ resource "azurerm_virtual_hub_route_table_route" "vhub1_default_rt_static_routes
 }
 
 resource "azurerm_virtual_hub_route_table_route" "vhub1_custom_rt_static_routes" {
-  for_each          = local.vhub1_features.security.enable_firewall ? local.vhub1_custom_rt_static_routes : {}
+  for_each          = local.vhub1_features.security.create_firewall ? local.vhub1_custom_rt_static_routes : {}
   route_table_id    = azurerm_virtual_hub_route_table.vhub1_custom[0].id
   name              = each.key
   destinations_type = "CIDR"
