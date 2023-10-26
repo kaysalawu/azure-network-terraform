@@ -5,7 +5,7 @@
 
 module "vhub1" {
   source         = "../../modules/virtual-hub"
-  prefix         = trimsuffix(local.prefix, "-")
+  prefix         = trimsuffix(local.hub1_prefix, "-")
   resource_group = azurerm_resource_group.rg.name
   location       = local.vhub1_location
   virtual_wan_id = azurerm_virtual_wan.vwan.id

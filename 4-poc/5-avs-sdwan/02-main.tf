@@ -3,7 +3,7 @@
 ####################################################
 
 locals {
-  prefix = "Vwan24"
+  prefix = "Poc5"
   #my_public_ip = chomp(data.http.my_public_ip.response_body)
 }
 
@@ -41,13 +41,21 @@ locals {
   default_udr_destinations = {
     "default" = "0.0.0.0/0"
   }
+  hub1_appliance_udr_destinations = {}
+  hub2_appliance_udr_destinations = {}
+  hub1_gateway_udr_destinations = {
+    #"private" = "10.0.0.0/8"
+  }
+  hub2_gateway_udr_destinations = {
+    #"private" = "10.0.0.0/8"
+  }
 
   firewall_sku = "Basic"
 
   hub1_features = {
     enable_private_dns_resolver = true
-    enable_ars                  = false
-    enable_vpn_gateway          = false
+    enable_ars                  = true
+    enable_vpn_gateway          = true
     enable_er_gateway           = false
 
     create_firewall    = false
@@ -57,59 +65,13 @@ locals {
 
   hub2_features = {
     enable_private_dns_resolver = true
-    enable_ars                  = false
-    enable_vpn_gateway          = false
+    enable_ars                  = true
+    enable_vpn_gateway          = true
     enable_er_gateway           = false
 
     create_firewall    = false
     firewall_sku       = local.firewall_sku
     firewall_policy_id = azurerm_firewall_policy.firewall_policy["region2"].id
-  }
-
-  vhub1_features = {
-    enable_er_gateway      = false
-    enable_s2s_vpn_gateway = true
-    enable_p2s_vpn_gateway = false
-
-    security = {
-      create_firewall       = true
-      enable_routing_intent = true
-      firewall_sku          = local.firewall_sku
-      firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region1"].id
-      routing_policies = {
-        "internet" = {
-          name         = "InternetTrafficPolicy"
-          destinations = ["Internet"]
-        }
-        "private" = {
-          name         = "PrivateTrafficPolicy"
-          destinations = ["PrivateTraffic"]
-        }
-      }
-    }
-  }
-
-  vhub2_features = {
-    enable_er_gateway      = false
-    enable_s2s_vpn_gateway = true
-    enable_p2s_vpn_gateway = false
-
-    security = {
-      create_firewall       = true
-      enable_routing_intent = true
-      firewall_sku          = local.firewall_sku
-      firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region2"].id
-      routing_policies = {
-        "internet" = {
-          name         = "InternetTrafficPolicy"
-          destinations = ["Internet"]
-        }
-        "private" = {
-          name         = "PrivateTrafficPolicy"
-          destinations = ["PrivateTraffic"]
-        }
-      }
-    }
   }
 }
 
@@ -171,31 +133,23 @@ resource "azurerm_private_dns_zone" "privatelink_appservice" {
 #----------------------------
 
 locals {
-  hub1_nva_asn   = "65010"
-  hub1_vpngw_asn = "65011"
-  hub1_ergw_asn  = "65012"
+  hub1_nva_asn   = "65000"
+  hub1_vpngw_asn = "65515"
+  hub1_ergw_asn  = "65515"
   hub1_ars_asn   = "65515"
 
-  hub2_nva_asn   = "65020"
-  hub2_vpngw_asn = "65021"
-  hub2_ergw_asn  = "65022"
+  hub2_nva_asn   = "65000"
+  hub2_vpngw_asn = "65515"
+  hub2_ergw_asn  = "65515"
   hub2_ars_asn   = "65515"
 
   vm_script_targets_region1 = [
     { name = "branch1", dns = local.branch1_vm_fqdn, ip = local.branch1_vm_addr },
     { name = "hub1   ", dns = local.hub1_vm_fqdn, ip = local.hub1_vm_addr },
-    { name = "hub1-spoke3-pep", dns = local.hub1_spoke3_pep_fqdn, ping = false },
-    { name = "spoke1 ", dns = local.spoke1_vm_fqdn, ip = local.spoke1_vm_addr },
-    { name = "spoke2 ", dns = local.spoke2_vm_fqdn, ip = local.spoke2_vm_addr },
-    { name = "spoke3 ", dns = local.spoke3_vm_fqdn, ip = local.spoke3_vm_addr, ping = false },
   ]
   vm_script_targets_region2 = [
     { name = "branch3", dns = local.branch3_vm_fqdn, ip = local.branch3_vm_addr },
     { name = "hub2   ", dns = local.hub2_vm_fqdn, ip = local.hub2_vm_addr },
-    { name = "hub2-spoke6-pep", dns = local.hub2_spoke6_pep_fqdn, ping = false },
-    { name = "spoke4 ", dns = local.spoke4_vm_fqdn, ip = local.spoke4_vm_addr },
-    { name = "spoke5 ", dns = local.spoke5_vm_fqdn, ip = local.spoke5_vm_addr },
-    { name = "spoke6 ", dns = local.spoke6_vm_fqdn, ip = local.spoke6_vm_addr, ping = false },
   ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ip = "icanhazip.com" },
@@ -235,7 +189,6 @@ locals {
   }
   onprem_local_records = [
     { name = (local.branch1_vm_fqdn), record = local.branch1_vm_addr },
-    { name = (local.branch2_vm_fqdn), record = local.branch2_vm_addr },
     { name = (local.branch3_vm_fqdn), record = local.branch3_vm_addr },
   ]
   onprem_forward_zones = [
@@ -318,8 +271,8 @@ resource "azurerm_firewall_policy" "firewall_policy" {
   private_ip_ranges = concat(
     local.private_prefixes,
     [
-      # "${local.spoke3_vm_public_ip}/32",
-      # "${local.spoke6_vm_public_ip}/32",
+      #"${local.spoke3_vm_public_ip}/32",
+      #"${local.spoke6_vm_public_ip}/32",
     ]
   )
 
@@ -371,4 +324,8 @@ resource "local_file" "main_files" {
   for_each = local.main_files
   filename = each.key
   content  = each.value
+}
+
+output "test" {
+  value = module.hub1.ars_bgp_ip0
 }

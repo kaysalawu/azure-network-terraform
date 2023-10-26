@@ -51,7 +51,7 @@ module "spoke4_vm" {
   dns_servers           = [local.hub2_dns_in_addr, ]
   storage_account       = module.common.storage_accounts["region2"]
   private_dns_zone_name = "spoke4.${local.cloud_domain}"
-  delay_creation        = "90s"
+  delay_creation        = "120s"
   tags                  = local.spoke4_tags
   depends_on = [
     module.hub2,
@@ -110,7 +110,7 @@ module "spoke5_vm" {
   dns_servers           = [local.hub2_dns_in_addr, ]
   storage_account       = module.common.storage_accounts["region2"]
   private_dns_zone_name = "spoke5.${local.cloud_domain}"
-  delay_creation        = "90s"
+  delay_creation        = "120s"
   tags                  = local.spoke5_tags
   depends_on = [
     module.hub2,

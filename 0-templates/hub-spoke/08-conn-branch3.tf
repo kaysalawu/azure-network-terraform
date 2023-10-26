@@ -103,7 +103,7 @@ locals {
 
     BGP_SESSIONS = [
       {
-        peer_asn        = local.hub2_vpngw_bgp_asn,
+        peer_asn        = module.hub2.vpngw_bgp_asn,
         peer_ip         = module.hub2.vpngw_bgp_ip0,
         source_loopback = true
         ebgp_multihop   = true
@@ -113,8 +113,8 @@ locals {
         }
       },
       {
-        peer_asn        = local.hub2_vpngw_bgp_asn
-        peer_ip         = local.hub2_vpngw_bgp_ip1
+        peer_asn        = module.hub2.vpngw_bgp_asn
+        peer_ip         = module.hub2.vpngw_bgp_ip1
         source_loopback = true
         ebgp_multihop   = true
         route_map = {

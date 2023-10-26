@@ -91,8 +91,8 @@ locals {
 
     STATIC_ROUTES = [
       { network = "0.0.0.0", mask = "0.0.0.0", next_hop = local.branch1_ext_default_gw },
-      { network = local.hub1_vpngw_bgp_ip0, mask = "255.255.255.255", next_hop = "Tunnel0" },
-      { network = local.hub1_vpngw_bgp_ip1, mask = "255.255.255.255", next_hop = "Tunnel1" },
+      { network = module.hub1.vpngw_bgp_ip0, mask = "255.255.255.255", next_hop = "Tunnel0" },
+      { network = module.hub1.vpngw_bgp_ip1, mask = "255.255.255.255", next_hop = "Tunnel1" },
       { network = local.branch3_nva_loopback0, mask = "255.255.255.255", next_hop = "Tunnel2" },
       {
         network  = local.branch1_network
@@ -103,8 +103,8 @@ locals {
 
     BGP_SESSIONS = [
       {
-        peer_asn        = local.hub1_vpngw_bgp_asn,
-        peer_ip         = local.hub1_vpngw_bgp_ip0,
+        peer_asn        = module.hub1.vpngw_bgp_asn,
+        peer_ip         = module.hub1.vpngw_bgp_ip0,
         source_loopback = true
         ebgp_multihop   = true
         route_map = {
@@ -113,8 +113,8 @@ locals {
         }
       },
       {
-        peer_asn        = local.hub1_vpngw_bgp_asn
-        peer_ip         = local.hub1_vpngw_bgp_ip1
+        peer_asn        = module.hub1.vpngw_bgp_asn
+        peer_ip         = module.hub1.vpngw_bgp_ip1
         source_loopback = true
         ebgp_multihop   = true
         route_map = {

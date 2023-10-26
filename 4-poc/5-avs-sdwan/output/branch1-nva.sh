@@ -10,17 +10,17 @@ proposal AZURE-IKE-PROPOSAL
 match address local 10.10.1.9
 !
 crypto ikev2 keyring AZURE-KEYRING
-peer 20.103.100.82
-address 20.103.100.82
+peer 20.93.254.101
+address 20.93.254.101
 pre-shared-key changeme
-peer 20.76.183.6
-address 20.76.183.6
+peer 20.93.254.71
+address 20.93.254.71
 pre-shared-key changeme
 !
 crypto ikev2 profile AZURE-IKE-PROPOSAL
 match address local 10.10.1.9
-match identity remote address 20.103.100.82 255.255.255.255
-match identity remote address 20.76.183.6 255.255.255.255
+match identity remote address 20.93.254.101 255.255.255.255
+match identity remote address 20.93.254.71 255.255.255.255
 authentication remote pre-share
 authentication local pre-share
 keyring local AZURE-KEYRING
@@ -40,7 +40,7 @@ ip address 10.10.10.1 255.255.255.252
 tunnel mode ipsec ipv4
 ip tcp adjust-mss 1350
 tunnel source 10.10.1.9
-tunnel destination 20.103.100.82
+tunnel destination 20.93.254.101
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
 interface Tunnel1
@@ -48,29 +48,42 @@ ip address 10.10.10.5 255.255.255.252
 tunnel mode ipsec ipv4
 ip tcp adjust-mss 1350
 tunnel source 10.10.1.9
-tunnel destination 20.76.183.6
+tunnel destination 20.93.254.71
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
 interface Loopback0
 ip address 192.168.10.10 255.255.255.255
 !
+ip access-list extended NAT-ACL
+permit ip 10.10.0.0 0.0.0.255 any
+interface GigabitEthernet2
+ip nat inside
+interface GigabitEthernet1
+ip nat outside
+exit
+ip nat inside source list NAT-ACL interface GigabitEthernet1 overload
+!
 ip route 0.0.0.0 0.0.0.0 10.10.1.1
-ip route 192.168.11.13 255.255.255.255 Tunnel0
-ip route 192.168.11.12 255.255.255.255 Tunnel1
+ip route 10.11.7.4 255.255.255.255 Tunnel0
+ip route 10.11.7.5 255.255.255.255 Tunnel1
 ip route 10.10.0.0 255.255.255.0 10.10.2.1
 !
-route-map NEXT-HOP permit 100
+route-map ONPREM permit 100
 match ip address prefix-list all
 set as-path prepend 65001 65001 65001
+route-map AZURE permit 110
+match ip address prefix-list all
 !
 router bgp 65001
 bgp router-id 192.168.10.10
-neighbor 192.168.11.13 remote-as 65515
-neighbor 192.168.11.13 ebgp-multihop 255
-neighbor 192.168.11.13 soft-reconfiguration inbound
-neighbor 192.168.11.13 update-source Loopback0
-neighbor 192.168.11.12 remote-as 65515
-neighbor 192.168.11.12 ebgp-multihop 255
-neighbor 192.168.11.12 soft-reconfiguration inbound
-neighbor 192.168.11.12 update-source Loopback0
+neighbor 10.11.7.4 remote-as 65515
+neighbor 10.11.7.4 ebgp-multihop 255
+neighbor 10.11.7.4 soft-reconfiguration inbound
+neighbor 10.11.7.4 update-source Loopback0
+neighbor 10.11.7.4 route-map AZURE out
+neighbor 10.11.7.5 remote-as 65515
+neighbor 10.11.7.5 ebgp-multihop 255
+neighbor 10.11.7.5 soft-reconfiguration inbound
+neighbor 10.11.7.5 update-source Loopback0
+neighbor 10.11.7.5 route-map AZURE out
 network 10.10.0.0 mask 255.255.255.0

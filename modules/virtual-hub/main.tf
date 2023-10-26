@@ -26,21 +26,6 @@ resource "azurerm_virtual_hub" "this" {
   }
 }
 
-/* resource "azurerm_virtual_hub_routing_intent" "this" {
-  count          = var.enable_hub_routing_intent ? 1 : 0
-  name           = "${local.prefix}hub-ri-policy"
-  virtual_hub_id = azurerm_virtual_hub.example.id
-
-  dynamic "routing_policy" {
-    for_each = var.routing_policies
-    content {
-      name         = routing_policy.value.name
-      destinations = routing_policy.value.destinations
-      next_hop     = routing_policy.value.next_hop
-    }
-  }
-} */
-
 # vpngw
 #----------------------------
 
@@ -78,7 +63,7 @@ resource "random_id" "azfw" {
 resource "azurerm_firewall" "this" {
   count               = var.security_config[0].create_firewall ? 1 : 0
   resource_group_name = var.resource_group
-  name                = "${local.prefix}azfw-${random_id.azfw.hex}"
+  name                = "${local.prefix}azfw"
   location            = var.location
   sku_tier            = "Standard"
   sku_name            = "AZFW_Hub"
@@ -101,7 +86,7 @@ resource "random_id" "diag" {
 
 resource "azurerm_monitor_diagnostic_setting" "this" {
   count                      = var.security_config[0].create_firewall ? 1 : 0
-  name                       = "${local.prefix}azfw-diag-${random_id.diag[count.index].hex}"
+  name                       = "${local.prefix}azfw-diag-${random_id.diag[0].hex}"
   target_resource_id         = azurerm_firewall.this[0].id
   log_analytics_workspace_id = var.log_analytics_workspace_id
   storage_account_id         = var.storage_account_id
@@ -121,5 +106,23 @@ resource "azurerm_monitor_diagnostic_setting" "this" {
   }
   timeouts {
     create = "60m"
+  }
+}
+
+# routing intent
+#----------------------------
+
+resource "azurerm_virtual_hub_routing_intent" "this" {
+  count          = var.enable_routing_intent ? 1 : 0
+  name           = "${local.prefix}hub-ri-policy"
+  virtual_hub_id = azurerm_virtual_hub.this.id
+
+  dynamic "routing_policy" {
+    for_each = var.routing_policies
+    content {
+      name         = routing_policy.value.name
+      destinations = routing_policy.value.destinations
+      next_hop     = azurerm_firewall.this[0].id
+    }
   }
 }

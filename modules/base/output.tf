@@ -55,12 +55,12 @@ output "ars_bgp_asn" {
   value = try(azurerm_route_server.ars[0].virtual_router_asn, {})
 }
 
-output "ars_bgp_ip1" {
-  value = try(tolist(azurerm_route_server.ars[0].virtual_router_ips)[0], {})
+output "ars_bgp_ip0" {
+  value = try(tolist(azurerm_route_server.ars[0].virtual_router_ips)[0], null)
 }
 
-output "ars_bgp_ip2" {
-  value = try(tolist(azurerm_route_server.ars[0].virtual_router_ips)[1], {})
+output "ars_bgp_ip1" {
+  value = try(tolist(azurerm_route_server.ars[0].virtual_router_ips)[1], null)
 }
 
 output "ergw" {

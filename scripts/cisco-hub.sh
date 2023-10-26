@@ -90,8 +90,10 @@ neighbor ${x.peer_ip} next-hop-self
 %{~ if try(x.source_loopback, false) }
 neighbor ${x.peer_ip} update-source Loopback0
 %{~ endif }
-%{~ if x.route_map != {} }
-neighbor ${x.peer_ip} route-map ${x.route_map.name} ${x.route_map.direction}
+%{~ if x.route_maps != [] }
+%{~ for r in x.route_maps }
+neighbor ${r.peer_ip} route-map ${r.route_map.name} ${r.route_map.direction}
+%{~ endfor }
 %{~ endif }
 %{~ endfor }
 %{~ for net in BGP_ADVERTISED_NETWORKS }

@@ -99,7 +99,5 @@ variable "routing_policies" {
   type = map(object({
     name         = string
     destinations = list(string)
-    next_hop     = string
   }))
-  default = {}
 }
