@@ -93,20 +93,14 @@ locals {
         peer_ip         = module.hub2.vpngw_bgp_ip0,
         source_loopback = true
         ebgp_multihop   = true
-        route_map = {
-          name      = local.branch3_nva_route_map_azure
-          direction = "out"
-        }
+        route_maps      = [{ direction = "out", name = local.branch3_nva_route_map_azure }, ]
       },
       {
         peer_asn        = module.hub2.vpngw_bgp_asn
         peer_ip         = module.hub2.vpngw_bgp_ip1
         source_loopback = true
         ebgp_multihop   = true
-        route_map = {
-          name      = local.branch3_nva_route_map_azure
-          direction = "out"
-        }
+        route_maps      = [{ direction = "out", name = local.branch3_nva_route_map_azure }, ]
       },
     ]
 

@@ -74,7 +74,7 @@ ${y}
 %{~ endfor }
 !
 router bgp ${LOCAL_ASN}
-bgp router-id ${INT_ADDR}
+bgp router-id ${LOOPBACK0}
 %{~ for x in BGP_SESSIONS }
 neighbor ${x.peer_ip} remote-as ${x.peer_asn}
 %{~ if try(x.ebgp_multihop, false) }
@@ -92,7 +92,7 @@ neighbor ${x.peer_ip} update-source Loopback0
 %{~ endif }
 %{~ if x.route_maps != [] }
 %{~ for r in x.route_maps }
-neighbor ${r.peer_ip} route-map ${r.route_map.name} ${r.route_map.direction}
+neighbor ${x.peer_ip} route-map ${r.name} ${r.direction}
 %{~ endfor }
 %{~ endif }
 %{~ endfor }

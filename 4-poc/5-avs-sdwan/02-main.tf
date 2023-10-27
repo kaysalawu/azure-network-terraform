@@ -325,7 +325,3 @@ resource "local_file" "main_files" {
   filename = each.key
   content  = each.value
 }
-
-output "test" {
-  value = module.hub1.ars_bgp_ip0
-}

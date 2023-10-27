@@ -33,8 +33,10 @@ locals {
 
     STATIC_ROUTES = [
       { network = "0.0.0.0", mask = "0.0.0.0", next_hop = local.hub1_default_gw_nva },
-      { network = local.hub1_ars_bgp0, mask = "255.255.255.255", next_hop = local.hub1_default_gw_nva },
-      { network = local.hub1_ars_bgp1, mask = "255.255.255.255", next_hop = local.hub1_default_gw_nva },
+      { network = module.hub1.ars_bgp_ip0, mask = "255.255.255.255", next_hop = local.hub1_default_gw_nva },
+      { network = module.hub1.ars_bgp_ip1, mask = "255.255.255.255", next_hop = local.hub1_default_gw_nva },
+      { network = module.hub2.ars_bgp_ip0, mask = "255.255.255.255", next_hop = local.hub1_default_gw_nva },
+      { network = module.hub2.ars_bgp_ip1, mask = "255.255.255.255", next_hop = local.hub1_default_gw_nva },
     ]
 
     BGP_SESSIONS = [
@@ -43,32 +45,28 @@ locals {
         peer_ip       = module.hub1.ars_bgp_ip0
         as_override   = true
         ebgp_multihop = true
-        route_maps = [
-          {
-            name      = local.hub1_router_route_map_name_nh
-            direction = "out"
-          },
-          {
-            name      = local.hub1_router_route_map_name_nh
-            direction = "out"
-          }
-        ]
+        route_maps    = [{ direction = "out", name = local.hub1_cisco_nva_route_map_name_nh }, ]
       },
       {
         peer_asn      = local.hub1_ars_asn
         peer_ip       = module.hub1.ars_bgp_ip1
-        ebgp_multihop = true
         as_override   = true
-        route_maps = [
-          {
-            name      = local.hub1_router_route_map_name_nh
-            direction = "out"
-          },
-          {
-            name      = local.hub1_router_route_map_name_nh
-            direction = "out"
-          }
-        ]
+        ebgp_multihop = true
+        route_maps    = [{ direction = "out", name = local.hub1_cisco_nva_route_map_name_nh }, ]
+      },
+      {
+        peer_asn      = local.hub2_ars_asn
+        peer_ip       = module.hub2.ars_bgp_ip0
+        as_override   = true
+        ebgp_multihop = true
+        route_maps    = [{ direction = "out", name = local.hub1_cisco_nva_route_map_name_nh }, ]
+      },
+      {
+        peer_asn      = local.hub2_ars_asn
+        peer_ip       = module.hub2.ars_bgp_ip1
+        as_override   = true
+        ebgp_multihop = true
+        route_maps    = [{ direction = "out", name = local.hub1_cisco_nva_route_map_name_nh }, ]
       },
     ]
     BGP_ADVERTISED_NETWORKS = []
@@ -76,20 +74,18 @@ locals {
 }
 
 module "hub1_nva" {
-  source               = "../../modules/linux"
+  source               = "../../modules/csr-hub"
   resource_group       = azurerm_resource_group.rg.name
-  prefix               = ""
   name                 = "${local.hub1_prefix}nva"
   location             = local.hub1_location
   subnet               = module.hub1.subnets["${local.hub1_prefix}nva"].id
   private_ip           = local.hub1_nva_addr
   enable_ip_forwarding = true
   enable_public_ip     = true
-  source_image         = "ubuntu-20"
   storage_account      = module.common.storage_accounts["region1"]
   admin_username       = local.username
   admin_password       = local.password
-  custom_data          = base64encode(local.hub1_linux_nva_init)
+  custom_data          = base64encode(local.hub1_cisco_nva_init)
 }
 
 # udr
@@ -232,12 +228,25 @@ resource "azurerm_virtual_network_gateway_connection" "hub1_branch1_lng" {
 }
 
 ####################################################
+# bgp connections
+####################################################
+
+# hub1
+
+resource "azurerm_route_server_bgp_connection" "hub1_ars_bgp_conn" {
+  name            = "${local.hub1_prefix}ars-bgp-conn"
+  route_server_id = module.hub1.ars.id
+  peer_asn        = local.hub1_nva_asn
+  peer_ip         = local.hub1_nva_addr
+}
+
+####################################################
 # output files
 ####################################################
 
 locals {
   hub1_files = {
-    "output/hub1-linux-nva.sh" = local.hub1_linux_nva_init
+    "output/hub1-cisco-nva.sh" = local.hub1_cisco_nva_init
   }
 }
 
