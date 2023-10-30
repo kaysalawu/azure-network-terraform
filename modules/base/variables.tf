@@ -33,13 +33,13 @@ variable "storage_account" {
 }
 
 variable "admin_username" {
-  description = "private dns zone name"
+  description = "test username. please change for production"
   type        = string
   default     = "azureuser"
 }
 
 variable "admin_password" {
-  description = "private dns zone name"
+  description = "test password. please change for production"
   type        = string
   default     = "Password123"
 }
@@ -112,6 +112,12 @@ variable "vnet_config" {
     vpn_gateway_asn                        = optional(string, 65515)
     vpn_gateway_ip_config0_apipa_addresses = optional(list(string), ["169.254.21.1"])
     vpn_gateway_ip_config1_apipa_addresses = optional(list(string), ["169.254.21.5"])
+
+    create_nva      = optional(bool, false)
+    nva_type        = optional(string, "cisco")
+    nva_ilb_addr    = optional(string, null)
+    nva_subnet_name = optional(string, "")
+    nva_custom_data = optional(string, "")
   }))
   default = []
 }

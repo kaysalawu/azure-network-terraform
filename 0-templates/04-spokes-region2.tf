@@ -33,6 +33,7 @@ module "spoke4" {
     {
       address_space = local.spoke4_address_space
       subnets       = local.spoke4_subnets
+      dns_servers   = [local.hub2_dns_in_addr, local.azuredns, ]
     }
   ]
 }
@@ -47,8 +48,8 @@ module "spoke4_vm" {
   location              = local.spoke4_location
   subnet                = module.spoke4.subnets["${local.spoke4_prefix}main"].id
   private_ip            = local.spoke4_vm_addr
+  enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
-  dns_servers           = [local.hub2_dns_in_addr, ]
   storage_account       = module.common.storage_accounts["region2"]
   private_dns_zone_name = "spoke4.${local.cloud_domain}"
   delay_creation        = "120s"
@@ -92,6 +93,7 @@ module "spoke5" {
     {
       address_space = local.spoke5_address_space
       subnets       = local.spoke5_subnets
+      dns_servers   = [local.hub2_dns_in_addr, local.azuredns, ]
     }
   ]
 }
@@ -106,8 +108,8 @@ module "spoke5_vm" {
   location              = local.spoke5_location
   subnet                = module.spoke5.subnets["${local.spoke5_prefix}main"].id
   private_ip            = local.spoke5_vm_addr
+  enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
-  dns_servers           = [local.hub2_dns_in_addr, ]
   storage_account       = module.common.storage_accounts["region2"]
   private_dns_zone_name = "spoke5.${local.cloud_domain}"
   delay_creation        = "120s"
@@ -165,10 +167,11 @@ module "spoke6_vm" {
   location              = local.spoke6_location
   subnet                = module.spoke6.subnets["${local.spoke6_prefix}main"].id
   private_ip            = local.spoke6_vm_addr
+  enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region2"]
   private_dns_zone_name = "spoke6.${local.cloud_domain}"
-  delay_creation        = "90s"
+  delay_creation        = "120s"
   tags                  = local.spoke6_tags
   depends_on = [
     module.hub2,

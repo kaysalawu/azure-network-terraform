@@ -15,6 +15,7 @@ resource "azurerm_virtual_network" "this" {
   name                = "${local.prefix}vnet"
   address_space       = var.vnet_config[0].address_space
   location            = var.location
+  dns_servers         = var.vnet_config[0].dns_servers
   tags                = var.tags
 }
 
@@ -149,7 +150,6 @@ resource "azurerm_private_dns_resolver_virtual_network_link" "this" {
   dns_forwarding_ruleset_id = each.value
   virtual_network_id        = azurerm_virtual_network.this.id
 }*/
-
 
 # nat
 #----------------------------
@@ -561,4 +561,31 @@ resource "azurerm_monitor_diagnostic_setting" "azfw" {
     null_resource.azfw_diag_delete_existing,
   ]
 }
+
+# nva
+#----------------------------
+
+# linux
+
+module "nva" {
+  count                = var.vnet_config[0].create_nva && var.vnet_config[0].nva_type == "linux" ? 1 : 0
+  source               = "../../modules/linux"
+  resource_group       = var.resource_group
+  prefix               = trimsuffix(local.prefix, "-")
+  name                 = "nva"
+  location             = var.location
+  subnet               = azurerm_subnet.this[var.vnet_config[0].nva_subnet_name].id
+  private_ip           = var.vnet_config[0].nva_ilb_addr
+  enable_ip_forwarding = true
+  enable_public_ip     = true
+  source_image         = "ubuntu-20"
+  storage_account      = var.storage_account
+  admin_username       = var.admin_username
+  admin_password       = var.admin_password
+  custom_data          = var.vnet_config[0].nva_custom_data
+}
+
+# cisco
+
+
 

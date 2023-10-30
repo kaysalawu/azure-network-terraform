@@ -1,6 +1,6 @@
 
 ####################################################
-# base
+# vnet
 ####################################################
 
 module "hub2" {
@@ -32,6 +32,7 @@ module "hub2" {
     {
       address_space = local.hub2_address_space
       subnets       = local.hub2_subnets
+      dns_servers   = [local.hub2_dns_in_addr, local.azuredns, ]
 
       private_dns_inbound_subnet_name  = "${local.hub2_prefix}dns-in"
       private_dns_outbound_subnet_name = "${local.hub2_prefix}dns-out"
@@ -61,10 +62,11 @@ module "hub2_vm" {
   location              = local.hub2_location
   subnet                = module.hub2.subnets["${local.hub2_prefix}main"].id
   private_ip            = local.hub2_vm_addr
+  enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
-  dns_servers           = [local.hub2_dns_in_addr, ]
   storage_account       = module.common.storage_accounts["region2"]
   private_dns_zone_name = "hub2.${local.cloud_domain}"
+  delay_creation        = "120s"
   tags                  = local.hub2_tags
   depends_on = [
     module.common,

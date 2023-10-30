@@ -149,23 +149,6 @@ locals {
   ))
 }
 
-module "hub1_nva" {
-  source               = "../../modules/linux"
-  resource_group       = azurerm_resource_group.rg.name
-  prefix               = ""
-  name                 = "${local.hub1_prefix}nva"
-  location             = local.hub1_location
-  subnet               = module.hub1.subnets["${local.hub1_prefix}nva"].id
-  private_ip           = local.hub1_nva_addr
-  enable_ip_forwarding = true
-  enable_public_ip     = true
-  source_image         = "ubuntu-20"
-  storage_account      = module.common.storage_accounts["region1"]
-  admin_username       = local.username
-  admin_password       = local.password
-  custom_data          = base64encode(local.hub1_linux_nva_init)
-}
-
 # udr
 #----------------------------
 

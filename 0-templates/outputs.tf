@@ -4,14 +4,23 @@
 ####################################################
 
 locals {
-  output_values = templatefile("../../scripts/outputs/values.sh", {
+  output_values = templatefile("../../scripts/outputs/values.md", {
     NODES = {
       hub1 = {
         VNET_NAME   = try(module.hub1.vnet.name, "")
         VNET_RANGES = try(join(", ", module.hub1.vnet.address_space), "")
         VM_NAME     = try(module.hub1_vm.vm.name, "")
         VM_IP       = try(module.hub1_vm.vm.private_ip_address, "")
+        DNS_IN_IP   = try(local.hub1_dns_in_addr, "")
         SUBNETS     = try({ for k, v in module.hub1.subnets : k => v.address_prefixes[0] }, "")
+      }
+      hub2 = {
+        VNET_NAME   = try(module.hub2.vnet.name, "")
+        VNET_RANGES = try(join(", ", module.hub2.vnet.address_space), "")
+        VM_NAME     = try(module.hub2_vm.vm.name, "")
+        VM_IP       = try(module.hub2_vm.vm.private_ip_address, "")
+        DNS_IN_IP   = try(local.hub2_dns_in_addr, "")
+        SUBNETS     = try({ for k, v in module.hub2.subnets : k => v.address_prefixes[0] }, "")
       }
       spoke1 = {
         VNET_NAME   = try(module.spoke1.vnet.name, "")
@@ -32,22 +41,8 @@ locals {
         VNET_RANGES = try(join(", ", module.spoke3.vnet.address_space), "")
         VM_NAME     = try(module.spoke3_vm.vm.name, "")
         VM_IP       = try(module.spoke3_vm.vm.private_ip_address, "")
-        SUBNETS     = try({ for k, v in module.spoke3.subnets : k => v.address_prefixes[0] }, "")
         APPS_URL    = try(module.spoke3_apps.url, "")
-      }
-      branch1 = {
-        VNET_NAME   = try(module.branch1.vnet.name, "")
-        VNET_RANGES = try(join(", ", module.branch1.vnet.address_space), "")
-        VM_NAME     = try(module.branch1_vm.vm.name, "")
-        VM_IP       = try(module.branch1_vm.vm.private_ip_address, "")
-        SUBNETS     = try({ for k, v in module.branch1.subnets : k => v.address_prefixes[0] }, "")
-      }
-      hub2 = {
-        VNET_NAME   = try(module.hub2.vnet.name, "")
-        VNET_RANGES = try(join(", ", module.hub2.vnet.address_space), "")
-        VM_NAME     = try(module.hub2_vm.vm.name, "")
-        VM_IP       = try(module.hub2_vm.vm.private_ip_address, "")
-        SUBNETS     = try({ for k, v in module.hub2.subnets : k => v.address_prefixes[0] }, "")
+        SUBNETS     = try({ for k, v in module.spoke3.subnets : k => v.address_prefixes[0] }, "")
       }
       spoke4 = {
         VNET_NAME   = try(module.spoke4.vnet.name, "")
@@ -68,8 +63,16 @@ locals {
         VNET_RANGES = try(join(", ", module.spoke6.vnet.address_space), "")
         VM_NAME     = try(module.spoke6_vm.vm.name, "")
         VM_IP       = try(module.spoke6_vm.vm.private_ip_address, "")
-        SUBNETS     = try({ for k, v in module.spoke6.subnets : k => v.address_prefixes[0] }, "")
         APPS_URL    = try(module.spoke6_apps.url, "")
+        SUBNETS     = try({ for k, v in module.spoke6.subnets : k => v.address_prefixes[0] }, "")
+      }
+
+      branch1 = {
+        VNET_NAME   = try(module.branch1.vnet.name, "")
+        VNET_RANGES = try(join(", ", module.branch1.vnet.address_space), "")
+        VM_NAME     = try(module.branch1_vm.vm.name, "")
+        VM_IP       = try(module.branch1_vm.vm.private_ip_address, "")
+        SUBNETS     = try({ for k, v in module.branch1.subnets : k => v.address_prefixes[0] }, "")
       }
       branch3 = {
         VNET_NAME   = try(module.branch3.vnet.name, "")
@@ -82,7 +85,7 @@ locals {
   })
 
   output_files = {
-    "output/values.txt" = local.output_values
+    "output/values.md" = local.output_values
   }
 }
 
