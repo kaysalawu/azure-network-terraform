@@ -33,7 +33,7 @@ module "spoke1" {
     {
       address_space = local.spoke1_address_space
       subnets       = local.spoke1_subnets
-      dns_servers   = [local.hub1_dns_in_addr, local.azuredns, ]
+      dns_servers   = [local.hub1_dns_in_addr, ]
     }
   ]
 }
@@ -93,7 +93,7 @@ module "spoke2" {
     {
       address_space = local.spoke2_address_space
       subnets       = local.spoke2_subnets
-      dns_servers   = [local.hub1_dns_in_addr, local.azuredns, ]
+      dns_servers   = [local.hub1_dns_in_addr, ]
     }
   ]
 }

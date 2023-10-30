@@ -8,10 +8,6 @@ locals {
 }
 
 ####################################################
-# Data
-####################################################
-
-####################################################
 # providers
 ####################################################
 
@@ -75,12 +71,6 @@ locals {
     enable_vpn_gateway          = true
     enable_er_gateway           = false
 
-    enable_nva         = true
-    nva_type           = "linux"
-    nva_ilb_addr       = local.hub1_nva_ilb_addr
-    nva_subnet_name    = "${local.hub1_prefix}nva"
-    nva_startup_script = ""
-
     create_firewall    = true
     firewall_sku       = local.firewall_sku
     firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
@@ -91,12 +81,6 @@ locals {
     enable_ars                  = false
     enable_vpn_gateway          = true
     enable_er_gateway           = false
-
-    enable_nva         = true
-    nva_type           = "linux"
-    nva_ilb_addr       = local.hub2_nva_ilb_addr
-    nva_subnet_name    = "${local.hub2_prefix}nva"
-    nva_startup_script = ""
 
     create_firewall    = true
     firewall_sku       = local.firewall_sku

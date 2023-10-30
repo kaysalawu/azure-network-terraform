@@ -17,7 +17,7 @@ Contents
 
 ## Overview
 
-This terraform code deploys a multi-region Secured Virtual Network (Vnet) hub and spoke topology using Azure firewall and User-Defined Routes (UDR) to direct traffic to the firewall.
+This terraform code deploys a multi-region Secured Virtual Network (Vnet) hub and spoke topology using Azure firewall and User-Defined Routes (UDR) to direct traffic between the hubs.
 
 ![Secured Hub and Spoke (Dual region)](../../images/scenarios/1-2-hub-spoke-azfw-dual-region.png)
 
@@ -29,7 +29,7 @@ The hubs are connected together via Vnet peering to allow spoke-to-spoke network
 
 `Branch1` and `Branch3` are on-premises networks which are simulated using Vnets. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the Vnet hubs using IPsec VPN connections with dynamic (BGP) routing.
 
-> **_NOTE:_** In this lab, the branches are dual-homed to both hubs. You could also have a single branch connected to a single hub, but with some additional routing configuration.
+> **_NOTE:_** In this lab, branches use the VPN connection to reach spokes in their local regions. For example, `branch1` only receives dynamic routes for `spoke1`, `spoke2` and `hub1`. `Branch1` uses the simulated on-premises network via branch3 to reach `branch3`, `spoke4`, `spoke5` and `hub2`.
 
 ## Prerequisites
 
@@ -84,14 +84,14 @@ azureuser@Hs12-spoke1-vm:~$ ping-ip
 
  ping ip ...
 
-branch1 - 10.10.0.5 -OK 7.298 ms
-hub1    - 10.11.0.5 -OK 4.286 ms
-spoke1  - 10.1.0.5 -OK 0.047 ms
-spoke2  - 10.2.0.5 -OK 3.138 ms
-branch3 - 10.30.0.5 -OK 20.547 ms
-hub2    - 10.22.0.5 -OK 20.366 ms
-spoke4  - 10.4.0.5 -OK 20.381 ms
-spoke5  - 10.5.0.5 -OK 22.304 ms
+branch1 - 10.10.0.5 -OK 7.191 ms
+hub1    - 10.11.0.5 -OK 3.071 ms
+spoke1  - 10.1.0.5 -OK 0.069 ms
+spoke2  - 10.2.0.5 -OK 2.066 ms
+branch3 - 10.30.0.5 -OK 24.223 ms
+hub2    - 10.22.0.5 -OK 18.726 ms
+spoke4  - 10.4.0.5 -OK 20.303 ms
+spoke5  - 10.5.0.5 -OK 19.960 ms
 internet - icanhazip.com -NA
 ```
 
@@ -110,14 +110,14 @@ azureuser@Hs12-spoke1-vm:~$ ping-dns
 
  ping dns ...
 
-vm.branch1.corp - 10.10.0.5 -OK 7.314 ms
-vm.hub1.az.corp - 10.11.0.5 -OK 4.418 ms
-vm.spoke1.az.corp - 10.1.0.5 -OK 0.034 ms
-vm.spoke2.az.corp - 10.2.0.5 -OK 3.530 ms
-vm.branch3.corp - 10.30.0.5 -OK 20.758 ms
-vm.hub2.az.corp - 10.22.0.5 -OK 20.676 ms
-vm.spoke4.az.corp - 10.4.0.5 -OK 19.971 ms
-vm.spoke5.az.corp - 10.5.0.5 -OK 20.552 ms
+vm.branch1.co.net - 10.10.0.5 -OK 6.409 ms
+vm.hub1.az.co.net - 10.11.0.5 -OK 8.401 ms
+vm.spoke1.az.co.net - 10.1.0.5 -OK 0.031 ms
+vm.spoke2.az.co.net - 10.2.0.5 -OK 2.670 ms
+vm.branch3.co.net - 10.30.0.5 -OK 23.810 ms
+vm.hub2.az.co.net - 10.22.0.5 -OK 18.871 ms
+vm.spoke4.az.co.net - 10.4.0.5 -OK 19.533 ms
+vm.spoke5.az.co.net - 10.5.0.5 -OK 25.084 ms
 icanhazip.com - 104.18.115.97 -NA
 ```
 
