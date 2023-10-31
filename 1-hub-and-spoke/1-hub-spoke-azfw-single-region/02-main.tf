@@ -8,10 +8,6 @@ locals {
 }
 
 ####################################################
-# Data
-####################################################
-
-####################################################
 # providers
 ####################################################
 
@@ -21,10 +17,15 @@ provider "azurerm" {
 }
 
 terraform {
+  required_version = ">= 1.4.6"
   required_providers {
     megaport = {
       source  = "megaport/megaport"
       version = "0.1.9"
+    }
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 3.78.0"
     }
   }
 }
@@ -40,13 +41,15 @@ locals {
   default_udr_destinations = {
     "default" = "0.0.0.0/0"
   }
+  hub1_appliance_udr_destinations = {
+    "spoke4" = local.spoke4_address_space[0]
+    "spoke5" = local.spoke5_address_space[0]
+    "hub2"   = local.hub2_address_space[0]
+  }
   hub1_gateway_udr_destinations = {
     "spoke1" = local.spoke1_address_space[0]
     "spoke2" = local.spoke2_address_space[0]
-    "spoke4" = local.spoke4_address_space[0]
-    "spoke5" = local.spoke5_address_space[0]
     "hub1"   = local.hub1_address_space[0]
-    "hub2"   = local.hub2_address_space[0]
   }
   firewall_sku = "Basic"
 
@@ -56,7 +59,7 @@ locals {
     enable_vpn_gateway          = true
     enable_er_gateway           = false
 
-    create_firewall    = true
+    create_firewall    = false
     firewall_sku       = local.firewall_sku
     firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
   }
@@ -143,6 +146,7 @@ locals {
   vm_startup = templatefile("../../scripts/server.sh", {
     TARGETS = local.vm_script_targets
   })
+
   unbound_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts

@@ -21,32 +21,32 @@ resource "azurerm_storage_account" "storage_accounts" {
   tags                     = var.tags
 }
 
-####################################################
-# log analytics workspace
-####################################################
+# ####################################################
+# # log analytics workspace
+# ####################################################
 
-resource "random_id" "analytics_workspaces" {
-  byte_length = 5
-}
+# resource "random_id" "analytics_workspaces" {
+#   byte_length = 5
+# }
 
-resource "azurerm_log_analytics_workspace" "analytics_workspaces" {
-  for_each            = var.regions
-  resource_group_name = var.resource_group
-  name                = "${local.prefix}${each.key}-analytics-ws-${random_id.analytics_workspaces.hex}"
-  location            = each.value
-  sku                 = "PerGB2018"
-  retention_in_days   = 30
-  tags                = var.tags
-}
+# resource "azurerm_log_analytics_workspace" "analytics_workspaces" {
+#   for_each            = var.regions
+#   resource_group_name = var.resource_group
+#   name                = "${local.prefix}${each.key}-analytics-ws-${random_id.analytics_workspaces.hex}"
+#   location            = each.value
+#   sku                 = "PerGB2018"
+#   retention_in_days   = 30
+#   tags                = var.tags
+# }
 
-locals {
-  firewall_categories_metric = ["AllMetrics"]
-  firewall_categories_log = [
-    "AzureFirewallApplicationRule",
-    "AzureFirewallNetworkRule",
-    "AzureFirewallDnsProxy"
-  ]
-}
+# locals {
+#   firewall_categories_metric = ["AllMetrics"]
+#   firewall_categories_log = [
+#     "AzureFirewallApplicationRule",
+#     "AzureFirewallNetworkRule",
+#     "AzureFirewallDnsProxy"
+#   ]
+# }
 
 ####################################################
 # nsg

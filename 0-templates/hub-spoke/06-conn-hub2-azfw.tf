@@ -22,7 +22,6 @@ resource "azurerm_virtual_network_peering" "spoke4_to_hub2_peering" {
 }
 
 # hub2-to-spoke4
-# remote gw transit
 
 resource "azurerm_virtual_network_peering" "hub2_to_spoke4_peering" {
   resource_group_name          = azurerm_resource_group.rg.name

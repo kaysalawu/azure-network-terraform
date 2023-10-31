@@ -174,6 +174,15 @@ variable "log_categories_firewall" {
   type = list(any)
   default = [
     {
+      "category"      = "AzureFirewallNetworkRule",
+      "categoryGroup" = null,
+      "enabled"       = true,
+      "retentionPolicy" = {
+        "days"    = 0,
+        "enabled" = false
+      }
+    },
+    {
       "category"      = "AZFWNetworkRule",
       "categoryGroup" = null,
       "enabled"       = true,

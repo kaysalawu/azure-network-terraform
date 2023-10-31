@@ -7,8 +7,9 @@ locals {
   }
 }
 
+####################################################
 # vnet
-#----------------------------
+####################################################
 
 resource "azurerm_virtual_network" "this" {
   resource_group_name = var.resource_group
@@ -19,8 +20,9 @@ resource "azurerm_virtual_network" "this" {
   tags                = var.tags
 }
 
+####################################################
 # subnets
-#----------------------------
+####################################################
 
 resource "azurerm_subnet" "this" {
   for_each             = var.vnet_config[0].subnets
@@ -44,8 +46,9 @@ resource "azurerm_subnet" "this" {
   private_link_service_network_policies_enabled = try(each.value.address_prefixes.enable_private_link_policies[0], false)
 }
 
+####################################################
 # nsg
-#----------------------------
+####################################################
 
 resource "azurerm_subnet_network_security_group_association" "this" {
   for_each                  = var.nsg_subnet_map
@@ -56,8 +59,9 @@ resource "azurerm_subnet_network_security_group_association" "this" {
   }
 }
 
+####################################################
 # dns
-#----------------------------
+####################################################
 
 # dns zone
 
@@ -143,16 +147,17 @@ resource "azurerm_private_dns_resolver_outbound_endpoint" "this" {
 }
 
 # dns resolver links
-/*
-resource "azurerm_private_dns_resolver_virtual_network_link" "this" {
-  for_each                  = { for k, v in var.dns_zone_linked_rulesets : k => v if var.private_dns_zone_name != null }
-  name                      = "${local.prefix}${each.key}-vnet-link"
-  dns_forwarding_ruleset_id = each.value
-  virtual_network_id        = azurerm_virtual_network.this.id
-}*/
 
+# resource "azurerm_private_dns_resolver_virtual_network_link" "this" {
+#   for_each                  = { for k, v in var.dns_zone_linked_rulesets : k => v if var.private_dns_zone_name != null }
+#   name                      = "${local.prefix}${each.key}-vnet-link"
+#   dns_forwarding_ruleset_id = each.value
+#   virtual_network_id        = azurerm_virtual_network.this.id
+# }
+
+####################################################
 # nat
-#----------------------------
+####################################################
 
 resource "azurerm_public_ip" "nat" {
   count               = length(var.vnet_config[0].nat_gateway_subnet_names) > 0 ? 1 : 0
@@ -202,43 +207,45 @@ resource "azurerm_subnet_nat_gateway_association" "nat" {
   nat_gateway_id = azurerm_nat_gateway.nat[0].id
 }
 
+####################################################
 # vm
-#----------------------------
+####################################################
 
-/* module "vm" {
-  for_each                = { for x in var.vm_config : x.name => x }
-  source                  = "../../modules/linux"
-  resource_group          = var.resource_group
-  prefix                  = trimsuffix(local.prefix, "-")
-  name                    = each.key
-  location                = var.location
-  vm_size                 = each.value.size
-  subnet                  = azurerm_subnet.this[each.value.subnet].id
-  private_ip              = each.value.private_ip
-  source_image            = each.value.source_image
-  use_vm_extension        = each.value.use_vm_extension
-  custom_data             = each.value.custom_data
-  enable_public_ip        = each.value.enable_public_ip
-  dns_servers             = each.value.dns_servers
-  storage_account         = var.storage_account
-  admin_username          = var.admin_username
-  admin_password          = var.admin_password
-  private_dns_zone_name   = var.create_private_dns_zone ? azurerm_private_dns_zone.this[0].name : var.private_dns_zone_name == null ? "" : var.private_dns_zone_name
-  private_dns_zone_prefix = var.private_dns_zone_prefix == null ? "" : var.private_dns_zone_prefix
-  delay_creation          = each.value.delay_creation
-  depends_on = [
-    azurerm_public_ip.nat,
-    azurerm_nat_gateway.nat,
-    azurerm_nat_gateway_public_ip_association.nat,
-    #azurerm_subnet_nat_gateway_association.nat,
-    azurerm_subnet.this,
-    azurerm_subnet_network_security_group_association.this,
-  ]
-  tags = var.tags
-} */
+# module "vm" {
+#   for_each                = { for x in var.vm_config : x.name => x }
+#   source                  = "../../modules/linux"
+#   resource_group          = var.resource_group
+#   prefix                  = trimsuffix(local.prefix, "-")
+#   name                    = each.key
+#   location                = var.location
+#   vm_size                 = each.value.size
+#   subnet                  = azurerm_subnet.this[each.value.subnet].id
+#   private_ip              = each.value.private_ip
+#   source_image            = each.value.source_image
+#   use_vm_extension        = each.value.use_vm_extension
+#   custom_data             = each.value.custom_data
+#   enable_public_ip        = each.value.enable_public_ip
+#   dns_servers             = each.value.dns_servers
+#   storage_account         = var.storage_account
+#   admin_username          = var.admin_username
+#   admin_password          = var.admin_password
+#   private_dns_zone_name   = var.create_private_dns_zone ? azurerm_private_dns_zone.this[0].name : var.private_dns_zone_name == null ? "" : var.private_dns_zone_name
+#   private_dns_zone_prefix = var.private_dns_zone_prefix == null ? "" : var.private_dns_zone_prefix
+#   delay_creation          = each.value.delay_creation
+#   depends_on = [
+#     azurerm_public_ip.nat,
+#     azurerm_nat_gateway.nat,
+#     azurerm_nat_gateway_public_ip_association.nat,
+#     #azurerm_subnet_nat_gateway_association.nat,
+#     azurerm_subnet.this,
+#     azurerm_subnet_network_security_group_association.this,
+#   ]
+#   tags = var.tags
+# }
 
+####################################################
 # vpngw
-#----------------------------
+####################################################
 
 resource "azurerm_public_ip" "vpngw_pip0" {
   count               = var.vnet_config[0].enable_vpn_gateway ? 1 : 0
@@ -317,8 +324,9 @@ resource "azurerm_virtual_network_gateway" "vpngw" {
   }
 }
 
+####################################################
 # ergw
-#----------------------------
+####################################################
 
 resource "azurerm_public_ip" "ergw_pip" {
   count               = var.vnet_config[0].enable_er_gateway ? 1 : 0
@@ -358,8 +366,9 @@ resource "azurerm_virtual_network_gateway" "ergw" {
   }
 }
 
+####################################################
 # route server
-#----------------------------
+####################################################
 
 resource "azurerm_public_ip" "ars_pip" {
   count               = var.vnet_config[0].enable_ars ? 1 : 0
@@ -403,8 +412,9 @@ resource "azurerm_route_server" "ars" {
   ]
 }
 
+####################################################
 # azure firewall
-#----------------------------
+####################################################
 
 resource "random_id" "azfw" {
   count       = var.vnet_config[0].create_firewall ? 1 : 0
@@ -418,7 +428,21 @@ resource "azurerm_log_analytics_workspace" "azfw" {
   resource_group_name = var.resource_group
   name                = "${local.prefix}azfw-ws-${random_id.azfw[0].hex}"
   location            = var.location
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
   tags                = var.tags
+}
+
+# storage account
+
+resource "azurerm_storage_account" "azfw" {
+  count                    = var.vnet_config[0].create_firewall ? 1 : 0
+  resource_group_name      = var.resource_group
+  name                     = lower(replace("${local.prefix}azfw${random_id.azfw[0].hex}", "-", ""))
+  location                 = var.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  tags                     = var.tags
 }
 
 # firewall public ip
@@ -499,16 +523,6 @@ resource "azurerm_firewall" "azfw" {
   ]
 }
 
-resource "azurerm_storage_account" "azfw" {
-  count                    = var.vnet_config[0].create_firewall ? 1 : 0
-  resource_group_name      = var.resource_group
-  name                     = lower(replace("${local.prefix}azfw${random_id.azfw[0].hex}", "-", ""))
-  location                 = var.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-  tags                     = var.tags
-}
-
 # diagnostic setting
 
 resource "null_resource" "azfw_diag_delete_existing" {
@@ -565,25 +579,25 @@ resource "azurerm_monitor_diagnostic_setting" "azfw" {
 # nva
 #----------------------------
 
-# linux
+# # linux
 
-module "nva" {
-  count                = var.vnet_config[0].create_nva && var.vnet_config[0].nva_type == "linux" ? 1 : 0
-  source               = "../../modules/linux"
-  resource_group       = var.resource_group
-  prefix               = trimsuffix(local.prefix, "-")
-  name                 = "nva"
-  location             = var.location
-  subnet               = azurerm_subnet.this[var.vnet_config[0].nva_subnet_name].id
-  private_ip           = var.vnet_config[0].nva_ilb_addr
-  enable_ip_forwarding = true
-  enable_public_ip     = true
-  source_image         = "ubuntu-20"
-  storage_account      = var.storage_account
-  admin_username       = var.admin_username
-  admin_password       = var.admin_password
-  custom_data          = var.vnet_config[0].nva_custom_data
-}
+# module "nva" {
+#   count                = var.vnet_config[0].create_nva && var.vnet_config[0].nva_type == "linux" ? 1 : 0
+#   source               = "../../modules/linux"
+#   resource_group       = var.resource_group
+#   prefix               = trimsuffix(local.prefix, "-")
+#   name                 = "nva"
+#   location             = var.location
+#   subnet               = azurerm_subnet.this[var.vnet_config[0].nva_subnet_name].id
+#   private_ip           = var.vnet_config[0].nva_ilb_addr
+#   enable_ip_forwarding = true
+#   enable_public_ip     = true
+#   source_image         = "ubuntu-20"
+#   storage_account      = var.storage_account
+#   admin_username       = var.admin_username
+#   admin_password       = var.admin_password
+#   custom_data          = var.vnet_config[0].nva_custom_data
+# }
 
 # cisco
 

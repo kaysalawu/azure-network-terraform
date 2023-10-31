@@ -52,7 +52,74 @@ module "hub1" {
   ]
 }
 
+####################################################
+# dns resolver
+####################################################
+
+# ruleset
+#---------------------------
+
+# onprem
+
+resource "azurerm_private_dns_resolver_dns_forwarding_ruleset" "hub1" {
+  resource_group_name                        = azurerm_resource_group.rg.name
+  name                                       = "${local.hub1_prefix}ruleset"
+  location                                   = local.hub1_location
+  private_dns_resolver_outbound_endpoint_ids = [module.hub1.private_dns_outbound_ep.id]
+}
+
+# rules
+#---------------------------
+
+# onprem
+
+resource "azurerm_private_dns_resolver_forwarding_rule" "hub1_onprem" {
+  name                      = "${local.hub1_prefix}onprem"
+  dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.hub1.id
+  domain_name               = "${local.onprem_domain}."
+  enabled                   = true
+  target_dns_servers {
+    ip_address = local.branch1_dns_addr
+    port       = 53
+  }
+  target_dns_servers {
+    ip_address = local.branch3_dns_addr
+    port       = 53
+  }
+}
+
+# cloud
+
+resource "azurerm_private_dns_resolver_forwarding_rule" "hub1_cloud" {
+  name                      = "${local.hub1_prefix}cloud"
+  dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.hub1.id
+  domain_name               = "${local.cloud_domain}."
+  enabled                   = true
+  target_dns_servers {
+    ip_address = local.hub2_dns_in_addr
+    port       = 53
+  }
+}
+
+# links
+#---------------------------
+
+locals {
+  dns_zone_linked_rulesets_hub1 = {
+    "hub1-onprem" = module.hub1.vnet.id
+  }
+}
+
+resource "azurerm_private_dns_resolver_virtual_network_link" "hub1_onprem" {
+  for_each                  = local.dns_zone_linked_rulesets_hub1
+  name                      = "${local.prefix}${each.key}-vnet-link"
+  dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.hub1.id
+  virtual_network_id        = each.value
+}
+
+####################################################
 # workload
+####################################################
 
 module "hub1_vm" {
   source                = "../../modules/linux"
@@ -71,5 +138,6 @@ module "hub1_vm" {
   depends_on = [
     module.common,
     module.hub1,
+    azurerm_private_dns_resolver_virtual_network_link.hub1_onprem,
   ]
 }
