@@ -66,7 +66,7 @@ Login to virtual machine `Vwan24-spoke1-vm` via the serial console.
 
 ![Vwan24-spoke1-vm](../../images/demos/vwan24-spoke1-vm.png)
 
-Run the following tests from inside the serial console.
+Run the following tests from inside the serial console session.
 
 ### 1. Ping IP
 
@@ -136,35 +136,35 @@ azureuser@Vwan24-spoke5-vm:~$ curl-dns
 
 200 (0.078060s) - 10.10.0.5 - vm.branch1.corp
 200 (0.073887s) - 10.11.0.5 - vm.hub1.az.corp
-200 (0.073334s) - 10.11.4.4 - pep.hub1.az.corp
+200 (0.073334s) - 10.11.4.4 - spoke3.p.hub1.az.corp
 200 (0.073351s) - 10.1.0.5 - vm.spoke1.az.corp
 200 (0.073430s) - 10.2.0.5 - vm.spoke2.az.corp
 000 (2.001282s) -  - vm.spoke3.az.corp
 200 (0.030554s) - 10.30.0.5 - vm.branch3.corp
 200 (0.023454s) - 10.22.0.5 - vm.hub2.az.corp
-200 (0.020447s) - 10.22.4.4 - pep.hub2.az.corp
+200 (0.020447s) - 10.22.4.4 - spoke6.p.hub2.az.corp
 200 (0.027416s) - 10.4.0.5 - vm.spoke4.az.corp
 200 (0.013789s) - 10.5.0.5 - vm.spoke5.az.corp
 [  438.247378] cloud-init[1505]: 10.5.0.5 - - [16/Sep/2023 23:31:21] "GET / HTTP/1.1" 200 -
 000 (2.001221s) -  - vm.spoke6.az.corp
 200 (0.034621s) - 104.18.114.97 - icanhazip.com
 ```
-We can see that spoke3 `vm.spoke3.az.corp` returns a **000** HTTP response code. This is expected as there is no Vnet peering to `Spoke3` from `Hub1`. But `Spoke3` web application is reachable via Private Link Service private endpoint `pep.hub1.az.corp`. The same explanation applies to `Spoke6` virtual machine `vm.spoke6.az.corp`
+We can see that spoke3 `vm.spoke3.az.corp` returns a **000** HTTP response code. This is expected since there is no Vnet peering to `Spoke3` from `Hub1`. But `Spoke3` web application is reachable via Private Link Service private endpoint `spoke3.p.hub1.az.corp`. The same explanation applies to `Spoke6` virtual machine `vm.spoke6.az.corp`
 
 ### 4. Private Link Service
 
 Test access to `Spoke3` application using the private endpoint in `Hub1`.
 ```sh
-curl pep.hub1.az.corp
+curl spoke3.p.hub1.az.corp
 ```
 
 Sample output
 ```sh
-azureuser@Vwan24-spoke5-vm:~$ curl pep.hub1.az.corp
+azureuser@Vwan24-spoke5-vm:~$ curl spoke3.p.hub1.az.corp
 {
   "headers": {
     "Accept": "*/*",
-    "Host": "pep.hub1.az.corp",
+    "Host": "spoke3.p.hub1.az.corp",
     "User-Agent": "curl/7.68.0"
   },
   "hostname": "Vwan24-spoke3-vm",
@@ -174,16 +174,16 @@ azureuser@Vwan24-spoke5-vm:~$ curl pep.hub1.az.corp
 ```
 Test access to `Spoke6` application using the private endpoint in `Hub2`.
 ```sh
-curl pep.hub2.az.corp
+curl spoke6.p.hub2.az.corp
 ```
 
 Sample output
 ```sh
-azureuser@Vwan24-spoke5-vm:~$ curl pep.hub2.az.corp
+azureuser@Vwan24-spoke5-vm:~$ curl spoke6.p.hub2.az.corp
 {
   "headers": {
     "Accept": "*/*",
-    "Host": "pep.hub2.az.corp",
+    "Host": "spoke6.p.hub2.az.corp",
     "User-Agent": "curl/7.68.0"
   },
   "hostname": "Vwan24-spoke6-vm",
@@ -192,7 +192,7 @@ azureuser@Vwan24-spoke5-vm:~$ curl pep.hub2.az.corp
 }
 ```
 
-The `hostname` and `local-ip` fields belong to the servers running the web application - in this case `Spoke3` and `Spoke6`virtual machines. The `remote-ip` fields (as seen by the web servers) are the respective IP addresses in the Private Link Service NAT subnets.
+The `Hostname` and `Local-IP` fields belong to the servers running the web application - in this case `Spoke3` and `Spoke6`virtual machines. The `Remote-IP` fields (as seen by the web servers) are the respective IP addresses in the Private Link Service NAT subnets.
 
 Repeat steps 1-4 for all other virtual machines.
 
@@ -274,7 +274,7 @@ Let's login to the onprem router `Vwan24-branch1-nva` and observe its dynamic ro
 ```sh
 enable
 ```
-4. Display the routing table
+4. Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
 ```sh
 show ip route
 ```
@@ -317,7 +317,7 @@ S        192.168.11.12/32 is directly connected, Tunnel0
 S        192.168.11.13/32 is directly connected, Tunnel1
 ```
 
-5. Display BGP information
+5. Display BGP information by typing `show ip bgp` and pressing the space bar to show the complete output.
 ```sh
 show ip bgp
 ```

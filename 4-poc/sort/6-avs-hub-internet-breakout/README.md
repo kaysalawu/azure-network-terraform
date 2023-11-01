@@ -60,7 +60,7 @@ Login to virtual machine `HubSpokeS1-spoke1-vm` via the serial console.
 
 ![HubSpokeS1-spoke1-vm](../../images/demos/hubspokes1-spoke1-vm.png)
 
-Run the following tests from inside the serial console.
+Run the following tests from inside the serial console session.
 
 ### 1. Ping IP
 
@@ -120,28 +120,28 @@ azureuser@HubSpokeS1-spoke2-vm:~$ curl-dns
 
 200 (0.044847s) - 10.10.0.5 - vm.branch1.corp
 200 (0.019998s) - 10.11.0.5 - vm.hub1.az.corp
-200 (0.024760s) - 10.11.4.4 - pep.hub1.az.corp
+200 (0.024760s) - 10.11.4.4 - spoke3.p.hub1.az.corp
 200 (0.041191s) - 10.1.0.5 - vm.spoke1.az.corp
 [ 3627.028144] cloud-init[1511]: 10.2.0.5 - - [21/Jan/2023 19:02:00] "GET / HTTP/1.1" 200 -
 200 (0.015262s) - 10.2.0.5 - vm.spoke2.az.corp
 000 (2.001251s) -  - vm.spoke3.az.corp
 ```
-We can see that spoke3 (vm.spoke3.az.corp) returns a **000** HTTP response code. This is expected as there is no Vnet peering to `Spoke3` from `Hub1`. But `Spoke3` web application is reachable via Private Link Service private endpoint (pep.hub1.az.corp).
+We can see that spoke3 (vm.spoke3.az.corp) returns a **000** HTTP response code. This is expected since there is no Vnet peering to `Spoke3` from `Hub1`. But `Spoke3` web application is reachable via Private Link Service private endpoint (spoke3.p.hub1.az.corp).
 
 ### 4. Private Link Service
 
 Test access to `Spoke3` application using the private endpoint in `Hub1`.
 ```sh
-curl pep.hub1.az.corp
+curl spoke3.p.hub1.az.corp
 ```
 
 Sample output
 ```sh
-azureuser@HubSpokeS1-spoke2-vm:~$ curl pep.hub1.az.corp
+azureuser@HubSpokeS1-spoke2-vm:~$ curl spoke3.p.hub1.az.corp
 {
   "headers": {
     "Accept": "*/*",
-    "Host": "pep.hub1.az.corp",
+    "Host": "spoke3.p.hub1.az.corp",
     "User-Agent": "curl/7.68.0"
   },
   "hostname": "HubSpokeS1-spoke3-vm",
@@ -149,7 +149,7 @@ azureuser@HubSpokeS1-spoke2-vm:~$ curl pep.hub1.az.corp
   "remote-ip": "10.3.3.4"
 }
 ```
-The `hostname` and `local-ip` field belong to the server running the web application - in this case `Spoke3` virtual machine. The `remote-ip` field (as seen by the web server) is the IP address in the Private Link Service NAT subnets.
+The `Hostname` and `Local-IP` field belong to the server running the web application - in this case `Spoke3` virtual machine. The `Remote-IP` field (as seen by the web server) is the IP address in the Private Link Service NAT subnets.
 
 Repeat steps 1-4 for all other virtual machines.
 
@@ -165,7 +165,7 @@ Let's login to the onprem router `HubSpokeS1-branch1-nva` and observe its dynami
 ```sh
 enable
 ```
-1. Display the routing table
+1. Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
 ```sh
 show ip route
 ```

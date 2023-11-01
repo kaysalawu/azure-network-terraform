@@ -11,8 +11,10 @@ Contents
   - [2. Ping DNS](#2-ping-dns)
   - [3. Curl DNS](#3-curl-dns)
   - [4. Private Link Service](#4-private-link-service)
-  - [5. Azure Firewall](#5-azure-firewall)
-  - [6. Onprem Routes](#6-onprem-routes)
+  - [5. Private Link (App Service) Access from Public Client](#5-private-link-app-service-access-from-public-client)
+  - [6. Private Link (App Service) Access from On-premises](#6-private-link-app-service-access-from-on-premises)
+  - [6. Azure Firewall](#6-azure-firewall)
+  - [7. Onprem Routes](#7-onprem-routes)
 - [Cleanup](#cleanup)
 
 ## Overview
@@ -25,11 +27,11 @@ This terraform code deploys a multi-region Secured Virtual Network (Vnet) hub an
 
 `Hub2` has an Azure firewall used for inspection of traffic between branch and spokes. UDRs are used to influence the Vnet data plane to route traffic from the branch and spokes via the firewall. An isolated spoke (`Spoke6`) does not have Vnet peering to the hub (`Hub2`), but is reachable from the hub via Private Link Service.
 
-The hubs are connected together via Vnet peering to allow spoke-to-spoke network reachability.
+The hubs are connected together via Vnet peering to allow inter-hub spoke reachability.
 
-`Branch1` and `Branch3` are on-premises networks which are simulated using Vnets. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the Vnet hubs using IPsec VPN connections with dynamic (BGP) routing.
+`Branch1` and `Branch3` are on-premises networks which are simulated using Vnets. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the Vnet hubs using IPsec VPN connections with dynamic (BGP) routing. A simulated on-premises Wide Area Network (WAN) is created using Vnet peering between `Branch1` and `Branch3` as the underlay connectivity, and then IPsec and BGP are configured as the overlay connectivity.
 
-> **_NOTE:_** In this lab, branches use the VPN connection to reach spokes in their local regions. For example, `branch1` only receives dynamic routes for `spoke1`, `spoke2` and `hub1`. `Branch1` uses the simulated on-premises network via branch3 to reach `branch3`, `spoke4`, `spoke5` and `hub2`.
+> **_NOTE:_** In this lab example, each branch reaches spokes in their local regions through the directly connected Hub. However, each branch reaches spokes in remote region via the simulated on-premises WAN to the remote branch that connects to the hub for the target remote spoke. For example, `branch1` only receives dynamic routes for `spoke1`, `spoke2` and `hub1` through the VPN from `branch1` to `hub1`. `Branch1` uses the simulated on-premises network via `branch3` to reach `spoke4`, `spoke5` and `hub2` through the VPN from `branch3` to `hub2`.
 
 ## Prerequisites
 
@@ -68,7 +70,7 @@ Login to virtual machine `Hs12-spoke1-vm` via the serial console.
 
 ![Hs12-spoke1-vm](../../images/demos/hs12-spoke1-vm.png)
 
-Run the following tests from inside the serial console.
+Run the following tests from inside the serial console session.
 
 ### 1. Ping IP
 
@@ -80,19 +82,19 @@ ping-ip
 ```
 Sample output
 ```sh
-azureuser@Hs12-spoke1-vm:~$ ping-ip
+azureuser@Hs12-branch1-vm:~$ ping-ip
 
  ping ip ...
 
-branch1 - 10.10.0.5 -OK 7.191 ms
-hub1    - 10.11.0.5 -OK 3.071 ms
-spoke1  - 10.1.0.5 -OK 0.069 ms
-spoke2  - 10.2.0.5 -OK 2.066 ms
-branch3 - 10.30.0.5 -OK 24.223 ms
-hub2    - 10.22.0.5 -OK 18.726 ms
-spoke4  - 10.4.0.5 -OK 20.303 ms
-spoke5  - 10.5.0.5 -OK 19.960 ms
-internet - icanhazip.com -NA
+branch1 - 10.10.0.5 -OK 0.048 ms
+hub1    - 10.11.0.5 -OK 6.991 ms
+spoke1  - 10.1.0.5 -OK 6.551 ms
+spoke2  - 10.2.0.5 -OK 5.446 ms
+branch3 - 10.30.0.5 -OK 18.697 ms
+hub2    - 10.22.0.5 -OK 21.378 ms
+spoke4  - 10.4.0.5 -OK 21.359 ms
+spoke5  - 10.5.0.5 -OK 21.819 ms
+internet - icanhazip.com -OK 2.608 ms
 ```
 
 ### 2. Ping DNS
@@ -106,19 +108,19 @@ ping-dns
 
 Sample output
 ```sh
-azureuser@Hs12-spoke1-vm:~$ ping-dns
+azureuser@Hs12-branch1-vm:~$ ping-dns
 
  ping dns ...
 
-vm.branch1.co.net - 10.10.0.5 -OK 6.409 ms
-vm.hub1.az.co.net - 10.11.0.5 -OK 8.401 ms
-vm.spoke1.az.co.net - 10.1.0.5 -OK 0.031 ms
-vm.spoke2.az.co.net - 10.2.0.5 -OK 2.670 ms
-vm.branch3.co.net - 10.30.0.5 -OK 23.810 ms
-vm.hub2.az.co.net - 10.22.0.5 -OK 18.871 ms
-vm.spoke4.az.co.net - 10.4.0.5 -OK 19.533 ms
-vm.spoke5.az.co.net - 10.5.0.5 -OK 25.084 ms
-icanhazip.com - 104.18.115.97 -NA
+vm.branch1.corp - 10.10.0.5 -OK 0.035 ms
+vm.hub1.az.corp - 10.11.0.5 -OK 7.254 ms
+vm.spoke1.az.corp - 10.1.0.5 -OK 8.372 ms
+vm.spoke2.az.corp - 10.2.0.5 -OK 6.401 ms
+vm.branch3.corp - 10.30.0.5 -OK 18.716 ms
+vm.hub2.az.corp - 10.22.0.5 -OK 21.132 ms
+vm.spoke4.az.corp - 10.4.0.5 -OK 21.908 ms
+vm.spoke5.az.corp - 10.5.0.5 -OK 20.268 ms
+icanhazip.com - 104.18.115.97 -OK 3.416 ms
 ```
 
 ### 3. Curl DNS
@@ -132,71 +134,231 @@ curl-dns
 
 Sample output
 ```sh
-azureuser@Hs12-spoke1-vm:~$ curl-dns
+azureuser@Hs12-branch1-vm:~$ curl-dns
 
  curl dns ...
 
-200 (0.052560s) - 10.10.0.5 - vm.branch1.corp
-200 (0.033386s) - 10.11.0.5 - vm.hub1.az.corp
-200 (0.024690s) - 10.11.4.4 - pep.hub1.az.corp
-[23017.099663] cloud-init[1588]: 10.1.0.5 - - [17/Sep/2023 19:46:43] "GET / HTTP/1.1" 200 -
-200 (0.017805s) - 10.1.0.5 - vm.spoke1.az.corp
-200 (0.029626s) - 10.2.0.5 - vm.spoke2.az.corp
-000 (2.001577s) -  - vm.spoke3.az.corp
-000 (2.001826s) - 10.30.0.5 - vm.branch3.corp
-200 (0.073012s) - 10.22.0.5 - vm.hub2.az.corp
-200 (0.067024s) - 10.22.4.4 - pep.hub2.az.corp
-200 (0.068769s) - 10.4.0.5 - vm.spoke4.az.corp
-200 (0.074421s) - 10.5.0.5 - vm.spoke5.az.corp
-000 (2.001662s) -  - vm.spoke6.az.corp
-200 (0.041685s) - 104.18.115.97 - icanhazip.com
+[ 6001.182272] cloud-init[1650]: 10.10.0.5 - - [31/Oct/2023 18:39:01] "GET / HTTP/1.1" 200 -
+200 (0.011083s) - 10.10.0.5 - vm.branch1.corp
+200 (0.037972s) - 10.11.0.5 - vm.hub1.az.corp
+200 (0.048792s) - 10.11.4.5 - spoke3.p.hub1.az.corp
+200 (0.092510s) - 10.1.0.5 - vm.spoke1.az.corp
+200 (0.041440s) - 10.2.0.5 - vm.spoke2.az.corp
+000 (2.001447s) -  - vm.spoke3.az.corp
+200 (0.058422s) - 10.30.0.5 - vm.branch3.corp
+200 (0.097609s) - 10.22.0.5 - vm.hub2.az.corp
+200 (0.082988s) - 10.22.4.5 - spoke6.p.hub2.az.corp
+200 (0.101210s) - 10.4.0.5 - vm.spoke4.az.corp
+200 (0.093669s) - 10.5.0.5 - vm.spoke5.az.corp
+000 (2.001279s) -  - vm.spoke6.az.corp
+200 (0.014495s) - 104.18.114.97 - icanhazip.com
 ```
-We can see that spoke3 `vm.spoke3.az.corp` returns a **000** HTTP response code. This is expected as there is no Vnet peering to `Spoke3` from `Hub1`. But `Spoke3` web application is reachable via Private Link Service private endpoint `pep.hub1.az.corp`. The same explanation applies to `Spoke6` virtual machine `vm.spoke6.az.corp`
+We can see that spoke3 `vm.spoke3.az.corp` returns a **000** HTTP response code. This is expected since there is no Vnet peering to `Spoke3` from `Hub1`. But `Spoke3` web application is reachable via Private Link Service private endpoint `spoke3.p.hub1.az.corp`. The same explanation applies to `Spoke6` virtual machine `vm.spoke6.az.corp`
 
 ### 4. Private Link Service
 
 Test access to `Spoke3` application using the private endpoint in `Hub1`.
 ```sh
-curl pep.hub1.az.corp
+curl spoke3.p.hub1.az.corp
 ```
 
 Sample output
 ```sh
-azureuser@Hs12-spoke1-vm:~$ curl pep.hub1.az.corp
+azureuser@Hs12-branch1-vm:~$ curl spoke3.p.hub1.az.corp
 {
-  "headers": {
+  "Headers": {
     "Accept": "*/*",
-    "Host": "pep.hub1.az.corp",
+    "Host": "spoke3.p.hub1.az.corp",
     "User-Agent": "curl/7.68.0"
   },
-  "hostname": "Hs12-spoke3-vm",
-  "local-ip": "10.3.0.5",
-  "remote-ip": "10.3.3.4"
+  "Hostname": "Hs12-spoke3-vm",
+  "Local-IP": "10.3.0.5",
+  "Remote-IP": "10.3.3.4"
 }
 ```
 Test access to `Spoke6` application using the private endpoint in `Hub2`.
 ```sh
-curl pep.hub2.az.corp
+curl spoke6.p.hub2.az.corp
 ```
 
 Sample output
 ```sh
-azureuser@Hs12-spoke1-vm:~$ curl pep.hub2.az.corp
+azureuser@Hs12-branch1-vm:~$ curl spoke6.p.hub2.az.corp
 {
-  "headers": {
+  "Headers": {
     "Accept": "*/*",
-    "Host": "pep.hub2.az.corp",
+    "Host": "spoke6.p.hub2.az.corp",
     "User-Agent": "curl/7.68.0"
   },
-  "hostname": "Hs12-spoke6-vm",
-  "local-ip": "10.6.0.5",
-  "remote-ip": "10.6.3.4"
+  "Hostname": "Hs12-spoke6-vm",
+  "Local-IP": "10.6.0.5",
+  "Remote-IP": "10.6.3.4"
 }
 ```
 
-The `hostname` and `local-ip` fields belong to the servers running the web application - in this case `Spoke3` and `Spoke6`virtual machines. The `remote-ip` fields (as seen by the web servers) are the respective IP addresses in the Private Link Service NAT subnets.
+The `Hostname` and `Local-IP` fields belong to the servers running the web application - in this case `Spoke3` and `Spoke6`virtual machines. The `Remote-IP` fields (as seen by the web servers) are the respective IP addresses in the Private Link Service NAT subnets.
 
-### 5. Azure Firewall
+### 5. Private Link (App Service) Access from Public Client
+
+App service instances are deployed in `Spoke3` and `Spoke6`. The app service instances are fully managed services by Azure. For the purpose of this lab, we are assuming the services are owned by `spoke3` and `spoke6`.
+
+The app service instances are configured to be accessible via the private endpoints in `Hub1` and `Hub2` respectively. The app services are also accessble via their public endpoints. The app service application is a simple [python Flask web application](https://hub.docker.com/r/ksalawu/web) that returns the HTTP headers, hostname and IP addresses of the server running the application.
+
+The app services have the following naming convention:
+- hs12-spoke3-AAAA-app.azurewebsites.net
+- hs12-spoke6-BBBB-app.azurewebsites.net
+
+Where **AAAA** and **BBBB** are randomly generated two-byte strings.
+
+5.1. **On your local machine**, get the hostname of the app service owned by `Spoke3`
+```sh
+spoke3_apps_url=$(az webapp list --resource-group Hs12RG --query "[?contains(name, 'hs12-spoke3')].defaultHostName" -o tsv)
+``````
+5.2. Display the hostname
+```sh
+echo $spoke3_apps_url
+```
+
+Sample output
+```sh
+hs12-spoke3-3578-app.azurewebsites.net
+```
+5.3. Resolve the hostname
+```sh
+nslookup $spoke3_apps_url
+```
+
+Sample output
+```sh
+2-hub-spoke-azfw-dual-region$ nslookup $spoke3_apps_url
+Server:         172.26.0.1
+Address:        172.26.0.1#53
+
+Non-authoritative answer:
+hs12-spoke3-3578-app.azurewebsites.net  canonical name = hs12-spoke3-3578-app.privatelink.azurewebsites.net.
+hs12-spoke3-3578-app.privatelink.azurewebsites.net      canonical name = waws-prod-am2-755.sip.azurewebsites.windows.net.
+waws-prod-am2-755.sip.azurewebsites.windows.net canonical name = waws-prod-am2-755-9c68.westeurope.cloudapp.azure.com.
+Name:   waws-prod-am2-755-9c68.westeurope.cloudapp.azure.com
+Address: 20.105.216.45
+```
+
+We can see that the endpoint is a public IP address - **20.105.216.45** in this example. We can aslo observe there is a CNAME created for the app service which recursively resolves to the public endpoint.
+
+5.4. Test access to the  `Spoke3` app service via the public endpoint
+```sh
+curl $spoke3_apps_url
+```
+
+Sample output
+```sh
+2-hub-spoke-azfw-dual-region$ curl $spoke3_apps_url
+{
+  "Headers": {
+    "Accept": "*/*",
+    "Client-Ip": "174.173.70.196:59342",
+    "Disguised-Host": "hs12-spoke3-3578-app.azurewebsites.net",
+    "Host": "hs12-spoke3-3578-app.azurewebsites.net",
+    "Max-Forwards": "10",
+    "User-Agent": "curl/7.74.0",
+    "Was-Default-Hostname": "hs12-spoke3-3578-app.azurewebsites.net",
+    "X-Arr-Log-Id": "703dab21-f590-482c-a321-35ca1d7c74f7",
+    "X-Client-Ip": "174.173.70.196",
+    "X-Client-Port": "59342",
+    "X-Forwarded-For": "174.173.70.196:59342",
+    "X-Original-Url": "/",
+    "X-Site-Deployment-Id": "hs12-spoke3-3578-app",
+    "X-Waws-Unencoded-Url": "/"
+  },
+  "Hostname": "bc1e2afd490c",
+  "Local-IP": "169.254.129.3",
+  "Remote-IP": "169.254.129.1"
+}
+```
+
+Observe that we are connecting from our local client's public IP address specified in the `X-Client-Ip`
+
+Let's confirm the public IP address of our local machine
+```sh
+curl -4 icanhazip.com
+```
+
+Sample output
+```sh
+2-hub-spoke-azfw-dual-region$ curl -4 icanhazip.com
+174.173.70.196
+```
+
+### 6. Private Link (App Service) Access from On-premises
+
+6.1 **On your local machine**, get the hostname of the app service in `Spoke3` as done in Step 5.2. In our example, the hostname is `hs12-spoke3-3578-app.azurewebsites.net`. Use your actual hostname from step 5.2.
+
+6.2. Connect to the on-premises server `Hs12-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Hs12-branch1-vm` to the app service in `Spoke3` via the private endpoint in `Hub1`.
+
+6.3. Resolve the hostname (`hs12-spoke3-3578-app.azurewebsites.net` in this example). Use your actual hostname from Step 6.1
+```sh
+nslookup hs12-spoke3-3578-app.azurewebsites.net
+```
+
+Sample output
+```sh
+azureuser@Hs12-branch1-vm:~$ nslookup hs12-spoke3-3578-app.azurewebsites.net
+Server:         127.0.0.53
+Address:        127.0.0.53#53
+
+Non-authoritative answer:
+hs12-spoke3-3578-app.azurewebsites.net  canonical name = hs12-spoke3-3578-app.privatelink.azurewebsites.net.
+Name:   hs12-spoke3-3578-app.privatelink.azurewebsites.net
+Address: 10.11.4.4
+```
+
+We can see that the endpoint is the private endpoint IP address **10.11.4.4** in `hub1`. The following is a summary of teh DNS resolution from `Hs12-branch1-vm`:
+- `Hs12-branch1-vm` makes a DNS request for `hs12-spoke3-3578-app.azurewebsites.net`
+- The request is received by on-premises DNS server `Hs12-branch1-dns`
+- `hs12-spoke3-3578-app.azurewebsites.net` is resolved to the CNAME `hs12-spoke3-3578-app.privatelink.azurewebsites.net`
+- `Hs12-branch1-dns` has a conditional forwarding in the [unbound DNS configuration file](./output/branch-unbound.sh) configured for `privatelink.azurewebsites.net` to forward the request to the private DNS resolver inbound endpoint in `hub1` (10.11.5.4) and also `hub2` (10.22.5.4) for redundancy.
+
+  ```sh
+  forward-zone:
+          name: "privatelink.azurewebsites.net."
+          forward-addr: 10.11.5.4
+          forward-addr: 10.22.5.4
+  ```
+- The DNS server `Hs12-branch1-dns` send the DNS request to the private DNS resolver inbound endpoint in `hub1` - which returns the IP address of the app service private endpoint in `hub1` (10.11.4.4)
+
+6.4. Test access to the `Spoke3` app service via the private endpoint
+```sh
+curl hs12-spoke3-3578-app.azurewebsites.net
+```
+
+Sample output
+```sh
+azureuser@Hs12-branch1-vm:~$ curl hs12-spoke3-3578-app.azurewebsites.net
+{
+  "Headers": {
+    "Accept": "*/*",
+    "Client-Ip": "[fd40:d6d1:12:d4d5:7c12:100:a0a:5]:42854",
+    "Disguised-Host": "hs12-spoke3-3578-app.azurewebsites.net",
+    "Host": "hs12-spoke3-3578-app.azurewebsites.net",
+    "Max-Forwards": "10",
+    "User-Agent": "curl/7.68.0",
+    "Was-Default-Hostname": "hs12-spoke3-3578-app.azurewebsites.net",
+    "X-Arr-Log-Id": "4ed6f10d-a289-4d61-97eb-b5dc4542eba2",
+    "X-Client-Ip": "10.10.0.5",
+    "X-Client-Port": "0",
+    "X-Forwarded-For": "10.10.0.5",
+    "X-Original-Url": "/",
+    "X-Site-Deployment-Id": "hs12-spoke3-3578-app",
+    "X-Waws-Unencoded-Url": "/"
+  },
+  "Hostname": "bc1e2afd490c",
+  "Local-IP": "169.254.129.3",
+  "Remote-IP": "169.254.129.1"
+}
+```
+
+Observe that we are connecting from the private IP address of `Hs12-branch1-vm` specified in the `X-Client-Ip`.
+
+### 6. Azure Firewall
 
 Check the Azure Firewall logs to observe the traffic flow.
 - Select the Azure Firewall resource `Hs12-azfw-hub1` in the Azure portal.
@@ -212,7 +374,7 @@ Observe how traffic from spoke1 (10.1.0.5) to spoke2 flows via the firewall as e
 
 Repeat steps 1-5 for all other spoke and branch virtual machines.
 
-### 6. Onprem Routes
+### 7. Onprem Routes
 
 Let's login to the onprem router `Hs12-branch1-nva` and observe its dynamic routes.
 
@@ -224,7 +386,7 @@ Let's login to the onprem router `Hs12-branch1-nva` and observe its dynamic rout
 ```sh
 enable
 ```
-4. Display the routing table
+4. Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
 ```sh
 show ip route
 ```
@@ -238,11 +400,11 @@ Hs12-branch1-nva-vm#show ip route
 Gateway of last resort is 10.10.1.1 to network 0.0.0.0
 
 S*    0.0.0.0/0 [1/0] via 10.10.1.1
-      10.0.0.0/8 is variably subnetted, 24 subnets, 4 masks
-B        10.1.0.0/16 [20/0] via 10.11.7.4, 03:33:14
-B        10.2.0.0/16 [20/0] via 10.11.7.4, 03:33:14
-B        10.4.0.0/16 [20/0] via 10.22.7.4, 03:33:14
-B        10.5.0.0/16 [20/0] via 10.22.7.4, 03:33:14
+      10.0.0.0/8 is variably subnetted, 20 subnets, 4 masks
+B        10.1.0.0/16 [20/0] via 10.11.7.4, 02:01:05
+B        10.2.0.0/16 [20/0] via 10.11.7.4, 02:01:05
+B        10.4.0.0/16 [20/0] via 192.168.30.30, 02:01:05
+B        10.5.0.0/16 [20/0] via 192.168.30.30, 02:01:05
 S        10.10.0.0/24 [1/0] via 10.10.2.1
 C        10.10.1.0/24 is directly connected, GigabitEthernet1
 L        10.10.1.9/32 is directly connected, GigabitEthernet1
@@ -254,24 +416,22 @@ C        10.10.10.4/30 is directly connected, Tunnel1
 L        10.10.10.5/32 is directly connected, Tunnel1
 C        10.10.10.8/30 is directly connected, Tunnel2
 L        10.10.10.9/32 is directly connected, Tunnel2
-C        10.10.10.12/30 is directly connected, Tunnel3
-L        10.10.10.13/32 is directly connected, Tunnel3
-B        10.11.0.0/16 [20/0] via 10.11.7.4, 03:33:14
+B        10.11.0.0/16 [20/0] via 10.11.7.4, 02:01:05
 S        10.11.7.4/32 is directly connected, Tunnel1
 S        10.11.7.5/32 is directly connected, Tunnel0
-B        10.22.0.0/16 [20/0] via 10.22.7.4, 03:33:14
-S        10.22.7.4/32 is directly connected, Tunnel3
-S        10.22.7.5/32 is directly connected, Tunnel2
-B        10.30.0.0/24 [20/0] via 10.22.7.4, 03:32:55
+B        10.22.0.0/16 [20/0] via 192.168.30.30, 02:01:05
+B        10.30.0.0/24 [20/0] via 192.168.30.30, 02:01:05
       168.63.0.0/32 is subnetted, 1 subnets
 S        168.63.129.16 [254/0] via 10.10.1.1
       169.254.0.0/32 is subnetted, 1 subnets
 S        169.254.169.254 [254/0] via 10.10.1.1
       192.168.10.0/32 is subnetted, 1 subnets
 C        192.168.10.10 is directly connected, Loopback0
+      192.168.30.0/32 is subnetted, 1 subnets
+S        192.168.30.30 is directly connected, Tunnel2
 ```
 
-5. Display BGP information
+5. Display BGP information by typing `show ip bgp` and pressing the space bar to show the complete output.
 ```sh
 show ip bgp
 ```
@@ -288,24 +448,17 @@ Origin codes: i - IGP, e - EGP, ? - incomplete
 RPKI validation codes: V valid, I invalid, N Not found
 
      Network          Next Hop            Metric LocPrf Weight Path
- *>   10.1.0.0/16      10.11.7.4                              0 65515 i
- *                     10.11.7.5                              0 65515 i
- *>   10.2.0.0/16      10.11.7.4                              0 65515 i
- *                     10.11.7.5                              0 65515 i
- *    10.4.0.0/16      10.22.7.5                              0 65515 i
- *>                    10.22.7.4                              0 65515 i
- *    10.5.0.0/16      10.22.7.5                              0 65515 i
- *>                    10.22.7.4                              0 65515 i
+ *    10.1.0.0/16      10.11.7.5                              0 65515 i
+ *>                    10.11.7.4                              0 65515 i
+ *    10.2.0.0/16      10.11.7.5                              0 65515 i
+ *>                    10.11.7.4                              0 65515 i
+ *>   10.4.0.0/16      192.168.30.30                          0 65003 65003 65003 65003 65515 i
+ *>   10.5.0.0/16      192.168.30.30                          0 65003 65003 65003 65003 65515 i
  *>   10.10.0.0/24     10.10.2.1                0         32768 i
- *>   10.11.0.0/16     10.11.7.4                              0 65515 i
- *                     10.11.7.5                              0 65515 i
- *    10.22.0.0/16     10.22.7.5                              0 65515 i
- *>                    10.22.7.4                              0 65515 i
-     Network          Next Hop            Metric LocPrf Weight Path
- *    10.30.0.0/24     10.11.7.4                              0 65515 65003 i
- *                     10.22.7.5                              0 65515 65003 i
- *                     10.11.7.5                              0 65515 65003 i
- *>                    10.22.7.4                              0 65515 65003 i
+ *    10.11.0.0/16     10.11.7.5                              0 65515 i
+ *>                    10.11.7.4                              0 65515 i
+ *>   10.22.0.0/16     192.168.30.30                          0 65003 65003 65003 65003 65515 i
+ *>   10.30.0.0/24     192.168.30.30            0             0 65003 65003 65003 65003 i
 ```
 
 ## Cleanup

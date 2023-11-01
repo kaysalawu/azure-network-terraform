@@ -1,6 +1,6 @@
 # Hub and Spoke - Dual Region <!-- omit from toc -->
 
-Contents 
+Contents
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Deploy the Lab](#deploy-the-lab)
@@ -56,7 +56,7 @@ See the [troubleshooting](../../troubleshooting/) section for tips on how to res
 
 ## Testing
 
-Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of tests. Serial console access has been configured for all virtual mchines. You can [access the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal) of a virtual machine from the Azure portal. 
+Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of tests. Serial console access has been configured for all virtual mchines. You can [access the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal) of a virtual machine from the Azure portal.
 
 Login to virtual machine `HubSpokeS2-spoke1-vm` via the serial console.
 - username = **azureuser**
@@ -64,7 +64,7 @@ Login to virtual machine `HubSpokeS2-spoke1-vm` via the serial console.
 
 ![HubSpokeS2-spoke1-vm](../../images/demos/hubspokes2-spoke1-vm.png)
 
-Run the following tests from inside the serial console.
+Run the following tests from inside the serial console session.
 
 ### 1. Ping IP
 
@@ -132,34 +132,34 @@ azureuser@HubSpokeS2-spoke1-vm:~$ curl-dns
 
 200 (0.043893s) - 10.10.0.5 - vm.branch1.corp.net
 200 (0.018958s) - 10.11.0.5 - vm.hub1.az.corp.net
-200 (0.018440s) - 10.11.4.4 - pep.hub1.az.corp.net
+200 (0.018440s) - 10.11.4.4 - spoke3.p.hub1.az.corp.net
 [ 3627.717619] cloud-init[1515]: 10.1.0.5 - - [21/Jan/2023 18:19:01] "GET / HTTP/1.1" 200 -
 200 (0.016111s) - 10.1.0.5 - vm.spoke1.az.corp.net
 200 (0.100426s) - 10.2.0.5 - vm.spoke2.az.corp.net
 000 (2.000390s) -  - vm.spoke3.az.corp.net
 200 (0.064293s) - 10.30.0.5 - vm.branch3.corp.net
 200 (0.086481s) - 10.22.0.5 - vm.hub2.az.corp.net
-200 (0.066288s) - 10.22.3.4 - pep.hub2.az.corp.net
+200 (0.066288s) - 10.22.3.4 - spoke6.p.hub2.az.corp.net
 200 (0.082019s) - 10.4.0.5 - vm.spoke4.az.corp.net
 200 (0.228785s) - 10.5.0.5 - vm.spoke5.az.corp.net
 000 (2.001621s) -  - vm.spoke6.az.corp.net
 ```
-We can see that spoke3 `vm.spoke3.az.corp.net` returns a **000** HTTP response code. This is expected as there is no Vnet peering to `Spoke3` from `Hub1`. But `Spoke3` web application is reachable via Private Link Service private endpoint `pep.hub1.az.corp.net`. The same explanation applies to `Spoke6` virtual machine `vm.spoke6.az.corp.net` 
+We can see that spoke3 `vm.spoke3.az.corp.net` returns a **000** HTTP response code. This is expected since there is no Vnet peering to `Spoke3` from `Hub1`. But `Spoke3` web application is reachable via Private Link Service private endpoint `spoke3.p.hub1.az.corp.net`. The same explanation applies to `Spoke6` virtual machine `vm.spoke6.az.corp.net`
 
 ### 4. Private Link Service
 
 Test access to `Spoke3` application using the private endpoint in `Hub1`.
 ```sh
-curl pep.hub1.az.corp.net
+curl spoke3.p.hub1.az.corp.net
 ```
 
 Sample output
 ```sh
-azureuser@HubSpokeS2-spoke1-vm:~$ curl pep.hub1.az.corp.net
+azureuser@HubSpokeS2-spoke1-vm:~$ curl spoke3.p.hub1.az.corp.net
 {
   "headers": {
     "Accept": "*/*",
-    "Host": "pep.hub1.az.corp.net",
+    "Host": "spoke3.p.hub1.az.corp.net",
     "User-Agent": "curl/7.68.0"
   },
   "hostname": "HubSpokeS2-spoke3-vm",
@@ -169,25 +169,25 @@ azureuser@HubSpokeS2-spoke1-vm:~$ curl pep.hub1.az.corp.net
 ```
 Test access to `Spoke6` application using the private endpoint in `Hub2`.
 ```sh
-curl pep.hub2.az.corp.net
+curl spoke6.p.hub2.az.corp.net
 ```
 
 Sample output
 ```sh
-azureuser@HubSpokeS2-spoke1-vm:~$ curl pep.hub2.az.corp.net
+azureuser@HubSpokeS2-spoke1-vm:~$ curl spoke6.p.hub2.az.corp.net
 {
   "headers": {
     "Accept": "*/*",
-    "Host": "pep.hub2.az.corp.net",
+    "Host": "spoke6.p.hub2.az.corp.net",
     "User-Agent": "curl/7.68.0"
   },
   "hostname": "HubSpokeS2-spoke6-vm",
   "local-ip": "10.6.0.5",
   "remote-ip": "10.6.3.4"
 }
-``` 
+```
 
-The `hostname` and `local-ip` fields belong to the servers running the web application - in this case `Spoke3` and `Spoke6`virtual machines. The `remote-ip` fields (as seen by the web servers) are the respective IP addresses in the Private Link Service NAT subnets.
+The `Hostname` and `Local-IP` fields belong to the servers running the web application - in this case `Spoke3` and `Spoke6`virtual machines. The `Remote-IP` fields (as seen by the web servers) are the respective IP addresses in the Private Link Service NAT subnets.
 
 Repeat steps 1-4 for all other virtual machines.
 
@@ -195,15 +195,15 @@ Repeat steps 1-4 for all other virtual machines.
 
 Let's login to the onprem router `HubSpokeS2-branch1-nva` and observe its dynamic routes.
 
-1. Login to virtual machine `HubSpokeS2-branch1-nva` via the serial console. 
-2. Enter username and password 
+1. Login to virtual machine `HubSpokeS2-branch1-nva` via the serial console.
+2. Enter username and password
    - username = **azureuser**
    - password = **Password123**
 3. Enter the Cisco enable mode
 ```sh
 enable
 ```
-4. Display the routing table
+4. Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
 ```sh
 show ip route
 ```
@@ -247,9 +247,9 @@ C        192.168.10.10 is directly connected, Loopback0
 ```sh
 HubSpokeS2-branch1-nva-vm#show ip bgp
 BGP table version is 9, local router ID is 192.168.10.10
-Status codes: s suppressed, d damped, h history, * valid, > best, i - internal, 
-              r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter, 
-              x best-external, a additional-path, c RIB-compressed, 
+Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
+              r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
+              x best-external, a additional-path, c RIB-compressed,
               t secondary path, L long-lived-stale,
 Origin codes: i - IGP, e - EGP, ? - incomplete
 RPKI validation codes: V valid, I invalid, N Not found

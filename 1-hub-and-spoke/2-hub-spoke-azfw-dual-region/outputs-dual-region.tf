@@ -1,0 +1,1 @@
+../../0-templates/outputs-dual-region.tf
