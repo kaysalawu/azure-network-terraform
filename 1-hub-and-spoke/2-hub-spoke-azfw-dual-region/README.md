@@ -23,15 +23,15 @@ This terraform code deploys a multi-region Secured Virtual Network (Vnet) hub an
 
 ![Secured Hub and Spoke (Dual region)](../../images/scenarios/1-2-hub-spoke-azfw-dual-region.png)
 
-`Hub1` has an Azure firewall used for inspection of traffic between branch and spokes. User-Defined Routes (UDR) are used to influence the Vnet data plane to route traffic from the branch and spokes via the firewall. An isolated spoke (`Spoke3`) does not have Vnet peering to the hub (`Hub1`), but is reachable from the hub via Private Link Service.
+`Hub1` has an Azure firewall used for inspection of traffic between branch and spokes. User-Defined Routes (UDR) are used to influence the Vnet data plane to route traffic between the branch and spokes via the firewall. An isolated spoke (`Spoke3`) does not have Vnet peering to the hub (`Hub1`), but is reachable from the hub via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview).
 
-`Hub2` has an Azure firewall used for inspection of traffic between branch and spokes. UDRs are used to influence the Vnet data plane to route traffic from the branch and spokes via the firewall. An isolated spoke (`Spoke6`) does not have Vnet peering to the hub (`Hub2`), but is reachable from the hub via Private Link Service.
+`Hub2` has an Azure firewall used for inspection of traffic between branch and spokes. UDRs are used to influence the Vnet data plane to route traffic from the branch and spokes via the firewall. An isolated spoke (`Spoke6`) does not have Vnet peering to the hub (`Hub2`), but is reachable from the hub via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview).
 
-The hubs are connected together via Vnet peering to allow inter-hub spoke reachability.
+The hubs are connected together via Vnet peering to allow inter-hub network reachability.
 
-`Branch1` and `Branch3` are on-premises networks which are simulated using Vnets. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the Vnet hubs using IPsec VPN connections with dynamic (BGP) routing. A simulated on-premises Wide Area Network (WAN) is created using Vnet peering between `Branch1` and `Branch3` as the underlay connectivity, and then IPsec and BGP are configured as the overlay connectivity.
+***Branch1*** and ***Branch3*** are on-premises networks which are simulated using Vnets. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the Vnet hubs using IPsec VPN connections with dynamic (BGP) routing. A simulated on-premises Wide Area Network (WAN) is created using Vnet peering between ***Branch1*** and ***Branch3*** as the underlay connectivity, and IPsec with BGP configured as the overlay connection.
 
-> **_NOTE:_** In this lab example, each branch reaches spokes in their local regions through the directly connected Hub. However, each branch reaches spokes in remote region via the simulated on-premises WAN to the remote branch that connects to the hub for the target remote spoke. For example, `branch1` only receives dynamic routes for `spoke1`, `spoke2` and `hub1` through the VPN from `branch1` to `hub1`. `Branch1` uses the simulated on-premises network via `branch3` to reach `spoke4`, `spoke5` and `hub2` through the VPN from `branch3` to `hub2`.
+> ***_NOTE:_*** In this lab example, each branch connects to spokes in their local regions through the directly connected Hub. However, each branch reaches spokes in remote region via the on-premises WAN to the remote branch that connects directly to the hub linked to the spokes in the remote region. For example, ***branch1*** only receives dynamic routes for `spoke1`, `spoke2` and ***hub1*** through the VPN from ***branch1*** to ***hub1***. ***Branch1*** uses the simulated on-premises network via ***branch3*** to reach `spoke4`, `spoke5` and ***hub2*** through the VPN from ***branch3*** to ***hub2***. It is possible to route all Azure traffic from a branch through a single hub but that is not the focus of this lab.
 
 ## Prerequisites
 
@@ -49,7 +49,7 @@ git clone https://github.com/kaysalawu/azure-network-terraform.git
 cd azure-network-terraform/1-hub-and-spoke/2-hub-spoke-azfw-dual-region
 ```
 
-3. Run the following terraform commands and type **yes** at the prompt:
+3. Run the following terraform commands and type ***yes*** at the prompt:
 ```sh
 terraform init
 terraform plan
@@ -65,8 +65,8 @@ See the [troubleshooting](../../troubleshooting/) section for tips on how to res
 Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of tests. Serial console access has been configured for all virtual mchines. You can [access the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal) of a virtual machine from the Azure portal.
 
 Login to virtual machine `Hs12-spoke1-vm` via the serial console.
-- username = **azureuser**
-- password = **Password123**
+- username = ***azureuser***
+- password = ***Password123***
 
 ![Hs12-spoke1-vm](../../images/demos/hs12-spoke1-vm.png)
 
@@ -153,7 +153,7 @@ azureuser@Hs12-branch1-vm:~$ curl-dns
 000 (2.001279s) -  - vm.spoke6.az.corp
 200 (0.014495s) - 104.18.114.97 - icanhazip.com
 ```
-We can see that spoke3 `vm.spoke3.az.corp` returns a **000** HTTP response code. This is expected since there is no Vnet peering to `Spoke3` from `Hub1`. But `Spoke3` web application is reachable via Private Link Service private endpoint `spoke3.p.hub1.az.corp`. The same explanation applies to `Spoke6` virtual machine `vm.spoke6.az.corp`
+We can see that spoke3 `vm.spoke3.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering to `Spoke3` from `Hub1`. But `Spoke3` web application is reachable via Private Link Service private endpoint `spoke3.p.hub1.az.corp`. The same explanation applies to `Spoke6` virtual machine `vm.spoke6.az.corp`
 
 ### 4. Private Link Service
 
@@ -208,9 +208,9 @@ The app services have the following naming convention:
 - hs12-spoke3-AAAA-app.azurewebsites.net
 - hs12-spoke6-BBBB-app.azurewebsites.net
 
-Where **AAAA** and **BBBB** are randomly generated two-byte strings.
+Where ***AAAA*** and ***BBBB*** are randomly generated two-byte strings.
 
-5.1. **On your local machine**, get the hostname of the app service owned by `Spoke3`
+5.1. ***On your local machine***, get the hostname of the app service owned by `Spoke3`
 ```sh
 spoke3_apps_url=$(az webapp list --resource-group Hs12RG --query "[?contains(name, 'hs12-spoke3')].defaultHostName" -o tsv)
 ``````
@@ -242,7 +242,7 @@ Name:   waws-prod-am2-755-9c68.westeurope.cloudapp.azure.com
 Address: 20.105.216.45
 ```
 
-We can see that the endpoint is a public IP address - **20.105.216.45** in this example. We can aslo observe there is a CNAME created for the app service which recursively resolves to the public endpoint.
+We can see that the endpoint is a public IP address - ***20.105.216.45*** in this example. We can aslo observe there is a CNAME created for the app service which recursively resolves to the public endpoint.
 
 5.4. Test access to the  `Spoke3` app service via the public endpoint
 ```sh
@@ -290,7 +290,7 @@ Sample output
 
 ### 6. Private Link (App Service) Access from On-premises
 
-6.1 **On your local machine**, get the hostname of the app service in `Spoke3` as done in Step 5.2. In our example, the hostname is `hs12-spoke3-3578-app.azurewebsites.net`. Use your actual hostname from step 5.2.
+6.1 ***On your local machine***, get the hostname of the app service in `Spoke3` as done in Step 5.2. In our example, the hostname is `hs12-spoke3-3578-app.azurewebsites.net`. Use your actual hostname from step 5.2.
 
 6.2. Connect to the on-premises server `Hs12-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Hs12-branch1-vm` to the app service in `Spoke3` via the private endpoint in `Hub1`.
 
@@ -311,11 +311,11 @@ Name:   hs12-spoke3-3578-app.privatelink.azurewebsites.net
 Address: 10.11.4.4
 ```
 
-We can see that the endpoint is the private endpoint IP address **10.11.4.4** in `hub1`. The following is a summary of teh DNS resolution from `Hs12-branch1-vm`:
+We can see that the endpoint is the private endpoint IP address ***10.11.4.4*** in ***hub1***. The following is a summary of teh DNS resolution from `Hs12-branch1-vm`:
 - `Hs12-branch1-vm` makes a DNS request for `hs12-spoke3-3578-app.azurewebsites.net`
 - The request is received by on-premises DNS server `Hs12-branch1-dns`
 - `hs12-spoke3-3578-app.azurewebsites.net` is resolved to the CNAME `hs12-spoke3-3578-app.privatelink.azurewebsites.net`
-- `Hs12-branch1-dns` has a conditional forwarding in the [unbound DNS configuration file](./output/branch-unbound.sh) configured for `privatelink.azurewebsites.net` to forward the request to the private DNS resolver inbound endpoint in `hub1` (10.11.5.4) and also `hub2` (10.22.5.4) for redundancy.
+- `Hs12-branch1-dns` has a conditional forwarding in the [unbound DNS configuration file](./output/branch-unbound.sh) configured for `privatelink.azurewebsites.net` to forward the request to the private DNS resolver inbound endpoint in ***hub1*** (10.11.5.4) and also ***hub2*** (10.22.5.4) for redundancy.
 
   ```sh
   forward-zone:
@@ -323,7 +323,7 @@ We can see that the endpoint is the private endpoint IP address **10.11.4.4** in
           forward-addr: 10.11.5.4
           forward-addr: 10.22.5.4
   ```
-- The DNS server `Hs12-branch1-dns` send the DNS request to the private DNS resolver inbound endpoint in `hub1` - which returns the IP address of the app service private endpoint in `hub1` (10.11.4.4)
+- The DNS server `Hs12-branch1-dns` send the DNS request to the private DNS resolver inbound endpoint in ***hub1*** - which returns the IP address of the app service private endpoint in ***hub1*** (10.11.4.4)
 
 6.4. Test access to the `Spoke3` app service via the private endpoint
 ```sh
@@ -362,8 +362,8 @@ Observe that we are connecting from the private IP address of `Hs12-branch1-vm` 
 
 Check the Azure Firewall logs to observe the traffic flow.
 - Select the Azure Firewall resource `Hs12-azfw-hub1` in the Azure portal.
-- Click on **Logs** in the left navigation pane.
-- Click **Run** in the *Network rule log data* log category.
+- Click on ***Logs*** in the left navigation pane.
+- Click ***Run*** in the *Network rule log data* log category.
 
 ![Hs12-azfw-hub1-network-rule-log](../../images/demos/hs12-hub1-net-rule-log.png)
 - On the *TargetIP* column deselect all IP addresses except spoke2 (10.2.0.5)
@@ -380,8 +380,8 @@ Let's login to the onprem router `Hs12-branch1-nva` and observe its dynamic rout
 
 1. Login to virtual machine `Hs12-branch1-nva` via the serial console.
 2. Enter username and password
-   - username = **azureuser**
-   - password = **Password123**
+   - username = ***azureuser***
+   - password = ***Password123***
 3. Enter the Cisco enable mode
 ```sh
 enable
