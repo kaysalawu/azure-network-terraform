@@ -23,19 +23,17 @@ This terraform code deploys a multi-region Secured Virtual Network (Vnet) hub an
 
 ![Secured Hub and Spoke (Dual region)](../../images/scenarios/1-2-hub-spoke-azfw-dual-region.png)
 
-***Hub1*** has an Azure firewall used for inspection of traffic between branch and spokes. User-Defined Routes (UDR) are used to influence the Vnet data plane to route traffic between the branch and spokes via the firewall. An isolated spoke ***Spoke3*** does not have Vnet peering to ***hub1***, but is reachable from the hub via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview).
+***Hub1*** has an Azure firewall used for inspection of traffic between branch and spokes. User-Defined Routes (UDR) are used to influence the Vnet data plane to route traffic between the branch and spokes via the firewall. An isolated spoke ***spoke3*** does not have Vnet peering to ***hub1***, but is reachable from the hub via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview).
 
-***Hub2*** has an Azure firewall used for inspection of traffic between branch and spokes. UDRs are used to influence the Vnet data plane to route traffic from the branch and spokes via the firewall. An isolated spoke ***Spoke6*** does not have Vnet peering to the hub ***hub2***, but is reachable from the hub via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview).
+Similarly, ***hub2*** has an Azure firewall used for inspection of traffic between branch and spokes. UDRs are used to influence the Vnet data plane to route traffic from the branch and spokes via the firewall. An isolated spoke ***spoke6*** does not have Vnet peering to ***hub2***, but is reachable from the hub via Private Link Service.
 
 The hubs are connected together via Vnet peering to allow inter-hub network reachability.
 
 ***Branch1*** and ***branch3*** are on-premises networks which are simulated using Vnets. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the Vnet hubs using IPsec VPN connections with dynamic (BGP) routing. A simulated on-premises Wide Area Network (WAN) is created using Vnet peering between ***branch1*** and ***branch3*** as the underlay connectivity, and IPsec with BGP configured as the overlay connection.
 
-> ***_NOTE:_*** In this lab example, each branch connects to spokes in their local regions through the directly connected hub. However, each branch connects to spokes in the remote region via the on-premises WAN to the remote branch that links to the spokes in the remote region.
->
-> For example, ***branch1*** only receives dynamic routes for ***spoke1***, ***spoke2*** and ***hub1*** through the VPN to ***hub1***. ***Branch1*** uses the simulated on-premises network via ***branch3*** to reach ***spoke4***, ***spoke5*** and ***hub2*** through the VPN from ***branch3*** to ***hub2***.
->
-> It is possible to route all Azure traffic from a branch through a single hub but that is not the focus of this lab.
+Each branch connects to spokes in their local regions through the directly connected hub. However, each branch connects to spokes in the remote region via the on-premises WAN network. For example, ***branch1*** only receives dynamic routes for ***spoke1***, ***spoke2*** and ***hub1*** through the VPN to ***hub1***. ***Branch1*** uses the simulated on-premises network via ***branch3*** to reach ***spoke4***, ***spoke5*** and ***hub2*** through the VPN from ***branch3*** to ***hub2***.
+
+> ***_NOTE:_*** It is possible to route all Azure traffic from a branch through a single hub but that is not the focus of this lab.
 
 ## Prerequisites
 
@@ -71,11 +69,11 @@ Each virtual machine is pre-configured with a shell [script](../../scripts/serve
 To login to virtual machine `Hs12-spoke1-vm` via the serial console:
 - On Azure portal select *Virtual machines*
 - Select the virtual machine `Hs12-spoke1-vm`
-- Under *Help* select *Serial console* to start the console session
+- Under *Help* section, select *Serial console* and wait for console to present login prompt
 - Enter the username and password to login to the virtual machine
   - username = ***azureuser***
   - password = ***Password123***
-- You should not be in the shell session of the virtual machine
+- You should now be in the shell session of the virtual machine
 
   ```sh
   azureuser@Hs12-spoke1-vm:~$
@@ -136,7 +134,7 @@ icanhazip.com - 104.18.115.97 -OK 3.416 ms
 
 ### 3. Curl DNS
 
-This script uses curl to check reachability of web server (python Flask) on the test virtual machines. It reports HTTP response message, round trip time and IP address.
+This script uses curl to check reachability of web server (running python Flask) on the test virtual machines. It reports HTTP response message, round trip time and IP address.
 
 Run the DNS curl test
 ```sh
