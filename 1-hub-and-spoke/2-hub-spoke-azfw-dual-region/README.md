@@ -19,17 +19,17 @@ Contents
 
 ## Overview
 
-This terraform code deploys a multi-region Secured Virtual Network (Vnet) hub and spoke topology using Azure firewall and User-Defined Routes (UDR) to direct traffic between the hubs.
+This terraform code deploys a multi-region Secured Virtual Network (Vnet) hub and spoke topology using Azure firewall for traffic inspection.
 
 ![Secured Hub and Spoke (Dual region)](../../images/scenarios/1-2-hub-spoke-azfw-dual-region.png)
 
-***Hub1*** has an Azure firewall used for inspection of traffic between branch and spokes. User-Defined Routes (UDR) are used to influence the Vnet data plane to route traffic between the branch and spokes via the firewall. An isolated spoke ***spoke3*** does not have Vnet peering to ***hub1***, but is reachable from the hub via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview).
+***Hub1*** has an Azure firewall used for inspection of traffic between an on-premises branch and spokes. User-Defined Routes (UDR) are used to influence the Vnet data plane to route traffic between the branch and spokes via the firewall. An isolated spoke ***spoke3*** does not have Vnet peering to ***hub1***, but is reachable from the hub via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview).
 
 Similarly, ***hub2*** has an Azure firewall used for inspection of traffic between branch and spokes. UDRs are used to influence the Vnet data plane to route traffic from the branch and spokes via the firewall. An isolated spoke ***spoke6*** does not have Vnet peering to ***hub2***, but is reachable from the hub via Private Link Service.
 
 The hubs are connected together via Vnet peering to allow inter-hub network reachability.
 
-***Branch1*** and ***branch3*** are on-premises networks which are simulated using Vnets. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the Vnet hubs using IPsec VPN connections with dynamic (BGP) routing. A simulated on-premises Wide Area Network (WAN) is created using Vnet peering between ***branch1*** and ***branch3*** as the underlay connectivity, and IPsec with BGP configured as the overlay connection.
+***Branch1*** and ***branch3*** are on-premises networks which are simulated using Vnets. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the hubs using IPsec VPN connections with dynamic (BGP) routing. A simulated on-premises Wide Area Network (WAN) is created using Vnet peering between ***branch1*** and ***branch3*** as the underlay connectivity, and IPsec with BGP configured as the overlay connection.
 
 Each branch connects to spokes in their local regions through the directly connected hub. However, each branch connects to spokes in the remote region via the on-premises WAN network. For example, ***branch1*** only receives dynamic routes for ***spoke1***, ***spoke2*** and ***hub1*** through the VPN to ***hub1***. ***Branch1*** uses the simulated on-premises network via ***branch3*** to reach ***spoke4***, ***spoke5*** and ***hub2*** through the VPN from ***branch3*** to ***hub2***.
 
@@ -66,7 +66,7 @@ See the [troubleshooting](../../troubleshooting/) section for tips on how to res
 
 Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of tests. Serial console access has been configured for all virtual mchines. You can [access the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal) of a virtual machine from the Azure portal.
 
-To login to virtual machine `Hs12-spoke1-vm` via the serial console:
+Login to virtual machine `Hs12-spoke1-vm` via the serial console:
 - On Azure portal select *Virtual machines*
 - Select the virtual machine `Hs12-spoke1-vm`
 - Under *Help* section, select *Serial console* and wait for console to present login prompt
@@ -91,19 +91,7 @@ ping-ip
 ```
 Sample output
 ```sh
-azureuser@Hs12-branch1-vm:~$ ping-ip
 
- ping ip ...
-
-branch1 - 10.10.0.5 -OK 0.048 ms
-hub1    - 10.11.0.5 -OK 6.991 ms
-spoke1  - 10.1.0.5 -OK 6.551 ms
-spoke2  - 10.2.0.5 -OK 5.446 ms
-branch3 - 10.30.0.5 -OK 18.697 ms
-hub2    - 10.22.0.5 -OK 21.378 ms
-spoke4  - 10.4.0.5 -OK 21.359 ms
-spoke5  - 10.5.0.5 -OK 21.819 ms
-internet - icanhazip.com -OK 2.608 ms
 ```
 
 ### 2. Ping DNS
@@ -117,24 +105,12 @@ ping-dns
 
 Sample output
 ```sh
-azureuser@Hs12-branch1-vm:~$ ping-dns
 
- ping dns ...
-
-vm.branch1.corp - 10.10.0.5 -OK 0.035 ms
-vm.hub1.az.corp - 10.11.0.5 -OK 7.254 ms
-vm.spoke1.az.corp - 10.1.0.5 -OK 8.372 ms
-vm.spoke2.az.corp - 10.2.0.5 -OK 6.401 ms
-vm.branch3.corp - 10.30.0.5 -OK 18.716 ms
-vm.hub2.az.corp - 10.22.0.5 -OK 21.132 ms
-vm.spoke4.az.corp - 10.4.0.5 -OK 21.908 ms
-vm.spoke5.az.corp - 10.5.0.5 -OK 20.268 ms
-icanhazip.com - 104.18.115.97 -OK 3.416 ms
 ```
 
 ### 3. Curl DNS
 
-This script uses curl to check reachability of web server (running python Flask) on the test virtual machines. It reports HTTP response message, round trip time and IP address.
+This script uses curl to check reachability of web server (python Flask) on the test virtual machines. It reports HTTP response message, round trip time and IP address.
 
 Run the DNS curl test
 ```sh
@@ -143,24 +119,7 @@ curl-dns
 
 Sample output
 ```sh
-azureuser@Hs12-branch1-vm:~$ curl-dns
 
- curl dns ...
-
-[ 6001.182272] cloud-init[1650]: 10.10.0.5 - - [31/Oct/2023 18:39:01] "GET / HTTP/1.1" 200 -
-200 (0.011083s) - 10.10.0.5 - vm.branch1.corp
-200 (0.037972s) - 10.11.0.5 - vm.hub1.az.corp
-200 (0.048792s) - 10.11.4.5 - spoke3.p.hub1.az.corp
-200 (0.092510s) - 10.1.0.5 - vm.spoke1.az.corp
-200 (0.041440s) - 10.2.0.5 - vm.spoke2.az.corp
-000 (2.001447s) -  - vm.spoke3.az.corp
-200 (0.058422s) - 10.30.0.5 - vm.branch3.corp
-200 (0.097609s) - 10.22.0.5 - vm.hub2.az.corp
-200 (0.082988s) - 10.22.4.5 - spoke6.p.hub2.az.corp
-200 (0.101210s) - 10.4.0.5 - vm.spoke4.az.corp
-200 (0.093669s) - 10.5.0.5 - vm.spoke5.az.corp
-000 (2.001279s) -  - vm.spoke6.az.corp
-200 (0.014495s) - 104.18.114.97 - icanhazip.com
 ```
 We can see that curl test to spoke3 virtual machine `vm.spoke3.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering to ***spoke3*** from ***hub1***. But ***spoke3*** web application is reachable via Private Link Service private endpoint `spoke3.p.hub1.az.corp`. The same explanation applies to ***spoke6*** virtual machine `vm.spoke6.az.corp`
 
@@ -173,40 +132,10 @@ curl spoke3.p.hub1.az.corp
 
 Sample output
 ```sh
-azureuser@Hs12-branch1-vm:~$ curl spoke3.p.hub1.az.corp
-{
-  "Headers": {
-    "Accept": "*/*",
-    "Host": "spoke3.p.hub1.az.corp",
-    "User-Agent": "curl/7.68.0"
-  },
-  "Hostname": "Hs12-spoke3-vm",
-  "Local-IP": "10.3.0.5",
-  "Remote-IP": "10.3.3.4"
-}
+
 ```
 
-4.2. Test access to ***spoke6*** application using the private endpoint in ***hub2***.
-```sh
-curl spoke6.p.hub2.az.corp
-```
-
-Sample output
-```sh
-azureuser@Hs12-branch1-vm:~$ curl spoke6.p.hub2.az.corp
-{
-  "Headers": {
-    "Accept": "*/*",
-    "Host": "spoke6.p.hub2.az.corp",
-    "User-Agent": "curl/7.68.0"
-  },
-  "Hostname": "Hs12-spoke6-vm",
-  "Local-IP": "10.6.0.5",
-  "Remote-IP": "10.6.3.4"
-}
-```
-
-The `Hostname` and `Local-IP` fields belong to the servers running the web application - in this case ***spoke3*** and ***spoke6***virtual machines. The `Remote-IP` fields (as seen by the web servers) are the respective IP addresses in the Private Link Service NAT subnets.
+The `Hostname` and `Local-IP` fields identifies the actual web servers - in this case ***spoke3*** and ***spoke6*** virtual machines. The `Remote-IP` fields (as seen by the web servers) are IP addresses in the Private Link Service NAT subnets.
 
 ### 5. Private Link (App Service) Access from Public Client
 
@@ -261,28 +190,7 @@ curl $spoke3_apps_url
 
 Sample output
 ```sh
-2-hub-spoke-azfw-dual-region$ curl $spoke3_apps_url
-{
-  "Headers": {
-    "Accept": "*/*",
-    "Client-Ip": "174.173.70.196:59342",
-    "Disguised-Host": "hs12-spoke3-3578-app.azurewebsites.net",
-    "Host": "hs12-spoke3-3578-app.azurewebsites.net",
-    "Max-Forwards": "10",
-    "User-Agent": "curl/7.74.0",
-    "Was-Default-Hostname": "hs12-spoke3-3578-app.azurewebsites.net",
-    "X-Arr-Log-Id": "703dab21-f590-482c-a321-35ca1d7c74f7",
-    "X-Client-Ip": "174.173.70.196",
-    "X-Client-Port": "59342",
-    "X-Forwarded-For": "174.173.70.196:59342",
-    "X-Original-Url": "/",
-    "X-Site-Deployment-Id": "hs12-spoke3-3578-app",
-    "X-Waws-Unencoded-Url": "/"
-  },
-  "Hostname": "bc1e2afd490c",
-  "Local-IP": "169.254.129.3",
-  "Remote-IP": "169.254.129.1"
-}
+
 ```
 
 Observe that we are connecting from our local client's public IP address specified in the `X-Client-Ip`
@@ -344,28 +252,7 @@ curl hs12-spoke3-3578-app.azurewebsites.net
 
 Sample output
 ```sh
-azureuser@Hs12-branch1-vm:~$ curl hs12-spoke3-3578-app.azurewebsites.net
-{
-  "Headers": {
-    "Accept": "*/*",
-    "Client-Ip": "[fd40:d6d1:12:d4d5:7c12:100:a0a:5]:42854",
-    "Disguised-Host": "hs12-spoke3-3578-app.azurewebsites.net",
-    "Host": "hs12-spoke3-3578-app.azurewebsites.net",
-    "Max-Forwards": "10",
-    "User-Agent": "curl/7.68.0",
-    "Was-Default-Hostname": "hs12-spoke3-3578-app.azurewebsites.net",
-    "X-Arr-Log-Id": "4ed6f10d-a289-4d61-97eb-b5dc4542eba2",
-    "X-Client-Ip": "10.10.0.5",
-    "X-Client-Port": "0",
-    "X-Forwarded-For": "10.10.0.5",
-    "X-Original-Url": "/",
-    "X-Site-Deployment-Id": "hs12-spoke3-3578-app",
-    "X-Waws-Unencoded-Url": "/"
-  },
-  "Hostname": "bc1e2afd490c",
-  "Local-IP": "169.254.129.3",
-  "Remote-IP": "169.254.129.1"
-}
+
 ```
 
 Observe that we are connecting from the private IP address of `Hs12-branch1-vm` specified in the `X-Client-Ip`.
