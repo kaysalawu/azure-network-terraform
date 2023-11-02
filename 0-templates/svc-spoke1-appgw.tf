@@ -9,9 +9,9 @@ module "application-gateway" {
   source               = "../../modules/appgw"
   resource_group_name  = azurerm_resource_group.rg.name
   location             = local.spoke1_location
-  app_gateway_name     = "${local.spoke1_prefix}appgw"
+  app_gateway_name     = "AppGatewaySubnet"
   virtual_network_name = module.spoke1.vnet.name
-  subnet_name          = module.spoke1.subnets["${local.spoke1_prefix}appgw"].name
+  subnet_name          = module.spoke1.subnets["AppGatewaySubnet"].name
   private_ip_address   = local.spoke1_appgw_addr
 
   sku = {

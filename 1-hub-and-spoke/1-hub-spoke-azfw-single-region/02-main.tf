@@ -59,9 +59,18 @@ locals {
     enable_vpn_gateway          = true
     enable_er_gateway           = false
 
-    create_firewall    = false
+    create_firewall    = true
     firewall_sku       = local.firewall_sku
     firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
+
+    ruleset_dns_forwarding_rules = {
+      "onprem" = {
+        domain = local.onprem_domain
+        target_dns_servers = [
+          { ip_address = local.branch1_dns_addr, port = 53 },
+        ]
+      }
+    }
   }
 }
 

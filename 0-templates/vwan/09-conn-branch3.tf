@@ -4,8 +4,8 @@
 ####################################################
 
 locals {
-  branch3_network       = cidrhost(local.branch3_subnets["${local.branch3_prefix}main"].address_prefixes[0], 0)
-  branch3_mask          = cidrnetmask(local.branch3_subnets["${local.branch3_prefix}main"].address_prefixes[0])
+  branch3_network       = cidrhost(local.branch3_subnets["MainSubnet"].address_prefixes[0], 0)
+  branch3_mask          = cidrnetmask(local.branch3_subnets["MainSubnet"].address_prefixes[0])
   branch3_inverse_mask_ = [for octet in split(".", local.branch3_mask) : 255 - tonumber(octet)]
   branch3_inverse_mask  = join(".", local.branch3_inverse_mask_)
 }
@@ -136,8 +136,8 @@ locals {
 
     BGP_ADVERTISED_NETWORKS = [
       {
-        network = cidrhost(local.branch3_subnets["${local.branch3_prefix}main"].address_prefixes[0], 0)
-        mask    = cidrnetmask(local.branch3_subnets["${local.branch3_prefix}main"].address_prefixes[0])
+        network = cidrhost(local.branch3_subnets["MainSubnet"].address_prefixes[0], 0)
+        mask    = cidrnetmask(local.branch3_subnets["MainSubnet"].address_prefixes[0])
       },
     ]
   })
@@ -150,8 +150,8 @@ module "branch3_nva" {
   location             = local.branch3_location
   enable_ip_forwarding = true
   enable_public_ip     = true
-  subnet_ext           = module.branch3.subnets["${local.branch3_prefix}ext"].id
-  subnet_int           = module.branch3.subnets["${local.branch3_prefix}int"].id
+  subnet_ext           = module.branch3.subnets["NvaExternalSubnet"].id
+  subnet_int           = module.branch3.subnets["NvaInternalSubnet"].id
   private_ip_ext       = local.branch3_nva_ext_addr
   private_ip_int       = local.branch3_nva_int_addr
   public_ip            = azurerm_public_ip.branch3_nva_pip.id
@@ -171,7 +171,7 @@ module "branch3_udr_main" {
   resource_group                = azurerm_resource_group.rg.name
   prefix                        = "${local.branch3_prefix}main"
   location                      = local.branch3_location
-  subnet_id                     = module.branch3.subnets["${local.branch3_prefix}main"].id
+  subnet_id                     = module.branch3.subnets["MainSubnet"].id
   next_hop_type                 = "VirtualAppliance"
   next_hop_in_ip_address        = local.branch3_nva_int_addr
   destinations                  = local.private_prefixes_map

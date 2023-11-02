@@ -40,7 +40,7 @@ module "spoke5_udr_main" {
   resource_group         = azurerm_resource_group.rg.name
   prefix                 = "${local.spoke5_prefix}main"
   location               = local.spoke5_location
-  subnet_id              = module.spoke5.subnets["${local.spoke5_prefix}main"].id
+  subnet_id              = module.spoke5.subnets["MainSubnet"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub2_nva_ilb_addr
 
@@ -122,7 +122,7 @@ locals {
           },
         ]
         BGP_ADVERTISED_PREFIXES = [
-          local.hub2_subnets["${local.hub2_prefix}main"].address_prefixes[0],
+          local.hub2_subnets["MainSubnet"].address_prefixes[0],
           local.spoke5_address_space[0],
           #"${local.spoke6_vm_public_ip}/32"
         ]
@@ -156,7 +156,7 @@ module "hub2_udr_main" {
   resource_group         = azurerm_resource_group.rg.name
   prefix                 = "${local.hub2_prefix}main"
   location               = local.hub2_location
-  subnet_id              = module.hub2.subnets["${local.hub2_prefix}main"].id
+  subnet_id              = module.hub2.subnets["MainSubnet"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub2_nva_ilb_addr
 

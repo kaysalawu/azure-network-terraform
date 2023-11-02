@@ -47,7 +47,7 @@ module "spoke1_udr_main" {
   resource_group         = azurerm_resource_group.rg.name
   prefix                 = "${local.spoke1_prefix}main"
   location               = local.spoke1_location
-  subnet_id              = module.spoke1.subnets["${local.spoke1_prefix}main"].id
+  subnet_id              = module.spoke1.subnets["MainSubnet"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub1_nva_ilb_addr
 
@@ -107,7 +107,7 @@ module "spoke2_udr_main" {
   resource_group         = azurerm_resource_group.rg.name
   prefix                 = "${local.spoke2_prefix}main"
   location               = local.spoke2_location
-  subnet_id              = module.spoke2.subnets["${local.spoke2_prefix}main"].id
+  subnet_id              = module.spoke2.subnets["MainSubnet"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub1_nva_ilb_addr
 
@@ -173,7 +173,7 @@ module "hub1_udr_main" {
   resource_group         = azurerm_resource_group.rg.name
   prefix                 = "${local.hub1_prefix}main"
   location               = local.hub1_location
-  subnet_id              = module.hub1.subnets["${local.hub1_prefix}main"].id
+  subnet_id              = module.hub1.subnets["MainSubnet"].id
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub1_nva_ilb_addr
 

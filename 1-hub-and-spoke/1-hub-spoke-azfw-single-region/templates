@@ -4,4 +4,4 @@
 ../../0-templates/05-hub1.tf
 ../../0-templates/hub-spoke/06-conn-hub1-azfw.tf
 ../../0-templates/services-region1.tf
-../../0-templates/outputs.tf
+../../0-templates/outputs-single-region.tf

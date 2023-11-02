@@ -15,9 +15,10 @@ module "branch1" {
   tags            = local.branch1_tags
 
   nsg_subnet_map = {
-    #"${local.branch1_prefix}main" = module.common.nsg_main["region1"].id
-    #"${local.branch1_prefix}int"  = module.common.nsg_main["region1"].id
-    #"${local.branch1_prefix}ext"  = module.common.nsg_nva["region1"].id
+    "MainSubnet"        = module.common.nsg_main["region1"].id
+    "NvaInternalSubnet" = module.common.nsg_main["region1"].id
+    "NvaExternalSubnet" = module.common.nsg_nva["region1"].id
+    "DnsServerSubnet"   = module.common.nsg_main["region1"].id
   }
 
   vnet_config = [
@@ -43,7 +44,7 @@ module "branch1_dns" {
   prefix           = local.branch1_prefix
   name             = "dns"
   location         = local.branch1_location
-  subnet           = module.branch1.subnets["${local.branch1_prefix}main"].id
+  subnet           = module.branch1.subnets["MainSubnet"].id
   private_ip       = local.branch1_dns_addr
   enable_public_ip = true
   source_image     = "ubuntu-20"
@@ -57,8 +58,8 @@ module "branch1_dns" {
 ####################################################
 
 locals {
-  branch1_network       = cidrhost(local.branch1_subnets["${local.branch1_prefix}main"].address_prefixes[0], 0)
-  branch1_mask          = cidrnetmask(local.branch1_subnets["${local.branch1_prefix}main"].address_prefixes[0])
+  branch1_network       = cidrhost(local.branch1_subnets["MainSubnet"].address_prefixes[0], 0)
+  branch1_mask          = cidrnetmask(local.branch1_subnets["MainSubnet"].address_prefixes[0])
   branch1_inverse_mask_ = [for octet in split(".", local.branch1_mask) : 255 - tonumber(octet)]
   branch1_inverse_mask  = join(".", local.branch1_inverse_mask_)
 }
@@ -186,8 +187,8 @@ locals {
 
     BGP_ADVERTISED_NETWORKS = [
       {
-        network = cidrhost(local.branch1_subnets["${local.branch1_prefix}main"].address_prefixes[0], 0)
-        mask    = cidrnetmask(local.branch1_subnets["${local.branch1_prefix}main"].address_prefixes[0])
+        network = cidrhost(local.branch1_subnets["MainSubnet"].address_prefixes[0], 0)
+        mask    = cidrnetmask(local.branch1_subnets["MainSubnet"].address_prefixes[0])
       },
     ]
   })
@@ -200,8 +201,8 @@ module "branch1_nva" {
   location             = local.branch1_location
   enable_ip_forwarding = true
   enable_public_ip     = true
-  subnet_ext           = module.branch1.subnets["${local.branch1_prefix}ext"].id
-  subnet_int           = module.branch1.subnets["${local.branch1_prefix}int"].id
+  subnet_ext           = module.branch1.subnets["NvaExternalSubnet"].id
+  subnet_int           = module.branch1.subnets["NvaInternalSubnet"].id
   private_ip_ext       = local.branch1_nva_ext_addr
   private_ip_int       = local.branch1_nva_int_addr
   public_ip            = azurerm_public_ip.branch1_nva_pip.id
@@ -221,7 +222,7 @@ module "branch1_vm" {
   prefix           = local.branch1_prefix
   name             = "vm"
   location         = local.branch1_location
-  subnet           = module.branch1.subnets["${local.branch1_prefix}main"].id
+  subnet           = module.branch1.subnets["MainSubnet"].id
   private_ip       = local.branch1_vm_addr
   enable_public_ip = true
   source_image     = "ubuntu-20"
@@ -248,7 +249,7 @@ module "branch1_udr_main" {
   resource_group                = azurerm_resource_group.rg.name
   prefix                        = "${local.branch1_prefix}main"
   location                      = local.branch1_location
-  subnet_id                     = module.branch1.subnets["${local.branch1_prefix}main"].id
+  subnet_id                     = module.branch1.subnets["MainSubnet"].id
   next_hop_type                 = "VirtualAppliance"
   next_hop_in_ip_address        = local.branch1_nva_int_addr
   destinations                  = local.private_prefixes_map

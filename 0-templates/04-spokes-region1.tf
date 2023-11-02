@@ -24,9 +24,12 @@ module "spoke1" {
   }
 
   nsg_subnet_map = {
-    "${local.spoke1_prefix}main"  = module.common.nsg_main["region1"].id
-    "${local.spoke1_prefix}appgw" = module.common.nsg_appgw["region1"].id
-    "${local.spoke1_prefix}ilb"   = module.common.nsg_default["region1"].id
+    "MainSubnet"               = module.common.nsg_main["region1"].id
+    "AppGatewaySubnet"         = module.common.nsg_appgw["region1"].id
+    "LoadBalancerSubnet"       = module.common.nsg_default["region1"].id
+    "PrivateLinkServiceSubnet" = module.common.nsg_default["region1"].id
+    "PrivateEndpointSubnet"    = module.common.nsg_default["region1"].id
+    "AppServiceSubnet"         = module.common.nsg_default["region1"].id
   }
 
   vnet_config = [
@@ -46,13 +49,13 @@ module "spoke1_vm" {
   prefix                = local.spoke1_prefix
   name                  = "vm"
   location              = local.spoke1_location
-  subnet                = module.spoke1.subnets["${local.spoke1_prefix}main"].id
+  subnet                = module.spoke1.subnets["MainSubnet"].id
   private_ip            = local.spoke1_vm_addr
   enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region1"]
   private_dns_zone_name = "spoke1.${local.cloud_domain}"
-  delay_creation        = "150s"
+  delay_creation        = "2m"
   tags                  = local.spoke1_tags
   depends_on = [
     module.hub1,
@@ -84,9 +87,9 @@ module "spoke2" {
   }
 
   nsg_subnet_map = {
-    "${local.spoke2_prefix}main"  = module.common.nsg_main["region1"].id
-    "${local.spoke2_prefix}appgw" = module.common.nsg_appgw["region1"].id
-    "${local.spoke2_prefix}ilb"   = module.common.nsg_default["region1"].id
+    "MainSubnet"         = module.common.nsg_main["region1"].id
+    "AppGatewaySubnet"   = module.common.nsg_appgw["region1"].id
+    "LoadBalancerSubnet" = module.common.nsg_default["region1"].id
   }
 
   vnet_config = [
@@ -106,13 +109,13 @@ module "spoke2_vm" {
   prefix                = local.spoke2_prefix
   name                  = "vm"
   location              = local.spoke2_location
-  subnet                = module.spoke2.subnets["${local.spoke2_prefix}main"].id
+  subnet                = module.spoke2.subnets["MainSubnet"].id
   private_ip            = local.spoke2_vm_addr
   enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region1"]
   private_dns_zone_name = "spoke2.${local.cloud_domain}"
-  delay_creation        = "150s"
+  delay_creation        = "2m"
   tags                  = local.spoke2_tags
   depends_on = [
     module.hub1,
@@ -143,16 +146,16 @@ module "spoke3" {
   }
 
   nsg_subnet_map = {
-    "${local.spoke3_prefix}main"  = module.common.nsg_main["region1"].id
-    "${local.spoke3_prefix}appgw" = module.common.nsg_appgw["region1"].id
-    "${local.spoke3_prefix}ilb"   = module.common.nsg_default["region1"].id
+    "MainSubnet"         = module.common.nsg_main["region1"].id
+    "AppGatewaySubnet"   = module.common.nsg_appgw["region1"].id
+    "LoadBalancerSubnet" = module.common.nsg_default["region1"].id
   }
 
   vnet_config = [
     {
       address_space            = local.spoke3_address_space
       subnets                  = local.spoke3_subnets
-      nat_gateway_subnet_names = ["${local.spoke3_prefix}main", ]
+      nat_gateway_subnet_names = ["MainSubnet", ]
     }
   ]
 }
@@ -165,16 +168,15 @@ module "spoke3_vm" {
   prefix                = local.spoke3_prefix
   name                  = "vm"
   location              = local.spoke3_location
-  subnet                = module.spoke3.subnets["${local.spoke3_prefix}main"].id
+  subnet                = module.spoke3.subnets["MainSubnet"].id
   private_ip            = local.spoke3_vm_addr
   enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region1"]
   private_dns_zone_name = "spoke3.${local.cloud_domain}"
-  delay_creation        = "150s"
+  delay_creation        = "2m"
   tags                  = local.spoke3_tags
   depends_on = [
     module.hub1,
-    azurerm_private_dns_resolver_virtual_network_link.hub1_onprem,
   ]
 }

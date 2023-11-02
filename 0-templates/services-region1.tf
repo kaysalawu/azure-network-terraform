@@ -20,7 +20,7 @@ module "spoke3_lb" {
   type                                   = "private"
   private_dns_zone                       = module.spoke3.private_dns_zone.name
   dns_host                               = local.spoke3_ilb_host
-  frontend_subnet_id                     = module.spoke3.subnets["${local.spoke3_prefix}ilb"].id
+  frontend_subnet_id                     = module.spoke3.subnets["LoadBalancerSubnet"].id
   frontend_private_ip_address_allocation = "Static"
   frontend_private_ip_address            = local.spoke3_ilb_addr
   lb_sku                                 = "Standard"
@@ -53,12 +53,9 @@ module "spoke3_pls" {
     {
       name            = "pls-nat-ip-config"
       primary         = true
-      subnet_id       = module.spoke3.subnets["${local.spoke3_prefix}pls"].id
+      subnet_id       = module.spoke3.subnets["PrivateLinkServiceSubnet"].id
       lb_frontend_ids = [module.spoke3_lb.frontend_ip_configuration[0].id, ]
     }
-  ]
-  depends_on = [
-    module.spoke3_lb,
   ]
 }
 
@@ -69,7 +66,7 @@ resource "azurerm_private_endpoint" "hub1_spoke3_pls_pep" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = "${local.hub1_prefix}spoke3-pls-pep"
   location            = local.hub1_location
-  subnet_id           = module.hub1.subnets["${local.hub1_prefix}pep"].id
+  subnet_id           = module.hub1.subnets["PrivateEndpointSubnet"].id
 
   private_service_connection {
     name                           = "${local.hub1_prefix}spoke3-pls-svc-conn"
@@ -83,7 +80,9 @@ resource "azurerm_private_dns_a_record" "hub1_spoke3_pls_pep" {
   name                = local.hub1_spoke3_pep_host
   zone_name           = module.hub1.private_dns_zone.name
   ttl                 = 300
-  records             = [azurerm_private_endpoint.hub1_spoke3_pls_pep.private_service_connection[0].private_ip_address, ]
+  records = [
+    azurerm_private_endpoint.hub1_spoke3_pls_pep.private_service_connection[0].private_ip_address,
+  ]
 }
 
 ####################################################
@@ -123,8 +122,10 @@ module "spoke3_apps" {
   prefix            = lower(local.spoke3_prefix)
   name              = random_id.services_region1.hex
   docker_image_name = "ksalawu/web:latest"
-  subnet_id         = module.spoke3.subnets["${local.spoke3_prefix}apps"].id
-  depends_on        = [azurerm_private_dns_zone_virtual_network_link.hub1_privatelink_vnet_links]
+  subnet_id         = module.spoke3.subnets["AppServiceSubnet"].id
+  depends_on = [
+    azurerm_private_dns_zone_virtual_network_link.hub1_privatelink_vnet_links,
+  ]
 }
 
 # private endpoint
@@ -133,7 +134,7 @@ resource "azurerm_private_endpoint" "hub1_spoke3_apps_pep" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = "${local.hub1_prefix}spoke3-apps-pep"
   location            = local.hub1_location
-  subnet_id           = module.hub1.subnets["${local.hub1_prefix}pep"].id
+  subnet_id           = module.hub1.subnets["PrivateEndpointSubnet"].id
 
   private_service_connection {
     name                           = "${local.hub1_prefix}spoke3-apps-svc-conn"

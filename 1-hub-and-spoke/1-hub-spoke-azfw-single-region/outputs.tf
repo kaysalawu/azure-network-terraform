@@ -1,1 +1,0 @@
-../../0-templates/outputs.tf
