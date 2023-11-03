@@ -346,7 +346,7 @@ Check the Azure Firewall logs to observe the traffic flow.
 
 ![Hs11-azfw-hub1-network-rule-log](../../images/demos/hs11-hub1-net-rule-log.png)
 
-Observe the firewall traffic flows from the tests done so far.
+Observe the firewall logs based on traffic flows generated from our tests.
 
 ![Hs11-azfw-hub1-network-rule-log-data](../../images/demos/hs11-hub1-net-rule-log-detail.png)
 
