@@ -6,7 +6,7 @@ Contents
 - [Prerequisites](#prerequisites)
 - [Deploy the Lab](#deploy-the-lab)
 - [Troubleshooting](#troubleshooting)
-- [Auto-generated Outputs](#auto-generated-outputs)
+- [Outputs](#outputs)
 - [Testing](#testing)
   - [1. Ping IP](#1-ping-ip)
   - [2. Ping DNS](#2-ping-dns)
@@ -55,7 +55,7 @@ terraform apply
 
 See the [troubleshooting](../../troubleshooting/) section for tips on how to resolve common issues that may occur during the deployment of the lab.
 
-## Auto-generated Outputs
+## Outputs
 
 The table below show the auto-generated output files from the lab. They are located in the `output` directory.
 
@@ -177,7 +177,7 @@ The `Hostname` and `Local-IP` fields identify the target web server - in this ca
 
 ### 5. Private Link (App Service) Access from Public Client
 
-An app service instance is deployed for ***spoke3***. The app service instance is a fully managed PaaS services by Azure. For the purpose of this lab, we are assuming the service is linked to ***spoke3*** and will be access via a private endpoint in ***hub1***. By using [Virtual Network integration](https://learn.microsoft.com/en-us/azure/app-service/overview-vnet-integration#regional-virtual-network-integration), the app service is also deployed in a dedicated ***AppServiceSubnet*** subnet in ***spoke3*** in order to allow the service to access private resources in ***spoke3***, other spokes and on-premises.
+An app service instance is deployed for ***spoke3***. The app service instance is a fully managed PaaS service. In this lab, the service is linked to ***spoke3***. By using [Virtual Network integration](https://learn.microsoft.com/en-us/azure/app-service/overview-vnet-integration#regional-virtual-network-integration), the app service is deployed in a dedicated ***AppServiceSubnet*** subnet in ***spoke3***. This allows the app service to access private resources in ***spoke3*** Vnet.
 
 The app service is accessible via the private endpoint in ***hub1***. The app service is also accessible via its public endpoint. The app service application is a simple [python Flask web application](https://hub.docker.com/r/ksalawu/web) that returns the HTTP headers, hostname and IP addresses of the server running the application.
 
@@ -269,7 +269,7 @@ Repeat steps *5.1* through *5.4* for the app service linked to ***spoke6***.
 
 ### 6. Private Link (App Service) Access from On-premises
 
-6.1 ***On your local machine***, get the hostname of the app service in ***spoke3*** as done in Step 5.2. In our example, the hostname is `hs11-spoke3-0ca7-app.azurewebsites.net`. Your hostname will be different.
+6.1 ***On your local machine***, recall the hostname of the app service in ***spoke3*** as done in Step 5.2. In our example, the hostname is `hs11-spoke3-0ca7-app.azurewebsites.net`.
 
 6.2. Connect to the on-premises server `Hs11-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Hs11-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
 
@@ -290,17 +290,18 @@ Name:   hs11-spoke3-0ca7-app.privatelink.azurewebsites.net
 Address: 10.11.4.5
 ```
 
-We can see that the endpoint is an IP address in the subnet ***10.11.4.5*** in ***hub1***. The following is a summary of the DNS resolution from `Hs11-branch1-vm`:
-- `Hs11-branch1-vm` makes a DNS request for `hs11-spoke3-0ca7-app.azurewebsites.net`
+We can see that the app service hostname resolves to the private endpoint ***10.11.4.5*** in ***hub1***. The following is a summary of the DNS resolution from `Hs11-branch1-vm`:
+- On-premises server `Hs11-branch1-vm` makes a DNS request for `hs11-spoke3-0ca7-app.azurewebsites.net`
 - The request is received by on-premises DNS server `Hs11-branch1-dns`
 - The DNS server resolves `hs11-spoke3-0ca7-app.azurewebsites.net` to the CNAME `hs11-spoke3-0ca7-app.privatelink.azurewebsites.net`
-- The DNS server has a conditional forwarding defined in the [unbound DNS configuration file](./output/branch-unbound.sh). Requests matching `privatelink.azurewebsites.net` will be forwarded to the private DNS resolver inbound endpoint in ***hub1*** (10.11.5.4).
+- The DNS server has a conditional DNS forwarding defined in the [unbound DNS configuration file](./output/branch-unbound.sh).
 
   ```sh
   forward-zone:
           name: "privatelink.azurewebsites.net."
           forward-addr: 10.11.5.4
   ```
+  DNS Requests matching `privatelink.azurewebsites.net` will be forwarded to the private DNS resolver inbound endpoint in ***hub1*** (10.11.5.4).
 - The DNS server forwards the DNS request to the private DNS resolver inbound endpoint in ***hub1*** - which returns the IP address of the app service private endpoint in ***hub1*** (10.11.4.5)
 
 6.4. From `Hs11-branch1-vm`, test access to the ***spoke3*** app service via the private endpoint. Use your actual hostname.
@@ -334,7 +335,7 @@ azureuser@Hs11-branch1-vm:~$ curl hs11-spoke3-0ca7-app.azurewebsites.net
 }
 ```
 
-Observe that we are connecting from the private IP address of `Hs11-branch1-vm` (10.10.0.5) specified in the `X-Client-Ip`.
+Observe that we are connecting from the private IP address (10.10.0.5) of `Hs11-branch1-vm` (10.10.0.5) specified in the `X-Client-Ip`.
 
 ### 7. Azure Firewall
 
@@ -401,11 +402,11 @@ C        192.168.10.10 is directly connected, Loopback0
 ```
 
 We can see our hub and spoke Vnet ranges being learned dynamically via BGP:
-- ***spoke1*** - `10.1.0.0/16` with a next hop of VPN gateway 10.11.7.4
-- ***spoke2*** - 10.2.0.0/16 with a next hop of VPN gateway 10.11.7.4
-- ***hub1*** - 10.11.0.0/16 with a next hop of VPN gateway 10.11.7.4
+- ***Spoke1 Vnet*** (10.1.0.0/16) via ***hub1*** VPN gateway 10.11.7.4
+- ***Spoke2 Vnet*** (10.2.0.0/16) via ***hub1*** VPN gateway 10.11.7.4
+- ***Hub1 Vnet*** (10.11.0.0/16) via ***hub1*** VPN gateway 10.11.7.4
 
-1. Display BGP information by typing `show ip bgp`.
+5. Display BGP information by typing `show ip bgp`.
 ```sh
 show ip bgp
 ```
