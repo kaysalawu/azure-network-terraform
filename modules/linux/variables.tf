@@ -42,8 +42,8 @@ variable "private_ip" {
   default     = null
 }
 
-variable "public_ip" {
-  description = "optional static public ip of vm"
+variable "public_ip_address_id" {
+  description = "optional static public ip ID of vm"
   type        = any
   default     = null
 }

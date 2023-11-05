@@ -103,10 +103,6 @@ variable "vnet_config" {
     ruleset_vnet_links               = optional(map(any), {})
     ruleset_dns_forwarding_rules     = optional(map(any), {})
 
-    create_firewall    = optional(bool, false)
-    firewall_sku       = optional(string, "Basic")
-    firewall_policy_id = optional(string, null)
-
     er_gateway_sku = optional(string, "Standard")
 
     enable_vpn_gateway                     = optional(bool, false)
@@ -114,12 +110,6 @@ variable "vnet_config" {
     vpn_gateway_asn                        = optional(string, 65515)
     vpn_gateway_ip_config0_apipa_addresses = optional(list(string), ["169.254.21.1"])
     vpn_gateway_ip_config1_apipa_addresses = optional(list(string), ["169.254.21.5"])
-
-    create_nva      = optional(bool, false)
-    nva_type        = optional(string, "cisco")
-    nva_ilb_addr    = optional(string, null)
-    nva_subnet_name = optional(string, "")
-    nva_custom_data = optional(string, "")
   }))
   default = []
 }
@@ -142,6 +132,34 @@ variable "vm_config" {
     delay_creation       = optional(string, "0s")
   }))
   default = []
+}
+
+variable "firewall_config" {
+  type = list(object({
+    create_firewall    = optional(bool, false)
+    firewall_sku       = optional(string, "Basic")
+    firewall_policy_id = optional(string, null)
+  }))
+  default = [{
+    create_firewall    = false,
+    firewall_sku       = "Basic"
+    firewall_policy_id = null
+  }]
+}
+
+variable "nva_config" {
+  type = list(object({
+    enable           = optional(bool, false)
+    type             = optional(string, "cisco")
+    internal_lb_addr = optional(string, null)
+    custom_data      = optional(string, null)
+  }))
+  default = [{
+    enable           = false,
+    type             = "cisco",
+    internal_lb_addr = null,
+    custom_data      = null
+  }]
 }
 
 /* variable "metric_categories_firewall" {

@@ -35,7 +35,34 @@ server:
 forward-zone:
         name: "az.corp."
         forward-addr: 10.11.5.4
-        forward-addr: 10.22.5.4
+
+forward-zone:
+        name: "az.corp."
+        forward-addr: 10.11.5.4
+
+forward-zone:
+        name: "privatelink.blob.core.windows.net."
+        forward-addr: 10.11.5.4
+
+forward-zone:
+        name: "privatelink.azurewebsites.net."
+        forward-addr: 10.11.5.4
+
+forward-zone:
+        name: "privatelink.database.windows.net."
+        forward-addr: 10.11.5.4
+
+forward-zone:
+        name: "privatelink.table.cosmos.azure.com."
+        forward-addr: 10.11.5.4
+
+forward-zone:
+        name: "privatelink.queue.core.windows.net."
+        forward-addr: 10.11.5.4
+
+forward-zone:
+        name: "privatelink.file.core.windows.net."
+        forward-addr: 10.11.5.4
 
 forward-zone:
         name: "."

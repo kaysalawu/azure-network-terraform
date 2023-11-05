@@ -13,7 +13,7 @@ resource "azurerm_network_interface" "this" {
   tags                 = var.tags
   enable_ip_forwarding = var.enable_ip_forwarding
   ip_configuration {
-    name                          = "${local.name}nic"
+    name                          = "ip-config"
     subnet_id                     = var.subnet
     private_ip_address_allocation = var.private_ip == null ? "Dynamic" : "Static"
     private_ip_address            = var.private_ip == null ? null : var.private_ip

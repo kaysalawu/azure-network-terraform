@@ -26,11 +26,11 @@ This terraform code deploys a dual-region Hub and Spoke Secured Virtual Network 
 
 ***Hub1*** is a Vnet hub that has an Azure firewall used for inspection of traffic between an on-premises branch and Vnet spokes. User-Defined Routes (UDR) are used to influence the hub Vnet data plane to route traffic between the branch and spokes via the firewall. An isolated spoke ***spoke3*** does not have Vnet peering to ***hub1***, but is reachable from the hub via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview).
 
-Similarly, ***hub2*** has an Azure firewall used for inspection of traffic between branch and spokes ***spoke6*** does not have Vnet peering to ***hub2***, but is reachable from the hub via Private Link Service.
+Similarly, ***hub2*** has an Azure firewall used for inspection of traffic between branch and spokes. ***Spoke6*** does not have Vnet peering to ***hub2***, but is reachable from the hub via Private Link Service.
 
 The hubs are connected together via Vnet peering to allow inter-hub network reachability.
 
-***Branch1*** and ***branch3*** are on-premises networks simulated using Vnets. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the hubs using IPsec VPN connections with dynamic (BGP) routing. A simulated on-premises Wide Area Network (WAN) is created using Vnet peering between ***branch1*** and ***branch3*** as the underlay connectivity, and IPsec with BGP configured as the overlay connection.
+***Branch1*** and ***branch3*** are on-premises networks simulated using Vnets. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the hubs using IPsec VPN connections with dynamic (BGP) routing. A simulated on-premises Wide Area Network (WAN) is created using Vnet peering between ***branch1*** and ***branch3*** as the underlay connectivity, and IPsec with BGP as the overlay connection.
 
 Each branch connects to Vnet spokes in their local regions through the directly connected hub. However, each branch connects to spokes in the remote region via the on-premises WAN network. For example, ***branch1*** only receives dynamic routes for ***spoke1***, ***spoke2*** and ***hub1*** through the VPN to ***hub1***. ***Branch1*** uses the simulated on-premises network via ***branch3*** to reach ***spoke4***, ***spoke5*** and ***hub2*** through the VPN from ***branch3*** to ***hub2***.
 
@@ -114,7 +114,6 @@ hub2    - 10.22.0.5 -OK 19.710 ms
 spoke4  - 10.4.0.5 -OK 20.164 ms
 spoke5  - 10.5.0.5 -OK 21.362 ms
 internet - icanhazip.com -NA
-
 ```
 
 ### 2. Ping DNS
@@ -141,7 +140,6 @@ vm.hub2.az.corp - 10.22.0.5 -OK 19.895 ms
 vm.spoke4.az.corp - 10.4.0.5 -OK 19.866 ms
 vm.spoke5.az.corp - 10.5.0.5 -OK 20.613 ms
 icanhazip.com - 104.18.115.97 -NA
-
 ```
 
 ### 3. Curl DNS
@@ -241,7 +239,7 @@ spoke3_apps_url=$(az webapp list --resource-group Hs12RG --query "[?contains(nam
 echo $spoke3_apps_url
 ```
 
-Sample output (your result will be different)
+Sample output (your output will be different)
 ```sh
 hs12-spoke3-eab4-app.azurewebsites.net
 ```
@@ -250,7 +248,7 @@ hs12-spoke3-eab4-app.azurewebsites.net
 nslookup $spoke3_apps_url
 ```
 
-Sample output (your result will be different)
+Sample output (your output will be different)
 ```sh
 2-hub-spoke-azfw-dual-region$ nslookup $spoke3_apps_url
 Server:         172.22.0.1
@@ -264,7 +262,7 @@ Name:   waws-prod-am2-597-91a3.westeurope.cloudapp.azure.com
 Address: 20.105.232.16
 ```
 
-We can see that the endpoint is a public IP address, ***20.105.232.16*** in this example. We can also observe there is a CNAME created for the app service `hs12-spoke3-eab4-app.azurewebsites.net` which recursively resolves to the public IP address.
+We can see that the endpoint is a public IP address, ***20.105.232.16***. We can see the CNAME `hs12-spoke3-eab4-app.privatelink.azurewebsites.net` created for the app service which recursively resolves to the public IP address.
 
 5.4. Test access to the ***spoke3*** app service via the public endpoint.
 
@@ -298,7 +296,7 @@ Sample output
 }
 ```
 
-Observe that we are connecting from our local client's public IP address specified in the `X-Client-Ip`.
+Observe that we are connecting from our local client's public IP address (174.173.70.196) specified in the `X-Client-Ip`.
 
 Let's confirm the public IP address of our local machine
 ```sh
@@ -337,9 +335,9 @@ Address: 10.11.4.5
 ```
 
 We can see that the app service hostname resolves to the private endpoint ***10.11.4.5*** in ***hub1***. The following is a summary of the DNS resolution from `Hs12-branch1-vm`:
-- On-premises server `Hs12-branch1-vm` makes a DNS request for `hs12-spoke3-0ca7-app.azurewebsites.net`
+- On-premises server `Hs12-branch1-vm` makes a DNS request for `hs12-spoke3-eab4-app.azurewebsites.net`
 - The request is received by on-premises DNS server `Hs12-branch1-dns`
-- The DNS server resolves `hs12-spoke3-0ca7-app.azurewebsites.net` to the CNAME `hs12-spoke3-0ca7-app.privatelink.azurewebsites.net`
+- The DNS server resolves `hs12-spoke3-eab4-app.azurewebsites.net` to the CNAME `hs12-spoke3-eab4-app.privatelink.azurewebsites.net`
 - The DNS server has a conditional DNS forwarding defined in the [unbound DNS configuration file](./output/branch-unbound.sh).
 
   ```sh
@@ -456,13 +454,13 @@ C        192.168.10.10 is directly connected, Loopback0
 S        192.168.30.30 is directly connected, Tunnel2
 ```
 
-We can see our hub and spoke Vnet ranges being learned dynamically via BGP:
+We can see our hub and spoke Vnet ranges are learned dynamically via BGP:
 - ***Spoke1 Vnet*** (10.1.0.0/16) via ***hub1*** VPN gateway 10.11.7.4
 - ***Spoke2 Vnet*** (10.2.0.0/16) via ***hub1*** VPN gateway 10.11.7.4
-- ***Spoke4 Vnet*** (10.1.0.0/16) via ***branch3*** VPN Tunnel 192.168.30.30
-- ***Spoke5 Vnet*** (10.2.0.0/16) via ***branch3*** VPN Tunnel 192.168.30.30
+- ***Spoke4 Vnet*** (10.1.0.0/16) via ***branch3*** link 192.168.30.30
+- ***Spoke5 Vnet*** (10.2.0.0/16) via ***branch3*** link 192.168.30.30
 - ***Hub1 Vnet*** (10.11.0.0/16) via ***hub1*** VPN gateway 10.11.7.4
-- ***Hub2 Vnet*** (10.22.0.0/16) via ***branch3*** VPN Tunnel 192.168.30.30
+- ***Hub2 Vnet*** (10.22.0.0/16) via ***branch3*** link 192.168.30.30
 
 5. Display BGP information by typing `show ip bgp`.
 ```sh

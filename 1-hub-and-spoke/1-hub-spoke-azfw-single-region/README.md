@@ -195,7 +195,7 @@ spoke3_apps_url=$(az webapp list --resource-group Hs11RG --query "[?contains(nam
 echo $spoke3_apps_url
 ```
 
-Sample output
+Sample output (your output will be different)
 ```sh
 hs11-spoke3-0ca7-app.azurewebsites.net
 ```
@@ -204,7 +204,7 @@ hs11-spoke3-0ca7-app.azurewebsites.net
 nslookup $spoke3_apps_url
 ```
 
-Sample output
+Sample output (your output will be different)
 ```sh
 1-hub-spoke-azfw-single-region$ nslookup $spoke3_apps_url
 Server:         172.22.224.1
@@ -218,7 +218,7 @@ Name:   waws-prod-am2-769-a6a3.westeurope.cloudapp.azure.com
 Address: 20.105.232.49
 ```
 
-We can see that the endpoint is a public IP address, ***20.105.232.49***. We can see the CNAME created for the app service `hs11-spoke3-631b-app.privatelink.azurewebsites.net` which recursively resolves to the public IP address.
+We can see that the endpoint is a public IP address, ***20.105.232.49***. We can see the CNAME `hs11-spoke3-0ca7-app.privatelink.azurewebsites.net` created for the app service which recursively resolves to the public IP address.
 
 5.4. Test access to the ***spoke3*** app service via the public endpoint.
 
@@ -252,7 +252,7 @@ Sample output
 }
 ```
 
-Observe that we are connecting from our local client's public IP address specified in the `X-Client-Ip`.
+Observe that we are connecting from our local client's public IP address (174.173.70.196) specified in the `X-Client-Ip`.
 
 Let's confirm the public IP address of our local machine
 ```sh
@@ -401,7 +401,7 @@ S        169.254.169.254 [254/0] via 10.10.1.1
 C        192.168.10.10 is directly connected, Loopback0
 ```
 
-We can see our hub and spoke Vnet ranges being learned dynamically via BGP:
+We can see our hub and spoke Vnet ranges are learned dynamically via BGP:
 - ***Spoke1 Vnet*** (10.1.0.0/16) via ***hub1*** VPN gateway 10.11.7.4
 - ***Spoke2 Vnet*** (10.2.0.0/16) via ***hub1*** VPN gateway 10.11.7.4
 - ***Hub1 Vnet*** (10.11.0.0/16) via ***hub1*** VPN gateway 10.11.7.4

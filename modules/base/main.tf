@@ -454,14 +454,14 @@ resource "azurerm_route_server" "ars" {
 ####################################################
 
 resource "random_id" "azfw" {
-  count       = var.vnet_config[0].create_firewall ? 1 : 0
+  count       = var.firewall_config[0].create_firewall ? 1 : 0
   byte_length = 4
 }
 
 # workspace
 
 resource "azurerm_log_analytics_workspace" "azfw" {
-  count               = var.vnet_config[0].create_firewall ? 1 : 0
+  count               = var.firewall_config[0].create_firewall ? 1 : 0
   resource_group_name = var.resource_group
   name                = "${local.prefix}azfw-ws-${random_id.azfw[0].hex}"
   location            = var.location
@@ -473,7 +473,7 @@ resource "azurerm_log_analytics_workspace" "azfw" {
 # storage account
 
 resource "azurerm_storage_account" "azfw" {
-  count                    = var.vnet_config[0].create_firewall ? 1 : 0
+  count                    = var.firewall_config[0].create_firewall ? 1 : 0
   resource_group_name      = var.resource_group
   name                     = lower(replace("${local.prefix}azfw${random_id.azfw[0].hex}", "-", ""))
   location                 = var.location
@@ -485,7 +485,7 @@ resource "azurerm_storage_account" "azfw" {
 # firewall public ip
 
 resource "azurerm_public_ip" "fw_pip" {
-  count               = var.vnet_config[0].create_firewall ? 1 : 0
+  count               = var.firewall_config[0].create_firewall ? 1 : 0
   resource_group_name = var.resource_group
   name                = "${local.prefix}azfw-pip0"
   location            = var.location
@@ -504,7 +504,7 @@ resource "azurerm_public_ip" "fw_pip" {
 # firewall management public ip
 
 resource "azurerm_public_ip" "fw_mgt_pip" {
-  count               = var.vnet_config[0].create_firewall ? 1 : 0
+  count               = var.firewall_config[0].create_firewall ? 1 : 0
   resource_group_name = var.resource_group
   name                = "${local.prefix}azfw-mgt-pip0"
   location            = var.location
@@ -523,7 +523,7 @@ resource "azurerm_public_ip" "fw_mgt_pip" {
 # firewall
 
 resource "azurerm_firewall" "azfw" {
-  count               = var.vnet_config[0].create_firewall ? 1 : 0
+  count               = var.firewall_config[0].create_firewall ? 1 : 0
   name                = "${local.prefix}azfw"
   resource_group_name = var.resource_group
   location            = var.location
@@ -563,7 +563,7 @@ resource "azurerm_firewall" "azfw" {
 # diagnostic setting
 
 resource "azurerm_monitor_diagnostic_setting" "azfw" {
-  count                      = var.vnet_config[0].create_firewall ? 1 : 0
+  count                      = var.firewall_config[0].create_firewall ? 1 : 0
   name                       = "${local.prefix}azfw-diag-${random_id.azfw[0].hex}"
   target_resource_id         = azurerm_firewall.azfw[0].id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.azfw[0].id
@@ -593,30 +593,101 @@ resource "azurerm_monitor_diagnostic_setting" "azfw" {
   ]
 }
 
+####################################################
 # nva
-#----------------------------
+####################################################
 
-# # linux
+# linux
 
-# module "nva" {
-#   count                = var.vnet_config[0].create_nva && var.vnet_config[0].nva_type == "linux" ? 1 : 0
-#   source               = "../../modules/linux"
-#   resource_group       = var.resource_group
-#   prefix               = trimsuffix(local.prefix, "-")
-#   name                 = "nva"
-#   location             = var.location
-#   subnet               = azurerm_subnet.this["NvaSubnet"].id
-#   private_ip           = var.vnet_config[0].nva_ilb_addr
-#   enable_ip_forwarding = true
-#   enable_public_ip     = true
-#   source_image         = "ubuntu-20"
-#   storage_account      = var.storage_account
-#   admin_username       = var.admin_username
-#   admin_password       = var.admin_password
-#   custom_data          = var.vnet_config[0].nva_custom_data
-# }
+module "nva_linux" {
+  count                = var.nva_config[0].enable && var.nva_config[0].type == "linux" ? 1 : 0
+  source               = "../../modules/linux"
+  resource_group       = var.resource_group
+  prefix               = local.prefix
+  name                 = "nva"
+  location             = var.location
+  subnet               = azurerm_subnet.this["NvaSubnet"].id
+  enable_ip_forwarding = true
+  enable_public_ip     = true
+  source_image         = "ubuntu-20"
+  storage_account      = var.storage_account
+  admin_username       = var.admin_username
+  admin_password       = var.admin_password
+  custom_data          = var.nva_config[0].custom_data
+}
 
 # cisco
+
+# ####################################################
+# internal lb
+# ####################################################
+
+resource "azurerm_lb" "nva" {
+  count               = var.nva_config[0].enable ? 1 : 0
+  resource_group_name = var.resource_group
+  name                = "${local.prefix}nva-lb"
+  location            = var.location
+  sku                 = "Standard"
+  frontend_ip_configuration {
+    name                          = "nva-lb-feip"
+    subnet_id                     = azurerm_subnet.this["LoadBalancerSubnet"].id
+    private_ip_address            = var.nva_config[0].internal_lb_addr
+    private_ip_address_allocation = "Static"
+  }
+  lifecycle {
+    ignore_changes = [frontend_ip_configuration, ]
+  }
+  depends_on = [
+    module.nva_linux,
+  ]
+}
+
+# backend
+
+resource "azurerm_lb_backend_address_pool" "nva" {
+  count           = var.nva_config[0].enable ? 1 : 0
+  name            = "${local.prefix}nva-beap"
+  loadbalancer_id = azurerm_lb.nva[0].id
+}
+
+resource "azurerm_lb_backend_address_pool_address" "nva" {
+  count                   = var.nva_config[0].enable ? 1 : 0
+  name                    = "${local.prefix}nva-beap-addr"
+  backend_address_pool_id = azurerm_lb_backend_address_pool.nva[0].id
+  virtual_network_id      = azurerm_virtual_network.this.id
+  ip_address              = module.nva_linux[0].interface.ip_configuration[0].private_ip_address
+}
+
+# probe
+
+resource "azurerm_lb_probe" "nva_lb_probe" {
+  count               = var.nva_config[0].enable ? 1 : 0
+  name                = "${local.prefix}nva-probe"
+  interval_in_seconds = 5
+  number_of_probes    = 2
+  loadbalancer_id     = azurerm_lb.nva[0].id
+  port                = 22
+  protocol            = "Tcp"
+}
+
+# rule
+
+resource "azurerm_lb_rule" "nva" {
+  count    = var.nva_config[0].enable ? 1 : 0
+  name     = "${local.prefix}nva-rule"
+  protocol = "All"
+  backend_address_pool_ids = [
+    azurerm_lb_backend_address_pool.nva[0].id
+  ]
+  loadbalancer_id                = azurerm_lb.nva[0].id
+  frontend_port                  = 0
+  backend_port                   = 0
+  frontend_ip_configuration_name = "nva-lb-feip"
+  enable_floating_ip             = false
+  idle_timeout_in_minutes        = 30
+  load_distribution              = "Default"
+  probe_id                       = azurerm_lb_probe.nva_lb_probe[0].id
+}
 
 
 

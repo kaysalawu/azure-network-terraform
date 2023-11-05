@@ -71,9 +71,18 @@ locals {
     enable_vpn_gateway          = true
     enable_er_gateway           = false
 
-    create_firewall    = true
-    firewall_sku       = local.firewall_sku
-    firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
+    firewall_config = [{
+      enable             = true
+      firewall_sku       = local.firewall_sku
+      firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
+    }]
+
+    nva_config = [{
+      enable           = false
+      type             = null
+      internal_lb_addr = null
+      custom_data      = null
+    }]
 
     ruleset_dns_forwarding_rules = {
       "onprem" = {
@@ -98,9 +107,18 @@ locals {
     enable_vpn_gateway          = true
     enable_er_gateway           = false
 
-    create_firewall    = true
-    firewall_sku       = local.firewall_sku
-    firewall_policy_id = azurerm_firewall_policy.firewall_policy["region2"].id
+    firewall_config = [{
+      enable             = true
+      firewall_sku       = local.firewall_sku
+      firewall_policy_id = azurerm_firewall_policy.firewall_policy["region2"].id
+    }]
+
+    nva_config = [{
+      enable           = false
+      type             = null
+      internal_lb_addr = null
+      custom_data      = null
+    }]
 
     ruleset_dns_forwarding_rules = {
       "onprem" = {
@@ -120,6 +138,10 @@ locals {
   }
 }
 
+####################################################
+# common resources
+####################################################
+
 # resource group
 
 resource "azurerm_resource_group" "rg" {
@@ -133,9 +155,6 @@ resource "azurerm_resource_group" "rg" {
   url = "http://ipv4.icanhazip.com"
 } */
 
-####################################################
-# common resources
-####################################################
 
 module "common" {
   source           = "../../modules/common"

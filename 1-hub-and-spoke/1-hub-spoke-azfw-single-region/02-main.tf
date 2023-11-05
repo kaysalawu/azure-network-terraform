@@ -63,6 +63,13 @@ locals {
     firewall_sku       = local.firewall_sku
     firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
 
+    nva_config = {
+      enable            = false
+      nva_type          = null
+      nva_ilb_ip        = null
+      nva_custom_script = null
+    }
+
     ruleset_dns_forwarding_rules = {
       "onprem" = {
         domain = local.onprem_domain

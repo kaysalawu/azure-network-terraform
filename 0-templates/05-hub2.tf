@@ -33,26 +33,9 @@ module "hub2" {
     "AppServiceSubnet"          = module.common.nsg_default["region2"].id
   }
 
-  vnet_config = [
-    {
-      address_space = local.hub2_address_space
-      subnets       = local.hub2_subnets
-
-      enable_private_dns_resolver  = local.hub2_features.enable_private_dns_resolver
-      ruleset_dns_forwarding_rules = local.hub2_features.ruleset_dns_forwarding_rules
-
-      enable_ars         = local.hub2_features.enable_ars
-      enable_vpn_gateway = local.hub2_features.enable_vpn_gateway
-      enable_er_gateway  = local.hub2_features.enable_er_gateway
-
-      vpn_gateway_sku = "VpnGw2AZ"
-      vpn_gateway_asn = local.hub2_vpngw_asn
-
-      create_firewall    = local.hub2_features.create_firewall
-      firewall_sku       = local.hub2_features.firewall_sku
-      firewall_policy_id = local.hub2_features.firewall_policy_id
-    }
-  ]
+  vnet_config     = local.hub2_features.vnet_config
+  firewall_config = local.hub2_features.firewall_config
+  nva_config      = local.hub2_features.nva_config
 }
 
 ####################################################
