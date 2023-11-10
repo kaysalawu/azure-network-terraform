@@ -1,1 +1,0 @@
-../../0-templates/vwan/07-vhub1.tf

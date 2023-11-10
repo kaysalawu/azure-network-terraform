@@ -114,7 +114,9 @@ module "spoke2_udr_main" {
     local.default_udr_destinations,
     { "hub1" = local.hub1_address_space[0] }
   )
-  depends_on = [module.hub1]
+  depends_on = [
+    module.hub1,
+  ]
 }
 
 ####################################################
@@ -157,7 +159,9 @@ module "hub1_udr_main" {
       "spoke2" = local.spoke2_address_space[0]
     }
   )
-  depends_on = [module.hub1, ]
+  depends_on = [
+    module.hub1,
+  ]
 }
 
 ####################################################

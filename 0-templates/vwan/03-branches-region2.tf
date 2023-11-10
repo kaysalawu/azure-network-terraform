@@ -1,6 +1,60 @@
 
 ####################################################
-# branch3
+# vnet
+####################################################
+
+# base
+#----------------------------
+
+module "branch3" {
+  source          = "../../modules/base"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = trimsuffix(local.branch3_prefix, "-")
+  location        = local.branch3_location
+  storage_account = module.common.storage_accounts["region2"]
+  tags            = local.branch1_tags
+
+  nsg_subnet_map = {
+    "MainSubnet"        = module.common.nsg_main["region2"].id
+    "NvaInternalSubnet" = module.common.nsg_main["region2"].id
+    "NvaExternalSubnet" = module.common.nsg_nva["region2"].id
+    "DnsServerSubnet"   = module.common.nsg_main["region2"].id
+  }
+
+  vnet_config = [
+    {
+      address_space = local.branch3_address_space
+      subnets       = local.branch3_subnets
+      #nat_gateway_subnet_names = ["${local.branch3_prefix}main", ]
+    }
+  ]
+
+  depends_on = [
+    module.common,
+  ]
+}
+
+####################################################
+# dns
+####################################################
+
+module "branch3_dns" {
+  source           = "../../modules/linux"
+  resource_group   = azurerm_resource_group.rg.name
+  prefix           = local.branch3_prefix
+  name             = "dns"
+  location         = local.branch3_location
+  subnet           = module.branch3.subnets["MainSubnet"].id
+  private_ip       = local.branch3_dns_addr
+  enable_public_ip = true
+  source_image     = "ubuntu-20"
+  custom_data      = base64encode(local.branch_unbound_startup)
+  storage_account  = module.common.storage_accounts["region2"]
+  tags             = local.branch3_tags
+}
+
+####################################################
+# nva
 ####################################################
 
 locals {
@@ -103,34 +157,31 @@ locals {
 
     BGP_SESSIONS = [
       {
-        peer_asn        = local.vhub2_bgp_asn,
+        peer_asn        = module.vhub2.bgp_asn,
         peer_ip         = module.vhub2.vpngw_bgp_ip0,
         source_loopback = true
         ebgp_multihop   = true
-        route_map = {
-          name      = local.branch3_nva_route_map_azure
-          direction = "out"
-        }
+        route_maps = [
+          { direction = "out", name = local.branch3_nva_route_map_azure }
+        ]
       },
       {
-        peer_asn        = local.vhub2_bgp_asn
+        peer_asn        = module.vhub2.bgp_asn
         peer_ip         = module.vhub2.vpngw_bgp_ip1
         source_loopback = true
         ebgp_multihop   = true
-        route_map = {
-          name      = local.branch3_nva_route_map_azure
-          direction = "out"
-        }
+        route_maps = [
+          { direction = "out", name = local.branch3_nva_route_map_azure }
+        ]
       },
       {
         peer_asn        = local.branch1_nva_asn
         peer_ip         = local.branch1_nva_loopback0
         source_loopback = true
         ebgp_multihop   = true
-        route_map = {
-          name      = local.branch3_nva_route_map_onprem
-          direction = "out"
-        }
+        route_maps = [
+          { direction = "out", name = local.branch3_nva_route_map_onprem }
+        ]
       },
     ]
 
@@ -161,8 +212,35 @@ module "branch3_nva" {
   custom_data          = base64encode(local.branch3_nva_init)
 }
 
+####################################################
+# workload
+####################################################
+
+module "branch3_vm" {
+  source           = "../../modules/linux"
+  resource_group   = azurerm_resource_group.rg.name
+  prefix           = local.branch3_prefix
+  name             = "vm"
+  location         = local.branch3_location
+  subnet           = module.branch3.subnets["MainSubnet"].id
+  private_ip       = local.branch3_vm_addr
+  enable_public_ip = true
+  source_image     = "ubuntu-20"
+  custom_data      = base64encode(local.vm_startup)
+  dns_servers      = [local.branch3_dns_addr, ]
+  storage_account  = module.common.storage_accounts["region2"]
+  delay_creation   = "120s"
+  tags             = local.branch3_tags
+  depends_on = [
+    module.branch3,
+    module.branch3_dns,
+    module.branch3_nva,
+  ]
+}
+
+####################################################
 # udr
-#----------------------------
+####################################################
 
 # main
 
@@ -175,10 +253,12 @@ module "branch3_udr_main" {
   next_hop_type                 = "VirtualAppliance"
   next_hop_in_ip_address        = local.branch3_nva_int_addr
   destinations                  = local.private_prefixes_map
+  delay_creation                = "90s"
   disable_bgp_route_propagation = true
   depends_on = [
     module.branch3,
     module.branch3_nva,
+    module.branch3_dns,
   ]
 }
 
@@ -197,4 +277,3 @@ resource "local_file" "branch3_files" {
   filename = each.key
   content  = each.value
 }
-

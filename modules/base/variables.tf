@@ -100,7 +100,7 @@ variable "vnet_config" {
 
     private_dns_inbound_subnet_name  = optional(string, null)
     private_dns_outbound_subnet_name = optional(string, null)
-    ruleset_vnet_links               = optional(map(any), {})
+    ruleset_external_vnet_links      = optional(map(any), {})
     ruleset_dns_forwarding_rules     = optional(map(any), {})
 
     er_gateway_sku = optional(string, "Standard")

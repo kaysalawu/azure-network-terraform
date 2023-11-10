@@ -55,10 +55,11 @@ module "spoke1_vm" {
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region1"]
   private_dns_zone_name = "spoke1.${local.cloud_domain}"
-  #delay_creation        = "2m"
-  tags = local.spoke1_tags
+  delay_creation        = "2m"
+  tags                  = local.spoke1_tags
   # depends_on = [
   #   module.hub1,
+  #   module.vhub1,
   # ]
 }
 
@@ -115,10 +116,11 @@ module "spoke2_vm" {
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region1"]
   private_dns_zone_name = "spoke2.${local.cloud_domain}"
-  #delay_creation        = "2m"
-  tags = local.spoke2_tags
+  delay_creation        = "2m"
+  tags                  = local.spoke2_tags
   # depends_on = [
   #   module.hub1,
+  #   module.vhub1
   # ]
 }
 
@@ -174,9 +176,10 @@ module "spoke3_vm" {
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region1"]
   private_dns_zone_name = "spoke3.${local.cloud_domain}"
-  #delay_creation        = "2m"
-  tags = local.spoke3_tags
+  delay_creation        = "2m"
+  tags                  = local.spoke3_tags
   # depends_on = [
   #   module.hub1,
+  #   module.vhub1
   # ]
 }

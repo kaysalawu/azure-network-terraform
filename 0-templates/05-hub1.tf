@@ -54,9 +54,9 @@ module "hub1_vm" {
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region1"]
   private_dns_zone_name = "hub1.${local.cloud_domain}"
-  delay_creation        = "2m"
-  tags                  = local.hub1_tags
-  depends_on = [
-    module.hub1,
-  ]
+  #delay_creation        = "2m"
+  tags = local.hub1_tags
+  #depends_on = [
+  #  module.hub1,
+  #]
 }

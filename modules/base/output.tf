@@ -23,6 +23,10 @@ output "private_dns_zone" {
   value = try(azurerm_private_dns_zone.this[0], {})
 }
 
+output "private_dns_resolver" {
+  value = try(azurerm_private_dns_resolver.this[0], {})
+}
+
 output "private_dns_inbound_ep" {
   value = try(azurerm_private_dns_resolver_inbound_endpoint.this[0], {})
 }

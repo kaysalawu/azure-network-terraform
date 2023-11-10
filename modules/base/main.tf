@@ -170,7 +170,7 @@ resource "azurerm_private_dns_resolver_virtual_network_link" "this" {
 # dns resolver links (external)
 
 resource "azurerm_private_dns_resolver_virtual_network_link" "external" {
-  for_each                  = { for k, v in var.vnet_config[0].ruleset_vnet_links : k => v if var.vnet_config[0].enable_private_dns_resolver }
+  for_each                  = { for k, v in var.vnet_config[0].ruleset_external_vnet_links : k => v if var.vnet_config[0].enable_private_dns_resolver }
   name                      = "${local.prefix}${each.key}-vnet-link"
   dns_forwarding_ruleset_id = each.value
   virtual_network_id        = azurerm_virtual_network.this.id

@@ -38,3 +38,7 @@ output "firewall_private_ip" {
 output "virtual_hub" {
   value = azurerm_virtual_hub.this
 }
+
+output "bgp_asn" {
+  value = azurerm_virtual_hub.this.virtual_router_asn
+}

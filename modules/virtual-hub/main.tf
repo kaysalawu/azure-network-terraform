@@ -57,7 +57,32 @@ resource "azurerm_vpn_gateway" "this" {
 #----------------------------
 
 resource "random_id" "azfw" {
-  byte_length = 2
+  count       = var.security_config[0].create_firewall ? 1 : 0
+  byte_length = 4
+}
+
+# workspace
+
+resource "azurerm_log_analytics_workspace" "azfw" {
+  count               = var.security_config[0].create_firewall ? 1 : 0
+  resource_group_name = var.resource_group
+  name                = "${local.prefix}azfw-ws-${random_id.azfw[0].hex}"
+  location            = var.location
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+  tags                = var.tags
+}
+
+# storage account
+
+resource "azurerm_storage_account" "azfw" {
+  count                    = var.security_config[0].create_firewall ? 1 : 0
+  resource_group_name      = var.resource_group
+  name                     = lower(replace("${local.prefix}azfw${random_id.azfw[0].hex}", "-", ""))
+  location                 = var.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  tags                     = var.tags
 }
 
 resource "azurerm_firewall" "this" {
@@ -79,34 +104,34 @@ resource "azurerm_firewall" "this" {
 
 # diagnostic setting
 
-resource "random_id" "diag" {
-  count       = var.security_config[0].create_firewall ? 1 : 0
-  byte_length = 4
-}
-
-resource "azurerm_monitor_diagnostic_setting" "this" {
+resource "azurerm_monitor_diagnostic_setting" "azfw" {
   count                      = var.security_config[0].create_firewall ? 1 : 0
-  name                       = "${local.prefix}azfw-diag-${random_id.diag[0].hex}"
+  name                       = "${local.prefix}azfw-diag-${random_id.azfw[0].hex}"
   target_resource_id         = azurerm_firewall.this[0].id
-  log_analytics_workspace_id = var.log_analytics_workspace_id
-  storage_account_id         = var.storage_account_id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.azfw[0].id
+  storage_account_id         = azurerm_storage_account.azfw[0].id
 
   dynamic "metric" {
-    for_each = local.firewall_categories_metric
+    for_each = var.metric_categories_firewall
     content {
-      category = metric.value
+      category = metric.value.category
       enabled  = true
     }
   }
+
   dynamic "enabled_log" {
-    for_each = local.firewall_categories_log
+    for_each = { for k, v in var.log_categories_firewall : k => v if v.enabled }
     content {
-      category = enabled_log.value
+      category = enabled_log.value.category
     }
   }
   timeouts {
     create = "60m"
   }
+  depends_on = [
+    azurerm_log_analytics_workspace.azfw,
+    azurerm_storage_account.azfw,
+  ]
 }
 
 # routing intent
