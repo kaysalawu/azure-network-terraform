@@ -12,8 +12,8 @@
 | NvaInternalSubnet   | 10.10.2.0/24   |
 | - | -  |
 | VM_IP   | 10.10.0.5   |
-| VM_NAME   | Vwan24-branch1-vm   |
-| VNET_NAME   | Vwan24-branch1-vnet   |
+| VM_NAME   | Vwan24y-branch1-vm   |
+| VNET_NAME   | Vwan24y-branch1-vnet   |
 | VNET_RANGES   | 10.10.0.0/16   |
 
 ## branch3
@@ -28,8 +28,8 @@
 | NvaInternalSubnet   | 10.30.2.0/24   |
 | - | -  |
 | VM_IP   | 10.30.0.5   |
-| VM_NAME   | Vwan24-branch3-vm   |
-| VNET_NAME   | Vwan24-branch3-vnet   |
+| VM_NAME   | Vwan24y-branch3-vm   |
+| VNET_NAME   | Vwan24y-branch3-vnet   |
 | VNET_RANGES   | 10.30.0.0/16   |
 
 ## hub1
@@ -37,7 +37,7 @@
 | Item    | Value  |
 |--------|--------|
 | DNS_IN_IP   | 10.11.5.4   |
-| SPOKE3_APP_SVC_ENDPOINT_DNS   | vwan24-spoke3-2d31-app.azurewebsites.net   |
+| SPOKE3_APP_SVC_ENDPOINT_DNS   | vwan24y-spoke3-7bd9-app.azurewebsites.net   |
 | SPOKE3_APP_SVC_ENDPOINT_IP   | 10.11.4.5   |
 | SPOKE3_WEB_APP_ENDPOINT_DNS   | spoke3.p.hub1.az.corp   |
 | SPOKE3_WEB_APP_ENDPOINT_IP   | 10.11.4.4   |
@@ -56,8 +56,8 @@
 | RouteServerSubnet   | 10.11.8.0/24   |
 | - | -  |
 | VM_IP   | 10.11.0.5   |
-| VM_NAME   | Vwan24-hub1-vm   |
-| VNET_NAME   | Vwan24-hub1-vnet   |
+| VM_NAME   | Vwan24y-hub1-vm   |
+| VNET_NAME   | Vwan24y-hub1-vnet   |
 | VNET_RANGES   | 10.11.0.0/16   |
 
 ## hub2
@@ -65,7 +65,7 @@
 | Item    | Value  |
 |--------|--------|
 | DNS_IN_IP   | 10.22.5.4   |
-| SPOKE6_APP_SVC_ENDPOINT_DNS   | vwan24-spoke6-7bf9-app.azurewebsites.net   |
+| SPOKE6_APP_SVC_ENDPOINT_DNS   | vwan24y-spoke6-f622-app.azurewebsites.net   |
 | SPOKE6_APP_SVC_ENDPOINT_IP   | 10.22.4.5   |
 | SPOKE6_WEB_APP_ENDPOINT_DNS   | spoke6.p.hub2.az.corp   |
 | SPOKE6_WEB_APP_ENDPOINT_IP   | 10.22.4.4   |
@@ -84,8 +84,8 @@
 | RouteServerSubnet   | 10.22.8.0/24   |
 | - | -  |
 | VM_IP   | 10.22.0.5   |
-| VM_NAME   | Vwan24-hub2-vm   |
-| VNET_NAME   | Vwan24-hub2-vnet   |
+| VM_NAME   | Vwan24y-hub2-vm   |
+| VNET_NAME   | Vwan24y-hub2-vnet   |
 | VNET_RANGES   | 10.22.0.0/16   |
 
 ## spoke1
@@ -101,8 +101,8 @@
 | PrivateLinkServiceSubnet   | 10.1.3.0/24   |
 | - | -  |
 | VM_IP   | 10.1.0.5   |
-| VM_NAME   | Vwan24-spoke1-vm   |
-| VNET_NAME   | Vwan24-spoke1-vnet   |
+| VM_NAME   | Vwan24y-spoke1-vm   |
+| VNET_NAME   | Vwan24y-spoke1-vnet   |
 | VNET_RANGES   | 10.1.0.0/16   |
 
 ## spoke2
@@ -118,15 +118,15 @@
 | PrivateLinkServiceSubnet   | 10.2.3.0/24   |
 | - | -  |
 | VM_IP   | 10.2.0.5   |
-| VM_NAME   | Vwan24-spoke2-vm   |
-| VNET_NAME   | Vwan24-spoke2-vnet   |
+| VM_NAME   | Vwan24y-spoke2-vm   |
+| VNET_NAME   | Vwan24y-spoke2-vnet   |
 | VNET_RANGES   | 10.2.0.0/16   |
 
 ## spoke3
 
 | Item    | Value  |
 |--------|--------|
-| APPS_URL   | vwan24-spoke3-2d31-app.azurewebsites.net   |
+| APPS_URL   | vwan24y-spoke3-7bd9-app.azurewebsites.net   |
 | *Subnets*|        |
 | AppGatewaySubnet   | 10.3.1.0/24   |
 | AppServiceSubnet   | 10.3.5.0/24   |
@@ -136,8 +136,8 @@
 | PrivateLinkServiceSubnet   | 10.3.3.0/24   |
 | - | -  |
 | VM_IP   | 10.3.0.5   |
-| VM_NAME   | Vwan24-spoke3-vm   |
-| VNET_NAME   | Vwan24-spoke3-vnet   |
+| VM_NAME   | Vwan24y-spoke3-vm   |
+| VNET_NAME   | Vwan24y-spoke3-vnet   |
 | VNET_RANGES   | 10.3.0.0/16   |
 
 ## spoke4
@@ -153,8 +153,8 @@
 | PrivateLinkServiceSubnet   | 10.4.3.0/24   |
 | - | -  |
 | VM_IP   | 10.4.0.5   |
-| VM_NAME   | Vwan24-spoke4-vm   |
-| VNET_NAME   | Vwan24-spoke4-vnet   |
+| VM_NAME   | Vwan24y-spoke4-vm   |
+| VNET_NAME   | Vwan24y-spoke4-vnet   |
 | VNET_RANGES   | 10.4.0.0/16   |
 
 ## spoke5
@@ -170,8 +170,8 @@
 | PrivateLinkServiceSubnet   | 10.5.3.0/24   |
 | - | -  |
 | VM_IP   | 10.5.0.5   |
-| VM_NAME   | Vwan24-spoke5-vm   |
-| VNET_NAME   | Vwan24-spoke5-vnet   |
+| VM_NAME   | Vwan24y-spoke5-vm   |
+| VNET_NAME   | Vwan24y-spoke5-vnet   |
 | VNET_RANGES   | 10.5.0.0/16   |
 
 ## spoke6
@@ -187,6 +187,6 @@
 | PrivateLinkServiceSubnet   | 10.6.3.0/24   |
 | - | -  |
 | VM_IP   | 10.6.0.5   |
-| VM_NAME   | Vwan24-spoke6-vm   |
-| VNET_NAME   | Vwan24-spoke6-vnet   |
+| VM_NAME   | Vwan24y-spoke6-vm   |
+| VNET_NAME   | Vwan24y-spoke6-vnet   |
 | VNET_RANGES   | 10.6.0.0/16   |

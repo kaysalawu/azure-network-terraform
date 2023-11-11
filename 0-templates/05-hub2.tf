@@ -21,6 +21,10 @@ module "hub2" {
     "spoke4" = module.spoke4.vnet.id
     "spoke5" = module.spoke5.vnet.id
   }
+  private_dns_ruleset_linked_external_vnets = {
+    "spoke4" = module.spoke4.vnet.id
+    "spoke5" = module.spoke5.vnet.id
+  }
 
   nsg_subnet_map = {
     "MainSubnet"                = module.common.nsg_main["region2"].id

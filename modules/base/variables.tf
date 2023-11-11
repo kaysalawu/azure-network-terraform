@@ -100,7 +100,6 @@ variable "vnet_config" {
 
     private_dns_inbound_subnet_name  = optional(string, null)
     private_dns_outbound_subnet_name = optional(string, null)
-    ruleset_external_vnet_links      = optional(map(any), {})
     ruleset_dns_forwarding_rules     = optional(map(any), {})
 
     er_gateway_sku = optional(string, "Standard")
@@ -112,6 +111,12 @@ variable "vnet_config" {
     vpn_gateway_ip_config1_apipa_addresses = optional(list(string), ["169.254.21.5"])
   }))
   default = []
+}
+
+variable "private_dns_ruleset_linked_external_vnets" {
+  description = "private dns rulesets"
+  type        = map(any)
+  default     = {}
 }
 
 variable "vm_config" {
