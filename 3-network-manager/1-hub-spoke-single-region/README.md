@@ -255,7 +255,7 @@ RPKI validation codes: V valid, I invalid, N Not found
 cd azure-network-terraform/1-hub-and-spoke/1-hub-spoke-azfw-single-region
 ```
 
-2. Delete the resource group to remove all resources installed.\
+Delete the resource group to remove all resources installed.\
 Run the following Azure CLI command:
 
 ```sh

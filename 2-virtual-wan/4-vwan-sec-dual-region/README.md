@@ -14,8 +14,9 @@ Contents
   - [4. Private Link Service](#4-private-link-service)
   - [5. Private Link (App Service) Access from Public Client](#5-private-link-app-service-access-from-public-client)
   - [6. Private Link (App Service) Access from On-premises](#6-private-link-app-service-access-from-on-premises)
-  - [7. Azure Firewall](#7-azure-firewall)
+  - [7. Virtual WAN Routes](#7-virtual-wan-routes)
   - [8. Onprem Routes](#8-onprem-routes)
+  - [9. Azure Firewall](#9-azure-firewall)
 - [Cleanup](#cleanup)
 
 ## Overview
@@ -227,7 +228,7 @@ Where ***AAAA*** and ***BBBB*** are randomly generated two-byte strings.
 5.1. ***On your local machine***, get the hostname of the app service linked to ***spoke3***
 ```sh
 spoke3_apps_url=$(az webapp list --resource-group Vwan24RG --query "[?contains(name, 'vwan24-spoke3')].defaultHostName" -o tsv)
-``````
+```
 5.2. Display the hostname
 ```sh
 echo $spoke3_apps_url
@@ -290,7 +291,7 @@ Sample output
 }
 ```
 
-Observe that we are connecting from our local client's public IP address (174.173.70.196) specified in the `X-Client-Ip`.
+Observe that we are connecting from our local client's public IP address (152.37.70.253) specified in the `X-Client-Ip`.
 
 Let's confirm the public IP address of our local machine
 ```sh
@@ -299,11 +300,11 @@ curl -4 icanhazip.com
 
 Sample output (your output will be different)
 ```sh
-2-hub-spoke-azfw-dual-region$ curl -4 icanhazip.com
+4-vwan-sec-dual-region$ curl -4 icanhazip.com
 152.37.70.253
 ```
 
-Repeat steps *5.1* through *5.4* for the app service linked to ***spoke6***.
+**(Optional)** Repeat steps *5.1* through *5.4* for the app service linked to ***spoke6***.
 
 ### 6. Private Link (App Service) Access from On-premises
 
@@ -376,33 +377,37 @@ azureuser@Vwan24-branch1-vm:~$ curl vwan24-spoke3-3921-app.azurewebsites.net
 
 Observe that we are connecting from the private IP address of `Vwan24-branch1-vm` (10.10.0.5) specified in the `X-Client-Ip`.
 
-### 7. Azure Firewall
+### 7. Virtual WAN Routes
 
-Check the Azure Firewall logs to observe the traffic flow.
-- Select the Azure Firewall resource `Vwan24-azfw-hub1` in the Azure portal.
-- Click on **Logs** in the left navigation pane.
-- Click **Run** in the *Network rule log data* log category.
+7.1. Ensure you are in the lab directory `azure-network-terraform/2-virtual-wan/4-vwan-sec-dual-region`
 
-![Vwan24-azfw-hub1-network-rule-log](../../images/demos/vwan24-hub1-net-rule-log.png)
+7.2. Display the virtual WAN routing table(s)
 
-Observe the firewall logs based on traffic flows generated from our tests.
+```sh
+bash ../../scripts/_routes.sh Vwan22RG
+```
 
-![Vwan24-azfw-hub1-network-rule-log-data](../../images/demos/vwan24-hub1-net-rule-log-detail.png)
+Sample output
+```sh
 
+```
 
 ### 8. Onprem Routes
 
-Login to the onprem router `Hs12-branch1-nva` in order to observe its dynamic routes.
+Login to the onprem router `Vwan24-branch1-nva` in order to observe its dynamic routes.
 
-1. Login to virtual machine `Hs12-branch1-nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal).
-2. Enter username and password
+8.1. Login to virtual machine `Vwan24-branch1-nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal).
+
+8.2. Enter username and password
    - username = ***azureuser***
    - password = ***Password123***
-3. Enter the Cisco enable mode
+
+8.3. Enter the Cisco enable mode
 ```sh
 enable
 ```
-4. Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
+
+8.4. Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
 ```sh
 show ip route
 ```
@@ -445,16 +450,9 @@ S        192.168.11.12/32 is directly connected, Tunnel1
 S        192.168.11.13/32 is directly connected, Tunnel0
 ```
 
-We can see our hub and spoke Vnet ranges are learned dynamically via BGP:
-- ***Spoke1 Vnet*** (10.1.0.0/16) via ***vHub1*** VPN gateway 192.168.11.13
-- ***Spoke2 Vnet*** (10.2.0.0/16) via ***vHub1*** VPN gateway 192.168.11.12
-- ***Spoke4 Vnet*** (10.1.0.0/16) via ***vHub1*** VPN gateway 192.168.11.12
-- ***Spoke5 Vnet*** (10.2.0.0/16) via ***vHub1*** VPN gateway 192.168.11.13
-- ***Hub1 Vnet*** (10.11.0.0/16) via ***vHub1*** VPN gateway 192.168.11.13
-- ***Hub2 Vnet*** (10.22.0.0/16) via ***vHub1*** VPN gateway 192.168.11.13
-- ***Branch3*** (10.30.0.0/24) via ***vHub1*** VPN gateway 192.168.11.12
+We can see our hub and spoke Vnet ranges are learned dynamically via BGP.
 
-5. Display BGP information by typing `show ip bgp`.
+8.5. Display BGP information by typing `show ip bgp`.
 ```sh
 show ip bgp
 ```
@@ -495,15 +493,27 @@ RPKI validation codes: V valid, I invalid, N Not found
 
 We can see our hub and spoke Vnet ranges being learned dynamically in the BGP table.
 
+### 9. Azure Firewall
+
+Check the Azure Firewall logs to observe the traffic flow.
+- Select the Azure Firewall resource `Vwan24-azfw-hub1` in the Azure portal.
+- Click on **Logs** in the left navigation pane.
+- Click **Run** in the *Network rule log data* log category.
+
+![Vwan24-azfw-hub1-network-rule-log](../../images/demos/vwan24-hub1-net-rule-log.png)
+
+Observe the firewall logs based on traffic flows generated from our tests.
+
+![Vwan24-azfw-hub1-network-rule-log-data](../../images/demos/vwan24-hub1-net-rule-log-detail.png)
+
 ## Cleanup
 
-1. Navigate back to the lab directory (if you are not already there)
-   ```sh
-   cd azure-network-terraform/2-virtual-wan/4-vwan-sec-dual-region
-   ```
+Navigate back to the lab directory (if you are not already there)
+```sh
+cd azure-network-terraform/2-virtual-wan/4-vwan-sec-dual-region
+```
 
-2. Delete the resource group to remove all resources installed.
-
-   ```sh
-   az group delete -g Vwan24RG --no-wait
-   ```
+Delete the resource group to remove all resources installed.
+```sh
+az group delete -g Vwan24RG --no-wait
+```

@@ -1,0 +1,1 @@
+../../0-templates/vwan/03-branches-region2.tf

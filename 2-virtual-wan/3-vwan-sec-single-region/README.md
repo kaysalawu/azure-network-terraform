@@ -314,7 +314,7 @@ RPKI validation codes: V valid, I invalid, N Not found
 cd azure-network-terraform/2-virtual-wan/3-vwan-sec-single-region
 ```
 
-2. Delete the resource group to remove all resources installed.\
+Delete the resource group to remove all resources installed.\
 Run the following Azure CLI command:
 
 ```sh

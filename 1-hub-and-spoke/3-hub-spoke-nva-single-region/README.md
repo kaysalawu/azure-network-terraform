@@ -266,7 +266,7 @@ Sample output (your output will be different)
 174.173.70.196
 ```
 
-Repeat steps *5.1* through *5.4* for the app service linked to ***spoke6***.
+**(Optional)** Repeat steps *5.1* through *5.4* for the app service linked to ***spoke6***.
 
 ### 6. Private Link (App Service) Access from On-premises
 
@@ -447,7 +447,7 @@ We can see our hub and spoke Vnet ranges are learned dynamically via BGP:
 - ***Spoke2 Vnet*** (10.2.0.0/16) via ***hub1*** VPN gateway 10.11.7.4
 - ***Hub1 Vnet*** (10.11.0.0/16) via ***hub1*** VPN gateway 10.11.7.4
 
-1. Display BGP information by typing `show ip bgp`.
+Display BGP information by typing `show ip bgp`.
 ```sh
 show ip bgp
 ```
@@ -477,12 +477,12 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
 
 ## Cleanup
 
-1. Navigate back to the lab directory (if you are not already there)
+Navigate back to the lab directory (if you are not already there)
    ```sh
    cd azure-network-terraform/1-hub-and-spoke/3-hub-spoke-nva-single-region
    ```
 
-2. Delete the resource group to remove all resources installed.
+Delete the resource group to remove all resources installed.
 
 ```sh
 az group delete -g Hs13RG --no-wait
