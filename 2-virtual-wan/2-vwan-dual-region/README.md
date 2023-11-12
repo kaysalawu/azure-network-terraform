@@ -48,7 +48,7 @@ cd azure-network-terraform/2-virtual-wan/2-vwan-dual-region
 ```sh
 terraform init
 terraform plan
-terraform apply
+terraform apply -parallelism=50
 ```
 
 ## Troubleshooting

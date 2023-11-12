@@ -48,7 +48,7 @@ cd azure-network-terraform/1-hub-and-spoke/3-hub-spoke-nva-single-region
 ```sh
 terraform init
 terraform plan
-terraform apply
+terraform apply -parallelism=50
 ```
 
 ## Troubleshooting
@@ -260,7 +260,7 @@ Let's confirm the public IP address of our local machine
 curl -4 icanhazip.com
 ```
 
-Sample output
+Sample output (your output will be different)
 ```sh
 3-hub-spoke-nva-single-region$ curl -4 icanhazip.com
 174.173.70.196
@@ -270,7 +270,7 @@ Repeat steps *5.1* through *5.4* for the app service linked to ***spoke6***.
 
 ### 6. Private Link (App Service) Access from On-premises
 
-6.1 ***On your local machine***, recall the hostname of the app service in ***spoke3*** as done in Step 5.2. In our example, the hostname is `hs13-spoke3-bd00-app.azurewebsites.net`.
+6.1 Recall the hostname of the app service in ***spoke3*** as done in Step 5.2. In our example, the hostname is `hs13-spoke3-bd00-app.azurewebsites.net`.
 
 6.2. Connect to the on-premises server `Hs13-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Hs13-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
 
@@ -336,7 +336,7 @@ azureuser@Hs13-branch1-vm:~$ curl hs13-spoke3-bd00-app.azurewebsites.net
 }
 ```
 
-Observe that we are connecting from the private IP address (10.10.0.5) of `Hs13-branch1-vm` (10.10.0.5) specified in the `X-Client-Ip`.
+Observe that we are connecting from the private IP address of `Hs13-branch1-vm` (10.10.0.5) specified in the `X-Client-Ip`.
 
 ### 7. Network Virtual Appliance (NVA)
 

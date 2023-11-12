@@ -564,7 +564,7 @@ resource "azurerm_firewall" "azfw" {
 
 resource "azurerm_monitor_diagnostic_setting" "azfw" {
   count                      = var.firewall_config[0].create_firewall ? 1 : 0
-  name                       = "${local.prefix}azfw-diag-${random_id.azfw[0].hex}"
+  name                       = "${local.prefix}azfw-diag"
   target_resource_id         = azurerm_firewall.azfw[0].id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.azfw[0].id
   storage_account_id         = azurerm_storage_account.azfw[0].id
@@ -586,11 +586,6 @@ resource "azurerm_monitor_diagnostic_setting" "azfw" {
   timeouts {
     create = "60m"
   }
-  depends_on = [
-    azurerm_firewall.azfw,
-    azurerm_log_analytics_workspace.azfw,
-    azurerm_storage_account.azfw,
-  ]
 }
 
 ####################################################

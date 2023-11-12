@@ -56,7 +56,7 @@ cd azure-network-terraform/1-hub-and-spoke/4-hub-spoke-nva-dual-region
 ```sh
 terraform init
 terraform plan
-terraform apply
+terraform apply -parallelism=50
 ```
 
 ## Troubleshooting
@@ -222,7 +222,7 @@ The `Hostname` and `Local-IP` fields identifies the actual web servers - in this
 
 ### 5. Private Link (App Service) Access from Public Client
 
-App service instances are deployed for ***spoke3*** and ***spoke6***. The app service instance is a fully managed PaaS service. In this lab, the services are linked to ***spoke3*** and ***spoke6***. By using [Virtual Network integration](https://learn.microsoft.com/en-us/azure/app-service/overview-vnet-integration#regional-virtual-network-integration), the app services are deployed in dedicated ***AppServiceSubnet*** subnets in ***spoke3*** and ***spoke6***. This allows each app service to access private resources in their linked spoke Vnet.
+App service instances are deployed for ***spoke3*** and ***spoke6***. The app service instance is a fully managed PaaS service. In this lab, the services are linked to ***spoke3*** and ***spoke6***. By using [Virtual Network integration](https://learn.microsoft.com/en-us/azure/app-service/overview-vnet-integration#regional-virtual-network-integration), the app services are deployed in dedicated ***AppServiceSubnet*** subnets in ***spoke3*** and ***spoke6***. This allows each app service to access private resources through their linked spoke Vnet.
 
 The app services are accessible via the private endpoints in ***hub1*** and ***hub2*** respectively. The app services are also accessible via their public endpoints. The app service application is a simple [python Flask web application](https://hub.docker.com/r/ksalawu/web) that returns the HTTP headers, hostname and IP addresses of the server running the application.
 
@@ -305,7 +305,7 @@ Let's confirm the public IP address of our local machine
 curl -4 icanhazip.com
 ```
 
-Sample output
+Sample output (your output will be different)
 ```sh
 4-hub-spoke-nva-dual-region$ curl -4 icanhazip.com
 174.173.70.196
@@ -315,7 +315,7 @@ Repeat steps *5.1* through *5.4* for the app service linked to ***spoke6***.
 
 ### 6. Private Link (App Service) Access from On-premises
 
-6.1 ***On your local machine***, recall the hostname of the app service in ***spoke3*** as done in Step 5.2. In our example, the hostname is `hs14-spoke3-7184-app.azurewebsites.net`.
+6.1 Recall the hostname of the app service in ***spoke3*** as done in Step 5.2. In our example, the hostname is `hs14-spoke3-7184-app.azurewebsites.net`.
 
 6.2. Connect to the on-premises server `Hs14-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Hs14-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
 
@@ -348,7 +348,7 @@ We can see that the app service hostname resolves to the private endpoint ***10.
           forward-addr: 10.11.5.4
           forward-addr: 10.22.5.4
   ```
-  DNS Requests matching `privatelink.azurewebsites.net` will be forwarded to the private DNS resolver inbound endpoint in ***hub1*** (10.11.5.4). The DNS resolver inbound endpoint for ***hub2*** (10.22.5.4) is also included as a forwarding target for redundancy.
+  DNS Requests matching `privatelink.azurewebsites.net` will be forwarded to the private DNS resolver inbound endpoint in ***hub1*** (10.11.5.4). The DNS resolver inbound endpoint for ***hub2*** (10.22.5.4) is also included for redundancy.
 - The DNS server forwards the DNS request to the private DNS resolver inbound endpoint in ***hub1*** - which returns the IP address of the app service private endpoint in ***hub1*** (10.11.4.5)
 
 6.4. From `Hs14-branch1-vm`, test access to the ***spoke3*** app service via the private endpoint. Use your actual hostname.
@@ -382,7 +382,7 @@ azureuser@Hs14-branch1-vm:~$ curl hs14-spoke3-7184-app.azurewebsites.net
 }
 ```
 
-Observe that we are connecting from the private IP address (10.10.0.5) of `Hs14-branch1-vm` (10.10.0.5) specified in the `X-Client-Ip`.
+Observe that we are connecting from the private IP address of `Hs14-branch1-vm` (10.10.0.5) specified in the `X-Client-Ip`.
 
 ### 7. Network Virtual Appliance (NVA)
 

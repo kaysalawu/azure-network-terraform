@@ -237,7 +237,6 @@ We can observe the traffic flow from `Spoke1` to `Spoke5` as summarized below:
 -  then traverses NVA in `Hub2` (10.22.50.1 is the IPsec overlay IP address)
 -  then reaches the final destination `Spoke5` (10.5.0.5).
 
-Repeat steps 1-5 for all other spoke and branch virtual machines.
 
 ### 6. Onprem Routes
 

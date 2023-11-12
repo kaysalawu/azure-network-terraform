@@ -173,7 +173,6 @@ Check the Azure Firewall logs to observe the traffic flow.
 
 Observe how traffic from spoke1 (10.1.0.5) to spoke2 flows via the firewall as expected.
 
-Repeat steps 1-5 for all other spoke and branch virtual machines.
 
 ### 6. Onprem Routes
 

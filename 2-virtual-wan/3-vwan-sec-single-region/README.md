@@ -49,7 +49,7 @@ cd azure-network-terraform/2-virtual-wan/3-vwan-sec-single-region
 ```sh
 terraform init
 terraform plan
-terraform apply
+terraform apply -parallelism=50
 ```
 
 ## Troubleshooting
@@ -200,7 +200,6 @@ We can observe that the traffic flow from `Spoke1` to `Spoke2` goes through the 
 
 Observe how traffic from spoke1 (10.1.0.5) to spoke2 flows via the firewall as expected.
 
-Repeat steps 1-5 for all other spoke and branch virtual machines.
 
 ### 6. Virtual WAN Routes
 

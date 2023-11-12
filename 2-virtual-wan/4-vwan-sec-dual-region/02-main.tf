@@ -3,7 +3,7 @@
 ####################################################
 
 locals {
-  prefix = "Vwan24y"
+  prefix = "Vwan24"
   #my_public_ip = chomp(data.http.my_public_ip.response_body)
 }
 
