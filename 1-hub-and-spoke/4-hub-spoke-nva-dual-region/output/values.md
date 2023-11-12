@@ -36,7 +36,7 @@
 
 | Item    | Value  |
 |--------|--------|
-| DNS_IN_IP   | 10.11.5.4   |
+| PRIVATE_DNS_INBOUND_IP   | 10.11.5.4   |
 | SPOKE3_APP_SVC_ENDPOINT_DNS   | hs14-spoke3-7184-app.azurewebsites.net   |
 | SPOKE3_APP_SVC_ENDPOINT_IP   | 10.11.4.5   |
 | SPOKE3_WEB_APP_ENDPOINT_DNS   | spoke3.p.hub1.az.corp   |
@@ -64,7 +64,7 @@
 
 | Item    | Value  |
 |--------|--------|
-| DNS_IN_IP   | 10.22.5.4   |
+| PRIVATE_DNS_INBOUND_IP   | 10.22.5.4   |
 | SPOKE6_APP_SVC_ENDPOINT_DNS   | hs14-spoke6-c7e8-app.azurewebsites.net   |
 | SPOKE6_APP_SVC_ENDPOINT_IP   | 10.22.4.5   |
 | SPOKE6_WEB_APP_ENDPOINT_DNS   | spoke6.p.hub2.az.corp   |

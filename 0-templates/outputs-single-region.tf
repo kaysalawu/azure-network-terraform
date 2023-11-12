@@ -11,7 +11,7 @@ locals {
         VNET_RANGES                 = try(join(", ", module.hub1.vnet.address_space), "")
         VM_NAME                     = try(module.hub1_vm.vm.name, "")
         VM_IP                       = try(module.hub1_vm.vm.private_ip_address, "")
-        DNS_IN_IP                   = try(local.hub1_dns_in_addr, "")
+        PRIVATE_DNS_INBOUND_IP      = try(local.hub1_dns_in_addr, "")
         SPOKE3_WEB_APP_ENDPOINT_IP  = try(azurerm_private_endpoint.hub1_spoke3_pls_pep.private_service_connection[0].private_ip_address, "")
         SPOKE3_WEB_APP_ENDPOINT_DNS = "${local.hub1_spoke3_pep_host}.hub1.${local.cloud_domain}"
         SPOKE3_APP_SVC_ENDPOINT_IP  = try(azurerm_private_endpoint.hub1_spoke3_apps_pep.private_service_connection[0].private_ip_address, "")
