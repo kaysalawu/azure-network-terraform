@@ -42,3 +42,7 @@ output "virtual_hub" {
 output "bgp_asn" {
   value = azurerm_virtual_hub.this.virtual_router_asn
 }
+
+output "azfw_diagnostic_setting" {
+  value = try(azurerm_monitor_diagnostic_setting.azfw[0], {})
+}

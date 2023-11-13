@@ -389,7 +389,65 @@ bash ../../scripts/_routes.sh Vwan22RG
 
 Sample output
 ```sh
+4-vwan-sec-dual-region$ bash ../../scripts/_routes.sh Vwan24Rg
 
+Resource group: Vwan24Rg
+
+vHub:       Vwan24-vhub2-hub
+RouteTable: defaultRouteTable
+-------------------------------------------------------
+
+AddressPrefixes    NextHopType
+-----------------  --------------
+0.0.0.0/0          Azure Firewall
+10.0.0.0/8         Azure Firewall
+172.16.0.0/12      Azure Firewall
+192.168.0.0/16     Azure Firewall
+
+
+vHub:     Vwan24-vhub2-hub
+Firewall: Vwan24-vhub2-azfw
+-------------------------------------------------------
+
+AddressPrefixes    AsPath             NextHopType
+-----------------  -----------------  --------------------------
+10.30.0.0/24       65003              VPN_S2S_Gateway
+10.1.0.0/16        65520-65520        Remote Hub
+10.10.0.0/24       65520-65520-65001  Remote Hub
+10.2.0.0/16        65520-65520-65010  Remote Hub
+10.11.0.0/16       65520-65520        Remote Hub
+10.4.0.0/16                           Virtual Network Connection
+10.22.0.0/16                          Virtual Network Connection
+10.5.0.0/16        65020              HubBgpConnection
+0.0.0.0/0                             Internet
+
+vHub:       Vwan24-vhub1-hub
+RouteTable: defaultRouteTable
+-------------------------------------------------------
+
+AddressPrefixes    NextHopType
+-----------------  --------------
+0.0.0.0/0          Azure Firewall
+10.0.0.0/8         Azure Firewall
+172.16.0.0/12      Azure Firewall
+192.168.0.0/16     Azure Firewall
+
+
+vHub:     Vwan24-vhub1-hub
+Firewall: Vwan24-vhub1-azfw
+-------------------------------------------------------
+
+AddressPrefixes    NextHopType                 AsPath
+-----------------  --------------------------  -----------------
+10.11.0.0/16       Virtual Network Connection
+10.1.0.0/16        Virtual Network Connection
+10.2.0.0/16        HubBgpConnection            65010
+10.10.0.0/24       VPN_S2S_Gateway             65001
+10.5.0.0/16        Remote Hub                  65520-65520-65020
+10.30.0.0/24       Remote Hub                  65520-65520-65003
+10.22.0.0/16       Remote Hub                  65520-65520
+10.4.0.0/16        Remote Hub                  65520-65520
+0.0.0.0/0          Internet
 ```
 
 ### 8. Onprem Routes

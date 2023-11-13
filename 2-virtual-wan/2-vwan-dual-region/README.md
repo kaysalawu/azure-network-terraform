@@ -392,8 +392,10 @@ Sample output
 
 Resource group: Vwan22RG
 
-vHUB: Vwan22-vhub2-hub
-Effective route table: defaultRouteTable
+vHub:       Vwan22-vhub2-hub
+RouteTable: defaultRouteTable
+-------------------------------------------------------
+
 AddressPrefixes    NextHopType                 AsPath
 -----------------  --------------------------  -----------------
 10.22.0.0/16       Virtual Network Connection
@@ -405,12 +407,17 @@ AddressPrefixes    NextHopType                 AsPath
 10.2.0.0/16        Remote Hub                  65520-65520-65010
 10.11.0.0/16       Remote Hub                  65520-65520
 
-vHUB: Vwan22-vhub2-hub
-Effective route table: custom
+
+vHub:       Vwan22-vhub2-hub
+RouteTable: custom
+-------------------------------------------------------
 
 
-vHUB: Vwan22-vhub1-hub
-Effective route table: defaultRouteTable
+
+vHub:       Vwan22-vhub1-hub
+RouteTable: defaultRouteTable
+-------------------------------------------------------
+
 AddressPrefixes    AsPath             NextHopType
 -----------------  -----------------  --------------------------
 10.5.0.0/16        65520-65520-65020  Remote Hub
@@ -422,8 +429,12 @@ AddressPrefixes    AsPath             NextHopType
 10.2.0.0/16        65010              HubBgpConnection
 10.10.0.0/24       65001              VPN_S2S_Gateway
 
-vHUB: Vwan22-vhub1-hub
-Effective route table: custom
+
+vHub:       Vwan22-vhub1-hub
+RouteTable: custom
+-------------------------------------------------------
+
+
 ```
 
 ### 8. Onprem Routes
