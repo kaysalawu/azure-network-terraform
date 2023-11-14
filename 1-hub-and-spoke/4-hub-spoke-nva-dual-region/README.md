@@ -544,11 +544,11 @@ S        192.168.30.30 is directly connected, Tunnel2
 ```
 
 We can see our hub and spoke Vnet ranges are learned dynamically via BGP:
-- ***Spoke1 Vnet*** (10.1.0.0/16) via ***hub1*** VPN gateway 10.11.7.4
-- ***Spoke2 Vnet*** (10.2.0.0/16) via ***hub1*** VPN gateway 10.11.7.4
+- ***Spoke1 Vnet*** (10.1.0.0/16) via ***hub1*** VPN 10.11.7.4
+- ***Spoke2 Vnet*** (10.2.0.0/16) via ***hub1*** VPN 10.11.7.4
 - ***Spoke4 Vnet*** (10.1.0.0/16) via ***branch3*** link 192.168.30.30
 - ***Spoke5 Vnet*** (10.2.0.0/16) via ***branch3*** link 192.168.30.30
-- ***Hub1 Vnet*** (10.11.0.0/16) via ***hub1*** VPN gateway 10.11.7.4
+- ***Hub1 Vnet*** (10.11.0.0/16) via ***hub1*** VPN 10.11.7.4
 - ***Hub2 Vnet*** (10.22.0.0/16) via ***branch3*** link 192.168.30.30
 
 Display BGP information by typing `show ip bgp`.

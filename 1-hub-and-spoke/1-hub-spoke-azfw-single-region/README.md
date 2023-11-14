@@ -14,8 +14,8 @@ Contents
   - [4. Private Link Service](#4-private-link-service)
   - [5. Private Link (App Service) Access from Public Client](#5-private-link-app-service-access-from-public-client)
   - [6. Private Link (App Service) Access from On-premises](#6-private-link-app-service-access-from-on-premises)
-  - [7. Azure Firewall](#7-azure-firewall)
-  - [8. Onprem Routes](#8-onprem-routes)
+  - [7. Onprem Routes](#7-onprem-routes)
+  - [8. Azure Firewall](#8-azure-firewall)
 - [Cleanup](#cleanup)
 
 ## Overview
@@ -338,33 +338,22 @@ azureuser@Hs11-branch1-vm:~$ curl hs11-spoke3-0ca7-app.azurewebsites.net
 
 Observe that we are connecting from the private IP address of `Hs11-branch1-vm` (10.10.0.5) specified in the `X-Client-Ip`.
 
-### 7. Azure Firewall
-
-Check the Azure Firewall logs to observe the traffic flow.
-- Select the Azure Firewall resource `Hs11-azfw-hub1` in the Azure portal.
-- Click on **Logs** in the left navigation pane.
-- Click **Run** in the *Network rule log data* log category.
-
-![Hs11-azfw-hub1-network-rule-log](../../images/demos/hs11-hub1-net-rule-log.png)
-
-Observe the firewall logs based on traffic flows generated from our tests.
-
-![Hs11-azfw-hub1-network-rule-log-data](../../images/demos/hs11-hub1-net-rule-log-detail.png)
-
-
-### 8. Onprem Routes
+### 7. Onprem Routes
 
 Login to the onprem router `Hs11-branch1-nva` in order to observe its dynamic routes.
 
-1. Login to virtual machine `Hs11-branch1-nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal).
-2. Enter username and password
+7.1. Login to virtual machine `Hs11-branch1-nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal).
+
+7.2. Enter username and password
    - username = ***azureuser***
    - password = ***Password123***
-3. Enter the Cisco enable mode
+
+7.3. Enter the Cisco enable mode
 ```sh
 enable
 ```
-4. Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
+
+7.4. Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
 ```sh
 show ip route
 ```
@@ -402,11 +391,11 @@ C        192.168.10.10 is directly connected, Loopback0
 ```
 
 We can see our hub and spoke Vnet ranges are learned dynamically via BGP:
-- ***Spoke1 Vnet*** (10.1.0.0/16) via ***hub1*** VPN gateway 10.11.7.4
-- ***Spoke2 Vnet*** (10.2.0.0/16) via ***hub1*** VPN gateway 10.11.7.4
-- ***Hub1 Vnet*** (10.11.0.0/16) via ***hub1*** VPN gateway 10.11.7.4
+- ***Spoke1 Vnet*** (10.1.0.0/16) via ***hub1*** VPN 10.11.7.4
+- ***Spoke2 Vnet*** (10.2.0.0/16) via ***hub1*** VPN 10.11.7.4
+- ***Hub1 Vnet*** (10.11.0.0/16) via ***hub1*** VPN 10.11.7.4
 
-5. Display BGP information by typing `show ip bgp`.
+7.5. Display BGP information by typing `show ip bgp`.
 ```sh
 show ip bgp
 ```
@@ -433,6 +422,19 @@ RPKI validation codes: V valid, I invalid, N Not found
 ```
 
 We can see our hub and spoke Vnet ranges being learned dynamically in the BGP table.
+
+### 8. Azure Firewall
+
+8.1. Check the Azure Firewall logs to observe the traffic flow.
+- Select the Azure Firewall resource `Hs11-azfw-hub1` in the Azure portal.
+- Click on **Logs** in the left navigation pane.
+- Click **Run** in the *Network rule log data* log category.
+
+![Hs11-azfw-hub1-network-rule-log](../../images/demos/hs11-hub1-net-rule-log.png)
+
+Observe the firewall logs based on traffic flows generated from our tests.
+
+![Hs11-azfw-hub1-network-rule-log-data](../../images/demos/hs11-hub1-net-rule-log-detail.png)
 
 ## Cleanup
 

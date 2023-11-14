@@ -210,7 +210,7 @@ nslookup $spoke3_apps_url
 
 Sample output (your output will be different)
 ```sh
-azure-network-terraform$ nslookup $spoke3_apps_url
+1-vwan-single-region$ nslookup $spoke3_apps_url
 Server:         172.21.112.1
 Address:        172.21.112.1#53
 
@@ -232,7 +232,7 @@ curl $spoke3_apps_url
 
 Sample output
 ```sh
-azure-network-terraform$ curl $spoke3_apps_url
+1-vwan-single-region$ curl $spoke3_apps_url
 {
   "Headers": {
     "Accept": "*/*",
@@ -265,7 +265,7 @@ curl -4 icanhazip.com
 
 Sample output (your output will be different)
 ```sh
-azure-network-terraform$ curl -4 icanhazip.com
+1-vwan-single-regionm$ curl -4 icanhazip.com
 152.37.70.253
 ```
 
@@ -430,12 +430,9 @@ S        192.168.11.12/32 is directly connected, Tunnel1
 S        192.168.11.13/32 is directly connected, Tunnel0
 ```
 
-We can see our hub and spoke Vnet ranges are learned dynamically via BGP:
-- ***Spoke1 Vnet*** (10.1.0.0/16) via ***vHub1*** VPN gateway 192.168.11.12
-- ***Spoke2 Vnet*** (10.2.0.0/16) via ***vHub1*** VPN gateway 192.168.11.12
-- ***Hub1 Vnet*** (10.11.0.0/16) via ***vHub1*** VPN gateway 192.168.11.12
+We can see the Vnet ranges learned dynamically via BGP.
 
-8.5. Display BGP information by typing `show ip bgp`.
+8.5. Display BGP information by typing `show ip bgp` and pressing the space bar to show the complete output.
 ```sh
 show ip bgp
 ```

@@ -496,7 +496,7 @@ S        192.168.11.12/32 is directly connected, Tunnel1
 S        192.168.11.13/32 is directly connected, Tunnel0
 ```
 
-We can see our hub and spoke Vnet ranges are learned dynamically via BGP.
+We can see the Vnet ranges learned dynamically via BGP.
 
 8.5. Display BGP information by typing `show ip bgp`.
 ```sh
