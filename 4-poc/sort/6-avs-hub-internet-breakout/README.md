@@ -66,7 +66,7 @@ Run the following tests from inside the serial console session.
 
 This script pings the IP addresses of some test virtual machines and reports reachability and round trip time.
 
-Run the IP ping test
+1.1. Run the IP ping test
 ```sh
 ping-ip
 ```
@@ -86,7 +86,7 @@ spoke2  - 10.2.0.5 -OK 0.035 ms
 
 This script pings the DNS name of some test virtual machines and reports reachability and round trip time.
 
-Run the DNS ping test
+2.1. Run the DNS ping test
 ```sh
 ping-dns
 ```
@@ -107,7 +107,7 @@ vm.spoke2.az.corp - 10.2.0.5 -OK 0.032 ms
 
 This script uses curl to check reachability of web server (python Flask) on the test virtual machines. It reports HTTP response message, round trip time and IP address.
 
-Run the DNS curl test
+3.1. Run the DNS curl test
 ```sh
 curl-dns
 ```

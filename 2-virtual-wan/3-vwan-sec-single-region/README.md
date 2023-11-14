@@ -72,7 +72,7 @@ Run the following tests from inside the serial console session.
 
 This script pings the IP addresses of some test virtual machines and reports reachability and round trip time.
 
-Run the IP ping test
+1.1. Run the IP ping test
 ```sh
 ping-ip
 ```
@@ -94,7 +94,7 @@ internet - icanhazip.com -NA
 
 This script pings the DNS name of some test virtual machines and reports reachability and round trip time.
 
-Run the DNS ping test
+2.1. Run the DNS ping test
 ```sh
 ping-dns
 ```
@@ -116,7 +116,7 @@ icanhazip.com - 104.18.114.97 -NA
 
 This script uses curl to check reachability of web server (python Flask) on the test virtual machines. It reports HTTP response message, round trip time and IP address.
 
-Run the DNS curl test
+3.1. Run the DNS curl test
 ```sh
 curl-dns
 ```

@@ -86,7 +86,7 @@ Run the following tests from inside the serial console session.
 
 This script pings the IP addresses of some test virtual machines and reports reachability and round trip time.
 
-Run the IP ping test
+1.1. Run the IP ping test
 ```sh
 ping-ip
 ```
@@ -108,7 +108,7 @@ internet - icanhazip.com -NA
 
 This script pings the DNS name of some test virtual machines and reports reachability and round trip time. This tests hybrid DNS resolution between on-premises and Azure.
 
-Run the DNS ping test
+2.1. Run the DNS ping test
 ```sh
 ping-dns
 ```
@@ -130,7 +130,7 @@ icanhazip.com - 104.18.114.97 -NA
 
 This script uses curl to check reachability of the web servers (python Flask) on the test virtual machines. It reports HTTP response message, round trip time and IP address.
 
-Run the DNS curl test
+3.1. Run the DNS curl test
 ```sh
 curl-dns
 ```
@@ -436,7 +436,7 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
 
 ## Cleanup
 
-Navigate back to the lab directory (if you are not already there)
+(Optional) Navigate back to the lab directory (if you are not already there)
    ```sh
    cd azure-network-terraform/1-hub-and-spoke/1-hub-spoke-azfw-single-region
    ```
