@@ -26,7 +26,7 @@ This terraform code deploys a dual-region Virtual WAN (Vwan) topology.
 
 Standard Virtual Network (Vnet) hubs (***hub1*** and ***hub2***) connect to Vwan hubs (***vHub1*** and ***vHub2*** respectively). Direct spokes (***spoke1*** and ***spoke4***) are connected directly to the Vwan hubs. ***spoke2*** and ***spoke5*** are indirect spokes from a Vwan perspective; and are connected to standard Vnet hubs - ***hub1*** and ***hub2*** respectively. ***spoke2*** and ***spoke5*** use the Network Virtual Appliance (NVA) in the Vnet hubs as the next hop for traffic to all destinations.
 
-The isolated spokes (***spoke3*** and ***spoke6***) do not have Vnet peering to their respective Vnet hubs, but are reachable via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) endpoints in the hubs.
+The isolated spokes (***spoke3*** and ***spoke6***) do not have Vnet peering to the Vnet hubs, but are reachable via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) endpoints in the hubs.
 
 ***Branch1*** and ***branch3*** are on-premises networks simulated using Vnets. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the hubs using IPsec VPN connections with dynamic (BGP) routing. A simulated on-premises Wide Area Network (WAN) is created using Vnet peering between ***branch1*** and ***branch3*** as the underlay connectivity, and IPsec with BGP as the overlay connection.
 
@@ -93,6 +93,7 @@ Run the IP ping test
 ```sh
 ping-ip
 ```
+
 Sample output
 ```sh
 azureuser@Vwan22-spoke1-vm:~$ ping-ip
@@ -544,6 +545,7 @@ cd azure-network-terraform/2-virtual-wan/2-vwan-dual-region
 ```
 
 Delete the resource group to remove all resources installed.
+
 ```sh
 az group delete -g Vwan22RG --no-wait
 ```

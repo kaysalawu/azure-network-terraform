@@ -1,3 +1,5 @@
+#!/bin/bash
+
 rg=$1
 echo -e "\nResource group: $rg\n"
 

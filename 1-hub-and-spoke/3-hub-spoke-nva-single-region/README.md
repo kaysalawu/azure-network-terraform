@@ -190,7 +190,7 @@ Where ***AAAA*** is a randomly generated two-byte string.
 5.1. ***On your local machine***, get the hostname of the app service linked to ***spoke3***
 ```sh
 spoke3_apps_url=$(az webapp list --resource-group Hs13RG --query "[?contains(name, 'hs13-spoke3')].defaultHostName" -o tsv)
-``````
+```
 5.2. Display the hostname
 ```sh
 echo $spoke3_apps_url
