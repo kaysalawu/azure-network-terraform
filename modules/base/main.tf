@@ -454,14 +454,14 @@ resource "azurerm_route_server" "ars" {
 ####################################################
 
 resource "random_id" "azfw" {
-  count       = var.firewall_config[0].create_firewall ? 1 : 0
+  count       = var.firewall_config[0].enable ? 1 : 0
   byte_length = 4
 }
 
 # workspace
 
 resource "azurerm_log_analytics_workspace" "azfw" {
-  count               = var.firewall_config[0].create_firewall ? 1 : 0
+  count               = var.firewall_config[0].enable ? 1 : 0
   resource_group_name = var.resource_group
   name                = "${local.prefix}azfw-ws-${random_id.azfw[0].hex}"
   location            = var.location
@@ -473,7 +473,7 @@ resource "azurerm_log_analytics_workspace" "azfw" {
 # storage account
 
 resource "azurerm_storage_account" "azfw" {
-  count                    = var.firewall_config[0].create_firewall ? 1 : 0
+  count                    = var.firewall_config[0].enable ? 1 : 0
   resource_group_name      = var.resource_group
   name                     = lower(replace("${local.prefix}azfw${random_id.azfw[0].hex}", "-", ""))
   location                 = var.location
@@ -485,7 +485,7 @@ resource "azurerm_storage_account" "azfw" {
 # firewall public ip
 
 resource "azurerm_public_ip" "fw_pip" {
-  count               = var.firewall_config[0].create_firewall ? 1 : 0
+  count               = var.firewall_config[0].enable ? 1 : 0
   resource_group_name = var.resource_group
   name                = "${local.prefix}azfw-pip0"
   location            = var.location
@@ -504,7 +504,7 @@ resource "azurerm_public_ip" "fw_pip" {
 # firewall management public ip
 
 resource "azurerm_public_ip" "fw_mgt_pip" {
-  count               = var.firewall_config[0].create_firewall ? 1 : 0
+  count               = var.firewall_config[0].enable ? 1 : 0
   resource_group_name = var.resource_group
   name                = "${local.prefix}azfw-mgt-pip0"
   location            = var.location
@@ -523,13 +523,13 @@ resource "azurerm_public_ip" "fw_mgt_pip" {
 # firewall
 
 resource "azurerm_firewall" "azfw" {
-  count               = var.firewall_config[0].create_firewall ? 1 : 0
+  count               = var.firewall_config[0].enable ? 1 : 0
   name                = "${local.prefix}azfw"
   resource_group_name = var.resource_group
   location            = var.location
   sku_name            = "AZFW_VNet"
-  sku_tier            = try(var.vnet_config[0].firewall_sku, "Basic")
-  firewall_policy_id  = try(var.vnet_config[0].firewall_policy_id, null)
+  sku_tier            = try(var.firewall_config[0].firewall_sku, "Basic")
+  firewall_policy_id  = try(var.firewall_config[0].firewall_policy_id, null)
   tags                = var.tags
 
   ip_configuration {
@@ -563,7 +563,7 @@ resource "azurerm_firewall" "azfw" {
 # diagnostic setting
 
 resource "azurerm_monitor_diagnostic_setting" "azfw" {
-  count                      = var.firewall_config[0].create_firewall ? 1 : 0
+  count                      = var.firewall_config[0].enable ? 1 : 0
   name                       = "${local.prefix}azfw-diag"
   target_resource_id         = azurerm_firewall.azfw[0].id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.azfw[0].id

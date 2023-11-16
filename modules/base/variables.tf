@@ -141,12 +141,12 @@ variable "vm_config" {
 
 variable "firewall_config" {
   type = list(object({
-    create_firewall    = optional(bool, false)
+    enable             = optional(bool, false)
     firewall_sku       = optional(string, "Basic")
     firewall_policy_id = optional(string, null)
   }))
   default = [{
-    create_firewall    = false,
+    enable             = false,
     firewall_sku       = "Basic"
     firewall_policy_id = null
   }]

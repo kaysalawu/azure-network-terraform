@@ -97,10 +97,10 @@ azureuser@Hs11-spoke1-vm:~$ ping-ip
 
  ping ip ...
 
-branch1 - 10.10.0.5 -OK 8.504 ms
-hub1    - 10.11.0.5 -OK 4.283 ms
-spoke1  - 10.1.0.5 -OK 0.039 ms
-spoke2  - 10.2.0.5 -OK 3.169 ms
+branch1 - 10.10.0.5 -OK 6.857 ms
+hub1    - 10.11.0.5 -OK 2.706 ms
+spoke1  - 10.1.0.5 -OK 0.084 ms
+spoke2  - 10.2.0.5 -OK 3.109 ms
 internet - icanhazip.com -NA
 ```
 
@@ -119,11 +119,11 @@ azureuser@Hs11-spoke1-vm:~$ ping-dns
 
  ping dns ...
 
-vm.branch1.corp - 10.10.0.5 -OK 7.374 ms
-vm.hub1.az.corp - 10.11.0.5 -OK 4.905 ms
-vm.spoke1.az.corp - 10.1.0.5 -OK 0.035 ms
-vm.spoke2.az.corp - 10.2.0.5 -OK 3.332 ms
-icanhazip.com - 104.18.114.97 -NA
+vm.branch1.corp - 10.10.0.5 -OK 5.227 ms
+vm.hub1.az.corp - 10.11.0.5 -OK 2.768 ms
+vm.spoke1.az.corp - 10.1.0.5 -OK 0.034 ms
+vm.spoke2.az.corp - 10.2.0.5 -OK 2.240 ms
+icanhazip.com - 104.18.115.97 -NA
 ```
 
 ### 3. Curl DNS
@@ -141,14 +141,14 @@ azureuser@Hs11-spoke1-vm:~$ curl-dns
 
  curl dns ...
 
-200 (0.036296s) - 10.10.0.5 - vm.branch1.corp
-200 (0.031416s) - 10.11.0.5 - vm.hub1.az.corp
-200 (0.026443s) - 10.11.4.5 - spoke3.p.hub1.az.corp
-[49695.967357] cloud-init[1626]: 10.1.0.5 - - [02/Nov/2023 16:00:19] "GET / HTTP/1.1" 200 -
-200 (0.019860s) - 10.1.0.5 - vm.spoke1.az.corp
-200 (0.033577s) - 10.2.0.5 - vm.spoke2.az.corp
-000 (2.001723s) -  - vm.spoke3.az.corp
-200 (0.019208s) - 104.18.115.97 - icanhazip.com
+200 (0.042617s) - 10.10.0.5 - vm.branch1.corp
+200 (0.020770s) - 10.11.0.5 - vm.hub1.az.corp
+200 (0.021563s) - 10.11.4.4 - spoke3.p.hub1.az.corp
+[ 8301.358364] cloud-init[1617]: 10.1.0.5 - - [16/Nov/2023 12:45:00] "GET / HTTP/1.1" 200 -
+200 (0.011108s) - 10.1.0.5 - vm.spoke1.az.corp
+200 (0.030115s) - 10.2.0.5 - vm.spoke2.az.corp
+000 (2.000924s) -  - vm.spoke3.az.corp
+200 (0.017688s) - 104.18.114.97 - icanhazip.com
 ```
 We can see that curl test to spoke3 virtual machine `vm.spoke3.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.az.corp`.
 
@@ -198,7 +198,7 @@ echo $spoke3_apps_url
 
 Sample output (your output will be different)
 ```sh
-hs11-spoke3-0ca7-app.azurewebsites.net
+hs11-spoke3-0383-app.azurewebsites.net
 ```
 5.3. Resolve the hostname
 ```sh
@@ -208,18 +208,18 @@ nslookup $spoke3_apps_url
 Sample output (your output will be different)
 ```sh
 1-hub-spoke-azfw-single-region$ nslookup $spoke3_apps_url
-Server:         172.22.224.1
-Address:        172.22.224.1#53
+Server:         172.30.16.1
+Address:        172.30.16.1#53
 
 Non-authoritative answer:
-hs11-spoke3-0ca7-app.azurewebsites.net  canonical name = hs11-spoke3-0ca7-app.privatelink.azurewebsites.net.
-hs11-spoke3-0ca7-app.privatelink.azurewebsites.net      canonical name = waws-prod-am2-769.sip.azurewebsites.windows.net.
-waws-prod-am2-769.sip.azurewebsites.windows.net canonical name = waws-prod-am2-769-a6a3.westeurope.cloudapp.azure.com.
-Name:   waws-prod-am2-769-a6a3.westeurope.cloudapp.azure.com
-Address: 20.105.232.49
+hs11-spoke3-0383-app.azurewebsites.net  canonical name = hs11-spoke3-0383-app.privatelink.azurewebsites.net.
+hs11-spoke3-0383-app.privatelink.azurewebsites.net      canonical name = waws-prod-am2-519.sip.azurewebsites.windows.net.
+waws-prod-am2-519.sip.azurewebsites.windows.net canonical name = waws-prod-am2-519-d8e1.westeurope.cloudapp.azure.com.
+Name:   waws-prod-am2-519-d8e1.westeurope.cloudapp.azure.com
+Address: 20.105.216.0
 ```
 
-We can see that the endpoint is a public IP address, ***20.105.232.49***. We can see the CNAME `hs11-spoke3-0ca7-app.privatelink.azurewebsites.net` created for the app service which recursively resolves to the public IP address.
+We can see that the endpoint is a public IP address, ***20.105.216.0***. We can see the CNAME `hs11-spoke3-0383-app.privatelink.azurewebsites.net` created for the app service which recursively resolves to the public IP address.
 
 5.4. Test access to the ***spoke3*** app service via the public endpoint.
 
@@ -233,21 +233,21 @@ Sample output
 {
   "Headers": {
     "Accept": "*/*",
-    "Client-Ip": "174.173.70.196:58210",
-    "Disguised-Host": "hs11-spoke3-0ca7-app.azurewebsites.net",
-    "Host": "hs11-spoke3-0ca7-app.azurewebsites.net",
+    "Client-Ip": "152.37.70.253:4636",
+    "Disguised-Host": "hs11-spoke3-0383-app.azurewebsites.net",
+    "Host": "hs11-spoke3-0383-app.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.74.0",
-    "Was-Default-Hostname": "hs11-spoke3-0ca7-app.azurewebsites.net",
-    "X-Arr-Log-Id": "5d37652c-7a2e-4e49-a1c9-6fef66520a98",
-    "X-Client-Ip": "174.173.70.196",
-    "X-Client-Port": "58210",
-    "X-Forwarded-For": "174.173.70.196:58210",
+    "Was-Default-Hostname": "hs11-spoke3-0383-app.azurewebsites.net",
+    "X-Arr-Log-Id": "ea1b8634-7fc9-4378-b793-ca20826b2c84",
+    "X-Client-Ip": "152.37.70.253",
+    "X-Client-Port": "4636",
+    "X-Forwarded-For": "152.37.70.253:4636",
     "X-Original-Url": "/",
-    "X-Site-Deployment-Id": "hs11-spoke3-0ca7-app",
+    "X-Site-Deployment-Id": "hs11-spoke3-0383-app",
     "X-Waws-Unencoded-Url": "/"
   },
-  "Hostname": "8259890baed9",
+  "Hostname": "4d9a0751a347",
   "Local-IP": "169.254.129.3",
   "Remote-IP": "169.254.129.1"
 }
@@ -263,38 +263,38 @@ curl -4 icanhazip.com
 Sample output (your output will be different)
 ```sh
 1-hub-spoke-azfw-single-region$ curl -4 icanhazip.com
-174.173.70.196
+152.37.70.253
 ```
 
 **(Optional)** Repeat steps *5.1* through *5.4* for the app service linked to ***spoke6***.
 
 ### 6. Private Link (App Service) Access from On-premises
 
-6.1 Recall the hostname of the app service in ***spoke3*** as done in Step 5.2. In our example, the hostname is `hs11-spoke3-0ca7-app.azurewebsites.net`.
+6.1 Recall the hostname of the app service in ***spoke3*** as done in Step 5.2. In our example, the hostname is `hs11-spoke3-0383-app.azurewebsites.net`.
 
 6.2. Connect to the on-premises server `Hs11-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Hs11-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
 
-6.3. Resolve the hostname DNS - which is `hs11-spoke3-0ca7-app.azurewebsites.net` in this example. Use your actual hostname from Step 6.1
+6.3. Resolve the hostname DNS - which is `hs11-spoke3-0383-app.azurewebsites.net` in this example. Use your actual hostname from Step 6.1
 ```sh
 nslookup hs11-spoke3-<AAAA>-app.azurewebsites.net
 ```
 
 Sample output
 ```sh
-azureuser@Hs11-branch1-vm:~$ nslookup hs11-spoke3-0ca7-app.azurewebsites.net
+azureuser@Hs11-branch1-vm:~$ nslookup hs11-spoke3-0383-app.azurewebsites.net
 Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-hs11-spoke3-0ca7-app.azurewebsites.net  canonical name = hs11-spoke3-0ca7-app.privatelink.azurewebsites.net.
-Name:   hs11-spoke3-0ca7-app.privatelink.azurewebsites.net
+hs11-spoke3-0383-app.azurewebsites.net  canonical name = hs11-spoke3-0383-app.privatelink.azurewebsites.net.
+Name:   hs11-spoke3-0383-app.privatelink.azurewebsites.net
 Address: 10.11.4.5
 ```
 
 We can see that the app service hostname resolves to the private endpoint ***10.11.4.5*** in ***hub1***. The following is a summary of the DNS resolution from `Hs11-branch1-vm`:
-- On-premises server `Hs11-branch1-vm` makes a DNS request for `hs11-spoke3-0ca7-app.azurewebsites.net`
+- On-premises server `Hs11-branch1-vm` makes a DNS request for `hs11-spoke3-0383-app.azurewebsites.net`
 - The request is received by on-premises DNS server `Hs11-branch1-dns`
-- The DNS server resolves `hs11-spoke3-0ca7-app.azurewebsites.net` to the CNAME `hs11-spoke3-0ca7-app.privatelink.azurewebsites.net`
+- The DNS server resolves `hs11-spoke3-0383-app.azurewebsites.net` to the CNAME `hs11-spoke3-0383-app.privatelink.azurewebsites.net`
 - The DNS server has a conditional DNS forwarding defined in the [unbound DNS configuration file](./output/branch-unbound.sh).
 
   ```sh
@@ -312,25 +312,25 @@ curl hs11-spoke3-<AAAA>-app.azurewebsites.net
 
 Sample output
 ```sh
-azureuser@Hs11-branch1-vm:~$ curl hs11-spoke3-0ca7-app.azurewebsites.net
+azureuser@Hs11-branch1-vm:~$ curl hs11-spoke3-0383-app.azurewebsites.net
 {
   "Headers": {
     "Accept": "*/*",
-    "Client-Ip": "[fd40:d30b:112:d7a7:7912:700:a0a:5]:51570",
-    "Disguised-Host": "hs11-spoke3-0ca7-app.azurewebsites.net",
-    "Host": "hs11-spoke3-0ca7-app.azurewebsites.net",
+    "Client-Ip": "[fd40:df39:112:4b8f:7912:b00:a0a:5]:41816",
+    "Disguised-Host": "hs11-spoke3-0383-app.azurewebsites.net",
+    "Host": "hs11-spoke3-0383-app.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.68.0",
-    "Was-Default-Hostname": "hs11-spoke3-0ca7-app.azurewebsites.net",
-    "X-Arr-Log-Id": "f09c59c0-0aec-472a-8419-a43524dba7b8",
+    "Was-Default-Hostname": "hs11-spoke3-0383-app.azurewebsites.net",
+    "X-Arr-Log-Id": "c2424aea-5fe1-440c-960d-007b423afb0f",
     "X-Client-Ip": "10.10.0.5",
     "X-Client-Port": "0",
     "X-Forwarded-For": "10.10.0.5",
     "X-Original-Url": "/",
-    "X-Site-Deployment-Id": "hs11-spoke3-0ca7-app",
+    "X-Site-Deployment-Id": "hs11-spoke3-0383-app",
     "X-Waws-Unencoded-Url": "/"
   },
-  "Hostname": "8259890baed9",
+  "Hostname": "4d9a0751a347",
   "Local-IP": "169.254.129.3",
   "Remote-IP": "169.254.129.1"
 }
@@ -368,8 +368,8 @@ Gateway of last resort is 10.10.1.1 to network 0.0.0.0
 
 S*    0.0.0.0/0 [1/0] via 10.10.1.1
       10.0.0.0/8 is variably subnetted, 14 subnets, 4 masks
-B        10.1.0.0/16 [20/0] via 10.11.7.4, 14:22:50
-B        10.2.0.0/16 [20/0] via 10.11.7.4, 14:22:50
+B        10.1.0.0/16 [20/0] via 10.11.7.4, 02:51:06
+B        10.2.0.0/16 [20/0] via 10.11.7.4, 02:51:06
 S        10.10.0.0/24 [1/0] via 10.10.2.1
 C        10.10.1.0/24 is directly connected, GigabitEthernet1
 L        10.10.1.9/32 is directly connected, GigabitEthernet1
@@ -379,7 +379,7 @@ C        10.10.10.0/30 is directly connected, Tunnel0
 L        10.10.10.1/32 is directly connected, Tunnel0
 C        10.10.10.4/30 is directly connected, Tunnel1
 L        10.10.10.5/32 is directly connected, Tunnel1
-B        10.11.0.0/16 [20/0] via 10.11.7.4, 14:22:50
+B        10.11.0.0/16 [20/0] via 10.11.7.4, 02:51:06
 S        10.11.7.4/32 is directly connected, Tunnel0
 S        10.11.7.5/32 is directly connected, Tunnel1
       168.63.0.0/32 is subnetted, 1 subnets
@@ -390,10 +390,7 @@ S        169.254.169.254 [254/0] via 10.10.1.1
 C        192.168.10.10 is directly connected, Loopback0
 ```
 
-We can see our hub and spoke Vnet ranges are learned dynamically via BGP:
-- ***Spoke1 Vnet*** (10.1.0.0/16) via ***hub1*** VPN 10.11.7.4
-- ***Spoke2 Vnet*** (10.2.0.0/16) via ***hub1*** VPN 10.11.7.4
-- ***Hub1 Vnet*** (10.11.0.0/16) via ***hub1*** VPN 10.11.7.4
+We can see our hub and spoke Vnet ranges are learned dynamically via BGP.
 
 7.5. Display BGP information by typing `show ip bgp`.
 ```sh
@@ -438,13 +435,28 @@ Observe the firewall logs based on traffic flows generated from our tests.
 
 ## Cleanup
 
-(Optional) Navigate back to the lab directory (if you are not already there)
+1. (Optional) Navigate back to the lab directory (if you are not already there)
    ```sh
-   cd azure-network-terraform/1-hub-and-spoke/1-hub-spoke-azfw-single-region
+   cd azure-network-terraform/1-hub-and-spoke/2-hub-spoke-azfw-dual-region
    ```
 
-Delete the resource group to remove all resources installed.
+2. Run a cleanup script to remove some resources that may not be removed after the resource group deletion.
+```sh
+bash ../../scripts/_cleanup.sh Hs11RG
+```
 
-   ```sh
-   az group delete -g Hs11RG --no-wait
-   ```
+Sample output
+```sh
+1-hub-spoke-azfw-single-region$ bash ../../scripts/_cleanup.sh Hs11RG
+
+Resource group: Hs11RG
+
+Deleting: diag setting [Hs11-hub1-azfw-diag] for firewall [Hs11-hub1-azfw] ...
+Deletion complete!
+```
+
+3. Delete the resource group to remove all resources installed.
+
+```sh
+az group delete -g Hs11RG --no-wait
+```

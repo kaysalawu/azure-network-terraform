@@ -481,7 +481,7 @@ Observe the firewall logs based on traffic flows generated from our tests.
 cd azure-network-terraform/2-virtual-wan/3-vwan-sec-single-region
 ```
 
-2. Run a cleanup script to remove some resources that may not be removed by with the resource group deletion.
+2. Run a cleanup script to remove some resources that may not be removed after the resource group deletion.
 ```sh
 bash ../../scripts/_cleanup.sh Vwan23RG
 ```

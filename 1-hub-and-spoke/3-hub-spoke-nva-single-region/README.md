@@ -92,16 +92,17 @@ This script pings the IP addresses of some test virtual machines and reports rea
 ping-ip
 ```
 Sample output
+
 ```sh
 azureuser@Hs13-spoke1-vm:~$ ping-ip
 
  ping ip ...
 
-branch1 - 10.10.0.5 -OK 8.698 ms
-hub1    - 10.11.0.5 -OK 5.274 ms
-spoke1  - 10.1.0.5 -OK 0.031 ms
-spoke2  - 10.2.0.5 -OK 3.828 ms
-internet - icanhazip.com -OK 3.486 ms
+branch1 - 10.10.0.5 -OK 6.787 ms
+hub1    - 10.11.0.5 -OK 4.862 ms
+spoke1  - 10.1.0.5 -OK 0.037 ms
+spoke2  - 10.2.0.5 -OK 4.098 ms
+internet - icanhazip.com -OK 3.743 ms
 ```
 
 ### 2. Ping DNS
@@ -119,11 +120,11 @@ azureuser@Hs13-spoke1-vm:~$ ping-dns
 
  ping dns ...
 
-vm.branch1.corp - 10.10.0.5 -OK 8.414 ms
-vm.hub1.az.corp - 10.11.0.5 -OK 5.971 ms
-vm.spoke1.az.corp - 10.1.0.5 -OK 0.058 ms
-vm.spoke2.az.corp - 10.2.0.5 -OK 4.274 ms
-icanhazip.com - 104.18.114.97 -OK 3.654 ms
+vm.branch1.corp - 10.10.0.5 -OK 6.506 ms
+vm.hub1.az.corp - 10.11.0.5 -OK 4.680 ms
+vm.spoke1.az.corp - 10.1.0.5 -OK 0.034 ms
+vm.spoke2.az.corp - 10.2.0.5 -OK 3.733 ms
+icanhazip.com - 104.18.115.97 -OK 3.495 ms
 ```
 
 ### 3. Curl DNS
@@ -141,14 +142,14 @@ azureuser@Hs13-spoke1-vm:~$ curl-dns
 
  curl dns ...
 
-200 (0.058534s) - 10.10.0.5 - vm.branch1.corp
-200 (0.029263s) - 10.11.0.5 - vm.hub1.az.corp
-200 (0.028609s) - 10.11.4.4 - spoke3.p.hub1.az.corp
-[ 2605.272306] cloud-init[1621]: 10.1.0.5 - - [05/Nov/2023 22:07:10] "GET / HTTP/1.1" 200 -
-200 (0.031526s) - 10.1.0.5 - vm.spoke1.az.corp
-200 (0.039218s) - 10.2.0.5 - vm.spoke2.az.corp
-000 (2.001484s) -  - vm.spoke3.az.corp
-200 (0.021982s) - 104.18.115.97 - icanhazip.com
+200 (0.080907s) - 10.10.0.5 - vm.branch1.corp
+200 (0.027348s) - 10.11.0.5 - vm.hub1.az.corp
+200 (0.017568s) - 10.11.4.4 - spoke3.p.hub1.az.corp
+[ 2556.654142] cloud-init[1608]: 10.1.0.5 - - [16/Nov/2023 19:42:07] "GET / HTTP/1.1" 200 -
+200 (0.010790s) - 10.1.0.5 - vm.spoke1.az.corp
+200 (0.049940s) - 10.2.0.5 - vm.spoke2.az.corp
+000 (2.001713s) -  - vm.spoke3.az.corp
+200 (0.014783s) - 104.18.114.97 - icanhazip.com
 ```
 We can see that curl test to spoke3 virtual machine `vm.spoke3.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.az.corp`.
 
@@ -198,7 +199,7 @@ echo $spoke3_apps_url
 
 Sample output (your output will be different)
 ```sh
-hs13-spoke3-bd00-app.azurewebsites.net
+hs13-spoke3-9313-app.azurewebsites.net
 ```
 5.3. Resolve the hostname
 ```sh
@@ -208,18 +209,18 @@ nslookup $spoke3_apps_url
 Sample output (your output will be different)
 ```sh
 3-hub-spoke-nva-single-region$ nslookup $spoke3_apps_url
-Server:         172.27.96.1
-Address:        172.27.96.1#53
+Server:         172.30.16.1
+Address:        172.30.16.1#53
 
 Non-authoritative answer:
-hs13-spoke3-bd00-app.azurewebsites.net  canonical name = hs13-spoke3-bd00-app.privatelink.azurewebsites.net.
-hs13-spoke3-bd00-app.privatelink.azurewebsites.net      canonical name = waws-prod-am2-617.sip.azurewebsites.windows.net.
-waws-prod-am2-617.sip.azurewebsites.windows.net canonical name = waws-prod-am2-617-3273.westeurope.cloudapp.azure.com.
-Name:   waws-prod-am2-617-3273.westeurope.cloudapp.azure.com
-Address: 20.105.224.19
+hs13-spoke3-9313-app.azurewebsites.net  canonical name = hs13-spoke3-9313-app.privatelink.azurewebsites.net.
+hs13-spoke3-9313-app.privatelink.azurewebsites.net      canonical name = waws-prod-am2-707.sip.azurewebsites.windows.net.
+waws-prod-am2-707.sip.azurewebsites.windows.net canonical name = waws-prod-am2-707-c2d4.westeurope.cloudapp.azure.com.
+Name:   waws-prod-am2-707-c2d4.westeurope.cloudapp.azure.com
+Address: 20.105.216.34
 ```
 
-We can see that the endpoint is a public IP address, ***20.105.224.19***. We can see the CNAME `hs13-spoke3-bd00-app.privatelink.azurewebsites.net` created for the app service which recursively resolves to the public IP address.
+We can see that the endpoint is a public IP address, ***20.105.216.34***. We can see the CNAME `hs13-spoke3-9313-app.privatelink.azurewebsites.net` created for the app service which recursively resolves to the public IP address.
 
 5.4. Test access to the ***spoke3*** app service via the public endpoint.
 
@@ -233,21 +234,21 @@ Sample output
 {
   "Headers": {
     "Accept": "*/*",
-    "Client-Ip": "174.173.70.196:55246",
-    "Disguised-Host": "hs13-spoke3-bd00-app.azurewebsites.net",
-    "Host": "hs13-spoke3-bd00-app.azurewebsites.net",
+    "Client-Ip": "152.37.70.253:1024",
+    "Disguised-Host": "hs13-spoke3-9313-app.azurewebsites.net",
+    "Host": "hs13-spoke3-9313-app.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.74.0",
-    "Was-Default-Hostname": "hs13-spoke3-bd00-app.azurewebsites.net",
-    "X-Arr-Log-Id": "7531a98b-32f4-4aad-b3e2-56eade394f10",
-    "X-Client-Ip": "174.173.70.196",
-    "X-Client-Port": "55246",
-    "X-Forwarded-For": "174.173.70.196:55246",
+    "Was-Default-Hostname": "hs13-spoke3-9313-app.azurewebsites.net",
+    "X-Arr-Log-Id": "304fe4ce-494a-4945-8b36-a1b78f8a94d1",
+    "X-Client-Ip": "152.37.70.253",
+    "X-Client-Port": "1024",
+    "X-Forwarded-For": "152.37.70.253:1024",
     "X-Original-Url": "/",
-    "X-Site-Deployment-Id": "hs13-spoke3-bd00-app",
+    "X-Site-Deployment-Id": "hs13-spoke3-9313-app",
     "X-Waws-Unencoded-Url": "/"
   },
-  "Hostname": "411e0789508e",
+  "Hostname": "a236a3631b64",
   "Local-IP": "169.254.129.3",
   "Remote-IP": "169.254.129.1"
 }
@@ -263,38 +264,38 @@ curl -4 icanhazip.com
 Sample output (your output will be different)
 ```sh
 3-hub-spoke-nva-single-region$ curl -4 icanhazip.com
-174.173.70.196
+152.37.70.253
 ```
 
 **(Optional)** Repeat steps *5.1* through *5.4* for the app service linked to ***spoke6***.
 
 ### 6. Private Link (App Service) Access from On-premises
 
-6.1 Recall the hostname of the app service in ***spoke3*** as done in Step 5.2. In our example, the hostname is `hs13-spoke3-bd00-app.azurewebsites.net`.
+6.1 Recall the hostname of the app service in ***spoke3*** as done in Step 5.2. In our example, the hostname is `hs13-spoke3-9313-app.azurewebsites.net`.
 
 6.2. Connect to the on-premises server `Hs13-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Hs13-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
 
-6.3. Resolve the hostname DNS - which is `hs13-spoke3-bd00-app.azurewebsites.net` in this example. Use your actual hostname from Step 6.1
+6.3. Resolve the hostname DNS - which is `hs13-spoke3-9313-app.azurewebsites.net` in this example. Use your actual hostname from Step 6.1
 ```sh
 nslookup hs13-spoke3-<AAAA>-app.azurewebsites.net
 ```
 
 Sample output
 ```sh
-azureuser@Hs13-branch1-vm:~$ nslookup hs13-spoke3-bd00-app.azurewebsites.net
+azureuser@Hs13-branch1-vm:~$ nslookup hs13-spoke3-9313-app.azurewebsites.net
 Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-hs13-spoke3-bd00-app.azurewebsites.net  canonical name = hs13-spoke3-bd00-app.privatelink.azurewebsites.net.
-Name:   hs13-spoke3-bd00-app.privatelink.azurewebsites.net
+hs13-spoke3-9313-app.azurewebsites.net  canonical name = hs13-spoke3-9313-app.privatelink.azurewebsites.net.
+Name:   hs13-spoke3-9313-app.privatelink.azurewebsites.net
 Address: 10.11.4.5
 ```
 
 We can see that the app service hostname resolves to the private endpoint ***10.11.4.5*** in ***hub1***. The following is a summary of the DNS resolution from `Hs13-branch1-vm`:
-- On-premises server `Hs13-branch1-vm` makes a DNS request for `hs13-spoke3-bd00-app.azurewebsites.net`
+- On-premises server `Hs13-branch1-vm` makes a DNS request for `hs13-spoke3-9313-app.azurewebsites.net`
 - The request is received by on-premises DNS server `Hs13-branch1-dns`
-- The DNS server resolves `hs13-spoke3-bd00-app.azurewebsites.net` to the CNAME `hs13-spoke3-bd00-app.privatelink.azurewebsites.net`
+- The DNS server resolves `hs13-spoke3-9313-app.azurewebsites.net` to the CNAME `hs13-spoke3-9313-app.privatelink.azurewebsites.net`
 - The DNS server has a conditional DNS forwarding defined in the [unbound DNS configuration file](./output/branch-unbound.sh).
 
   ```sh
@@ -312,25 +313,25 @@ curl hs13-spoke3-<AAAA>-app.azurewebsites.net
 
 Sample output
 ```sh
-azureuser@Hs13-branch1-vm:~$ curl hs13-spoke3-bd00-app.azurewebsites.net
+azureuser@Hs13-branch1-vm:~$ curl hs13-spoke3-9313-app.azurewebsites.net
 {
   "Headers": {
     "Accept": "*/*",
-    "Client-Ip": "[fd40:e775:112:8886:7c12:b00:a0a:5]:55028",
-    "Disguised-Host": "hs13-spoke3-bd00-app.azurewebsites.net",
-    "Host": "hs13-spoke3-bd00-app.azurewebsites.net",
+    "Client-Ip": "[fd40:ed30:12:3a1f:6c12:700:a0a:5]:57596",
+    "Disguised-Host": "hs13-spoke3-9313-app.azurewebsites.net",
+    "Host": "hs13-spoke3-9313-app.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.68.0",
-    "Was-Default-Hostname": "hs13-spoke3-bd00-app.azurewebsites.net",
-    "X-Arr-Log-Id": "0d9cef3b-7b64-4f0f-827a-a37c5699b2d1",
+    "Was-Default-Hostname": "hs13-spoke3-9313-app.azurewebsites.net",
+    "X-Arr-Log-Id": "073cf80b-9212-4bd3-b570-8b425d66e140",
     "X-Client-Ip": "10.10.0.5",
     "X-Client-Port": "0",
     "X-Forwarded-For": "10.10.0.5",
     "X-Original-Url": "/",
-    "X-Site-Deployment-Id": "hs13-spoke3-bd00-app",
+    "X-Site-Deployment-Id": "hs13-spoke3-9313-app",
     "X-Waws-Unencoded-Url": "/"
   },
-  "Hostname": "411e0789508e",
+  "Hostname": "a236a3631b64",
   "Local-IP": "169.254.129.3",
   "Remote-IP": "169.254.129.1"
 }
@@ -351,37 +352,37 @@ azureuser@Hs13-branch1-vm:~$ trace-ip
 
 branch1
 -------------------------------------
- 1:  Hs13-branch1-vm                                       0.073ms reached
+ 1:  Hs13-branch1-vm                                       0.072ms reached
      Resume: pmtu 65535 hops 1 back 1
 
 hub1
 -------------------------------------
  1?: [LOCALHOST]                      pmtu 1500
- 1:  10.10.2.9                                            42.031ms
- 1:  10.10.2.9                                             0.987ms
- 2:  10.10.2.9                                             8.288ms pmtu 1438
- 2:  10.11.1.4                                             5.197ms
- 3:  10.11.0.5                                             6.097ms reached
+ 1:  10.10.2.9                                             1.379ms
+ 1:  10.10.2.9                                             0.825ms
+ 2:  10.10.2.9                                             9.082ms pmtu 1438
+ 2:  10.11.1.4                                             4.779ms
+ 3:  10.11.0.5                                             6.418ms reached
      Resume: pmtu 1438 hops 3 back 3
 
 spoke1
 -------------------------------------
  1?: [LOCALHOST]                      pmtu 1500
- 1:  10.10.2.9                                             1.994ms
- 1:  10.10.2.9                                             0.961ms
- 2:  10.10.2.9                                             1.334ms pmtu 1438
- 2:  10.11.1.4                                             4.653ms
- 3:  10.1.0.5                                              8.280ms reached
+ 1:  10.10.2.9                                             1.195ms
+ 1:  10.10.2.9                                             1.085ms
+ 2:  10.10.2.9                                             1.226ms pmtu 1438
+ 2:  10.11.1.4                                             4.657ms
+ 3:  10.1.0.5                                              6.732ms reached
      Resume: pmtu 1438 hops 3 back 3
 
 spoke2
 -------------------------------------
  1?: [LOCALHOST]                      pmtu 1500
- 1:  10.10.2.9                                             1.093ms
- 1:  10.10.2.9                                             4.703ms
- 2:  10.10.2.9                                             1.147ms pmtu 1438
- 2:  10.11.1.4                                             3.975ms
- 3:  10.2.0.5                                              6.774ms reached
+ 1:  10.10.2.9                                             0.922ms
+ 1:  10.10.2.9                                             1.045ms
+ 2:  10.10.2.9                                             1.165ms pmtu 1438
+ 2:  10.11.1.4                                             4.288ms
+ 3:  10.2.0.5                                              5.206ms reached
      Resume: pmtu 1438 hops 3 back 3
 
 internet
@@ -391,7 +392,7 @@ internet
  2:  no reply
 ```
 
-We can observe that traffic to ***spoke1***, ***spoke2*** and ***hub1*** flow symmetrivcally via the NVA in ***hub1*** (10.11.1.4).
+We can observe that traffic to ***spoke1***, ***spoke2*** and ***hub1*** flow symmetrically via the NVA in ***hub1*** (10.11.1.4).
 
 ### 8. Onprem Routes
 
@@ -413,15 +414,25 @@ show ip route
 Sample output
 ```sh
 Hs13-branch1-nva-vm#show ip route
-...
-[Truncated for brevity]
-...
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, m - OMP
+       n - NAT, Ni - NAT inside, No - NAT outside, Nd - NAT DIA
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       H - NHRP, G - NHRP registered, g - NHRP registration summary
+       o - ODR, P - periodic downloaded static route, l - LISP
+       a - application route
+       + - replicated route, % - next hop override, p - overrides from PfR
+       & - replicated local route overrides by connected
+
 Gateway of last resort is 10.10.1.1 to network 0.0.0.0
 
 S*    0.0.0.0/0 [1/0] via 10.10.1.1
       10.0.0.0/8 is variably subnetted, 14 subnets, 4 masks
-B        10.1.0.0/16 [20/0] via 10.11.7.4, 00:38:06
-B        10.2.0.0/16 [20/0] via 10.11.7.4, 00:38:06
+B        10.1.0.0/16 [20/0] via 10.11.7.4, 00:22:25
+B        10.2.0.0/16 [20/0] via 10.11.7.4, 00:22:25
 S        10.10.0.0/24 [1/0] via 10.10.2.1
 C        10.10.1.0/24 is directly connected, GigabitEthernet1
 L        10.10.1.9/32 is directly connected, GigabitEthernet1
@@ -431,7 +442,7 @@ C        10.10.10.0/30 is directly connected, Tunnel0
 L        10.10.10.1/32 is directly connected, Tunnel0
 C        10.10.10.4/30 is directly connected, Tunnel1
 L        10.10.10.5/32 is directly connected, Tunnel1
-B        10.11.0.0/16 [20/0] via 10.11.7.4, 00:38:06
+B        10.11.0.0/16 [20/0] via 10.11.7.4, 00:22:25
 S        10.11.7.4/32 is directly connected, Tunnel0
 S        10.11.7.5/32 is directly connected, Tunnel1
       168.63.0.0/32 is subnetted, 1 subnets
@@ -442,10 +453,7 @@ S        169.254.169.254 [254/0] via 10.10.1.1
 C        192.168.10.10 is directly connected, Loopback0
 ```
 
-We can see our hub and spoke Vnet ranges are learned dynamically via BGP:
-- ***Spoke1 Vnet*** (10.1.0.0/16) via ***hub1*** VPN 10.11.7.4
-- ***Spoke2 Vnet*** (10.2.0.0/16) via ***hub1*** VPN 10.11.7.4
-- ***Hub1 Vnet*** (10.11.0.0/16) via ***hub1*** VPN 10.11.7.4
+We can see our hub and spoke Vnet ranges are learned dynamically via BGP.
 
 Display BGP information by typing `show ip bgp`.
 ```sh
@@ -477,13 +485,14 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
 
 ## Cleanup
 
-(Optional) Navigate back to the lab directory (if you are not already there)
+1. (Optional) Navigate back to the lab directory (if you are not already there)
+
    ```sh
    cd azure-network-terraform/1-hub-and-spoke/3-hub-spoke-nva-single-region
    ```
 
-Delete the resource group to remove all resources installed.
+2. Delete the resource group to remove all resources installed.
 
-```sh
-az group delete -g Hs13RG --no-wait
-```
+   ```sh
+   az group delete -g Hs13RG --no-wait
+   ```

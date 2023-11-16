@@ -55,7 +55,9 @@ module "spoke4_udr_main" {
     local.default_udr_destinations,
     { "hub2" = local.hub2_address_space[0] }
   )
-  depends_on = [module.hub2, ]
+  depends_on = [
+    module.hub2,
+  ]
 }
 
 ####################################################
@@ -137,7 +139,9 @@ module "hub2_udr_gateway" {
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = local.hub2_nva_ilb_addr
   destinations           = local.hub2_gateway_udr_destinations
-  depends_on             = [module.hub2, ]
+  depends_on = [
+    module.hub2,
+  ]
 }
 
 # main

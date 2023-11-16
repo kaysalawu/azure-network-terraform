@@ -54,32 +54,46 @@ locals {
   firewall_sku = "Basic"
 
   hub1_features = {
-    enable_private_dns_resolver = true
-    enable_ars                  = false
-    enable_vpn_gateway          = true
-    enable_er_gateway           = false
+    vnet_config = [{
+      address_space               = local.hub1_address_space
+      subnets                     = local.hub1_subnets
+      enable_private_dns_resolver = true
+      enable_ars                  = false
+      enable_vpn_gateway          = true
+      enable_er_gateway           = false
+      vpn_gateway_sku             = "VpnGw2AZ"
+      vpn_gateway_asn             = local.hub1_vpngw_asn
 
-    create_firewall    = true
-    firewall_sku       = local.firewall_sku
-    firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
-
-    nva_config = {
-      enable            = false
-      nva_type          = null
-      nva_ilb_ip        = null
-      nva_custom_script = null
-    }
-
-    ruleset_dns_forwarding_rules = {
-      "onprem" = {
-        domain = local.onprem_domain
-        target_dns_servers = [
-          { ip_address = local.branch1_dns_addr, port = 53 },
-        ]
+      ruleset_dns_forwarding_rules = {
+        "onprem" = {
+          domain = local.onprem_domain
+          target_dns_servers = [
+            { ip_address = local.branch1_dns_addr, port = 53 },
+            { ip_address = local.branch3_dns_addr, port = 53 },
+          ]
+        }
       }
-    }
+    }]
+
+    firewall_config = [{
+      enable             = true
+      firewall_sku       = local.firewall_sku
+      firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
+    }]
+
+    nva_config = [{
+      enable           = false
+      type             = null
+      internal_lb_addr = null
+      custom_data      = null
+    }]
+
   }
 }
+
+####################################################
+# common resources
+####################################################
 
 # resource group
 
@@ -94,9 +108,6 @@ resource "azurerm_resource_group" "rg" {
   url = "http://ipv4.icanhazip.com"
 } */
 
-####################################################
-# common resources
-####################################################
 
 module "common" {
   source           = "../../modules/common"

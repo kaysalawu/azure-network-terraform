@@ -245,15 +245,15 @@ module "branch3_vm" {
 # main
 
 module "branch3_udr_main" {
-  source                        = "../../modules/udr"
-  resource_group                = azurerm_resource_group.rg.name
-  prefix                        = "${local.branch3_prefix}main"
-  location                      = local.branch3_location
-  subnet_id                     = module.branch3.subnets["MainSubnet"].id
-  next_hop_type                 = "VirtualAppliance"
-  next_hop_in_ip_address        = local.branch3_nva_int_addr
-  destinations                  = local.private_prefixes_map
-  delay_creation                = "90s"
+  source                 = "../../modules/udr"
+  resource_group         = azurerm_resource_group.rg.name
+  prefix                 = "${local.branch3_prefix}main"
+  location               = local.branch3_location
+  subnet_id              = module.branch3.subnets["MainSubnet"].id
+  next_hop_type          = "VirtualAppliance"
+  next_hop_in_ip_address = local.branch3_nva_int_addr
+  destinations           = local.private_prefixes_map
+  #delay_creation                = "90s"
   disable_bgp_route_propagation = true
   depends_on = [
     module.branch3,

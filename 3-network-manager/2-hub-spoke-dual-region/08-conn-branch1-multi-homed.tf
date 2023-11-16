@@ -1,1 +1,0 @@
-../../0-templates/hub-spoke/08-conn-branch1-multi-homed.tf

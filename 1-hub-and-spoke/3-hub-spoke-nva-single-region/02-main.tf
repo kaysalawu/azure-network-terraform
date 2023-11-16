@@ -72,12 +72,6 @@ locals {
             { ip_address = local.branch3_dns_addr, port = 53 },
           ]
         }
-        "cloud" = {
-          domain = local.cloud_domain
-          target_dns_servers = [
-            { ip_address = local.hub2_dns_in_addr, port = 53 },
-          ]
-        }
       }
     }]
 
@@ -333,7 +327,6 @@ module "fw_policy_rule_collection_group" {
 # hub1
 
 locals {
-  hub1_router_route_map_name_nh = "NEXT-HOP"
   hub1_nva_vars = {
     LOCAL_ASN = local.hub1_nva_asn
     LOOPBACK0 = local.hub1_nva_loopback0

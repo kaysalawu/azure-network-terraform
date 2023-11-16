@@ -129,6 +129,7 @@ locals {
         "cloud" = {
           domain = local.cloud_domain
           target_dns_servers = [
+            { ip_address = local.hub2_dns_in_addr, port = 53 },
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
         }
@@ -147,6 +148,7 @@ locals {
       internal_lb_addr = local.hub2_nva_ilb_addr
       custom_data      = base64encode(local.hub2_linux_nva_init)
     }]
+
   }
 }
 
@@ -401,7 +403,6 @@ module "fw_policy_rule_collection_group" {
 # hub1
 
 locals {
-  hub1_router_route_map_name_nh = "NEXT-HOP"
   hub1_nva_vars = {
     LOCAL_ASN = local.hub1_nva_asn
     LOOPBACK0 = local.hub1_nva_loopback0
@@ -425,7 +426,6 @@ locals {
 # hub2
 
 locals {
-  hub2_router_route_map_name_nh = "NEXT-HOP"
   hub2_nva_vars = {
     LOCAL_ASN = local.hub2_nva_asn
     LOOPBACK0 = local.hub2_nva_loopback0

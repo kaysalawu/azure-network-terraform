@@ -21,8 +21,8 @@ delete_azfw_diag_settings() {
             echo "Deleting: diag setting [$azfw_diag_setting] for firewall [$firewallname] ..."
             az monitor diagnostic-settings delete --resource "$firewallid" --name "$azfw_diag_setting"
         done
-        echo "Deletion complete!" && echo
     done
+    echo "Deletion complete!" && echo
 }
 
 delete_azfw_diag_settings

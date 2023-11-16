@@ -1,1 +1,0 @@
-../../0-templates/04-spokes-region2.tf

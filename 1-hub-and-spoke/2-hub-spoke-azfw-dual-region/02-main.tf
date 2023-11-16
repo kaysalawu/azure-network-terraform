@@ -66,10 +66,32 @@ locals {
   firewall_sku = "Basic"
 
   hub1_features = {
-    enable_private_dns_resolver = true
-    enable_ars                  = false
-    enable_vpn_gateway          = true
-    enable_er_gateway           = false
+    vnet_config = [{
+      address_space               = local.hub1_address_space
+      subnets                     = local.hub1_subnets
+      enable_private_dns_resolver = true
+      enable_ars                  = false
+      enable_vpn_gateway          = true
+      enable_er_gateway           = false
+      vpn_gateway_sku             = "VpnGw2AZ"
+      vpn_gateway_asn             = local.hub1_vpngw_asn
+
+      ruleset_dns_forwarding_rules = {
+        "onprem" = {
+          domain = local.onprem_domain
+          target_dns_servers = [
+            { ip_address = local.branch1_dns_addr, port = 53 },
+            { ip_address = local.branch3_dns_addr, port = 53 },
+          ]
+        }
+        "cloud" = {
+          domain = local.cloud_domain
+          target_dns_servers = [
+            { ip_address = local.hub2_dns_in_addr, port = 53 },
+          ]
+        }
+      }
+    }]
 
     firewall_config = [{
       enable             = true
@@ -83,29 +105,36 @@ locals {
       internal_lb_addr = null
       custom_data      = null
     }]
-
-    ruleset_dns_forwarding_rules = {
-      "onprem" = {
-        domain = local.onprem_domain
-        target_dns_servers = [
-          { ip_address = local.branch1_dns_addr, port = 53 },
-          { ip_address = local.branch3_dns_addr, port = 53 },
-        ]
-      }
-      "cloud" = {
-        domain = local.cloud_domain
-        target_dns_servers = [
-          { ip_address = local.hub2_dns_in_addr, port = 53 },
-        ]
-      }
-    }
   }
 
   hub2_features = {
-    enable_private_dns_resolver = true
-    enable_ars                  = false
-    enable_vpn_gateway          = true
-    enable_er_gateway           = false
+    vnet_config = [{
+      address_space               = local.hub2_address_space
+      subnets                     = local.hub2_subnets
+      enable_private_dns_resolver = true
+      enable_ars                  = false
+      enable_vpn_gateway          = true
+      enable_er_gateway           = false
+      vpn_gateway_sku             = "VpnGw2AZ"
+      vpn_gateway_asn             = local.hub1_vpngw_asn
+
+      ruleset_dns_forwarding_rules = {
+        "onprem" = {
+          domain = local.onprem_domain
+          target_dns_servers = [
+            { ip_address = local.branch3_dns_addr, port = 53 },
+            { ip_address = local.branch1_dns_addr, port = 53 },
+          ]
+        }
+        "cloud" = {
+          domain = local.cloud_domain
+          target_dns_servers = [
+            { ip_address = local.hub2_dns_in_addr, port = 53 },
+            { ip_address = local.hub1_dns_in_addr, port = 53 },
+          ]
+        }
+      }
+    }]
 
     firewall_config = [{
       enable             = true
@@ -120,21 +149,6 @@ locals {
       custom_data      = null
     }]
 
-    ruleset_dns_forwarding_rules = {
-      "onprem" = {
-        domain = local.onprem_domain
-        target_dns_servers = [
-          { ip_address = local.branch3_dns_addr, port = 53 },
-          { ip_address = local.branch1_dns_addr, port = 53 },
-        ]
-      }
-      "cloud" = {
-        domain = local.cloud_domain
-        target_dns_servers = [
-          { ip_address = local.hub1_dns_in_addr, port = 53 },
-        ]
-      }
-    }
   }
 }
 

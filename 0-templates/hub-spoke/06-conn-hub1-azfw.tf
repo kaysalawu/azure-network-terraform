@@ -55,7 +55,9 @@ module "spoke1_udr_main" {
     local.default_udr_destinations,
     { "hub1" = local.hub1_address_space[0] }
   )
-  depends_on = [module.hub1, ]
+  depends_on = [
+    module.hub1,
+  ]
 }
 
 ####################################################
@@ -114,7 +116,9 @@ module "spoke2_udr_main" {
     local.default_udr_destinations,
     { "hub1" = local.hub1_address_space[0] }
   )
-  depends_on = [module.hub1, ]
+  depends_on = [
+    module.hub1,
+  ]
 }
 
 ####################################################
@@ -135,7 +139,9 @@ module "hub1_udr_gateway" {
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = module.hub1.firewall_private_ip
   destinations           = local.hub1_gateway_udr_destinations
-  depends_on             = [module.hub1, ]
+  depends_on = [
+    module.hub1,
+  ]
 }
 
 # main
@@ -157,7 +163,9 @@ module "hub1_udr_main" {
       "spoke2" = local.spoke2_address_space[0]
     }
   )
-  depends_on = [module.hub1, ]
+  depends_on = [
+    module.hub1,
+  ]
 }
 
 ####################################################

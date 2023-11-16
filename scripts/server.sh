@@ -100,7 +100,7 @@ cat <<EOF > /usr/local/bin/curl-ip
 echo -e "\n curl ip ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.ip, "") != "" ~}
-echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.ip}) - ${target.name} (${target.ip})"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.ip}) - ${target.name} (${target.ip})"
 %{ endif ~}
 %{ endfor ~}
 EOF
@@ -111,7 +111,7 @@ chmod a+x /usr/local/bin/curl-ip
 cat <<EOF > /usr/local/bin/curl-dns
 echo -e "\n curl dns ...\n"
 %{ for target in TARGETS ~}
-echo  "\$(timeout 3 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.dns}) - ${target.dns}"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.dns}) - ${target.dns}"
 %{ endfor ~}
 EOF
 chmod a+x /usr/local/bin/curl-dns

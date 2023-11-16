@@ -21,7 +21,7 @@
 | Item    | Value  |
 |--------|--------|
 | PRIVATE_DNS_INBOUND_IP   | 10.11.5.4   |
-| SPOKE3_APP_SVC_ENDPOINT_DNS   | hs11-spoke3-0ca7-app.azurewebsites.net   |
+| SPOKE3_APP_SVC_ENDPOINT_DNS   | hs11-spoke3-0383-app.azurewebsites.net   |
 | SPOKE3_APP_SVC_ENDPOINT_IP   | 10.11.4.5   |
 | SPOKE3_WEB_APP_ENDPOINT_DNS   | spoke3.p.hub1.az.corp   |
 | SPOKE3_WEB_APP_ENDPOINT_IP   | 10.11.4.4   |
@@ -82,7 +82,7 @@
 
 | Item    | Value  |
 |--------|--------|
-| APPS_URL   | hs11-spoke3-0ca7-app.azurewebsites.net   |
+| APPS_URL   | hs11-spoke3-0383-app.azurewebsites.net   |
 | *Subnets*|        |
 | AppGatewaySubnet   | 10.3.1.0/24   |
 | AppServiceSubnet   | 10.3.5.0/24   |

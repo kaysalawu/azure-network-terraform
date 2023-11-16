@@ -564,14 +564,32 @@ Observe the firewall logs based on traffic flows generated from our tests.
 
 ![Vwan24-azfw-hub1-network-rule-log-data](../../images/demos/vwan24-hub1-net-rule-log-detail.png)
 
+9.2 Repeat the same steps for the Azure Firewall resource `Vwan24-azfw-hub2`.
+
 ## Cleanup
 
-(Optional) Navigate back to the lab directory (if you are not already there)
+1. (Optional) Navigate back to the lab directory (if you are not already there)
 ```sh
 cd azure-network-terraform/2-virtual-wan/4-vwan-sec-dual-region
 ```
 
-Delete the resource group to remove all resources installed.
+2. Run a cleanup script to remove some resources that may not be removed after the resource group deletion.
+```sh
+bash ../../scripts/_cleanup.sh Vwan24RG
+```
+
+Sample output
+```sh
+4-vwan-sec-dual-region$ bash ../../scripts/_cleanup.sh Vwan24RG
+
+Resource group: Vwan24RG
+
+Deleting: diag setting [Vwan24-vhub1-azfw-diag] for firewall [Vwan24-vhub1-azfw] ...
+Deleting: diag setting [Vwan24-vhub2-azfw-diag] for firewall [Vwan24-vhub2-azfw] ...
+Deletion complete!
+```
+
+3. Delete the resource group to remove all resources installed.
 ```sh
 az group delete -g Vwan24RG --no-wait
 ```
