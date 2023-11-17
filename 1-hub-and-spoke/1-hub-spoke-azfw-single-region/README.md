@@ -423,15 +423,15 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
 ### 8. Azure Firewall
 
 8.1. Check the Azure Firewall logs to observe the traffic flow.
-- Select the Azure Firewall resource `Hs11-azfw-hub1` in the Azure portal.
+- Select the Azure Firewall resource `Hs11-hub1-azfw` in the Azure portal.
 - Click on **Logs** in the left navigation pane.
 - Click **Run** in the *Network rule log data* log category.
 
-![Hs11-azfw-hub1-network-rule-log](../../images/demos/hs11-hub1-net-rule-log.png)
+![Hs11-hub1-azfw-network-rule-log](../../images/demos/hs11-hub1-net-rule-log.png)
 
 Observe the firewall logs based on traffic flows generated from our tests.
 
-![Hs11-azfw-hub1-network-rule-log-data](../../images/demos/hs11-hub1-net-rule-log-detail.png)
+![Hs11-hub1-azfw-network-rule-log-data](../../images/demos/hs11-hub1-net-rule-log-detail.png)
 
 ## Cleanup
 

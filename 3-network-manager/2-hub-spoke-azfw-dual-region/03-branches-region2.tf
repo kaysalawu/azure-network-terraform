@@ -1,0 +1,1 @@
+../../0-templates/hub-spoke/03-branches-region2.tf

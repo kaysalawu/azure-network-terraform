@@ -554,17 +554,17 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
 ### 9. Azure Firewall
 
 9.1. Check the Azure Firewall logs to observe the traffic flow.
-- Select the Azure Firewall resource `Vwan24-azfw-hub1` in the Azure portal.
+- Select the Azure Firewall resource `Vwan24-hub1-azfw` in the Azure portal.
 - Click on **Logs** in the left navigation pane.
 - Click **Run** in the *Network rule log data* log category.
 
-![Vwan24-azfw-hub1-network-rule-log](../../images/demos/vwan24-hub1-net-rule-log.png)
+![Vwan24-hub1-azfw-network-rule-log](../../images/demos/vwan24-hub1-net-rule-log.png)
 
 Observe the firewall logs based on traffic flows generated from our tests.
 
-![Vwan24-azfw-hub1-network-rule-log-data](../../images/demos/vwan24-hub1-net-rule-log-detail.png)
+![Vwan24-hub1-azfw-network-rule-log-data](../../images/demos/vwan24-hub1-net-rule-log-detail.png)
 
-9.2 Repeat the same steps for the Azure Firewall resource `Vwan24-azfw-hub2`.
+9.2 Repeat the same steps for the Azure Firewall resource `Vwan24-hub2-azfw`.
 
 ## Cleanup
 

@@ -1,0 +1,1 @@
+../../0-templates/avnm/svc-nm-hubspoke-region1.tf

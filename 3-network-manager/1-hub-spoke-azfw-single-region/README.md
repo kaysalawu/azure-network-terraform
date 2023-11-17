@@ -162,14 +162,14 @@ The `Hostname` and `Local-IP` fields belong to the servers running the web appli
 ### 5. Azure Firewall
 
 Check the Azure Firewall logs to observe the traffic flow.
-- Select the Azure Firewall resource `Hs11-azfw-hub1` in the Azure portal.
+- Select the Azure Firewall resource `Hs11-hub1-azfw` in the Azure portal.
 - Click on **Logs** in the left navigation pane.
 - Click **Run** in the *Network rule log data* log category.
 
-![Hs11-azfw-hub1-network-rule-log](../../images/demos/hs11-hub1-net-rule-log.png)
+![Hs11-hub1-azfw-network-rule-log](../../images/demos/hs11-hub1-net-rule-log.png)
 - On the *TargetIP* column deselect all IP addresses except spoke2 (10.2.0.5)
 
-![Hs11-azfw-hub1-network-rule-log-data](../../images/demos/hs11-hub1-net-rule-log-detail.png)
+![Hs11-hub1-azfw-network-rule-log-data](../../images/demos/hs11-hub1-net-rule-log-detail.png)
 
 Observe how traffic from spoke1 (10.1.0.5) to spoke2 flows via the firewall as expected.
 

@@ -15,7 +15,7 @@ module "spoke1_udr_main" {
   location                      = local.spoke1_location
   subnet_id                     = module.spoke1.subnets["MainSubnet"].id
   next_hop_type                 = "VirtualAppliance"
-  next_hop_in_ip_address        = module.hub1.firewall_private_ip
+  next_hop_in_ip_address        = local.hub1_nva_ilb_addr
   disable_bgp_route_propagation = true
 
   destinations = merge(
@@ -43,7 +43,7 @@ module "spoke2_udr_main" {
   location                      = local.spoke2_location
   subnet_id                     = module.spoke2.subnets["MainSubnet"].id
   next_hop_type                 = "VirtualAppliance"
-  next_hop_in_ip_address        = module.hub1.firewall_private_ip
+  next_hop_in_ip_address        = local.hub1_nva_ilb_addr
   disable_bgp_route_propagation = true
 
   destinations = merge(
@@ -71,7 +71,7 @@ module "hub1_udr_gateway" {
   location               = local.hub1_location
   subnet_id              = module.hub1.subnets["GatewaySubnet"].id
   next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = module.hub1.firewall_private_ip
+  next_hop_in_ip_address = local.hub1_nva_ilb_addr
   destinations           = local.hub1_gateway_udr_destinations
   depends_on = [
     module.hub1,
@@ -87,7 +87,7 @@ module "hub1_udr_main" {
   location                      = local.hub1_location
   subnet_id                     = module.hub1.subnets["MainSubnet"].id
   next_hop_type                 = "VirtualAppliance"
-  next_hop_in_ip_address        = module.hub1.firewall_private_ip
+  next_hop_in_ip_address        = local.hub1_nva_ilb_addr
   disable_bgp_route_propagation = true
 
   destinations = merge(
@@ -146,7 +146,9 @@ resource "azurerm_virtual_network_gateway_connection" "hub1_branch1_lng" {
 ####################################################
 
 locals {
-  hub1_files = {}
+  hub1_files = {
+    "output/hub1-linux-nva.sh" = local.hub1_linux_nva_init
+  }
 }
 
 resource "local_file" "hub1_files" {
