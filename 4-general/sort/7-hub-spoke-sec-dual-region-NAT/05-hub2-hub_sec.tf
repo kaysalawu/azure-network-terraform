@@ -1,1 +1,0 @@
-../../0-templates/hub-sec/05-hub2-hub_sec.tf

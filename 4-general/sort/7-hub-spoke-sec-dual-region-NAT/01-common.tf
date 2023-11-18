@@ -1,1 +1,0 @@
-../../0-templates/01-common.tf
