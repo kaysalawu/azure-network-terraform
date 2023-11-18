@@ -87,7 +87,6 @@ locals {
       internal_lb_addr = null
       custom_data      = null
     }]
-
   }
 }
 

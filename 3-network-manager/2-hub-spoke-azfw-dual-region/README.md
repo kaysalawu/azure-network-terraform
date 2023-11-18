@@ -1,4 +1,4 @@
-# Secured Hub and Spoke - Dual Region <!-- omit from toc -->
+# Secured Hub and Spoke - Dual Region (Virtual Network Manager) <!-- omit from toc -->
 ## Lab: Ne32 <!-- omit from toc -->
 
 Contents
@@ -99,6 +99,7 @@ This script pings the IP addresses of some test virtual machines and reports rea
 ```sh
 ping-ip
 ```
+
 Sample output
 ```sh
 azureuser@Ne32-spoke1-vm:~$ ping-ip

@@ -12,14 +12,14 @@
             "equals": "prod"
           },
           {
+            "field": "location",
+            "equals": "westeurope"
+          },
+          {
             "anyOf": [
               {
                 "field": "tags['nodeType']",
                 "equals": "spoke"
-              },
-              {
-                "field": "tags['nodeType']",
-                "equals": "hub"
               }
             ]
           }
@@ -30,7 +30,7 @@
   "then": {
     "effect": "addToNetworkGroup",
     "details": {
-      "networkGroupId": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Ne31RG/providers/Microsoft.Network/networkManagers/Ne31-nm/networkGroups/Ne31-ng-spokes-prod-region1"
+      "networkGroupId": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Ne31RG/providers/Microsoft.Network/networkManagers/Ne31-avnm/networkGroups/Ne31-ng-spokes-prod-region1"
     }
   }
 }
