@@ -76,23 +76,25 @@ ${y}
 !
 router bgp ${LOCAL_ASN}
 bgp router-id ${LOOPBACK0}
-%{~ for x in BGP_SESSIONS }
-neighbor ${x.peer_ip} remote-as ${x.peer_asn}
-%{~ if try(x.ebgp_multihop, false) }
-neighbor ${x.peer_ip} ebgp-multihop 255
+%{~ for s in BGP_SESSIONS }
+neighbor ${s.peer_ip} remote-as ${s.peer_asn}
+%{~ if try(s.ebgp_multihop, false) }
+neighbor ${s.peer_ip} ebgp-multihop 255
 %{~ endif }
-neighbor ${x.peer_ip} soft-reconfiguration inbound
-%{~ if try(x.as_override, false) }
-neighbor ${x.peer_ip} as-override
+neighbor ${s.peer_ip} soft-reconfiguration inbound
+%{~ if try(s.as_override, false) }
+neighbor ${s.peer_ip} as-override
 %{~ endif }
-%{~ if try(x.next_hop_self, false) }
-neighbor ${x.peer_ip} next-hop-self
+%{~ if try(s.next_hop_self, false) }
+neighbor ${s.peer_ip} next-hop-self
 %{~ endif }
-%{~ if try(x.source_loopback, false) }
-neighbor ${x.peer_ip} update-source Loopback0
+%{~ if try(s.source_loopback, false) }
+neighbor ${s.peer_ip} update-source Loopback0
 %{~ endif }
-%{~ if x.route_map != {} }
-neighbor ${x.peer_ip} route-map ${x.route_map.name} ${x.route_map.direction}
+%{~ if s.route_maps != [] }
+%{~ for map in s.route_maps }
+neighbor ${s.peer_ip} route-map ${map.name} ${map.direction}
+%{~ endfor }
 %{~ endif }
 %{~ endfor }
 %{~ for net in BGP_ADVERTISED_NETWORKS }

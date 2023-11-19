@@ -22,7 +22,6 @@ resource "azurerm_virtual_network_peering" "spoke1_to_hub1_peering" {
 }
 
 # hub1-to-spoke1
-# remote gw transit
 
 resource "azurerm_virtual_network_peering" "hub1_to_spoke1_peering" {
   resource_group_name          = azurerm_resource_group.rg.name
@@ -43,21 +42,22 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke1_peering" {
 # main
 
 module "spoke1_udr_main" {
-  source                 = "../../modules/udr"
-  resource_group         = azurerm_resource_group.rg.name
-  prefix                 = "${local.spoke1_prefix}main"
-  location               = local.spoke1_location
-  subnet_id              = module.spoke1.subnets["${local.spoke1_prefix}main"].id
-  next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = module.hub1.firewall_private_ip
+  source                        = "../../modules/udr"
+  resource_group                = azurerm_resource_group.rg.name
+  prefix                        = "${local.spoke1_prefix}main"
+  location                      = local.spoke1_location
+  subnet_id                     = module.spoke1.subnets["MainSubnet"].id
+  next_hop_type                 = "VirtualAppliance"
+  next_hop_in_ip_address        = module.hub1.firewall_private_ip
+  disable_bgp_route_propagation = true
 
   destinations = merge(
     local.default_udr_destinations,
     { "hub1" = local.hub1_address_space[0] }
   )
-  depends_on = [module.hub1, ]
-
-  disable_bgp_route_propagation = true
+  depends_on = [
+    module.hub1,
+  ]
 }
 
 ####################################################
@@ -103,21 +103,22 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke2_peering" {
 # main
 
 module "spoke2_udr_main" {
-  source                 = "../../modules/udr"
-  resource_group         = azurerm_resource_group.rg.name
-  prefix                 = "${local.spoke2_prefix}main"
-  location               = local.spoke2_location
-  subnet_id              = module.spoke2.subnets["${local.spoke2_prefix}main"].id
-  next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = module.hub1.firewall_private_ip
+  source                        = "../../modules/udr"
+  resource_group                = azurerm_resource_group.rg.name
+  prefix                        = "${local.spoke2_prefix}main"
+  location                      = local.spoke2_location
+  subnet_id                     = module.spoke2.subnets["MainSubnet"].id
+  next_hop_type                 = "VirtualAppliance"
+  next_hop_in_ip_address        = module.hub1.firewall_private_ip
+  disable_bgp_route_propagation = true
 
   destinations = merge(
     local.default_udr_destinations,
     { "hub1" = local.hub1_address_space[0] }
   )
-  depends_on = [module.hub1]
-
-  disable_bgp_route_propagation = true
+  depends_on = [
+    module.hub1,
+  ]
 }
 
 ####################################################
@@ -138,27 +139,33 @@ module "hub1_udr_gateway" {
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = module.hub1.firewall_private_ip
   destinations           = local.hub1_gateway_udr_destinations
-  depends_on             = [module.hub1, ]
+  depends_on = [
+    module.hub1,
+  ]
 }
 
 # main
 
 module "hub1_udr_main" {
-  source                 = "../../modules/udr"
-  resource_group         = azurerm_resource_group.rg.name
-  prefix                 = "${local.hub1_prefix}main"
-  location               = local.hub1_location
-  subnet_id              = module.hub1.subnets["${local.hub1_prefix}main"].id
-  next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = module.hub1.firewall_private_ip
+  source                        = "../../modules/udr"
+  resource_group                = azurerm_resource_group.rg.name
+  prefix                        = "${local.hub1_prefix}main"
+  location                      = local.hub1_location
+  subnet_id                     = module.hub1.subnets["MainSubnet"].id
+  next_hop_type                 = "VirtualAppliance"
+  next_hop_in_ip_address        = module.hub1.firewall_private_ip
+  disable_bgp_route_propagation = true
 
   destinations = merge(
     local.default_udr_destinations,
-    { "hub1" = local.hub1_address_space[0] }
+    {
+      "spoke1" = local.spoke1_address_space[0]
+      "spoke2" = local.spoke2_address_space[0]
+    }
   )
-  depends_on = [module.hub1, ]
-
-  disable_bgp_route_propagation = true
+  depends_on = [
+    module.hub1,
+  ]
 }
 
 ####################################################

@@ -8,10 +8,6 @@ locals {
 }
 
 ####################################################
-# Data
-####################################################
-
-####################################################
 # providers
 ####################################################
 
@@ -21,10 +17,15 @@ provider "azurerm" {
 }
 
 terraform {
+  required_version = ">= 1.4.6"
   required_providers {
     megaport = {
       source  = "megaport/megaport"
       version = "0.1.9"
+    }
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 3.78.0"
     }
   }
 }
@@ -40,17 +41,48 @@ locals {
   default_udr_destinations = {
     "default" = "0.0.0.0/0"
   }
+
   firewall_sku = "Basic"
 
   hub1_features = {
-    enable_private_dns_resolver = true
-    enable_ars                  = false
-    enable_vpn_gateway          = false
-    enable_er_gateway           = false
+    vnet_config = [{
+      address_space               = local.hub1_address_space
+      subnets                     = local.hub1_subnets
+      enable_private_dns_resolver = true
+      enable_ars                  = false
+      enable_vpn_gateway          = false
+      enable_er_gateway           = false
+      vpn_gateway_sku             = "VpnGw2AZ"
+      vpn_gateway_asn             = local.hub1_vpngw_asn
 
-    create_firewall    = false
-    firewall_sku       = local.firewall_sku
-    firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
+      ruleset_dns_forwarding_rules = {
+        "onprem" = {
+          domain = local.onprem_domain
+          target_dns_servers = [
+            { ip_address = local.branch1_dns_addr, port = 53 },
+          ]
+        }
+        "cloud" = {
+          domain = local.cloud_domain
+          target_dns_servers = [
+            { ip_address = local.hub1_dns_in_addr, port = 53 },
+          ]
+        }
+      }
+    }]
+
+    firewall_config = [{
+      enable             = false
+      firewall_sku       = local.firewall_sku
+      firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
+    }]
+
+    nva_config = [{
+      enable           = true
+      type             = "linux"
+      internal_lb_addr = local.hub1_nva_ilb_addr
+      custom_data      = base64encode(local.hub1_linux_nva_init)
+    }]
   }
 
   vhub1_features = {
@@ -63,9 +95,23 @@ locals {
       enable_routing_intent = false
       firewall_sku          = local.firewall_sku
       firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region1"].id
+      routing_policies = {
+        "internet" = {
+          name         = "InternetTrafficPolicy"
+          destinations = ["Internet"]
+        }
+        "private" = {
+          name         = "PrivateTrafficPolicy"
+          destinations = ["PrivateTraffic"]
+        }
+      }
     }
   }
 }
+
+####################################################
+# common resources
+####################################################
 
 # resource group
 
@@ -80,9 +126,6 @@ resource "azurerm_resource_group" "rg" {
   url = "http://ipv4.icanhazip.com"
 } */
 
-####################################################
-# common resources
-####################################################
 
 module "common" {
   source           = "../../modules/common"
@@ -153,6 +196,7 @@ locals {
   vm_startup = templatefile("../../scripts/server.sh", {
     TARGETS = local.vm_script_targets
   })
+
   unbound_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
@@ -299,6 +343,89 @@ module "fw_policy_rule_collection_group" {
   application_rule_collection = []
   nat_rule_collection         = []
 }
+
+####################################################
+# nva
+####################################################
+
+# hub1
+
+locals {
+  hub1_router_route_map_name_nh = "NEXT-HOP"
+  hub1_nva_vars = {
+    LOCAL_ASN = local.hub1_nva_asn
+    LOOPBACK0 = local.hub1_nva_loopback0
+    LOOPBACKS = {
+      Loopback1 = local.hub1_nva_ilb_addr
+    }
+    INT_ADDR = local.hub1_nva_addr
+    VPN_PSK  = local.psk
+  }
+  hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
+    TARGETS        = local.vm_script_targets
+    IPTABLES_RULES = []
+    ROUTE_MAPS = [
+      {
+        name   = local.hub1_router_route_map_name_nh
+        action = "permit"
+        rule   = 100
+        commands = [
+          "match ip address prefix-list all",
+          "set ip next-hop ${local.hub1_nva_ilb_addr}"
+        ]
+      }
+    ]
+    TUNNELS = []
+    QUAGGA_ZEBRA_CONF = templatefile("../../scripts/quagga/zebra.conf", merge(
+      local.hub1_nva_vars,
+      {
+        INTERFACE = "eth0"
+        STATIC_ROUTES = [
+          { prefix = "0.0.0.0/0", next_hop = local.hub1_default_gw_nva },
+          { prefix = "${module.vhub1.router_bgp_ip0}/32", next_hop = local.hub1_default_gw_nva },
+          { prefix = "${module.vhub1.router_bgp_ip1}/32", next_hop = local.hub1_default_gw_nva },
+          { prefix = local.spoke2_address_space[0], next_hop = local.hub1_default_gw_nva },
+        ]
+      }
+    ))
+    QUAGGA_BGPD_CONF = templatefile("../../scripts/quagga/bgpd.conf", merge(
+      local.hub1_nva_vars,
+      {
+        BGP_SESSIONS = [
+          {
+            peer_asn      = local.vhub1_bgp_asn
+            peer_ip       = module.vhub1.router_bgp_ip0
+            ebgp_multihop = true
+            route_maps = [
+              # {
+              #   name      = local.hub1_router_route_map_name_nh
+              #   direction = "out"
+              # }
+            ]
+          },
+          {
+            peer_asn      = local.vhub1_bgp_asn
+            peer_ip       = module.vhub1.router_bgp_ip1
+            ebgp_multihop = true
+            route_maps = [
+              # {
+              #   name      = local.hub1_router_route_map_name_nh
+              #   direction = "out"
+              # }
+            ]
+          },
+        ]
+        BGP_ADVERTISED_PREFIXES = [
+          local.hub1_subnets["MainSubnet"].address_prefixes[0],
+          local.spoke2_address_space[0],
+          #"${local.spoke6_vm_public_ip}/32"
+        ]
+      }
+    ))
+    }
+  ))
+}
+
 
 ####################################################
 # output files

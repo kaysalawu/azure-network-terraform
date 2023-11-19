@@ -68,6 +68,19 @@ This terraform code deploys a multi-hub (multi-region) Secured Virtual WAN (Vwan
 
 ## [3. Virtual Network Manager](./3-virtual-network-manager/)
 
+### 3.1. Secure Hub and Spoke - Single Region (Virtual Network Manager)
+[Terraform Code](./3-network-manager/1-hub-spoke-azfw-single-region/)
 
-## [4. POC](./4-poc/)
-### 4.1 [Secured Virtual WAN (Dual Region) with Routing Intent and Secure Web Gateway](./4-poc/1-vwan-sec-dual-region-ri-swg/)
+This terraform code deploys a single-region Hub and Spoke Secured Virtual Network (Vnet) topology. The [Azure Virtual Network Manager](https://learn.microsoft.com/en-us/azure/virtual-network-manager/concept-connectivity-configuration#hub-and-spoke-topology) (AVNM) service is used to create the hub and spoke topology.
+
+![Secure Hub and Spoke - Single Region (Virtual Network Manager)](./images/scenarios/3-1-hub-spoke-nm-azfw-single-region.png)
+
+### 3.2. Secure Hub and Spoke - Dual Region (Virtual Network Manager)
+[Terraform Code](./3-network-manager/2-hub-spoke-azfw-dual-region/)
+
+This terraform code deploys a dual-region Hub and Spoke Secured Virtual Network (Vnet) topology. The [Azure Virtual Network Manager](https://learn.microsoft.com/en-us/azure/virtual-network-manager/concept-connectivity-configuration#hub-and-spoke-topology) (AVNM) service is used to create the hub and spoke topology.
+
+![Secure Hub and Spoke - Dual Region (Virtual Network Manager)](./images/scenarios/3-2-hub-spoke-nm-azfw-dual-region.png)
+
+## [4. General](./4-general/)
+(In progress)

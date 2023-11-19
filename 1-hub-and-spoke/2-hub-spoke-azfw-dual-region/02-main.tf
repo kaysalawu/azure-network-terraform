@@ -8,10 +8,6 @@ locals {
 }
 
 ####################################################
-# Data
-####################################################
-
-####################################################
 # providers
 ####################################################
 
@@ -21,10 +17,15 @@ provider "azurerm" {
 }
 
 terraform {
+  required_version = ">= 1.4.6"
   required_providers {
     megaport = {
       source  = "megaport/megaport"
       version = "0.1.9"
+    }
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 3.78.0"
     }
   }
 }
@@ -54,44 +55,107 @@ locals {
   hub1_gateway_udr_destinations = {
     "spoke1" = local.spoke1_address_space[0]
     "spoke2" = local.spoke2_address_space[0]
-    "spoke4" = local.spoke4_address_space[0]
-    "spoke5" = local.spoke5_address_space[0]
     "hub1"   = local.hub1_address_space[0]
-    "hub2"   = local.hub2_address_space[0]
   }
   hub2_gateway_udr_destinations = {
-    "spoke1" = local.spoke1_address_space[0]
-    "spoke2" = local.spoke2_address_space[0]
     "spoke4" = local.spoke4_address_space[0]
     "spoke5" = local.spoke5_address_space[0]
-    "hub1"   = local.hub1_address_space[0]
     "hub2"   = local.hub2_address_space[0]
   }
 
   firewall_sku = "Basic"
 
   hub1_features = {
-    enable_private_dns_resolver = true
-    enable_ars                  = false
-    enable_vpn_gateway          = true
-    enable_er_gateway           = false
+    vnet_config = [{
+      address_space               = local.hub1_address_space
+      subnets                     = local.hub1_subnets
+      enable_private_dns_resolver = true
+      enable_ars                  = false
+      enable_vpn_gateway          = true
+      enable_er_gateway           = false
+      vpn_gateway_sku             = "VpnGw2AZ"
+      vpn_gateway_asn             = local.hub1_vpngw_asn
 
-    create_firewall    = true
-    firewall_sku       = local.firewall_sku
-    firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
+      ruleset_dns_forwarding_rules = {
+        "onprem" = {
+          domain = local.onprem_domain
+          target_dns_servers = [
+            { ip_address = local.branch1_dns_addr, port = 53 },
+            { ip_address = local.branch3_dns_addr, port = 53 },
+          ]
+        }
+        "cloud" = {
+          domain = local.cloud_domain
+          target_dns_servers = [
+            { ip_address = local.hub1_dns_in_addr, port = 53 },
+            { ip_address = local.hub2_dns_in_addr, port = 53 },
+          ]
+        }
+      }
+    }]
+
+    firewall_config = [{
+      enable             = true
+      firewall_sku       = local.firewall_sku
+      firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
+    }]
+
+    nva_config = [{
+      enable           = false
+      type             = null
+      internal_lb_addr = null
+      custom_data      = null
+    }]
   }
 
   hub2_features = {
-    enable_private_dns_resolver = true
-    enable_ars                  = false
-    enable_vpn_gateway          = true
-    enable_er_gateway           = false
+    vnet_config = [{
+      address_space               = local.hub2_address_space
+      subnets                     = local.hub2_subnets
+      enable_private_dns_resolver = true
+      enable_ars                  = false
+      enable_vpn_gateway          = true
+      enable_er_gateway           = false
+      vpn_gateway_sku             = "VpnGw2AZ"
+      vpn_gateway_asn             = local.hub1_vpngw_asn
 
-    create_firewall    = true
-    firewall_sku       = local.firewall_sku
-    firewall_policy_id = azurerm_firewall_policy.firewall_policy["region2"].id
+      ruleset_dns_forwarding_rules = {
+        "onprem" = {
+          domain = local.onprem_domain
+          target_dns_servers = [
+            { ip_address = local.branch3_dns_addr, port = 53 },
+            { ip_address = local.branch1_dns_addr, port = 53 },
+          ]
+        }
+        "cloud" = {
+          domain = local.cloud_domain
+          target_dns_servers = [
+            { ip_address = local.hub2_dns_in_addr, port = 53 },
+            { ip_address = local.hub1_dns_in_addr, port = 53 },
+          ]
+        }
+      }
+    }]
+
+    firewall_config = [{
+      enable             = true
+      firewall_sku       = local.firewall_sku
+      firewall_policy_id = azurerm_firewall_policy.firewall_policy["region2"].id
+    }]
+
+    nva_config = [{
+      enable           = false
+      type             = null
+      internal_lb_addr = null
+      custom_data      = null
+    }]
+
   }
 }
+
+####################################################
+# common resources
+####################################################
 
 # resource group
 
@@ -106,9 +170,6 @@ resource "azurerm_resource_group" "rg" {
   url = "http://ipv4.icanhazip.com"
 } */
 
-####################################################
-# common resources
-####################################################
 
 module "common" {
   source           = "../../modules/common"

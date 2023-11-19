@@ -21,32 +21,32 @@ resource "azurerm_storage_account" "storage_accounts" {
   tags                     = var.tags
 }
 
-####################################################
-# log analytics workspace
-####################################################
+# ####################################################
+# # log analytics workspace
+# ####################################################
 
-resource "random_id" "analytics_workspaces" {
-  byte_length = 5
-}
+# resource "random_id" "analytics_workspaces" {
+#   byte_length = 5
+# }
 
-resource "azurerm_log_analytics_workspace" "analytics_workspaces" {
-  for_each            = var.regions
-  resource_group_name = var.resource_group
-  name                = "${local.prefix}${each.key}-analytics-ws-${random_id.analytics_workspaces.hex}"
-  location            = each.value
-  sku                 = "PerGB2018"
-  retention_in_days   = 30
-  tags                = var.tags
-}
+# resource "azurerm_log_analytics_workspace" "analytics_workspaces" {
+#   for_each            = var.regions
+#   resource_group_name = var.resource_group
+#   name                = "${local.prefix}${each.key}-analytics-ws-${random_id.analytics_workspaces.hex}"
+#   location            = each.value
+#   sku                 = "PerGB2018"
+#   retention_in_days   = 30
+#   tags                = var.tags
+# }
 
-locals {
-  firewall_categories_metric = ["AllMetrics"]
-  firewall_categories_log = [
-    "AzureFirewallApplicationRule",
-    "AzureFirewallNetworkRule",
-    "AzureFirewallDnsProxy"
-  ]
-}
+# locals {
+#   firewall_categories_metric = ["AllMetrics"]
+#   firewall_categories_log = [
+#     "AzureFirewallApplicationRule",
+#     "AzureFirewallNetworkRule",
+#     "AzureFirewallDnsProxy"
+#   ]
+# }
 
 ####################################################
 # nsg
@@ -74,11 +74,11 @@ resource "azurerm_network_security_group" "nsg_main" {
   tags                = var.tags
 }
 
-resource "azurerm_network_security_rule" "nsg_main_private" {
+resource "azurerm_network_security_rule" "nsg_main_private_inbound" {
   for_each                    = var.regions
   resource_group_name         = var.resource_group
   network_security_group_name = azurerm_network_security_group.nsg_main[each.key].name
-  name                        = "inbound-private"
+  name                        = "private-inbound"
   direction                   = "Inbound"
   access                      = "Allow"
   priority                    = 100
@@ -88,6 +88,22 @@ resource "azurerm_network_security_rule" "nsg_main_private" {
   destination_port_range      = "*"
   protocol                    = "*"
   description                 = "Allow all private prefixes"
+}
+
+resource "azurerm_network_security_rule" "nsg_main_private_outbound" {
+  for_each                    = var.regions
+  resource_group_name         = var.resource_group
+  network_security_group_name = azurerm_network_security_group.nsg_main[each.key].name
+  name                        = "all-outbound"
+  direction                   = "Outbound"
+  access                      = "Allow"
+  priority                    = 100
+  source_address_prefix       = "*"
+  source_port_range           = "*"
+  destination_address_prefix  = "*"
+  destination_port_range      = "*"
+  protocol                    = "*"
+  description                 = "Allow all outbound"
 }
 
 # nva
@@ -101,14 +117,14 @@ resource "azurerm_network_security_group" "nsg_nva" {
   tags                = var.tags
 }
 
-resource "azurerm_network_security_rule" "nsg_nva_private" {
+resource "azurerm_network_security_rule" "nsg_nva_private_inbound" {
   for_each                    = var.regions
   resource_group_name         = var.resource_group
   network_security_group_name = azurerm_network_security_group.nsg_nva[each.key].name
-  name                        = "inbound-private"
+  name                        = "private-inbound"
   direction                   = "Inbound"
   access                      = "Allow"
-  priority                    = 140
+  priority                    = 100
   source_address_prefixes     = var.private_prefixes
   source_port_range           = "*"
   destination_address_prefix  = "*"
@@ -117,14 +133,14 @@ resource "azurerm_network_security_rule" "nsg_nva_private" {
   description                 = "Allow all private prefixes"
 }
 
-resource "azurerm_network_security_rule" "nsg_nva_inbound_allow_ipsec" {
+resource "azurerm_network_security_rule" "nsg_nva_ipsec_inbound" {
   for_each                    = var.regions
   resource_group_name         = var.resource_group
   network_security_group_name = azurerm_network_security_group.nsg_nva[each.key].name
-  name                        = "inbound-allow-ipsec"
+  name                        = "allow-ipsec-inbound"
   direction                   = "Inbound"
   access                      = "Allow"
-  priority                    = 150
+  priority                    = 110
   source_address_prefix       = "*"
   source_port_range           = "*"
   destination_address_prefix  = "*"
@@ -133,20 +149,20 @@ resource "azurerm_network_security_rule" "nsg_nva_inbound_allow_ipsec" {
   description                 = "Inbound Allow UDP 500, 4500"
 }
 
-resource "azurerm_network_security_rule" "nsg_nva_outbound_allow_ipsec" {
+resource "azurerm_network_security_rule" "nsg_nva_outbound" {
   for_each                    = var.regions
   resource_group_name         = var.resource_group
   network_security_group_name = azurerm_network_security_group.nsg_nva[each.key].name
-  name                        = "outbound-allow-ipsec"
+  name                        = "all-outbound"
   direction                   = "Outbound"
   access                      = "Allow"
-  priority                    = 160
+  priority                    = 100
   source_address_prefix       = "*"
   source_port_range           = "*"
   destination_address_prefix  = "*"
-  destination_port_ranges     = ["500", "4500"]
-  protocol                    = "Udp"
-  description                 = "Outbound Allow UDP 500, 4500"
+  destination_port_range      = "*"
+  protocol                    = "*"
+  description                 = "Allow all outbound"
 }
 
 # appgw
@@ -160,11 +176,11 @@ resource "azurerm_network_security_group" "nsg_appgw" {
   tags                = var.tags
 }
 
-resource "azurerm_network_security_rule" "nsg_appgw_inbound_allow_appgw_v2sku" {
+resource "azurerm_network_security_rule" "nsg_appgw_appgw_v2sku_inbound" {
   for_each                    = var.regions
   resource_group_name         = var.resource_group
   network_security_group_name = azurerm_network_security_group.nsg_appgw[each.key].name
-  name                        = "inbound-allow-appgw-v2sku"
+  name                        = "allow-appgw-v2sku-inbound"
   direction                   = "Inbound"
   access                      = "Allow"
   priority                    = 200
@@ -176,11 +192,11 @@ resource "azurerm_network_security_rule" "nsg_appgw_inbound_allow_appgw_v2sku" {
   description                 = "Allow Inbound Azure infrastructure communication"
 }
 
-resource "azurerm_network_security_rule" "nsg_appgw_inbound_allow_web_external" {
+resource "azurerm_network_security_rule" "nsg_appgw_web_external_inbound" {
   for_each                    = var.regions
   resource_group_name         = var.resource_group
   network_security_group_name = azurerm_network_security_group.nsg_appgw[each.key].name
-  name                        = "inbound-allow-web-external"
+  name                        = "allow-web-external-inbound"
   direction                   = "Inbound"
   access                      = "Allow"
   priority                    = 210
@@ -190,4 +206,20 @@ resource "azurerm_network_security_rule" "nsg_appgw_inbound_allow_web_external" 
   destination_port_ranges     = ["80", "8080", "443"]
   protocol                    = "Tcp"
   description                 = "Allow inbound web traffic"
+}
+
+resource "azurerm_network_security_rule" "nsg_appgw_outbound" {
+  for_each                    = var.regions
+  resource_group_name         = var.resource_group
+  network_security_group_name = azurerm_network_security_group.nsg_appgw[each.key].name
+  name                        = "all-outbound"
+  direction                   = "Outbound"
+  access                      = "Allow"
+  priority                    = 100
+  source_address_prefix       = "*"
+  source_port_range           = "*"
+  destination_address_prefix  = "*"
+  destination_port_range      = "*"
+  protocol                    = "*"
+  description                 = "Allow all outbound"
 }

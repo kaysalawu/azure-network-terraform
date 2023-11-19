@@ -33,13 +33,13 @@ variable "storage_account" {
 }
 
 variable "admin_username" {
-  description = "private dns zone name"
+  description = "test username. please change for production"
   type        = string
   default     = "azureuser"
 }
 
 variable "admin_password" {
-  description = "private dns zone name"
+  description = "test password. please change for production"
   type        = string
   default     = "Password123"
 }
@@ -100,10 +100,7 @@ variable "vnet_config" {
 
     private_dns_inbound_subnet_name  = optional(string, null)
     private_dns_outbound_subnet_name = optional(string, null)
-
-    create_firewall    = optional(bool, false)
-    firewall_sku       = optional(string, "Basic")
-    firewall_policy_id = optional(string, null)
+    ruleset_dns_forwarding_rules     = optional(map(any), {})
 
     er_gateway_sku = optional(string, "Standard")
 
@@ -114,6 +111,12 @@ variable "vnet_config" {
     vpn_gateway_ip_config1_apipa_addresses = optional(list(string), ["169.254.21.5"])
   }))
   default = []
+}
+
+variable "private_dns_ruleset_linked_external_vnets" {
+  description = "private dns rulesets"
+  type        = map(any)
+  default     = {}
 }
 
 variable "vm_config" {
@@ -134,6 +137,34 @@ variable "vm_config" {
     delay_creation       = optional(string, "0s")
   }))
   default = []
+}
+
+variable "firewall_config" {
+  type = list(object({
+    enable             = optional(bool, false)
+    firewall_sku       = optional(string, "Basic")
+    firewall_policy_id = optional(string, null)
+  }))
+  default = [{
+    enable             = false,
+    firewall_sku       = "Basic"
+    firewall_policy_id = null
+  }]
+}
+
+variable "nva_config" {
+  type = list(object({
+    enable           = optional(bool, false)
+    type             = optional(string, "cisco")
+    internal_lb_addr = optional(string, null)
+    custom_data      = optional(string, null)
+  }))
+  default = [{
+    enable           = false,
+    type             = "cisco",
+    internal_lb_addr = null,
+    custom_data      = null
+  }]
 }
 
 /* variable "metric_categories_firewall" {
@@ -167,6 +198,15 @@ variable "metric_categories_firewall" {
 variable "log_categories_firewall" {
   type = list(any)
   default = [
+    {
+      "category"      = "AzureFirewallNetworkRule",
+      "categoryGroup" = null,
+      "enabled"       = true,
+      "retentionPolicy" = {
+        "days"    = 0,
+        "enabled" = false
+      }
+    },
     {
       "category"      = "AZFWNetworkRule",
       "categoryGroup" = null,

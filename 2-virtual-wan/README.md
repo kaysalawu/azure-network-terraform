@@ -9,7 +9,7 @@ Contents
 - [4. Secured Virtual WAN (Dual Region)](#4-secured-virtual-wan-dual-region)
 <!-- /TOC -->
 
-The terraform codes in this collection cover different hub and spoke network patterns using Virtual WAN.
+Terraform codes in this collection cover different hub and spoke network patterns using Virtual WAN.
 
 ## [1. Virtual WAN (Single Region)](../2-virtual-wan/1-vwan-single-region/)
 

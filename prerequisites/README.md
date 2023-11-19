@@ -19,6 +19,7 @@ az vm image terms accept --urn cisco:cisco-csr-1000v:17_3_4a-byol:latest
 6. Ensure you have the Azure CLI extension for Virtual WAN:
 ```sh
 az extension add --name virtual-wan
+az extension add --name log-analytics
 ```
 7. Ensure that Azure CLI and extensions are up to date:
 ```sh

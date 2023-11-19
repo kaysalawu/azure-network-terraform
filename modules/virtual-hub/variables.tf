@@ -30,16 +30,6 @@ variable "address_prefix" {
   type        = string
 }
 
-variable "storage_account_id" {
-  description = "ID of the storage account"
-  type        = string
-}
-
-variable "log_analytics_workspace_id" {
-  description = "ID of the log analytics workspace"
-  type        = string
-}
-
 variable "bgp_config" {
   type = list(object({
     asn                   = optional(string, "65001")
@@ -99,7 +89,142 @@ variable "routing_policies" {
   type = map(object({
     name         = string
     destinations = list(string)
-    next_hop     = string
   }))
-  default = {}
+}
+
+variable "metric_categories_firewall" {
+  type = list(any)
+  default = [
+    {
+      "enabled" = false,
+      "retentionPolicy" = {
+        "days" : 0,
+        "enabled" = false
+      },
+      "category" = "AllMetrics"
+    }
+  ]
+}
+
+variable "log_categories_firewall" {
+  type = list(any)
+  default = [
+    {
+      "category"      = "AzureFirewallNetworkRule",
+      "categoryGroup" = null,
+      "enabled"       = true,
+      "retentionPolicy" = {
+        "days"    = 0,
+        "enabled" = false
+      }
+    },
+    {
+      "category"      = "AZFWNetworkRule",
+      "categoryGroup" = null,
+      "enabled"       = true,
+      "retentionPolicy" = {
+        "days"    = 0,
+        "enabled" = false
+      }
+    },
+    {
+      "category"      = "AZFWApplicationRule",
+      "categoryGroup" = null,
+      "enabled"       = true,
+      "retentionPolicy" = {
+        "days"    = 0,
+        "enabled" = false
+      }
+    },
+    {
+      "category"      = "AZFWNatRule",
+      "categoryGroup" = null,
+      "enabled"       = true,
+      "retentionPolicy" = {
+        "days"    = 0,
+        "enabled" = false
+      }
+    },
+    {
+      "category"      = "AZFWThreatIntel",
+      "categoryGroup" = null,
+      "enabled"       = false,
+      "retentionPolicy" = {
+        "days"    = 0,
+        "enabled" = false
+      }
+    },
+    {
+      "category"      = "AZFWIdpsSignature",
+      "categoryGroup" = null,
+      "enabled"       = false,
+      "retentionPolicy" = {
+        "days"    = 0,
+        "enabled" = false
+      }
+    },
+    {
+      "category"      = "AZFWDnsQuery",
+      "categoryGroup" = null,
+      "enabled"       = false,
+      "retentionPolicy" = {
+        "days"    = 0,
+        "enabled" = false
+      }
+    },
+    {
+      "category"      = "AZFWFqdnResolveFailure",
+      "categoryGroup" = null,
+      "enabled"       = false,
+      "retentionPolicy" = {
+        "days"    = 0,
+        "enabled" = false
+      }
+    },
+    {
+      "category"      = "AZFWFatFlow",
+      "categoryGroup" = null,
+      "enabled"       = false,
+      "retentionPolicy" = {
+        "days"    = 0,
+        "enabled" = false
+      }
+    },
+    {
+      "category"      = "AZFWFlowTrace",
+      "categoryGroup" = null,
+      "enabled"       = false,
+      "retentionPolicy" = {
+        "days"    = 0,
+        "enabled" = false
+      }
+    },
+    {
+      "category"      = "AZFWApplicationRuleAggregation",
+      "categoryGroup" = null,
+      "enabled"       = false,
+      "retentionPolicy" = {
+        "days"    = 0,
+        "enabled" = false
+      }
+    },
+    {
+      "category"      = "AZFWNetworkRuleAggregation",
+      "categoryGroup" = null,
+      "enabled"       = false,
+      "retentionPolicy" = {
+        "days"    = 0,
+        "enabled" = false
+      }
+    },
+    {
+      "category"      = "AZFWNatRuleAggregation",
+      "categoryGroup" = null,
+      "enabled"       = false,
+      "retentionPolicy" = {
+        "days"    = 0,
+        "enabled" = false
+      }
+    }
+  ]
 }
