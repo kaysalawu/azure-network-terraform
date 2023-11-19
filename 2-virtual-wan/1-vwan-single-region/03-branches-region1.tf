@@ -229,8 +229,8 @@ module "branch1_vm" {
   custom_data      = base64encode(local.vm_startup)
   dns_servers      = [local.branch1_dns_addr, ]
   storage_account  = module.common.storage_accounts["region1"]
-  delay_creation   = "120s"
-  tags             = local.branch1_tags
+  #delay_creation   = "120s"
+  tags = local.branch1_tags
   depends_on = [
     module.branch1,
     module.branch1_dns,

@@ -57,10 +57,6 @@ module "spoke4_vm" {
   private_dns_zone_name = "spoke4.${local.cloud_domain}"
   delay_creation        = "2m"
   tags                  = local.spoke4_tags
-  depends_on = [
-    module.hub2,
-    module.vhub2,
-  ]
 }
 
 ####################################################
@@ -118,10 +114,6 @@ module "spoke5_vm" {
   private_dns_zone_name = "spoke5.${local.cloud_domain}"
   delay_creation        = "2m"
   tags                  = local.spoke5_tags
-  depends_on = [
-    module.hub2,
-    module.vhub2,
-  ]
 }
 
 ####################################################
@@ -178,8 +170,4 @@ module "spoke6_vm" {
   private_dns_zone_name = "spoke6.${local.cloud_domain}"
   delay_creation        = "2m"
   tags                  = local.spoke6_tags
-  depends_on = [
-    module.hub2,
-    module.vhub2,
-  ]
 }

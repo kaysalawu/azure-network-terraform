@@ -9,6 +9,7 @@ Errors
 - [5. Azure Firewall Diagnostic Setting - "Already Exists"](#5-azure-firewall-diagnostic-setting---already-exists)
 - [6. Virtual Machine Extension - "Already Exists"](#6-virtual-machine-extension---already-exists)
 - [7. Azure Policy Assignment - "Already Exists"](#7-azure-policy-assignment---already-exists)
+- [8. Waitiing for Virtual Network Peering"](#8-waitiing-for-virtual-network-peering)
 
 Terraform seializes some resource creation which creates situations where some resources wait for a long time for dependent resources to be created. There are scenarios where you might encounter errors after running terraform to deploy any of the labs. This could be as a result of occassional race conditions that come up because some terraform resources are dependent on Azure resources that take a long time to deploy - such as virtual network gateways.
 
@@ -258,3 +259,24 @@ Error: A resource with the ID "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f33
   terraform apply
   ```
 
+  ## 8. Waitiing for Virtual Network Peering"
+
+  This error could occur due to simultaneous Vnet peering creation operations.
+
+  **Example:**
+
+```sh
+Error: waiting for Virtual Network Peering: (Name "Vwan22-hub2-to-spoke5-peering" / Virtual Network Name "Vwan22-hub2-vnet" / Resource Group "Vwan22RG") to be created: network.VirtualNetworkPeeringsClient#CreateOrUpdate: Failure sending request: StatusCode=400 -- Original Error: Code="ReferencedResourceNotProvisioned" Message="Cannot proceed with operation because resource /subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan22RG/providers/Microsoft.Network/virtualNetworks/Vwan22-hub2-vnet used by resource /subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan22RG/providers/Microsoft.Network/virtualNetworks/Vwan22-hub2-vnet/virtualNetworkPeerings/Vwan22-hub2-to-spoke5-peering is not in Succeeded state. Resource is in Updating state and the last operation that updated/is updating the resource is PutSubnetOperation." Details=[]
+│
+│   with azurerm_virtual_network_peering.hub2_to_spoke5_peering,
+│   on 08-conn-hub2.tf line 23, in resource "azurerm_virtual_network_peering" "hub2_to_spoke5_peering":
+│   23: resource "azurerm_virtual_network_peering" "hub2_to_spoke5_peering" {
+```
+
+ **Solution:**
+
+ Re-apply terraform
+ ```sh
+ terraform plan
+ terraform apply
+ ```
