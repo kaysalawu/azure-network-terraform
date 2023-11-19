@@ -2,7 +2,7 @@
 # Prerequisites
 
 1. Ensure that you have [setup your Azure Cloud Shell](https://learn.microsoft.com/en-us/azure/cloud-shell/overview) environment.
-2. (Optional) If you prefer to run the code on a local bash terminal, ensure that you have installed and configured [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) and [Terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli); and ignore step 3.
+2. (Optional) If you prefer to run the code on a local bash terminal, ensure that you have installed and configured [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) and [-hub2-azfw](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli); and ignore step 3.
 3. Log in to Azure [Cloud Shell](https://shell.azure.com) and select `Bash` terminal.
 > **Cloud Shell Timeout**
 >

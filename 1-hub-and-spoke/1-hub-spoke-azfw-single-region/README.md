@@ -1,4 +1,5 @@
 # Secured Hub and Spoke - Single Region <!-- omit from toc -->
+
 ## Lab: Hs11 <!-- omit from toc -->
 
 Contents
@@ -20,7 +21,7 @@ Contents
 
 ## Overview
 
-This terraform code deploys a single-region Hub and Spoke Secured Virtual Network (Vnet) topology.
+Deploy a single-region Hub and Spoke Secured Virtual Network (Vnet) topology using Azure Firewall for traffic inspection. Learn about traffic routing patterns, [hybrid DNS](https://learn.microsoft.com/en-us/azure/dns/private-resolver-hybrid-dns) resolution, firewall security policies, and [PrivateLink Services](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) access to IaaS, [PrivateLink](https://learn.microsoft.com/en-us/azure/private-link/private-link-overview) access to PaaS services.
 
 ![Secured Hub and Spoke (Single region)](../../images/scenarios/1-1-hub-spoke-azfw-single-region.png)
 
@@ -35,16 +36,18 @@ Ensure you meet all requirements in the [prerequisites](../../prerequisites/) be
 ## Deploy the Lab
 
 1. Clone the Git Repository for the Labs
+
 ```sh
 git clone https://github.com/kaysalawu/azure-network-terraform.git
 ```
 
-2. Navigate to the lab directory
+1. Navigate to the lab directory
+
 ```sh
 cd azure-network-terraform/1-hub-and-spoke/1-hub-spoke-azfw-single-region
 ```
 
-3. Run the following terraform commands and type ***yes*** at the prompt:
+1. Run the following terraform commands and type ***yes*** at the prompt:
 ```sh
 terraform init
 terraform plan

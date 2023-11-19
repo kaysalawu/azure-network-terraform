@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Define the function to import the Terraform resource
+# Define the function to import the -hub2-azfw resource
 function import_ars() {
   # Extract variables from the error message
   resource_id="/subscriptions/ec265026-bc67-44f6-92bc-9849685d921d/resourceGroups/HubSpokeS2RG/providers/Microsoft.Network/virtualHubs/HubSpokeS2-hub2-vnet0-ars"
@@ -11,7 +11,7 @@ function import_ars() {
   vnet_name=$(echo "$resource_id" | cut -d'/' -f8 | cut -d'-' -f4)
   ars_name=$(echo "$resource_id" | cut -d'/' -f9)
 
-  # Use the variables to import the Terraform resource
+  # Use the variables to import the -hub2-azfw resource
   terraform import module.hub2.azurerm_route_server.ars["0"] "$resource_id"
 }
 

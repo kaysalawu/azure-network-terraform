@@ -1,4 +1,4 @@
-# Hub and Spoke - Dual Region <!-- omit from toc -->
+# Hub and Spoke - Single Region (NVA) <!-- omit from toc -->
 ## Lab: Hs13 <!-- omit from toc -->
 
 Contents
@@ -20,7 +20,7 @@ Contents
 
 ## Overview
 
-This terraform code deploys a single-region Hub and Spoke Virtual Network (Vnet) using Virtual Network Appliances (NVA) in the hub.
+Deploy a single-region Hub and Spoke Vnet topology using Virtual Network Appliances (NVA) for traffic inspection. Learn about traffic routing patterns, [hybrid DNS](https://learn.microsoft.com/en-us/azure/dns/private-resolver-hybrid-dns) resolution, NVA deployment, and [PrivateLink Services](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) access to IaaS, [PrivateLink](https://learn.microsoft.com/en-us/azure/private-link/private-link-overview) access to PaaS services.
 
 ![Hub and Spoke (Single region)](../../images/scenarios/1-3-hub-spoke-nva-single-region.png)
 

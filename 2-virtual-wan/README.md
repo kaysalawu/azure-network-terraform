@@ -9,11 +9,11 @@ Contents
 - [4. Secured Virtual WAN (Dual Region)](#4-secured-virtual-wan-dual-region)
 <!-- /TOC -->
 
-Terraform codes in this collection cover different hub and spoke network patterns using Virtual WAN.
+-hub2-azfw codes in this collection cover different hub and spoke network patterns using Virtual WAN.
 
 ## [1. Virtual WAN (Single Region)](../2-virtual-wan/1-vwan-single-region/)
 
-This [terraform code](../2-virtual-wan/1-vwan-single-region/) deploys a single-region Virtual WAN (Vwan) testbed to observe traffic routing patterns.
+This [terraform code](../2-virtual-wan/1-vwan-single-region/) deploys a single-region Virtual WAN (Vwan) topology to observe traffic routing patterns.
 
 ![Virtual WAN (Single Region)](../images/scenarios/2-1-vwan-single-region.png)
 
@@ -25,7 +25,7 @@ The isolated spoke (`Spoke3`) does not have Vnet peering to the Vnet hub (`Hub1`
 
 ## [2. Virtual WAN (Dual Region)](../2-virtual-wan/2-vwan-dual-region/)
 
-This [terraform code](../2-virtual-wan/2-vwan-dual-region/) deploys a multi-hub (multi-region) Virtual WAN (Vwan) testbed to observe traffic routing patterns.
+This [terraform code](../2-virtual-wan/2-vwan-dual-region/) deploys a multi-hub (multi-region) Virtual WAN (Vwan) topology to observe traffic routing patterns.
 
 ![Virtual WAN (Dual Region)](../images/scenarios/2-2-vwan-dual-region.png)
 
@@ -37,7 +37,7 @@ The isolated spokes (`Spoke3` and `Spoke6`) do not have Vnet peering to their re
 
 ## [3. Secured Virtual WAN (Single Region)](../2-virtual-wan/3-vwan-sec-single-region/)
 
-This [terraform code](../2-virtual-wan/3-vwan-sec-single-region/) deploys a single-region Secured Virtual WAN (Vwan) testbed to observe traffic routing patterns. *Routing Intent* feature is enabled to allow traffic inspection on Azure firewalls for traffic between spokes and branches.
+This [terraform code](../2-virtual-wan/3-vwan-sec-single-region/) deploys a single-region Secured Virtual WAN (Vwan) topology to observe traffic routing patterns. *Routing Intent* feature is enabled to allow traffic inspection on Azure firewalls for traffic between spokes and branches.
 
 ![Secured Virtual WAN (Single Region)](../images/scenarios/2-3-vwan-sec-single-region.png)
 
@@ -49,7 +49,7 @@ The isolated spoke (`Spoke3`) does not have Vnet peering to the Vnet hub (`Hub1`
 
 ## [4. Secured Virtual WAN (Dual Region)](../2-virtual-wan/4-vwan-sec-dual-region/)
 
-This [terraform code](../2-virtual-wan/4-vwan-sec-dual-region/) deploys a multi-hub (multi-region) Secured Virtual WAN (Vwan) testbed to observe traffic routing patterns. *Routing Intent* feature is enabled to allow traffic inspection on Azure firewalls for traffic between spokes and branches.
+This [terraform code](../2-virtual-wan/4-vwan-sec-dual-region/) deploys a multi-hub (multi-region) Secured Virtual WAN (Vwan) topology to observe traffic routing patterns. *Routing Intent* feature is enabled to allow traffic inspection on Azure firewalls for traffic between spokes and branches.
 
 ![Secured Virtual WAN (Dual Region)](../images/scenarios/2-4-vwan-sec-dual-region.png)
 
