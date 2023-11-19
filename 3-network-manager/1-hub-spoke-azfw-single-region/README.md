@@ -1,4 +1,5 @@
 # Secured Hub and Spoke - Single Region (Virtual Network Manager) <!-- omit from toc -->
+
 ## Lab: Ne31 <!-- omit from toc -->
 
 Contents
@@ -20,7 +21,7 @@ Contents
 
 ## Overview
 
-This terraform code deploys a single-region Hub and Spoke Secured Virtual Network (Vnet) topology. The [Azure Virtual Network Manager](https://learn.microsoft.com/en-us/azure/virtual-network-manager/concept-connectivity-configuration#hub-and-spoke-topology) (AVNM) service is used to create the hub and spoke topology.
+Deploy a single-region Hub and Spoke Secured Virtual Network (Vnet) topology using the [Azure Virtual Network Manager](https://learn.microsoft.com/en-us/azure/virtual-network-manager/concept-connectivity-configuration#hub-and-spoke-topology) (AVNM) service. Learn about traffic routing patterns, [hybrid DNS](https://learn.microsoft.com/en-us/azure/dns/private-resolver-hybrid-dns) resolution, firewall security policies, and [PrivateLink Services](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) access to IaaS, [PrivateLink](https://learn.microsoft.com/en-us/azure/private-link/private-link-overview) access to PaaS services.
 
 ![Secured Hub and Spoke (Single region)](../../images/scenarios/3-1-hub-spoke-nm-azfw-single-region.png)
 

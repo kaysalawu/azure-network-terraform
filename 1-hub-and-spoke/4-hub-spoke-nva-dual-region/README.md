@@ -1,4 +1,5 @@
-# Hub and Spoke - Dual Region <!-- omit from toc -->
+# Hub and Spoke - Dual Region (NVA) <!-- omit from toc -->
+
 ## Lab: Hs14 <!-- omit from toc -->
 
 Contents
@@ -20,7 +21,7 @@ Contents
 
 ## Overview
 
-This terraform code deploys a dual-region Hub and Spoke Virtual Network (Vnet) topology with Network Virtual Appliances (NVA) in the hubs for traffic filtering.
+Deploy a dual-region Hub and Spoke Vnet topology using Virtual Network Appliances (NVA) for traffic inspection. Learn about multi-region traffic routing patterns, [hybrid DNS](https://learn.microsoft.com/en-us/azure/dns/private-resolver-hybrid-dns) resolution, NVA deployment, and [PrivateLink Services](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) access to IaaS, [PrivateLink](https://learn.microsoft.com/en-us/azure/private-link/private-link-overview) access to PaaS services.
 
 ![Hub and Spoke (Dual region)](../../images/scenarios/1-4-hub-spoke-nva-dual-region.png)
 

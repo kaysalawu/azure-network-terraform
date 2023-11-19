@@ -1,4 +1,5 @@
 # Virtual WAN - Single Region <!-- omit from toc -->
+
 ## Lab: Vwan21 <!-- omit from toc -->
 
 Contents
@@ -20,7 +21,7 @@ Contents
 
 ## Overview
 
-This terraform code deploys a single-region Virtual WAN (Vwan) topology.
+Deploy a single-region Virtual WAN (Vwan) topology to observe traffic routing patterns. Learn about traffic routing patterns, [hybrid DNS](https://learn.microsoft.com/en-us/azure/dns/private-resolver-hybrid-dns) resolution, [connecting NVA](https://learn.microsoft.com/en-us/azure/virtual-wan/scenario-bgp-peering-hub) into the virtual hub, and [PrivateLink Services](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) access to IaaS, [PrivateLink](https://learn.microsoft.com/en-us/azure/private-link/private-link-overview) access to PaaS services.
 
 ![Virtual WAN - Single Region](../../images/scenarios/2-1-vwan-single-region.png)
 
