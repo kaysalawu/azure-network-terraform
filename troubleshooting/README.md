@@ -11,7 +11,7 @@ Errors
 - [7. Azure Policy Assignment - "Already Exists"](#7-azure-policy-assignment---already-exists)
 - [8. Waitiing for Virtual Network Peering"](#8-waitiing-for-virtual-network-peering)
 
--hub2-azfw seializes some resource creation which creates situations where some resources wait for a long time for dependent resources to be created. There are scenarios where you might encounter errors after running terraform to deploy any of the labs. This could be as a result of occassional race conditions that come up because some terraform resources are dependent on Azure resources that take a long time to deploy - such as virtual network gateways.
+Terraform seializes some resource creation which creates situations where some resources wait for a long time for dependent resources to be created. There are scenarios where you might encounter errors after running terraform to deploy any of the labs. This could be as a result of occassional race conditions that come up because some terraform resources are dependent on Azure resources that take a long time to deploy - such as virtual network gateways.
 
 The folowing are some of the common errors and how to resolve them.
 
@@ -54,7 +54,7 @@ This occurs when terraform is trying to apply an NSG rule to a subnet which alre
 
 ```sh
 ╷
-│ Error: A resource with the ID "/subscriptions/ec265026-bc67-44f6-92bc-9849685d921d/resourceGroups/VwanS4RG/providers/Microsoft.Network/virtualNetworks/VwanS4-hub2-vnet/subnets/VwanS4-hub2-main" already exists - to be managed via -hub2-azfw this resource needs to be imported into the State. Please see the resource documentation for "azurerm_subnet_network_security_group_association" for more information.
+│ Error: A resource with the ID "/subscriptions/ec265026-bc67-44f6-92bc-9849685d921d/resourceGroups/VwanS4RG/providers/Microsoft.Network/virtualNetworks/VwanS4-hub2-vnet/subnets/VwanS4-hub2-main" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_subnet_network_security_group_association" for more information.
 │
 │   with module.hub2.azurerm_subnet_network_security_group_association.this["main"],
 │   on ../../modules/base/main.tf line 19, in resource "azurerm_subnet_network_security_group_association" "this":
@@ -86,7 +86,7 @@ This occurs when terraform is attempting to create a subnet which already exists
 **Example:**
 
 ```sh
-│ Error: A resource with the ID "/subscriptions/ec265026-bc67-44f6-92bc-9849685d921d/resourceGroups/HubSpokeS1RG/providers/Microsoft.Network/virtualNetworks/HubSpokeS1-hub1-vnet/subnets/HubSpokeS1-hub1-dns-out" already exists - to be managed via -hub2-azfw this resource needs to be imported into the State. Please see the resource documentation for "azurerm_subnet" for more information.
+│ Error: A resource with the ID "/subscriptions/ec265026-bc67-44f6-92bc-9849685d921d/resourceGroups/HubSpokeS1RG/providers/Microsoft.Network/virtualNetworks/HubSpokeS1-hub1-vnet/subnets/HubSpokeS1-hub1-dns-out" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_subnet" for more information.
 │
 │   with module.hub1.azurerm_subnet.this["HubSpokeS1-hub1-dns-out"],
 │   on ../../modules/base/main.tf line 62, in resource "azurerm_subnet" "this":
@@ -140,7 +140,7 @@ This error could occur when terraform is trying to create a diagnostic setting f
 **Example:**
 
 ```sh
-│ Error: A resource with the ID "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan24RG/providers/Microsoft.Network/azureFirewalls/Vwan24-vhub2-azfw|Vwan24-vhub2-azfw-diag" already exists - to be managed via -hub2-azfw this resource needs to be imported into the State. Please see the resource documentation for "azurerm_monitor_diagnostic_setting" for more information.
+│ Error: A resource with the ID "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan24RG/providers/Microsoft.Network/azureFirewalls/Vwan24-vhub2-azfw|Vwan24-vhub2-azfw-diag" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_monitor_diagnostic_setting" for more information.
 │
 │   with module.vhub2.azurerm_monitor_diagnostic_setting.this[0],
 │   on ../../modules/virtual-hub/main.tf line 74, in resource "azurerm_monitor_diagnostic_setting" "this":
@@ -191,7 +191,7 @@ This error could occur when terraform is trying to create a virtual machine exte
 **Example:**
 
 ```sh
-│ Error: A resource with the ID "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Hs14RG/providers/Microsoft.Compute/virtualMachines/Hs14-branch1-dns/extensions/Hs14-branch1-dns" already exists - to be managed via -hub2-azfw this resource needs to be imported into the State. Please see the resource documentation for "azurerm_virtual_machine_extension" for more information.
+│ Error: A resource with the ID "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Hs14RG/providers/Microsoft.Compute/virtualMachines/Hs14-branch1-dns/extensions/Hs14-branch1-dns" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_virtual_machine_extension" for more information.
 │
 │   with module.branch1.module.vm["dns"].azurerm_virtual_machine_extension.this[0],
 │   on ../../modules/linux/main.tf line 93, in resource "azurerm_virtual_machine_extension" "this":
@@ -224,7 +224,7 @@ This error could occur when terraform is trying to create an Azure policy assign
 **Example:**
 
 ```sh
-Error: A resource with the ID "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/providers/Microsoft.Authorization/policyAssignments/Ne31-ng-spokes-prod-region1" already exists - to be managed via -hub2-azfw this resource needs to be imported into the State. Please see the resource documentation for "azurerm_subscription_policy_assignment" for more information.
+Error: A resource with the ID "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/providers/Microsoft.Authorization/policyAssignments/Ne31-ng-spokes-prod-region1" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_subscription_policy_assignment" for more information.
 │
 │   with azurerm_subscription_policy_assignment.ng_spokes_prod_region1,
 │   on svc-nm-common.tf line 57, in resource "azurerm_subscription_policy_assignment" "ng_spokes_prod_region1":
@@ -232,7 +232,7 @@ Error: A resource with the ID "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f33
 │
 │ A resource with the ID
 │ "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/providers/Microsoft.Authorization/policyAssignments/Ne31-ng-spokes-prod-region1"
-│ already exists - to be managed via -hub2-azfw this resource needs to be imported into the
+│ already exists - to be managed via Terraform this resource needs to be imported into the
 │ State. Please see the resource documentation for "azurerm_subscription_policy_assignment"
 │ for more information.
 ```
