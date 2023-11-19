@@ -39,7 +39,7 @@ Deploy a dual-region Hub and Spoke Vnet topology using Virtual Network Appliance
 
 ## [2. Virtual WAN](./2-virtual-wan/)
 
-The terraform codes in this collection cover different hub and spoke network patterns using Virtual WAN.
+Terraform codes in this collection cover different hub and spoke network patterns using Virtual WAN.
 
 ### 2.1. Virtual WAN - Single Region
 
