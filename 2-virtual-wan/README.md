@@ -3,59 +3,42 @@
 
 Contents
 <!-- TOC -->
-- [1. Virtual WAN (Single Region)](#1-virtual-wan-single-region)
-- [2. Virtual WAN (Dual Region)](#2-virtual-wan-dual-region)
-- [3. Secured Virtual WAN (Single Region)](#3-secured-virtual-wan-single-region)
-- [4. Secured Virtual WAN (Dual Region)](#4-secured-virtual-wan-dual-region)
+- [1. Virtual WAN - Single Region](#1-virtual-wan---single-region)
+- [2. Virtual WAN - Dual Region](#2-virtual-wan---dual-region)
+- [3. Secured Virtual WAN - Single Region](#3-secured-virtual-wan---single-region)
+- [4. Secured Virtual WAN - Dual Region](#4-secured-virtual-wan---dual-region)
 <!-- /TOC -->
 
 Terraform codes in this collection cover different hub and spoke network patterns using Virtual WAN.
 
-## [1. Virtual WAN (Single Region)](../2-virtual-wan/1-vwan-single-region/)
+## 1. Virtual WAN - Single Region
 
-This [terraform code](../2-virtual-wan/1-vwan-single-region/) deploys a single-region Virtual WAN (Vwan) topology to observe traffic routing patterns.
+[**Terraform Code**](./1-vwan-single-region/)
+
+Deploy a single-region Virtual WAN (Vwan) topology to observe traffic routing patterns. Learn about traffic routing patterns, [hybrid DNS](https://learn.microsoft.com/en-us/azure/dns/private-resolver-hybrid-dns) resolution, [connecting NVA](https://learn.microsoft.com/en-us/azure/virtual-wan/scenario-bgp-peering-hub) into the virtual hub, and [PrivateLink Services](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) access to IaaS, [PrivateLink](https://learn.microsoft.com/en-us/azure/private-link/private-link-overview) access to PaaS services.
 
 ![Virtual WAN (Single Region)](../images/scenarios/2-1-vwan-single-region.png)
 
-Standard Virtual Network (Vnet) hub (`Hub1`) connects to the Vwan hub (`vHub1`) via a Vwan connection. Direct spoke (`Spoke1`) is connected to the Vwan hub (`vHub1`). `Spoke2`is an indirect spoke from a Vwan perspective; and is connected via standard Vnet peering to `Hub1`. `Spoke2` uses the Network Virtual Applinace (NVA) in the standard Vnet hub (`Hub1`) as the next hop for traffic to all destinations.
+## 2. Virtual WAN - Dual Region
 
-The isolated spoke (`Spoke3`) does not have Vnet peering to the Vnet hub (`Hub1`), but is reachable via Private Link Service through a private endpoint in the hub.
+[**Terraform Code**](./2-vwan-dual-region/)
 
-`Branch1` is an on-premises network which is simulated using Vnet. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the Vwan hubs using IPsec VPN connections with dynamic (BGP) routing.
-
-## [2. Virtual WAN (Dual Region)](../2-virtual-wan/2-vwan-dual-region/)
-
-This [terraform code](../2-virtual-wan/2-vwan-dual-region/) deploys a multi-hub (multi-region) Virtual WAN (Vwan) topology to observe traffic routing patterns.
+Deploy a dual-region Virtual WAN (Vwan) topology to observe traffic routing patterns. Learn about multi-region traffic routing patterns, [hybrid DNS](https://learn.microsoft.com/en-us/azure/dns/private-resolver-hybrid-dns) resolution, [connecting NVA](https://learn.microsoft.com/en-us/azure/virtual-wan/scenario-bgp-peering-hub) into the virtual hubs, and [PrivateLink Services](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) access to IaaS, [PrivateLink](https://learn.microsoft.com/en-us/azure/private-link/private-link-overview) access to PaaS services.
 
 ![Virtual WAN (Dual Region)](../images/scenarios/2-2-vwan-dual-region.png)
 
-Standard Virtual Network (Vnet) hubs (`Hub1` and `Hub2`) connect to Vwan hubs (`vHub1` and `vHub2` respectively) via a Vwan connections. Direct spokes (`Spoke1` and `Spoke4`) are connected to their respective Vwan hubs via Vnet connections. `Spoke2` and `Spoke5` are indirect spokes from a Vwan perspective; and are connected via standard Vnet peering to `Hub1` and `Hub2` respectively. `Spoke2` and `Spoke5` use the Network Virtual Applinace (NVA) in the standard Vnet hubs as the next hop for traffic to all destinations.
+## 3. Secured Virtual WAN - Single Region
 
-The isolated spokes (`Spoke3` and `Spoke6`) do not have Vnet peering to their respective Vnet hubs (`Hub1` and `Hub2`), but are reachable via Private Link Service through a private endpoint in each respective hub.
+[**Terraform Code**](./3-vwan-sec-single-region/)
 
-`Branch1` and `Branch3` are on-premises networks which are simulated using Vnets. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the Vwan hubs using IPsec VPN connections with dynamic (BGP) routing.
-
-## [3. Secured Virtual WAN (Single Region)](../2-virtual-wan/3-vwan-sec-single-region/)
-
-This [terraform code](../2-virtual-wan/3-vwan-sec-single-region/) deploys a single-region Secured Virtual WAN (Vwan) topology to observe traffic routing patterns. *Routing Intent* feature is enabled to allow traffic inspection on Azure firewalls for traffic between spokes and branches.
+Deploy a single-region Secured Virtual WAN (Vwan) topology to observe traffic routing patterns. [Routing Intent](https://learn.microsoft.com/en-us/azure/virtual-wan/how-to-routing-policies) feature is enabled to allow traffic inspection through the Azure firewall in the virtual hub. Learn about traffic routing patterns, routing intent [security policies](https://learn.microsoft.com/en-us/azure/virtual-wan/how-to-routing-policies), [hybrid DNS](https://learn.microsoft.com/en-us/azure/dns/private-resolver-hybrid-dns) resolution, NVA integration into the virtual hub, and [PrivateLink Services](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) access to IaaS, [PrivateLink](https://learn.microsoft.com/en-us/azure/private-link/private-link-overview) access to PaaS services.
 
 ![Secured Virtual WAN (Single Region)](../images/scenarios/2-3-vwan-sec-single-region.png)
 
-Standard Virtual Network (Vnet) hub (`Hub1`) connects to the Vwan hub (`vHub1`) via a Vwan connection. Direct spoke (`Spoke1`) is connected to the Vwan hub (`vHub1`). `Spoke2`is an indirect spoke from a Vwan perspective; and is connected via standard Vnet peering to `Hub1`. `Spoke2` uses the Network Virtual Applinace (NVA) in the standard Vnet hub (`Hub1`) as the next hop for traffic to all destinations.
+## 4. Secured Virtual WAN - Dual Region
 
-The isolated spoke (`Spoke3`) does not have Vnet peering to the Vnet hub (`Hub1`), but is reachable via Private Link Service through a private endpoint in the hub.
+[**Terraform Code**](./4-vwan-sec-dual-region/)
 
-`Branch1` is an on-premises network which is simulated using Vnet. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the Vwan hubs using IPsec VPN connections with dynamic (BGP) routing.
-
-## [4. Secured Virtual WAN (Dual Region)](../2-virtual-wan/4-vwan-sec-dual-region/)
-
-This [terraform code](../2-virtual-wan/4-vwan-sec-dual-region/) deploys a multi-hub (multi-region) Secured Virtual WAN (Vwan) topology to observe traffic routing patterns. *Routing Intent* feature is enabled to allow traffic inspection on Azure firewalls for traffic between spokes and branches.
+Deploy a dual-region Secured Virtual WAN (Vwan) topology to observe traffic routing patterns. [Routing Intent](https://learn.microsoft.com/en-us/azure/virtual-wan/how-to-routing-policies) feature is enabled to allow traffic inspection through the Azure firewalls in the virtual hubs. Learn about multi-region traffic routing patterns, routing intent [security policies](https://learn.microsoft.com/en-us/azure/virtual-wan/how-to-routing-policies), [hybrid DNS](https://learn.microsoft.com/en-us/azure/dns/private-resolver-hybrid-dns) resolution, [connecting NVA](https://learn.microsoft.com/en-us/azure/virtual-wan/scenario-bgp-peering-hub) into the virtual hubs, and [PrivateLink Services](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) access to IaaS, [PrivateLink](https://learn.microsoft.com/en-us/azure/private-link/private-link-overview) access to PaaS services.
 
 ![Secured Virtual WAN (Dual Region)](../images/scenarios/2-4-vwan-sec-dual-region.png)
-
-Standard Virtual Network (Vnet) hubs (`Hub1` and `Hub2`) connect to Vwan hubs (`vHub1` and `vHub2` respectively) via a Vwan connections. Direct spokes (`Spoke1` and `Spoke4`) are connected to their respective Vwan hubs via Vnet connections. `Spoke2` and `Spoke5` are indirect spokes from a Vwan perspective; and are connected via standard Vnet peering to `Hub1` and `Hub2` respectively. `Spoke2` and `Spoke5` use the Network Virtual Applinace (NVA) in the standard Vnet hubs as the next hop for traffic to all destinations.
-
-The isolated spokes (`Spoke3` and `Spoke6`) do not have Vnet peering to their respective hubs (`Hub1` and `Hub2`), but are reachable via Private Link Service through a private endpoint in each respective hub.
-
-`Branch1` and `Branch3` are on-premises networks which are simulated using Vnets. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the Vwan hubs using IPsec VPN connections with dynamic (BGP) routing.
-
