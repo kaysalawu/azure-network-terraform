@@ -1,7 +1,9 @@
 # Secured Virtual WAN - Single Region <!-- omit from toc -->
-## Lab Code: Vwan23 <!-- omit from toc -->
+
+## Lab: Vwan23 <!-- omit from toc -->
 
 Contents
+
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Deploy the Lab](#deploy-the-lab)
@@ -38,21 +40,24 @@ Ensure you meet all requirements in the [prerequisites](../../prerequisites/) be
 ## Deploy the Lab
 
 1. Clone the Git Repository for the Labs
-```sh
-git clone https://github.com/kaysalawu/azure-network-terraform.git
-```
+
+   ```sh
+   git clone https://github.com/kaysalawu/azure-network-terraform.git
+   ```
 
 2. Navigate to the lab directory
-```sh
-cd azure-network-terraform/2-virtual-wan/3-vwan-sec-single-region
-```
+
+   ```sh
+   cd azure-network-terraform/2-virtual-wan/3-vwan-sec-single-region
+   ```
 
 3. Run the following terraform commands and type ***yes*** at the prompt:
-```sh
-terraform init
-terraform plan
-terraform apply -parallelism=50
-```
+
+   ```sh
+   terraform init
+   terraform plan
+   terraform apply -parallelism=50
+   ```
 
 ## Troubleshooting
 
@@ -75,6 +80,7 @@ The table below show the auto-generated output files from the lab. They are loca
 Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of network reachability tests. Serial console access has been configured for all virtual machines. You can [access the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal) of a virtual machine from the Azure portal.
 
 Login to virtual machine `Vwan23-spoke1-vm` via the serial console:
+
 - On Azure portal select *Virtual machines*
 - Select the virtual machine `Vwan23-spoke1-vm`
 - Under ***Help*** section, select ***Serial console*** and wait for a login prompt
@@ -89,12 +95,14 @@ Run the following tests from inside the serial console session.
 
 This script pings the IP addresses of some test virtual machines and reports reachability and round trip time.
 
-1.1. Run the IP ping test
+**1.1.** Run the IP ping test
+
 ```sh
 ping-ip
 ```
 
 Sample output
+
 ```sh
 azureuser@Vwan23-spoke1-vm:~$ ping-ip
 
@@ -111,12 +119,14 @@ internet - icanhazip.com -NA
 
 This script pings the DNS name of some test virtual machines and reports reachability and round trip time. This tests hybrid DNS resolution between on-premises and Azure.
 
-2.1. Run the DNS ping test
+**2.1.** Run the DNS ping test
+
 ```sh
 ping-dns
 ```
 
 Sample output
+
 ```sh
 azureuser@Vwan23-spoke1-vm:~$ ping-dns
 
@@ -133,12 +143,14 @@ icanhazip.com - 104.18.115.97 -NA
 
 This script uses curl to check reachability of web server (python Flask) on the test virtual machines. It reports HTTP response message, round trip time and IP address.
 
-3.1. Run the DNS curl test
+**3.1.** Run the DNS curl test
+
 ```sh
 curl-dns
 ```
 
 Sample output
+
 ```sh
 azureuser@Vwan23-spoke1-vm:~$ curl-dns
 
@@ -153,16 +165,19 @@ azureuser@Vwan23-spoke1-vm:~$ curl-dns
 000 (2.001597s) -  - vm.spoke3.az.corp
 200 (0.017185s) - 104.18.114.97 - icanhazip.com
 ```
+
 We can see that curl test to spoke3 virtual machine `vm.spoke3.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.az.corp`.
 
 ### 4. Private Link Service
 
-4.1. Test access to ***spoke3*** web application using the private endpoint in ***hub1***.
+**4.1.** Test access to ***spoke3*** web application using the private endpoint in ***hub1***.
+
 ```sh
 curl spoke3.p.hub1.az.corp
 ```
 
 Sample output
+
 ```sh
 azureuser@Vwan23-spoke1-vm:~$ curl spoke3.p.hub1.az.corp
 {
@@ -177,7 +192,6 @@ azureuser@Vwan23-spoke1-vm:~$ curl spoke3.p.hub1.az.corp
 }
 ```
 
-
 The `Hostname` and `Local-IP` fields identify the target web server - in this case ***spoke3*** virtual machine. The `Remote-IP` field (as seen by the web server) is an IP address in the Private Link Service NAT subnet in ***spoke3***.
 
 ### 5. Private Link (App Service) Access from Public Client
@@ -187,54 +201,60 @@ An app service instance is deployed for ***spoke3***. The app service instance i
 The app service is accessible via the private endpoint in ***hub1***. The app service is also accessible via its public endpoint. The app service application is a simple [python Flask web application](https://hub.docker.com/r/ksalawu/web) that returns the HTTP headers, hostname and IP addresses of the server running the application.
 
 The app service uses the following naming convention:
+
 - vwan23-spoke3-AAAA-app.azurewebsites.net
 
 Where ***AAAA*** is a randomly generated two-byte string.
 
-5.1. On your local machine, get the hostname of the app service linked to ***spoke3***
+**5.1.** On your local machine, get the hostname of the app service linked to ***spoke3***
+
 ```sh
 spoke3_apps_url=$(az webapp list --resource-group Vwan23RG --query "[?contains(name, 'vwan23-spoke3')].defaultHostName" -o tsv)
 ```
-5.2. Display the hostname
+
+**5.2.** Display the hostname
+
 ```sh
 echo $spoke3_apps_url
 ```
 
-Sample output (your output will be different)
+Sample output (yours will be different)
+
 ```sh
 vwan23-spoke3-09b1-app.azurewebsites.net
 ```
-5.3. Resolve the hostname
+
+**5.3.** Resolve the hostname
+
 ```sh
 nslookup $spoke3_apps_url
 ```
 
-Sample output (your output will be different)
+Sample output (yours will be different)
+
 ```sh
-vwan23-spoke3-09b1-app.azurewebsites.net
+3-vwan-sec-single-region$ nslookup $spoke3_apps_url
+Server:         172.18.80.1
+Address:        172.18.80.1#53
+
+Non-authoritative answer:
+vwan23-spoke3-09b1-app.azurewebsites.net        canonical name = vwan23-spoke3-09b1-app.privatelink.azurewebsites.net.
+vwan23-spoke3-09b1-app.privatelink.azurewebsites.net    canonical name = waws-prod-am2-579.sip.azurewebsites.windows.net.
+waws-prod-am2-579.sip.azurewebsites.windows.net canonical name = waws-prod-am2-579-8254.westeurope.cloudapp.azure.com.
+Name:   waws-prod-am2-579-8254.westeurope.cloudapp.azure.com
+Address: 20.105.232.14
 ```
 
-We can see that the endpoint is a public IP address, ***20.105.216.1***. We can see the CNAME `vwan23-spoke3-09b1-app.privatelink.azurewebsites.net` created for the app service which recursively resolves to the public IP address.
+We can see that the endpoint is a public IP address, ***20.105.232.14***. We can see the CNAME `vwan23-spoke3-09b1-app.privatelink.azurewebsites.net` created for the app service which recursively resolves to the public IP address.
 
-5.4. Test access to the ***spoke3*** app service via the public endpoint.
+**5.4.** Test access to the ***spoke3*** app service via the public endpoint.
 
 ```sh
 curl $spoke3_apps_url
 ```
 
 Sample output
-```sh
 
-```
-
-Observe that we are connecting from our local client's public IP address (152.37.70.253) specified in the `X-Client-Ip`.
-
-Let's confirm the public IP address of our local machine
-```sh
-curl -4 icanhazip.com
-```
-
-Sample output (your output will be different)
 ```sh
 3-vwan-sec-single-region$ curl $spoke3_apps_url
 {
@@ -260,20 +280,37 @@ Sample output (your output will be different)
 }
 ```
 
-**(Optional)** Repeat steps *5.1* through *5.4* for the app service linked to ***spoke6***.
+Observe that we are connecting from our local client's public IP address (152.37.70.253) specified in the `X-Client-Ip`.
+
+Let's confirm the public IP address of our local machine
+
+```sh
+curl -4 icanhazip.com
+```
+
+Sample output (yours will be different)
+
+```sh
+$ curl -4 icanhazip.com
+152.37.70.253
+```
+
+**(Optional)** Repeat *Step 5.1* through *Step 5.4* for the app service linked to ***spoke6***.
 
 ### 6. Private Link (App Service) Access from On-premises
 
-6.1 Recall the hostname of the app service in ***spoke3*** as done in Step 5.2. In our example, the hostname is `vwan23-spoke3-09b1-app.azurewebsites.net`.
+**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `vwan23-spoke3-09b1-app.azurewebsites.net`.
 
-6.2. Connect to the on-premises server `Vwan23-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Vwan23-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
+**6.2.** Connect to the on-premises server `Vwan23-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Vwan23-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
 
-6.3. Resolve the hostname DNS - which is `vwan23-spoke3-09b1-app.azurewebsites.net` in this example. Use your actual hostname from Step 6.1
+**6.3.** Resolve the hostname DNS - which is `vwan23-spoke3-09b1-app.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
+
 ```sh
 nslookup vwan23-spoke3-<AAAA>-app.azurewebsites.net
 ```
 
 Sample output
+
 ```sh
 azureuser@Vwan23-branch1-vm:~$ nslookup vwan23-spoke3-09b1-app.azurewebsites.net
 Server:         127.0.0.53
@@ -286,6 +323,7 @@ Address: 10.11.4.5
 ```
 
 We can see that the app service hostname resolves to the private endpoint ***10.11.4.5*** in ***hub1***. The following is a summary of the DNS resolution from `Vwan23-branch1-vm`:
+
 - On-premises server `Vwan23-branch1-vm` makes a DNS request for `vwan23-spoke3-09b1-app.azurewebsites.net`
 - The request is received by on-premises DNS server `Vwan23-branch1-dns`
 - The DNS server resolves `vwan23-spoke3-09b1-app.azurewebsites.net` to the CNAME `vwan23-spoke3-09b1-app.privatelink.azurewebsites.net`
@@ -296,15 +334,18 @@ We can see that the app service hostname resolves to the private endpoint ***10.
           name: "privatelink.azurewebsites.net."
           forward-addr: 10.11.5.4
   ```
+
   DNS Requests matching `privatelink.azurewebsites.net` will be forwarded to the private DNS resolver inbound endpoint in ***hub1*** (10.11.5.4).
 - The DNS server forwards the DNS request to the private DNS resolver inbound endpoint in ***hub1*** - which returns the IP address of the app service private endpoint in ***hub1*** (10.11.4.5)
 
-6.4. From `Vwan23-branch1-vm`, test access to the ***spoke3*** app service via the private endpoint. Use your actual hostname.
+**6.4.** From `Vwan23-branch1-vm`, test access to the ***spoke3*** app service via the private endpoint. Use your actual hostname.
+
 ```sh
 curl vwan23-spoke3-<AAAA>-app.azurewebsites.net
 ```
 
 Sample output
+
 ```sh
 azureuser@Vwan23-branch1-vm:~$ curl vwan23-spoke3-09b1-app.azurewebsites.net
 {
@@ -334,15 +375,16 @@ Observe that we are connecting from the private IP address of `Vwan23-branch1-vm
 
 ### 7. Virtual WAN Routes
 
-7.1. Ensure you are in the lab directory `azure-network-terraform/2-virtual-wan/3-vwan-sec-single-region`
+**7.1.** Ensure you are in the lab directory `azure-network-terraform/2-virtual-wan/3-vwan-sec-single-region`
 
-7.2. Display the virtual WAN routing table(s)
+**7.2.** Display the virtual WAN routing table(s)
 
 ```sh
 bash ../../scripts/_routes.sh Vwan23RG
 ```
 
 Sample output
+
 ```sh
 3-vwan-sec-single-region$ bash ../../scripts/_routes.sh Vwan23RG
 
@@ -377,23 +419,27 @@ AddressPrefixes    AsPath    NextHopType
 
 Login to the onprem router `Vwan23-branch1-nva` in order to observe its dynamic routes.
 
-8.1. Login to virtual machine `Vwan23-branch1-nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal).
+**8.1.** Login to virtual machine `Vwan23-branch1-nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal).
 
-8.2. Enter username and password
+**8.2.** Enter username and password
+
    - username = ***azureuser***
    - password = ***Password123***
 
-8.3. Enter the Cisco ***enable*** mode
+**8.3.** Enter the Cisco ***enable*** mode
+
 ```sh
 enable
 ```
 
-8.4. Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
+**8.4.** Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
+
 ```sh
 show ip route
 ```
 
 Sample output
+
 ```sh
 Vwan23-branch1-nva-vm#show ip route
 ...
@@ -429,12 +475,14 @@ S        192.168.11.13/32 is directly connected, Tunnel0
 
 We can see the Vnet ranges learned dynamically via BGP.
 
-8.5. Display BGP information by typing `show ip bgp` and pressing the space bar to show the complete output.
+**8.5.** Display BGP information by typing `show ip bgp` and pressing the space bar to show the complete output.
+
 ```sh
 show ip bgp
 ```
 
 Sample output
+
 ```sh
 Vwan23-branch1-nva-vm#show ip bgp
 BGP table version is 7, local router ID is 192.168.10.10
@@ -463,7 +511,8 @@ We can see the Vnet ranges learned dynamically via BGP.
 
 ### 9. Azure Firewall
 
-9.1. Check the Azure Firewall logs to observe the traffic flow.
+**9.1.** Check the Azure Firewall logs to observe the traffic flow.
+
 - Select the Azure Firewall resource `Vwan23-hub1-azfw` in the Azure portal.
 - Click on **Logs** in the left navigation pane.
 - Click **Run** in the *Network rule log data* log category.
@@ -477,26 +526,30 @@ Observe the firewall logs based on traffic flows generated from our tests.
 ## Cleanup
 
 1. (Optional) Navigate back to the lab directory (if you are not already there)
-```sh
-cd azure-network-terraform/2-virtual-wan/3-vwan-sec-single-region
-```
+
+   ```sh
+   cd azure-network-terraform/2-virtual-wan/3-vwan-sec-single-region
+   ```
 
 2. Run a cleanup script to remove some resources that may not be removed after the resource group deletion.
-```sh
-bash ../../scripts/_cleanup.sh Vwan23RG
-```
 
-Sample output
-```sh
-3-vwan-sec-single-region$ bash ../../scripts/_cleanup.sh Vwan23RG
+   ```sh
+   bash ../../scripts/_cleanup.sh Vwan23RG
+   ```
 
-Resource group: Vwan23RG
+   Sample output
 
-Deleting: diag setting [Vwan23-vhub1-azfw-diag] for firewall [Vwan23-vhub1-azfw] ...
-Deletion complete!
-```
+   ```sh
+   3-vwan-sec-single-region$ bash ../../scripts/_cleanup.sh Vwan23RG
+
+   Resource group: Vwan23RG
+
+   Deleting: diag setting [Vwan23-vhub1-azfw-diag] for firewall [Vwan23-vhub1-azfw] ...
+   Deletion complete!
+   ```
 
 3. Delete the resource group to remove all resources installed.
-```sh
-az group delete -g Vwan23RG --no-wait
-```
+
+   ```sh
+   az group delete -g Vwan23RG --no-wait
+   ```
