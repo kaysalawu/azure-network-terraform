@@ -1,6 +1,6 @@
 # Hub and Spoke - Dual Region (NVA) <!-- omit from toc -->
 
-## Lab: Hs14 <!-- omit from toc -->
+## Lab Code: Hs14 <!-- omit from toc -->
 
 Contents
 - [Overview](#overview)
@@ -233,7 +233,7 @@ The app services have the following naming convention:
 
 Where ***AAAA*** and ***BBBB*** are randomly generated two-byte strings.
 
-5.1. ***On your local machine***, get the hostname of the app service linked to ***spoke3***
+5.1. On your local machine, get the hostname of the app service linked to ***spoke3***
 ```sh
 spoke3_apps_url=$(az webapp list --resource-group Hs14RG --query "[?contains(name, 'hs14-spoke3')].defaultHostName" -o tsv)
 ```

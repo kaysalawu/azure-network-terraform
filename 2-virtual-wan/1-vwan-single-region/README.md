@@ -1,6 +1,6 @@
 # Virtual WAN - Single Region <!-- omit from toc -->
 
-## Lab: Vwan21 <!-- omit from toc -->
+## Lab Code: Vwan21 <!-- omit from toc -->
 
 Contents
 - [Overview](#overview)
@@ -191,7 +191,7 @@ The app service uses the following naming convention:
 
 Where ***AAAA*** is a randomly generated two-byte string.
 
-5.1. ***On your local machine***, get the hostname of the app service linked to ***spoke3***
+5.1. On your local machine, get the hostname of the app service linked to ***spoke3***
 ```sh
 spoke3_apps_url=$(az webapp list --resource-group Vwan21RG --query "[?contains(name, 'vwan21-spoke3')].defaultHostName" -o tsv)
 ```

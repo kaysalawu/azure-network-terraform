@@ -1,5 +1,6 @@
 # Secured Hub and Spoke - Dual Region <!-- omit from toc -->
-## Lab: Hs12 <!-- omit from toc -->
+
+## Lab Code: Hs12 <!-- omit from toc -->
 
 Contents
 - [Overview](#overview)
@@ -44,16 +45,19 @@ Ensure you meet all requirements in the [prerequisites](../../prerequisites/) be
 ## Deploy the Lab
 
 1. Clone the Git Repository for the Labs
+
 ```sh
 git clone https://github.com/kaysalawu/azure-network-terraform.git
 ```
 
 2. Navigate to the lab directory
+
 ```sh
 cd azure-network-terraform/1-hub-and-spoke/2-hub-spoke-azfw-dual-region
 ```
 
 3. Run the following terraform commands and type ***yes*** at the prompt:
+
 ```sh
 terraform init
 terraform plan
@@ -97,10 +101,13 @@ Run the following tests from inside the serial console session.
 This script pings the IP addresses of some test virtual machines and reports reachability and round trip time.
 
 1.1. Run the IP ping test
+
 ```sh
 ping-ip
 ```
+
 Sample output
+
 ```sh
 azureuser@Hs12-spoke1-vm:~$ ping-ip
 
@@ -122,11 +129,13 @@ internet - icanhazip.com -NA
 This script pings the DNS name of some test virtual machines and reports reachability and round trip time. This tests hybrid DNS resolution between on-premises and Azure.
 
 2.1. Run the DNS ping test
+
 ```sh
 ping-dns
 ```
 
 Sample output
+
 ```sh
 azureuser@Hs12-spoke1-vm:~$ ping-dns
 
@@ -148,11 +157,13 @@ icanhazip.com - 104.18.114.97 -NA
 This script uses curl to check reachability of the web servers (python Flask) on the test virtual machines. It reports HTTP response message, round trip time and IP address.
 
 3.1. Run the DNS curl test
+
 ```sh
 curl-dns
 ```
 
 Sample output
+
 ```sh
 azureuser@Hs12-spoke1-vm:~$ curl-dns
 
@@ -178,11 +189,13 @@ We can see that curl test to spoke3 virtual machine `vm.spoke3.az.corp` returns 
 ### 4. Private Link Service
 
 4.1. Test access to ***spoke3*** web application using the private endpoint in ***hub1***.
+
 ```sh
 curl spoke3.p.hub1.az.corp
 ```
 
 Sample output
+
 ```sh
 azureuser@Hs12-spoke1-vm:~$ curl spoke3.p.hub1.az.corp
 {
@@ -198,11 +211,13 @@ azureuser@Hs12-spoke1-vm:~$ curl spoke3.p.hub1.az.corp
 ```
 
 4.2. Test access to ***spoke6*** web application using the private endpoint in ***hub2***.
+
 ```sh
 curl spoke6.p.hub2.az.corp
 ```
 
 Sample output
+
 ```sh
 azureuser@Hs12-spoke1-vm:~$ curl spoke6.p.hub2.az.corp
 {
@@ -231,25 +246,31 @@ The app services have the following naming convention:
 
 Where ***AAAA*** and ***BBBB*** are randomly generated two-byte strings.
 
-5.1. ***On your local machine***, get the hostname of the app service linked to ***spoke3***
+5.1. On your local machine, get the hostname of the app service linked to ***spoke3***
+
 ```sh
 spoke3_apps_url=$(az webapp list --resource-group Hs12RG --query "[?contains(name, 'hs12-spoke3')].defaultHostName" -o tsv)
 ```
+
 5.2. Display the hostname
 ```sh
 echo $spoke3_apps_url
 ```
 
 Sample output (your output will be different)
+
 ```sh
 hs12-spoke3-6111-app.azurewebsites.net
 ```
+
 5.3. Resolve the hostname
+
 ```sh
 nslookup $spoke3_apps_url
 ```
 
 Sample output (your output will be different)
+
 ```sh
 2-hub-spoke-azfw-dual-region$ nslookup $spoke3_apps_url
 Server:         172.30.16.1
@@ -272,6 +293,7 @@ curl $spoke3_apps_url
 ```
 
 Sample output
+
 ```sh
 2-hub-spoke-azfw-dual-region$ curl $spoke3_apps_url
 {
@@ -300,11 +322,13 @@ Sample output
 Observe that we are connecting from our local client's public IP address (174.173.70.196) specified in the `X-Client-Ip`.
 
 Let's confirm the public IP address of our local machine
+
 ```sh
 curl -4 icanhazip.com
 ```
 
 Sample output (your output will be different)
+
 ```sh
 2-hub-spoke-azfw-dual-region$ curl -4 icanhazip.com
 152.37.70.253
@@ -319,11 +343,13 @@ Sample output (your output will be different)
 6.2. Connect to the on-premises server `Hs12-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Hs12-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
 
 6.3. Resolve the hostname DNS - which is `hs12-spoke3-6111-app.azurewebsites.net` in this example. Use your actual hostname from Step 6.1
+
 ```sh
 nslookup hs12-spoke3-<AAAA>-app.azurewebsites.net
 ```
 
 Sample output
+
 ```sh
 azureuser@Hs12-branch1-vm:~$ nslookup hs12-spoke3-6111-app.azurewebsites.net
 Server:         127.0.0.53
@@ -336,6 +362,7 @@ Address: 10.11.4.5
 ```
 
 We can see that the app service hostname resolves to the private endpoint ***10.11.4.5*** in ***hub1***. The following is a summary of the DNS resolution from `Hs12-branch1-vm`:
+
 - On-premises server `Hs12-branch1-vm` makes a DNS request for `hs12-spoke3-6111-app.azurewebsites.net`
 - The request is received by on-premises DNS server `Hs12-branch1-dns`
 - The DNS server resolves `hs12-spoke3-6111-app.azurewebsites.net` to the CNAME `hs12-spoke3-6111-app.privatelink.azurewebsites.net`
@@ -347,15 +374,18 @@ We can see that the app service hostname resolves to the private endpoint ***10.
           forward-addr: 10.11.5.4
           forward-addr: 10.22.5.4
   ```
+
   DNS Requests matching `privatelink.azurewebsites.net` will be forwarded to the private DNS resolver inbound endpoint in ***hub1*** (10.11.5.4). The DNS resolver inbound endpoint for ***hub2*** (10.22.5.4) is also included for redundancy.
 - The DNS server forwards the DNS request to the private DNS resolver inbound endpoint in ***hub1*** - which returns the IP address of the app service private endpoint in ***hub1*** (10.11.4.5)
 
 6.4. From `Hs12-branch1-vm`, test access to the ***spoke3*** app service via the private endpoint. Use your actual hostname.
+
 ```sh
 curl hs12-spoke3-<AAAA>-app.azurewebsites.net
 ```
 
 Sample output
+
 ```sh
 azureuser@Hs12-branch1-vm:~$ curl hs12-spoke3-6111-app.azurewebsites.net
 {
@@ -390,20 +420,24 @@ Login to the onprem router `Hs12-branch1-nva` in order to observe its dynamic ro
 7.1. Login to virtual machine `Hs12-branch1-nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal).
 
 7.2. Enter username and password
-   - username = ***azureuser***
-   - password = ***Password123***
+
+  - username = ***azureuser***
+  - password = ***Password123***
 
 7.3. Enter the Cisco enable mode
+
 ```sh
 enable
 ```
 
 7.4. Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
+
 ```sh
 show ip route
 ```
 
 Sample output
+
 ```sh
 Hs12-branch1-nva-vm#show ip route
 ...
@@ -446,11 +480,13 @@ S        192.168.30.30 is directly connected, Tunnel2
 We can see our hub and spoke Vnet ranges are learned dynamically via BGP.
 
 7.5. Display BGP information by typing `show ip bgp`.
+
 ```sh
 show ip bgp
 ```
 
 Sample output
+
 ```sh
 Hs12-branch1-nva-vm#show ip bgp
 BGP table version is 9, local router ID is 192.168.10.10
@@ -480,6 +516,7 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
 ### 8. Azure Firewall
 
 8.1. Check the Azure Firewall logs to observe the traffic flow.
+
 - Select the Azure Firewall resource `Hs12-hub1-azfw` in the Azure portal.
 - Click on **Logs** in the left navigation pane.
 - Click **Run** in the *Network rule log data* log category.
@@ -495,25 +532,28 @@ Observe the firewall logs based on traffic flows generated from our tests.
 ## Cleanup
 
 1. (Optional) Navigate back to the lab directory (if you are not already there)
+
    ```sh
    cd azure-network-terraform/1-hub-and-spoke/2-hub-spoke-azfw-dual-region
    ```
 
 2. Run a cleanup script to remove some resources that may not be removed after the resource group deletion.
-```sh
-bash ../../scripts/_cleanup.sh Hs12RG
-```
 
-Sample output
-```sh
-2-hub-spoke-azfw-dual-region$ bash ../../scripts/_cleanup.sh Hs12RG
+   ```sh
+   bash ../../scripts/_cleanup.sh Hs12RG
+   ```
 
-Resource group: Hs12RG
+   Sample output
 
-Deleting: diag setting [Hs12-hub2-azfw-diag] for firewall [Hs12-hub2-azfw] ...
-Deleting: diag setting [Hs12-hub1-azfw-diag] for firewall [Hs12-hub1-azfw] ...
-Deletion complete!
-```
+   ```sh
+   2-hub-spoke-azfw-dual-region$ bash ../../scripts/_cleanup.sh Hs12RG
+
+   Resource group: Hs12RG
+
+   Deleting: diag setting [Hs12-hub2-azfw-diag] for firewall [Hs12-hub2-azfw] ...
+   Deleting: diag setting [Hs12-hub1-azfw-diag] for firewall [Hs12-hub1-azfw] ...
+   Deletion complete!
+   ```
 
 3. Delete the resource group to remove all resources installed.
 
