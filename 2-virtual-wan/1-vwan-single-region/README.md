@@ -17,7 +17,7 @@ Contents
   - [5. Private Link (App Service) Access from Public Client](#5-private-link-app-service-access-from-public-client)
   - [6. Private Link (App Service) Access from On-premises](#6-private-link-app-service-access-from-on-premises)
   - [7. Virtual WAN Routes](#7-virtual-wan-routes)
-  - [8. Onprem Routes](#8-onprem-routes)
+  - [8. On-premises Routes](#8-onprem-routes)
 - [Cleanup](#cleanup)
 
 ## Overview
@@ -409,7 +409,7 @@ RouteTable: custom
 
 ```
 
-### 8. Onprem Routes
+### 8. On-premises Routes
 
 Login to the onprem router `Vwan21-branch1-nva` in order to observe its dynamic routes.
 
