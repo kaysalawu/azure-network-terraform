@@ -16,7 +16,7 @@ Contents
   - [4. Private Link Service](#4-private-link-service)
   - [5. Private Link (App Service) Access from Public Client](#5-private-link-app-service-access-from-public-client)
   - [6. Private Link (App Service) Access from On-premises](#6-private-link-app-service-access-from-on-premises)
-  - [7. Onprem Routes](#7-onprem-routes)
+  - [7. On-premises Routes](#7-onprem-routes)
   - [8. Azure Firewall](#8-azure-firewall)
 - [Cleanup](#cleanup)
 
@@ -370,7 +370,7 @@ azureuser@Ne31-branch1-vm:~$ curl ne31-spoke3-b8b6-app.azurewebsites.net
 
 Observe that we are connecting from the private IP address of `Ne31-branch1-vm` (10.10.0.5) specified in the `X-Client-Ip`.
 
-### 7. Onprem Routes
+### 7. On-premises Routes
 
 Login to the onprem router `Ne31-branch1-nva` and observe its dynamic routes.
 

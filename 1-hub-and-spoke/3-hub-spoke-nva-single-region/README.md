@@ -17,7 +17,7 @@ Contents
   - [5. Private Link (App Service) Access from Public Client](#5-private-link-app-service-access-from-public-client)
   - [6. Private Link (App Service) Access from On-premises](#6-private-link-app-service-access-from-on-premises)
   - [7. Network Virtual Appliance (NVA)](#7-network-virtual-appliance-nva)
-  - [8. Onprem Routes](#8-onprem-routes)
+  - [8. On-premises Routes](#8-on-premises-routes)
 - [Cleanup](#cleanup)
 
 ## Overview
@@ -427,7 +427,7 @@ internet
 
 We can observe that traffic to ***spoke1***, ***spoke2*** and ***hub1*** flow symmetrically via the NVA in ***hub1*** (10.11.1.4).
 
-### 8. Onprem Routes
+### 8. On-premises Routes
 
 Login to the onprem router `Hs13-branch1-nva` in order to observe its dynamic routes.
 

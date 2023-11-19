@@ -16,7 +16,7 @@ Contents
   - [4. Private Link Service](#4-private-link-service)
   - [5. Private Link (App Service) Access from Public Client](#5-private-link-app-service-access-from-public-client)
   - [6. Private Link (App Service) Access from On-premises](#6-private-link-app-service-access-from-on-premises)
-  - [7. Onprem Routes](#7-onprem-routes)
+  - [7. On-premises Routes](#7-onprem-routes)
   - [8. Azure Firewall](#8-azure-firewall)
 - [Cleanup](#cleanup)
 
@@ -78,7 +78,7 @@ The table below show the auto-generated output files from the lab. They are loca
 | IP ranges and DNS | IP ranges and DNS hostname values | [output/values.md](./output/values.md) |
 | Branch DNS Server | Unbound DNS server configuration showing on-premises authoritative zones and conditional forwarding to hub private DNS resolver endpoint | [output/branch-unbound.sh](./output/branch-unbound.sh) |
 | Branch1 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch1-nva.sh](./output/branch1-nva.sh) |
-| Branch2 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch3-nva.sh](./output/branch3-nva.sh) |
+| Branch3 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch3-nva.sh](./output/branch3-nva.sh) |
 | Web server for workload VMs | Python Flask web server and various test and debug scripts | [output/server.sh](./output/server.sh) |
 ||||
 
@@ -418,7 +418,7 @@ azureuser@Hs12-branch1-vm:~$ curl hs12-spoke3-6111-app.azurewebsites.net
 
 Observe that we are connecting from the private IP address of `Hs12-branch1-vm` (10.10.0.5) specified in the `X-Client-Ip`.
 
-### 7. Onprem Routes
+### 7. On-premises Routes
 
 Login to the onprem router `Hs12-branch1-nva` in order to observe its dynamic routes.
 

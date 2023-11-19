@@ -17,7 +17,7 @@ Contents
   - [5. Private Link (App Service) Access from Public Client](#5-private-link-app-service-access-from-public-client)
   - [6. Private Link (App Service) Access from On-premises](#6-private-link-app-service-access-from-on-premises)
   - [7. Network Virtual Appliance (NVA)](#7-network-virtual-appliance-nva)
-  - [8. Onprem Routes](#8-onprem-routes)
+  - [8. On-premises Routes](#8-onprem-routes)
 - [Cleanup](#cleanup)
 
 ## Overview
@@ -77,7 +77,7 @@ The table below show the auto-generated output files from the lab. They are loca
 | IP ranges and DNS | IP ranges and DNS hostname values | [output/values.md](./output/values.md) |
 | Branch DNS Server | Unbound DNS server configuration showing on-premises authoritative zones and conditional forwarding to hub private DNS resolver endpoint | [output/branch-unbound.sh](./output/branch-unbound.sh) |
 | Branch1 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch1-nva.sh](./output/branch1-nva.sh) |
-| Branch2 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch3-nva.sh](./output/branch3-nva.sh) |
+| Branch3 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch3-nva.sh](./output/branch3-nva.sh) |
 | Hub1 NVA | Linux NVA configuration. | [output/hub1-linux-nva.sh](./output/hub1-linux-nva.sh) |
 | Hub2 NVA | Linux NVA configuration. | [output/hub2-linux-nva.sh](./output/hub2-linux-nva.sh) |
 | Web server for workload VMs | Python Flask web server and various test and debug scripts | [output/server.sh](./output/server.sh) |
@@ -517,7 +517,7 @@ internet
 
 We can observe that traffic to ***spoke1***, ***spoke2*** and ***hub1*** flow symmetrically via the NVA in ***hub1*** (10.11.1.4). However, traffic to ***spoke4***, ***spoke5*** and ***hub2*** flow asymmetrically via the NVA in ***hub2*** (10.22.1.4).
 
-### 8. Onprem Routes
+### 8. On-premises Routes
 
 Login to the onprem router `Hs14-branch1-nva` in order to observe its dynamic routes.
 
