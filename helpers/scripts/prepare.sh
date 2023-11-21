@@ -5,7 +5,7 @@ green=`tput setaf 2`
 bold=`tput bold`
 reset=`tput sgr0`
 
-files=$(source templates)
+readarray -t files < templates
 
 replace_symlink_with_files() {
   for file in *; do
