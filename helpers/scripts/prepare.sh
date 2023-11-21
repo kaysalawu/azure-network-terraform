@@ -47,16 +47,30 @@ delete_symlink(){
 done
 }
 
+delete_files(){
+  for file in "${files[@]}"; do
+    local_file=$(basename "$file")
+    if [ -e "$local_file" ]; then
+        rm "$local_file"
+        echo "deleted: $local_file"
+    else
+        echo "skip: $local_file (not found)"
+    fi
+  done
+}
+
 if [[ "$1" == "--replace" || "$1" == "-r" ]]; then
     replace_symlink_with_files
 elif [[ "$1" == "--add" || "$1" == "-a" ]]; then
     add_symlink
-elif [[ "$1" == "-delete" || "$1" == "-d" ]]; then
+elif [[ "$1" == "--delete" || "$1" == "-d" ]]; then
     delete_symlink
-elif [[ "$1" == "-copy" || "$1" == "-c" ]]; then
+elif [[ "$1" == "--copy" || "$1" == "-c" ]]; then
     copy_files
+elif [[ "$1" == "--delete-files" || "$1" == "-x" ]]; then
+    delete_files
 elif [[ "$1" == "--help" || "$1" == "-h" ]]; then
-    echo "Usage: $0 {--replace|-r|--add|-a}"
+    echo "Usage: $0 {--replace|-r|--add|-a|--delete|-d|--copy|-c|--delete-files|-x}"
 else
-    echo "Usage: $0 {--replace|-r|--add|-a|--delete|-d}"
+    echo "Usage: $0 {--replace|-r|--add|-a|--delete|-d|--copy|-c|--delete-files|-x}"
 fi
