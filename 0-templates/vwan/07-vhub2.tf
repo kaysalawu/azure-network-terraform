@@ -49,9 +49,9 @@ data "azurerm_virtual_hub_route_table" "vhub2_none" {
   depends_on          = [module.vhub2]
 }
 
-resource "azurerm_virtual_hub_route_table" "vhub2_custom" {
-  count          = local.vhub2_features.security.enable_routing_intent ? 0 : 1
-  name           = "custom"
-  virtual_hub_id = module.vhub2.virtual_hub.id
-  labels         = ["custom"]
-}
+# resource "azurerm_virtual_hub_route_table" "vhub2_custom" {
+#   count          = local.vhub2_features.security.enable_routing_intent ? 0 : 1
+#   name           = "custom"
+#   virtual_hub_id = module.vhub2.virtual_hub.id
+#   labels         = ["custom"]
+# }

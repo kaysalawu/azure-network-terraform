@@ -250,16 +250,16 @@ resource "azurerm_virtual_hub_route_table_route" "vhub1_default_rt_static_routes
   depends_on        = [module.hub1]
 }
 
-resource "azurerm_virtual_hub_route_table_route" "vhub1_custom_rt_static_routes" {
-  for_each          = local.vhub1_features.security.create_firewall ? local.vhub1_custom_rt_static_routes : {}
-  route_table_id    = azurerm_virtual_hub_route_table.vhub1_custom[0].id
-  name              = each.key
-  destinations_type = "CIDR"
-  destinations      = each.value.destinations
-  next_hop_type     = "ResourceId"
-  next_hop          = each.value.next_hop
-  depends_on        = [module.hub1]
-}
+# resource "azurerm_virtual_hub_route_table_route" "vhub1_custom_rt_static_routes" {
+#   for_each          = local.vhub1_features.security.create_firewall ? local.vhub1_custom_rt_static_routes : {}
+#   route_table_id    = azurerm_virtual_hub_route_table.vhub1_custom[0].id
+#   name              = each.key
+#   destinations_type = "CIDR"
+#   destinations      = each.value.destinations
+#   next_hop_type     = "ResourceId"
+#   next_hop          = each.value.next_hop
+#   depends_on        = [module.hub1]
+# }
 
 ####################################################
 # bgp connections
