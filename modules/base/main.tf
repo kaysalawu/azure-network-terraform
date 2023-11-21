@@ -567,7 +567,7 @@ resource "azurerm_monitor_diagnostic_setting" "azfw" {
   name                       = "${local.prefix}azfw-diag"
   target_resource_id         = azurerm_firewall.azfw[0].id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.azfw[0].id
-  storage_account_id         = azurerm_storage_account.azfw[0].id
+  #storage_account_id         = azurerm_storage_account.azfw[0].id
 
   dynamic "metric" {
     for_each = var.metric_categories_firewall

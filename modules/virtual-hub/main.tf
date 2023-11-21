@@ -105,11 +105,12 @@ resource "azurerm_firewall" "this" {
 # diagnostic setting
 
 resource "azurerm_monitor_diagnostic_setting" "azfw" {
-  count                      = var.security_config[0].create_firewall ? 1 : 0
-  name                       = "${local.prefix}azfw-diag"
-  target_resource_id         = azurerm_firewall.this[0].id
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.azfw[0].id
-  storage_account_id         = azurerm_storage_account.azfw[0].id
+  count                          = var.security_config[0].create_firewall ? 1 : 0
+  name                           = "${local.prefix}azfw-diag"
+  target_resource_id             = azurerm_firewall.this[0].id
+  log_analytics_workspace_id     = azurerm_log_analytics_workspace.azfw[0].id
+  log_analytics_destination_type = "Dedicated"
+  #storage_account_id         = azurerm_storage_account.azfw[0].id
 
   dynamic "metric" {
     for_each = var.metric_categories_firewall
