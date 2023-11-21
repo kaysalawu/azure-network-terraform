@@ -15,10 +15,6 @@ modulez/
 # Module directory
 
 # Other files
-apply.sh
-destroy.sh
-clean.sh
-prepare.sh
 *rendered
 *keys/
 *test/
