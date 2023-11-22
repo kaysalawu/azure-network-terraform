@@ -16,6 +16,8 @@ provider "azurerm" {
   features {}
 }
 
+provider "azapi" {}
+
 terraform {
   required_version = ">= 1.4.6"
   required_providers {
@@ -26,6 +28,9 @@ terraform {
     azurerm = {
       source  = "hashicorp/azurerm"
       version = ">= 3.78.0"
+    }
+    azapi = {
+      source = "azure/azapi"
     }
   }
 }
@@ -87,7 +92,6 @@ locals {
     }]
   }
 
-
   vhub1_features = {
     enable_er_gateway      = false
     enable_s2s_vpn_gateway = true
@@ -99,14 +103,9 @@ locals {
       firewall_sku          = local.firewall_sku
       firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region1"].id
       routing_policies = {
-        "internet" = {
-          name         = "InternetTrafficPolicy"
-          destinations = ["Internet"]
-        }
-        "private" = {
-          name         = "PrivateTrafficPolicy"
-          destinations = ["PrivateTraffic"]
-        }
+        internet            = true
+        private_traffic     = true
+        additional_prefixes = { "test" = ["8.8.8.8/32"] }
       }
     }
   }
