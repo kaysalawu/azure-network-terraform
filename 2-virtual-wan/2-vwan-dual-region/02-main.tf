@@ -16,6 +16,8 @@ provider "azurerm" {
   features {}
 }
 
+provider "azapi" {}
+
 terraform {
   required_version = ">= 1.4.6"
   required_providers {
@@ -26,6 +28,9 @@ terraform {
     azurerm = {
       source  = "hashicorp/azurerm"
       version = ">= 3.78.0"
+    }
+    azapi = {
+      source = "azure/azapi"
     }
   }
 }
@@ -141,16 +146,7 @@ locals {
       enable_routing_intent = false
       firewall_sku          = local.firewall_sku
       firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region1"].id
-      routing_policies = {
-        "internet" = {
-          name         = "InternetTrafficPolicy"
-          destinations = ["Internet"]
-        }
-        "private" = {
-          name         = "PrivateTrafficPolicy"
-          destinations = ["PrivateTraffic"]
-        }
-      }
+      routing_policies      = {}
     }
   }
 
@@ -164,16 +160,7 @@ locals {
       enable_routing_intent = false
       firewall_sku          = local.firewall_sku
       firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region2"].id
-      routing_policies = {
-        "internet" = {
-          name         = "InternetTrafficPolicy"
-          destinations = ["Internet"]
-        }
-        "private" = {
-          name         = "PrivateTrafficPolicy"
-          destinations = ["PrivateTraffic"]
-        }
-      }
+      routing_policies      = {}
     }
   }
 }

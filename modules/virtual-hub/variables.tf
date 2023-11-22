@@ -86,10 +86,16 @@ variable "enable_routing_intent" {
 }
 
 variable "routing_policies" {
-  type = map(object({
-    name         = string
-    destinations = list(string)
-  }))
+  type = object({
+    internet            = optional(bool, false)
+    private_traffic     = optional(bool, false)
+    additional_prefixes = optional(map(any), {})
+  })
+  default = {
+    internet            = false
+    private_traffic     = false
+    additional_prefixes = {}
+  }
 }
 
 variable "metric_categories_firewall" {
@@ -112,7 +118,7 @@ variable "log_categories_firewall" {
     {
       "category"      = "AzureFirewallNetworkRule",
       "categoryGroup" = null,
-      "enabled"       = true,
+      "enabled"       = false,
       "retentionPolicy" = {
         "days"    = 0,
         "enabled" = false
