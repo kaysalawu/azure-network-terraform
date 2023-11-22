@@ -112,7 +112,7 @@ variable "log_categories_firewall" {
     {
       "category"      = "AzureFirewallNetworkRule",
       "categoryGroup" = null,
-      "enabled"       = false,
+      "enabled"       = true,
       "retentionPolicy" = {
         "days"    = 0,
         "enabled" = false
