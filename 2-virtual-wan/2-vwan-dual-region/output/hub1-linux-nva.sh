@@ -106,10 +106,10 @@ ipv6 forwarding
 !
 line vty
 !
-ip route 0.0.0.0/0 10.11.12.1
-ip route 192.168.11.69/32 10.11.12.1
-ip route 192.168.11.68/32 10.11.12.1
-ip route 10.2.0.0/16 10.11.12.1
+ip route 0.0.0.0/0 10.11.1.1
+ip route 192.168.11.68/32 10.11.1.1
+ip route 192.168.11.69/32 10.11.1.1
+ip route 10.2.0.0/16 10.11.1.1
 !
 
 EOF
@@ -120,13 +120,13 @@ cat <<EOF > /etc/quagga/bgpd.conf
 log file /var/log/quagga/bgpd.log informational
 !
 router bgp 65010
-  bgp router-id 10.11.12.4
-  neighbor 192.168.11.69 remote-as 65515
-  neighbor 192.168.11.69 ebgp-multihop 255
-  neighbor 192.168.11.69 soft-reconfiguration inbound
+  bgp router-id 10.11.1.4
   neighbor 192.168.11.68 remote-as 65515
   neighbor 192.168.11.68 ebgp-multihop 255
   neighbor 192.168.11.68 soft-reconfiguration inbound
+  neighbor 192.168.11.69 remote-as 65515
+  neighbor 192.168.11.69 ebgp-multihop 255
+  neighbor 192.168.11.69 soft-reconfiguration inbound
   network 10.11.0.0/24
   network 10.2.0.0/16
 !
