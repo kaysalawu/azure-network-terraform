@@ -34,10 +34,13 @@
 | GatewaySubnet   | 10.11.7.0/24   |
 | LoadBalancerSubnet   | 10.11.2.0/24   |
 | MainSubnet   | 10.11.0.0/24   |
-| NvaSubnet   | 10.11.1.0/24   |
+| Managementsubnet   | 10.11.14.0/24   |
 | PrivateEndpointSubnet   | 10.11.4.0/24   |
 | PrivateLinkServiceSubnet   | 10.11.3.0/24   |
 | RouteServerSubnet   | 10.11.8.0/24   |
+| TestSubnet   | 10.11.1.0/24   |
+| TrustSubnet   | 10.11.12.0/24   |
+| UntrustSubnet   | 10.11.13.0/24   |
 | - | -  |
 | VM_IP   | 10.11.0.5   |
 | VM_NAME   | Vwan21-hub1-vm   |

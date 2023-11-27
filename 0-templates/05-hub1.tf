@@ -18,17 +18,18 @@ module "hub1" {
   create_private_dns_zone = true
   private_dns_zone_name   = "hub1.${local.cloud_domain}"
   private_dns_zone_linked_external_vnets = {
-    "spoke1" = module.spoke1.vnet.id
-    "spoke2" = module.spoke2.vnet.id
+    # "spoke1" = module.spoke1.vnet.id
+    # "spoke2" = module.spoke2.vnet.id
   }
   private_dns_ruleset_linked_external_vnets = {
-    "spoke1" = module.spoke1.vnet.id
-    "spoke2" = module.spoke2.vnet.id
+    # "spoke1" = module.spoke1.vnet.id
+    # "spoke2" = module.spoke2.vnet.id
   }
 
   nsg_subnet_map = {
     "MainSubnet"                = module.common.nsg_main["region1"].id
-    "NvaSubnet"                 = module.common.nsg_nva["region1"].id
+    "TrustSubnet"               = module.common.nsg_nva["region1"].id
+    "UntrustSubnet"             = module.common.nsg_open["region1"].id
     "LoadBalancerSubnet"        = module.common.nsg_default["region1"].id
     "PrivateLinkServiceSubnet"  = module.common.nsg_default["region1"].id
     "PrivateEndpointSubnet"     = module.common.nsg_default["region1"].id
@@ -46,21 +47,21 @@ module "hub1" {
 # workload
 ####################################################
 
-module "hub1_vm" {
-  source                = "../../modules/linux"
-  resource_group        = azurerm_resource_group.rg.name
-  prefix                = local.hub1_prefix
-  name                  = "vm"
-  location              = local.hub1_location
-  subnet                = module.hub1.subnets["MainSubnet"].id
-  private_ip            = local.hub1_vm_addr
-  enable_public_ip      = true
-  custom_data           = base64encode(local.vm_startup)
-  storage_account       = module.common.storage_accounts["region1"]
-  private_dns_zone_name = "hub1.${local.cloud_domain}"
-  #delay_creation        = "2m"
-  tags = local.hub1_tags
-  #depends_on = [
-  #  module.hub1,
-  #]
-}
+# module "hub1_vm" {
+#   source                = "../../modules/linux"
+#   resource_group        = azurerm_resource_group.rg.name
+#   prefix                = local.hub1_prefix
+#   name                  = "vm"
+#   location              = local.hub1_location
+#   subnet                = module.hub1.subnets["MainSubnet"].id
+#   private_ip            = local.hub1_vm_addr
+#   enable_public_ip      = true
+#   custom_data           = base64encode(local.vm_startup)
+#   storage_account       = module.common.storage_accounts["region1"]
+#   private_dns_zone_name = "hub1.${local.cloud_domain}"
+#   #delay_creation        = "2m"
+#   tags = local.hub1_tags
+#   #depends_on = [
+#   #  module.hub1,
+#   #]
+# }

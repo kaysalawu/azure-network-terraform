@@ -28,7 +28,7 @@ module "hub1" {
 
   nsg_subnet_map = {
     "MainSubnet"                = module.common.nsg_main["region1"].id
-    "NvaSubnet"                 = module.common.nsg_nva["region1"].id
+    "TrustSubnet"               = module.common.nsg_nva["region1"].id
     "LoadBalancerSubnet"        = module.common.nsg_default["region1"].id
     "PrivateLinkServiceSubnet"  = module.common.nsg_default["region1"].id
     "PrivateEndpointSubnet"     = module.common.nsg_default["region1"].id

@@ -1,6 +1,11 @@
 
 locals {
-  prefix = var.prefix == "" ? "" : format("%s-", var.prefix)
+  prefix       = var.prefix == "" ? "" : format("%s-", var.prefix)
+  my_public_ip = chomp(data.http.my_public_ip.response_body)
+}
+
+data "http" "my_public_ip" {
+  url = "http://ipv4.icanhazip.com"
 }
 
 ####################################################
@@ -21,33 +26,6 @@ resource "azurerm_storage_account" "storage_accounts" {
   tags                     = var.tags
 }
 
-# ####################################################
-# # log analytics workspace
-# ####################################################
-
-# resource "random_id" "analytics_workspaces" {
-#   byte_length = 5
-# }
-
-# resource "azurerm_log_analytics_workspace" "analytics_workspaces" {
-#   for_each            = var.regions
-#   resource_group_name = var.resource_group
-#   name                = "${local.prefix}${each.key}-analytics-ws-${random_id.analytics_workspaces.hex}"
-#   location            = each.value
-#   sku                 = "PerGB2018"
-#   retention_in_days   = 30
-#   tags                = var.tags
-# }
-
-# locals {
-#   firewall_categories_metric = ["AllMetrics"]
-#   firewall_categories_log = [
-#     "AzureFirewallApplicationRule",
-#     "AzureFirewallNetworkRule",
-#     "AzureFirewallDnsProxy"
-#   ]
-# }
-
 ####################################################
 # nsg
 ####################################################
@@ -63,7 +41,7 @@ resource "azurerm_network_security_group" "nsg_default" {
   tags                = var.tags
 }
 
-# vm
+# main
 #----------------------------
 
 resource "azurerm_network_security_group" "nsg_main" {
@@ -94,6 +72,65 @@ resource "azurerm_network_security_rule" "nsg_main_private_outbound" {
   for_each                    = var.regions
   resource_group_name         = var.resource_group
   network_security_group_name = azurerm_network_security_group.nsg_main[each.key].name
+  name                        = "all-outbound"
+  direction                   = "Outbound"
+  access                      = "Allow"
+  priority                    = 100
+  source_address_prefix       = "*"
+  source_port_range           = "*"
+  destination_address_prefix  = "*"
+  destination_port_range      = "*"
+  protocol                    = "*"
+  description                 = "Allow all outbound"
+}
+
+resource "azurerm_network_security_rule" "internet_inbound" {
+  for_each                    = var.regions
+  resource_group_name         = var.resource_group
+  network_security_group_name = azurerm_network_security_group.nsg_main[each.key].name
+  name                        = "internet-inbound"
+  direction                   = "Inbound"
+  access                      = "Allow"
+  priority                    = 110
+  source_address_prefix       = local.my_public_ip
+  source_port_range           = "*"
+  destination_address_prefix  = "*"
+  destination_port_ranges     = ["80", "443"]
+  protocol                    = "Tcp"
+  description                 = "Allow inbound web traffic"
+}
+
+# open
+#----------------------------
+
+resource "azurerm_network_security_group" "nsg_open" {
+  for_each            = var.regions
+  resource_group_name = var.resource_group
+  name                = "${local.prefix}nsg-${each.value}-open"
+  location            = each.value
+  tags                = var.tags
+}
+
+resource "azurerm_network_security_rule" "nsg_open_inbound" {
+  for_each                    = var.regions
+  resource_group_name         = var.resource_group
+  network_security_group_name = azurerm_network_security_group.nsg_open[each.key].name
+  name                        = "all-inbound"
+  direction                   = "Inbound"
+  access                      = "Allow"
+  priority                    = 100
+  source_address_prefix       = "*"
+  source_port_range           = "*"
+  destination_address_prefix  = "*"
+  destination_port_range      = "*"
+  protocol                    = "*"
+  description                 = "Allow all in inbound"
+}
+
+resource "azurerm_network_security_rule" "nsg_open_outbound" {
+  for_each                    = var.regions
+  resource_group_name         = var.resource_group
+  network_security_group_name = azurerm_network_security_group.nsg_open[each.key].name
   name                        = "all-outbound"
   direction                   = "Outbound"
   access                      = "Allow"

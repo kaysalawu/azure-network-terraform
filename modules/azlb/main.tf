@@ -20,7 +20,7 @@ resource "azurerm_public_ip" "this" {
 
 resource "azurerm_lb" "this" {
   resource_group_name = var.resource_group_name
-  name                = "${local.prefix}lb"
+  name                = var.type == "public" ? "${local.prefix}${var.name}-elb" : "${local.prefix}${var.name}-ilb"
   location            = var.location
   sku                 = var.lb_sku
   tags                = var.tags
@@ -35,7 +35,7 @@ resource "azurerm_lb" "this" {
 }
 
 resource "azurerm_lb_backend_address_pool" "this" {
-  name            = "${local.prefix}beap"
+  name            = "${local.prefix}${var.backend_address_pools.name}-beap"
   loadbalancer_id = azurerm_lb.this.id
 }
 
@@ -52,7 +52,7 @@ resource "azurerm_lb_probe" "this" {
 
 resource "azurerm_lb_rule" "this" {
   count                          = length(var.lb_port)
-  name                           = "${local.prefix}nat-rule-${element(keys(var.lb_port), count.index)}"
+  name                           = "${local.prefix}rule-${element(keys(var.lb_port), count.index)}"
   loadbalancer_id                = azurerm_lb.this.id
   protocol                       = element(var.lb_port[element(keys(var.lb_port), count.index)], 1)
   frontend_port                  = element(var.lb_port[element(keys(var.lb_port), count.index)], 0)
@@ -75,21 +75,20 @@ resource "azurerm_lb_nat_rule" "this" {
   frontend_ip_configuration_name = var.type == "public" ? local.frontend_ip_configuration_name_public : local.frontend_ip_configuration_name_private
 }
 
-resource "azurerm_private_dns_a_record" "this" {
-  count               = var.type == "public" ? 0 : 1
-  resource_group_name = var.resource_group_name
-  name                = var.dns_host
-  zone_name           = var.private_dns_zone
-  ttl                 = 300
-  records             = [azurerm_lb.this.frontend_ip_configuration[0].private_ip_address, ]
+resource "azurerm_lb_backend_address_pool_address" "this" {
+  count                               = length(var.backend_address_pools.addresses)
+  name                                = "${local.prefix}${var.backend_address_pools.name}-beap-${count.index}"
+  backend_address_pool_id             = azurerm_lb_backend_address_pool.this.id
+  backend_address_ip_configuration_id = try(var.backend_address_pools.addresses[count.index].backend_address_ip_configuration_id, null)
+  virtual_network_id                  = try(var.backend_address_pools.addresses[count.index].virtual_network_id, null)
+  ip_address                          = try(var.backend_address_pools.addresses[count.index].ip_address, null)
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "this" {
-  count                   = length(var.backends)
-  network_interface_id    = var.backends[count.index].network_interface_id
-  ip_configuration_name   = var.backends[count.index].ip_configuration_name
+  count                   = length(var.backend_address_pools.addresses) > 0 ? 0 : length(var.backend_address_pools.interfaces)
+  network_interface_id    = var.backend_address_pools.interfaces[count.index].network_interface_id
+  ip_configuration_name   = var.backend_address_pools.interfaces[count.index].ip_configuration_name
   backend_address_pool_id = azurerm_lb_backend_address_pool.this.id
-  depends_on              = [azurerm_lb_backend_address_pool.this]
 }
 
 

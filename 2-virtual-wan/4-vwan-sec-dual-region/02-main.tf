@@ -149,7 +149,7 @@ locals {
       routing_policies = {
         internet            = true
         private_traffic     = true
-        additional_prefixes = { "test" = ["8.8.8.8/32"] }
+        additional_prefixes = { "private_traffic" = ["8.8.8.8/32"] }
       }
     }
   }
@@ -167,7 +167,7 @@ locals {
       routing_policies = {
         internet            = true
         private_traffic     = true
-        additional_prefixes = { "test" = ["8.8.8.8/32"] }
+        additional_prefixes = { "private_traffic" = ["8.8.8.8/32"] }
       }
     }
   }

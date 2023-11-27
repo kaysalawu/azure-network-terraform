@@ -50,10 +50,13 @@
 | GatewaySubnet   | 10.11.7.0/24   |
 | LoadBalancerSubnet   | 10.11.2.0/24   |
 | MainSubnet   | 10.11.0.0/24   |
-| NvaSubnet   | 10.11.1.0/24   |
+| Managementsubnet   | 10.11.14.0/24   |
 | PrivateEndpointSubnet   | 10.11.4.0/24   |
 | PrivateLinkServiceSubnet   | 10.11.3.0/24   |
 | RouteServerSubnet   | 10.11.8.0/24   |
+| TestSubnet   | 10.11.1.0/24   |
+| TrustSubnet   | 10.11.12.0/24   |
+| UntrustSubnet   | 10.11.13.0/24   |
 | - | -  |
 | VM_IP   | 10.11.0.5   |
 | VM_NAME   | Hs14-hub1-vm   |
@@ -65,7 +68,7 @@
 | Item    | Value  |
 |--------|--------|
 | PRIVATE_DNS_INBOUND_IP   | 10.22.5.4   |
-| SPOKE6_APP_SVC_ENDPOINT_DNS   | hs14-spoke6-2c0e-app.azurewebsites.net   |
+| SPOKE6_APP_SVC_ENDPOINT_DNS   | hs14-spoke6-04df-app.azurewebsites.net   |
 | SPOKE6_APP_SVC_ENDPOINT_IP   | 10.22.4.5   |
 | SPOKE6_WEB_APP_ENDPOINT_DNS   | spoke6.p.hub2.az.corp   |
 | SPOKE6_WEB_APP_ENDPOINT_IP   | 10.22.4.4   |
@@ -78,10 +81,13 @@
 | GatewaySubnet   | 10.22.7.0/24   |
 | LoadBalancerSubnet   | 10.22.2.0/24   |
 | MainSubnet   | 10.22.0.0/24   |
-| NvaSubnet   | 10.22.1.0/24   |
+| ManagementSubnet   | 10.22.14.0/24   |
 | PrivateEndpointSubnet   | 10.22.4.0/24   |
 | PrivateLinkServiceSubnet   | 10.22.3.0/24   |
 | RouteServerSubnet   | 10.22.8.0/24   |
+| TestSubnet   | 10.22.1.0/24   |
+| TrustSubnet   | 10.22.12.0/24   |
+| UntrustSubnet   | 10.22.13.0/24   |
 | - | -  |
 | VM_IP   | 10.22.0.5   |
 | VM_NAME   | Hs14-hub2-vm   |

@@ -29,13 +29,16 @@ module "spoke6_lb" {
   lb_port     = { http = ["80", "Tcp", "80"] }
   lb_probe    = { http = ["Tcp", "80", ""] }
 
-  backends = [
-    {
-      name                  = module.spoke6_vm.vm.name
-      ip_configuration_name = module.spoke6_vm.interface.ip_configuration[0].name
-      network_interface_id  = module.spoke6_vm.interface.id
-    }
-  ]
+  backend_address_pools = {
+    name = "pls"
+    interfaces = [
+      {
+        name                  = module.spoke6_vm.vm.name
+        ip_configuration_name = module.spoke6_vm.interface.ip_configuration[0].name
+        network_interface_id  = module.spoke6_vm.interface.id
+      }
+    ]
+  }
 }
 
 # service
@@ -54,7 +57,7 @@ module "spoke6_pls" {
       name            = "pls-nat-ip-config"
       primary         = true
       subnet_id       = module.spoke6.subnets["PrivateLinkServiceSubnet"].id
-      lb_frontend_ids = [module.spoke6_lb.frontend_ip_configuration[0].id, ]
+      lb_frontend_ids = [module.spoke6_lb.frontend_ip_configuration.id, ]
     }
   ]
 }

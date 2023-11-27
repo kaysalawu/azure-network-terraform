@@ -11,6 +11,10 @@ output "nsg_default" {
   value = azurerm_network_security_group.nsg_default
 }
 
+output "nsg_open" {
+  value = azurerm_network_security_group.nsg_open
+}
+
 output "nsg_main" {
   value = azurerm_network_security_group.nsg_main
 }
