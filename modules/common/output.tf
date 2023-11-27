@@ -23,6 +23,6 @@ output "nsg_nva" {
   value = azurerm_network_security_group.nsg_nva
 }
 
-output "nsg_appgw" {
-  value = azurerm_network_security_group.nsg_appgw
+output "nsg_lb" {
+  value = azurerm_network_security_group.nsg_lb
 }

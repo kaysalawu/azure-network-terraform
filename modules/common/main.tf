@@ -205,7 +205,7 @@ resource "azurerm_network_security_rule" "nsg_nva_outbound" {
 # appgw
 #----------------------------
 
-resource "azurerm_network_security_group" "nsg_appgw" {
+resource "azurerm_network_security_group" "nsg_lb" {
   for_each            = var.regions
   resource_group_name = var.resource_group
   name                = "${local.prefix}nsg-${each.value}-appgw"
@@ -213,10 +213,10 @@ resource "azurerm_network_security_group" "nsg_appgw" {
   tags                = var.tags
 }
 
-resource "azurerm_network_security_rule" "nsg_appgw_appgw_v2sku_inbound" {
+resource "azurerm_network_security_rule" "nsg_lb_appgw_v2sku_inbound" {
   for_each                    = var.regions
   resource_group_name         = var.resource_group
-  network_security_group_name = azurerm_network_security_group.nsg_appgw[each.key].name
+  network_security_group_name = azurerm_network_security_group.nsg_lb[each.key].name
   name                        = "allow-appgw-v2sku-inbound"
   direction                   = "Inbound"
   access                      = "Allow"
@@ -229,10 +229,10 @@ resource "azurerm_network_security_rule" "nsg_appgw_appgw_v2sku_inbound" {
   description                 = "Allow Inbound Azure infrastructure communication"
 }
 
-resource "azurerm_network_security_rule" "nsg_appgw_web_external_inbound" {
+resource "azurerm_network_security_rule" "nsg_lb_web_external_inbound" {
   for_each                    = var.regions
   resource_group_name         = var.resource_group
-  network_security_group_name = azurerm_network_security_group.nsg_appgw[each.key].name
+  network_security_group_name = azurerm_network_security_group.nsg_lb[each.key].name
   name                        = "allow-web-external-inbound"
   direction                   = "Inbound"
   access                      = "Allow"
@@ -245,10 +245,10 @@ resource "azurerm_network_security_rule" "nsg_appgw_web_external_inbound" {
   description                 = "Allow inbound web traffic"
 }
 
-resource "azurerm_network_security_rule" "nsg_appgw_outbound" {
+resource "azurerm_network_security_rule" "nsg_lb_outbound" {
   for_each                    = var.regions
   resource_group_name         = var.resource_group
-  network_security_group_name = azurerm_network_security_group.nsg_appgw[each.key].name
+  network_security_group_name = azurerm_network_security_group.nsg_lb[each.key].name
   name                        = "all-outbound"
   direction                   = "Outbound"
   access                      = "Allow"

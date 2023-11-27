@@ -25,7 +25,7 @@ module "spoke4" {
 
   nsg_subnet_map = {
     "MainSubnet"               = module.common.nsg_main["region2"].id
-    "AppGatewaySubnet"         = module.common.nsg_appgw["region2"].id
+    "AppGatewaySubnet"         = module.common.nsg_lb["region2"].id
     "LoadBalancerSubnet"       = module.common.nsg_default["region2"].id
     "PrivateLinkServiceSubnet" = module.common.nsg_default["region2"].id
     "PrivateEndpointSubnet"    = module.common.nsg_default["region2"].id
@@ -36,7 +36,6 @@ module "spoke4" {
     {
       address_space = local.spoke4_address_space
       subnets       = local.spoke4_subnets
-      #dns_servers   = [local.hub2_dns_in_addr, ]
     }
   ]
 }
@@ -85,16 +84,18 @@ module "spoke5" {
   }
 
   nsg_subnet_map = {
-    "MainSubnet"         = module.common.nsg_main["region2"].id
-    "AppGatewaySubnet"   = module.common.nsg_appgw["region2"].id
-    "LoadBalancerSubnet" = module.common.nsg_default["region2"].id
+    "MainSubnet"               = module.common.nsg_main["region2"].id
+    "AppGatewaySubnet"         = module.common.nsg_lb["region2"].id
+    "LoadBalancerSubnet"       = module.common.nsg_default["region2"].id
+    "PrivateLinkServiceSubnet" = module.common.nsg_default["region2"].id
+    "PrivateEndpointSubnet"    = module.common.nsg_default["region2"].id
+    "AppServiceSubnet"         = module.common.nsg_default["region2"].id
   }
 
   vnet_config = [
     {
       address_space = local.spoke5_address_space
       subnets       = local.spoke5_subnets
-      #dns_servers   = [local.hub2_dns_in_addr, ]
     }
   ]
 }
@@ -142,16 +143,18 @@ module "spoke6" {
   }
 
   nsg_subnet_map = {
-    "MainSubnet"         = module.common.nsg_main["region2"].id
-    "AppGatewaySubnet"   = module.common.nsg_appgw["region2"].id
-    "LoadBalancerSubnet" = module.common.nsg_default["region2"].id
+    "MainSubnet"               = module.common.nsg_main["region2"].id
+    "AppGatewaySubnet"         = module.common.nsg_lb["region2"].id
+    "LoadBalancerSubnet"       = module.common.nsg_default["region2"].id
+    "PrivateLinkServiceSubnet" = module.common.nsg_default["region2"].id
+    "PrivateEndpointSubnet"    = module.common.nsg_default["region2"].id
+    "AppServiceSubnet"         = module.common.nsg_default["region2"].id
   }
 
   vnet_config = [
     {
       address_space = local.spoke6_address_space
       subnets       = local.spoke6_subnets
-      #nat_gateway_subnet_names = ["MainSubnet", ]
     }
   ]
 }
