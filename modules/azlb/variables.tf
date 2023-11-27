@@ -28,6 +28,30 @@ variable "lb_port" {
   default     = {}
 }
 
+variable "enable_ha_ports" {
+  description = "(Optional) Enable HA ports. Defaults to false."
+  type        = bool
+  default     = false
+}
+
+variable "enable_floating_ip" {
+  description = "(Optional) Enable floating IP. Defaults to false."
+  type        = bool
+  default     = false
+}
+
+variable "idle_timeout_in_minutes" {
+  description = "(Optional) The timeout for the TCP idle connection. The value can be set between 4 and 30 minutes. The default value is 4 minutes."
+  type        = number
+  default     = 30
+}
+
+variable "load_distribution" {
+  description = "(Optional) The load distribution policy for this rule. Defaults to 'Default'. Possible values are Default, SourceIP, SourceIPProtocol."
+  type        = string
+  default     = "Default"
+}
+
 variable "lb_probe_unhealthy_threshold" {
   description = "Number of times the load balancer health probe has an unsuccessful attempt before considering the endpoint unhealthy."
   type        = number

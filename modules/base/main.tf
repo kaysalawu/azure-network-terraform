@@ -617,77 +617,34 @@ module "nva_linux" {
 
 # internal lb
 
-resource "azurerm_lb" "nva" {
-  count               = var.nva_config[0].enable && var.nva_config[0].type == "linux" ? 1 : 0
-  resource_group_name = var.resource_group
-  name                = "${local.prefix}nva-lb"
-  location            = var.location
-  sku                 = "Standard"
-  frontend_ip_configuration {
-    name                          = "nva-lb-feip"
-    subnet_id                     = azurerm_subnet.this["LoadBalancerSubnet"].id
-    private_ip_address            = var.nva_config[0].internal_lb_addr
-    private_ip_address_allocation = "Static"
+module "ilb_nva_linux" {
+  count                                  = var.nva_config[0].enable && var.nva_config[0].type == "linux" ? 1 : 0
+  source                                 = "../../modules/azlb"
+  resource_group_name                    = var.resource_group
+  location                               = var.location
+  prefix                                 = trimsuffix(local.prefix, "-")
+  name                                   = "nva"
+  type                                   = "private"
+  frontend_subnet_id                     = azurerm_subnet.this["LoadBalancerSubnet"].id
+  frontend_private_ip_address_allocation = "Static"
+  frontend_private_ip_address            = var.nva_config[0].internal_lb_addr
+  lb_sku                                 = "Standard"
+
+  remote_port = { ssh = ["Tcp", "80"] }
+  lb_port     = { http = ["0", "All", "0"] }
+  lb_probe    = { http = ["Tcp", "22", ""] }
+
+  backend_address_pools = {
+    name = "nva"
+    addresses = [
+      {
+        name               = module.nva_linux[0].vm.name
+        ip_address         = module.nva_linux[0].interface.ip_configuration[0].private_ip_address
+        virtual_network_id = azurerm_virtual_network.this.id
+      },
+    ]
+    depends_on = [module.nva_linux, ]
   }
-  lifecycle {
-    ignore_changes = [frontend_ip_configuration, ]
-  }
-  depends_on = [
-    module.nva_linux,
-  ]
-}
-
-# backend
-
-resource "azurerm_lb_backend_address_pool" "nva" {
-  count           = var.nva_config[0].enable && var.nva_config[0].type == "linux" ? 1 : 0
-  name            = "${local.prefix}nva-beap"
-  loadbalancer_id = azurerm_lb.nva[0].id
-  depends_on = [
-    azurerm_lb.nva,
-  ]
-}
-
-resource "azurerm_lb_backend_address_pool_address" "nva" {
-  count                   = var.nva_config[0].enable && var.nva_config[0].type == "linux" ? 1 : 0
-  name                    = "${local.prefix}nva-beap-addr"
-  backend_address_pool_id = azurerm_lb_backend_address_pool.nva[0].id
-  virtual_network_id      = azurerm_virtual_network.this.id
-  ip_address              = module.nva_linux[0].interface.ip_configuration[0].private_ip_address
-  depends_on = [
-    azurerm_lb.nva,
-  ]
-}
-
-# probe
-
-resource "azurerm_lb_probe" "nva_lb_probe" {
-  count               = var.nva_config[0].enable && var.nva_config[0].type == "linux" ? 1 : 0
-  name                = "${local.prefix}nva-probe"
-  interval_in_seconds = 5
-  number_of_probes    = 2
-  loadbalancer_id     = azurerm_lb.nva[0].id
-  port                = 22
-  protocol            = "Tcp"
-}
-
-# rule
-
-resource "azurerm_lb_rule" "nva" {
-  count    = var.nva_config[0].enable && var.nva_config[0].type == "linux" ? 1 : 0
-  name     = "${local.prefix}nva-rule"
-  protocol = "All"
-  backend_address_pool_ids = [
-    azurerm_lb_backend_address_pool.nva[0].id
-  ]
-  loadbalancer_id                = azurerm_lb.nva[0].id
-  frontend_port                  = 0
-  backend_port                   = 0
-  frontend_ip_configuration_name = "nva-lb-feip"
-  enable_floating_ip             = false
-  idle_timeout_in_minutes        = 30
-  load_distribution              = "Default"
-  probe_id                       = azurerm_lb_probe.nva_lb_probe[0].id
 }
 
 # opnsense
