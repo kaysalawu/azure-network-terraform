@@ -16,7 +16,7 @@ Contents
   - [4. Private Link Service](#4-private-link-service)
   - [5. Private Link (App Service) Access from Public Client](#5-private-link-app-service-access-from-public-client)
   - [6. Private Link (App Service) Access from On-premises](#6-private-link-app-service-access-from-on-premises)
-  - [7. On-premises Routes](#7-onprem-routes)
+  - [7. On-premises Routes](#7-on-premises-routes)
   - [8. Azure Firewall](#8-azure-firewall)
 - [Cleanup](#cleanup)
 
@@ -114,14 +114,14 @@ azureuser@Ne32-spoke1-vm:~$ ping-ip
 
  ping ip ...
 
-branch1 - 10.10.0.5 -OK 7.209 ms
-hub1    - 10.11.0.5 -OK 3.205 ms
-spoke1  - 10.1.0.5 -OK 0.027 ms
-spoke2  - 10.2.0.5 -OK 3.171 ms
-branch3 - 10.30.0.5 -OK 23.096 ms
-hub2    - 10.22.0.5 -OK 20.972 ms
-spoke4  - 10.4.0.5 -OK 21.574 ms
-spoke5  - 10.5.0.5 -OK 21.099 ms
+branch1 - 10.10.0.5 -OK 13.724 ms
+hub1    - 10.11.0.5 -OK 5.474 ms
+spoke1  - 10.1.0.5 -OK 0.030 ms
+spoke2  - 10.2.0.5 -OK 9.856 ms
+branch3 - 10.30.0.5 -OK 24.962 ms
+hub2    - 10.22.0.5 -OK 19.793 ms
+spoke4  - 10.4.0.5 -OK 21.291 ms
+spoke5  - 10.5.0.5 -OK 21.642 ms
 internet - icanhazip.com -NA
 ```
 
@@ -142,15 +142,15 @@ azureuser@Ne32-spoke1-vm:~$ ping-dns
 
  ping dns ...
 
-vm.branch1.corp - 10.10.0.5 -OK 6.396 ms
-vm.hub1.az.corp - 10.11.0.5 -OK 4.240 ms
-vm.spoke1.az.corp - 10.1.0.5 -OK 0.034 ms
-vm.spoke2.az.corp - 10.2.0.5 -OK 2.865 ms
-vm.branch3.corp - 10.30.0.5 -OK 23.733 ms
-vm.hub2.az.corp - 10.22.0.5 -OK 21.061 ms
-vm.spoke4.az.corp - 10.4.0.5 -OK 21.873 ms
-vm.spoke5.az.corp - 10.5.0.5 -OK 20.384 ms
-icanhazip.com - 104.18.115.97 -NA
+vm.branch1.corp - 10.10.0.5 -OK 9.304 ms
+vm.hub1.az.corp - 10.11.0.5 -OK 5.012 ms
+vm.spoke1.az.corp - 10.1.0.5 -OK 0.031 ms
+vm.spoke2.az.corp - 10.2.0.5 -OK 5.547 ms
+vm.branch3.corp - 10.30.0.5 -OK 29.216 ms
+vm.hub2.az.corp - 10.22.0.5 -OK 18.886 ms
+vm.spoke4.az.corp - 10.4.0.5 -OK 21.373 ms
+vm.spoke5.az.corp - 10.5.0.5 -OK 21.178 ms
+icanhazip.com - 104.18.114.97 -NA
 ```
 
 ### 3. Curl DNS
@@ -170,20 +170,20 @@ azureuser@Ne32-spoke1-vm:~$ curl-dns
 
  curl dns ...
 
-200 (0.053848s) - 10.10.0.5 - vm.branch1.corp
-200 (0.024097s) - 10.11.0.5 - vm.hub1.az.corp
-200 (0.016496s) - 10.11.4.4 - spoke3.p.hub1.az.corp
-[16587.495137] cloud-init[1441]: 10.1.0.5 - - [17/Nov/2023 12:28:19] "GET / HTTP/1.1" 200 -
-200 (0.011763s) - 10.1.0.5 - vm.spoke1.az.corp
-200 (0.072291s) - 10.2.0.5 - vm.spoke2.az.corp
-000 (2.001316s) -  - vm.spoke3.az.corp
-200 (0.100855s) - 10.30.0.5 - vm.branch3.corp
-200 (0.079045s) - 10.22.0.5 - vm.hub2.az.corp
-200 (0.082670s) - 10.22.4.4 - spoke6.p.hub2.az.corp
-200 (0.083230s) - 10.4.0.5 - vm.spoke4.az.corp
-200 (0.092756s) - 10.5.0.5 - vm.spoke5.az.corp
-000 (2.001169s) -  - vm.spoke6.az.corp
-200 (0.011646s) - 104.18.114.97 - icanhazip.com
+200 (0.041713s) - 10.10.0.5 - vm.branch1.corp
+200 (0.024691s) - 10.11.0.5 - vm.hub1.az.corp
+200 (0.016803s) - 10.11.7.4 - spoke3.p.hub1.az.corp
+[ 2781.033692] cloud-init[1639]: 10.1.0.5 - - [27/Nov/2023 16:45:15] "GET / HTTP/1.1" 200 -
+200 (0.008289s) - 10.1.0.5 - vm.spoke1.az.corp
+200 (0.076840s) - 10.2.0.5 - vm.spoke2.az.corp
+000 (2.001678s) -  - vm.spoke3.az.corp
+200 (0.076715s) - 10.30.0.5 - vm.branch3.corp
+200 (0.080706s) - 10.22.0.5 - vm.hub2.az.corp
+200 (0.081588s) - 10.22.7.4 - spoke6.p.hub2.az.corp
+200 (0.086362s) - 10.4.0.5 - vm.spoke4.az.corp
+200 (0.081490s) - 10.5.0.5 - vm.spoke5.az.corp
+000 (2.001136s) -  - vm.spoke6.az.corp
+200 (0.033479s) - 104.18.115.97 - icanhazip.com
 ```
 
 We can see that curl test to spoke3 virtual machine `vm.spoke3.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.az.corp`. The same explanation applies to ***spoke6*** virtual machine `vm.spoke6.az.corp`
@@ -208,7 +208,7 @@ azureuser@Ne32-spoke1-vm:~$ curl spoke3.p.hub1.az.corp
   },
   "Hostname": "Ne32-spoke3-vm",
   "Local-IP": "10.3.0.5",
-  "Remote-IP": "10.3.3.4"
+  "Remote-IP": "10.3.6.4"
 }
 ```
 
@@ -230,7 +230,7 @@ azureuser@Ne32-spoke1-vm:~$ curl spoke6.p.hub2.az.corp
   },
   "Hostname": "Ne32-spoke6-vm",
   "Local-IP": "10.6.0.5",
-  "Remote-IP": "10.6.3.4"
+  "Remote-IP": "10.6.6.4"
 }
 ```
 
@@ -263,7 +263,7 @@ echo $spoke3_apps_url
 Sample output (yours will be different)
 
 ```sh
-ne32-spoke3-b71d-app.azurewebsites.net
+ne32-spoke3-12bd-app.azurewebsites.net
 ```
 
 **5.3.** Resolve the hostname
@@ -276,18 +276,18 @@ Sample output (yours will be different)
 
 ```sh
 2-hub-spoke-azfw-dual-region$ nslookup $spoke3_apps_url
-Server:         172.30.16.1
-Address:        172.30.16.1#53
+Server:         172.19.64.1
+Address:        172.19.64.1#53
 
 Non-authoritative answer:
-ne32-spoke3-b71d-app.azurewebsites.net  canonical name = ne32-spoke3-b71d-app.privatelink.azurewebsites.net.
-ne32-spoke3-b71d-app.privatelink.azurewebsites.net      canonical name = waws-prod-am2-551.sip.azurewebsites.windows.net.
-waws-prod-am2-551.sip.azurewebsites.windows.net canonical name = waws-prod-am2-551-a8b4.westeurope.cloudapp.azure.com.
-Name:   waws-prod-am2-551-a8b4.westeurope.cloudapp.azure.com
-Address: 20.105.224.9
+ne32-spoke3-12bd-app.azurewebsites.net  canonical name = ne32-spoke3-12bd-app.privatelink.azurewebsites.net.
+ne32-spoke3-12bd-app.privatelink.azurewebsites.net      canonical name = waws-prod-am2-603.sip.azurewebsites.windows.net.
+waws-prod-am2-603.sip.azurewebsites.windows.net canonical name = waws-prod-am2-603-2ca0.westeurope.cloudapp.azure.com.
+Name:   waws-prod-am2-603-2ca0.westeurope.cloudapp.azure.com
+Address: 20.105.224.16
 ```
 
-We can see that the endpoint is a public IP address, ***20.105.224.9***. We can see the CNAME `ne32-spoke3-b71d-app.privatelink.azurewebsites.net` created for the app service which recursively resolves to the public IP address.
+We can see that the endpoint is a public IP address, ***20.105.224.16***. We can see the CNAME `ne32-spoke3-12bd-app.privatelink.azurewebsites.net` created for the app service which recursively resolves to the public IP address.
 
 **5.4.** Test access to the ***spoke3*** app service via the public endpoint.
 
@@ -302,22 +302,22 @@ Sample output
 {
   "Headers": {
     "Accept": "*/*",
-    "Client-Ip": "152.37.70.253:3230",
-    "Disguised-Host": "ne32-spoke3-b71d-app.azurewebsites.net",
-    "Host": "ne32-spoke3-b71d-app.azurewebsites.net",
+    "Client-Ip": "152.37.70.253:4796",
+    "Disguised-Host": "ne32-spoke3-12bd-app.azurewebsites.net",
+    "Host": "ne32-spoke3-12bd-app.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.74.0",
-    "Was-Default-Hostname": "ne32-spoke3-b71d-app.azurewebsites.net",
-    "X-Arr-Log-Id": "2565ec9a-4a26-4870-9fe2-73c812a20a2c",
+    "Was-Default-Hostname": "ne32-spoke3-12bd-app.azurewebsites.net",
+    "X-Arr-Log-Id": "081cb271-2ad7-48c6-b1e3-5a8cccd8cbc5",
     "X-Client-Ip": "152.37.70.253",
-    "X-Client-Port": "3230",
-    "X-Forwarded-For": "152.37.70.253:3230",
+    "X-Client-Port": "4796",
+    "X-Forwarded-For": "152.37.70.253:4796",
     "X-Original-Url": "/",
-    "X-Site-Deployment-Id": "ne32-spoke3-b71d-app",
+    "X-Site-Deployment-Id": "ne32-spoke3-12bd-app",
     "X-Waws-Unencoded-Url": "/"
   },
-  "Hostname": "adcd75cecee9",
-  "Local-IP": "169.254.129.3",
+  "Hostname": "d8f64fa4d4c5",
+  "Local-IP": "169.254.129.2",
   "Remote-IP": "169.254.129.1"
 }
 ```
@@ -341,11 +341,11 @@ $ curl -4 icanhazip.com
 
 ### 6. Private Link (App Service) Access from On-premises
 
-**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `ne32-spoke3-b71d-app.azurewebsites.net`.
+**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `ne32-spoke3-12bd-app.azurewebsites.net`.
 
 **6.2.** Connect to the on-premises server `Ne32-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Ne32-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
 
-**6.3.** Resolve the hostname DNS - which is `ne32-spoke3-b71d-app.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
+**6.3.** Resolve the hostname DNS - which is `ne32-spoke3-12bd-app.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
 
 ```sh
 nslookup ne32-spoke3-<AAAA>-app.azurewebsites.net
@@ -354,21 +354,21 @@ nslookup ne32-spoke3-<AAAA>-app.azurewebsites.net
 Sample output
 
 ```sh
-azureuser@Ne32-branch1-vm:~$ nslookup ne32-spoke3-b71d-app.azurewebsites.net
+azureuser@Ne32-branch1-vm:~$ nslookup ne32-spoke3-12bd-app.azurewebsites.net
 Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-ne32-spoke3-b71d-app.azurewebsites.net  canonical name = ne32-spoke3-b71d-app.privatelink.azurewebsites.net.
-Name:   ne32-spoke3-b71d-app.privatelink.azurewebsites.net
+ne32-spoke3-12bd-app.azurewebsites.net  canonical name = ne32-spoke3-12bd-app.privatelink.azurewebsites.net.
+Name:   ne32-spoke3-12bd-app.privatelink.azurewebsites.net
 Address: 10.11.7.5
 ```
 
 We can see that the app service hostname resolves to the private endpoint ***10.11.7.5*** in ***hub1***. The following is a summary of the DNS resolution from `Ne32-branch1-vm`:
 
-- On-premises server `Ne32-branch1-vm` makes a DNS request for `ne32-spoke3-b71d-app.azurewebsites.net`
+- On-premises server `Ne32-branch1-vm` makes a DNS request for `ne32-spoke3-12bd-app.azurewebsites.net`
 - The request is received by on-premises DNS server `Ne32-branch1-dns`
-- The DNS server resolves `ne32-spoke3-b71d-app.azurewebsites.net` to the CNAME `ne32-spoke3-b71d-app.privatelink.azurewebsites.net`
+- The DNS server resolves `ne32-spoke3-12bd-app.azurewebsites.net` to the CNAME `ne32-spoke3-12bd-app.privatelink.azurewebsites.net`
 - The DNS server has a conditional DNS forwarding defined in the [unbound DNS configuration file](./output/branch-unbound.sh).
 
   ```sh
@@ -390,26 +390,26 @@ curl ne32-spoke3-<AAAA>-app.azurewebsites.net
 Sample output
 
 ```sh
-azureuser@Ne32-branch1-vm:~$ curl ne32-spoke3-b71d-app.azurewebsites.net
+azureuser@Ne32-branch1-vm:~$ curl ne32-spoke3-12bd-app.azurewebsites.net
 {
   "Headers": {
     "Accept": "*/*",
-    "Client-Ip": "[fd40:a36:12:691a:6d12:400:a0a:5]:46356",
-    "Disguised-Host": "ne32-spoke3-b71d-app.azurewebsites.net",
-    "Host": "ne32-spoke3-b71d-app.azurewebsites.net",
+    "Client-Ip": "[fd40:8400:12:2717:7512:900:a0a:5]:36948",
+    "Disguised-Host": "ne32-spoke3-12bd-app.azurewebsites.net",
+    "Host": "ne32-spoke3-12bd-app.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.68.0",
-    "Was-Default-Hostname": "ne32-spoke3-b71d-app.azurewebsites.net",
-    "X-Arr-Log-Id": "20367dab-952c-439c-97fa-3ea45a572634",
+    "Was-Default-Hostname": "ne32-spoke3-12bd-app.azurewebsites.net",
+    "X-Arr-Log-Id": "1c8fba21-cc70-43b5-bca7-551531920b04",
     "X-Client-Ip": "10.10.0.5",
     "X-Client-Port": "0",
     "X-Forwarded-For": "10.10.0.5",
     "X-Original-Url": "/",
-    "X-Site-Deployment-Id": "ne32-spoke3-b71d-app",
+    "X-Site-Deployment-Id": "ne32-spoke3-12bd-app",
     "X-Waws-Unencoded-Url": "/"
   },
-  "Hostname": "adcd75cecee9",
-  "Local-IP": "169.254.129.3",
+  "Hostname": "d8f64fa4d4c5",
+  "Local-IP": "169.254.129.2",
   "Remote-IP": "169.254.129.1"
 }
 ```
@@ -450,26 +450,26 @@ Gateway of last resort is 10.10.1.1 to network 0.0.0.0
 
 S*    0.0.0.0/0 [1/0] via 10.10.1.1
       10.0.0.0/8 is variably subnetted, 20 subnets, 4 masks
-B        10.1.0.0/16 [20/0] via 10.11.7.4, 04:29:26
-B        10.2.0.0/16 [20/0] via 10.11.7.4, 04:29:26
-B        10.4.0.0/16 [20/0] via 192.168.30.30, 04:29:31
-B        10.5.0.0/16 [20/0] via 192.168.30.30, 04:29:31
-S        10.10.0.0/24 [1/0] via 10.10.2.1
+B        10.1.0.0/16 [20/0] via 10.11.10.4, 00:29:26
+B        10.2.0.0/16 [20/0] via 10.11.10.4, 00:29:26
+B        10.4.0.0/16 [20/0] via 192.168.30.30, 00:29:16
+B        10.5.0.0/16 [20/0] via 192.168.30.30, 00:29:16
+S        10.10.0.0/24 [1/0] via 10.10.3.1
 C        10.10.1.0/24 is directly connected, GigabitEthernet1
 L        10.10.1.9/32 is directly connected, GigabitEthernet1
-C        10.10.2.0/24 is directly connected, GigabitEthernet2
-L        10.10.2.9/32 is directly connected, GigabitEthernet2
+C        10.10.3.0/24 is directly connected, GigabitEthernet2
+L        10.10.3.9/32 is directly connected, GigabitEthernet2
 C        10.10.10.0/30 is directly connected, Tunnel0
 L        10.10.10.1/32 is directly connected, Tunnel0
 C        10.10.10.4/30 is directly connected, Tunnel1
 L        10.10.10.5/32 is directly connected, Tunnel1
 C        10.10.10.8/30 is directly connected, Tunnel2
 L        10.10.10.9/32 is directly connected, Tunnel2
-B        10.11.0.0/16 [20/0] via 10.11.7.4, 04:34:46
-S        10.11.7.4/32 is directly connected, Tunnel0
-S        10.11.7.5/32 is directly connected, Tunnel1
-B        10.22.0.0/16 [20/0] via 192.168.30.30, 04:34:46
-B        10.30.0.0/24 [20/0] via 192.168.30.30, 04:34:46
+B        10.11.0.0/16 [20/0] via 10.11.10.4, 00:29:26
+S        10.11.10.4/32 is directly connected, Tunnel0
+S        10.11.10.5/32 is directly connected, Tunnel1
+B        10.22.0.0/16 [20/0] via 192.168.30.30, 00:29:16
+B        10.30.0.0/24 [20/0] via 192.168.30.30, 00:29:16
       168.63.0.0/32 is subnetted, 1 subnets
 S        168.63.129.16 [254/0] via 10.10.1.1
       169.254.0.0/32 is subnetted, 1 subnets
@@ -501,15 +501,15 @@ Origin codes: i - IGP, e - EGP, ? - incomplete
 RPKI validation codes: V valid, I invalid, N Not found
 
      Network          Next Hop            Metric LocPrf Weight Path
- *    10.1.0.0/16      10.11.7.5                              0 65515 i
- *>                    10.11.7.4                              0 65515 i
- *    10.2.0.0/16      10.11.7.5                              0 65515 i
- *>                    10.11.7.4                              0 65515 i
+ *    10.1.0.0/16      10.11.10.5                             0 65515 i
+ *>                    10.11.10.4                             0 65515 i
+ *    10.2.0.0/16      10.11.10.5                             0 65515 i
+ *>                    10.11.10.4                             0 65515 i
  *>   10.4.0.0/16      192.168.30.30                          0 65003 65003 65003 65003 65515 i
  *>   10.5.0.0/16      192.168.30.30                          0 65003 65003 65003 65003 65515 i
- *>   10.10.0.0/24     10.10.2.1                0         32768 i
- *    10.11.0.0/16     10.11.7.5                              0 65515 i
- *>                    10.11.7.4                              0 65515 i
+ *>   10.10.0.0/24     10.10.3.1                0         32768 i
+ *    10.11.0.0/16     10.11.10.5                             0 65515 i
+ *>                    10.11.10.4                             0 65515 i
  *>   10.22.0.0/16     192.168.30.30                          0 65003 65003 65003 65003 65515 i
  *>   10.30.0.0/24     192.168.30.30            0             0 65003 65003 65003 65003 i
 ```
