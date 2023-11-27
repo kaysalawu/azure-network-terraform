@@ -60,8 +60,8 @@ locals {
     LOOPBACKS = {
       Loopback1 = local.hub1_nva_ilb_addr
     }
-    INT_ADDR = local.hub1_nva_addr
-    VPN_PSK  = local.psk
+    CRYPTO_ADDR = local.hub1_nva_trust_addr
+    VPN_PSK     = local.psk
 
     MASQUERADE = []
 
@@ -83,11 +83,11 @@ locals {
           name    = "Tunnel0"
           address = cidrhost(local.hub1_nva_tun_range0, 1)
           mask    = cidrnetmask(local.hub1_nva_tun_range0)
-          source  = local.hub1_nva_addr
-          dest    = local.hub2_nva_addr
+          source  = local.hub1_nva_trust_addr
+          dest    = local.hub2_nva_trust_addr
         },
         ipsec = {
-          peer_ip = local.hub2_nva_addr
+          peer_ip = local.hub2_nva_trust_addr
           psk     = local.psk
         }
       },
@@ -96,7 +96,7 @@ locals {
     STATIC_ROUTES = [
       { network = "0.0.0.0", mask = "0.0.0.0", next_hop = local.hub1_default_gw_nva },
       { network = local.hub2_nva_loopback0, mask = "255.255.255.255", next_hop = "Tunnel0" },
-      { network = local.hub2_nva_addr, mask = "255.255.255.255", next_hop = local.hub1_default_gw_nva },
+      { network = local.hub2_nva_trust_addr, mask = "255.255.255.255", next_hop = local.hub1_default_gw_nva },
       { network = local.hub1_ars_bgp0, mask = "255.255.255.255", next_hop = local.hub1_default_gw_nva },
       { network = local.hub1_ars_bgp1, mask = "255.255.255.255", next_hop = local.hub1_default_gw_nva },
     ]
@@ -145,7 +145,7 @@ module "hub1_nva" {
   enable_ip_forwarding = true
   enable_public_ip     = true
   subnet               = module.hub1.subnets["${local.hub1_prefix}nva"].id
-  private_ip           = local.hub1_nva_addr
+  private_ip           = local.hub1_nva_trust_addr
   storage_account      = module.common.storage_accounts["region1"]
   admin_username       = local.username
   admin_password       = local.password
@@ -209,7 +209,7 @@ resource "azurerm_lb_backend_address_pool_address" "hub1_nva" {
   name                    = "${local.hub1_prefix}nva-beap-addr"
   backend_address_pool_id = azurerm_lb_backend_address_pool.hub1_nva.id
   virtual_network_id      = module.hub1.vnet.id
-  ip_address              = local.hub1_nva_addr
+  ip_address              = local.hub1_nva_trust_addr
 }
 
 # probe
@@ -290,7 +290,7 @@ resource "azurerm_route_server_bgp_connection" "hub1_ars_bgp_conn" {
   name            = "${local.hub1_prefix}ars-bgp-conn"
   route_server_id = module.hub1.ars.id
   peer_asn        = local.hub1_nva_asn
-  peer_ip         = local.hub1_nva_addr
+  peer_ip         = local.hub1_nva_trust_addr
 }
 
 ####################################################

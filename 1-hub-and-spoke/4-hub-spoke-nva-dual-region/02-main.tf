@@ -410,8 +410,8 @@ locals {
     LOOPBACKS = {
       Loopback1 = local.hub1_nva_ilb_addr
     }
-    INT_ADDR = local.hub1_nva_addr
-    VPN_PSK  = local.psk
+    CRYPTO_ADDR = local.hub1_nva_trust_addr
+    VPN_PSK     = local.psk
   }
   hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
     TARGETS           = local.vm_script_targets
@@ -433,8 +433,8 @@ locals {
     LOOPBACKS = {
       Loopback1 = local.hub2_nva_ilb_addr
     }
-    INT_ADDR = local.hub2_nva_addr
-    VPN_PSK  = local.psk
+    CRYPTO_ADDR = local.hub2_nva_trust_addr
+    VPN_PSK     = local.psk
   }
   hub2_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub2_nva_vars, {
     TARGETS           = local.vm_script_targets
