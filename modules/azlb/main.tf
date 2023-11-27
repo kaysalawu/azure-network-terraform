@@ -37,6 +37,7 @@ resource "azurerm_lb" "this" {
 resource "azurerm_lb_backend_address_pool" "this" {
   name            = "${local.prefix}${var.backend_address_pools.name}-beap"
   loadbalancer_id = azurerm_lb.this.id
+  depends_on      = [azurerm_lb.this]
 }
 
 resource "azurerm_lb_probe" "this" {

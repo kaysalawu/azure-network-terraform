@@ -28,13 +28,15 @@ module "hub2" {
 
   nsg_subnet_map = {
     "MainSubnet"                = module.common.nsg_main["region2"].id
-    "TrustSubnet"               = module.common.nsg_nva["region2"].id
+    "AppGatewaySubnet"          = module.common.nsg_lb["region2"].id
     "LoadBalancerSubnet"        = module.common.nsg_default["region2"].id
     "PrivateLinkServiceSubnet"  = module.common.nsg_default["region2"].id
     "PrivateEndpointSubnet"     = module.common.nsg_default["region2"].id
+    "AppServiceSubnet"          = module.common.nsg_default["region2"].id
+    "TrustSubnet"               = module.common.nsg_nva["region2"].id
+    "UntrustSubnet"             = module.common.nsg_open["region2"].id
     "DnsResolverInboundSubnet"  = module.common.nsg_default["region2"].id
     "DnsResolverOutboundSubnet" = module.common.nsg_default["region2"].id
-    "AppServiceSubnet"          = module.common.nsg_default["region2"].id
   }
 
   vnet_config     = local.hub2_features.vnet_config
@@ -58,9 +60,5 @@ module "hub2_vm" {
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region2"]
   private_dns_zone_name = "hub2.${local.cloud_domain}"
-  #delay_creation        = "2m"
-  tags = local.hub2_tags
-  # depends_on = [
-  #   module.hub2,
-  # ]
+  tags                  = local.hub2_tags
 }

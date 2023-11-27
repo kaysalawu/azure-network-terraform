@@ -89,6 +89,7 @@ locals {
     ("TrustSubnet")                   = { address_prefixes = ["10.11.12.0/24"] }
     ("UntrustSubnet")                 = { address_prefixes = ["10.11.13.0/24"] }
     ("ManagementSubnet")              = { address_prefixes = ["10.11.14.0/24"] }
+    ("AppGatewaySubnet")              = { address_prefixes = ["10.11.15.0/24"] }
   }
   hub1_default_gw_main   = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 1)
   hub1_default_gw_nva    = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 1)
@@ -134,6 +135,7 @@ locals {
     ("TrustSubnet")                   = { address_prefixes = ["10.22.12.0/24"] }
     ("UntrustSubnet")                 = { address_prefixes = ["10.22.13.0/24"] }
     ("ManagementSubnet")              = { address_prefixes = ["10.22.14.0/24"] }
+    ("AppGatewaySubnet")              = { address_prefixes = ["10.22.15.0/24"] }
   }
   hub2_default_gw_main   = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 1)
   hub2_default_gw_nva    = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 1)
