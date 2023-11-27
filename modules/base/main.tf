@@ -643,6 +643,9 @@ resource "azurerm_lb_backend_address_pool" "nva" {
   count           = var.nva_config[0].enable && var.nva_config[0].type == "linux" ? 1 : 0
   name            = "${local.prefix}nva-beap"
   loadbalancer_id = azurerm_lb.nva[0].id
+  depends_on = [
+    azurerm_lb.nva,
+  ]
 }
 
 resource "azurerm_lb_backend_address_pool_address" "nva" {
@@ -651,6 +654,9 @@ resource "azurerm_lb_backend_address_pool_address" "nva" {
   backend_address_pool_id = azurerm_lb_backend_address_pool.nva[0].id
   virtual_network_id      = azurerm_virtual_network.this.id
   ip_address              = module.nva_linux[0].interface.ip_configuration[0].private_ip_address
+  depends_on = [
+    azurerm_lb.nva,
+  ]
 }
 
 # probe
