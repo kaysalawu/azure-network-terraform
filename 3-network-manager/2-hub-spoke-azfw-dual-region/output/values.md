@@ -36,9 +36,9 @@
 
 | Item    | Value  |
 |--------|--------|
-| PRIVATE_DNS_INBOUND_IP   | 10.11.5.4   |
+| PRIVATE_DNS_INBOUND_IP   | 10.11.8.4   |
 | SPOKE3_APP_SVC_ENDPOINT_DNS   | ne32-spoke3-b71d-app.azurewebsites.net   |
-| SPOKE3_APP_SVC_ENDPOINT_IP   | 10.11.4.5   |
+| SPOKE3_APP_SVC_ENDPOINT_IP   | 10.11.7.5   |
 | SPOKE3_WEB_APP_ENDPOINT_DNS   | spoke3.p.hub1.az.corp   |
 | SPOKE3_WEB_APP_ENDPOINT_IP   | 10.11.4.4   |
 | *Subnets*|        |
@@ -64,7 +64,7 @@
 
 | Item    | Value  |
 |--------|--------|
-| PRIVATE_DNS_INBOUND_IP   | 10.22.5.4   |
+| PRIVATE_DNS_INBOUND_IP   | 10.22.8.4   |
 | SPOKE6_APP_SVC_ENDPOINT_DNS   | ne32-spoke6-9704-app.azurewebsites.net   |
 | SPOKE6_APP_SVC_ENDPOINT_IP   | 10.22.4.5   |
 | SPOKE6_WEB_APP_ENDPOINT_DNS   | spoke6.p.hub2.az.corp   |

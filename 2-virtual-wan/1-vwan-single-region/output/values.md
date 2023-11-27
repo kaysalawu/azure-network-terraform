@@ -20,9 +20,9 @@
 
 | Item    | Value  |
 |--------|--------|
-| PRIVATE_DNS_INBOUND_IP   | 10.11.5.4   |
+| PRIVATE_DNS_INBOUND_IP   | 10.11.8.4   |
 | SPOKE3_APP_SVC_ENDPOINT_DNS   | vwan21-spoke3-d9d1-app.azurewebsites.net   |
-| SPOKE3_APP_SVC_ENDPOINT_IP   | 10.11.4.5   |
+| SPOKE3_APP_SVC_ENDPOINT_IP   | 10.11.7.5   |
 | SPOKE3_WEB_APP_ENDPOINT_DNS   | spoke3.p.hub1.az.corp   |
 | SPOKE3_WEB_APP_ENDPOINT_IP   | 10.11.4.4   |
 | *Subnets*|        |

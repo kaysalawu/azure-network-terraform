@@ -164,11 +164,12 @@ locals {
   branch1_dns_zone      = "branch1.${local.onprem_domain}"
   branch1_tags          = { "nodeType" = "branch" }
   branch1_subnets = {
-    ("MainSubnet")      = { address_prefixes = ["10.10.0.0/24"] }
-    ("UntrustSubnet")   = { address_prefixes = ["10.10.1.0/24"] }
-    ("TrustSubnet")     = { address_prefixes = ["10.10.2.0/24"] }
-    ("DnsServerSubnet") = { address_prefixes = ["10.10.3.0/24"] }
-    ("GatewaySubnet")   = { address_prefixes = ["10.10.4.0/24"] }
+    ("MainSubnet")       = { address_prefixes = ["10.10.0.0/24"] }
+    ("UntrustSubnet")    = { address_prefixes = ["10.10.1.0/24"] }
+    ("ManagementSubnet") = { address_prefixes = ["10.10.2.0/24"] }
+    ("TrustSubnet")      = { address_prefixes = ["10.10.3.0/24"] }
+    ("DnsServerSubnet")  = { address_prefixes = ["10.10.4.0/24"] }
+    ("GatewaySubnet")    = { address_prefixes = ["10.10.5.0/24"] }
   }
   branch1_untrust_default_gw = cidrhost(local.branch1_subnets["UntrustSubnet"].address_prefixes[0], 1)
   branch1_trust_default_gw   = cidrhost(local.branch1_subnets["TrustSubnet"].address_prefixes[0], 1)
@@ -198,11 +199,12 @@ locals {
   branch2_dns_zone      = "branch2.${local.onprem_domain}"
   branch2_tags          = { "nodeType" = "branch" }
   branch2_subnets = {
-    ("MainSubnet")      = { address_prefixes = ["10.20.0.0/24"] }
-    ("UntrustSubnet")   = { address_prefixes = ["10.20.1.0/24"] }
-    ("TrustSubnet")     = { address_prefixes = ["10.20.2.0/24"] }
-    ("DnsServerSubnet") = { address_prefixes = ["10.20.3.0/24"] }
-    ("GatewaySubnet")   = { address_prefixes = ["10.20.4.0/24"] }
+    ("MainSubnet")       = { address_prefixes = ["10.20.0.0/24"] }
+    ("UntrustSubnet")    = { address_prefixes = ["10.20.1.0/24"] }
+    ("ManagementSubnet") = { address_prefixes = ["10.20.2.0/24"] }
+    ("TrustSubnet")      = { address_prefixes = ["10.20.3.0/24"] }
+    ("DnsServerSubnet")  = { address_prefixes = ["10.20.4.0/24"] }
+    ("GatewaySubnet")    = { address_prefixes = ["10.20.5.0/24"] }
   }
   branch2_untrust_default_gw = cidrhost(local.branch2_subnets["UntrustSubnet"].address_prefixes[0], 1)
   branch2_trust_default_gw   = cidrhost(local.branch2_subnets["TrustSubnet"].address_prefixes[0], 1)
@@ -230,11 +232,12 @@ locals {
   branch3_dns_zone      = "branch3.${local.onprem_domain}"
   branch3_tags          = { "nodeType" = "branch" }
   branch3_subnets = {
-    ("MainSubnet")      = { address_prefixes = ["10.30.0.0/24"] }
-    ("UntrustSubnet")   = { address_prefixes = ["10.30.1.0/24"] }
-    ("TrustSubnet")     = { address_prefixes = ["10.30.2.0/24"] }
-    ("DnsServerSubnet") = { address_prefixes = ["10.30.3.0/24"] }
-    ("GatewaySubnet")   = { address_prefixes = ["10.30.4.0/24"] }
+    ("MainSubnet")       = { address_prefixes = ["10.30.0.0/24"] }
+    ("UntrustSubnet")    = { address_prefixes = ["10.30.1.0/24"] }
+    ("TrustSubnet")      = { address_prefixes = ["10.30.2.0/24"] }
+    ("ManagementSubnet") = { address_prefixes = ["10.30.3.0/24"] }
+    ("DnsServerSubnet")  = { address_prefixes = ["10.30.4.0/24"] }
+    ("GatewaySubnet")    = { address_prefixes = ["10.30.5.0/24"] }
   }
   branch3_untrust_default_gw = cidrhost(local.branch3_subnets["UntrustSubnet"].address_prefixes[0], 1)
   branch3_trust_default_gw   = cidrhost(local.branch3_subnets["TrustSubnet"].address_prefixes[0], 1)

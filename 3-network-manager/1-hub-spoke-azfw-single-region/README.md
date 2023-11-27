@@ -316,10 +316,10 @@ Address:        127.0.0.53#53
 Non-authoritative answer:
 ne31-spoke3-b8b6-app.azurewebsites.net  canonical name = ne31-spoke3-b8b6-app.privatelink.azurewebsites.net.
 Name:   ne31-spoke3-b8b6-app.privatelink.azurewebsites.net
-Address: 10.11.4.5
+Address: 10.11.7.5
 ```
 
-We can see that the app service hostname resolves to the private endpoint ***10.11.4.5*** in ***hub1***. The following is a summary of the DNS resolution from `Ne31-branch1-vm`:
+We can see that the app service hostname resolves to the private endpoint ***10.11.7.5*** in ***hub1***. The following is a summary of the DNS resolution from `Ne31-branch1-vm`:
 
 - On-premises server `Ne31-branch1-vm` makes a DNS request for `ne31-spoke3-b8b6-app.azurewebsites.net`
 - The request is received by on-premises DNS server `Ne31-branch1-dns`
@@ -329,11 +329,11 @@ We can see that the app service hostname resolves to the private endpoint ***10.
   ```sh
   forward-zone:
           name: "privatelink.azurewebsites.net."
-          forward-addr: 10.11.5.4
+          forward-addr: 10.11.8.4
   ```
 
-  DNS Requests matching `privatelink.azurewebsites.net` will be forwarded to the private DNS resolver inbound endpoint in ***hub1*** (10.11.5.4).
-- The DNS server forwards the DNS request to the private DNS resolver inbound endpoint in ***hub1*** - which returns the IP address of the app service private endpoint in ***hub1*** (10.11.4.5)
+  DNS Requests matching `privatelink.azurewebsites.net` will be forwarded to the private DNS resolver inbound endpoint in ***hub1*** (10.11.8.4).
+- The DNS server forwards the DNS request to the private DNS resolver inbound endpoint in ***hub1*** - which returns the IP address of the app service private endpoint in ***hub1*** (10.11.7.5)
 
 **6.4.** From `Ne31-branch1-vm`, test access to the ***spoke3*** app service via the private endpoint. Use your actual hostname.
 
