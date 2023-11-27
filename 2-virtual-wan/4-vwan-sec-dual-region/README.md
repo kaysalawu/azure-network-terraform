@@ -17,7 +17,7 @@ Contents
   - [5. Private Link (App Service) Access from Public Client](#5-private-link-app-service-access-from-public-client)
   - [6. Private Link (App Service) Access from On-premises](#6-private-link-app-service-access-from-on-premises)
   - [7. Virtual WAN Routes](#7-virtual-wan-routes)
-  - [8. On-premises Routes](#8-onprem-routes)
+  - [8. On-premises Routes](#8-on-premises-routes)
   - [9. Azure Firewall](#9-azure-firewall)
 - [Cleanup](#cleanup)
 
@@ -109,14 +109,14 @@ azureuser@Vwan24-spoke1-vm:~$ ping-ip
 
  ping ip ...
 
-branch1 - 10.10.0.5 -OK 9.368 ms
-hub1    - 10.11.0.5 -OK 6.164 ms
-spoke1  - 10.1.0.5 -OK 0.038 ms
-spoke2  - 10.2.0.5 -OK 6.951 ms
-branch3 - 10.30.0.5 -OK 23.066 ms
-hub2    - 10.22.0.5 -OK 21.694 ms
-spoke4  - 10.4.0.5 -OK 19.509 ms
-spoke5  - 10.5.0.5 -OK 21.451 ms
+branch1 - 10.10.0.5 -OK 7.908 ms
+hub1    - 10.11.0.5 -OK 4.775 ms
+spoke1  - 10.1.0.5 -OK 0.032 ms
+spoke2  - 10.2.0.5 -OK 5.868 ms
+branch3 - 10.30.0.5 -OK 19.916 ms
+hub2    - 10.22.0.5 -OK 21.814 ms
+spoke4  - 10.4.0.5 -OK 18.574 ms
+spoke5  - 10.5.0.5 -OK 22.403 ms
 internet - icanhazip.com -NA
 ```
 
@@ -137,14 +137,14 @@ azureuser@Vwan24-spoke1-vm:~$ ping-dns
 
  ping dns ...
 
-vm.branch1.corp - 10.10.0.5 -OK 8.361 ms
-vm.hub1.az.corp - 10.11.0.5 -OK 6.220 ms
-vm.spoke1.az.corp - 10.1.0.5 -OK 0.036 ms
-vm.spoke2.az.corp - 10.2.0.5 -OK 6.213 ms
-vm.branch3.corp - 10.30.0.5 -OK 22.264 ms
-vm.hub2.az.corp - 10.22.0.5 -OK 21.025 ms
-vm.spoke4.az.corp - 10.4.0.5 -OK 20.450 ms
-vm.spoke5.az.corp - 10.5.0.5 -OK 20.932 ms
+vm.branch1.corp - 10.10.0.5 -OK 6.926 ms
+vm.hub1.az.corp - 10.11.0.5 -OK 5.264 ms
+vm.spoke1.az.corp - 10.1.0.5 -OK 0.028 ms
+vm.spoke2.az.corp - 10.2.0.5 -OK 5.155 ms
+vm.branch3.corp - 10.30.0.5 -OK 20.345 ms
+vm.hub2.az.corp - 10.22.0.5 -OK 21.408 ms
+vm.spoke4.az.corp - 10.4.0.5 -OK 19.247 ms
+vm.spoke5.az.corp - 10.5.0.5 -OK 22.590 ms
 icanhazip.com - 104.18.114.97 -NA
 ```
 
@@ -165,20 +165,20 @@ azureuser@Vwan24-spoke1-vm:~$ curl-dns
 
  curl dns ...
 
-200 (0.052756s) - 10.10.0.5 - vm.branch1.corp
-200 (0.031557s) - 10.11.0.5 - vm.hub1.az.corp
-200 (0.032585s) - 10.11.4.4 - spoke3.p.hub1.az.corp
-[22809.205777] cloud-init[1603]: 10.1.0.5 - - [12/Nov/2023 05:47:53] "GET / HTTP/1.1" 200 -
-200 (0.010740s) - 10.1.0.5 - vm.spoke1.az.corp
-200 (0.036757s) - 10.2.0.5 - vm.spoke2.az.corp
-000 (2.001253s) -  - vm.spoke3.az.corp
-200 (0.086817s) - 10.30.0.5 - vm.branch3.corp
-200 (0.061906s) - 10.22.0.5 - vm.hub2.az.corp
-200 (0.067088s) - 10.22.4.4 - spoke6.p.hub2.az.corp
-200 (0.090229s) - 10.4.0.5 - vm.spoke4.az.corp
-200 (0.088111s) - 10.5.0.5 - vm.spoke5.az.corp
-000 (2.001228s) -  - vm.spoke6.az.corp
-200 (0.015090s) - 104.18.115.97 - icanhazip.com
+200 (0.046213s) - 10.10.0.5 - vm.branch1.corp
+200 (0.023599s) - 10.11.0.5 - vm.hub1.az.corp
+200 (0.019852s) - 10.11.7.4 - spoke3.p.hub1.az.corp
+[11501.188198] cloud-init[1658]: 10.1.0.5 - - [27/Nov/2023 15:19:34] "GET / HTTP/1.1" 200 -
+200 (0.012469s) - 10.1.0.5 - vm.spoke1.az.corp
+200 (0.112622s) - 10.2.0.5 - vm.spoke2.az.corp
+000 (2.000801s) -  - vm.spoke3.az.corp
+200 (0.088041s) - 10.30.0.5 - vm.branch3.corp
+200 (0.060584s) - 10.22.0.5 - vm.hub2.az.corp
+200 (0.058243s) - 10.22.7.4 - spoke6.p.hub2.az.corp
+200 (0.082778s) - 10.4.0.5 - vm.spoke4.az.corp
+200 (0.114321s) - 10.5.0.5 - vm.spoke5.az.corp
+000 (2.000231s) -  - vm.spoke6.az.corp
+200 (0.013766s) - 104.18.115.97 - icanhazip.com
 ```
 
 We can see that curl test to spoke3 virtual machine `vm.spoke3.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.az.corp`. The same explanation applies to ***spoke6*** virtual machine `vm.spoke6.az.corp`
@@ -203,7 +203,7 @@ azureuser@Vwan24-spoke1-vm:~$ curl spoke3.p.hub1.az.corp
   },
   "Hostname": "Vwan24-spoke3-vm",
   "Local-IP": "10.3.0.5",
-  "Remote-IP": "10.3.3.4"
+  "Remote-IP": "10.3.6.4"
 }
 ```
 
@@ -225,7 +225,7 @@ azureuser@Vwan24-spoke1-vm:~$ curl spoke6.p.hub2.az.corp
   },
   "Hostname": "Vwan24-spoke6-vm",
   "Local-IP": "10.6.0.5",
-  "Remote-IP": "10.6.3.4"
+  "Remote-IP": "10.6.6.4"
 }
 ```
 
@@ -259,7 +259,7 @@ echo $spoke3_apps_url
 Sample output (yours will be different)
 
 ```sh
-vwan24-spoke3-3921-app.azurewebsites.net
+vwan24-spoke3-1bff-app.azurewebsites.net
 ```
 
 **5.3.** Resolve the hostname
@@ -272,18 +272,18 @@ Sample output (yours will be different)
 
 ```sh
 4-vwan-sec-dual-region$ nslookup $spoke3_apps_url
-Server:         172.18.80.1
-Address:        172.18.80.1#53
+Server:         172.19.64.1
+Address:        172.19.64.1#53
 
 Non-authoritative answer:
-vwan24-spoke3-3921-app.azurewebsites.net        canonical name = vwan24-spoke3-3921-app.privatelink.azurewebsites.net.
-vwan24-spoke3-3921-app.privatelink.azurewebsites.net    canonical name = waws-prod-am2-579.sip.azurewebsites.windows.net.
-waws-prod-am2-579.sip.azurewebsites.windows.net canonical name = waws-prod-am2-579-8254.westeurope.cloudapp.azure.com.
-Name:   waws-prod-am2-579-8254.westeurope.cloudapp.azure.com
-Address: 20.105.232.14
+vwan24-spoke3-1bff-app.azurewebsites.net        canonical name = vwan24-spoke3-1bff-app.privatelink.azurewebsites.net.
+vwan24-spoke3-1bff-app.privatelink.azurewebsites.net    canonical name = waws-prod-am2-785.sip.azurewebsites.windows.net.
+waws-prod-am2-785.sip.azurewebsites.windows.net canonical name = waws-prod-am2-785-d07c.westeurope.cloudapp.azure.com.
+Name:   waws-prod-am2-785-d07c.westeurope.cloudapp.azure.com
+Address: 20.105.224.39
 ```
 
-We can see that the endpoint is a public IP address, ***20.105.232.14***. We can see the CNAME `vwan24-spoke3-3921-app.privatelink.azurewebsites.net` created for the app service which recursively resolves to the public IP address.
+We can see that the endpoint is a public IP address, ***20.105.224.39***. We can see the CNAME `vwan24-spoke3-1bff-app.privatelink.azurewebsites.net` created for the app service which recursively resolves to the public IP address.
 
 **5.4.** Test access to the ***spoke3*** app service via the public endpoint.
 
@@ -298,22 +298,22 @@ Sample output
 {
   "Headers": {
     "Accept": "*/*",
-    "Client-Ip": "152.37.70.253:1804",
-    "Disguised-Host": "vwan24-spoke3-3921-app.azurewebsites.net",
-    "Host": "vwan24-spoke3-3921-app.azurewebsites.net",
+    "Client-Ip": "152.37.70.253:4954",
+    "Disguised-Host": "vwan24-spoke3-1bff-app.azurewebsites.net",
+    "Host": "vwan24-spoke3-1bff-app.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.74.0",
-    "Was-Default-Hostname": "vwan24-spoke3-3921-app.azurewebsites.net",
-    "X-Arr-Log-Id": "2882bb91-20c6-4315-aa41-37f28f9008c0",
+    "Was-Default-Hostname": "vwan24-spoke3-1bff-app.azurewebsites.net",
+    "X-Arr-Log-Id": "a21bd5d7-a125-4f41-a37e-917d45ffef2f",
     "X-Client-Ip": "152.37.70.253",
-    "X-Client-Port": "1804",
-    "X-Forwarded-For": "152.37.70.253:1804",
+    "X-Client-Port": "4954",
+    "X-Forwarded-For": "152.37.70.253:4954",
     "X-Original-Url": "/",
-    "X-Site-Deployment-Id": "vwan24-spoke3-3921-app",
+    "X-Site-Deployment-Id": "vwan24-spoke3-1bff-app",
     "X-Waws-Unencoded-Url": "/"
   },
-  "Hostname": "0b42f533ae8c",
-  "Local-IP": "169.254.129.3",
+  "Hostname": "4d5ef22934be",
+  "Local-IP": "169.254.129.2",
   "Remote-IP": "169.254.129.1"
 }
 ```
@@ -337,11 +337,11 @@ $ curl -4 icanhazip.com
 
 ### 6. Private Link (App Service) Access from On-premises
 
-**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `vwan24-spoke3-3921-app.azurewebsites.net`.
+**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `vwan24-spoke3-1bff-app.azurewebsites.net`.
 
 **6.2.** Connect to the on-premises server `Vwan24-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Vwan24-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
 
-**6.3.** Resolve the hostname DNS - which is `vwan24-spoke3-3921-app.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
+**6.3.** Resolve the hostname DNS - which is `vwan24-spoke3-1bff-app.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
 
 ```sh
 nslookup vwan24-spoke3-<AAAA>-app.azurewebsites.net
@@ -350,21 +350,22 @@ nslookup vwan24-spoke3-<AAAA>-app.azurewebsites.net
 Sample output
 
 ```sh
-azureuser@Vwan24-branch1-vm:~$ nslookup vwan24-spoke3-3921-app.azurewebsites.net
+azureuser@Vwan24-branch1-vm:~$ nslookup vwan24-spoke3-1bff-app.azurewebsites.net
+
 Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-vwan24-spoke3-3921-app.azurewebsites.net        canonical name = vwan24-spoke3-3921-app.privatelink.azurewebsites.net.
-Name:   vwan24-spoke3-3921-app.privatelink.azurewebsites.net
+vwan24-spoke3-1bff-app.azurewebsites.net        canonical name = vwan24-spoke3-1bff-app.privatelink.azurewebsites.net.
+Name:   vwan24-spoke3-1bff-app.privatelink.azurewebsites.net
 Address: 10.11.7.5
 ```
 
 We can see that the app service hostname resolves to the private endpoint ***10.11.7.5*** in ***hub1***. The following is a summary of the DNS resolution from `Vwan24-branch1-vm`:
 
-- On-premises server `Vwan24-branch1-vm` makes a DNS request for `vwan24-spoke3-3921-app.azurewebsites.net`
+- On-premises server `Vwan24-branch1-vm` makes a DNS request for `vwan24-spoke3-1bff-app.azurewebsites.net`
 - The request is received by on-premises DNS server `Vwan24-branch1-dns`
-- The DNS server resolves `vwan24-spoke3-3921-app.azurewebsites.net` to the CNAME `vwan24-spoke3-3921-app.privatelink.azurewebsites.net`
+- The DNS server resolves `vwan24-spoke3-1bff-app.azurewebsites.net` to the CNAME `vwan24-spoke3-1bff-app.privatelink.azurewebsites.net`
 - The DNS server has a conditional DNS forwarding defined in the [unbound DNS configuration file](./output/branch-unbound.sh).
 
   ```sh
@@ -386,26 +387,26 @@ curl vwan24-spoke3-<AAAA>-app.azurewebsites.net
 Sample output
 
 ```sh
-azureuser@Vwan24-branch1-vm:~$ curl vwan24-spoke3-3921-app.azurewebsites.net
+azureuser@Vwan24-branch1-vm:~$ curl vwan24-spoke3-1bff-app.azurewebsites.net
 {
   "Headers": {
     "Accept": "*/*",
-    "Client-Ip": "[fd40:604b:112:97c9:7812:100:a0a:5]:49722",
-    "Disguised-Host": "vwan24-spoke3-3921-app.azurewebsites.net",
-    "Host": "vwan24-spoke3-3921-app.azurewebsites.net",
+    "Client-Ip": "[fd40:f4d9:12:1abb:7c12:100:a0a:5]:37076",
+    "Disguised-Host": "vwan24-spoke3-1bff-app.azurewebsites.net",
+    "Host": "vwan24-spoke3-1bff-app.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.68.0",
-    "Was-Default-Hostname": "vwan24-spoke3-3921-app.azurewebsites.net",
-    "X-Arr-Log-Id": "9ff95b95-10f4-480d-8826-8171d0cf032b",
+    "Was-Default-Hostname": "vwan24-spoke3-1bff-app.azurewebsites.net",
+    "X-Arr-Log-Id": "733dab66-1f81-4ca4-bd5e-2f726e80efdf",
     "X-Client-Ip": "10.10.0.5",
     "X-Client-Port": "0",
     "X-Forwarded-For": "10.10.0.5",
     "X-Original-Url": "/",
-    "X-Site-Deployment-Id": "vwan24-spoke3-3921-app",
+    "X-Site-Deployment-Id": "vwan24-spoke3-1bff-app",
     "X-Waws-Unencoded-Url": "/"
   },
-  "Hostname": "0b42f533ae8c",
-  "Local-IP": "169.254.129.3",
+  "Hostname": "4d5ef22934be",
+  "Local-IP": "169.254.129.2",
   "Remote-IP": "169.254.129.1"
 }
 ```
@@ -419,15 +420,15 @@ Observe that we are connecting from the private IP address of `Vwan24-branch1-vm
 **7.2.** Display the virtual WAN routing table(s)
 
 ```sh
-bash ../../scripts/_routes.sh Vwan22RG
+bash ../../scripts/_routes.sh Vwan24RG
 ```
 
 Sample output
 
 ```sh
-4-vwan-sec-dual-region$ bash ../../scripts/_routes.sh Vwan24Rg
+4-vwan-sec-dual-region$ bash ../../scripts/_routes.sh Vwan24RG
 
-Resource group: Vwan24Rg
+Resource group: Vwan24RG
 
 vHub:       Vwan24-vhub2-hub
 RouteTable: defaultRouteTable
@@ -439,6 +440,7 @@ AddressPrefixes    NextHopType
 10.0.0.0/8         Azure Firewall
 172.16.0.0/12      Azure Firewall
 192.168.0.0/16     Azure Firewall
+8.8.8.8/32         Azure Firewall
 
 
 vHub:     Vwan24-vhub2-hub
@@ -448,13 +450,13 @@ Firewall: Vwan24-vhub2-azfw
 AddressPrefixes    AsPath             NextHopType
 -----------------  -----------------  --------------------------
 10.30.0.0/24       65003              VPN_S2S_Gateway
+10.4.0.0/16                           Virtual Network Connection
+10.22.0.0/16                          Virtual Network Connection
+10.5.0.0/16        65020              HubBgpConnection
 10.1.0.0/16        65520-65520        Remote Hub
 10.10.0.0/24       65520-65520-65001  Remote Hub
 10.2.0.0/16        65520-65520-65010  Remote Hub
 10.11.0.0/16       65520-65520        Remote Hub
-10.4.0.0/16                           Virtual Network Connection
-10.22.0.0/16                          Virtual Network Connection
-10.5.0.0/16        65020              HubBgpConnection
 0.0.0.0/0                             Internet
 
 vHub:       Vwan24-vhub1-hub
@@ -467,23 +469,24 @@ AddressPrefixes    NextHopType
 10.0.0.0/8         Azure Firewall
 172.16.0.0/12      Azure Firewall
 192.168.0.0/16     Azure Firewall
+8.8.8.8/32         Azure Firewall
 
 
 vHub:     Vwan24-vhub1-hub
 Firewall: Vwan24-vhub1-azfw
 -------------------------------------------------------
 
-AddressPrefixes    NextHopType                 AsPath
------------------  --------------------------  -----------------
-10.11.0.0/16       Virtual Network Connection
-10.1.0.0/16        Virtual Network Connection
-10.2.0.0/16        HubBgpConnection            65010
-10.10.0.0/24       VPN_S2S_Gateway             65001
-10.5.0.0/16        Remote Hub                  65520-65520-65020
-10.30.0.0/24       Remote Hub                  65520-65520-65003
-10.22.0.0/16       Remote Hub                  65520-65520
-10.4.0.0/16        Remote Hub                  65520-65520
-0.0.0.0/0          Internet
+AddressPrefixes    AsPath             NextHopType
+-----------------  -----------------  --------------------------
+10.10.0.0/24       65001              VPN_S2S_Gateway
+10.11.0.0/16                          Virtual Network Connection
+10.1.0.0/16                           Virtual Network Connection
+10.2.0.0/16        65010              HubBgpConnection
+10.5.0.0/16        65520-65520-65020  Remote Hub
+10.30.0.0/24       65520-65520-65003  Remote Hub
+10.22.0.0/16       65520-65520        Remote Hub
+10.4.0.0/16        65520-65520        Remote Hub
+0.0.0.0/0                             Internet
 ```
 
 ### 8. On-premises Routes
@@ -520,22 +523,22 @@ Gateway of last resort is 10.10.1.1 to network 0.0.0.0
 
 S*    0.0.0.0/0 [1/0] via 10.10.1.1
       10.0.0.0/8 is variably subnetted, 16 subnets, 4 masks
-B        10.1.0.0/16 [20/0] via 192.168.11.13, 05:48:46
-B        10.2.0.0/16 [20/0] via 192.168.11.12, 05:45:13
-B        10.4.0.0/16 [20/0] via 192.168.11.12, 05:50:13
-B        10.5.0.0/16 [20/0] via 192.168.11.13, 05:47:13
-S        10.10.0.0/24 [1/0] via 10.10.2.1
+B        10.1.0.0/16 [20/0] via 192.168.11.12, 01:27:35
+B        10.2.0.0/16 [20/0] via 192.168.11.12, 01:25:31
+B        10.4.0.0/16 [20/0] via 192.168.11.13, 01:27:18
+B        10.5.0.0/16 [20/0] via 192.168.11.13, 01:25:48
+S        10.10.0.0/24 [1/0] via 10.10.3.1
 C        10.10.1.0/24 is directly connected, GigabitEthernet1
 L        10.10.1.9/32 is directly connected, GigabitEthernet1
-C        10.10.2.0/24 is directly connected, GigabitEthernet2
-L        10.10.2.9/32 is directly connected, GigabitEthernet2
+C        10.10.3.0/24 is directly connected, GigabitEthernet2
+L        10.10.3.9/32 is directly connected, GigabitEthernet2
 C        10.10.10.0/30 is directly connected, Tunnel0
 L        10.10.10.1/32 is directly connected, Tunnel0
 C        10.10.10.4/30 is directly connected, Tunnel1
 L        10.10.10.5/32 is directly connected, Tunnel1
-B        10.11.0.0/16 [20/0] via 192.168.11.13, 05:50:54
-B        10.22.0.0/16 [20/0] via 192.168.11.13, 05:48:13
-B        10.30.0.0/24 [20/0] via 192.168.11.12, 06:03:15
+B        10.11.0.0/16 [20/0] via 192.168.11.12, 01:28:33
+B        10.22.0.0/16 [20/0] via 192.168.11.13, 01:28:18
+B        10.30.0.0/24 [20/0] via 192.168.11.13, 00:44:52
       168.63.0.0/32 is subnetted, 1 subnets
 S        168.63.129.16 [254/0] via 10.10.1.1
       169.254.0.0/32 is subnetted, 1 subnets
@@ -543,7 +546,7 @@ S        169.254.169.254 [254/0] via 10.10.1.1
       192.168.10.0/32 is subnetted, 1 subnets
 C        192.168.10.10 is directly connected, Loopback0
       192.168.11.0/24 is variably subnetted, 3 subnets, 2 masks
-B        192.168.11.0/24 [20/0] via 192.168.11.12, 06:03:15
+B        192.168.11.0/24 [20/0] via 192.168.11.12, 01:28:33
 S        192.168.11.12/32 is directly connected, Tunnel1
 S        192.168.11.13/32 is directly connected, Tunnel0
 ```
@@ -560,7 +563,7 @@ Sample output
 
 ```sh
 Vwan24-branch1-nva-vm#show ip bgp
-BGP table version is 11, local router ID is 192.168.10.10
+BGP table version is 17, local router ID is 192.168.10.10
 Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
               r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
               x best-external, a additional-path, c RIB-compressed,
@@ -571,22 +574,22 @@ RPKI validation codes: V valid, I invalid, N Not found
      Network          Next Hop            Metric LocPrf Weight Path
  r    0.0.0.0          192.168.11.13                          0 65515 i
  r>                    192.168.11.12                          0 65515 i
- *    10.1.0.0/16      192.168.11.12                          0 65515 i
- *>                    192.168.11.13                          0 65515 i
+ *    10.1.0.0/16      192.168.11.13                          0 65515 i
+ *>                    192.168.11.12                          0 65515 i
  *    10.2.0.0/16      192.168.11.13            0             0 65515 65010 i
  *>                    192.168.11.12            0             0 65515 65010 i
- *    10.4.0.0/16      192.168.11.13                          0 65515 65520 65520 e
- *>                    192.168.11.12                          0 65515 65520 65520 e
+ *    10.4.0.0/16      192.168.11.12                          0 65515 65520 65520 e
+ *>                    192.168.11.13                          0 65515 65520 65520 e
  *    10.5.0.0/16      192.168.11.12                          0 65515 65520 65520 65020 e
  *>                    192.168.11.13                          0 65515 65520 65520 65020 e
      Network          Next Hop            Metric LocPrf Weight Path
- *>   10.10.0.0/24     10.10.2.1                0         32768 i
- *    10.11.0.0/16     192.168.11.12                          0 65515 i
- *>                    192.168.11.13                          0 65515 i
+ *>   10.10.0.0/24     10.10.3.1                0         32768 i
+ *    10.11.0.0/16     192.168.11.13                          0 65515 i
+ *>                    192.168.11.12                          0 65515 i
  *    10.22.0.0/16     192.168.11.12                          0 65515 65520 65520 e
  *>                    192.168.11.13                          0 65515 65520 65520 e
- *    10.30.0.0/24     192.168.11.13                          0 65515 65520 65520 65003 e
- *>                    192.168.11.12                          0 65515 65520 65520 65003 e
+ *    10.30.0.0/24     192.168.11.12                          0 65515 65520 65520 65003 e
+ *>                    192.168.11.13                          0 65515 65520 65520 65003 e
  *    192.168.11.0     192.168.11.13                          0 65515 i
  *>                    192.168.11.12                          0 65515 i
 ```
