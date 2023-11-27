@@ -11,10 +11,11 @@
 ```sh
 az account set --subscription <Name or ID of subscription>
 ```
-5. Accept the Azure marketplace terms for the CSR1000v versions used throughout the lab
+5. Accept the Azure marketplace terms for the images used in this lab:
 ```sh
 az vm image terms accept --urn cisco:cisco-csr-1000v:17_2_1-byol:latest
 az vm image terms accept --urn cisco:cisco-csr-1000v:17_3_4a-byol:latest
+az vm image terms accept --urn thefreebsdfoundation:freebsd-13_1:13_1-release:13.1.0 -o none
 ```
 6. Ensure you have the Azure CLI extension for Virtual WAN:
 ```sh

@@ -50,7 +50,7 @@
 | GatewaySubnet   | 10.11.7.0/24   |
 | LoadBalancerSubnet   | 10.11.2.0/24   |
 | MainSubnet   | 10.11.0.0/24   |
-| NvaSubnet   | 10.11.1.0/24   |
+| TrustSubnet   | 10.11.1.0/24   |
 | PrivateEndpointSubnet   | 10.11.4.0/24   |
 | PrivateLinkServiceSubnet   | 10.11.3.0/24   |
 | RouteServerSubnet   | 10.11.8.0/24   |
@@ -78,7 +78,7 @@
 | GatewaySubnet   | 10.22.7.0/24   |
 | LoadBalancerSubnet   | 10.22.2.0/24   |
 | MainSubnet   | 10.22.0.0/24   |
-| NvaSubnet   | 10.22.1.0/24   |
+| TrustSubnet   | 10.22.1.0/24   |
 | PrivateEndpointSubnet   | 10.22.4.0/24   |
 | PrivateLinkServiceSubnet   | 10.22.3.0/24   |
 | RouteServerSubnet   | 10.22.8.0/24   |

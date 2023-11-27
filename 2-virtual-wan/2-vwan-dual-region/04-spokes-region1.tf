@@ -57,6 +57,7 @@ module "spoke1_vm" {
   private_dns_zone_name = "spoke1.${local.cloud_domain}"
   delay_creation        = "1m"
   tags                  = local.spoke1_tags
+  depends_on            = [module.spoke1]
 }
 
 ####################################################
@@ -114,6 +115,7 @@ module "spoke2_vm" {
   private_dns_zone_name = "spoke2.${local.cloud_domain}"
   delay_creation        = "1m"
   tags                  = local.spoke2_tags
+  depends_on            = [module.spoke2]
 }
 
 ####################################################
@@ -170,4 +172,5 @@ module "spoke3_vm" {
   private_dns_zone_name = "spoke3.${local.cloud_domain}"
   delay_creation        = "1m"
   tags                  = local.spoke3_tags
+  depends_on            = [module.spoke3]
 }

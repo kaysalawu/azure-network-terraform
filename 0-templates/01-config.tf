@@ -75,7 +75,7 @@ locals {
   hub1_tags     = { "nodeType" = "hub" }
   hub1_subnets = {
     ("MainSubnet")                    = { address_prefixes = ["10.11.0.0/24"] }
-    ("NvaSubnet")                     = { address_prefixes = ["10.11.1.0/24"] }
+    ("TestSubnet")                    = { address_prefixes = ["10.11.1.0/24"] }
     ("LoadBalancerSubnet")            = { address_prefixes = ["10.11.2.0/24"] }
     ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.11.3.0/24"], enable_private_link_policies = [true] }
     ("PrivateEndpointSubnet")         = { address_prefixes = ["10.11.4.0/24"], enable_private_endpoint_policies = [true] }
@@ -86,11 +86,14 @@ locals {
     ("AzureFirewallSubnet")           = { address_prefixes = ["10.11.9.0/24"] }
     ("AzureFirewallManagementSubnet") = { address_prefixes = ["10.11.10.0/24"] }
     ("AppServiceSubnet")              = { address_prefixes = ["10.11.11.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
+    ("TrustSubnet")                   = { address_prefixes = ["10.11.12.0/24"] }
+    ("UntrustSubnet")                 = { address_prefixes = ["10.11.13.0/24"] }
+    ("ManagementSubnet")              = { address_prefixes = ["10.11.14.0/24"] }
   }
   hub1_default_gw_main   = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 1)
-  hub1_default_gw_nva    = cidrhost(local.hub1_subnets["NvaSubnet"].address_prefixes[0], 1)
+  hub1_default_gw_nva    = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 1)
   hub1_vm_addr           = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 5)
-  hub1_nva_addr          = cidrhost(local.hub1_subnets["NvaSubnet"].address_prefixes[0], 4)
+  hub1_nva_addr          = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 4)
   hub1_nva_ilb_addr      = cidrhost(local.hub1_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
   hub1_dns_in_addr       = cidrhost(local.hub1_subnets["DnsResolverInboundSubnet"].address_prefixes[0], 4)
   hub1_vpngw_bgp_ip      = cidrhost(local.hub1_subnets["GatewaySubnet"].address_prefixes[0], 254)
@@ -117,7 +120,7 @@ locals {
   hub2_tags          = { "nodeType" = "hub" }
   hub2_subnets = {
     ("MainSubnet")                    = { address_prefixes = ["10.22.0.0/24"] }
-    ("NvaSubnet")                     = { address_prefixes = ["10.22.1.0/24"] }
+    ("TestSubnet")                    = { address_prefixes = ["10.22.1.0/24"] }
     ("LoadBalancerSubnet")            = { address_prefixes = ["10.22.2.0/24"] }
     ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.22.3.0/24"], enable_private_link_service_network_policies = [true] }
     ("PrivateEndpointSubnet")         = { address_prefixes = ["10.22.4.0/24"], enable_private_endpoint_network_policies = [true] }
@@ -128,11 +131,14 @@ locals {
     ("AzureFirewallSubnet")           = { address_prefixes = ["10.22.9.0/24"] }
     ("AzureFirewallManagementSubnet") = { address_prefixes = ["10.22.10.0/24"] }
     ("AppServiceSubnet")              = { address_prefixes = ["10.22.11.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
+    ("TrustSubnet")                   = { address_prefixes = ["10.22.12.0/24"] }
+    ("UntrustSubnet")                 = { address_prefixes = ["10.22.13.0/24"] }
+    ("ManagementSubnet")              = { address_prefixes = ["10.22.14.0/24"] }
   }
   hub2_default_gw_main   = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 1)
-  hub2_default_gw_nva    = cidrhost(local.hub2_subnets["NvaSubnet"].address_prefixes[0], 1)
+  hub2_default_gw_nva    = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 1)
   hub2_vm_addr           = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 5)
-  hub2_nva_addr          = cidrhost(local.hub2_subnets["NvaSubnet"].address_prefixes[0], 4)
+  hub2_nva_addr          = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 4)
   hub2_nva_ilb_addr      = cidrhost(local.hub2_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
   hub2_dns_in_addr       = cidrhost(local.hub2_subnets["DnsResolverInboundSubnet"].address_prefixes[0], 4)
   hub2_vpngw_bgp_ip      = cidrhost(local.hub2_subnets["GatewaySubnet"].address_prefixes[0], 254)

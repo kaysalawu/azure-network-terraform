@@ -105,14 +105,28 @@ variable "pip_name" {
   default     = ""
 }
 
-variable "backends" {
-  type = list(object({
-    name                  = string
-    ip_configuration_name = string
-    network_interface_id  = string
-  }))
-  default = []
+variable "backend_address_pools" {
+  type = object({
+    name = string
+    interfaces = optional(list(object({
+      name                  = string
+      ip_configuration_name = string
+      network_interface_id  = string
+    })), [])
+    addresses = optional(list(object({
+      name                                = string
+      virtual_network_id                  = optional(string, null)
+      ip_address                          = optional(string, null)
+      backend_address_ip_configuration_id = optional(string, null)
+    })), [])
+  })
+  default = {
+    name       = ""
+    interfaces = []
+    addresses  = []
+  }
 }
+
 
 variable "private_dns_zone" {
   description = "private dns zone"

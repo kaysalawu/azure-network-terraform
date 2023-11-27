@@ -105,7 +105,7 @@ locals {
       routing_policies = {
         internet            = true
         private_traffic     = true
-        additional_prefixes = { "test" = ["8.8.8.8/32"] }
+        additional_prefixes = { "private_traffic" = ["8.8.8.8/32"] }
       }
     }
   }
@@ -226,7 +226,6 @@ locals {
   onprem_local_records = [
     { name = (local.branch1_vm_fqdn), record = local.branch1_vm_addr },
     { name = (local.branch2_vm_fqdn), record = local.branch2_vm_addr },
-    { name = (local.branch3_vm_fqdn), record = local.branch3_vm_addr },
   ]
   onprem_forward_zones = [
     { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr], },
@@ -279,14 +278,6 @@ resource "azurerm_public_ip" "branch1_nva_pip" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = "${local.branch1_prefix}nva-pip"
   location            = local.branch1_location
-  sku                 = "Standard"
-  allocation_method   = "Static"
-}
-
-resource "azurerm_public_ip" "branch3_nva_pip" {
-  resource_group_name = azurerm_resource_group.rg.name
-  name                = "${local.branch3_prefix}nva-pip"
-  location            = local.branch3_location
   sku                 = "Standard"
   allocation_method   = "Static"
 }
