@@ -4,7 +4,6 @@
 
 locals {
   prefix = "Hs14"
-  #my_public_ip = chomp(data.http.my_public_ip.response_body)
 }
 
 ####################################################
@@ -163,13 +162,6 @@ resource "azurerm_resource_group" "rg" {
   name     = "${local.prefix}RG"
   location = local.default_region
 }
-
-# my public ip
-
-/* data "http" "my_public_ip" {
-  url = "http://ipv4.icanhazip.com"
-} */
-
 
 module "common" {
   source           = "../../modules/common"
