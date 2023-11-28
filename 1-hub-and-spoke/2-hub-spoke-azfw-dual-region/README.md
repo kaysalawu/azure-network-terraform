@@ -524,7 +524,8 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
 
 - Select the Azure Firewall resource `Hs12-hub1-azfw` in the Azure portal.
 - Click on **Logs** in the left navigation pane.
-- Click **Run** in the *Network rule log data* log category.
+- Click on **Firewall Logs (Resource Specific Tables)**.
+- Click on **Run** in the log category *Network rule logs*.
 
 ![Hs12-hub1-azfw-network-rule-log](../../images/demos/hs12-hub1-net-rule-log.png)
 
