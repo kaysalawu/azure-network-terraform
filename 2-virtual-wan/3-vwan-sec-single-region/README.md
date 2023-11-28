@@ -516,7 +516,8 @@ We can see the Vnet ranges learned dynamically via BGP.
 
 - Select the Azure Firewall resource `Vwan23-hub1-azfw` in the Azure portal.
 - Click on **Logs** in the left navigation pane.
-- Click **Run** in the *Network rule log data* log category.
+- Click on **Firewall Logs (Resource Specific Tables)**.
+- Click on **Run** in the log category *Network rule logs*.
 
 ![Vwan23-hub1-azfw-network-rule-log](../../images/demos/vwan23-hub1-net-rule-log.png)
 
