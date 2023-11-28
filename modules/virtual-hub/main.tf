@@ -185,6 +185,14 @@ resource "azurerm_virtual_hub_routing_intent" "this" {
 # static routes
 #----------------------------
 
+resource "time_sleep" "this" {
+  create_duration = "60s"
+  depends_on = [
+    azurerm_virtual_hub.this,
+    azurerm_virtual_hub_routing_intent.this,
+  ]
+}
+
 resource "azurerm_virtual_hub_route_table_route" "this" {
   for_each          = var.enable_routing_intent ? var.routing_policies.additional_prefixes : {}
   route_table_id    = data.azurerm_virtual_hub_route_table.default.id
@@ -193,5 +201,7 @@ resource "azurerm_virtual_hub_route_table_route" "this" {
   destinations      = each.value
   next_hop_type     = "ResourceId"
   next_hop          = azurerm_firewall.this[0].id
-  depends_on        = [azurerm_virtual_hub.this]
+  depends_on = [
+    time_sleep.this,
+  ]
 }
