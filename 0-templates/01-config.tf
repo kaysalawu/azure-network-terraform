@@ -95,6 +95,7 @@ locals {
   hub1_vm_addr           = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 5)
   hub1_nva_trust_addr    = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 4)
   hub1_nva_ilb_addr      = cidrhost(local.hub1_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
+hub1_appgw_addr        = cidrhost(local.hub1_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
   hub1_dns_in_addr       = cidrhost(local.hub1_subnets["DnsResolverInboundSubnet"].address_prefixes[0], 4)
   hub1_vpngw_bgp_ip      = cidrhost(local.hub1_subnets["GatewaySubnet"].address_prefixes[0], 254)
   hub1_nva_loopback0     = "10.11.11.11"
@@ -140,6 +141,7 @@ locals {
   hub2_vm_addr           = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 5)
   hub2_nva_trust_addr    = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 4)
   hub2_nva_ilb_addr      = cidrhost(local.hub2_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
+hub2_appgw_addr        = cidrhost(local.hub2_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
   hub2_dns_in_addr       = cidrhost(local.hub2_subnets["DnsResolverInboundSubnet"].address_prefixes[0], 4)
   hub2_vpngw_bgp_ip      = cidrhost(local.hub2_subnets["GatewaySubnet"].address_prefixes[0], 254)
   hub2_nva_loopback0     = "10.22.22.22"
@@ -278,6 +280,7 @@ locals {
   }
   spoke1_vm_addr     = cidrhost(local.spoke1_subnets["MainSubnet"].address_prefixes[0], 5)
   spoke1_ilb_addr    = cidrhost(local.spoke1_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
+spoke1_appgw_addr  = cidrhost(local.spoke1_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
   spoke1_pl_nat_addr = cidrhost(local.spoke1_subnets["MainSubnet"].address_prefixes[0], 50)
   spoke1_appgw_addr  = cidrhost(local.spoke1_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
   spoke1_vm_host     = "vm"
@@ -308,6 +311,7 @@ locals {
   }
   spoke2_vm_addr     = cidrhost(local.spoke2_subnets["MainSubnet"].address_prefixes[0], 5)
   spoke2_ilb_addr    = cidrhost(local.spoke2_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
+spoke2_appgw_addr  = cidrhost(local.spoke2_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
   spoke2_pl_nat_addr = cidrhost(local.spoke2_subnets["MainSubnet"].address_prefixes[0], 50)
   spoke2_appgw_addr  = cidrhost(local.spoke2_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
   spoke2_vm_host     = "vm"
@@ -338,6 +342,7 @@ locals {
   }
   spoke3_vm_addr     = cidrhost(local.spoke3_subnets["MainSubnet"].address_prefixes[0], 5)
   spoke3_ilb_addr    = cidrhost(local.spoke3_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
+spoke3_appgw_addr = cidrhost(local.spoke3_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
   spoke3_pl_nat_addr = cidrhost(local.spoke3_subnets["PrivateLinkServiceSubnet"].address_prefixes[0], 50)
   spoke3_appgw_addr  = cidrhost(local.spoke3_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
   spoke3_vm_host     = "vm"
@@ -368,6 +373,7 @@ locals {
   }
   spoke4_vm_addr     = cidrhost(local.spoke4_subnets["MainSubnet"].address_prefixes[0], 5)
   spoke4_ilb_addr    = cidrhost(local.spoke4_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
+spoke4_appgw_addr  = cidrhost(local.spoke4_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
   spoke4_pl_nat_addr = cidrhost(local.spoke4_subnets["MainSubnet"].address_prefixes[0], 50)
   spoke4_appgw_addr  = cidrhost(local.spoke4_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
   spoke4_vm_host     = "vm"
@@ -398,6 +404,7 @@ locals {
   }
   spoke5_vm_addr     = cidrhost(local.spoke5_subnets["MainSubnet"].address_prefixes[0], 5)
   spoke5_ilb_addr    = cidrhost(local.spoke5_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
+spoke5_appgw_addr  = cidrhost(local.spoke5_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
   spoke5_pl_nat_addr = cidrhost(local.spoke5_subnets["MainSubnet"].address_prefixes[0], 50)
   spoke5_appgw_addr  = cidrhost(local.spoke5_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
   spoke5_vm_host     = "vm"
@@ -428,6 +435,7 @@ locals {
   }
   spoke6_vm_addr     = cidrhost(local.spoke6_subnets["MainSubnet"].address_prefixes[0], 5)
   spoke6_ilb_addr    = cidrhost(local.spoke6_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
+spoke6_appgw_addr  = cidrhost(local.spoke6_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
   spoke6_pl_nat_addr = cidrhost(local.spoke6_subnets["MainSubnet"].address_prefixes[0], 50)
   spoke6_appgw_addr  = cidrhost(local.spoke6_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
   spoke6_vm_host     = "vm"
