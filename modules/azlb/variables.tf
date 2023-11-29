@@ -151,7 +151,6 @@ variable "backend_address_pools" {
   }
 }
 
-
 variable "private_dns_zone" {
   description = "private dns zone"
   type        = string
