@@ -4,7 +4,6 @@
 
 locals {
   prefix = "Hs12"
-  #my_public_ip = chomp(data.http.my_public_ip.response_body)
 }
 
 ####################################################
@@ -17,7 +16,7 @@ provider "azurerm" {
 }
 
 terraform {
-  required_version = ">= 1.4.6"
+  #required_version = ">= 1.4.6"
   required_providers {
     megaport = {
       source  = "megaport/megaport"
@@ -163,13 +162,6 @@ resource "azurerm_resource_group" "rg" {
   name     = "${local.prefix}RG"
   location = local.default_region
 }
-
-# my public ip
-
-/* data "http" "my_public_ip" {
-  url = "http://ipv4.icanhazip.com"
-} */
-
 
 module "common" {
   source           = "../../modules/common"

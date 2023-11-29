@@ -7,7 +7,7 @@ group 2
 !
 crypto ikev2 policy AZURE-IKE-PROFILE
 proposal AZURE-IKE-PROPOSAL
-match address local ${INT_ADDR}
+match address local ${CRYPTO_ADDR}
 !
 crypto ikev2 keyring AZURE-KEYRING
 %{~ for v in TUNNELS }
@@ -17,7 +17,7 @@ pre-shared-key ${v.ipsec.psk}
 %{~ endfor }
 !
 crypto ikev2 profile AZURE-IKE-PROPOSAL
-match address local ${INT_ADDR}
+match address local ${CRYPTO_ADDR}
 %{~ for v in TUNNELS }
 match identity remote address ${v.ipsec.peer_ip} 255.255.255.255
 %{~ endfor }

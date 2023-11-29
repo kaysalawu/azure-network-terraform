@@ -16,7 +16,7 @@ Contents
   - [4. Private Link Service](#4-private-link-service)
   - [5. Private Link (App Service) Access from Public Client](#5-private-link-app-service-access-from-public-client)
   - [6. Private Link (App Service) Access from On-premises](#6-private-link-app-service-access-from-on-premises)
-  - [7. On-premises Routes](#7-onprem-routes)
+  - [7. On-premises Routes](#7-on-premises-routes)
   - [8. Azure Firewall](#8-azure-firewall)
 - [Cleanup](#cleanup)
 
@@ -105,10 +105,10 @@ azureuser@Ne31-spoke1-vm:~$ ping-ip
 
  ping ip ...
 
-branch1 - 10.10.0.5 -OK 6.275 ms
-hub1    - 10.11.0.5 -OK 5.093 ms
-spoke1  - 10.1.0.5 -OK 0.038 ms
-spoke2  - 10.2.0.5 -OK 3.841 ms
+branch1 - 10.10.0.5 -OK 7.517 ms
+hub1    - 10.11.0.5 -OK 4.819 ms
+spoke1  - 10.1.0.5 -OK 0.030 ms
+spoke2  - 10.2.0.5 -OK 4.854 ms
 internet - icanhazip.com -NA
 ```
 
@@ -129,10 +129,10 @@ azureuser@Ne31-spoke1-vm:~$ ping-dns
 
  ping dns ...
 
-vm.branch1.corp - 10.10.0.5 -OK 6.815 ms
-vm.hub1.az.corp - 10.11.0.5 -OK 4.633 ms
-vm.spoke1.az.corp - 10.1.0.5 -OK 0.035 ms
-vm.spoke2.az.corp - 10.2.0.5 -OK 3.847 ms
+vm.branch1.corp - 10.10.0.5 -OK 7.268 ms
+vm.hub1.az.corp - 10.11.0.5 -OK 4.775 ms
+vm.spoke1.az.corp - 10.1.0.5 -OK 0.031 ms
+vm.spoke2.az.corp - 10.2.0.5 -OK 4.383 ms
 icanhazip.com - 104.18.115.97 -NA
 ```
 
@@ -153,14 +153,14 @@ azureuser@Ne31-spoke1-vm:~$ curl-dns
 
  curl dns ...
 
-200 (0.070670s) - 10.10.0.5 - vm.branch1.corp
-200 (0.024667s) - 10.11.0.5 - vm.hub1.az.corp
-200 (0.020426s) - 10.11.4.4 - spoke3.p.hub1.az.corp
-[14202.663678] cloud-init[1637]: 10.1.0.5 - - [18/Nov/2023 18:22:45] "GET / HTTP/1.1" 200 -
-200 (0.018974s) - 10.1.0.5 - vm.spoke1.az.corp
-200 (0.045537s) - 10.2.0.5 - vm.spoke2.az.corp
-000 (2.000944s) -  - vm.spoke3.az.corp
-200 (0.044211s) - 104.18.114.97 - icanhazip.com
+200 (0.045368s) - 10.10.0.5 - vm.branch1.corp
+200 (0.029402s) - 10.11.0.5 - vm.hub1.az.corp
+200 (0.021987s) - 10.11.7.4 - spoke3.p.hub1.az.corp
+[ 5160.523797] cloud-init[1691]: 10.1.0.5 - - [27/Nov/2023 18:48:04] "GET / HTTP/1.1" 200 -
+200 (0.010559s) - 10.1.0.5 - vm.spoke1.az.corp
+200 (0.030403s) - 10.2.0.5 - vm.spoke2.az.corp
+000 (2.001302s) -  - vm.spoke3.az.corp
+200 (0.019746s) - 104.18.114.97 - icanhazip.com
 ```
 
 We can see that curl test to spoke3 virtual machine `vm.spoke3.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.az.corp`.
@@ -183,9 +183,9 @@ azureuser@Ne31-spoke1-vm:~$ curl spoke3.p.hub1.az.corp
     "Host": "spoke3.p.hub1.az.corp",
     "User-Agent": "curl/7.68.0"
   },
-  "Hostname": "Hs11-spoke3-vm",
+  "Hostname": "Ne31-spoke3-vm",
   "Local-IP": "10.3.0.5",
-  "Remote-IP": "10.3.3.4"
+  "Remote-IP": "10.3.6.4"
 }
 ```
 
@@ -218,7 +218,7 @@ echo $spoke3_apps_url
 Sample output (yours will be different)
 
 ```sh
-ne31-spoke3-b8b6-app.azurewebsites.net
+ne31-spoke3-4f00-app.azurewebsites.net
 ```
 
 **5.3.** Resolve the hostname
@@ -231,18 +231,18 @@ Sample output (yours will be different)
 
 ```sh
 1-hub-spoke-azfw-single-region$ nslookup $spoke3_apps_url
-Server:         172.19.144.1
-Address:        172.19.144.1#53
+Server:         172.19.64.1
+Address:        172.19.64.1#53
 
 Non-authoritative answer:
-ne31-spoke3-b8b6-app.azurewebsites.net  canonical name = ne31-spoke3-b8b6-app.privatelink.azurewebsites.net.
-ne31-spoke3-b8b6-app.privatelink.azurewebsites.net      canonical name = waws-prod-am2-361.sip.azurewebsites.windows.net.
-waws-prod-am2-361.sip.azurewebsites.windows.net canonical name = waws-prod-am2-361-3d79.westeurope.cloudapp.azure.com.
-Name:   waws-prod-am2-361-3d79.westeurope.cloudapp.azure.com
-Address: 20.50.2.18
+ne31-spoke3-4f00-app.azurewebsites.net  canonical name = ne31-spoke3-4f00-app.privatelink.azurewebsites.net.
+ne31-spoke3-4f00-app.privatelink.azurewebsites.net      canonical name = waws-prod-am2-471.sip.azurewebsites.windows.net.
+waws-prod-am2-471.sip.azurewebsites.windows.net canonical name = waws-prod-am2-471-4627.westeurope.cloudapp.azure.com.
+Name:   waws-prod-am2-471-4627.westeurope.cloudapp.azure.com
+Address: 20.50.2.71
 ```
 
-We can see that the endpoint is a public IP address, ***20.50.2.18***. We can see the CNAME `ne31-spoke3-b8b6-app.privatelink.azurewebsites.net` created for the app service which recursively resolves to the public IP address.
+We can see that the endpoint is a public IP address, ***20.50.2.71***. We can see the CNAME `ne31-spoke3-4f00-app.privatelink.azurewebsites.net` created for the app service which recursively resolves to the public IP address.
 
 **5.4.** Test access to the ***spoke3*** app service via the public endpoint.
 
@@ -257,21 +257,21 @@ Sample output
 {
   "Headers": {
     "Accept": "*/*",
-    "Client-Ip": "152.37.70.253:2074",
-    "Disguised-Host": "ne31-spoke3-b8b6-app.azurewebsites.net",
-    "Host": "ne31-spoke3-b8b6-app.azurewebsites.net",
+    "Client-Ip": "152.37.70.253:2798",
+    "Disguised-Host": "ne31-spoke3-4f00-app.azurewebsites.net",
+    "Host": "ne31-spoke3-4f00-app.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.74.0",
-    "Was-Default-Hostname": "ne31-spoke3-b8b6-app.azurewebsites.net",
-    "X-Arr-Log-Id": "875e23f8-a2f3-422b-8fdf-4ca36f85d5b8",
+    "Was-Default-Hostname": "ne31-spoke3-4f00-app.azurewebsites.net",
+    "X-Arr-Log-Id": "affc4af4-30d8-4a2a-8637-2610c0e03a72",
     "X-Client-Ip": "152.37.70.253",
-    "X-Client-Port": "2074",
-    "X-Forwarded-For": "152.37.70.253:2074",
+    "X-Client-Port": "2798",
+    "X-Forwarded-For": "152.37.70.253:2798",
     "X-Original-Url": "/",
-    "X-Site-Deployment-Id": "ne31-spoke3-b8b6-app",
+    "X-Site-Deployment-Id": "ne31-spoke3-4f00-app",
     "X-Waws-Unencoded-Url": "/"
   },
-  "Hostname": "c724731ba367",
+  "Hostname": "5b46f0430016",
   "Local-IP": "169.254.129.3",
   "Remote-IP": "169.254.129.1"
 }
@@ -296,11 +296,11 @@ $ curl -4 icanhazip.com
 
 ### 6. Private Link (App Service) Access from On-premises
 
-**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `ne31-spoke3-b8b6-app.azurewebsites.net`.
+**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `ne31-spoke3-4f00-app.azurewebsites.net`.
 
 **6.2.** Connect to the on-premises server `Ne31-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Ne31-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
 
-**6.3.** Resolve the hostname DNS - which is `ne31-spoke3-b8b6-app.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
+**6.3.** Resolve the hostname DNS - which is `ne31-spoke3-4f00-app.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
 
 ```sh
 nslookup ne31-spoke3-<AAAA>-app.azurewebsites.net
@@ -309,31 +309,31 @@ nslookup ne31-spoke3-<AAAA>-app.azurewebsites.net
 Sample output
 
 ```sh
-azureuser@Ne31-branch1-vm:~$ nslookup ne31-spoke3-b8b6-app.azurewebsites.net
+azureuser@Ne31-branch1-vm:~$ nslookup ne31-spoke3-4f00-app.azurewebsites.net
 Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-ne31-spoke3-b8b6-app.azurewebsites.net  canonical name = ne31-spoke3-b8b6-app.privatelink.azurewebsites.net.
-Name:   ne31-spoke3-b8b6-app.privatelink.azurewebsites.net
-Address: 10.11.4.5
+ne31-spoke3-4f00-app.azurewebsites.net  canonical name = ne31-spoke3-4f00-app.privatelink.azurewebsites.net.
+Name:   ne31-spoke3-4f00-app.privatelink.azurewebsites.net
+Address: 10.11.7.5
 ```
 
-We can see that the app service hostname resolves to the private endpoint ***10.11.4.5*** in ***hub1***. The following is a summary of the DNS resolution from `Ne31-branch1-vm`:
+We can see that the app service hostname resolves to the private endpoint ***10.11.7.5*** in ***hub1***. The following is a summary of the DNS resolution from `Ne31-branch1-vm`:
 
-- On-premises server `Ne31-branch1-vm` makes a DNS request for `ne31-spoke3-b8b6-app.azurewebsites.net`
+- On-premises server `Ne31-branch1-vm` makes a DNS request for `ne31-spoke3-4f00-app.azurewebsites.net`
 - The request is received by on-premises DNS server `Ne31-branch1-dns`
-- The DNS server resolves `ne31-spoke3-b8b6-app.azurewebsites.net` to the CNAME `ne31-spoke3-b8b6-app.privatelink.azurewebsites.net`
+- The DNS server resolves `ne31-spoke3-4f00-app.azurewebsites.net` to the CNAME `ne31-spoke3-4f00-app.privatelink.azurewebsites.net`
 - The DNS server has a conditional DNS forwarding defined in the [unbound DNS configuration file](./output/branch-unbound.sh).
 
   ```sh
   forward-zone:
           name: "privatelink.azurewebsites.net."
-          forward-addr: 10.11.5.4
+          forward-addr: 10.11.8.4
   ```
 
-  DNS Requests matching `privatelink.azurewebsites.net` will be forwarded to the private DNS resolver inbound endpoint in ***hub1*** (10.11.5.4).
-- The DNS server forwards the DNS request to the private DNS resolver inbound endpoint in ***hub1*** - which returns the IP address of the app service private endpoint in ***hub1*** (10.11.4.5)
+  DNS Requests matching `privatelink.azurewebsites.net` will be forwarded to the private DNS resolver inbound endpoint in ***hub1*** (10.11.8.4).
+- The DNS server forwards the DNS request to the private DNS resolver inbound endpoint in ***hub1*** - which returns the IP address of the app service private endpoint in ***hub1*** (10.11.7.5)
 
 **6.4.** From `Ne31-branch1-vm`, test access to the ***spoke3*** app service via the private endpoint. Use your actual hostname.
 
@@ -344,25 +344,25 @@ curl ne31-spoke3-<AAAA>-app.azurewebsites.net
 Sample output
 
 ```sh
-azureuser@Ne31-branch1-vm:~$ curl ne31-spoke3-b8b6-app.azurewebsites.net
+azureuser@Ne31-branch1-vm:~$ curl ne31-spoke3-4f00-app.azurewebsites.net
 {
   "Headers": {
     "Accept": "*/*",
-    "Client-Ip": "[fd40:7a3:12:a7f3:7b12:700:a0a:5]:51252",
-    "Disguised-Host": "ne31-spoke3-b8b6-app.azurewebsites.net",
-    "Host": "ne31-spoke3-b8b6-app.azurewebsites.net",
+    "Client-Ip": "[fd40:b574:12:2453:7012:900:a0a:5]:34372",
+    "Disguised-Host": "ne31-spoke3-4f00-app.azurewebsites.net",
+    "Host": "ne31-spoke3-4f00-app.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.68.0",
-    "Was-Default-Hostname": "ne31-spoke3-b8b6-app.azurewebsites.net",
-    "X-Arr-Log-Id": "2c4d9fe3-fd10-43bc-85b6-418aa842b4cd",
+    "Was-Default-Hostname": "ne31-spoke3-4f00-app.azurewebsites.net",
+    "X-Arr-Log-Id": "8ef36ff0-7103-4d61-8fb5-8c644ac603b3",
     "X-Client-Ip": "10.10.0.5",
     "X-Client-Port": "0",
     "X-Forwarded-For": "10.10.0.5",
     "X-Original-Url": "/",
-    "X-Site-Deployment-Id": "ne31-spoke3-b8b6-app",
+    "X-Site-Deployment-Id": "ne31-spoke3-4f00-app",
     "X-Waws-Unencoded-Url": "/"
   },
-  "Hostname": "c724731ba367",
+  "Hostname": "5b46f0430016",
   "Local-IP": "169.254.129.3",
   "Remote-IP": "169.254.129.1"
 }
@@ -404,20 +404,20 @@ Gateway of last resort is 10.10.1.1 to network 0.0.0.0
 
 S*    0.0.0.0/0 [1/0] via 10.10.1.1
       10.0.0.0/8 is variably subnetted, 14 subnets, 4 masks
-B        10.1.0.0/16 [20/0] via 10.11.7.4, 03:34:17
-B        10.2.0.0/16 [20/0] via 10.11.7.4, 03:34:17
-S        10.10.0.0/24 [1/0] via 10.10.2.1
+B        10.1.0.0/16 [20/0] via 10.11.10.5, 00:12:44
+B        10.2.0.0/16 [20/0] via 10.11.10.5, 00:12:44
+S        10.10.0.0/24 [1/0] via 10.10.3.1
 C        10.10.1.0/24 is directly connected, GigabitEthernet1
 L        10.10.1.9/32 is directly connected, GigabitEthernet1
-C        10.10.2.0/24 is directly connected, GigabitEthernet2
-L        10.10.2.9/32 is directly connected, GigabitEthernet2
+C        10.10.3.0/24 is directly connected, GigabitEthernet2
+L        10.10.3.9/32 is directly connected, GigabitEthernet2
 C        10.10.10.0/30 is directly connected, Tunnel0
 L        10.10.10.1/32 is directly connected, Tunnel0
 C        10.10.10.4/30 is directly connected, Tunnel1
 L        10.10.10.5/32 is directly connected, Tunnel1
-B        10.11.0.0/16 [20/0] via 10.11.7.4, 03:34:17
-S        10.11.7.4/32 is directly connected, Tunnel0
-S        10.11.7.5/32 is directly connected, Tunnel1
+B        10.11.0.0/16 [20/0] via 10.11.10.4, 00:30:50
+S        10.11.10.4/32 is directly connected, Tunnel0
+S        10.11.10.5/32 is directly connected, Tunnel1
       168.63.0.0/32 is subnetted, 1 subnets
 S        168.63.129.16 [254/0] via 10.10.1.1
       169.254.0.0/32 is subnetted, 1 subnets
@@ -447,13 +447,13 @@ Origin codes: i - IGP, e - EGP, ? - incomplete
 RPKI validation codes: V valid, I invalid, N Not found
 
      Network          Next Hop            Metric LocPrf Weight Path
- *>   10.1.0.0/16      10.11.7.4                              0 65515 i
- *                     10.11.7.5                              0 65515 i
- *>   10.2.0.0/16      10.11.7.4                              0 65515 i
- *                     10.11.7.5                              0 65515 i
- *>   10.10.0.0/24     10.10.2.1                0         32768 i
- *>   10.11.0.0/16     10.11.7.4                              0 65515 i
- *                     10.11.7.5                              0 65515 i
+ *    10.1.0.0/16      10.11.10.4                             0 65515 i
+ *>                    10.11.10.5                             0 65515 i
+ *    10.2.0.0/16      10.11.10.4                             0 65515 i
+ *>                    10.11.10.5                             0 65515 i
+ *>   10.10.0.0/24     10.10.3.1                0         32768 i
+ *    10.11.0.0/16     10.11.10.5                             0 65515 i
+ *>                    10.11.10.4                             0 65515 i
 ```
 
 We can see our hub and spoke Vnet ranges being learned dynamically in the BGP table.
@@ -464,7 +464,8 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
 
 - Select the Azure Firewall resource `Ne31-hub1-azfw` in the Azure portal.
 - Click on **Logs** in the left navigation pane.
-- Click **Run** in the *Network rule log data* log category.
+- Click on **Firewall Logs (Resource Specific Tables)**.
+- Click on **Run** in the log category *Network rule logs*.
 
 ![Ne31-hub1-azfw-network-rule-log](../../images/demos/ne31-hub1-net-rule-log.png)
 

@@ -202,7 +202,7 @@ resource "azurerm_network_security_rule" "nsg_nva_outbound" {
   description                 = "Allow all outbound"
 }
 
-# appgw
+# load balancer
 #----------------------------
 
 resource "azurerm_network_security_group" "nsg_lb" {

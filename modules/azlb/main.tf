@@ -4,8 +4,8 @@
 locals {
   prefix = var.prefix == "" ? "" : format("%s-", var.prefix)
 
-  frontend_ip_configuration_name_private = "${local.prefix}feip-private"
-  frontend_ip_configuration_name_public  = "${local.prefix}feip-public"
+  frontend_ip_configuration_name_private = "feip-private"
+  frontend_ip_configuration_name_public  = "feip-public"
 }
 
 resource "azurerm_public_ip" "this" {
@@ -53,27 +53,35 @@ resource "azurerm_lb_probe" "this" {
 
 resource "azurerm_lb_rule" "this" {
   count                          = length(var.lb_port)
-  name                           = "${local.prefix}rule-${element(keys(var.lb_port), count.index)}"
+  name                           = "rule-${element(keys(var.lb_port), count.index)}"
   loadbalancer_id                = azurerm_lb.this.id
   protocol                       = element(var.lb_port[element(keys(var.lb_port), count.index)], 1)
   frontend_port                  = element(var.lb_port[element(keys(var.lb_port), count.index)], 0)
   backend_port                   = element(var.lb_port[element(keys(var.lb_port), count.index)], 2)
   frontend_ip_configuration_name = var.type == "public" ? local.frontend_ip_configuration_name_public : local.frontend_ip_configuration_name_private
-  enable_floating_ip             = false
+  enable_floating_ip             = var.enable_floating_ip
   backend_address_pool_ids       = [azurerm_lb_backend_address_pool.this.id]
-  idle_timeout_in_minutes        = 5
+  idle_timeout_in_minutes        = var.idle_timeout_in_minutes
+  load_distribution              = var.load_distribution
   probe_id                       = element(azurerm_lb_probe.this.*.id, count.index)
 }
 
 resource "azurerm_lb_nat_rule" "this" {
-  count                          = length(var.remote_port)
-  name                           = "${local.prefix}lb-nat-rule-${count.index}"
+  count                          = var.enable_ha_ports ? length(var.remote_port) : 0
+  name                           = "nat-rule-${count.index}"
   resource_group_name            = var.resource_group_name
   loadbalancer_id                = azurerm_lb.this.id
   protocol                       = "Tcp"
   frontend_port                  = "5000${count.index + 1}"
   backend_port                   = element(var.remote_port[element(keys(var.remote_port), count.index)], 1)
   frontend_ip_configuration_name = var.type == "public" ? local.frontend_ip_configuration_name_public : local.frontend_ip_configuration_name_private
+}
+
+resource "time_sleep" "this" {
+  create_duration = "10s"
+  depends_on = [
+    azurerm_lb_backend_address_pool.this,
+  ]
 }
 
 resource "azurerm_lb_backend_address_pool_address" "this" {
@@ -83,6 +91,7 @@ resource "azurerm_lb_backend_address_pool_address" "this" {
   backend_address_ip_configuration_id = try(var.backend_address_pools.addresses[count.index].backend_address_ip_configuration_id, null)
   virtual_network_id                  = try(var.backend_address_pools.addresses[count.index].virtual_network_id, null)
   ip_address                          = try(var.backend_address_pools.addresses[count.index].ip_address, null)
+  depends_on                          = [time_sleep.this]
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "this" {
@@ -90,6 +99,9 @@ resource "azurerm_network_interface_backend_address_pool_association" "this" {
   network_interface_id    = var.backend_address_pools.interfaces[count.index].network_interface_id
   ip_configuration_name   = var.backend_address_pools.interfaces[count.index].ip_configuration_name
   backend_address_pool_id = azurerm_lb_backend_address_pool.this.id
+  depends_on = [
+    time_sleep.this,
+  ]
 }
 
 

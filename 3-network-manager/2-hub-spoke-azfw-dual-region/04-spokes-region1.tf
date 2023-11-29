@@ -25,6 +25,9 @@ module "spoke1" {
 
   nsg_subnet_map = {
     "MainSubnet"               = module.common.nsg_main["region1"].id
+    "UntrustSubnet"            = module.common.nsg_open["region1"].id
+    "TrustSubnet"              = module.common.nsg_main["region1"].id
+    "ManagementSubnet"         = module.common.nsg_main["region1"].id
     "AppGatewaySubnet"         = module.common.nsg_lb["region1"].id
     "LoadBalancerSubnet"       = module.common.nsg_default["region1"].id
     "PrivateLinkServiceSubnet" = module.common.nsg_default["region1"].id
@@ -85,6 +88,9 @@ module "spoke2" {
 
   nsg_subnet_map = {
     "MainSubnet"               = module.common.nsg_main["region1"].id
+    "UntrustSubnet"            = module.common.nsg_open["region1"].id
+    "TrustSubnet"              = module.common.nsg_main["region1"].id
+    "ManagementSubnet"         = module.common.nsg_main["region1"].id
     "AppGatewaySubnet"         = module.common.nsg_lb["region1"].id
     "LoadBalancerSubnet"       = module.common.nsg_default["region1"].id
     "PrivateLinkServiceSubnet" = module.common.nsg_default["region1"].id
@@ -144,6 +150,9 @@ module "spoke3" {
 
   nsg_subnet_map = {
     "MainSubnet"               = module.common.nsg_main["region1"].id
+    "UntrustSubnet"            = module.common.nsg_open["region1"].id
+    "TrustSubnet"              = module.common.nsg_main["region1"].id
+    "ManagementSubnet"         = module.common.nsg_main["region1"].id
     "AppGatewaySubnet"         = module.common.nsg_lb["region1"].id
     "LoadBalancerSubnet"       = module.common.nsg_default["region1"].id
     "PrivateLinkServiceSubnet" = module.common.nsg_default["region1"].id

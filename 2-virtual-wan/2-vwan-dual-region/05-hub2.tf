@@ -28,13 +28,14 @@ module "hub2" {
 
   nsg_subnet_map = {
     "MainSubnet"                = module.common.nsg_main["region2"].id
+    "UntrustSubnet"             = module.common.nsg_open["region2"].id
+    "TrustSubnet"               = module.common.nsg_main["region2"].id
+    "ManagementSubnet"          = module.common.nsg_main["region2"].id
     "AppGatewaySubnet"          = module.common.nsg_lb["region2"].id
     "LoadBalancerSubnet"        = module.common.nsg_default["region2"].id
     "PrivateLinkServiceSubnet"  = module.common.nsg_default["region2"].id
     "PrivateEndpointSubnet"     = module.common.nsg_default["region2"].id
     "AppServiceSubnet"          = module.common.nsg_default["region2"].id
-    "TrustSubnet"               = module.common.nsg_nva["region2"].id
-    "UntrustSubnet"             = module.common.nsg_open["region2"].id
     "DnsResolverInboundSubnet"  = module.common.nsg_default["region2"].id
     "DnsResolverOutboundSubnet" = module.common.nsg_default["region2"].id
   }
