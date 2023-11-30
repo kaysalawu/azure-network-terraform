@@ -58,7 +58,7 @@ locals {
       enable_ars                  = false
       enable_vpn_gateway          = false
       enable_er_gateway           = false
-      vpn_gateway_sku             = "VpnGw2AZ"
+      vpn_gateway_sku             = "VpnGw1AZ"
       vpn_gateway_asn             = local.hub1_vpngw_asn
 
       ruleset_dns_forwarding_rules = {
@@ -101,7 +101,7 @@ locals {
       enable_ars                  = false
       enable_vpn_gateway          = false
       enable_er_gateway           = false
-      vpn_gateway_sku             = "VpnGw2AZ"
+      vpn_gateway_sku             = "VpnGw1AZ"
       vpn_gateway_asn             = local.hub1_vpngw_asn
 
       ruleset_dns_forwarding_rules = {

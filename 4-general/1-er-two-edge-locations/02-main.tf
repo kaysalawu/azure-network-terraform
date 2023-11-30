@@ -3,7 +3,8 @@
 ####################################################
 
 locals {
-  prefix = "Hs12"
+  prefix = "Hs13"
+  #my_public_ip = chomp(data.http.my_public_ip.response_body)
 }
 
 ####################################################
@@ -36,7 +37,6 @@ terraform {
 locals {
   regions = {
     region1 = local.region1
-    region2 = local.region2
   }
   default_udr_destinations = {
     "default" = "0.0.0.0/0"
@@ -46,22 +46,11 @@ locals {
     "spoke5" = local.spoke5_address_space[0]
     "hub2"   = local.hub2_address_space[0]
   }
-  hub2_appliance_udr_destinations = {
-    "spoke1" = local.spoke1_address_space[0]
-    "spoke2" = local.spoke2_address_space[0]
-    "hub1"   = local.hub1_address_space[0]
-  }
   hub1_gateway_udr_destinations = {
     "spoke1" = local.spoke1_address_space[0]
     "spoke2" = local.spoke2_address_space[0]
     "hub1"   = local.hub1_address_space[0]
   }
-  hub2_gateway_udr_destinations = {
-    "spoke4" = local.spoke4_address_space[0]
-    "spoke5" = local.spoke5_address_space[0]
-    "hub2"   = local.hub2_address_space[0]
-  }
-
   firewall_sku = "Basic"
 
   hub1_features = {
@@ -70,8 +59,8 @@ locals {
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
       enable_ars                  = false
-      enable_vpn_gateway          = true
-      enable_er_gateway           = false
+      enable_vpn_gateway          = false
+      enable_er_gateway           = true
       vpn_gateway_sku             = "VpnGw1AZ"
       vpn_gateway_asn             = local.hub1_vpngw_asn
 
@@ -80,75 +69,29 @@ locals {
           domain = local.onprem_domain
           target_dns_servers = [
             { ip_address = local.branch1_dns_addr, port = 53 },
-            { ip_address = local.branch3_dns_addr, port = 53 },
           ]
         }
         "cloud" = {
           domain = local.cloud_domain
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
-            { ip_address = local.hub2_dns_in_addr, port = 53 },
           ]
         }
       }
     }]
 
     firewall_config = [{
-      enable             = true
+      enable             = false
       firewall_sku       = local.firewall_sku
       firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
     }]
 
     nva_config = [{
-      enable           = false
-      type             = null
-      internal_lb_addr = null
-      custom_data      = null
+      enable           = true
+      type             = "linux"
+      internal_lb_addr = local.hub1_nva_ilb_addr
+      custom_data      = base64encode(local.hub1_linux_nva_init)
     }]
-  }
-
-  hub2_features = {
-    vnet_config = [{
-      address_space               = local.hub2_address_space
-      subnets                     = local.hub2_subnets
-      enable_private_dns_resolver = true
-      enable_ars                  = false
-      enable_vpn_gateway          = true
-      enable_er_gateway           = false
-      vpn_gateway_sku             = "VpnGw1AZ"
-      vpn_gateway_asn             = local.hub1_vpngw_asn
-
-      ruleset_dns_forwarding_rules = {
-        "onprem" = {
-          domain = local.onprem_domain
-          target_dns_servers = [
-            { ip_address = local.branch3_dns_addr, port = 53 },
-            { ip_address = local.branch1_dns_addr, port = 53 },
-          ]
-        }
-        "cloud" = {
-          domain = local.cloud_domain
-          target_dns_servers = [
-            { ip_address = local.hub2_dns_in_addr, port = 53 },
-            { ip_address = local.hub1_dns_in_addr, port = 53 },
-          ]
-        }
-      }
-    }]
-
-    firewall_config = [{
-      enable             = true
-      firewall_sku       = local.firewall_sku
-      firewall_policy_id = azurerm_firewall_policy.firewall_policy["region2"].id
-    }]
-
-    nva_config = [{
-      enable           = false
-      type             = null
-      internal_lb_addr = null
-      custom_data      = null
-    }]
-
   }
 }
 
@@ -162,6 +105,13 @@ resource "azurerm_resource_group" "rg" {
   name     = "${local.prefix}RG"
   location = local.default_region
 }
+
+# my public ip
+
+/* data "http" "my_public_ip" {
+  url = "http://ipv4.icanhazip.com"
+} */
+
 
 module "common" {
   source           = "../../modules/common"
@@ -209,11 +159,6 @@ locals {
   hub1_ergw_asn  = "65515"
   hub1_ars_asn   = "65515"
 
-  hub2_nva_asn   = "65000"
-  hub2_vpngw_asn = "65515"
-  hub2_ergw_asn  = "65515"
-  hub2_ars_asn   = "65515"
-
   vm_script_targets_region1 = [
     { name = "branch1", dns = local.branch1_vm_fqdn, ip = local.branch1_vm_addr },
     { name = "hub1   ", dns = local.hub1_vm_fqdn, ip = local.hub1_vm_addr },
@@ -222,20 +167,11 @@ locals {
     { name = "spoke2 ", dns = local.spoke2_vm_fqdn, ip = local.spoke2_vm_addr },
     { name = "spoke3 ", dns = local.spoke3_vm_fqdn, ip = local.spoke3_vm_addr, ping = false },
   ]
-  vm_script_targets_region2 = [
-    { name = "branch3", dns = local.branch3_vm_fqdn, ip = local.branch3_vm_addr },
-    { name = "hub2   ", dns = local.hub2_vm_fqdn, ip = local.hub2_vm_addr },
-    { name = "hub2-spoke6-pep", dns = local.hub2_spoke6_pep_fqdn, ping = false },
-    { name = "spoke4 ", dns = local.spoke4_vm_fqdn, ip = local.spoke4_vm_addr },
-    { name = "spoke5 ", dns = local.spoke5_vm_fqdn, ip = local.spoke5_vm_addr },
-    { name = "spoke6 ", dns = local.spoke6_vm_fqdn, ip = local.spoke6_vm_addr, ping = false },
-  ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ip = "icanhazip.com" },
   ]
   vm_script_targets = concat(
     local.vm_script_targets_region1,
-    local.vm_script_targets_region2,
     local.vm_script_targets_misc,
   )
   vm_startup = templatefile("../../scripts/server.sh", {
@@ -269,17 +205,16 @@ locals {
   onprem_local_records = [
     { name = (local.branch1_vm_fqdn), record = local.branch1_vm_addr },
     { name = (local.branch2_vm_fqdn), record = local.branch2_vm_addr },
-    { name = (local.branch3_vm_fqdn), record = local.branch3_vm_addr },
   ]
   onprem_forward_zones = [
-    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "privatelink.blob.core.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "privatelink.azurewebsites.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "privatelink.database.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "privatelink.table.cosmos.azure.com.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "privatelink.queue.core.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "privatelink.file.core.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
+    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "privatelink.blob.core.windows.net.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "privatelink.azurewebsites.net.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "privatelink.database.windows.net.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "privatelink.table.cosmos.azure.com.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "privatelink.queue.core.windows.net.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "privatelink.file.core.windows.net.", targets = [local.hub1_dns_in_addr, ], },
     { zone = ".", targets = [local.azuredns, ] },
   ]
   onprem_redirected_hosts = []
@@ -322,14 +257,6 @@ resource "azurerm_public_ip" "branch1_nva_pip" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = "${local.branch1_prefix}nva-pip"
   location            = local.branch1_location
-  sku                 = "Standard"
-  allocation_method   = "Static"
-}
-
-resource "azurerm_public_ip" "branch3_nva_pip" {
-  resource_group_name = azurerm_resource_group.rg.name
-  name                = "${local.branch3_prefix}nva-pip"
-  location            = local.branch3_location
   sku                 = "Standard"
   allocation_method   = "Static"
 }
@@ -387,6 +314,33 @@ module "fw_policy_rule_collection_group" {
   ]
   application_rule_collection = []
   nat_rule_collection         = []
+}
+
+####################################################
+# nva
+####################################################
+
+# hub1
+
+locals {
+  hub1_nva_vars = {
+    LOCAL_ASN = local.hub1_nva_asn
+    LOOPBACK0 = local.hub1_nva_loopback0
+    LOOPBACKS = {
+      Loopback1 = local.hub1_nva_ilb_addr
+    }
+    CRYPTO_ADDR = local.hub1_nva_trust_addr
+    VPN_PSK     = local.psk
+  }
+  hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
+    TARGETS           = local.vm_script_targets
+    IPTABLES_RULES    = []
+    ROUTE_MAPS        = []
+    TUNNELS           = []
+    QUAGGA_ZEBRA_CONF = ""
+    QUAGGA_BGPD_CONF  = ""
+    }
+  ))
 }
 
 ####################################################
