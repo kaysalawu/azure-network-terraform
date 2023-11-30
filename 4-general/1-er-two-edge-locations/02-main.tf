@@ -3,7 +3,7 @@
 ####################################################
 
 locals {
-  prefix = "Hs13"
+  prefix = "Ge41"
   #my_public_ip = chomp(data.http.my_public_ip.response_body)
 }
 
