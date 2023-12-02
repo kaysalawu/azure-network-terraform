@@ -1,5 +1,8 @@
 #!/bin/bash
 
+working_dir=$(pwd)
+while [[ $PWD != '/' && ${PWD##*/} != 'azure-network-terraform' ]]; do cd ..; done
+
 dirs=(
 1-hub-and-spoke
 2-virtual-wan
@@ -170,3 +173,5 @@ elif [[ "$1" == "--help" || "$1" == "-h" ]]; then
 else
     echo "Usage: $0 {--diff|-f|--copy|-c|--delete-files|-x|--test|-t|--cleanup|-u}"
 fi
+
+cd "$working_dir" || exit
