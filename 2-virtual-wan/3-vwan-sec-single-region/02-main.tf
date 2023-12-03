@@ -4,7 +4,6 @@
 
 locals {
   prefix = "Vwan23"
-  #my_public_ip = chomp(data.http.my_public_ip.response_body)
 }
 
 ####################################################
@@ -122,13 +121,6 @@ resource "azurerm_resource_group" "rg" {
   location = local.default_region
 }
 
-# my public ip
-
-/* data "http" "my_public_ip" {
-  url = "http://ipv4.icanhazip.com"
-} */
-
-
 module "common" {
   source           = "../../modules/common"
   resource_group   = azurerm_resource_group.rg.name
@@ -181,11 +173,11 @@ locals {
   hub2_ars_asn   = "65515"
 
   vm_script_targets_region1 = [
-    { name = "branch1", dns = local.branch1_vm_fqdn, ip = local.branch1_vm_addr },
-    { name = "hub1   ", dns = local.hub1_vm_fqdn, ip = local.hub1_vm_addr },
-    { name = "hub1-spoke3-pep", dns = local.hub1_spoke3_pep_fqdn, ping = false },
-    { name = "spoke1 ", dns = local.spoke1_vm_fqdn, ip = local.spoke1_vm_addr },
-    { name = "spoke2 ", dns = local.spoke2_vm_fqdn, ip = local.spoke2_vm_addr },
+    { name = "branch1", dns = local.branch1_vm_fqdn, ip = local.branch1_vm_addr, probe = true },
+    { name = "hub1   ", dns = local.hub1_vm_fqdn, ip = local.hub1_vm_addr, probe = false },
+    { name = "hub1-spoke3-pep", dns = local.hub1_spoke3_pep_fqdn, ping = false, probe = true },
+    { name = "spoke1 ", dns = local.spoke1_vm_fqdn, ip = local.spoke1_vm_addr, probe = true },
+    { name = "spoke2 ", dns = local.spoke2_vm_fqdn, ip = local.spoke2_vm_addr, probe = true },
     { name = "spoke3 ", dns = local.spoke3_vm_fqdn, ip = local.spoke3_vm_addr, ping = false },
   ]
   vm_script_targets_misc = [
@@ -196,7 +188,10 @@ locals {
     local.vm_script_targets_misc,
   )
   vm_startup = templatefile("../../scripts/server.sh", {
-    TARGETS = local.vm_script_targets
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = []
+    TARGETS_HEAVY_TRAFFIC_GEN = []
+    ENABLE_TRAFFIC_GEN        = false
   })
 
   unbound_vars = {
@@ -243,7 +238,7 @@ locals {
 
 module "unbound" {
   source   = "../../modules/cloud-config-gen"
-  packages = ["tcpdump", "bind9-utils", "dnsutils", "net-tools", "unbound"]
+  packages = ["tcpdump", "dnsutils", "net-tools", "unbound"]
   files = {
     "/var/log/unbound"          = { owner = "root", permissions = "0755", content = "" }
     "/etc/unbound/unbound.conf" = { owner = "root", permissions = "0640", content = local.branch_unbound_conf }

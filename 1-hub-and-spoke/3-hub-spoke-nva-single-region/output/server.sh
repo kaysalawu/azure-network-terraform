@@ -1,7 +1,7 @@
 #! /bin/bash
 
 apt update
-apt install -y python3-pip python3-dev tcpdump dnsutils net-tools
+apt install -y python3-pip python3-dev tcpdump dnsutils net-tools nmap apache2-utils
 
 # web server #
 pip3 install Flask requests
@@ -54,14 +54,24 @@ def path2():
 if __name__ == "__main__":
     app.run(host= '0.0.0.0', port=80, debug = True)
 EOF
-nohup python3 /var/flaskapp/flaskapp/__init__.py &
 
-cat <<EOF > /var/tmp/startup.sh
-nohup python3 /var/flaskapp/flaskapp/__init__.py &
+cat <<EOF > /etc/systemd/system/flaskapp.service
+[Unit]
+Description=Script for flaskapp service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /var/flaskapp/flaskapp/__init__.py
+ExecStop=/usr/bin/pkill -f /var/flaskapp/flaskapp/__init__.py
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target
 EOF
 
-echo "@reboot source /var/tmp/startup.sh" >> /var/tmp/crontab_flask.txt
-crontab /var/tmp/crontab_flask.txt
+systemctl daemon-reload
+systemctl enable flaskapp.service
+systemctl start flaskapp.service
 
 # test scripts
 #-----------------------------------

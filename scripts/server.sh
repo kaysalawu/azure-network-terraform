@@ -1,7 +1,7 @@
 #! /bin/bash
 
 apt update
-apt install -y python3-pip python3-dev tcpdump dnsutils net-tools
+apt install -y python3-pip python3-dev tcpdump dnsutils net-tools nmap apache2-utils
 
 # web server #
 pip3 install Flask requests
@@ -54,14 +54,24 @@ def path2():
 if __name__ == "__main__":
     app.run(host= '0.0.0.0', port=80, debug = True)
 EOF
-nohup python3 /var/flaskapp/flaskapp/__init__.py &
 
-cat <<EOF > /var/tmp/startup.sh
-nohup python3 /var/flaskapp/flaskapp/__init__.py &
+cat <<EOF > /etc/systemd/system/flaskapp.service
+[Unit]
+Description=Script for flaskapp service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /var/flaskapp/flaskapp/__init__.py
+ExecStop=/usr/bin/pkill -f /var/flaskapp/flaskapp/__init__.py
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target
 EOF
 
-echo "@reboot source /var/tmp/startup.sh" >> /var/tmp/crontab_flask.txt
-crontab /var/tmp/crontab_flask.txt
+systemctl daemon-reload
+systemctl enable flaskapp.service
+systemctl start flaskapp.service
 
 # test scripts
 #-----------------------------------
@@ -131,3 +141,50 @@ timeout 9 tracepath ${target.ip}
 %{ endfor ~}
 EOF
 chmod a+x /usr/local/bin/trace-ip
+
+%{~ if try(ENABLE_TRAFFIC_GEN, false) ~}
+# light-traffic generator
+
+%{ if TARGETS_LIGHT_TRAFFIC_GEN != [] ~}
+cat <<EOF > /usr/local/bin/light-traffic
+%{ for target in TARGETS_LIGHT_TRAFFIC_GEN ~}
+%{~ if try(target.probe, false) ~}
+nping -c 3 --${try(target.protocol, "tcp")} -p ${try(target.port, "80")} ${target.dns} > /dev/null 2>&1
+%{ endif ~}
+%{ endfor ~}
+EOF
+chmod a+x /usr/local/bin/light-traffic
+%{ endif ~}
+
+# heavy-traffic generator
+
+%{ if TARGETS_HEAVY_TRAFFIC_GEN != [] ~}
+cat <<EOF > /usr/local/bin/heavy-traffic
+#! /bin/bash
+i=0
+while [ \$i -lt 4 ]; do
+  %{ for target in TARGETS_HEAVY_TRAFFIC_GEN ~}
+  ab -n \$1 -c \$2 ${target} > /dev/null 2>&1
+  %{ endfor ~}
+  let i=i+1
+  sleep 2
+done
+EOF
+chmod a+x /usr/local/bin/heavy-traffic
+%{ endif ~}
+
+# crontab for traffic generators
+
+cat <<EOF > /tmp/crontab.txt
+%{ if TARGETS_LIGHT_TRAFFIC_GEN != [] ~}
+*/1 * * * * /usr/local/bin/light-traffic 2>&1 > /dev/null
+%{ endif ~}
+%{ if TARGETS_HEAVY_TRAFFIC_GEN != [] ~}
+*/1 * * * * /usr/local/bin/heavy-traffic 50 1 2>&1 > /dev/null
+*/2 * * * * /usr/local/bin/heavy-traffic 8 2 2>&1 > /dev/null
+*/3 * * * * /usr/local/bin/heavy-traffic 20 4 2>&1 > /dev/null
+*/5 * * * * /usr/local/bin/heavy-traffic 15 2 2>&1 > /dev/null
+%{ endif ~}
+EOF
+crontab /tmp/crontab.txt
+%{ endif ~}

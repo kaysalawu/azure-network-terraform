@@ -31,6 +31,12 @@ variable "docker_image_name" {
   default     = "kennethreitz/httpbin:latest"
 }
 
+variable "docker_registry_url" {
+  description = "docker registry url"
+  type        = string
+  default     = "https://index.docker.io"
+}
+
 variable "subnet_id" {
   description = "subnet id to deploy app service"
   type        = string
