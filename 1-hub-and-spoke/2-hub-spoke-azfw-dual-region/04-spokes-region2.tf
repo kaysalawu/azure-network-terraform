@@ -35,15 +35,22 @@ module "spoke4" {
     "AppServiceSubnet"         = module.common.nsg_default["region2"].id
   }
 
-  vnet_config = [
-    {
-      address_space = local.spoke4_address_space
-      subnets       = local.spoke4_subnets
-    }
-  ]
+  config_vnet = {
+    address_space = local.spoke1_address_space
+    subnets       = local.spoke1_subnets
+  }
 }
 
 # workload
+
+locals {
+  spoke4_vm_init = templatefile("../../scripts/server.sh", {
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
+    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
+    ENABLE_TRAFFIC_GEN        = true
+  })
+}
 
 module "spoke4_vm" {
   source                = "../../modules/linux"
@@ -54,7 +61,7 @@ module "spoke4_vm" {
   subnet                = module.spoke4.subnets["MainSubnet"].id
   private_ip            = local.spoke4_vm_addr
   enable_public_ip      = true
-  custom_data           = base64encode(local.vm_startup)
+  custom_data           = base64encode(local.spoke4_vm_init)
   storage_account       = module.common.storage_accounts["region2"]
   private_dns_zone_name = "spoke4.${local.cloud_domain}"
   delay_creation        = "1m"
@@ -98,12 +105,10 @@ module "spoke5" {
     "AppServiceSubnet"         = module.common.nsg_default["region2"].id
   }
 
-  vnet_config = [
-    {
-      address_space = local.spoke5_address_space
-      subnets       = local.spoke5_subnets
-    }
-  ]
+  config_vnet = {
+    address_space = local.spoke2_address_space
+    subnets       = local.spoke2_subnets
+  }
 }
 
 # workload
@@ -160,12 +165,10 @@ module "spoke6" {
     "AppServiceSubnet"         = module.common.nsg_default["region2"].id
   }
 
-  vnet_config = [
-    {
-      address_space = local.spoke6_address_space
-      subnets       = local.spoke6_subnets
-    }
-  ]
+  config_vnet = {
+    address_space = local.spoke3_address_space
+    subnets       = local.spoke3_subnets
+  }
 }
 
 # workload

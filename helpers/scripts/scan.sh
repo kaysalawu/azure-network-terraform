@@ -69,7 +69,10 @@ terraform_test(){
     echo "  * terraform init ..."
     terraform init > /dev/null 2>&1
     echo "  * terraform validate ..."
-    terraform validate
+    if ! terraform validate; then
+        echo "Terraform validation failed"
+        return 1
+    fi
     cd "$original_dir" || exit
 }
 

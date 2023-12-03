@@ -54,7 +54,7 @@ locals {
   firewall_sku = "Basic"
 
   hub1_features = {
-    vnet_config = [{
+    config_vnet = [{
       address_space               = local.hub1_address_space
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
@@ -80,13 +80,13 @@ locals {
       }
     }]
 
-    firewall_config = [{
+    config_firewall = [{
       enable             = false
       firewall_sku       = local.firewall_sku
       firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
     }]
 
-    nva_config = [{
+    config_nva = [{
       enable           = true
       type             = "linux"
       internal_lb_addr = local.hub1_nva_ilb_addr

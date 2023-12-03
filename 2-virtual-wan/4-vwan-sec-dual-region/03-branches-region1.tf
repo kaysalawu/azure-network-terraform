@@ -21,13 +21,11 @@ module "branch1" {
     "DnsServerSubnet" = module.common.nsg_main["region1"].id
   }
 
-  vnet_config = [
-    {
-      address_space = local.branch1_address_space
-      subnets       = local.branch1_subnets
-      #nat_gateway_subnet_names = ["${local.branch1_prefix}main", ]
-    }
-  ]
+  config_vnet = {
+    address_space = local.branch1_address_space
+    subnets       = local.branch1_subnets
+    #nat_gateway_subnet_names = ["${local.branch1_prefix}main", ]
+  }
 
   depends_on = [
     module.common,
@@ -220,7 +218,7 @@ locals {
   branch1_vm_init = templatefile("../../scripts/server.sh", {
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
-    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns]
+    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
     ENABLE_TRAFFIC_GEN        = true
   })
 }

@@ -21,13 +21,11 @@ module "branch3" {
     "DnsServerSubnet" = module.common.nsg_main["region2"].id
   }
 
-  vnet_config = [
-    {
-      address_space = local.branch3_address_space
-      subnets       = local.branch3_subnets
-      #nat_gateway_subnet_names = ["${local.branch3_prefix}main", ]
-    }
-  ]
+  config_vnet = {
+    address_space = local.branch3_address_space
+    subnets       = local.branch3_subnets
+    #nat_gateway_subnet_names = ["${local.branch3_prefix}main", ]
+  }
 
   depends_on = [
     module.common,

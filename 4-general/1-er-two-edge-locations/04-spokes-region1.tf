@@ -35,7 +35,7 @@ module "spoke1" {
     "AppServiceSubnet"         = module.common.nsg_default["region1"].id
   }
 
-  vnet_config = [
+  config_vnet = [
     {
       address_space = local.spoke1_address_space
       subnets       = local.spoke1_subnets
@@ -98,7 +98,7 @@ module "spoke2" {
     "AppServiceSubnet"         = module.common.nsg_default["region1"].id
   }
 
-  vnet_config = [
+  config_vnet = [
     {
       address_space = local.spoke2_address_space
       subnets       = local.spoke2_subnets
@@ -160,7 +160,7 @@ module "spoke3" {
     "AppServiceSubnet"         = module.common.nsg_default["region1"].id
   }
 
-  vnet_config = [
+  config_vnet = [
     {
       address_space = local.spoke3_address_space
       subnets       = local.spoke3_subnets

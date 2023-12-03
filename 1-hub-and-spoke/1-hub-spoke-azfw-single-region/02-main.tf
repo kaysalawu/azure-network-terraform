@@ -58,15 +58,11 @@ locals {
   firewall_sku = "Basic"
 
   hub1_features = {
-    vnet_config = [{
+    config_vnet = {
       address_space               = local.hub1_address_space
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
       enable_ars                  = false
-      enable_vpn_gateway          = true
-      enable_er_gateway           = false
-      vpn_gateway_sku             = "VpnGw1AZ"
-      vpn_gateway_asn             = local.hub1_vpngw_asn
 
       ruleset_dns_forwarding_rules = {
         "onprem" = {
@@ -82,20 +78,34 @@ locals {
           ]
         }
       }
-    }]
+    }
 
-    firewall_config = [{
+    config_vpngw = {
+      enable = true
+      sku    = "VpnGw1AZ"
+      bgp_settings = {
+        asn = local.hub1_vpngw_asn
+      }
+      create_dashboard = true
+    }
+
+    config_ergw = {
+      enable = true
+      sku    = "ErGw1AZ"
+    }
+
+    config_firewall = {
       enable             = true
       firewall_sku       = local.firewall_sku
       firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
-    }]
+    }
 
-    nva_config = [{
+    config_nva = {
       enable           = false
       type             = null
       internal_lb_addr = null
       custom_data      = null
-    }]
+    }
   }
 }
 
@@ -205,7 +215,6 @@ locals {
   onprem_local_records = [
     { name = (local.branch1_vm_fqdn), record = local.branch1_vm_addr },
     { name = (local.branch2_vm_fqdn), record = local.branch2_vm_addr },
-    { name = (local.branch3_vm_fqdn), record = local.branch3_vm_addr },
   ]
   onprem_forward_zones = [
     { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, ], },

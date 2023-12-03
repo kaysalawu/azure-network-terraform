@@ -86,8 +86,14 @@ variable "dns_zone_linked_rulesets" {
   default     = {}
 }
 
-variable "vnet_config" {
-  type = list(object({
+variable "private_dns_ruleset_linked_external_vnets" {
+  description = "private dns rulesets"
+  type        = map(any)
+  default     = {}
+}
+
+variable "config_vnet" {
+  type = object({
     address_space               = list(string)
     subnets                     = optional(map(any), {})
     nsg_id                      = optional(string)
@@ -104,67 +110,70 @@ variable "vnet_config" {
 
     er_gateway_sku = optional(string, "Standard")
 
-    enable_vpn_gateway                     = optional(bool, false)
-    vpn_gateway_sku                        = optional(string, "VpnGw2AZ")
-    vpn_gateway_asn                        = optional(string, 65515)
     vpn_gateway_ip_config0_apipa_addresses = optional(list(string), ["169.254.21.1"])
     vpn_gateway_ip_config1_apipa_addresses = optional(list(string), ["169.254.21.5"])
-  }))
-  default = []
+  })
+  #default = {}
 }
 
-variable "private_dns_ruleset_linked_external_vnets" {
-  description = "private dns rulesets"
-  type        = map(any)
-  default     = {}
+variable "config_vpngw" {
+  type = object({
+    enable           = optional(bool, false)
+    sku              = optional(string, "VpnGw1AZ")
+    create_dashboard = optional(bool, false)
+    bgp_settings = optional(object({
+      asn = optional(string, 65515)
+    }))
+  })
+  default = {
+    enable           = false
+    sku              = "VpnGw1AZ"
+    create_dashboard = false
+    bgp_settings = {
+      asn = 65515
+    }
+  }
 }
 
-variable "vm_config" {
-  type = list(object({
-    name                 = string
-    subnet               = string
-    vnet_number          = optional(string, 0)
-    dns_host             = optional(string)
-    zone                 = optional(string, null)
-    size                 = optional(string, "Standard_B2s")
-    private_ip           = optional(string, null)
-    enable_public_ip     = optional(bool, false)
-    custom_data          = optional(string, null)
-    enable_ip_forwarding = optional(bool, false)
-    use_vm_extension     = optional(bool, false)
-    source_image         = optional(string, "ubuntu")
-    dns_servers          = optional(list(string), [])
-    delay_creation       = optional(string, "0s")
-  }))
-  default = []
+variable "config_ergw" {
+  type = object({
+    enable           = optional(bool, false)
+    sku              = optional(string, "ErGw1AZ")
+    create_dashboard = optional(bool, false)
+  })
+  default = {
+    enable           = false
+    sku              = "ErGw1AZ"
+    create_dashboard = false
+  }
 }
 
-variable "firewall_config" {
-  type = list(object({
+variable "config_firewall" {
+  type = object({
     enable             = optional(bool, false)
     firewall_sku       = optional(string, "Basic")
     firewall_policy_id = optional(string, null)
-  }))
-  default = [{
+  })
+  default = {
     enable             = false,
     firewall_sku       = "Basic"
     firewall_policy_id = null
-  }]
+  }
 }
 
-variable "nva_config" {
-  type = list(object({
+variable "config_nva" {
+  type = object({
     enable           = optional(bool, false)
     type             = optional(string, "cisco")
-    internal_lb_addr = optional(string, null)
-    custom_data      = optional(string, null)
-  }))
-  default = [{
-    enable           = false,
-    type             = "cisco",
-    internal_lb_addr = null,
+    internal_lb_addr = optional(string)
+    custom_data      = optional(string)
+  })
+  default = {
+    enable           = false
+    type             = "cisco"
+    internal_lb_addr = null
     custom_data      = null
-  }]
+  }
 }
 
 /* variable "metric_categories_firewall" {
@@ -314,71 +323,6 @@ variable "log_categories_firewall" {
         "days"    = 0,
         "enabled" = false
       }
-    }
-  ]
-}
-
-variable "log_categories_vpngw" {
-  type = list(any)
-  default = [
-    {
-      "category"      = "GatewayDiagnosticLog",
-      "categoryGroup" = null,
-      "enabled"       = true,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "TunnelDiagnosticLog",
-      "categoryGroup" = null,
-      "enabled"       = true,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "RouteDiagnosticLog",
-      "categoryGroup" = null,
-      "enabled"       = true,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "IKEDiagnosticLog",
-      "categoryGroup" = null,
-      "enabled"       = true,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "P2SDiagnosticLog",
-      "categoryGroup" = null,
-      "enabled"       = true,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    }
-  ]
-}
-
-variable "metric_categories_vpngw" {
-  type = list(any)
-  default = [
-    {
-      "enabled" = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      },
-      "category" = "AllMetrics"
     }
   ]
 }

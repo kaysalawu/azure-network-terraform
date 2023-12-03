@@ -21,7 +21,7 @@ module "branch1" {
     "DnsServerSubnet" = module.common.nsg_main["region1"].id
   }
 
-  vnet_config = [
+  config_vnet = [
     {
       address_space     = local.branch1_address_space
       subnets           = local.branch1_subnets
