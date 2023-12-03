@@ -216,6 +216,15 @@ module "branch3_nva" {
 # workload
 ####################################################
 
+locals {
+  branch3_vm_init = templatefile("../../scripts/server.sh", {
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
+    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns]
+    ENABLE_TRAFFIC_GEN        = true
+  })
+}
+
 module "branch3_vm" {
   source           = "../../modules/linux"
   resource_group   = azurerm_resource_group.rg.name
@@ -226,11 +235,12 @@ module "branch3_vm" {
   private_ip       = local.branch3_vm_addr
   enable_public_ip = true
   source_image     = "ubuntu-20"
-  custom_data      = base64encode(local.vm_startup)
   dns_servers      = [local.branch3_dns_addr, ]
-  storage_account  = module.common.storage_accounts["region2"]
-  delay_creation   = "120s"
+  custom_data      = base64encode(local.branch1_vm_init)
+  storage_account  = module.common.storage_accounts["region1"]
+  delay_creation   = "60s"
   tags             = local.branch3_tags
+
   depends_on = [
     module.branch3,
     module.branch3_dns,
@@ -269,6 +279,7 @@ module "branch3_udr_main" {
 locals {
   branch3_files = {
     "output/branch3-nva.sh" = local.branch3_nva_init
+    "output/branch3-vm.sh"  = local.branch3_vm_init
   }
 }
 

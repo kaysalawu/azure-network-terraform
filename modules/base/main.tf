@@ -284,6 +284,16 @@ resource "azurerm_subnet_nat_gateway_association" "nat" {
 # vpngw
 ####################################################
 
+resource "azurerm_log_analytics_workspace" "vpngw" {
+  count               = var.vnet_config[0].enable_vpn_gateway ? 1 : 0
+  resource_group_name = var.resource_group
+  name                = "${local.prefix}vpngw-ws"
+  location            = var.location
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+  tags                = var.tags
+}
+
 resource "azurerm_public_ip" "vpngw_pip0" {
   count               = var.vnet_config[0].enable_vpn_gateway ? 1 : 0
   resource_group_name = var.resource_group
@@ -354,6 +364,35 @@ resource "azurerm_virtual_network_gateway" "vpngw" {
     peering_addresses {
       ip_configuration_name = "${local.prefix}ip-config1"
       apipa_addresses       = try(var.vnet_config.ip_config1_apipa_addresses, ["169.254.21.5"])
+    }
+  }
+  timeouts {
+    create = "60m"
+  }
+}
+
+# diagnostic setting
+
+resource "azurerm_monitor_diagnostic_setting" "vpngw" {
+  count                          = var.vnet_config[0].enable_vpn_gateway ? 1 : 0
+  name                           = "${local.prefix}vpngw-diag"
+  target_resource_id             = azurerm_virtual_network_gateway.vpngw[0].id
+  log_analytics_workspace_id     = azurerm_log_analytics_workspace.vpngw[0].id
+  log_analytics_destination_type = "Dedicated"
+  #storage_account_id         = azurerm_storage_account.vpngw[0].id
+
+  dynamic "metric" {
+    for_each = var.metric_categories_vpngw
+    content {
+      category = metric.value.category
+      enabled  = true
+    }
+  }
+
+  dynamic "enabled_log" {
+    for_each = { for k, v in var.log_categories_vpngw : k => v if v.enabled }
+    content {
+      category = enabled_log.value.category
     }
   }
   timeouts {
@@ -453,17 +492,12 @@ resource "azurerm_route_server" "ars" {
 # azure firewall
 ####################################################
 
-resource "random_id" "azfw" {
-  count       = var.firewall_config[0].enable ? 1 : 0
-  byte_length = 4
-}
-
 # workspace
 
 resource "azurerm_log_analytics_workspace" "azfw" {
   count               = var.firewall_config[0].enable ? 1 : 0
   resource_group_name = var.resource_group
-  name                = "${local.prefix}azfw-ws-${random_id.azfw[0].hex}"
+  name                = "${local.prefix}azfw-ws"
   location            = var.location
   sku                 = "PerGB2018"
   retention_in_days   = 30
@@ -475,7 +509,7 @@ resource "azurerm_log_analytics_workspace" "azfw" {
 resource "azurerm_storage_account" "azfw" {
   count                    = var.firewall_config[0].enable ? 1 : 0
   resource_group_name      = var.resource_group
-  name                     = lower(replace("${local.prefix}azfw${random_id.azfw[0].hex}", "-", ""))
+  name                     = lower(replace("${local.prefix}azfw", "-", ""))
   location                 = var.location
   account_tier             = "Standard"
   account_replication_type = "LRS"

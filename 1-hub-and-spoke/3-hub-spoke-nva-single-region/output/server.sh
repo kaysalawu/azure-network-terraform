@@ -1,7 +1,7 @@
 #! /bin/bash
 
 apt update
-apt install -y python3-pip python3-dev tcpdump dnsutils net-tools
+apt install -y python3-pip python3-dev tcpdump dnsutils net-tools nmap apache2-utils
 
 # web server #
 pip3 install Flask requests
