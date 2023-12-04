@@ -127,3 +127,25 @@ resource "azurerm_monitor_diagnostic_setting" "azfw" {
     create = "60m"
   }
 }
+
+####################################################
+# dashboard
+####################################################
+
+locals {
+  dashboard_vars = {
+    FIREWALL_NAME = azurerm_firewall.this.name
+    FIREWALL_ID   = azurerm_firewall.this.id
+    LOCATION      = var.location
+  }
+  dashboard_properties = templatefile("${path.module}/templates/dashboard.json", local.dashboard_vars)
+}
+
+resource "azurerm_portal_dashboard" "this" {
+  count                = var.create_dashboard ? 1 : 0
+  name                 = "${var.prefix}azfw-db"
+  resource_group_name  = var.resource_group
+  location             = var.location
+  tags                 = var.tags
+  dashboard_properties = local.dashboard_properties
+}

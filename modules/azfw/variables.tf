@@ -42,12 +42,6 @@ variable "mgt_subnet_id" {
   type        = string
 }
 
-variable "create_dashboard" {
-  description = "create dashboard"
-  type        = bool
-  default     = true
-}
-
 variable "sku_tier" {
   description = "firewall sku"
   type        = string
@@ -201,4 +195,10 @@ variable "log_categories_firewall" {
       }
     }
   ]
+}
+
+variable "create_dashboard" {
+  description = "create dashboard"
+  type        = bool
+  default     = true
 }
