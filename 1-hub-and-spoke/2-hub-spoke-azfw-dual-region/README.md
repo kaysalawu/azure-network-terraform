@@ -144,9 +144,9 @@ azureuser@Hs12-spoke1-vm:~$ ping-dns
  ping dns ...
 
 vm.branch1.corp - 10.10.0.5 -OK 10.632 ms
-vm.hub1.eu.az.corp - 10.11.0.5 -OK 4.511 ms
-vm.spoke1.eu.az.corp - 10.1.0.5 -OK 0.044 ms
-vm.spoke2.eu.az.corp - 10.2.0.5 -OK 4.291 ms
+vm.hub1.we.az.corp - 10.11.0.5 -OK 4.511 ms
+vm.spoke1.we.az.corp - 10.1.0.5 -OK 0.044 ms
+vm.spoke2.we.az.corp - 10.2.0.5 -OK 4.291 ms
 vm.branch3.corp - 10.30.0.5 -OK 24.017 ms
 vm.hub2.ne.az.corp - 10.22.0.5 -OK 22.537 ms
 vm.spoke4.ne.az.corp - 10.4.0.5 -OK 21.838 ms
@@ -172,11 +172,11 @@ azureuser@Hs12-spoke1-vm:~$ curl-dns
  curl dns ...
 
 200 (0.035116s) - 10.10.0.5 - vm.branch1.corp
-200 (0.025299s) - 10.11.0.5 - vm.hub1.eu.az.corp
-200 (0.018662s) - 10.11.7.4 - spoke3.p.hub1.eu.az.corp
-200 (0.019402s) - 10.1.0.5 - vm.spoke1.eu.az.corp
-200 (0.032851s) - 10.2.0.5 - vm.spoke2.eu.az.corp
-000 (2.000683s) -  - vm.spoke3.eu.az.corp
+200 (0.025299s) - 10.11.0.5 - vm.hub1.we.az.corp
+200 (0.018662s) - 10.11.7.4 - spoke3.p.hub1.we.az.corp
+200 (0.019402s) - 10.1.0.5 - vm.spoke1.we.az.corp
+200 (0.032851s) - 10.2.0.5 - vm.spoke2.we.az.corp
+000 (2.000683s) -  - vm.spoke3.we.az.corp
 200 (0.088912s) - 10.30.0.5 - vm.branch3.corp
 200 (0.088224s) - 10.22.0.5 - vm.hub2.ne.az.corp
 200 (0.087196s) - 10.22.7.4 - spoke6.p.hub2.ne.az.corp
@@ -188,24 +188,24 @@ azureuser@Hs12-spoke1-vm:~$ curl-dns
 200 (0.069748s) - 10.22.7.5 - hs12-spoke6-02f8-app.azurewebsites.net
 ```
 
-We can see that curl test to spoke3 virtual machine `vm.spoke3.eu.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.eu.az.corp`. The same explanation applies to ***spoke6*** virtual machine `vm.spoke6.ne.az.corp`
+We can see that curl test to spoke3 virtual machine `vm.spoke3.we.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.we.az.corp`. The same explanation applies to ***spoke6*** virtual machine `vm.spoke6.ne.az.corp`
 
 ### 4. Private Link Service
 
 **4.1.** Test access to ***spoke3*** web application using the private endpoint in ***hub1***.
 
 ```sh
-curl spoke3.p.hub1.eu.az.corp
+curl spoke3.p.hub1.we.az.corp
 ```
 
 Sample output
 
 ```sh
-azureuser@Hs12-spoke1-vm:~$ curl spoke3.p.hub1.eu.az.corp
+azureuser@Hs12-spoke1-vm:~$ curl spoke3.p.hub1.we.az.corp
 {
   "Headers": {
     "Accept": "*/*",
-    "Host": "spoke3.p.hub1.eu.az.corp",
+    "Host": "spoke3.p.hub1.we.az.corp",
     "User-Agent": "curl/7.68.0"
   },
   "Hostname": "Hs12-spoke3-vm",
