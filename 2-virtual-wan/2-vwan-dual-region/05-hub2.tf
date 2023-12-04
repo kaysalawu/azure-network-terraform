@@ -62,7 +62,7 @@ module "hub2_vm" {
   enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region2"]
-  private_dns_zone_name = module.hub2.private_dns_zone.name
+  private_dns_zone_name = local.hub2_dns_zone
   tags                  = local.hub2_tags
   depends_on            = [module.hub2]
 }

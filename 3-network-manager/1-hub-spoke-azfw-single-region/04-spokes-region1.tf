@@ -63,7 +63,7 @@ module "spoke1_vm" {
   enable_public_ip      = true
   custom_data           = base64encode(local.spoke1_vm_init)
   storage_account       = module.common.storage_accounts["region1"]
-  private_dns_zone_name = module.spoke1.private_dns_zone.name
+  private_dns_zone_name = local.spoke1_dns_zone
   delay_creation        = "1m"
   tags                  = local.spoke1_tags
   depends_on            = [module.spoke1]
@@ -124,7 +124,7 @@ module "spoke2_vm" {
   enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region1"]
-  private_dns_zone_name = module.spoke2.private_dns_zone.name
+  private_dns_zone_name = local.spoke2_dns_zone
   delay_creation        = "1m"
   tags                  = local.spoke2_tags
   depends_on            = [module.spoke2]
@@ -184,7 +184,7 @@ module "spoke3_vm" {
   enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region1"]
-  private_dns_zone_name = module.spoke3.private_dns_zone.name
+  private_dns_zone_name = local.spoke3_dns_zone
   delay_creation        = "1m"
   tags                  = local.spoke3_tags
   depends_on            = [module.spoke3]

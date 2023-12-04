@@ -80,9 +80,10 @@ terraform_cleanup(){
     local original_dir=$(pwd)
     cd "$1" || exit
     echo "  * terraform clean ..."
-    rm -rf .terraform
-    rm .terraform.lock.hcl
-    rm terraform.tfstate.backup
+    rm -rf .terraform 2> /dev/null
+    rm .terraform.lock.hcl 2> /dev/null
+    rm terraform.tfstate.backup 2> /dev/null
+    rm terraform.tfstate 2> /dev/null
     cd "$original_dir" || exit
 }
 
@@ -117,18 +118,26 @@ run_copy_files() {
 }
 
 run_delete_files() {
-    for dir in "${dirs[@]}"; do
-        if [ -d "$dir" ]; then
-            echo && echo "$dir"
-            echo "----------------------------------"
-            for subdir in "$dir"/*/; do
-                if [ -d "$subdir" ]; then
-                    echo "${subdir#*/}"
-                    delete_files "$subdir"
-                fi
-            done
-        fi
-    done
+    read -p "Delete all template files? (y/n): " yn
+    if [[ $yn == [Yy] ]]; then
+        for dir in "${dirs[@]}"; do
+            if [ -d "$dir" ]; then
+                echo && echo "$dir"
+                echo "----------------------------------"
+                for subdir in "$dir"/*/; do
+                    if [ -d "$subdir" ]; then
+                        echo "${subdir#*/}"
+                        delete_files "$subdir"
+                    fi
+                done
+            fi
+        done
+    elif [[ $yn == [Nn] ]]; then
+        return 1
+    else
+        echo "Invalid input. Please answer y or n."
+        return 1
+    fi
 }
 
 run_terraform_test() {
@@ -147,30 +156,38 @@ run_terraform_test() {
 }
 
 run_terraform_cleanup() {
-    for dir in "${dirs[@]}"; do
-        if [ -d "$dir" ]; then
-            echo && echo "$dir"
-            echo "----------------------------------"
-            for subdir in "$dir"/*/; do
-                if [ -d "$subdir" ]; then
-                    echo "${subdir#*/}"
-                    terraform_cleanup "$subdir"
-                fi
-            done
-        fi
-    done
+    read -p "Delete terraform state? (y/n): " yn
+    if [[ $yn == [Yy] ]]; then
+        for dir in "${dirs[@]}"; do
+            if [ -d "$dir" ]; then
+                echo && echo "$dir"
+                echo "----------------------------------"
+                for subdir in "$dir"/*/; do
+                    if [ -d "$subdir" ]; then
+                        echo "${subdir#*/}"
+                        terraform_cleanup "$subdir"
+                    fi
+                done
+            fi
+        done
+    elif [[ $yn == [Nn] ]]; then
+        return 1
+    else
+        echo "Invalid input. Please answer y or n."
+        return 1
+    fi
 }
 
 if [[ "$1" == "--diff" || "$1" == "-f" ]]; then
-    clear && run_dir_diff
+    run_dir_diff
 elif [[ "$1" == "--copy" || "$1" == "-c" ]]; then
-    clear && run_copy_files
+    run_copy_files
 elif [[ "$1" == "--df" || "$1" == "-x" ]]; then
-    clear && run_delete_files
+    run_delete_files
 elif [[ "$1" == "--test" || "$1" == "-t" ]]; then
-    clear && run_terraform_test
+    run_terraform_test
 elif [[ "$1" == "--cleanup" || "$1" == "-u" ]]; then
-    clear && run_terraform_cleanup
+    run_terraform_cleanup
 elif [[ "$1" == "--help" || "$1" == "-h" ]]; then
     echo "Usage: $0 {--diff|-f|--copy|-c|--delete-files|-x|--test|-t|--cleanup|-u}"
 else
