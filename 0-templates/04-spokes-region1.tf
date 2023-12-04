@@ -18,7 +18,7 @@ module "spoke1" {
   }
 
   create_private_dns_zone = true
-  private_dns_zone_name   = "spoke1.${local.cloud_domain}"
+  private_dns_zone_name   = local.spoke1_dns_zone
   private_dns_zone_linked_external_vnets = {
     "hub1" = module.hub1.vnet.id
   }
@@ -63,7 +63,7 @@ module "spoke1_vm" {
   enable_public_ip      = true
   custom_data           = base64encode(local.spoke1_vm_init)
   storage_account       = module.common.storage_accounts["region1"]
-  private_dns_zone_name = "spoke1.${local.cloud_domain}"
+  private_dns_zone_name = module.spoke1.private_dns_zone.name
   delay_creation        = "1m"
   tags                  = local.spoke1_tags
   depends_on            = [module.spoke1]
@@ -88,7 +88,7 @@ module "spoke2" {
   }
 
   create_private_dns_zone = true
-  private_dns_zone_name   = "spoke2.${local.cloud_domain}"
+  private_dns_zone_name   = local.spoke2_dns_zone
   private_dns_zone_linked_external_vnets = {
     "hub1" = module.hub1.vnet.id
   }
@@ -124,7 +124,7 @@ module "spoke2_vm" {
   enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region1"]
-  private_dns_zone_name = "spoke2.${local.cloud_domain}"
+  private_dns_zone_name = module.spoke2.private_dns_zone.name
   delay_creation        = "1m"
   tags                  = local.spoke2_tags
   depends_on            = [module.spoke2]
@@ -148,7 +148,7 @@ module "spoke3" {
   }
 
   create_private_dns_zone = true
-  private_dns_zone_name   = "spoke3.${local.cloud_domain}"
+  private_dns_zone_name   = local.spoke3_dns_zone
   private_dns_zone_linked_external_vnets = {
     "hub1" = module.hub1.vnet.id
   }
@@ -184,7 +184,7 @@ module "spoke3_vm" {
   enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region1"]
-  private_dns_zone_name = "spoke3.${local.cloud_domain}"
+  private_dns_zone_name = module.spoke3.private_dns_zone.name
   delay_creation        = "1m"
   tags                  = local.spoke3_tags
   depends_on            = [module.spoke3]

@@ -3,7 +3,13 @@
 ####################################################
 
 locals {
-  prefix = "Ne32"
+  prefix           = "Ne32"
+  spoke3_apps_fqdn = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
+  spoke6_apps_fqdn = lower("${local.spoke6_prefix}${random_id.random.hex}-app.azurewebsites.net")
+}
+
+resource "random_id" "random" {
+  byte_length = 2
 }
 
 ####################################################
@@ -96,13 +102,21 @@ locals {
             { ip_address = local.hub2_dns_in_addr, port = 53 },
           ]
         }
+        "azurewebsites" = {
+          domain = "privatelink.azurewebsites.net"
+          target_dns_servers = [
+            { ip_address = local.hub1_dns_in_addr, port = 53 },
+          ]
+        }
       }
     }
 
     config_vpngw = {
-      enable       = true
-      sku          = "VpnGw1AZ"
-      bgp_settings = { asn = local.hub1_vpngw_asn }
+      enable = true
+      sku    = "VpnGw1AZ"
+      bgp_settings = {
+        asn = local.hub1_vpngw_asn
+      }
     }
 
     config_ergw = {
@@ -155,9 +169,11 @@ locals {
     }
 
     config_vpngw = {
-      enable       = true
-      sku          = "VpnGw1AZ"
-      bgp_settings = { asn = local.hub2_vpngw_asn }
+      enable = true
+      sku    = "VpnGw1AZ"
+      bgp_settings = {
+        asn = local.hub2_vpngw_asn
+      }
     }
 
     config_ergw = {
@@ -260,6 +276,8 @@ locals {
   ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ip = "icanhazip.com" },
+    { name = "hub1-spoke3-apps", dns = local.spoke3_apps_fqdn, ping = false, probe = true },
+    { name = "hub2-spoke6-apps", dns = local.spoke6_apps_fqdn, ping = false, probe = true },
   ]
   vm_script_targets = concat(
     local.vm_script_targets_region1,

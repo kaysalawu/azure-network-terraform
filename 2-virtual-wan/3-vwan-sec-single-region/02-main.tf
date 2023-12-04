@@ -3,7 +3,12 @@
 ####################################################
 
 locals {
-  prefix = "Vwan23"
+  prefix           = "Vwan23"
+  spoke3_apps_fqdn = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
+}
+
+resource "random_id" "random" {
+  byte_length = 2
 }
 
 ####################################################
@@ -64,6 +69,12 @@ locals {
         }
         "eu" = {
           domain = "eu.${local.cloud_domain}"
+          target_dns_servers = [
+            { ip_address = local.hub1_dns_in_addr, port = 53 },
+          ]
+        }
+        "azurewebsites" = {
+          domain = "privatelink.azurewebsites.net"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
@@ -189,6 +200,7 @@ locals {
   ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ip = "icanhazip.com" },
+    { name = "hub1-spoke3-apps", dns = local.spoke3_apps_fqdn, ping = false, probe = true },
   ]
   vm_script_targets = concat(
     local.vm_script_targets_region1,

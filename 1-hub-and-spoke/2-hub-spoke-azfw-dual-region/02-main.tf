@@ -112,9 +112,11 @@ locals {
     }
 
     config_vpngw = {
-      enable       = true
-      sku          = "VpnGw1AZ"
-      bgp_settings = { asn = local.hub1_vpngw_asn }
+      enable = true
+      sku    = "VpnGw1AZ"
+      bgp_settings = {
+        asn = local.hub1_vpngw_asn
+      }
     }
 
     config_ergw = {
@@ -167,9 +169,11 @@ locals {
     }
 
     config_vpngw = {
-      enable       = true
-      sku          = "VpnGw1AZ"
-      bgp_settings = { asn = local.hub2_vpngw_asn }
+      enable = true
+      sku    = "VpnGw1AZ"
+      bgp_settings = {
+        asn = local.hub2_vpngw_asn
+      }
     }
 
     config_ergw = {

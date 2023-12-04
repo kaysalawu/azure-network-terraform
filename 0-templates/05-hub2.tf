@@ -16,7 +16,7 @@ module "hub2" {
   }
 
   create_private_dns_zone = true
-  private_dns_zone_name   = "hub2.${local.cloud_domain}"
+  private_dns_zone_name   = local.hub2_dns_zone
   private_dns_zone_linked_external_vnets = {
     "spoke4" = module.spoke4.vnet.id
     "spoke5" = module.spoke5.vnet.id
@@ -62,6 +62,7 @@ module "hub2_vm" {
   enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region2"]
-  private_dns_zone_name = "hub2.${local.cloud_domain}"
+  private_dns_zone_name = module.hub2.private_dns_zone.name
   tags                  = local.hub2_tags
+  depends_on            = [module.hub2]
 }

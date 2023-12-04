@@ -1,8 +1,4 @@
 
-resource "random_id" "services_region1" {
-  byte_length = 2
-}
-
 ####################################################
 # private link service
 ####################################################
@@ -123,7 +119,7 @@ module "spoke3_apps" {
   resource_group    = azurerm_resource_group.rg.name
   location          = local.spoke3_location
   prefix            = lower(local.spoke3_prefix)
-  name              = random_id.services_region1.hex
+  name              = "${random_id.random.hex}-app"
   docker_image_name = "ksalawu/web:latest"
   subnet_id         = module.spoke3.subnets["AppServiceSubnet"].id
   depends_on = [
