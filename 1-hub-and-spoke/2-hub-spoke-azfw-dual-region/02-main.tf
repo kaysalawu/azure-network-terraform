@@ -3,7 +3,13 @@
 ####################################################
 
 locals {
-  prefix = "Hs12"
+  prefix           = "Hs12"
+  spoke3_apps_fqdn = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
+  spoke6_apps_fqdn = lower("${local.spoke6_prefix}${random_id.random.hex}-app.azurewebsites.net")
+}
+
+resource "random_id" "random" {
+  byte_length = 2
 }
 
 ####################################################
@@ -84,27 +90,36 @@ locals {
             { ip_address = local.branch3_dns_addr, port = 53 },
           ]
         }
-        "cloud" = {
-          domain = local.cloud_domain
+        "eu" = {
+          domain = "eu.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
+          ]
+        }
+        "ne" = {
+          domain = "ne.${local.cloud_domain}"
+          target_dns_servers = [
             { ip_address = local.hub2_dns_in_addr, port = 53 },
+          ]
+        }
+        "azurewebsites" = {
+          domain = "privatelink.azurewebsites.net"
+          target_dns_servers = [
+            { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
         }
       }
     }
 
     config_vpngw = {
-      enable           = true
-      sku              = "VpnGw1AZ"
-      create_dashboard = true
-      bgp_settings     = { asn = local.hub1_vpngw_asn }
+      enable       = true
+      sku          = "VpnGw1AZ"
+      bgp_settings = { asn = local.hub1_vpngw_asn }
     }
 
     config_ergw = {
-      enable           = true
-      sku              = "ErGw1AZ"
-      create_dashboard = true
+      enable = false
+      sku    = "ErGw1AZ"
     }
 
     config_firewall = {
@@ -136,27 +151,30 @@ locals {
             { ip_address = local.branch1_dns_addr, port = 53 },
           ]
         }
-        "cloud" = {
-          domain = local.cloud_domain
+        "eu" = {
+          domain = "eu.${local.cloud_domain}"
+          target_dns_servers = [
+            { ip_address = local.hub1_dns_in_addr, port = 53 },
+          ]
+        }
+        "ne" = {
+          domain = "ne.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub2_dns_in_addr, port = 53 },
-            { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
         }
       }
     }
 
     config_vpngw = {
-      enable           = true
-      sku              = "VpnGw1AZ"
-      create_dashboard = true
-      bgp_settings     = { asn = local.hub2_vpngw_asn }
+      enable       = true
+      sku          = "VpnGw1AZ"
+      bgp_settings = { asn = local.hub2_vpngw_asn }
     }
 
     config_ergw = {
-      enable           = true
-      sku              = "ErGw1AZ"
-      create_dashboard = true
+      enable = false
+      sku    = "ErGw1AZ"
     }
 
     config_firewall = {
@@ -254,6 +272,8 @@ locals {
   ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ip = "icanhazip.com" },
+    { name = "hub1-spoke3-apps", dns = local.spoke3_apps_fqdn, ping = false, probe = true },
+    { name = "hub2-spoke6-apps", dns = local.spoke6_apps_fqdn, ping = false, probe = true },
   ]
   vm_script_targets = concat(
     local.vm_script_targets_region1,

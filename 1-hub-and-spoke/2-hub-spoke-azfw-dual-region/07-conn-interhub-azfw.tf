@@ -96,7 +96,7 @@ locals {
 resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_links_hub1_vnet" {
   for_each              = local.dns_zone_links_hub1_vnet
   resource_group_name   = azurerm_resource_group.rg.name
-  name                  = "${local.prefix}${each.key}vnet-link"
+  name                  = "${local.prefix}-${each.key}-vnet-link"
   private_dns_zone_name = module.hub1.private_dns_zone.name
   virtual_network_id    = each.value
   registration_enabled  = false
@@ -108,7 +108,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_links_hub1_vn
 resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_links_hub2_vnet" {
   for_each              = local.dns_zone_links_hub2_vnet
   resource_group_name   = azurerm_resource_group.rg.name
-  name                  = "${local.prefix}${each.key}vnet-link"
+  name                  = "${local.prefix}-${each.key}-vnet-link"
   private_dns_zone_name = module.hub2.private_dns_zone.name
   virtual_network_id    = each.value
   registration_enabled  = false

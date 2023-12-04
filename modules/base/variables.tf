@@ -120,7 +120,7 @@ variable "config_vpngw" {
   type = object({
     enable           = optional(bool, false)
     sku              = optional(string, "VpnGw1AZ")
-    create_dashboard = optional(bool, false)
+    create_dashboard = optional(bool, true)
     bgp_settings = optional(object({
       asn = optional(string, 65515)
     }))
@@ -128,7 +128,7 @@ variable "config_vpngw" {
   default = {
     enable           = false
     sku              = "VpnGw1AZ"
-    create_dashboard = false
+    create_dashboard = true
     bgp_settings = {
       asn = 65515
     }
@@ -139,12 +139,12 @@ variable "config_ergw" {
   type = object({
     enable           = optional(bool, false)
     sku              = optional(string, "ErGw1AZ")
-    create_dashboard = optional(bool, false)
+    create_dashboard = optional(bool, true)
   })
   default = {
     enable           = false
     sku              = "ErGw1AZ"
-    create_dashboard = false
+    create_dashboard = true
   }
 }
 
@@ -153,11 +153,13 @@ variable "config_firewall" {
     enable             = optional(bool, false)
     firewall_sku       = optional(string, "Basic")
     firewall_policy_id = optional(string, null)
+    create_dashboard   = optional(bool, true)
   })
   default = {
     enable             = false,
     firewall_sku       = "Basic"
     firewall_policy_id = null
+    create_dashboard   = true
   }
 }
 
@@ -174,157 +176,6 @@ variable "config_nva" {
     internal_lb_addr = null
     custom_data      = null
   }
-}
-
-/* variable "metric_categories_firewall" {
-  type    = list(string)
-  default = ["AllMetrics"]
-} */
-
-/* variable "log_categories_firewall" {
-  type = list(string)
-  default = [
-    "AzureFirewallApplicationRule",
-    "AzureFirewallNetworkRule",
-    "AzureFirewallDnsProxy"
-  ]
-} */
-
-variable "metric_categories_firewall" {
-  type = list(any)
-  default = [
-    {
-      "enabled" = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      },
-      "category" = "AllMetrics"
-    }
-  ]
-}
-
-variable "log_categories_firewall" {
-  type = list(any)
-  default = [
-    {
-      "category"      = "AzureFirewallNetworkRule",
-      "categoryGroup" = null,
-      "enabled"       = true,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWNetworkRule",
-      "categoryGroup" = null,
-      "enabled"       = true,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWApplicationRule",
-      "categoryGroup" = null,
-      "enabled"       = true,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWNatRule",
-      "categoryGroup" = null,
-      "enabled"       = true,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWThreatIntel",
-      "categoryGroup" = null,
-      "enabled"       = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWIdpsSignature",
-      "categoryGroup" = null,
-      "enabled"       = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWDnsQuery",
-      "categoryGroup" = null,
-      "enabled"       = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWFqdnResolveFailure",
-      "categoryGroup" = null,
-      "enabled"       = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWFatFlow",
-      "categoryGroup" = null,
-      "enabled"       = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWFlowTrace",
-      "categoryGroup" = null,
-      "enabled"       = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWApplicationRuleAggregation",
-      "categoryGroup" = null,
-      "enabled"       = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWNetworkRuleAggregation",
-      "categoryGroup" = null,
-      "enabled"       = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWNatRuleAggregation",
-      "categoryGroup" = null,
-      "enabled"       = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    }
-  ]
 }
 
 variable "delegation" {

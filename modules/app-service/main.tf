@@ -1,13 +1,13 @@
 
 locals {
-  name = var.prefix == "" ? "${var.name}" : format("%s%s-", var.prefix, var.name)
+  name = var.prefix == "" ? "${var.name}" : format("%s%s", var.prefix, var.name)
 }
 
 # Service Plan
 
 resource "azurerm_service_plan" "this" {
   resource_group_name = var.resource_group
-  name                = "${local.name}asp"
+  name                = "${local.name}-asp"
   location            = var.location
   os_type             = "Linux"
   sku_name            = "P1v2"
@@ -17,10 +17,12 @@ resource "azurerm_service_plan" "this" {
 
 resource "azurerm_linux_web_app" "this" {
   resource_group_name       = var.resource_group
-  name                      = "${local.name}app"
+  name                      = local.name
   location                  = var.location
   service_plan_id           = azurerm_service_plan.this.id
   virtual_network_subnet_id = var.subnet_id
+
+  ftp_publish_basic_authentication_enabled = true
 
   app_settings = {
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"

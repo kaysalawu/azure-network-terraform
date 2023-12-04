@@ -166,20 +166,20 @@ azureuser@Vwan23-spoke1-vm:~$ curl-dns
 200 (0.013720s) - 104.18.115.97 - icanhazip.com
 ```
 
-We can see that curl test to spoke3 virtual machine `vm.spoke3.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.az.corp`.
+We can see that curl test to spoke3 virtual machine `vm.spoke3.eu.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.eu.az.corp`.
 
 ### 4. Private Link Service
 
 **4.1.** Test access to ***spoke3*** web application using the private endpoint in ***hub1***.
 
 ```sh
-curl spoke3.p.hub1.az.corp
+curl spoke3.p.hub1.eu.az.corp
 ```
 
 Sample output
 
 ```sh
-azureuser@Vwan23-spoke1-vm:~$ curl spoke3.p.hub1.az.corp
+azureuser@Vwan23-spoke1-vm:~$ curl spoke3.p.hub1.eu.az.corp
 {
   "Headers": {
     "Accept": "*/*",

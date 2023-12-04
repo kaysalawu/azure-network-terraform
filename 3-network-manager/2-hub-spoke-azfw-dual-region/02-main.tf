@@ -84,10 +84,15 @@ locals {
             { ip_address = local.branch3_dns_addr, port = 53 },
           ]
         }
-        "cloud" = {
-          domain = local.cloud_domain
+        "eu" = {
+          domain = "eu.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
+          ]
+        }
+        "ne" = {
+          domain = "ne.${local.cloud_domain}"
+          target_dns_servers = [
             { ip_address = local.hub2_dns_in_addr, port = 53 },
           ]
         }
@@ -95,16 +100,14 @@ locals {
     }
 
     config_vpngw = {
-      enable           = true
-      sku              = "VpnGw1AZ"
-      create_dashboard = true
-      bgp_settings     = { asn = local.hub1_vpngw_asn }
+      enable       = true
+      sku          = "VpnGw1AZ"
+      bgp_settings = { asn = local.hub1_vpngw_asn }
     }
 
     config_ergw = {
-      enable           = true
-      sku              = "ErGw1AZ"
-      create_dashboard = true
+      enable = false
+      sku    = "ErGw1AZ"
     }
 
     config_firewall = {
@@ -136,27 +139,30 @@ locals {
             { ip_address = local.branch1_dns_addr, port = 53 },
           ]
         }
-        "cloud" = {
-          domain = local.cloud_domain
+        "eu" = {
+          domain = "eu.${local.cloud_domain}"
+          target_dns_servers = [
+            { ip_address = local.hub1_dns_in_addr, port = 53 },
+          ]
+        }
+        "ne" = {
+          domain = "ne.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub2_dns_in_addr, port = 53 },
-            { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
         }
       }
     }
 
     config_vpngw = {
-      enable           = true
-      sku              = "VpnGw1AZ"
-      create_dashboard = true
-      bgp_settings     = { asn = local.hub2_vpngw_asn }
+      enable       = true
+      sku          = "VpnGw1AZ"
+      bgp_settings = { asn = local.hub2_vpngw_asn }
     }
 
     config_ergw = {
-      enable           = true
-      sku              = "ErGw1AZ"
-      create_dashboard = true
+      enable = false
+      sku    = "ErGw1AZ"
     }
 
     config_firewall = {

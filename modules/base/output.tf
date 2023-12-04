@@ -98,13 +98,13 @@ output "vpngw_bgp_ip1" {
 #-----------------------------
 
 output "firewall" {
-  value = try(azurerm_firewall.azfw[0], {})
+  value = try(module.azfw[0].firewall, {})
 }
 
 output "firewall_public_ip" {
-  value = try(azurerm_public_ip.fw_pip[0], null)
+  value = try(module.azfw[0].public_ip, null)
 }
 
 output "firewall_private_ip" {
-  value = try(azurerm_firewall.azfw[0].ip_configuration[0].private_ip_address, {})
+  value = try(module.azfw[0].private_ip, null)
 }

@@ -130,7 +130,7 @@ locals {
 
 resource "azurerm_portal_dashboard" "this" {
   count                = var.create_dashboard ? 1 : 0
-  name                 = "${var.prefix}vpngw-diag"
+  name                 = "${var.prefix}vpngw-db"
   resource_group_name  = var.resource_group
   location             = var.location
   tags                 = var.tags

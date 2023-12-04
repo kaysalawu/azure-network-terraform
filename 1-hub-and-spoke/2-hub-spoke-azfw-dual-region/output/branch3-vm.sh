@@ -97,13 +97,13 @@ chmod a+x /usr/local/bin/ping-ip
 cat <<EOF > /usr/local/bin/ping-dns
 echo -e "\n ping dns ...\n"
 echo "vm.branch1.corp - \$(timeout 3 dig +short vm.branch1.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.branch1.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "vm.hub1.az.corp - \$(timeout 3 dig +short vm.hub1.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.hub1.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "vm.spoke1.az.corp - \$(timeout 3 dig +short vm.spoke1.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.spoke1.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "vm.spoke2.az.corp - \$(timeout 3 dig +short vm.spoke2.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.spoke2.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "vm.hub1.eu.az.corp - \$(timeout 3 dig +short vm.hub1.eu.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.hub1.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "vm.spoke1.eu.az.corp - \$(timeout 3 dig +short vm.spoke1.eu.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.spoke1.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "vm.spoke2.eu.az.corp - \$(timeout 3 dig +short vm.spoke2.eu.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.spoke2.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "vm.branch3.corp - \$(timeout 3 dig +short vm.branch3.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.branch3.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "vm.hub2.az.corp - \$(timeout 3 dig +short vm.hub2.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.hub2.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "vm.spoke4.az.corp - \$(timeout 3 dig +short vm.spoke4.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.spoke4.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "vm.spoke5.az.corp - \$(timeout 3 dig +short vm.spoke5.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.spoke5.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "vm.hub2.ne.az.corp - \$(timeout 3 dig +short vm.hub2.ne.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.hub2.ne.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "vm.spoke4.ne.az.corp - \$(timeout 3 dig +short vm.spoke4.ne.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.spoke4.ne.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "vm.spoke5.ne.az.corp - \$(timeout 3 dig +short vm.spoke5.ne.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 vm.spoke5.ne.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "icanhazip.com - \$(timeout 3 dig +short icanhazip.com | tail -n1) -\$(timeout 3 ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 EOF
 chmod a+x /usr/local/bin/ping-dns
@@ -131,18 +131,20 @@ chmod a+x /usr/local/bin/curl-ip
 cat <<EOF > /usr/local/bin/curl-dns
 echo -e "\n curl dns ...\n"
 echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.branch1.corp) - vm.branch1.corp"
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.hub1.az.corp) - vm.hub1.az.corp"
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke3.p.hub1.az.corp) - spoke3.p.hub1.az.corp"
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke1.az.corp) - vm.spoke1.az.corp"
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke2.az.corp) - vm.spoke2.az.corp"
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke3.az.corp) - vm.spoke3.az.corp"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.hub1.eu.az.corp) - vm.hub1.eu.az.corp"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke3.p.hub1.eu.az.corp) - spoke3.p.hub1.eu.az.corp"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke1.eu.az.corp) - vm.spoke1.eu.az.corp"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke2.eu.az.corp) - vm.spoke2.eu.az.corp"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke3.eu.az.corp) - vm.spoke3.eu.az.corp"
 echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.branch3.corp) - vm.branch3.corp"
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.hub2.az.corp) - vm.hub2.az.corp"
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke6.p.hub2.az.corp) - spoke6.p.hub2.az.corp"
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke4.az.corp) - vm.spoke4.az.corp"
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke5.az.corp) - vm.spoke5.az.corp"
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke6.az.corp) - vm.spoke6.az.corp"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.hub2.ne.az.corp) - vm.hub2.ne.az.corp"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke6.p.hub2.ne.az.corp) - spoke6.p.hub2.ne.az.corp"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke4.ne.az.corp) - vm.spoke4.ne.az.corp"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke5.ne.az.corp) - vm.spoke5.ne.az.corp"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke6.ne.az.corp) - vm.spoke6.ne.az.corp"
 echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null hs12-spoke3-02f8-app.azurewebsites.net) - hs12-spoke3-02f8-app.azurewebsites.net"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null hs12-spoke6-02f8-app.azurewebsites.net) - hs12-spoke6-02f8-app.azurewebsites.net"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 
@@ -183,13 +185,15 @@ chmod a+x /usr/local/bin/trace-ip
 
 cat <<EOF > /usr/local/bin/light-traffic
 nping -c 3 --tcp -p 80 vm.branch1.corp > /dev/null 2>&1
-nping -c 3 --tcp -p 80 spoke3.p.hub1.az.corp > /dev/null 2>&1
-nping -c 3 --tcp -p 80 vm.spoke1.az.corp > /dev/null 2>&1
-nping -c 3 --tcp -p 80 vm.spoke2.az.corp > /dev/null 2>&1
+nping -c 3 --tcp -p 80 spoke3.p.hub1.eu.az.corp > /dev/null 2>&1
+nping -c 3 --tcp -p 80 vm.spoke1.eu.az.corp > /dev/null 2>&1
+nping -c 3 --tcp -p 80 vm.spoke2.eu.az.corp > /dev/null 2>&1
 nping -c 3 --tcp -p 80 vm.branch3.corp > /dev/null 2>&1
-nping -c 3 --tcp -p 80 spoke6.p.hub2.az.corp > /dev/null 2>&1
-nping -c 3 --tcp -p 80 vm.spoke4.az.corp > /dev/null 2>&1
-nping -c 3 --tcp -p 80 vm.spoke5.az.corp > /dev/null 2>&1
+nping -c 3 --tcp -p 80 spoke6.p.hub2.ne.az.corp > /dev/null 2>&1
+nping -c 3 --tcp -p 80 vm.spoke4.ne.az.corp > /dev/null 2>&1
+nping -c 3 --tcp -p 80 vm.spoke5.ne.az.corp > /dev/null 2>&1
+nping -c 3 --tcp -p 80 hs12-spoke3-02f8-app.azurewebsites.net > /dev/null 2>&1
+nping -c 3 --tcp -p 80 hs12-spoke6-02f8-app.azurewebsites.net > /dev/null 2>&1
 EOF
 chmod a+x /usr/local/bin/light-traffic
 
@@ -200,18 +204,20 @@ cat <<EOF > /usr/local/bin/heavy-traffic
 i=0
 while [ \$i -lt 4 ]; do
     ab -n \$1 -c \$2 vm.branch1.corp > /dev/null 2>&1
-    ab -n \$1 -c \$2 vm.hub1.az.corp > /dev/null 2>&1
-    ab -n \$1 -c \$2 spoke3.p.hub1.az.corp > /dev/null 2>&1
-    ab -n \$1 -c \$2 vm.spoke1.az.corp > /dev/null 2>&1
-    ab -n \$1 -c \$2 vm.spoke2.az.corp > /dev/null 2>&1
-    ab -n \$1 -c \$2 vm.spoke3.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 vm.hub1.eu.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 spoke3.p.hub1.eu.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 vm.spoke1.eu.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 vm.spoke2.eu.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 vm.spoke3.eu.az.corp > /dev/null 2>&1
     ab -n \$1 -c \$2 vm.branch3.corp > /dev/null 2>&1
-    ab -n \$1 -c \$2 vm.hub2.az.corp > /dev/null 2>&1
-    ab -n \$1 -c \$2 spoke6.p.hub2.az.corp > /dev/null 2>&1
-    ab -n \$1 -c \$2 vm.spoke4.az.corp > /dev/null 2>&1
-    ab -n \$1 -c \$2 vm.spoke5.az.corp > /dev/null 2>&1
-    ab -n \$1 -c \$2 vm.spoke6.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 vm.hub2.ne.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 spoke6.p.hub2.ne.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 vm.spoke4.ne.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 vm.spoke5.ne.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 vm.spoke6.ne.az.corp > /dev/null 2>&1
     ab -n \$1 -c \$2 icanhazip.com > /dev/null 2>&1
+    ab -n \$1 -c \$2 hs12-spoke3-02f8-app.azurewebsites.net > /dev/null 2>&1
+    ab -n \$1 -c \$2 hs12-spoke6-02f8-app.azurewebsites.net > /dev/null 2>&1
     let i=i+1
   sleep 2
 done

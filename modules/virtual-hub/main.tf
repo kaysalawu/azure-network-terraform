@@ -99,6 +99,7 @@ resource "azurerm_firewall" "this" {
   location            = var.location
   sku_tier            = "Standard"
   sku_name            = "AZFW_Hub"
+  tags                = var.tags
   firewall_policy_id  = var.security_config[0].firewall_policy_id
   virtual_hub {
     virtual_hub_id  = azurerm_virtual_hub.this.id

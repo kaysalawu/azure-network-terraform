@@ -18,7 +18,7 @@ module "spoke4" {
   }
 
   create_private_dns_zone = true
-  private_dns_zone_name   = "spoke4.${local.cloud_domain}"
+  private_dns_zone_name   = local.spoke4_dns_zone
   private_dns_zone_linked_external_vnets = {
     "hub2" = module.hub2.vnet.id
   }
@@ -36,8 +36,8 @@ module "spoke4" {
   }
 
   config_vnet = {
-    address_space = local.spoke1_address_space
-    subnets       = local.spoke1_subnets
+    address_space = local.spoke4_address_space
+    subnets       = local.spoke4_subnets
   }
 }
 
@@ -63,7 +63,7 @@ module "spoke4_vm" {
   enable_public_ip      = true
   custom_data           = base64encode(local.spoke4_vm_init)
   storage_account       = module.common.storage_accounts["region2"]
-  private_dns_zone_name = "spoke4.${local.cloud_domain}"
+  private_dns_zone_name = module.spoke4.private_dns_zone.name
   delay_creation        = "1m"
   tags                  = local.spoke4_tags
   depends_on            = [module.spoke4]
@@ -88,7 +88,7 @@ module "spoke5" {
   }
 
   create_private_dns_zone = true
-  private_dns_zone_name   = "spoke5.${local.cloud_domain}"
+  private_dns_zone_name   = local.spoke5_dns_zone
   private_dns_zone_linked_external_vnets = {
     "hub2" = module.hub2.vnet.id
   }
@@ -106,8 +106,8 @@ module "spoke5" {
   }
 
   config_vnet = {
-    address_space = local.spoke2_address_space
-    subnets       = local.spoke2_subnets
+    address_space = local.spoke5_address_space
+    subnets       = local.spoke5_subnets
   }
 }
 
@@ -124,7 +124,7 @@ module "spoke5_vm" {
   enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region2"]
-  private_dns_zone_name = "spoke5.${local.cloud_domain}"
+  private_dns_zone_name = module.spoke5.private_dns_zone.name
   delay_creation        = "1m"
   tags                  = local.spoke5_tags
   depends_on            = [module.spoke5]
@@ -148,7 +148,7 @@ module "spoke6" {
   }
 
   create_private_dns_zone = true
-  private_dns_zone_name   = "spoke6.${local.cloud_domain}"
+  private_dns_zone_name   = local.spoke6_dns_zone
   private_dns_zone_linked_external_vnets = {
     "hub2" = module.hub2.vnet.id
   }
@@ -166,8 +166,8 @@ module "spoke6" {
   }
 
   config_vnet = {
-    address_space = local.spoke3_address_space
-    subnets       = local.spoke3_subnets
+    address_space = local.spoke6_address_space
+    subnets       = local.spoke6_subnets
   }
 }
 
@@ -184,7 +184,7 @@ module "spoke6_vm" {
   enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region2"]
-  private_dns_zone_name = "spoke6.${local.cloud_domain}"
+  private_dns_zone_name = module.spoke6.private_dns_zone.name
   delay_creation        = "1m"
   tags                  = local.spoke6_tags
   depends_on            = [module.spoke6]

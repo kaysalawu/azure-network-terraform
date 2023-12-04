@@ -36,8 +36,8 @@ module "spoke4" {
   }
 
   config_vnet = {
-    address_space = local.spoke1_address_space
-    subnets       = local.spoke1_subnets
+    address_space = local.spoke4_address_space
+    subnets       = local.spoke4_subnets
   }
 }
 
@@ -106,8 +106,8 @@ module "spoke5" {
   }
 
   config_vnet = {
-    address_space = local.spoke2_address_space
-    subnets       = local.spoke2_subnets
+    address_space = local.spoke5_address_space
+    subnets       = local.spoke5_subnets
   }
 }
 
@@ -166,8 +166,8 @@ module "spoke6" {
   }
 
   config_vnet = {
-    address_space = local.spoke3_address_space
-    subnets       = local.spoke3_subnets
+    address_space = local.spoke6_address_space
+    subnets       = local.spoke6_subnets
   }
 }
 

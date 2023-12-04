@@ -62,8 +62,8 @@ locals {
             { ip_address = local.branch1_dns_addr, port = 53 },
           ]
         }
-        "cloud" = {
-          domain = local.cloud_domain
+        "eu" = {
+          domain = "eu.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
@@ -77,11 +77,10 @@ locals {
       bgp_settings = {
         asn = local.hub1_vpngw_asn
       }
-      create_dashboard = true
     }
 
     config_ergw = {
-      enable = true
+      enable = false
       sku    = "ErGw1AZ"
     }
 

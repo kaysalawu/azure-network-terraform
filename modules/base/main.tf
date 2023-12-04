@@ -22,7 +22,7 @@ resource "azurerm_virtual_network" "this" {
 
 ####################################################
 # subnets
-####################################################
+####################################################s
 
 resource "azurerm_subnet" "this" {
   for_each             = var.config_vnet.subnets
@@ -66,16 +66,16 @@ resource "azurerm_subnet_network_security_group_association" "this" {
 # dns zone
 
 resource "azurerm_private_dns_zone" "this" {
-  count               = var.create_private_dns_zone ? 1 : 0
+  count               = var.create_private_dns_zone && var.private_dns_zone_name != null ? 1 : 0
   resource_group_name = var.resource_group
   name                = var.private_dns_zone_name
   tags                = var.tags
 }
 
-# zone links
+# zone link (local vnet)
 
 resource "azurerm_private_dns_zone_virtual_network_link" "internal" {
-  count                 = var.create_private_dns_zone ? 1 : 0
+  count                 = var.create_private_dns_zone && var.private_dns_zone_name != null ? 1 : 0
   resource_group_name   = var.resource_group
   name                  = "${local.prefix}vnet-link"
   private_dns_zone_name = var.create_private_dns_zone ? azurerm_private_dns_zone.this[0].name : var.private_dns_zone_name
@@ -86,10 +86,10 @@ resource "azurerm_private_dns_zone_virtual_network_link" "internal" {
   }
 }
 
-# zone links to external vnets
+# zone links (external vnets)
 
 resource "azurerm_private_dns_zone_virtual_network_link" "external" {
-  for_each              = var.private_dns_zone_linked_external_vnets
+  for_each              = { for k, v in var.private_dns_zone_linked_external_vnets : k => v if var.create_private_dns_zone && var.private_dns_zone_name != null }
   resource_group_name   = var.resource_group
   name                  = "${local.prefix}${each.key}-vnet-link"
   private_dns_zone_name = var.create_private_dns_zone ? azurerm_private_dns_zone.this[0].name : var.private_dns_zone_name
@@ -344,134 +344,28 @@ resource "azurerm_route_server" "ars" {
 # azure firewall
 ####################################################
 
-# workspace
+module "azfw" {
+  count          = var.config_firewall.enable ? 1 : 0
+  source         = "../../modules/azfw"
+  resource_group = var.resource_group
+  prefix         = local.prefix
+  env            = var.env
+  location       = var.location
+  subnet_id      = azurerm_subnet.this["AzureFirewallSubnet"].id
+  mgt_subnet_id  = azurerm_subnet.this["AzureFirewallManagementSubnet"].id
+  sku_name       = "AZFW_VNet"
+  tags           = var.tags
 
-resource "azurerm_log_analytics_workspace" "azfw" {
-  count               = var.config_firewall.enable ? 1 : 0
-  resource_group_name = var.resource_group
-  name                = "${local.prefix}azfw-ws"
-  location            = var.location
-  sku                 = "PerGB2018"
-  retention_in_days   = 30
-  tags                = var.tags
-}
+  firewall_policy_id = var.config_firewall.firewall_policy_id
+  create_dashboard   = var.config_firewall.create_dashboard
 
-# storage account
-
-resource "azurerm_storage_account" "azfw" {
-  count                    = var.config_firewall.enable ? 1 : 0
-  resource_group_name      = var.resource_group
-  name                     = lower(replace("${local.prefix}azfw", "-", ""))
-  location                 = var.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-  tags                     = var.tags
-}
-
-# firewall public ip
-
-resource "azurerm_public_ip" "fw_pip" {
-  count               = var.config_firewall.enable ? 1 : 0
-  resource_group_name = var.resource_group
-  name                = "${local.prefix}azfw-pip0"
-  location            = var.location
-  sku                 = "Standard"
-  allocation_method   = "Static"
-  tags                = var.tags
-  timeouts {
-    create = "60m"
-  }
   depends_on = [
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
-  ]
-}
-
-# firewall management public ip
-
-resource "azurerm_public_ip" "fw_mgt_pip" {
-  count               = var.config_firewall.enable ? 1 : 0
-  resource_group_name = var.resource_group
-  name                = "${local.prefix}azfw-mgt-pip0"
-  location            = var.location
-  sku                 = "Standard"
-  allocation_method   = "Static"
-  tags                = var.tags
-  timeouts {
-    create = "60m"
-  }
-  depends_on = [
-    azurerm_subnet.this,
-    azurerm_subnet_network_security_group_association.this,
-  ]
-}
-
-# firewall
-
-resource "azurerm_firewall" "azfw" {
-  count               = var.config_firewall.enable ? 1 : 0
-  name                = "${local.prefix}azfw"
-  resource_group_name = var.resource_group
-  location            = var.location
-  sku_name            = "AZFW_VNet"
-  sku_tier            = try(var.config_firewall.firewall_sku, "Basic")
-  firewall_policy_id  = try(var.config_firewall.firewall_policy_id, null)
-  tags                = var.tags
-
-  ip_configuration {
-    name                 = "${local.prefix}ip-config"
-    subnet_id            = azurerm_subnet.this["AzureFirewallSubnet"].id
-    public_ip_address_id = azurerm_public_ip.fw_pip[0].id
-  }
-  management_ip_configuration {
-    name                 = "${local.prefix}mgmt-ip-config"
-    subnet_id            = azurerm_subnet.this["AzureFirewallManagementSubnet"].id
-    public_ip_address_id = azurerm_public_ip.fw_mgt_pip[0].id
-  }
-  timeouts {
-    create = "60m"
-  }
-  lifecycle {
-    ignore_changes = [
-      ip_configuration,
-      management_ip_configuration,
-    ]
-  }
-  depends_on = [
-    azurerm_public_ip.fw_mgt_pip,
-    azurerm_public_ip.fw_pip,
     azurerm_route_server.ars,
     module.vpngw,
     module.ergw,
   ]
-}
-
-# diagnostic setting
-
-resource "azurerm_monitor_diagnostic_setting" "azfw" {
-  count                          = var.config_firewall.enable ? 1 : 0
-  name                           = "${local.prefix}azfw-diag"
-  target_resource_id             = azurerm_firewall.azfw[0].id
-  log_analytics_workspace_id     = azurerm_log_analytics_workspace.azfw[0].id
-  log_analytics_destination_type = "Dedicated"
-
-  dynamic "metric" {
-    for_each = var.metric_categories_firewall
-    content {
-      category = metric.value.category
-      enabled  = true
-    }
-  }
-
-  dynamic "enabled_log" {
-    for_each = { for k, v in var.log_categories_firewall : k => v if v.enabled }
-    content {
-      category = enabled_log.value.category
-    }
-  }
-  timeouts {
-    create = "60m"
-  }
 }
 
 ####################################################
@@ -498,6 +392,11 @@ module "nva_linux" {
   admin_username       = var.admin_username
   admin_password       = var.admin_password
   custom_data          = var.config_nva.custom_data
+
+  depends_on = [
+    azurerm_subnet.this,
+    azurerm_subnet_network_security_group_association.this,
+  ]
 }
 
 # internal lb
@@ -528,14 +427,19 @@ module "ilb_nva_linux" {
         virtual_network_id = azurerm_virtual_network.this.id
       },
     ]
-    depends_on = [module.nva_linux, ]
+
+    depends_on = [
+      azurerm_subnet.this,
+      azurerm_subnet_network_security_group_association.this,
+      module.nva_linux,
+    ]
   }
 }
 
 # opnsense
 #----------------------------
 
-module "opnsense_0" {
+module "opns0" {
   count          = var.config_nva.enable && var.config_nva.type == "opnsense" ? 1 : 0
   source         = "../../modules/opnsense"
   resource_group = var.resource_group
@@ -551,5 +455,10 @@ module "opnsense_0" {
   deploy_windows_mgmt           = false
   mgmt_subnet_address_prefix    = azurerm_subnet.this["ManagementSubnet"].address_prefixes[0]
   trusted_subnet_address_prefix = azurerm_subnet.this["TrustSubnet"].address_prefixes[0]
+
+  depends_on = [
+    azurerm_subnet.this,
+    azurerm_subnet_network_security_group_association.this,
+  ]
 }
 
