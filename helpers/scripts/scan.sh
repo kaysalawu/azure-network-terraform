@@ -183,15 +183,15 @@ run_terraform_cleanup() {
 }
 
 if [[ "$1" == "--diff" || "$1" == "-f" ]]; then
-    run_dir_diff
+    clear && run_dir_diff
 elif [[ "$1" == "--copy" || "$1" == "-c" ]]; then
-    run_copy_files
+    clear && run_copy_files
 elif [[ "$1" == "--df" || "$1" == "-x" ]]; then
-    run_delete_files
+    clear && run_delete_files
 elif [[ "$1" == "--test" || "$1" == "-t" ]]; then
-    run_terraform_test
+    clear && run_terraform_test
 elif [[ "$1" == "--cleanup" || "$1" == "-u" ]]; then
-    run_terraform_cleanup
+    clear && run_terraform_cleanup
 elif [[ "$1" == "--help" || "$1" == "-h" ]]; then
     echo "Usage: $0 {--diff|-f|--copy|-c|--delete-files|-x|--test|-t|--cleanup|-u}"
 else

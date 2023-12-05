@@ -218,7 +218,7 @@ locals {
   branch3_vm_init = templatefile("../../scripts/server.sh", {
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
-    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns]
+    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
     ENABLE_TRAFFIC_GEN        = true
   })
 }
