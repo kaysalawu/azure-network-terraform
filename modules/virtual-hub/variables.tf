@@ -4,6 +4,12 @@ variable "prefix" {
   type        = string
 }
 
+variable "env" {
+  description = "environment name"
+  type        = string
+  default     = "dev"
+}
+
 variable "tags" {
   description = "A map of tags to apply to all resources"
   type        = map(any)
@@ -31,22 +37,23 @@ variable "address_prefix" {
 }
 
 variable "bgp_config" {
-  type = list(object({
+  type = object({
     asn                   = optional(string, "65001")
     peer_weight           = optional(number, 0)
     instance_0_custom_ips = optional(list(string))
     instance_1_custom_ips = optional(list(string))
-  }))
-  default = []
+  })
+  default = {}
 }
 
 variable "security_config" {
-  type = list(object({
+  type = object({
     create_firewall    = optional(bool, false)
     firewall_sku       = optional(string, "Basic")
     firewall_policy_id = optional(string, null)
-  }))
-  default = []
+    create_dashboard   = optional(bool, true)
+  })
+  default = {}
 }
 
 variable "enable_s2s_vpn_gateway" {

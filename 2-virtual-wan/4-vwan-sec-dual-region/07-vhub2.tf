@@ -18,21 +18,17 @@ module "vhub2" {
   enable_routing_intent = local.vhub2_features.security.enable_routing_intent
   routing_policies      = local.vhub2_features.security.routing_policies
 
-  bgp_config = [
-    {
-      asn                   = local.vhub2_bgp_asn
-      instance_0_custom_ips = [local.vhub2_vpngw_bgp_apipa_0]
-      instance_1_custom_ips = [local.vhub2_vpngw_bgp_apipa_1]
-    }
-  ]
+  bgp_config = {
+    asn                   = local.vhub2_bgp_asn
+    instance_0_custom_ips = [local.vhub2_vpngw_bgp_apipa_0]
+    instance_1_custom_ips = [local.vhub2_vpngw_bgp_apipa_1]
+  }
 
-  security_config = [
-    {
-      create_firewall    = local.vhub2_features.security.create_firewall
-      firewall_sku       = local.vhub2_features.security.firewall_sku
-      firewall_policy_id = local.vhub2_features.security.firewall_policy_id
-    }
-  ]
+  security_config = {
+    create_firewall    = local.vhub2_features.security.create_firewall
+    firewall_sku       = local.vhub2_features.security.firewall_sku
+    firewall_policy_id = local.vhub2_features.security.firewall_policy_id
+  }
 }
 
 data "azurerm_virtual_hub_route_table" "vhub2_default" {

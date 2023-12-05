@@ -28,11 +28,11 @@ output "router_bgp_ip1" {
 }
 
 output "firewall" {
-  value = try(azurerm_firewall.this[0], {})
+  value = try(module.azfw[0], {})
 }
 
 output "firewall_private_ip" {
-  value = try(azurerm_firewall.this[0].virtual_hub[0].private_ip_address, {})
+  value = try(module.azfw[0].virtual_hub[0].private_ip_address, {})
 }
 
 output "virtual_hub" {
@@ -43,6 +43,3 @@ output "bgp_asn" {
   value = azurerm_virtual_hub.this.virtual_router_asn
 }
 
-output "azfw_diagnostic_setting" {
-  value = try(azurerm_monitor_diagnostic_setting.azfw[0], {})
-}

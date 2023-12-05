@@ -46,13 +46,13 @@ resource "azurerm_vpn_gateway" "this" {
   virtual_hub_id      = azurerm_virtual_hub.this.id
 
   bgp_settings {
-    asn         = var.bgp_config[0].asn
-    peer_weight = var.bgp_config[0].peer_weight
+    asn         = var.bgp_config.asn
+    peer_weight = var.bgp_config.peer_weight
     instance_0_bgp_peering_address {
-      custom_ips = var.bgp_config[0].instance_0_custom_ips
+      custom_ips = var.bgp_config.instance_0_custom_ips
     }
     instance_1_bgp_peering_address {
-      custom_ips = var.bgp_config[0].instance_1_custom_ips
+      custom_ips = var.bgp_config.instance_1_custom_ips
     }
   }
   timeouts {
@@ -63,80 +63,19 @@ resource "azurerm_vpn_gateway" "this" {
 # firewall
 #----------------------------
 
-resource "random_id" "azfw" {
-  count       = var.security_config[0].create_firewall ? 1 : 0
-  byte_length = 4
-}
+module "azfw" {
+  count          = var.security_config.create_firewall ? 1 : 0
+  source         = "../../modules/azfw"
+  resource_group = var.resource_group
+  prefix         = local.prefix
+  env            = var.env
+  location       = var.location
+  virtual_hub_id = azurerm_virtual_hub.this.id
+  sku_name       = "AZFW_Hub"
+  tags           = var.tags
 
-# workspace
-
-resource "azurerm_log_analytics_workspace" "azfw" {
-  count               = var.security_config[0].create_firewall ? 1 : 0
-  resource_group_name = var.resource_group
-  name                = "${local.prefix}azfw-ws-${random_id.azfw[0].hex}"
-  location            = var.location
-  sku                 = "PerGB2018"
-  retention_in_days   = 30
-  tags                = var.tags
-}
-
-# storage account
-
-resource "azurerm_storage_account" "azfw" {
-  count                    = var.security_config[0].create_firewall ? 1 : 0
-  resource_group_name      = var.resource_group
-  name                     = lower(replace("${local.prefix}azfw${random_id.azfw[0].hex}", "-", ""))
-  location                 = var.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-  tags                     = var.tags
-}
-
-resource "azurerm_firewall" "this" {
-  count               = var.security_config[0].create_firewall ? 1 : 0
-  resource_group_name = var.resource_group
-  name                = "${local.prefix}azfw"
-  location            = var.location
-  sku_tier            = "Standard"
-  sku_name            = "AZFW_Hub"
-  tags                = var.tags
-  firewall_policy_id  = var.security_config[0].firewall_policy_id
-  virtual_hub {
-    virtual_hub_id  = azurerm_virtual_hub.this.id
-    public_ip_count = 1
-  }
-  timeouts {
-    create = "60m"
-  }
-}
-
-# diagnostic setting
-
-resource "azurerm_monitor_diagnostic_setting" "azfw" {
-  count                          = var.security_config[0].create_firewall ? 1 : 0
-  name                           = "${local.prefix}azfw-diag"
-  target_resource_id             = azurerm_firewall.this[0].id
-  log_analytics_workspace_id     = azurerm_log_analytics_workspace.azfw[0].id
-  log_analytics_destination_type = "Dedicated"
-  #storage_account_id         = azurerm_storage_account.azfw[0].id
-
-  dynamic "metric" {
-    for_each = var.metric_categories_firewall
-    content {
-      category = metric.value.category
-      enabled  = true
-    }
-  }
-
-  dynamic "enabled_log" {
-    for_each = { for k, v in var.log_categories_firewall : k => v if v.enabled }
-    content {
-      category = enabled_log.value.category
-    }
-  }
-  timeouts {
-    create = "60m"
-  }
+  firewall_policy_id = var.security_config.firewall_policy_id
+  create_dashboard   = var.security_config.create_dashboard
 }
 
 # routing intent
@@ -152,7 +91,7 @@ resource "azurerm_virtual_hub_routing_intent" "this" {
     content {
       name         = "Internet"
       destinations = ["Internet"]
-      next_hop     = azurerm_firewall.this[0].id
+      next_hop     = module.azfw[0].firewall.id
     }
   }
 
@@ -161,7 +100,7 @@ resource "azurerm_virtual_hub_routing_intent" "this" {
     content {
       name         = "PrivateTraffic"
       destinations = ["PrivateTraffic"]
-      next_hop     = azurerm_firewall.this[0].id
+      next_hop     = module.azfw[0].firewall.id
     }
   }
 }
@@ -177,7 +116,7 @@ resource "azurerm_virtual_hub_routing_intent" "this" {
 #       routingPolicies = [for routing_policy in var.routing_policies : {
 #         name         = routing_policy.name
 #         destinations = routing_policy.destinations
-#         nextHop      = azurerm_firewall.this[0].id
+#         nextHop      = module.azfw[0].firewall.id
 #       }]
 #     }
 #   })
@@ -201,7 +140,7 @@ resource "azurerm_virtual_hub_route_table_route" "this" {
   destinations_type = "CIDR"
   destinations      = each.value
   next_hop_type     = "ResourceId"
-  next_hop          = azurerm_firewall.this[0].id
+  next_hop          = module.azfw[0].firewall.id
   depends_on = [
     time_sleep.this,
   ]

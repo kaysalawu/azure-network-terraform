@@ -71,7 +71,7 @@ locals {
       "ingress-static" = "10.11.80.0/24"
     }
   }
-  hub1_dns_zone = "hub1.eu.${local.cloud_domain}"
+  hub1_dns_zone = "hub1.we.${local.cloud_domain}"
   hub1_tags     = { "nodeType" = "hub" }
   hub1_subnets = {
     ("MainSubnet")                    = { address_prefixes = ["10.11.0.0/24"] }
@@ -265,7 +265,7 @@ locals {
   spoke1_prefix        = local.prefix == "" ? "spoke1-" : join("-", [local.prefix, "spoke1-"])
   spoke1_location      = local.region1
   spoke1_address_space = ["10.1.0.0/16"]
-  spoke1_dns_zone      = "spoke1.eu.${local.cloud_domain}"
+  spoke1_dns_zone      = "spoke1.we.${local.cloud_domain}"
   spoke1_tags          = { "nodeType" = "spoke" }
   spoke1_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.1.0.0/24"] }
@@ -295,7 +295,7 @@ locals {
   spoke2_prefix        = local.prefix == "" ? "spoke2-" : join("-", [local.prefix, "spoke2-"])
   spoke2_location      = local.region1
   spoke2_address_space = ["10.2.0.0/16"]
-  spoke2_dns_zone      = "spoke2.eu.${local.cloud_domain}"
+  spoke2_dns_zone      = "spoke2.we.${local.cloud_domain}"
   spoke2_tags          = { "nodeType" = "spoke" }
   spoke2_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.2.0.0/24"] }
@@ -325,7 +325,7 @@ locals {
   spoke3_prefix        = local.prefix == "" ? "spoke3-" : join("-", [local.prefix, "spoke3-"])
   spoke3_location      = local.region1
   spoke3_address_space = ["10.3.0.0/16", ]
-  spoke3_dns_zone      = "spoke3.eu.${local.cloud_domain}"
+  spoke3_dns_zone      = "spoke3.we.${local.cloud_domain}"
   spoke3_tags          = { "nodeType" = "spoke" }
   spoke3_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.3.0.0/24"] }

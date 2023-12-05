@@ -12,5 +12,8 @@ output "public_ip_mgt" {
 }
 
 output "private_ip" {
-  value = azurerm_firewall.this.ip_configuration[0].private_ip_address
+  value = coalesce(
+    try(azurerm_firewall.this.ip_configuration[0].private_ip_address, null),
+    try(azurerm_firewall.this.virtual_hub[0].private_ip_address, null)
+  )
 }

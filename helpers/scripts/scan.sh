@@ -79,7 +79,7 @@ terraform_test(){
 terraform_cleanup(){
     local original_dir=$(pwd)
     cd "$1" || exit
-    echo "  * terraform clean ..."
+    echo "  * cleaning ..."
     rm -rf .terraform 2> /dev/null
     rm .terraform.lock.hcl 2> /dev/null
     rm terraform.tfstate.backup 2> /dev/null
@@ -141,6 +141,7 @@ run_delete_files() {
 }
 
 run_terraform_test() {
+    clear
     for dir in "${dirs[@]}"; do
         if [ -d "$dir" ]; then
             echo && echo "$dir"
@@ -153,11 +154,13 @@ run_terraform_test() {
             done
         fi
     done
+    echo "done!"
 }
 
 run_terraform_cleanup() {
     read -p "Delete terraform state? (y/n): " yn
     if [[ $yn == [Yy] ]]; then
+        clear
         for dir in "${dirs[@]}"; do
             if [ -d "$dir" ]; then
                 echo && echo "$dir"
@@ -176,6 +179,7 @@ run_terraform_cleanup() {
         echo "Invalid input. Please answer y or n."
         return 1
     fi
+    echo "done!"
 }
 
 if [[ "$1" == "--diff" || "$1" == "-f" ]]; then

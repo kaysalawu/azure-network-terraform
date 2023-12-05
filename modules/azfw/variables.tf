@@ -35,11 +35,13 @@ variable "storage_account" {
 variable "subnet_id" {
   description = "subnet id"
   type        = string
+  default     = null
 }
 
 variable "mgt_subnet_id" {
   description = "management subnet id"
   type        = string
+  default     = null
 }
 
 variable "sku_tier" {
@@ -201,4 +203,16 @@ variable "create_dashboard" {
   description = "create dashboard"
   type        = bool
   default     = true
+}
+
+variable "virtual_hub_id" {
+  description = "virtual hub id"
+  type        = string
+  default     = null
+}
+
+variable "virtual_hub_public_ip_count" {
+  description = "virtual hub public ip count"
+  type        = number
+  default     = 1
 }

@@ -60,8 +60,8 @@ resource "azurerm_firewall" "this" {
   dynamic "virtual_hub" {
     for_each = var.sku_name == "AZFW_Hub" ? [1] : []
     content {
-      virtual_hub_id  = azurerm_virtual_hub.this.id
-      public_ip_count = 1
+      virtual_hub_id  = var.virtual_hub_id
+      public_ip_count = var.virtual_hub_public_ip_count
     }
   }
 

@@ -68,7 +68,7 @@ locals {
           ]
         }
         "eu" = {
-          domain = "eu.${local.cloud_domain}"
+          domain = "we.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
@@ -83,7 +83,7 @@ locals {
     }
 
     config_vpngw = {
-      enable = true
+      enable = false
       sku    = "VpnGw1AZ"
       bgp_settings = {
         asn = local.hub1_vpngw_asn

@@ -77,7 +77,7 @@ locals {
           ]
         }
         "eu" = {
-          domain = "eu.${local.cloud_domain}"
+          domain = "we.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
