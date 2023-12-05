@@ -11,24 +11,11 @@ module "vhub1" {
   virtual_wan_id = azurerm_virtual_wan.vwan.id
   address_prefix = local.vhub1_address_prefix
 
-  enable_er_gateway      = local.vhub1_features.enable_er_gateway
-  enable_s2s_vpn_gateway = local.vhub1_features.enable_s2s_vpn_gateway
-  enable_p2s_vpn_gateway = local.vhub1_features.enable_p2s_vpn_gateway
+  er_gateway      = local.vhub1_features.er_gateway
+  s2s_vpn_gateway = local.vhub1_features.s2s_vpn_gateway
+  p2s_vpn_gateway = local.vhub1_features.p2s_vpn_gateway
 
-  enable_routing_intent = local.vhub1_features.security.enable_routing_intent
-  routing_policies      = local.vhub1_features.security.routing_policies
-
-  bgp_config = {
-    asn                   = local.vhub1_bgp_asn
-    instance_0_custom_ips = [local.vhub1_vpngw_bgp_apipa_0]
-    instance_1_custom_ips = [local.vhub1_vpngw_bgp_apipa_1]
-  }
-
-  security_config = {
-    create_firewall    = local.vhub1_features.security.create_firewall
-    firewall_sku       = local.vhub1_features.security.firewall_sku
-    firewall_policy_id = local.vhub1_features.security.firewall_policy_id
-  }
+  config_security = local.vhub1_features.config_security
 }
 
 data "azurerm_virtual_hub_route_table" "vhub1_default" {
@@ -46,7 +33,7 @@ data "azurerm_virtual_hub_route_table" "vhub1_none" {
 }
 
 # resource "azurerm_virtual_hub_route_table" "vhub1_custom" {
-#   count          = local.vhub1_features.security.enable_routing_intent ? 0 : 1
+#   count          = local.vhub1_features.config_security.enable_routing_intent ? 0 : 1
 #   name           = "custom"
 #   virtual_hub_id = module.vhub1.virtual_hub.id
 #   labels         = ["custom"]

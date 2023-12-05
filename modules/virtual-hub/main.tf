@@ -10,8 +10,9 @@ locals {
   ]
 }
 
+####################################################
 # hub
-#----------------------------
+####################################################
 
 resource "azurerm_virtual_hub" "this" {
   resource_group_name    = var.resource_group
@@ -33,26 +34,33 @@ data "azurerm_virtual_hub_route_table" "default" {
   depends_on          = [azurerm_virtual_hub.this, ]
 }
 
-# vpngw
-#----------------------------
-
-# s2s
+####################################################
+# s2s vpn gateway
+####################################################
 
 resource "azurerm_vpn_gateway" "this" {
-  count               = var.enable_s2s_vpn_gateway ? 1 : 0
+  count               = var.s2s_vpn_gateway.enable ? 1 : 0
   resource_group_name = var.resource_group
   name                = "${local.prefix}vpngw"
   location            = var.location
   virtual_hub_id      = azurerm_virtual_hub.this.id
 
   bgp_settings {
-    asn         = var.bgp_config.asn
-    peer_weight = var.bgp_config.peer_weight
-    instance_0_bgp_peering_address {
-      custom_ips = var.bgp_config.instance_0_custom_ips
+    asn         = var.s2s_vpn_gateway.bgp_settings.asn
+    peer_weight = var.s2s_vpn_gateway.bgp_settings.peer_weight
+
+    dynamic "instance_0_bgp_peering_address" {
+      for_each = var.s2s_vpn_gateway.bgp_settings.instance_0_custom_ips != [] ? [1] : []
+      content {
+        custom_ips = var.s2s_vpn_gateway.bgp_settings.instance_0_custom_ips
+      }
     }
-    instance_1_bgp_peering_address {
-      custom_ips = var.bgp_config.instance_1_custom_ips
+
+    dynamic "instance_1_bgp_peering_address" {
+      for_each = var.s2s_vpn_gateway.bgp_settings.instance_1_custom_ips != [] ? [1] : []
+      content {
+        custom_ips = var.s2s_vpn_gateway.bgp_settings.instance_1_custom_ips
+      }
     }
   }
   timeouts {
@@ -60,11 +68,12 @@ resource "azurerm_vpn_gateway" "this" {
   }
 }
 
+####################################################
 # firewall
-#----------------------------
+####################################################
 
 module "azfw" {
-  count          = var.security_config.create_firewall ? 1 : 0
+  count          = var.config_security.create_firewall ? 1 : 0
   source         = "../../modules/azfw"
   resource_group = var.resource_group
   prefix         = local.prefix
@@ -74,20 +83,21 @@ module "azfw" {
   sku_name       = "AZFW_Hub"
   tags           = var.tags
 
-  firewall_policy_id = var.security_config.firewall_policy_id
-  create_dashboard   = var.security_config.create_dashboard
+  firewall_policy_id = var.config_security.firewall_policy_id
+  create_dashboard   = var.config_security.create_dashboard
 }
 
+####################################################
 # routing intent
-#----------------------------
+####################################################
 
 resource "azurerm_virtual_hub_routing_intent" "this" {
-  count          = var.enable_routing_intent ? 1 : 0
+  count          = var.config_security.enable_routing_intent ? 1 : 0
   name           = "${local.prefix}hub-ri-policy"
   virtual_hub_id = azurerm_virtual_hub.this.id
 
   dynamic "routing_policy" {
-    for_each = var.routing_policies["internet"] ? [1] : []
+    for_each = var.config_security.routing_policies["internet"] ? [1] : []
     content {
       name         = "Internet"
       destinations = ["Internet"]
@@ -96,7 +106,7 @@ resource "azurerm_virtual_hub_routing_intent" "this" {
   }
 
   dynamic "routing_policy" {
-    for_each = var.routing_policies["private_traffic"] ? [1] : []
+    for_each = var.config_security.routing_policies["private_traffic"] ? [1] : []
     content {
       name         = "PrivateTraffic"
       destinations = ["PrivateTraffic"]
@@ -106,14 +116,14 @@ resource "azurerm_virtual_hub_routing_intent" "this" {
 }
 
 # resource "azapi_resource" "hub_route_intent" {
-#   count     = var.enable_routing_intent ? 1 : 0
+#   count     = var.config_security.enable_routing_intent ? 1 : 0
 #   name      = "${local.prefix}hub-ri-policy"
 #   parent_id = azurerm_virtual_hub.this.id
 #   type      = "Microsoft.Network/virtualHubs/routingIntent@2022-09-01"
 
 #   body = jsonencode({
 #     properties = {
-#       routingPolicies = [for routing_policy in var.routing_policies : {
+#       routingPolicies = [for routing_policy in var.config_security.routing_policies : {
 #         name         = routing_policy.name
 #         destinations = routing_policy.destinations
 #         nextHop      = module.azfw[0].firewall.id
@@ -122,8 +132,9 @@ resource "azurerm_virtual_hub_routing_intent" "this" {
 #   })
 # }
 
+####################################################
 # static routes
-#----------------------------
+####################################################
 
 resource "time_sleep" "this" {
   create_duration = "60s"
@@ -134,7 +145,7 @@ resource "time_sleep" "this" {
 }
 
 resource "azurerm_virtual_hub_route_table_route" "this" {
-  for_each          = var.enable_routing_intent ? var.routing_policies.additional_prefixes : {}
+  for_each          = var.config_security.enable_routing_intent ? var.config_security.routing_policies.additional_prefixes : {}
   route_table_id    = data.azurerm_virtual_hub_route_table.default.id
   name              = each.key
   destinations_type = "CIDR"

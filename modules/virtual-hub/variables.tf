@@ -36,7 +36,7 @@ variable "address_prefix" {
   type        = string
 }
 
-variable "bgp_config" {
+variable "config_bgp" {
   type = object({
     asn                   = optional(string, "65001")
     peer_weight           = optional(number, 0)
@@ -46,32 +46,50 @@ variable "bgp_config" {
   default = {}
 }
 
-variable "security_config" {
+variable "config_security" {
   type = object({
-    create_firewall    = optional(bool, false)
-    firewall_sku       = optional(string, "Basic")
-    firewall_policy_id = optional(string, null)
-    create_dashboard   = optional(bool, true)
+    create_firewall       = optional(bool, false)
+    enable_routing_intent = optional(bool, false)
+    firewall_sku          = optional(string, "Basic")
+    firewall_policy_id    = optional(string, null)
+    routing_policies = optional(object({
+      internet            = optional(bool, false)
+      private_traffic     = optional(bool, false)
+      additional_prefixes = optional(map(any), {})
+    }))
+    create_dashboard = optional(bool, true)
   })
   default = {}
 }
 
-variable "enable_s2s_vpn_gateway" {
-  description = "Enable S2S VPN"
-  type        = bool
-  default     = false
+variable "er_gateway" {
+  type = object({
+    enable = optional(bool, false)
+    sku    = optional(string, "ErGw1AZ")
+  })
+  default = {}
 }
 
-variable "enable_p2s_vpn_gateway" {
-  description = "Enable P2S VPN"
-  type        = bool
-  default     = false
+variable "s2s_vpn_gateway" {
+  type = object({
+    enable = optional(bool, false)
+    sku    = optional(string, "VpnGw1AZ")
+    bgp_settings = optional(object({
+      asn                   = optional(string, "65515")
+      peer_weight           = optional(number, 0)
+      instance_0_custom_ips = optional(list(string), [])
+      instance_1_custom_ips = optional(list(string), [])
+    }))
+  })
+  default = {}
 }
 
-variable "enable_er_gateway" {
-  description = "Enable ExpressRoute gateway"
-  type        = bool
-  default     = false
+variable "p2s_vpn_gateway" {
+  type = object({
+    enable = optional(bool, false)
+    sku    = optional(string, "VpnGw1AZ")
+  })
+  default = {}
 }
 
 variable "hub_routing_preference" {

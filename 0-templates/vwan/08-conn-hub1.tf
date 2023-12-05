@@ -130,7 +130,7 @@ resource "azurerm_vpn_gateway_connection" "vhub1_site_branch1_conn" {
 
   # disable routing when routing intent is used
   dynamic "routing" {
-    for_each = local.vhub1_features.security.enable_routing_intent ? [] : [1]
+    for_each = local.vhub1_features.config_security.enable_routing_intent ? [] : [1]
     content {
       associated_route_table = module.vhub1.virtual_hub.default_route_table_id
       propagated_route_table {
@@ -163,7 +163,7 @@ resource "azurerm_virtual_hub_connection" "spoke1_vnet_conn" {
 
   # disable routing when routing intent is used
   dynamic "routing" {
-    for_each = local.vhub1_features.security.enable_routing_intent ? [] : [1]
+    for_each = local.vhub1_features.config_security.enable_routing_intent ? [] : [1]
     content {
       associated_route_table_id = data.azurerm_virtual_hub_route_table.vhub1_default.id
       propagated_route_table {
@@ -200,7 +200,7 @@ resource "azurerm_virtual_hub_connection" "hub1_vnet_conn" {
 
   # disable routing when routing intent is used
   dynamic "routing" {
-    for_each = local.vhub1_features.security.enable_routing_intent ? [] : [1]
+    for_each = local.vhub1_features.config_security.enable_routing_intent ? [] : [1]
     content {
       associated_route_table_id = data.azurerm_virtual_hub_route_table.vhub1_default.id
       propagated_route_table {
@@ -240,7 +240,7 @@ locals {
 }
 
 resource "azurerm_virtual_hub_route_table_route" "vhub1_default_rt_static_routes" {
-  for_each          = local.vhub1_features.security.create_firewall ? local.vhub1_default_rt_static_routes : {}
+  for_each          = local.vhub1_features.config_security.create_firewall ? local.vhub1_default_rt_static_routes : {}
   route_table_id    = data.azurerm_virtual_hub_route_table.vhub1_default.id
   name              = each.key
   destinations_type = "CIDR"
@@ -251,7 +251,7 @@ resource "azurerm_virtual_hub_route_table_route" "vhub1_default_rt_static_routes
 }
 
 # resource "azurerm_virtual_hub_route_table_route" "vhub1_custom_rt_static_routes" {
-#   for_each          = local.vhub1_features.security.create_firewall ? local.vhub1_custom_rt_static_routes : {}
+#   for_each          = local.vhub1_features.config_security.create_firewall ? local.vhub1_custom_rt_static_routes : {}
 #   route_table_id    = azurerm_virtual_hub_route_table.vhub1_custom[0].id
 #   name              = each.key
 #   destinations_type = "CIDR"

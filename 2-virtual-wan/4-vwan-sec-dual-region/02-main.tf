@@ -92,7 +92,7 @@ locals {
     }
 
     config_vpngw = {
-      enable = true
+      enable = false
       sku    = "VpnGw1AZ"
       bgp_settings = {
         asn = local.hub1_vpngw_asn
@@ -149,7 +149,7 @@ locals {
     }
 
     config_vpngw = {
-      enable = true
+      enable = false
       sku    = "VpnGw1AZ"
       bgp_settings = {
         asn = local.hub2_vpngw_asn
@@ -176,11 +176,27 @@ locals {
   }
 
   vhub1_features = {
-    enable_er_gateway      = false
-    enable_s2s_vpn_gateway = true
-    enable_p2s_vpn_gateway = false
+    er_gateway = {
+      enable = false
+      sku    = "ErGw1AZ"
+    }
 
-    security = {
+    s2s_vpn_gateway = {
+      enable = true
+      sku    = "VpnGw1AZ"
+      bgp_settings = {
+        asn                   = local.vhub1_bgp_asn
+        instance_0_custom_ips = [local.vhub1_vpngw_bgp_apipa_0]
+        instance_1_custom_ips = [local.vhub1_vpngw_bgp_apipa_1]
+      }
+    }
+
+    p2s_vpn_gateway = {
+      enable = false
+      sku    = "VpnGw1AZ"
+    }
+
+    config_security = {
       create_firewall       = true
       enable_routing_intent = true
       firewall_sku          = local.firewall_sku
@@ -194,11 +210,27 @@ locals {
   }
 
   vhub2_features = {
-    enable_er_gateway      = false
-    enable_s2s_vpn_gateway = true
-    enable_p2s_vpn_gateway = false
+    er_gateway = {
+      enable = false
+      sku    = "ErGw1AZ"
+    }
 
-    security = {
+    s2s_vpn_gateway = {
+      enable = true
+      sku    = "VpnGw1AZ"
+      bgp_settings = {
+        asn                   = local.vhub2_bgp_asn
+        instance_0_custom_ips = [local.vhub2_vpngw_bgp_apipa_0]
+        instance_1_custom_ips = [local.vhub2_vpngw_bgp_apipa_1]
+      }
+    }
+
+    p2s_vpn_gateway = {
+      enable = false
+      sku    = "VpnGw1AZ"
+    }
+
+    config_security = {
       create_firewall       = true
       enable_routing_intent = true
       firewall_sku          = local.firewall_sku
