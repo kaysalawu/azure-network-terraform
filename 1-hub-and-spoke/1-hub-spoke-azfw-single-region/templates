@@ -5,4 +5,3 @@
 ../../0-templates/hub-spoke/06-conn-hub1-azfw.tf
 ../../0-templates/services-region1.tf
 ../../0-templates/outputs-single-region.tf
-../../0-templates/outputs-single-region.tf

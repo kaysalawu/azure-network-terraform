@@ -110,11 +110,27 @@ locals {
   }
 
   vhub1_features = {
-    enable_er_gateway      = false
-    enable_s2s_vpn_gateway = true
-    enable_p2s_vpn_gateway = false
+    er_gateway = {
+      enable = false
+      sku    = "ErGw1AZ"
+    }
 
-    security = {
+    s2s_vpn_gateway = {
+      enable = true
+      sku    = "VpnGw1AZ"
+      bgp_settings = {
+        asn                   = local.vhub1_bgp_asn
+        instance_0_custom_ips = [local.vhub1_vpngw_bgp_apipa_0]
+        instance_1_custom_ips = [local.vhub1_vpngw_bgp_apipa_1]
+      }
+    }
+
+    p2s_vpn_gateway = {
+      enable = false
+      sku    = "VpnGw1AZ"
+    }
+
+    config_security = {
       create_firewall       = true
       enable_routing_intent = true
       firewall_sku          = local.firewall_sku
@@ -242,14 +258,14 @@ locals {
     { name = (local.branch2_vm_fqdn), record = local.branch2_vm_addr },
   ]
   onprem_forward_zones = [
-    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr], },
-    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr], },
-    { zone = "privatelink.blob.core.windows.net.", targets = [local.hub1_dns_in_addr], },
-    { zone = "privatelink.azurewebsites.net.", targets = [local.hub1_dns_in_addr], },
-    { zone = "privatelink.database.windows.net.", targets = [local.hub1_dns_in_addr], },
-    { zone = "privatelink.table.cosmos.azure.com.", targets = [local.hub1_dns_in_addr], },
-    { zone = "privatelink.queue.core.windows.net.", targets = [local.hub1_dns_in_addr], },
-    { zone = "privatelink.file.core.windows.net.", targets = [local.hub1_dns_in_addr], },
+    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "privatelink.blob.core.windows.net.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "privatelink.azurewebsites.net.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "privatelink.database.windows.net.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "privatelink.table.cosmos.azure.com.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "privatelink.queue.core.windows.net.", targets = [local.hub1_dns_in_addr, ], },
+    { zone = "privatelink.file.core.windows.net.", targets = [local.hub1_dns_in_addr, ], },
     { zone = ".", targets = [local.azuredns, ] },
   ]
   onprem_redirected_hosts = []
@@ -313,8 +329,8 @@ resource "azurerm_firewall_policy" "firewall_policy" {
   private_ip_ranges = concat(
     local.private_prefixes,
     [
-      # "${local.spoke3_vm_public_ip}/32",
-      # "${local.spoke6_vm_public_ip}/32",
+      #"${local.spoke3_vm_public_ip}/32",
+      #"${local.spoke6_vm_public_ip}/32",
     ]
   )
 

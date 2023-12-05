@@ -448,8 +448,8 @@ resource "azurerm_firewall_policy" "firewall_policy" {
   private_ip_ranges = concat(
     local.private_prefixes,
     [
-      # "${local.spoke3_vm_public_ip}/32",
-      # "${local.spoke6_vm_public_ip}/32",
+      #"${local.spoke3_vm_public_ip}/32",
+      #"${local.spoke6_vm_public_ip}/32",
     ]
   )
 
