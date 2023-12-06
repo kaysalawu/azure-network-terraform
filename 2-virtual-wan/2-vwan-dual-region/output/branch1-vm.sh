@@ -181,3 +181,51 @@ echo -e "-------------------------------------"
 timeout 9 tracepath icanhazip.com
 EOF
 chmod a+x /usr/local/bin/trace-ip
+# light-traffic generator
+
+cat <<EOF > /usr/local/bin/light-traffic
+nping -c 3 --tcp -p 80 vm.branch1.corp > /dev/null 2>&1
+nping -c 3 --tcp -p 80 spoke3.p.hub1.we.az.corp > /dev/null 2>&1
+nping -c 3 --tcp -p 80 vm.spoke1.we.az.corp > /dev/null 2>&1
+nping -c 3 --tcp -p 80 vm.spoke2.we.az.corp > /dev/null 2>&1
+nping -c 3 --tcp -p 80 vm.branch3.corp > /dev/null 2>&1
+nping -c 3 --tcp -p 80 spoke6.p.hub2.ne.az.corp > /dev/null 2>&1
+nping -c 3 --tcp -p 80 vm.spoke4.ne.az.corp > /dev/null 2>&1
+nping -c 3 --tcp -p 80 vm.spoke5.ne.az.corp > /dev/null 2>&1
+nping -c 3 --tcp -p 80 vwan22-spoke3-8162-app.azurewebsites.net > /dev/null 2>&1
+nping -c 3 --tcp -p 80 vwan22-spoke6-8162-app.azurewebsites.net > /dev/null 2>&1
+EOF
+chmod a+x /usr/local/bin/light-traffic
+
+# heavy-traffic generator
+
+cat <<EOF > /usr/local/bin/heavy-traffic
+#! /bin/bash
+i=0
+while [ \$i -lt 4 ]; do
+    ab -n \$1 -c \$2 vm.branch1.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 spoke3.p.hub1.we.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 vm.spoke1.we.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 vm.spoke2.we.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 vm.branch3.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 spoke6.p.hub2.ne.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 vm.spoke4.ne.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 vm.spoke5.ne.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 vwan22-spoke3-8162-app.azurewebsites.net > /dev/null 2>&1
+    ab -n \$1 -c \$2 vwan22-spoke6-8162-app.azurewebsites.net > /dev/null 2>&1
+    let i=i+1
+  sleep 2
+done
+EOF
+chmod a+x /usr/local/bin/heavy-traffic
+
+# crontab for traffic generators
+
+cat <<EOF > /tmp/crontab.txt
+*/1 * * * * /usr/local/bin/light-traffic 2>&1 > /dev/null
+*/1 * * * * /usr/local/bin/heavy-traffic 50 1 2>&1 > /dev/null
+*/2 * * * * /usr/local/bin/heavy-traffic 8 2 2>&1 > /dev/null
+*/3 * * * * /usr/local/bin/heavy-traffic 20 4 2>&1 > /dev/null
+*/5 * * * * /usr/local/bin/heavy-traffic 15 2 2>&1 > /dev/null
+EOF
+crontab /tmp/crontab.txt
