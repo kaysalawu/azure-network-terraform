@@ -107,11 +107,11 @@ azureuser@Vwan21-spoke1-vm:~$ ping-ip
 
  ping ip ...
 
-branch1 - 10.10.0.5 -OK 5.331 ms
-hub1    - 10.11.0.5 -OK 5.296 ms
-spoke1  - 10.1.0.5 -OK 0.027 ms
-spoke2  - 10.2.0.5 -OK 6.906 ms
-internet - icanhazip.com -OK 1.457 ms
+branch1 - 10.10.0.5 -OK 7.099 ms
+hub1    - 10.11.0.5 -OK 4.639 ms
+spoke1  - 10.1.0.5 -OK 0.030 ms
+spoke2  - 10.2.0.5 -OK 5.877 ms
+internet - icanhazip.com -OK 1.484 ms
 ```
 
 ### 2. Ping DNS
@@ -131,11 +131,11 @@ azureuser@Vwan21-spoke1-vm:~$ ping-dns
 
  ping dns ...
 
-vm.branch1.corp - 10.10.0.5 -OK 5.036 ms
-vm.hub1.az.corp - 10.11.0.5 -OK 4.462 ms
-vm.spoke1.az.corp - 10.1.0.5 -OK 0.036 ms
-vm.spoke2.az.corp - 10.2.0.5 -OK 5.049 ms
-icanhazip.com - 104.18.115.97 -OK 2.092 ms
+vm.branch1.corp - 10.10.0.5 -OK 7.493 ms
+vm.hub1.we.az.corp - 10.11.0.5 -OK 5.371 ms
+vm.spoke1.we.az.corp - 10.1.0.5 -OK 0.023 ms
+vm.spoke2.we.az.corp - 10.2.0.5 -OK 6.663 ms
+icanhazip.com - 104.18.114.97 -OK 1.539 ms
 ```
 
 ### 3. Curl DNS
@@ -155,14 +155,14 @@ azureuser@Vwan21-spoke1-vm:~$ curl-dns
 
  curl dns ...
 
-200 (0.036304s) - 10.10.0.5 - vm.branch1.corp
-200 (0.026754s) - 10.11.0.5 - vm.hub1.az.corp
-200 (0.023586s) - 10.11.7.4 - spoke3.p.hub1.az.corp
-[16927.915301] cloud-init[1641]: 10.1.0.5 - - [28/Nov/2023 00:04:39] "GET / HTTP/1.1" 200 -
-200 (0.010887s) - 10.1.0.5 - vm.spoke1.az.corp
-200 (0.029750s) - 10.2.0.5 - vm.spoke2.az.corp
-000 (2.000552s) -  - vm.spoke3.az.corp
-200 (0.015603s) - 104.18.114.97 - icanhazip.com
+200 (0.039367s) - 10.10.0.5 - vm.branch1.corp
+200 (0.025939s) - 10.11.0.5 - vm.hub1.we.az.corp
+200 (0.018578s) - 10.11.7.4 - spoke3.p.hub1.we.az.corp
+200 (0.009684s) - 10.1.0.5 - vm.spoke1.we.az.corp
+200 (0.033674s) - 10.2.0.5 - vm.spoke2.we.az.corp
+000 (2.000913s) -  - vm.spoke3.we.az.corp
+200 (0.009979s) - 104.18.115.97 - icanhazip.com
+200 (0.054912s) - 10.11.7.5 - vwan21-spoke3-b6a0-app.azurewebsites.net
 ```
 
 We can see that curl test to spoke3 virtual machine `vm.spoke3.we.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.we.az.corp`.
@@ -182,7 +182,7 @@ azureuser@Vwan21-spoke1-vm:~$ curl spoke3.p.hub1.we.az.corp
 {
   "Headers": {
     "Accept": "*/*",
-    "Host": "spoke3.p.hub1.az.corp",
+    "Host": "spoke3.p.hub1.we.az.corp",
     "User-Agent": "curl/7.68.0"
   },
   "Hostname": "Vwan21-spoke3-vm",
@@ -221,7 +221,7 @@ echo $spoke3_apps_url
 Sample output (yours will be different)
 
 ```sh
-vwan21-spoke3-103e-app.azurewebsites.net
+vwan21-spoke3-b6a0-app.azurewebsites.net
 ```
 
 **5.3.** Resolve the hostname
@@ -234,18 +234,18 @@ Sample output (yours will be different)
 
 ```sh
 1-vwan-single-region$ nslookup $spoke3_apps_url
-Server:         172.19.64.1
-Address:        172.19.64.1#53
+Server:         172.29.160.1
+Address:        172.29.160.1#53
 
 Non-authoritative answer:
-vwan21-spoke3-103e-app.azurewebsites.net        canonical name = vwan21-spoke3-103e-app.privatelink.azurewebsites.net.
-vwan21-spoke3-103e-app.privatelink.azurewebsites.net    canonical name = waws-prod-am2-461.sip.azurewebsites.windows.net.
-waws-prod-am2-461.sip.azurewebsites.windows.net canonical name = waws-prod-am2-461-38fd.westeurope.cloudapp.azure.com.
-Name:   waws-prod-am2-461-38fd.westeurope.cloudapp.azure.com
-Address: 20.50.2.68
+vwan21-spoke3-b6a0-app.azurewebsites.net        canonical name = vwan21-spoke3-b6a0-app.privatelink.azurewebsites.net.
+vwan21-spoke3-b6a0-app.privatelink.azurewebsites.net    canonical name = waws-prod-am2-465.sip.azurewebsites.windows.net.
+waws-prod-am2-465.sip.azurewebsites.windows.net canonical name = waws-prod-am2-465-734e.westeurope.cloudapp.azure.com.
+Name:   waws-prod-am2-465-734e.westeurope.cloudapp.azure.com
+Address: 20.50.2.69
 ```
 
-We can see that the endpoint is a public IP address, ***20.50.2.68***. We can see the CNAME `vwan21-spoke3-103e-app.privatelink.azurewebsites.net` created for the app service which recursively resolves to the public IP address.
+We can see that the endpoint is a public IP address, ***20.50.2.69***. We can see the CNAME `vwan21-spoke3-b6a0-app.privatelink.azurewebsites.net` created for the app service which recursively resolves to the public IP address.
 
 **5.4.** Test access to the ***spoke3*** app service via the public endpoint.
 
@@ -260,21 +260,21 @@ Sample output
 {
   "Headers": {
     "Accept": "*/*",
-    "Client-Ip": "152.37.70.253:1024",
-    "Disguised-Host": "vwan21-spoke3-103e-app.azurewebsites.net",
-    "Host": "vwan21-spoke3-103e-app.azurewebsites.net",
+    "Client-Ip": "140.228.48.45:31978",
+    "Disguised-Host": "vwan21-spoke3-b6a0-app.azurewebsites.net",
+    "Host": "vwan21-spoke3-b6a0-app.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.74.0",
-    "Was-Default-Hostname": "vwan21-spoke3-103e-app.azurewebsites.net",
-    "X-Arr-Log-Id": "088672c8-13d5-4ba7-a0a0-44420ebceb79",
-    "X-Client-Ip": "152.37.70.253",
-    "X-Client-Port": "1024",
-    "X-Forwarded-For": "152.37.70.253:1024",
+    "Was-Default-Hostname": "vwan21-spoke3-b6a0-app.azurewebsites.net",
+    "X-Arr-Log-Id": "40d15d71-29ff-4d8e-a35c-7d9d074c04f3",
+    "X-Client-Ip": "140.228.48.45",
+    "X-Client-Port": "31978",
+    "X-Forwarded-For": "140.228.48.45:31978",
     "X-Original-Url": "/",
-    "X-Site-Deployment-Id": "vwan21-spoke3-103e-app",
+    "X-Site-Deployment-Id": "vwan21-spoke3-b6a0-app",
     "X-Waws-Unencoded-Url": "/"
   },
-  "Hostname": "3b283b15115f",
+  "Hostname": "0755e70311c3",
   "Local-IP": "169.254.129.3",
   "Remote-IP": "169.254.129.1"
 }
@@ -282,28 +282,15 @@ Sample output
 
 Observe that we are connecting from our local client's public IP address (152.37.70.253) specified in the `X-Client-Ip`.
 
-Let's confirm the public IP address of our local machine
-
-```sh
-curl -4 icanhazip.com
-```
-
-Sample output (yours will be different)
-
-```sh
-$ curl -4 icanhazip.com
-152.37.70.253
-```
-
 **(Optional)** Repeat *Step 5.1* through *Step 5.4* for the app service linked to ***spoke6***.
 
 ### 6. Private Link (App Service) Access from On-premises
 
-**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `vwan21-spoke3-103e-app.azurewebsites.net`.
+**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `vwan21-spoke3-b6a0-app.azurewebsites.net`.
 
 **6.2.** Connect to the on-premises server `Vwan21-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Vwan21-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
 
-**6.3.** Resolve the hostname DNS - which is `vwan21-spoke3-103e-app.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
+**6.3.** Resolve the hostname DNS - which is `vwan21-spoke3-b6a0-app.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
 
 ```sh
 nslookup vwan21-spoke3-<AAAA>-app.azurewebsites.net
@@ -312,21 +299,22 @@ nslookup vwan21-spoke3-<AAAA>-app.azurewebsites.net
 Sample output
 
 ```sh
-azureuser@Vwan21-branch1-vm:~$ nslookup vwan21-spoke3-103e-app.azurewebsites.net
+azureuser@Vwan21-branch1-vm:~$ nslookup vwan21-spoke3-b6a0-app.azurewebsites.net
+
 Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-vwan21-spoke3-103e-app.azurewebsites.net        canonical name = vwan21-spoke3-103e-app.privatelink.azurewebsites.net.
-Name:   vwan21-spoke3-103e-app.privatelink.azurewebsites.net
+vwan21-spoke3-b6a0-app.azurewebsites.net        canonical name = vwan21-spoke3-b6a0-app.privatelink.azurewebsites.net.
+Name:   vwan21-spoke3-b6a0-app.privatelink.azurewebsites.net
 Address: 10.11.7.5
 ```
 
 We can see that the app service hostname resolves to the private endpoint ***10.11.7.5*** in ***hub1***. The following is a summary of the DNS resolution from `Vwan21-branch1-vm`:
 
-- On-premises server `Vwan21-branch1-vm` makes a DNS request for `vwan21-spoke3-103e-app.azurewebsites.net`
+- On-premises server `Vwan21-branch1-vm` makes a DNS request for `vwan21-spoke3-b6a0-app.azurewebsites.net`
 - The request is received by on-premises DNS server `Vwan21-branch1-dns`
-- The DNS server resolves `vwan21-spoke3-103e-app.azurewebsites.net` to the CNAME `vwan21-spoke3-103e-app.privatelink.azurewebsites.net`
+- The DNS server resolves `vwan21-spoke3-b6a0-app.azurewebsites.net` to the CNAME `vwan21-spoke3-b6a0-app.privatelink.azurewebsites.net`
 - The DNS server has a conditional DNS forwarding defined in the [unbound DNS configuration file](./output/branch-unbound.sh).
 
   ```sh
@@ -347,25 +335,25 @@ curl vwan21-spoke3-<AAAA>-app.azurewebsites.net
 Sample output
 
 ```sh
-azureuser@Vwan21-branch1-vm:~$ curl vwan21-spoke3-103e-app.azurewebsites.net
+azureuser@Vwan21-branch1-vm:~$ curl vwan21-spoke3-b6a0-app.azurewebsites.net
 {
   "Headers": {
     "Accept": "*/*",
-    "Client-Ip": "[fd40:1832:12:ef68:7912:100:a0a:5]:54378",
-    "Disguised-Host": "vwan21-spoke3-103e-app.azurewebsites.net",
-    "Host": "vwan21-spoke3-103e-app.azurewebsites.net",
+    "Client-Ip": "[fd40:92f5:12:6f29:7812:100:a0a:5]:33284",
+    "Disguised-Host": "vwan21-spoke3-b6a0-app.azurewebsites.net",
+    "Host": "vwan21-spoke3-b6a0-app.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.68.0",
-    "Was-Default-Hostname": "vwan21-spoke3-103e-app.azurewebsites.net",
-    "X-Arr-Log-Id": "017b2bc0-6fb6-455d-8296-2abbeb2bf700",
+    "Was-Default-Hostname": "vwan21-spoke3-b6a0-app.azurewebsites.net",
+    "X-Arr-Log-Id": "7bac56d5-10c6-44d6-b872-b07ccf115100",
     "X-Client-Ip": "10.10.0.5",
     "X-Client-Port": "0",
     "X-Forwarded-For": "10.10.0.5",
     "X-Original-Url": "/",
-    "X-Site-Deployment-Id": "vwan21-spoke3-103e-app",
+    "X-Site-Deployment-Id": "vwan21-spoke3-b6a0-app",
     "X-Waws-Unencoded-Url": "/"
   },
-  "Hostname": "3b283b15115f",
+  "Hostname": "0755e70311c3",
   "Local-IP": "169.254.129.3",
   "Remote-IP": "169.254.129.1"
 }
@@ -437,8 +425,8 @@ Gateway of last resort is 10.10.1.1 to network 0.0.0.0
 
 S*    0.0.0.0/0 [1/0] via 10.10.1.1
       10.0.0.0/8 is variably subnetted, 12 subnets, 4 masks
-B        10.1.0.0/16 [20/0] via 192.168.11.12, 02:33:50
-B        10.2.0.0/16 [20/0] via 192.168.11.12, 02:33:50
+B        10.1.0.0/16 [20/0] via 192.168.11.12, 01:15:10
+B        10.2.0.0/16 [20/0] via 192.168.11.12, 01:15:10
 S        10.10.0.0/24 [1/0] via 10.10.3.1
 C        10.10.1.0/24 is directly connected, GigabitEthernet1
 L        10.10.1.9/32 is directly connected, GigabitEthernet1
@@ -448,7 +436,7 @@ C        10.10.10.0/30 is directly connected, Tunnel0
 L        10.10.10.1/32 is directly connected, Tunnel0
 C        10.10.10.4/30 is directly connected, Tunnel1
 L        10.10.10.5/32 is directly connected, Tunnel1
-B        10.11.0.0/16 [20/0] via 192.168.11.12, 02:33:50
+B        10.11.0.0/16 [20/0] via 192.168.11.12, 01:15:10
       168.63.0.0/32 is subnetted, 1 subnets
 S        168.63.129.16 [254/0] via 10.10.1.1
       169.254.0.0/32 is subnetted, 1 subnets
@@ -456,7 +444,7 @@ S        169.254.169.254 [254/0] via 10.10.1.1
       192.168.10.0/32 is subnetted, 1 subnets
 C        192.168.10.10 is directly connected, Loopback0
       192.168.11.0/24 is variably subnetted, 3 subnets, 2 masks
-B        192.168.11.0/24 [20/0] via 192.168.11.12, 02:33:50
+B        192.168.11.0/24 [20/0] via 192.168.11.12, 01:15:10
 S        192.168.11.12/32 is directly connected, Tunnel0
 S        192.168.11.13/32 is directly connected, Tunnel1
 ```
@@ -482,15 +470,15 @@ Origin codes: i - IGP, e - EGP, ? - incomplete
 RPKI validation codes: V valid, I invalid, N Not found
 
      Network          Next Hop            Metric LocPrf Weight Path
- *    10.1.0.0/16      192.168.11.13                          0 65515 i
- *>                    192.168.11.12                          0 65515 i
- *    10.2.0.0/16      192.168.11.13            0             0 65515 65010 i
- *>                    192.168.11.12            0             0 65515 65010 i
+ *>   10.1.0.0/16      192.168.11.12                          0 65515 i
+ *                     192.168.11.13                          0 65515 i
+ *>   10.2.0.0/16      192.168.11.12            0             0 65515 65010 i
+ *                     192.168.11.13            0             0 65515 65010 i
  *>   10.10.0.0/24     10.10.3.1                0         32768 i
- *    10.11.0.0/16     192.168.11.13                          0 65515 i
- *>                    192.168.11.12                          0 65515 i
- *    192.168.11.0     192.168.11.13                          0 65515 i
- *>                    192.168.11.12                          0 65515 i
+ *>   10.11.0.0/16     192.168.11.12                          0 65515 i
+ *                     192.168.11.13                          0 65515 i
+ *>   192.168.11.0     192.168.11.12                          0 65515 i
+ *                     192.168.11.13                          0 65515 i
 ```
 
 ## Cleanup
