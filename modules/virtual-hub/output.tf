@@ -1,22 +1,22 @@
 
 output "vpngw" {
-  value = azurerm_vpn_gateway.this[0]
+  value = module.vpngw[0].gateway
 }
 
 output "vpngw_public_ip0" {
-  value = try(tolist(azurerm_vpn_gateway.this[0].bgp_settings[0].instance_0_bgp_peering_address[0].tunnel_ips)[1], {})
+  value = try(module.vpngw[0].public_ip0, {})
 }
 
 output "vpngw_public_ip1" {
-  value = try(tolist(azurerm_vpn_gateway.this[0].bgp_settings[0].instance_1_bgp_peering_address[0].tunnel_ips)[1], {})
+  value = try(module.vpngw[0].public_ip1, {})
 }
 
 output "vpngw_bgp_ip0" {
-  value = try(tolist(azurerm_vpn_gateway.this[0].bgp_settings[0].instance_0_bgp_peering_address[0].default_ips)[0], {})
+  value = try(module.vpngw[0].bgp_ip0, {})
 }
 
 output "vpngw_bgp_ip1" {
-  value = try(tolist(azurerm_vpn_gateway.this[0].bgp_settings[0].instance_1_bgp_peering_address[0].default_ips)[0], {})
+  value = try(module.vpngw[0].bgp_ip1, {})
 }
 
 output "router_bgp_ip0" {
