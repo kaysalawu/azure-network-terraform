@@ -14,7 +14,7 @@ delete_azfw_diag_settings() {
     firewallids=$(az network firewall list -g "$RG" --query "[].id" -o tsv)
 
     # Iterate over the firewalls and delete the diagnostic settings
-    echo "Checking for diagnostic settings on firewalls ..."
+    echo "--> Checking for diagnostic settings on firewalls ..."
     for firewallid in $firewallids; do
         firewallname=$(echo $firewallid | rev | cut -d'/' -f1 | rev)
         azfw_diag_settings=$(az monitor diagnostic-settings list --resource "$firewallid" --query "[].name" -o tsv)
@@ -30,7 +30,7 @@ delete_vnetgw_diag_settings(){
     vnetgwids=$(az network vnet-gateway list -g "$RG" --query "[].id" -o tsv)
 
     # Iterate over the vnetgw and delete the diagnostic settings
-    echo "Checking for diagnostic settings on vnetgw ..."
+    echo "--> Checking for diagnostic settings on vnetgw ..."
     for vnetgwid in $vnetgwids; do
         vnetgwname=$(echo $vnetgwid | rev | cut -d'/' -f1 | rev)
         vnetgw_diag_settings=$(az monitor diagnostic-settings list --resource "$vnetgwid" --query "[].name" -o tsv)
@@ -41,7 +41,24 @@ delete_vnetgw_diag_settings(){
     done
 }
 
+delete_vpn_gateway_diag_settings(){
+    # Get all vpn gateway in the specified resource group
+    vpngatewayids=$(az network vpn-gateway list -g "$RG" --query "[].id" -o tsv)
+
+    # Iterate over the vpn gateway and delete the diagnostic settings
+    echo "--> Checking for diagnostic settings on vpn gateway ..."
+    for vpngatewayid in $vpngatewayids; do
+        vpngatewayname=$(echo $vpngatewayid | rev | cut -d'/' -f1 | rev)
+        vpngateway_diag_settings=$(az monitor diagnostic-settings list --resource "$vpngatewayid" --query "[].name" -o tsv)
+        for vpngateway_diag_setting in $vpngateway_diag_settings; do
+            echo "Deleting: diag setting [$vpngateway_diag_setting] for vpn gateway [$vpngatewayname] ..."
+            az monitor diagnostic-settings delete --resource "$vpngatewayid" --name "$vpngateway_diag_setting"
+        done
+    done
+}
+
 delete_azfw_diag_settings
 delete_vnetgw_diag_settings
+delete_vpn_gateway_diag_settings
 echo "Done!"
 
