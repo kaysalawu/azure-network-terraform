@@ -322,20 +322,7 @@ Sample output
 }
 ```
 
-Observe that we are connecting from our local client's public IP address (174.173.70.196) specified in the `X-Client-Ip`.
-
-Let's confirm the public IP address of our local machine
-
-```sh
-curl -4 icanhazip.com
-```
-
-Sample output (yours will be different)
-
-```sh
-$ curl -4 icanhazip.com
-152.37.70.253
-```
+Observe that we are connecting from our local client's public IP address specified in the `X-Client-Ip`.
 
 **(Optional)** Repeat *Step 5.1* through *Step 5.4* for the app service linked to ***spoke6***.
 
@@ -544,13 +531,13 @@ Observe the firewall logs based on traffic flows generated from our tests.
 2. Run a cleanup script to remove some resources that may not be removed after the resource group deletion.
 
    ```sh
-   bash ../../scripts/_cleanup.sh Ne32RG
+   sh ../../scripts/_cleanup.sh Ne32RG
    ```
 
    Sample output
 
    ```sh
-   2-hub-spoke-azfw-dual-region$    bash ../../scripts/_cleanup.sh Ne32RG
+   2-hub-spoke-azfw-dual-region$    sh ../../scripts/_cleanup.sh Ne32RG
 
    Resource group: Ne32RG
 

@@ -280,7 +280,7 @@ Sample output
 }
 ```
 
-Observe that we are connecting from our local client's public IP address (152.37.70.253) specified in the `X-Client-Ip`.
+Observe that we are connecting from our local client's public IP address specified in the `X-Client-Ip`.
 
 **(Optional)** Repeat *Step 5.1* through *Step 5.4* for the app service linked to ***spoke6***.
 
@@ -368,13 +368,13 @@ Observe that we are connecting from the private IP address of `Vwan21-branch1-vm
 **7.2.** Display the virtual WAN routing table(s)
 
 ```sh
-bash ../../scripts/_routes.sh Vwan21RG
+sh ../../scripts/_routes.sh Vwan21RG
 ```
 
 Sample output
 
 ```sh
-1-vwan-single-region$ bash ../../scripts/_routes.sh Vwan21RG
+1-vwan-single-region$ sh ../../scripts/_routes.sh Vwan21RG
 
 Resource group: Vwan21RG
 

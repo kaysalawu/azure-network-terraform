@@ -278,7 +278,7 @@ Sample output
 }
 ```
 
-Observe that we are connecting from our local client's public IP address (174.173.70.196) specified in the `X-Client-Ip`.
+Observe that we are connecting from our local client's public IP address specified in the `X-Client-Ip`.
 
 **(Optional)** Repeat *Step 5.1* through *Step 5.4* for the app service linked to ***spoke6***.
 
