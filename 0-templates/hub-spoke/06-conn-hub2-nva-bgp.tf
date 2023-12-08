@@ -33,7 +33,8 @@ resource "azurerm_virtual_network_peering" "hub2_to_spoke4_peering" {
   allow_forwarded_traffic      = true
   allow_gateway_transit        = true
   depends_on = [
-    module.hub2.vpngw
+    module.hub2.vpngw,
+    azurerm_virtual_network_peering.spoke4_to_hub2_peering
   ]
 }
 
@@ -93,7 +94,8 @@ resource "azurerm_virtual_network_peering" "hub2_to_spoke5_peering" {
   allow_forwarded_traffic      = true
   allow_gateway_transit        = true
   depends_on = [
-    module.hub2.vpngw
+    module.hub2.vpngw,
+    azurerm_virtual_network_peering.spoke5_to_hub2_peering
   ]
 }
 

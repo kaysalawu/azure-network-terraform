@@ -215,7 +215,7 @@
                     "title": "Tunnel Ingress/Egress Bytes [Sum]",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 3,
+                      "chartType": 2,
                       "legendVisualization": {
                         "isVisible": true,
                         "position": 2,
@@ -412,7 +412,7 @@
                     "title": "Tunnel MMSA and QMSA Count [SUM]",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 1,
+                      "chartType": 2,
                       "legendVisualization": {
                         "isVisible": true,
                         "position": 2,
@@ -473,7 +473,7 @@
                     "title": "Tunnel MMSA and QMSA Count [Sum]",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 1,
+                      "chartType": 2,
                       "legendVisualization": {
                         "isVisible": true,
                         "position": 2,
@@ -541,7 +541,7 @@
                     "title": "Tunnel MMSA and QMSA Count [SUM]",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 3,
+                      "chartType": 2,
                       "legendVisualization": {
                         "isVisible": true,
                         "position": 2,
@@ -602,7 +602,7 @@
                     "title": "BP Routes Advertised/Learned [Count]",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 3,
+                      "chartType": 2,
                       "legendVisualization": {
                         "isVisible": true,
                         "position": 2,
@@ -878,7 +878,7 @@
                     "title": "Tunnel Total Flow Count [Sum]",
                     "titleKind": 1,
                     "visualization": {
-                      "chartType": 3,
+                      "chartType": 2,
                       "legendVisualization": {
                         "isVisible": true,
                         "position": 2,
@@ -936,7 +936,7 @@
                     "title": "Tunnel Total Flow Count [Sum]",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 3,
+                      "chartType": 2,
                       "legendVisualization": {
                         "isVisible": true,
                         "position": 2,
