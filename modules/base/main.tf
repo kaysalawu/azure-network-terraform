@@ -392,6 +392,7 @@ module "nva_linux" {
   admin_username       = var.admin_username
   admin_password       = var.admin_password
   custom_data          = var.config_nva.custom_data
+  create_dashboard     = var.config_nva.create_dashboard
 
   depends_on = [
     azurerm_subnet.this,

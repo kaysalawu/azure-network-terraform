@@ -9,6 +9,7 @@ Contents
 - [Deploy the Lab](#deploy-the-lab)
 - [Troubleshooting](#troubleshooting)
 - [Outputs](#outputs)
+- [Dashboards](#dashboards)
 - [Testing](#testing)
   - [1. Ping IP](#1-ping-ip)
   - [2. Ping DNS](#2-ping-dns)
@@ -72,6 +73,28 @@ The table below show the auto-generated output files from the lab. They are loca
 | Hub1 NVA | Linux NVA configuration. | [output/hub1-linux-nva.sh](./output/hub1-linux-nva.sh) |
 | Web server for workload VMs | Python Flask web server and various test and debug scripts | [output/server.sh](./output/server.sh) |
 ||||
+
+## Dashboards
+
+This lab contains a number of pre-configured dashboards for monitoring and troubleshooting network gateways, VPN gateways, and Azure Firewall.
+
+To view the dashboards, follow the steps below:
+
+1. From the Azure portal menu, select **Dashboard hub**.
+
+2. Under **Browse**, select **Shared dashboards**.
+
+3. Select the dashboard you want to view.
+
+   ![Shared dashboards](../../images/demos/hs13-shared-dashboards.png)
+
+4. Click on the dashboard name.
+
+5. Click on **Go to dashboard**.
+
+   Sample dashboard for VPN gateway in ***hub1***.
+
+    ![Go to dashboard](../../images/demos/hs13-hub1-vpngw-db.png)
 
 ## Testing
 
@@ -441,19 +464,9 @@ Sample output
 
 ```sh
 Hs13-branch1-nva-vm#show ip route
-Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
-       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
-       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
-       E1 - OSPF external type 1, E2 - OSPF external type 2, m - OMP
-       n - NAT, Ni - NAT inside, No - NAT outside, Nd - NAT DIA
-       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
-       ia - IS-IS inter area, * - candidate default, U - per-user static route
-       H - NHRP, G - NHRP registered, g - NHRP registration summary
-       o - ODR, P - periodic downloaded static route, l - LISP
-       a - application route
-       + - replicated route, % - next hop override, p - overrides from PfR
-       & - replicated local route overrides by connected
-
+...
+[Truncated for brevity]
+...
 Gateway of last resort is 10.10.1.1 to network 0.0.0.0
 
 S*    0.0.0.0/0 [1/0] via 10.10.1.1
@@ -520,7 +533,28 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
    cd azure-network-terraform/1-hub-and-spoke/3-hub-spoke-nva-single-region
    ```
 
-2. Delete the resource group to remove all resources installed.
+2. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
+
+   ```sh
+   sh ../../scripts/_cleanup.sh Hs13RG
+   ```
+
+   Sample output
+
+   ```sh
+   3-hub-spoke-nva-single-region$    sh ../../scripts/_cleanup.sh Hs13RG
+
+   Resource group: Hs13RG
+
+   Checking for diagnostic settings on firewalls ...
+   Checking for diagnostic settings on vnet gateway ...
+   Deleting: diag setting [Hs13-hub1-vpngw-diag] for vnetgw [Hs13-hub1-vpngw] ...
+   Checking for diagnostic settings on vpn gateway ...
+   Checking for diagnostic settings on er gateway ...
+   Done!
+   ```
+
+3. Delete the resource group to remove all resources installed.
 
    ```sh
    az group delete -g Hs13RG --no-wait

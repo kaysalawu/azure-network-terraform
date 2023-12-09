@@ -520,7 +520,7 @@
                           "id": "${GATEWAY_ID}"
                         },
                         "name": "BgpRoutesAdvertised",
-                        "aggregationType": 1,
+                        "aggregationType": 7,
                         "namespace": "microsoft.network/virtualnetworkgateways",
                         "metricVisualization": {
                           "displayName": "BGP Routes Advertised"
@@ -531,7 +531,7 @@
                           "id": "${GATEWAY_ID}"
                         },
                         "name": "BgpRoutesLearned",
-                        "aggregationType": 1,
+                        "aggregationType": 7,
                         "namespace": "microsoft.network/virtualnetworkgateways",
                         "metricVisualization": {
                           "displayName": "BGP Routes Learned"
@@ -592,7 +592,7 @@
                           "id": "${GATEWAY_ID}"
                         },
                         "name": "BgpRoutesLearned",
-                        "aggregationType": 1,
+                        "aggregationType": 7,
                         "namespace": "microsoft.network/virtualnetworkgateways",
                         "metricVisualization": {
                           "displayName": "BGP Routes Learned"

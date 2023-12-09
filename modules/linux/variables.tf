@@ -156,3 +156,9 @@ variable "delay_creation" {
   type        = string
   default     = "0s"
 }
+
+variable "create_dashboard" {
+  description = "create dashboard"
+  type        = bool
+  default     = false
+}

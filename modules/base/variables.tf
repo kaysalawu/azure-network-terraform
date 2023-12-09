@@ -169,6 +169,7 @@ variable "config_nva" {
     type             = optional(string, "cisco")
     internal_lb_addr = optional(string)
     custom_data      = optional(string)
+    create_dashboard = optional(bool, false)
   })
   default = {
     enable           = false

@@ -6,15 +6,17 @@ locals {
   ]
 }
 
+####################################################
 # random
-#----------------------------
+####################################################
 
 resource "random_id" "this" {
   byte_length = 4
 }
 
+####################################################
 # public ip
-#----------------------------
+####################################################
 
 resource "azurerm_public_ip" "this" {
   count               = var.enable_public_ip == true ? 1 : 0
@@ -26,8 +28,9 @@ resource "azurerm_public_ip" "this" {
   tags                = var.tags
 }
 
+####################################################
 # interface
-#----------------------------
+####################################################
 
 resource "azurerm_network_interface" "this" {
   resource_group_name  = var.resource_group
@@ -48,8 +51,9 @@ resource "azurerm_network_interface" "this" {
   }
 }
 
+####################################################
 # delay
-#----------------------------
+####################################################
 
 resource "time_sleep" "this" {
   depends_on = [
@@ -58,8 +62,9 @@ resource "time_sleep" "this" {
   create_duration = var.delay_creation
 }
 
+####################################################
 # vm
-#----------------------------
+####################################################
 
 resource "azurerm_linux_virtual_machine" "this" {
   resource_group_name = var.resource_group
@@ -119,8 +124,9 @@ resource "azurerm_virtual_machine_extension" "this" {
 SETTINGS
 }
 
+####################################################
 # dns
-#----------------------------
+####################################################
 
 resource "azurerm_private_dns_a_record" "this" {
   count               = var.private_dns_zone_name == "" ? 0 : 1
@@ -131,8 +137,9 @@ resource "azurerm_private_dns_a_record" "this" {
   records             = [azurerm_linux_virtual_machine.this.private_ip_address]
 }
 
+####################################################
 # cleanup
-#----------------------------
+####################################################
 
 resource "null_resource" "cleanup_commands" {
   count = var.use_vm_extension ? length(local.cleanup_commands) : 0
@@ -150,4 +157,25 @@ resource "null_resource" "cleanup_commands" {
   depends_on = [
     azurerm_virtual_machine_extension.this
   ]
+}
+
+####################################################
+# dashboard
+####################################################
+
+locals {
+  dashboard_vars = {
+    VIRTUAL_MACHINE_ID = azurerm_linux_virtual_machine.this.name
+    LOCATION           = var.location
+  }
+  dashboard_properties = templatefile("${path.module}/templates/dashboard.json", local.dashboard_vars)
+}
+
+resource "azurerm_portal_dashboard" "this" {
+  count                = var.create_dashboard ? 1 : 0
+  name                 = "${azurerm_linux_virtual_machine.this.name}-db"
+  resource_group_name  = var.resource_group
+  location             = var.location
+  tags                 = var.tags
+  dashboard_properties = local.dashboard_properties
 }

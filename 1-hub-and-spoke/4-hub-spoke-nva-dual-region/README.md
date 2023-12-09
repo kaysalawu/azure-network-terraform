@@ -40,35 +40,7 @@ Each branch connects to Vnet spokes in their local regions through the directly 
 
 ## Prerequisites
 
-1. Ensure you meet all requirements in the [prerequisites](../../prerequisites/) before proceeding.
-
-2. (Optional) In case you have run this lab previously, you need to delete diagnostic settings that may not be removed after the resource group was previously deleted. Navigate back to the lab directory (if you are not already there)
-
-   ```sh
-   cd azure-network-terraform/1-hub-and-spoke/4-hub-spoke-nva-dual-region
-   ```
-
-   Run the following script to delete pre-existing diagnostic settings.
-
-   ```sh
-   sh ../../scripts/_cleanup.sh Hs14RG
-   ```
-
-   Sample output
-
-   ```sh
-   4-hub-spoke-nva-dual-region$ sh ../../scripts/_cleanup.sh Hs14RG
-
-   Resource group: Hs14RG
-
-   Checking for diagnostic settings on firewalls ...
-   Checking for diagnostic settings on vnet gateway ...
-   Deleting: diag setting [Hs14-hub2-vpngw-diag] for vnetgw [Hs14-hub2-vpngw] ...
-   Deleting: diag setting [Hs14-hub1-vpngw-diag] for vnetgw [Hs14-hub1-vpngw] ...
-   Checking for diagnostic settings on vpn gateway ...
-   Checking for diagnostic settings on er gateway ...
-   Done!
-   ```
+Ensure you meet all requirements in the [prerequisites](../../prerequisites/) before proceeding.
 
 ## Deploy the Lab
 
@@ -636,13 +608,13 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
 
 ## Cleanup
 
-1. (Optional) Navigate back to the lab directory (if you are not already there)
+1. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
+
+   (Optional) Navigate back to the lab directory (if you are not already there)
 
    ```sh
    cd azure-network-terraform/1-hub-and-spoke/4-hub-spoke-nva-dual-region
    ```
-
-2. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
 
    ```sh
    sh ../../scripts/_cleanup.sh Hs14RG
@@ -664,7 +636,7 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
    Done!
    ```
 
-3. Delete the resource group to remove all resources installed.
+2. Delete the resource group to remove all resources installed.
 
    ```sh
    az group delete -g Hs14RG --no-wait

@@ -95,7 +95,7 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke2_peering" {
   allow_gateway_transit        = true
   depends_on = [
     module.hub1.vpngw,
-    azurerm_virtual_network_peering.spoke2_to_hub1_peering
+    azurerm_virtual_network_peering.spoke2_to_hub1_peering,
   ]
 }
 
