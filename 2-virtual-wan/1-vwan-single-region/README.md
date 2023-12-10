@@ -489,7 +489,28 @@ RPKI validation codes: V valid, I invalid, N Not found
    cd azure-network-terraform/2-virtual-wan/1-vwan-single-region
    ```
 
-2. Delete the resource group to remove all resources installed.
+2. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
+
+   ```sh
+   sh ../../scripts/_cleanup.sh Vwan21RG
+   ```
+
+   Sample output
+
+   ```sh
+   1-vwan-single-region$    sh ../../scripts/_cleanup.sh Vwan21RG
+
+   Resource group: Vwan21RG
+
+   Checking for diagnostic settings on firewalls ...
+   Checking for diagnostic settings on vnet gateway ...
+   Checking for diagnostic settings on vpn gateway ...
+   Deleting: diag setting [Vwan21-vhub1-vpngw-diag] for vpn gateway [Vwan21-vhub1-vpngw] ...
+   Checking for diagnostic settings on er gateway ...
+   Done!
+   ```
+
+3. Delete the resource group to remove all resources installed.
 
    ```sh
    az group delete -g Vwan21RG --no-wait
