@@ -967,22 +967,12 @@
             "model": {
               "format": "utc",
               "granularity": "auto",
-              "relative": "24h"
+              "relative": "4h"
             },
             "displayCache": {
               "name": "UTC Time",
               "value": "Past 24 hours"
-            },
-            "filteredPartIds": [
-              "StartboardPart-MonitorChartPart-ac084c08-7cf7-4ee6-a900-9caca93a61d9",
-              "StartboardPart-MonitorChartPart-ac084c08-7cf7-4ee6-a900-9caca93a61db",
-              "StartboardPart-MonitorChartPart-ac084c08-7cf7-4ee6-a900-9caca93a61dd",
-              "StartboardPart-MonitorChartPart-ac084c08-7cf7-4ee6-a900-9caca93a61df",
-              "StartboardPart-MonitorChartPart-ac084c08-7cf7-4ee6-a900-9caca93a61e1",
-              "StartboardPart-MonitorChartPart-ac084c08-7cf7-4ee6-a900-9caca93a61e3",
-              "StartboardPart-MonitorChartPart-ac084c08-7cf7-4ee6-a900-9caca93a61e5",
-              "StartboardPart-MonitorChartPart-ac084c08-7cf7-4ee6-a900-9caca93a61e7"
-            ]
+            }
           }
         }
       }

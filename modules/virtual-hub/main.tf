@@ -48,36 +48,6 @@ module "vpngw" {
   bgp_settings   = var.s2s_vpn_gateway.bgp_settings
 }
 
-# resource "azurerm_vpn_gateway" "this" {
-#   count               = var.s2s_vpn_gateway.enable ? 1 : 0
-#   resource_group_name = var.resource_group
-#   name                = "${local.prefix}vpngw"
-#   location            = var.location
-#   virtual_hub_id      = azurerm_virtual_hub.this.id
-
-#   bgp_settings {
-#     asn         = var.s2s_vpn_gateway.bgp_settings.asn
-#     peer_weight = var.s2s_vpn_gateway.bgp_settings.peer_weight
-
-#     dynamic "instance_0_bgp_peering_address" {
-#       for_each = var.s2s_vpn_gateway.bgp_settings.instance_0_custom_ips != [] ? [1] : []
-#       content {
-#         custom_ips = var.s2s_vpn_gateway.bgp_settings.instance_0_custom_ips
-#       }
-#     }
-
-#     dynamic "instance_1_bgp_peering_address" {
-#       for_each = var.s2s_vpn_gateway.bgp_settings.instance_1_custom_ips != [] ? [1] : []
-#       content {
-#         custom_ips = var.s2s_vpn_gateway.bgp_settings.instance_1_custom_ips
-#       }
-#     }
-#   }
-#   timeouts {
-#     create = "60m"
-#   }
-# }
-
 ####################################################
 # firewall
 ####################################################
@@ -95,6 +65,10 @@ module "azfw" {
 
   firewall_policy_id = var.config_security.firewall_policy_id
   create_dashboard   = var.config_security.create_dashboard
+
+  depends_on = [
+    module.vpngw,
+  ]
 }
 
 ####################################################

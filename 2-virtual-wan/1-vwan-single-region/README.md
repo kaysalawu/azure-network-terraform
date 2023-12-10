@@ -9,6 +9,7 @@ Contents
 - [Deploy the Lab](#deploy-the-lab)
 - [Troubleshooting](#troubleshooting)
 - [Outputs](#outputs)
+- [Dashboards](#dashboards)
 - [Testing](#testing)
   - [1. Ping IP](#1-ping-ip)
   - [2. Ping DNS](#2-ping-dns)
@@ -73,6 +74,28 @@ The table below show the auto-generated output files from the lab. They are loca
 | Branch1 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch1-nva.sh](./output/branch1-nva.sh) |
 | Web server for workload VMs | Python Flask web server and various test and debug scripts | [output/server.sh](./output/server.sh) |
 ||||
+
+## Dashboards
+
+This lab contains a number of pre-configured dashboards for monitoring and troubleshooting network gateways, VPN gateways, and Azure Firewall.
+
+To view the dashboards, follow the steps below:
+
+1. From the Azure portal menu, select **Dashboard hub**.
+
+2. Under **Browse**, select **Shared dashboards**.
+
+3. Select the dashboard you want to view.
+
+   ![Shared dashboards](../../images/demos/vwan21-shared-dashboards.png)
+
+4. Click on the dashboard name.
+
+5. Click on **Go to dashboard**.
+
+   Sample dashboard for VPN gateway in ***hub1***.
+
+    ![Go to dashboard](../../images/demos/vwan21-vhub1-vpngw-db.png)
 
 ## Testing
 

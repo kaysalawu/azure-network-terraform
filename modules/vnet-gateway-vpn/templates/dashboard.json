@@ -991,7 +991,7 @@
             "model": {
               "format": "utc",
               "granularity": "auto",
-              "relative": "24h"
+              "relative": "4h"
             },
             "displayCache": {
               "name": "UTC Time",

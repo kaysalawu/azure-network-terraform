@@ -185,9 +185,10 @@ locals {
       enable = true
       sku    = "VpnGw1AZ"
       bgp_settings = {
-        asn                   = local.vhub1_bgp_asn
-        instance_0_custom_ips = [local.vhub1_vpngw_bgp_apipa_0]
-        instance_1_custom_ips = [local.vhub1_vpngw_bgp_apipa_1]
+        asn                                       = local.vhub1_bgp_asn
+        peer_weight                               = 0
+        instance_0_bgp_peering_address_custom_ips = [local.vhub1_vpngw_bgp_apipa_0]
+        instance_1_bgp_peering_address_custom_ips = [local.vhub1_vpngw_bgp_apipa_1]
       }
     }
 
@@ -215,9 +216,10 @@ locals {
       enable = true
       sku    = "VpnGw1AZ"
       bgp_settings = {
-        asn                   = local.vhub2_bgp_asn
-        instance_0_custom_ips = [local.vhub2_vpngw_bgp_apipa_0]
-        instance_1_custom_ips = [local.vhub2_vpngw_bgp_apipa_1]
+        asn                                       = local.vhub2_bgp_asn
+        peer_weight                               = 0
+        instance_0_bgp_peering_address_custom_ips = [local.vhub2_vpngw_bgp_apipa_0]
+        instance_1_bgp_peering_address_custom_ips = [local.vhub2_vpngw_bgp_apipa_1]
       }
     }
 
