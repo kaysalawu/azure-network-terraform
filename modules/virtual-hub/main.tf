@@ -45,6 +45,7 @@ module "vpngw" {
   prefix         = local.prefix
   location       = var.location
   virtual_hub_id = azurerm_virtual_hub.this.id
+  bgp_settings   = var.s2s_vpn_gateway.bgp_settings
 }
 
 # resource "azurerm_vpn_gateway" "this" {

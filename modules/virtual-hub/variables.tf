@@ -36,16 +36,6 @@ variable "address_prefix" {
   type        = string
 }
 
-variable "config_bgp" {
-  type = object({
-    asn                   = optional(string, "65001")
-    peer_weight           = optional(number, 0)
-    instance_0_custom_ips = optional(list(string))
-    instance_1_custom_ips = optional(list(string))
-  })
-  default = {}
-}
-
 variable "config_security" {
   type = object({
     create_firewall       = optional(bool, false)
@@ -75,13 +65,17 @@ variable "s2s_vpn_gateway" {
     enable = optional(bool, false)
     sku    = optional(string, "VpnGw1AZ")
     bgp_settings = optional(object({
-      asn                   = optional(string, "65515")
-      peer_weight           = optional(number, 0)
-      instance_0_custom_ips = optional(list(string), [])
-      instance_1_custom_ips = optional(list(string), [])
+      asn                                       = optional(string, "65515")
+      peer_weight                               = optional(number, 0)
+      instance_0_bgp_peering_address_custom_ips = optional(list(string), [])
+      instance_1_bgp_peering_address_custom_ips = optional(list(string), [])
     }))
   })
-  default = {}
+  default = {
+    enable       = false
+    sku          = "VpnGw1AZ"
+    bgp_settings = {}
+  }
 }
 
 variable "p2s_vpn_gateway" {

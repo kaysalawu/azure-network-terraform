@@ -22,21 +22,24 @@ resource "azurerm_vpn_gateway" "this" {
   location            = var.location
   virtual_hub_id      = var.virtual_hub_id
 
-  bgp_settings {
-    asn         = var.bgp_settings_asn
-    peer_weight = var.bgp_settings_peer_weight
+  dynamic "bgp_settings" {
+    for_each = var.bgp_settings != {} ? [1] : []
+    content {
+      asn         = var.bgp_settings.asn
+      peer_weight = var.bgp_settings.peer_weight
 
-    dynamic "instance_0_bgp_peering_address" {
-      for_each = var.bgp_settings_instance_0_bgp_peering_address_custom_ips != [] ? [1] : []
-      content {
-        custom_ips = var.bgp_settings_instance_0_bgp_peering_address_custom_ips
+      dynamic "instance_0_bgp_peering_address" {
+        for_each = var.bgp_settings.instance_0_bgp_peering_address_custom_ips != [] ? [1] : []
+        content {
+          custom_ips = var.bgp_settings.instance_0_bgp_peering_address_custom_ips
+        }
       }
-    }
 
-    dynamic "instance_1_bgp_peering_address" {
-      for_each = var.bgp_settings_instance_1_bgp_peering_address_custom_ips != [] ? [1] : []
-      content {
-        custom_ips = var.bgp_settings_instance_1_bgp_peering_address_custom_ips
+      dynamic "instance_1_bgp_peering_address" {
+        for_each = var.bgp_settings.instance_1_bgp_peering_address_custom_ips != [] ? [1] : []
+        content {
+          custom_ips = var.bgp_settings.instance_1_bgp_peering_address_custom_ips
+        }
       }
     }
   }

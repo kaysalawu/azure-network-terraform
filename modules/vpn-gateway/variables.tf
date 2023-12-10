@@ -49,28 +49,14 @@ variable "scale_unit" {
   default     = 1
 }
 
-variable "bgp_settings_asn" {
-  description = "asn of bgp speaker"
-  type        = number
-  default     = "65515"
-}
-
-variable "bgp_settings_peer_weight" {
-  description = "bgp peer weight"
-  type        = number
-  default     = 0
-}
-
-variable "bgp_settings_instance_0_bgp_peering_address_custom_ips" {
-  description = "custom bgp peering address for instance 0"
-  type        = list(string)
-  default     = []
-}
-
-variable "bgp_settings_instance_1_bgp_peering_address_custom_ips" {
-  description = "custom bgp peering address for instance 1"
-  type        = list(string)
-  default     = []
+variable "bgp_settings" {
+  type = object({
+    asn                                       = optional(string, "65515")
+    peer_weight                               = optional(number, 0)
+    instance_0_bgp_peering_address_custom_ips = optional(list(string), [])
+    instance_1_bgp_peering_address_custom_ips = optional(list(string), [])
+  })
+  default = {}
 }
 
 variable "log_categories" {
