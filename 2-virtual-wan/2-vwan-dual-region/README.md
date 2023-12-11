@@ -9,6 +9,7 @@ Contents
 - [Deploy the Lab](#deploy-the-lab)
 - [Troubleshooting](#troubleshooting)
 - [Outputs](#outputs)
+- [Dashboards](#dashboards)
 - [Testing](#testing)
   - [1. Ping IP](#1-ping-ip)
   - [2. Ping DNS](#2-ping-dns)
@@ -74,6 +75,28 @@ The table below show the auto-generated output files from the lab. They are loca
 | Branch3 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch3-nva.sh](./output/branch3-nva.sh) |
 | Web server for workload VMs | Python Flask web server and various test and debug scripts | [output/server.sh](./output/server.sh) |
 ||||
+
+## Dashboards
+
+This lab contains a number of pre-configured dashboards for monitoring and troubleshooting network gateways, VPN gateways, and Azure Firewall.
+
+To view the dashboards, follow the steps below:
+
+1. From the Azure portal menu, select **Dashboard hub**.
+
+2. Under **Browse**, select **Shared dashboards**.
+
+3. Select the dashboard you want to view.
+
+   ![Shared dashboards](../../images/demos/virtual-wan/vwan21-shared-dashboards.png)
+
+4. Click on the dashboard name.
+
+5. Click on **Go to dashboard**.
+
+   Sample dashboard for VPN gateway in ***hub1***.
+
+    ![Go to dashboard](../../images/demos/virtual-wan/vwan21-vhub1-vpngw-db.png)
 
 ## Testing
 
@@ -563,7 +586,29 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
    cd azure-network-terraform/2-virtual-wan/2-vwan-dual-region
    ```
 
-2. Delete the resource group to remove all resources installed.
+2. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
+
+   ```sh
+   sh ../../scripts/_cleanup.sh Vwan22RG
+   ```
+
+   Sample output
+
+   ```sh
+   2-vwan-dual-region$    sh ../../scripts/_cleanup.sh Vwan22RG
+
+   Resource group: Vwan22RG
+
+   Checking for diagnostic settings on firewalls ...
+   Checking for diagnostic settings on vnet gateway ...
+   Checking for diagnostic settings on vpn gateway ...
+   Deleting: diag setting [Vwan22-vhub1-vpngw-diag] for vpn gateway [Vwan22-vhub1-vpngw] ...
+   Deleting: diag setting [Vwan22-vhub2-vpngw-diag] for vpn gateway [Vwan22-vhub2-vpngw] ...
+   Checking for diagnostic settings on er gateway ...
+   Done!
+   ```
+
+3. Delete the resource group to remove all resources installed.
 
    ```sh
    az group delete -g Vwan22RG --no-wait
