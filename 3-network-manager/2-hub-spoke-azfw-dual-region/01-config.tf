@@ -3,8 +3,6 @@
 
 #----------------------------
 locals {
-  region1  = "westeurope"
-  region2  = "northeurope"
   username = "azureuser"
   password = "Password123"
   vmsize   = "Standard_DS1_v2"

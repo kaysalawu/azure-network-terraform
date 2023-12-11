@@ -9,6 +9,7 @@ Contents
 - [Deploy the Lab](#deploy-the-lab)
 - [Troubleshooting](#troubleshooting)
 - [Outputs](#outputs)
+- [Dashboards](#dashboards)
 - [Testing](#testing)
   - [1. Ping IP](#1-ping-ip)
   - [2. Ping DNS](#2-ping-dns)
@@ -74,6 +75,32 @@ The table below show the auto-generated output files from the lab. They are loca
 | Branch1 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch1-nva.sh](./output/branch1-nva.sh) |
 | Web server for workload VMs | Python Flask web server and various test and debug scripts | [output/server.sh](./output/server.sh) |
 ||||
+
+## Dashboards
+
+This lab contains a number of pre-configured dashboards for monitoring and troubleshooting network gateways, VPN gateways, and Azure Firewall.
+
+To view the dashboards, follow the steps below:
+
+1. From the Azure portal menu, select **Dashboard hub**.
+
+2. Under **Browse**, select **Shared dashboards**.
+
+3. Select the dashboard you want to view.
+
+   ![Shared dashboards](../../images/demos/vwan23-shared-dashboards.png)
+
+4. Click on the dashboard name.
+
+5. Click on **Go to dashboard**.
+
+   Sample dashboard for VPN gateway in ***hub1***.
+
+    ![Go to dashboard](../../images/demos/vwan23-vhub1-vpngw-db.png)
+
+    Sample dashboard for Azure Firewall in ***hub1***.
+
+    ![Go to dashboard](../../images/demos/vwan23-vhub1-azfw-db.png)
 
 ## Testing
 
@@ -521,7 +548,7 @@ Observe the firewall logs based on traffic flows generated from our tests.
    cd azure-network-terraform/2-virtual-wan/3-vwan-sec-single-region
    ```
 
-2. Run a cleanup script to remove some resources that may not be removed after the resource group deletion.
+2. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
 
    ```sh
    sh ../../scripts/_cleanup.sh Vwan23RG
@@ -530,12 +557,17 @@ Observe the firewall logs based on traffic flows generated from our tests.
    Sample output
 
    ```sh
-   3-vwan-sec-single-region$ sh ../../scripts/_cleanup.sh Vwan23RG
+   3-vwan-sec-single-region$    sh ../../scripts/_cleanup.sh Vwan23RG
 
    Resource group: Vwan23RG
 
+   Checking for diagnostic settings on firewalls ...
    Deleting: diag setting [Vwan23-vhub1-azfw-diag] for firewall [Vwan23-vhub1-azfw] ...
-   Deletion complete!
+   Checking for diagnostic settings on vnet gateway ...
+   Checking for diagnostic settings on vpn gateway ...
+   Deleting: diag setting [Vwan23-vhub1-vpngw-diag] for vpn gateway [Vwan23-vhub1-vpngw] ...
+   Checking for diagnostic settings on er gateway ...
+   Done!
    ```
 
 3. Delete the resource group to remove all resources installed.

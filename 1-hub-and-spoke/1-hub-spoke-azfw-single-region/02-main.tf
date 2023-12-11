@@ -4,6 +4,8 @@
 
 locals {
   prefix           = "Hs11"
+  region1          = "westeurope"
+  region2          = "northeurope"
   spoke3_apps_fqdn = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
 }
 
