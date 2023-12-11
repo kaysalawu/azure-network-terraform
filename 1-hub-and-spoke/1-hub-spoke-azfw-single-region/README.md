@@ -85,7 +85,7 @@ To view the dashboards, follow the steps below:
 
 3. Select the dashboard you want to view.
 
-   ![Shared dashboards](../../images/demos/hs11-shared-dashboards.png)
+   ![Shared dashboards](../../images/demos/hub-and-spoke/hs11-shared-dashboards.png)
 
 4. Click on the dashboard name.
 
@@ -93,11 +93,11 @@ To view the dashboards, follow the steps below:
 
    Sample dashboard for VPN gateway in ***hub1***.
 
-    ![Go to dashboard](../../images/demos/hs11-hub1-vpngw-db.png)
+    ![Go to dashboard](../../images/demos/hub-and-spoke/hs11-hub1-vpngw-db.png)
 
     Sample dashboard for Azure Firewall in ***hub1***.
 
-   ![Go to dashboard](../../images/demos/hs11-hub1-azfw-db.png)
+   ![Go to dashboard](../../images/demos/hub-and-spoke/hs11-hub1-azfw-db.png)
 
 ## Testing
 
@@ -481,11 +481,11 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
 - Click on **Firewall Logs (Resource Specific Tables)**.
 - Click on **Run** in the log category *Network rule logs*.
 
-![Hs11-hub1-azfw-network-rule-log](../../images/demos/hs11-hub1-net-rule-log.png)
+![Hs11-hub1-azfw-network-rule-log](../../images/demos/hub-and-spoke/hs11-hub1-net-rule-log.png)
 
 Observe the firewall logs based on traffic flows generated from our tests.
 
-![Hs11-hub1-azfw-network-rule-log-data](../../images/demos/hs11-hub1-net-rule-log-detail.png)
+![Hs11-hub1-azfw-network-rule-log-data](../../images/demos/hub-and-spoke/hs11-hub1-net-rule-log-detail.png)
 
 ## Cleanup
 

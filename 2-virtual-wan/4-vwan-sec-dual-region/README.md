@@ -89,7 +89,7 @@ To view the dashboards, follow the steps below:
 
 3. Select the dashboard you want to view.
 
-   ![Shared dashboards](../../images/demos/vwan24-shared-dashboards.png)
+   ![Shared dashboards](../../images/demos/virtual-wan/vwan24-shared-dashboards.png)
 
 4. Click on the dashboard name.
 
@@ -97,11 +97,11 @@ To view the dashboards, follow the steps below:
 
    Sample dashboard for VPN gateway in ***hub1***.
 
-    ![Go to dashboard](../../images/demos/vwan24-vhub1-vpngw-db.png)
+    ![Go to dashboard](../../images/demos/virtual-wan/vwan24-vhub1-vpngw-db.png)
 
     Sample dashboard for Azure Firewall in ***hub1***.
 
-   ![Go to dashboard](../../images/demos/vwan24-vhub1-azfw-db.png)
+   ![Go to dashboard](../../images/demos/virtual-wan/vwan24-vhub1-azfw-db.png)
 
 ## Testing
 
@@ -620,11 +620,11 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
 - Click on **Firewall Logs (Resource Specific Tables)**.
 - Click on **Run** in the log category *Network rule logs*.
 
-![Vwan24-hub1-azfw-network-rule-log](../../images/demos/vwan24-hub1-net-rule-log.png)
+![Vwan24-hub1-azfw-network-rule-log](../../images/demos/virtual-wan/vwan24-hub1-net-rule-log.png)
 
 Observe the firewall logs based on traffic flows generated from our tests.
 
-![Vwan24-hub1-azfw-network-rule-log-data](../../images/demos/vwan24-hub1-net-rule-log-detail.png)
+![Vwan24-hub1-azfw-network-rule-log-data](../../images/demos/virtual-wan/vwan24-hub1-net-rule-log-detail.png)
 
 **9.2** Repeat the same steps for the Azure Firewall resource `Vwan24-hub2-azfw`.
 

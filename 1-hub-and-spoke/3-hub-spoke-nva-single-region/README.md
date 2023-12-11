@@ -86,7 +86,7 @@ To view the dashboards, follow the steps below:
 
 3. Select the dashboard you want to view.
 
-   ![Shared dashboards](../../images/demos/hs13-shared-dashboards.png)
+   ![Shared dashboards](../../images/demos/hub-and-spoke/hs13-shared-dashboards.png)
 
 4. Click on the dashboard name.
 
@@ -94,7 +94,7 @@ To view the dashboards, follow the steps below:
 
    Sample dashboard for VPN gateway in ***hub1***.
 
-    ![Go to dashboard](../../images/demos/hs13-hub1-vpngw-db.png)
+    ![Go to dashboard](../../images/demos/hub-and-spoke/hs13-hub1-vpngw-db.png)
 
 ## Testing
 
