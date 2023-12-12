@@ -136,6 +136,12 @@ variable "source_image_reference" {
       sku       = "20_04-lts"
       version   = "latest"
     }
+    "ubuntu-22" = {
+      publisher = "Canonical"
+      offer     = "0001-com-ubuntu-server-jammy"
+      sku       = "22_04-lts"
+      version   = "latest"
+    }
     "debian-10" = {
       publisher = "Debian"
       offer     = "debian-10"

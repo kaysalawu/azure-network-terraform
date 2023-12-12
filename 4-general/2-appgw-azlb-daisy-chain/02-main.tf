@@ -3,7 +3,9 @@
 ####################################################
 
 locals {
-  prefix           = "Ge41"
+  prefix           = "Ge42"
+  region1          = "westeurope"
+  region2          = "northeurope"
   spoke3_apps_fqdn = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
 }
 
@@ -57,7 +59,6 @@ locals {
   }
   hub1_gateway_udr_destinations = {
     "spoke1" = local.spoke1_address_space[0]
-    "spoke2" = local.spoke2_address_space[0]
     "hub1"   = local.hub1_address_space[0]
   }
   firewall_sku = "Basic"
@@ -92,7 +93,7 @@ locals {
     }
 
     config_vpngw = {
-      enable = false
+      enable = true
       sku    = "VpnGw1AZ"
       bgp_settings = {
         asn = local.hub1_vpngw_asn
@@ -100,7 +101,7 @@ locals {
     }
 
     config_ergw = {
-      enable = true
+      enable = false
       sku    = "ErGw1AZ"
     }
 
@@ -177,16 +178,12 @@ locals {
   hub1_ars_asn   = "65515"
 
   vm_script_targets_region1 = [
-    { name = "branch1", dns = local.branch1_vm_fqdn, ip = local.branch1_vm_addr, probe = true },
-    { name = "hub1   ", dns = local.hub1_vm_fqdn, ip = local.hub1_vm_addr, probe = false },
-    { name = "hub1-spoke3-pep", dns = local.hub1_spoke3_pep_fqdn, ping = false, probe = true },
-    { name = "spoke1 ", dns = local.spoke1_vm_fqdn, ip = local.spoke1_vm_addr, probe = true },
-    { name = "spoke2 ", dns = local.spoke2_vm_fqdn, ip = local.spoke2_vm_addr, probe = true },
-    { name = "spoke3 ", dns = local.spoke3_vm_fqdn, ip = local.spoke3_vm_addr, ping = false },
+    { name = "branch1", dns = local.branch1_vm_fqdn, ip = local.branch1_vm_addr },
+    { name = "hub1   ", dns = local.hub1_vm_fqdn, ip = local.hub1_vm_addr },
+    { name = "spoke1 ", dns = local.spoke1_vm_fqdn, ip = local.spoke1_vm_addr },
   ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ip = "icanhazip.com" },
-    { name = "hub1-spoke3-apps", dns = local.spoke3_apps_fqdn, ping = false, probe = true },
   ]
   vm_script_targets = concat(
     local.vm_script_targets_region1,
