@@ -80,6 +80,12 @@ locals {
   }
 }
 
+data "archive_file" "multiport" {
+  type        = "zip"
+  source_dir  = "../../scripts/containers/multiport"
+  output_path = "multiport.zip"
+}
+
 module "spoke1_backend_init" {
   source = "../../modules/cloud-config-gen"
   files = {
@@ -117,35 +123,34 @@ module "spoke1_be1" {
   tags                  = local.spoke1_tags
 }
 
-module "spoke1_be2" {
-  source                = "../../modules/linux"
-  resource_group        = azurerm_resource_group.rg.name
-  prefix                = local.spoke1_prefix
-  name                  = "be2"
-  location              = local.spoke1_location
-  subnet                = module.spoke1.subnets["MainSubnet"].id
-  private_ip            = local.spoke1_be2_addr
-  enable_public_ip      = true
-  custom_data           = base64encode(module.spoke1_backend_init.cloud_config)
-  storage_account       = module.common.storage_accounts["region1"]
-  source_image          = "ubuntu-22"
-  private_dns_zone_name = local.spoke1_dns_zone
-  tags                  = local.spoke1_tags
-}
+# module "spoke1_be2" {
+#   source                = "../../modules/linux"
+#   resource_group        = azurerm_resource_group.rg.name
+#   prefix                = local.spoke1_prefix
+#   name                  = "be2"
+#   location              = local.spoke1_location
+#   subnet                = module.spoke1.subnets["MainSubnet"].id
+#   private_ip            = local.spoke1_be2_addr
+#   enable_public_ip      = true
+#   custom_data           = base64encode(local.vm_startup)
+#   storage_account       = module.common.storage_accounts["region1"]
+#   private_dns_zone_name = local.spoke1_dns_zone
+#   tags                  = local.spoke1_tags
+# }
 
 ####################################################
 # output files
 ####################################################
 
-locals {
-  spoke1_files = {
-    "output/spoke1-be-init" = module.spoke1_backend_init.cloud_config
-  }
-}
+# locals {
+#   spoke1_files = {
+#     "output/spoke1-be-init" = module.spoke1_backend_init.cloud_config
+#   }
+# }
 
-resource "local_file" "spoke1_files" {
-  for_each = local.spoke1_files
-  filename = each.key
-  content  = each.value
-}
+# resource "local_file" "spoke1_files" {
+#   for_each = local.spoke1_files
+#   filename = each.key
+#   content  = each.value
+# }
 

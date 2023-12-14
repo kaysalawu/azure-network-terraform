@@ -22,46 +22,10 @@ variable "remote_port" {
   default     = {}
 }
 
-variable "lb_port" {
-  description = "Protocols to be used for lb rules. Format as [frontend_port, protocol, backend_port]"
-  type        = map(any)
-  default     = {}
-}
-
 variable "enable_ha_ports" {
   description = "(Optional) Enable HA ports. Defaults to false."
   type        = bool
   default     = false
-}
-
-variable "enable_floating_ip" {
-  description = "(Optional) Enable floating IP. Defaults to false."
-  type        = bool
-  default     = false
-}
-
-variable "idle_timeout_in_minutes" {
-  description = "(Optional) The timeout for the TCP idle connection. The value can be set between 4 and 30 minutes. The default value is 4 minutes."
-  type        = number
-  default     = 30
-}
-
-variable "load_distribution" {
-  description = "(Optional) The load distribution policy for this rule. Defaults to 'Default'. Possible values are Default, SourceIP, SourceIPProtocol."
-  type        = string
-  default     = "Default"
-}
-
-variable "lb_probe_unhealthy_threshold" {
-  description = "Number of times the load balancer health probe has an unsuccessful attempt before considering the endpoint unhealthy."
-  type        = number
-  default     = 1
-}
-
-variable "lb_probe_interval" {
-  description = "Interval in seconds the load balancer health probe rule does a check"
-  type        = number
-  default     = 5
 }
 
 variable "allocation_method" {
@@ -105,12 +69,6 @@ variable "lb_sku" {
   default     = "Standard"
 }
 
-variable "lb_probe" {
-  description = "(Optional) Protocols to be used for lb health probes. Format as [protocol, port, request_path]"
-  type        = map(any)
-  default     = {}
-}
-
 variable "pip_sku" {
   description = "(Optional) The SKU of the Azure Public IP. Accepted values are Basic and Standard."
   type        = string
@@ -129,8 +87,72 @@ variable "pip_name" {
   default     = ""
 }
 
-variable "backend_address_pools" {
-  type = object({
+variable "frontend_ip_configuration" {
+  description = "(Optional) Name of the frontend ip configuration for private load balancer. If it is set, the 'prefix' variable will be ignored."
+  type = list(object({
+    name                          = string
+    zones                         = optional(list(string), ["1", "2", "3"]) # ["1", "2", "3"], "Zone-redundant"
+    subnet_id                     = optional(string, null)
+    private_ip_address_version    = optional(string, "IPv4")   # IPv4 or IPv6
+    private_ip_address_allocation = optional(string, "Static") # Static or Dynamic
+    private_ip_address            = optional(string, null)
+    public_ip_address_id          = optional(string, null)
+    public_ip_prefix_id           = optional(string, null)
+    private_ip_address_allocation = optional(string, null)
+  }))
+  default = []
+}
+
+variable "probes" {
+  description = "(Optional) Protocols to be used for lb health probes. Format as [protocol, port, request_path]"
+  type = list(object({
+    name         = string
+    protocol     = optional(string, "Tcp")
+    port         = optional(string, "80")
+    request_path = optional(string, null)
+    interval     = optional(number, 5)
+  }))
+  default = []
+}
+
+variable "lb_rules" {
+  description = "(Optional) Protocols to be used for lb rules. Format as [frontend_port, protocol, backend_port]"
+  type = list(object({
+    name                           = string
+    protocol                       = optional(string, "Tcp") # Tcp, Udp, All
+    frontend_port                  = optional(string, "80")  # 0-65534
+    backend_port                   = optional(string, "80")  # 0-65534
+    frontend_ip_configuration_name = string
+    backend_address_pool_name      = optional(list(string), [])
+    enable_floating_ip             = optional(bool, false)
+    probe_name                     = string
+    idle_timeout_in_minutes        = optional(number, 30)
+    load_distribution              = optional(string, "Default") # Default, SourceIP, SourceIPProtocol
+
+  }))
+  default = []
+}
+
+variable "nat_rules" {
+  description = "(Optional) Protocols to be used for nat rules. Format as [frontend_port, protocol, backend_port]"
+  type = list(object({
+    name                           = string
+    protocol                       = optional(string, "Tcp") # Tcp, Udp, All
+    frontend_port                  = optional(string, "80")  # 0-65534
+    backend_port                   = optional(string, "80")  # 0-65534
+    frontend_ip_configuration_name = string
+  }))
+  default = []
+}
+
+variable "lb_probe_unhealthy_threshold" {
+  description = "Number of times the load balancer health probe has an unsuccessful attempt before considering the endpoint unhealthy."
+  type        = number
+  default     = 1
+}
+
+variable "backend_pools" {
+  type = list(object({
     name = string
     interfaces = optional(list(object({
       name                  = string
@@ -143,12 +165,8 @@ variable "backend_address_pools" {
       ip_address                          = optional(string, null)
       backend_address_ip_configuration_id = optional(string, null)
     })), [])
-  })
-  default = {
-    name       = ""
-    interfaces = []
-    addresses  = []
-  }
+  }))
+  default = []
 }
 
 variable "private_dns_zone" {

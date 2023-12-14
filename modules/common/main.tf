@@ -95,7 +95,7 @@ resource "azurerm_network_security_rule" "internet_inbound" {
   source_address_prefix       = local.my_public_ip
   source_port_range           = "*"
   destination_address_prefix  = "*"
-  destination_port_ranges     = ["80", "443"]
+  destination_port_ranges     = ["80", "8080", "8081", "443", ]
   protocol                    = "Tcp"
   description                 = "Allow inbound web traffic"
 }

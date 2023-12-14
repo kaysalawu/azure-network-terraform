@@ -1,22 +1,45 @@
 
-# Azure load balancer module
-
 locals {
-  prefix = var.prefix == "" ? "" : format("%s-", var.prefix)
+  prefix    = var.prefix == "" ? "" : format("%s-", var.prefix)
+  lb_rules  = { for rule in var.lb_rules : rule.name => rule }
+  nat_rules = { for rule in var.nat_rules : rule.name => rule }
+  probes    = { for probe in var.probes : probe.name => probe }
 
-  frontend_ip_configuration_name_private = "feip-private"
-  frontend_ip_configuration_name_public  = "feip-public"
+  backend_pools             = { for pool in var.backend_pools : pool.name => { interfaces = pool.interfaces, addresses = pool.addresses } }
+  backend_pools_addresses   = { for k, v in local.backend_pools : k => v.addresses if length(v.addresses) > 0 && length(v.interfaces) == 0 }
+  backend_pools_interfaces  = { for k, v in local.backend_pools : k => v.interfaces if length(v.interfaces) > 0 }
+  frontend_ip_configuration = { for feip in var.frontend_ip_configuration : feip.name => feip }
+
+  backend_pools_addresses_list = flatten([
+    for pool_name, address_list in local.backend_pools_addresses : [
+      for address in address_list : merge(address, { "pool_name" = pool_name })
+    ]
+  ])
+  backend_pools_interfaces_list = flatten([
+    for pool_name, interface_list in local.backend_pools_interfaces : [
+      for interface in interface_list : merge(interface, { "pool_name" = pool_name })
+    ]
+  ])
 }
 
+####################################################
+# addresses
+####################################################
+
 resource "azurerm_public_ip" "this" {
-  count               = var.type == "public" ? 1 : 0
+  for_each            = var.type == "public" ? local.frontend_ip_configuration : {}
   resource_group_name = var.resource_group_name
-  name                = "${local.prefix}pip"
+  name                = "${local.prefix}${each.value.name}-pip"
   location            = var.location
   allocation_method   = var.allocation_method
   sku                 = var.pip_sku
+  zones               = each.value.zones
   tags                = var.tags
 }
+
+####################################################
+# load balancer
+####################################################
 
 resource "azurerm_lb" "this" {
   resource_group_name = var.resource_group_name
@@ -25,56 +48,73 @@ resource "azurerm_lb" "this" {
   sku                 = var.lb_sku
   tags                = var.tags
 
-  frontend_ip_configuration {
-    name                          = var.type == "public" ? local.frontend_ip_configuration_name_public : local.frontend_ip_configuration_name_private
-    public_ip_address_id          = var.type == "public" ? join("", azurerm_public_ip.this.*.id) : null
-    subnet_id                     = var.type == "public" ? null : var.frontend_subnet_id
-    private_ip_address            = var.type == "public" ? null : var.frontend_private_ip_address
-    private_ip_address_allocation = var.type == "public" ? null : var.frontend_private_ip_address_allocation
+  dynamic "frontend_ip_configuration" {
+    for_each = local.frontend_ip_configuration
+    content {
+      name                          = frontend_ip_configuration.value.name
+      public_ip_address_id          = var.type == "public" ? azurerm_public_ip.this[frontend_ip_configuration.value.name].id : null
+      zones                         = var.type == "private" ? frontend_ip_configuration.value.zones : null
+      private_ip_address            = var.type == "private" ? frontend_ip_configuration.value.private_ip_address : null
+      private_ip_address_allocation = var.type == "private" ? frontend_ip_configuration.value.private_ip_address_allocation : null
+      subnet_id                     = var.type == "private" ? frontend_ip_configuration.value.subnet_id : null
+    }
   }
 }
 
+####################################################
+# probes
+####################################################
+
+resource "azurerm_lb_probe" "this" {
+  for_each            = local.probes
+  name                = each.value.name
+  protocol            = each.value.protocol
+  port                = each.value.port
+  interval_in_seconds = each.value.interval
+  number_of_probes    = var.lb_probe_unhealthy_threshold
+  request_path        = each.value.request_path
+  loadbalancer_id     = azurerm_lb.this.id
+}
+
+# ####################################################
+# # address pools
+# ####################################################
+
 resource "azurerm_lb_backend_address_pool" "this" {
-  name            = "${local.prefix}${var.backend_address_pools.name}-beap"
+  for_each        = local.backend_pools
+  name            = each.key
   loadbalancer_id = azurerm_lb.this.id
   depends_on      = [azurerm_lb.this]
 }
 
-resource "azurerm_lb_probe" "this" {
-  count               = length(var.lb_probe)
-  name                = element(keys(var.lb_probe), count.index)
-  loadbalancer_id     = azurerm_lb.this.id
-  protocol            = element(var.lb_probe[element(keys(var.lb_probe), count.index)], 0)
-  port                = element(var.lb_probe[element(keys(var.lb_probe), count.index)], 1)
-  interval_in_seconds = var.lb_probe_interval
-  number_of_probes    = var.lb_probe_unhealthy_threshold
-  request_path        = element(var.lb_probe[element(keys(var.lb_probe), count.index)], 2)
-}
+# ####################################################
+# # load balacing rules
+# ####################################################
 
 resource "azurerm_lb_rule" "this" {
-  count                          = length(var.lb_port)
-  name                           = "rule-${element(keys(var.lb_port), count.index)}"
+  for_each                       = local.lb_rules
+  name                           = "${each.key}-lb-rule"
   loadbalancer_id                = azurerm_lb.this.id
-  protocol                       = element(var.lb_port[element(keys(var.lb_port), count.index)], 1)
-  frontend_port                  = element(var.lb_port[element(keys(var.lb_port), count.index)], 0)
-  backend_port                   = element(var.lb_port[element(keys(var.lb_port), count.index)], 2)
-  frontend_ip_configuration_name = var.type == "public" ? local.frontend_ip_configuration_name_public : local.frontend_ip_configuration_name_private
-  enable_floating_ip             = var.enable_floating_ip
-  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.this.id]
-  idle_timeout_in_minutes        = var.idle_timeout_in_minutes
-  load_distribution              = var.load_distribution
-  probe_id                       = element(azurerm_lb_probe.this.*.id, count.index)
+  probe_id                       = azurerm_lb_probe.this[each.value.probe_name].id
+  protocol                       = each.value.protocol
+  frontend_port                  = each.value.protocol == "All" ? "0" : each.value.frontend_port
+  backend_port                   = each.value.protocol == "All" ? "0" : each.value.backend_port
+  frontend_ip_configuration_name = each.value.frontend_ip_configuration_name
+  enable_floating_ip             = each.value.enable_floating_ip
+  idle_timeout_in_minutes        = each.value.idle_timeout_in_minutes
+  load_distribution              = each.value.load_distribution
+  backend_address_pool_ids       = [for pool in each.value.backend_address_pool_name : azurerm_lb_backend_address_pool.this[pool].id]
 }
 
 resource "azurerm_lb_nat_rule" "this" {
-  count                          = var.enable_ha_ports ? length(var.remote_port) : 0
-  name                           = "nat-rule-${count.index}"
+  for_each                       = local.nat_rules
   resource_group_name            = var.resource_group_name
+  name                           = "${each.key}-nat-rule"
   loadbalancer_id                = azurerm_lb.this.id
-  protocol                       = "Tcp"
-  frontend_port                  = "5000${count.index + 1}"
-  backend_port                   = element(var.remote_port[element(keys(var.remote_port), count.index)], 1)
-  frontend_ip_configuration_name = var.type == "public" ? local.frontend_ip_configuration_name_public : local.frontend_ip_configuration_name_private
+  protocol                       = each.value.protocol
+  frontend_port                  = each.value.frontend_port
+  backend_port                   = each.value.backend_port
+  frontend_ip_configuration_name = each.value.frontend_ip_configuration_name
 }
 
 resource "time_sleep" "this" {
@@ -84,24 +124,31 @@ resource "time_sleep" "this" {
   ]
 }
 
-resource "azurerm_lb_backend_address_pool_address" "this" {
-  count                               = length(var.backend_address_pools.addresses)
-  name                                = "${local.prefix}${var.backend_address_pools.name}-beap-${count.index}"
-  backend_address_pool_id             = azurerm_lb_backend_address_pool.this.id
-  backend_address_ip_configuration_id = try(var.backend_address_pools.addresses[count.index].backend_address_ip_configuration_id, null)
-  virtual_network_id                  = try(var.backend_address_pools.addresses[count.index].virtual_network_id, null)
-  ip_address                          = try(var.backend_address_pools.addresses[count.index].ip_address, null)
-  depends_on                          = [time_sleep.this]
-}
+# ####################################################
+# backend association
+# ####################################################
+
+# for a given backend pool, interface association takes precedence over address association
+# address association is only used when no interface is specified
 
 resource "azurerm_network_interface_backend_address_pool_association" "this" {
-  count                   = length(var.backend_address_pools.addresses) > 0 ? 0 : length(var.backend_address_pools.interfaces)
-  network_interface_id    = var.backend_address_pools.interfaces[count.index].network_interface_id
-  ip_configuration_name   = var.backend_address_pools.interfaces[count.index].ip_configuration_name
-  backend_address_pool_id = azurerm_lb_backend_address_pool.this.id
-  depends_on = [
-    time_sleep.this,
-  ]
+  count                   = length(local.backend_pools_interfaces_list)
+  network_interface_id    = local.backend_pools_interfaces_list[count.index].network_interface_id
+  ip_configuration_name   = local.backend_pools_interfaces_list[count.index].ip_configuration_name
+  backend_address_pool_id = azurerm_lb_backend_address_pool.this[local.backend_pools_interfaces_list[count.index].pool_name].id
+  depends_on              = [time_sleep.this, ]
 }
+
+resource "azurerm_lb_backend_address_pool_address" "this" {
+  count                               = length(local.backend_pools_addresses_list)
+  name                                = local.backend_pools_addresses_list[count.index].name
+  backend_address_pool_id             = azurerm_lb_backend_address_pool.this[local.backend_pools_addresses_list[count.index].pool_name].id
+  backend_address_ip_configuration_id = local.backend_pools_addresses_list[count.index].backend_address_ip_configuration_id
+  virtual_network_id                  = local.backend_pools_addresses_list[count.index].virtual_network_id
+  ip_address                          = local.backend_pools_addresses_list[count.index].ip_address
+  depends_on                          = [time_sleep.this, ]
+}
+
+
 
 

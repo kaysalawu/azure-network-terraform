@@ -402,40 +402,46 @@ module "nva_linux" {
 
 # internal lb
 
-module "ilb_nva_linux" {
-  count                                  = var.config_nva.enable && var.config_nva.type == "linux" ? 1 : 0
-  source                                 = "../../modules/azlb"
-  resource_group_name                    = var.resource_group
-  location                               = var.location
-  prefix                                 = trimsuffix(local.prefix, "-")
-  name                                   = "nva"
-  type                                   = "private"
-  frontend_subnet_id                     = azurerm_subnet.this["LoadBalancerSubnet"].id
-  frontend_private_ip_address_allocation = "Static"
-  frontend_private_ip_address            = var.config_nva.internal_lb_addr
-  lb_sku                                 = "Standard"
+# module "ilb_nva_linux" {
+#   count                                  = var.config_nva.enable && var.config_nva.type == "linux" ? 1 : 0
+#   source                                 = "../../modules/azlb"
+#   resource_group_name                    = var.resource_group
+#   location                               = var.location
+#   prefix                                 = trimsuffix(local.prefix, "-")
+#   name                                   = "nva"
+#   type                                   = "private"
+#   frontend_subnet_id                     = azurerm_subnet.this["LoadBalancerSubnet"].id
+#   frontend_private_ip_address_allocation = "Static"
+#   frontend_private_ip_address            = var.config_nva.internal_lb_addr
+#   lb_sku                                 = "Standard"
 
-  remote_port = { ssh = ["Tcp", "80"] }
-  lb_port     = { http = ["0", "All", "0"] }
-  lb_probe    = { http = ["Tcp", "22", ""] }
+#   remote_port = { ssh = ["Tcp", "80"] }
+#   #lb_port     = { http = ["0", "All", "0"] }
+#   #lb_probe    = { http = ["Tcp", "22", ""] }
+#   lb_probe = {
+#     name         = "http"
+#     protocol     = "Tcp"
+#     port         = "22"
+#     request_path = ""
+#   }
 
-  backend_address_pools = {
-    name = "nva"
-    addresses = [
-      {
-        name               = module.nva_linux[0].vm.name
-        ip_address         = module.nva_linux[0].interface.ip_configuration[0].private_ip_address
-        virtual_network_id = azurerm_virtual_network.this.id
-      },
-    ]
+#   backend_address_pools = {
+#     name = "nva"
+#     addresses = [
+#       {
+#         name               = module.nva_linux[0].vm.name
+#         ip_address         = module.nva_linux[0].interface.ip_configuration[0].private_ip_address
+#         virtual_network_id = azurerm_virtual_network.this.id
+#       },
+#     ]
 
-    depends_on = [
-      azurerm_subnet.this,
-      azurerm_subnet_network_security_group_association.this,
-      module.nva_linux,
-    ]
-  }
-}
+#     depends_on = [
+#       azurerm_subnet.this,
+#       azurerm_subnet_network_security_group_association.this,
+#       module.nva_linux,
+#     ]
+#   }
+# }
 
 # opnsense
 #----------------------------

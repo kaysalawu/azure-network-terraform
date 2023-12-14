@@ -93,7 +93,7 @@ locals {
     }
 
     config_vpngw = {
-      enable = true
+      enable = false
       sku    = "VpnGw1AZ"
       bgp_settings = {
         asn = local.hub1_vpngw_asn
