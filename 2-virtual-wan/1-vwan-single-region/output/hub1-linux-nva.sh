@@ -107,8 +107,8 @@ ipv6 forwarding
 line vty
 !
 ip route 0.0.0.0/0 10.11.1.1
-ip route 192.168.11.69/32 10.11.1.1
 ip route 192.168.11.68/32 10.11.1.1
+ip route 192.168.11.69/32 10.11.1.1
 ip route 10.2.0.0/16 10.11.1.1
 !
 
@@ -121,12 +121,12 @@ log file /var/log/quagga/bgpd.log informational
 !
 router bgp 65010
   bgp router-id 10.11.1.4
-  neighbor 192.168.11.69 remote-as 65515
-  neighbor 192.168.11.69 ebgp-multihop 255
-  neighbor 192.168.11.69 soft-reconfiguration inbound
   neighbor 192.168.11.68 remote-as 65515
   neighbor 192.168.11.68 ebgp-multihop 255
   neighbor 192.168.11.68 soft-reconfiguration inbound
+  neighbor 192.168.11.69 remote-as 65515
+  neighbor 192.168.11.69 ebgp-multihop 255
+  neighbor 192.168.11.69 soft-reconfiguration inbound
   network 10.11.0.0/24
   network 10.2.0.0/16
 !
@@ -200,7 +200,7 @@ echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} 
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke2.we.az.corp) - vm.spoke2.we.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke3.we.az.corp) - vm.spoke3.we.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vwan21-spoke3-0f74-app.azurewebsites.net) - vwan21-spoke3-0f74-app.azurewebsites.net"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vwan21-spoke3-6f81-app.azurewebsites.net) - vwan21-spoke3-6f81-app.azurewebsites.net"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 

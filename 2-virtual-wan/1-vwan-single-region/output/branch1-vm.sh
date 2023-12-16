@@ -124,7 +124,7 @@ echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{h
 echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke2.we.az.corp) - vm.spoke2.we.az.corp"
 echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke3.we.az.corp) - vm.spoke3.we.az.corp"
 echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vwan21-spoke3-0f74-app.azurewebsites.net) - vwan21-spoke3-0f74-app.azurewebsites.net"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vwan21-spoke3-6f81-app.azurewebsites.net) - vwan21-spoke3-6f81-app.azurewebsites.net"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 
@@ -156,7 +156,7 @@ nping -c 3 --tcp -p 80 vm.branch1.corp > /dev/null 2>&1
 nping -c 3 --tcp -p 80 spoke3.p.hub1.we.az.corp > /dev/null 2>&1
 nping -c 3 --tcp -p 80 vm.spoke1.we.az.corp > /dev/null 2>&1
 nping -c 3 --tcp -p 80 vm.spoke2.we.az.corp > /dev/null 2>&1
-nping -c 3 --tcp -p 80 vwan21-spoke3-0f74-app.azurewebsites.net > /dev/null 2>&1
+nping -c 3 --tcp -p 80 vwan21-spoke3-6f81-app.azurewebsites.net > /dev/null 2>&1
 EOF
 chmod a+x /usr/local/bin/light-traffic
 
@@ -170,7 +170,7 @@ while [ \$i -lt 4 ]; do
     ab -n \$1 -c \$2 spoke3.p.hub1.we.az.corp > /dev/null 2>&1
     ab -n \$1 -c \$2 vm.spoke1.we.az.corp > /dev/null 2>&1
     ab -n \$1 -c \$2 vm.spoke2.we.az.corp > /dev/null 2>&1
-    ab -n \$1 -c \$2 vwan21-spoke3-0f74-app.azurewebsites.net > /dev/null 2>&1
+    ab -n \$1 -c \$2 vwan21-spoke3-6f81-app.azurewebsites.net > /dev/null 2>&1
     let i=i+1
   sleep 2
 done
