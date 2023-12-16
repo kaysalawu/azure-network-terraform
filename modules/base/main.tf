@@ -399,7 +399,7 @@ module "nva_linux" {
   admin_username       = var.admin_username
   admin_password       = var.admin_password
   custom_data          = var.config_nva.custom_data
-  create_dashboard     = var.config_nva.create_dashboard
+  create_dashboard     = false #var.config_nva.create_dashboard
   enable_diagnostics   = var.config_nva.enable_diagnostics
 
   depends_on = [

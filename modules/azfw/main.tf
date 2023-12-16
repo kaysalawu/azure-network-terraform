@@ -142,7 +142,7 @@ locals {
 }
 
 resource "azurerm_portal_dashboard" "this" {
-  count                = var.enable_diagnostics ? 1 : 0
+  count                = var.enable_diagnostics && var.create_dashboard ? 1 : 0
   name                 = "${var.prefix}azfw-db"
   resource_group_name  = var.resource_group
   location             = var.location

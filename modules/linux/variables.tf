@@ -166,7 +166,7 @@ variable "delay_creation" {
 variable "create_dashboard" {
   description = "create dashboard"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "enable_diagnostics" {

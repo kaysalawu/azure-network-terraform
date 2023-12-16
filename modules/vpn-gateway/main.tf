@@ -66,7 +66,7 @@ data "external" "check_diag_setting" {
 
 resource "azurerm_monitor_diagnostic_setting" "this" {
   #count                      = data.external.check_diag_setting.result == "true" ? 1 : 0
-  count                      = var.enable_diagnostics ? 1 : 0
+  count                      = var.enable_diagnostics && var.create_dashboard ? 1 : 0
   name                       = "${var.prefix}vpngw-diag"
   target_resource_id         = azurerm_vpn_gateway.this.id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.this.id
@@ -105,7 +105,7 @@ locals {
 }
 
 resource "azurerm_portal_dashboard" "this" {
-  count                = var.enable_diagnostics ? 1 : 0
+  count                = var.enable_diagnostics && var.create_dashboard ? 1 : 0
   name                 = "${var.prefix}vpngw-db"
   resource_group_name  = var.resource_group
   location             = var.location

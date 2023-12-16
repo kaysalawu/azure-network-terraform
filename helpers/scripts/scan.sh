@@ -5,7 +5,7 @@ char_fail="\u274c"
 char_question="\u2753"
 char_notfound="\u26D4"
 char_exclamation="\u2757"
-char_celebrate="\U0001F389"
+char_celebrate="\u2B50"
 char_executing="\u23F3"
 
 working_dir=$(pwd)

@@ -123,7 +123,7 @@ variable "metric_categories" {
 variable "create_dashboard" {
   description = "create dashboard"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "enable_diagnostics" {
