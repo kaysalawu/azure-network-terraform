@@ -555,7 +555,7 @@ Observe the firewall logs based on traffic flows generated from our tests.
    cd azure-network-terraform/3-network-manager/2-hub-spoke-azfw-dual-region
    ```
 
-2. Run a cleanup script to remove some resources that may not be removed after the resource group deletion.
+2. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
 
    ```sh
    sh ../../scripts/_cleanup.sh Ne32RG
