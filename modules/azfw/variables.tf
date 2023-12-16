@@ -199,10 +199,16 @@ variable "log_categories_firewall" {
   ]
 }
 
+variable "create_dashboard" {
+  description = "create dashboard"
+  type        = bool
+  default     = false
+}
+
 variable "enable_diagnostics" {
   description = "enable diagnostics"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "virtual_hub_id" {
