@@ -16,12 +16,6 @@ variable "prefix" {
   default     = "azure_lb"
 }
 
-variable "remote_port" {
-  description = "Protocols to be used for remote vm access. [protocol, backend_port].  Frontend port will be automatically generated starting at 50000 and in the output."
-  type        = map(any)
-  default     = {}
-}
-
 variable "enable_ha_ports" {
   description = "(Optional) Enable HA ports. Defaults to false."
   type        = bool
@@ -93,12 +87,11 @@ variable "frontend_ip_configuration" {
     name                          = string
     zones                         = optional(list(string), ["1", "2", "3"]) # ["1", "2", "3"], "Zone-redundant"
     subnet_id                     = optional(string, null)
-    private_ip_address_version    = optional(string, "IPv4")   # IPv4 or IPv6
-    private_ip_address_allocation = optional(string, "Static") # Static or Dynamic
+    private_ip_address_version    = optional(string, "IPv4")    # IPv4 or IPv6
+    private_ip_address_allocation = optional(string, "Dynamic") # Static or Dynamic
     private_ip_address            = optional(string, null)
     public_ip_address_id          = optional(string, null)
     public_ip_prefix_id           = optional(string, null)
-    private_ip_address_allocation = optional(string, null)
   }))
   default = []
 }
@@ -155,7 +148,6 @@ variable "backend_pools" {
   type = list(object({
     name = string
     interfaces = optional(list(object({
-      name                  = string
       ip_configuration_name = string
       network_interface_id  = string
     })), [])

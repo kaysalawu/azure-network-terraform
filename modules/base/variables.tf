@@ -118,17 +118,19 @@ variable "config_vnet" {
 
 variable "config_vpngw" {
   type = object({
-    enable           = optional(bool, false)
-    sku              = optional(string, "VpnGw1AZ")
-    create_dashboard = optional(bool, true)
+    enable             = optional(bool, false)
+    sku                = optional(string, "VpnGw1AZ")
+    create_dashboard   = optional(bool, false)
+    enable_diagnostics = optional(bool, false)
     bgp_settings = optional(object({
       asn = optional(string, 65515)
     }))
   })
   default = {
-    enable           = false
-    sku              = "VpnGw1AZ"
-    create_dashboard = true
+    enable             = false
+    sku                = "VpnGw1AZ"
+    create_dashboard   = false
+    enable_diagnostics = false
     bgp_settings = {
       asn = 65515
     }
@@ -137,14 +139,16 @@ variable "config_vpngw" {
 
 variable "config_ergw" {
   type = object({
-    enable           = optional(bool, false)
-    sku              = optional(string, "ErGw1AZ")
-    create_dashboard = optional(bool, true)
+    enable             = optional(bool, false)
+    sku                = optional(string, "ErGw1AZ")
+    create_dashboard   = optional(bool, false)
+    enable_diagnostics = optional(bool, false)
   })
   default = {
-    enable           = false
-    sku              = "ErGw1AZ"
-    create_dashboard = true
+    enable             = false
+    sku                = "ErGw1AZ"
+    create_dashboard   = false
+    enable_diagnostics = false
   }
 }
 
@@ -153,23 +157,26 @@ variable "config_firewall" {
     enable             = optional(bool, false)
     firewall_sku       = optional(string, "Basic")
     firewall_policy_id = optional(string, null)
-    create_dashboard   = optional(bool, true)
+    create_dashboard   = optional(bool, false)
+    enable_diagnostics = optional(bool, false)
   })
   default = {
     enable             = false,
     firewall_sku       = "Basic"
     firewall_policy_id = null
-    create_dashboard   = true
+    create_dashboard   = false
+    enable_diagnostics = false
   }
 }
 
 variable "config_nva" {
   type = object({
-    enable           = optional(bool, false)
-    type             = optional(string, "cisco")
-    internal_lb_addr = optional(string)
-    custom_data      = optional(string)
-    create_dashboard = optional(bool, false)
+    enable             = optional(bool, false)
+    type               = optional(string, "cisco")
+    internal_lb_addr   = optional(string)
+    custom_data        = optional(string)
+    create_dashboard   = optional(bool, false)
+    enable_diagnostics = optional(bool, false)
   })
   default = {
     enable           = false

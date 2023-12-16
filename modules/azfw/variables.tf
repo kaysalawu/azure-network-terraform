@@ -199,8 +199,8 @@ variable "log_categories_firewall" {
   ]
 }
 
-variable "create_dashboard" {
-  description = "create dashboard"
+variable "enable_diagnostics" {
+  description = "enable diagnostics"
   type        = bool
   default     = true
 }

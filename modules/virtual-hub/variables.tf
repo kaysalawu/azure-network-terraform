@@ -42,28 +42,33 @@ variable "config_security" {
     enable_routing_intent = optional(bool, false)
     firewall_sku          = optional(string, "Basic")
     firewall_policy_id    = optional(string, null)
+    create_dashboard      = optional(bool, false)
+    enable_diagnostics    = optional(bool, false)
     routing_policies = optional(object({
       internet            = optional(bool, false)
       private_traffic     = optional(bool, false)
       additional_prefixes = optional(map(any), {})
     }))
-    create_dashboard = optional(bool, true)
   })
   default = {}
 }
 
 variable "er_gateway" {
   type = object({
-    enable = optional(bool, false)
-    sku    = optional(string, "ErGw1AZ")
+    enable             = optional(bool, false)
+    sku                = optional(string, "ErGw1AZ")
+    create_dashboard   = optional(bool, false)
+    enable_diagnostics = optional(bool, false)
   })
   default = {}
 }
 
 variable "s2s_vpn_gateway" {
   type = object({
-    enable = optional(bool, false)
-    sku    = optional(string, "VpnGw1AZ")
+    enable             = optional(bool, false)
+    sku                = optional(string, "VpnGw1AZ")
+    create_dashboard   = optional(bool, false)
+    enable_diagnostics = optional(bool, false)
     bgp_settings = optional(object({
       asn                                       = optional(string, "65515")
       peer_weight                               = optional(number, 0)
@@ -72,16 +77,20 @@ variable "s2s_vpn_gateway" {
     }))
   })
   default = {
-    enable       = false
-    sku          = "VpnGw1AZ"
-    bgp_settings = {}
+    enable             = false
+    sku                = "VpnGw1AZ"
+    create_dashboard   = false
+    enable_diagnostics = false
+    bgp_settings       = {}
   }
 }
 
 variable "p2s_vpn_gateway" {
   type = object({
-    enable = optional(bool, false)
-    sku    = optional(string, "VpnGw1AZ")
+    enable             = optional(bool, false)
+    sku                = optional(string, "VpnGw1AZ")
+    create_dashboard   = optional(bool, false)
+    enable_diagnostics = optional(bool, false)
   })
   default = {}
 }

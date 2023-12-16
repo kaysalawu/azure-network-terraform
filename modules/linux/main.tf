@@ -172,7 +172,7 @@ locals {
 }
 
 resource "azurerm_portal_dashboard" "this" {
-  count                = var.create_dashboard ? 1 : 0
+  count                = var.enable_diagnostics ? 1 : 0
   name                 = "${azurerm_linux_virtual_machine.this.name}-db"
   resource_group_name  = var.resource_group
   location             = var.location

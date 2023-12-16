@@ -168,3 +168,9 @@ variable "create_dashboard" {
   type        = bool
   default     = false
 }
+
+variable "enable_diagnostics" {
+  description = "enable diagnostics"
+  type        = bool
+  default     = false
+}

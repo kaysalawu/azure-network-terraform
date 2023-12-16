@@ -17,7 +17,7 @@ resource "azurerm_virtual_network_peering" "spoke1_to_hub1_peering" {
   allow_forwarded_traffic      = true
   use_remote_gateways          = true
   depends_on = [
-    module.hub1.vpngw
+    module.hub1,
   ]
 }
 
@@ -32,8 +32,7 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke1_peering" {
   allow_forwarded_traffic      = true
   allow_gateway_transit        = true
   depends_on = [
-    module.hub1.vpngw,
-    azurerm_virtual_network_peering.spoke1_to_hub1_peering
+    module.hub1,
   ]
 }
 
@@ -79,7 +78,7 @@ resource "azurerm_virtual_network_peering" "spoke2_to_hub1_peering" {
   allow_forwarded_traffic      = true
   use_remote_gateways          = true
   depends_on = [
-    module.hub1.vpngw
+    module.hub1,
   ]
 }
 
@@ -94,8 +93,7 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke2_peering" {
   allow_forwarded_traffic      = true
   allow_gateway_transit        = true
   depends_on = [
-    module.hub1.vpngw,
-    azurerm_virtual_network_peering.spoke2_to_hub1_peering,
+    module.hub1,
   ]
 }
 

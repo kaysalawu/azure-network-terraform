@@ -258,9 +258,10 @@ module "vpngw" {
   subnet_id      = azurerm_subnet.this["GatewaySubnet"].id
   tags           = var.tags
 
-  sku              = var.config_vpngw.sku
-  bgp_asn          = var.config_vpngw.bgp_settings.asn
-  create_dashboard = var.config_vpngw.create_dashboard
+  sku                = var.config_vpngw.sku
+  bgp_asn            = var.config_vpngw.bgp_settings.asn
+  create_dashboard   = var.config_vpngw.create_dashboard
+  enable_diagnostics = var.config_vpngw.enable_diagnostics
 
   ip_config0_apipa_addresses = try(var.config_vpngw.ip_config0_apipa_addresses, null)
   ip_config1_apipa_addresses = try(var.config_vpngw.ip_config1_apipa_addresses, null)
@@ -269,6 +270,10 @@ module "vpngw" {
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
   ]
+}
+
+output "test" {
+  value = try(module.vpngw[0].test, null)
 }
 
 ####################################################
@@ -285,8 +290,9 @@ module "ergw" {
   subnet_id      = azurerm_subnet.this["GatewaySubnet"].id
   tags           = var.tags
 
-  sku              = var.config_vnet.er_gateway_sku
-  create_dashboard = var.config_ergw.create_dashboard
+  sku                = var.config_vnet.er_gateway_sku
+  create_dashboard   = var.config_ergw.create_dashboard
+  enable_diagnostics = var.config_ergw.enable_diagnostics
 
   depends_on = [
     azurerm_subnet.this,
@@ -358,6 +364,7 @@ module "azfw" {
 
   firewall_policy_id = var.config_firewall.firewall_policy_id
   create_dashboard   = var.config_firewall.create_dashboard
+  enable_diagnostics = var.config_firewall.enable_diagnostics
 
   depends_on = [
     azurerm_subnet.this,
@@ -393,6 +400,7 @@ module "nva_linux" {
   admin_password       = var.admin_password
   custom_data          = var.config_nva.custom_data
   create_dashboard     = var.config_nva.create_dashboard
+  enable_diagnostics   = var.config_nva.enable_diagnostics
 
   depends_on = [
     azurerm_subnet.this,
@@ -402,46 +410,61 @@ module "nva_linux" {
 
 # internal lb
 
-# module "ilb_nva_linux" {
-#   count                                  = var.config_nva.enable && var.config_nva.type == "linux" ? 1 : 0
-#   source                                 = "../../modules/azlb"
-#   resource_group_name                    = var.resource_group
-#   location                               = var.location
-#   prefix                                 = trimsuffix(local.prefix, "-")
-#   name                                   = "nva"
-#   type                                   = "private"
-#   frontend_subnet_id                     = azurerm_subnet.this["LoadBalancerSubnet"].id
-#   frontend_private_ip_address_allocation = "Static"
-#   frontend_private_ip_address            = var.config_nva.internal_lb_addr
-#   lb_sku                                 = "Standard"
+module "ilb_nva_linux" {
+  count               = var.config_nva.enable && var.config_nva.type == "linux" ? 1 : 0
+  source              = "../../modules/azure-load-balancer"
+  resource_group_name = var.resource_group
+  location            = var.location
+  prefix              = trimsuffix(local.prefix, "-")
+  name                = "nva"
+  type                = "private"
+  lb_sku              = "Standard"
 
-#   remote_port = { ssh = ["Tcp", "80"] }
-#   #lb_port     = { http = ["0", "All", "0"] }
-#   #lb_probe    = { http = ["Tcp", "22", ""] }
-#   lb_probe = {
-#     name         = "http"
-#     protocol     = "Tcp"
-#     port         = "22"
-#     request_path = ""
-#   }
+  frontend_ip_configuration = [
+    {
+      name                          = "nva"
+      zones                         = ["1", "2", "3"]
+      subnet_id                     = azurerm_subnet.this["LoadBalancerSubnet"].id
+      private_ip_address            = var.config_nva.internal_lb_addr
+      private_ip_address_allocation = "Static"
+    }
+  ]
 
-#   backend_address_pools = {
-#     name = "nva"
-#     addresses = [
-#       {
-#         name               = module.nva_linux[0].vm.name
-#         ip_address         = module.nva_linux[0].interface.ip_configuration[0].private_ip_address
-#         virtual_network_id = azurerm_virtual_network.this.id
-#       },
-#     ]
+  probes = [
+    { name = "ssh", protocol = "Tcp", port = "22", request_path = "" },
+  ]
 
-#     depends_on = [
-#       azurerm_subnet.this,
-#       azurerm_subnet_network_security_group_association.this,
-#       module.nva_linux,
-#     ]
-#   }
-# }
+  backend_pools = [
+    {
+      name = "nva"
+      addresses = [
+        {
+          name               = module.nva_linux[0].vm.name
+          virtual_network_id = azurerm_virtual_network.this.id
+          ip_address         = module.nva_linux[0].interface.ip_configuration[0].private_ip_address
+        },
+      ]
+    }
+  ]
+
+  lb_rules = [
+    {
+      name                           = "nva-ha"
+      protocol                       = "All"
+      frontend_port                  = "0"
+      backend_port                   = "0"
+      frontend_ip_configuration_name = "nva"
+      backend_address_pool_name      = ["nva", ]
+      probe_name                     = "ssh"
+    },
+  ]
+
+  depends_on = [
+    azurerm_subnet.this,
+    azurerm_subnet_network_security_group_association.this,
+    module.nva_linux,
+  ]
+}
 
 # opnsense
 #----------------------------

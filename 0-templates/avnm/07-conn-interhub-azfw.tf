@@ -15,6 +15,11 @@ resource "azurerm_virtual_network_peering" "hub1_to_hub2_peering" {
   remote_virtual_network_id    = module.hub2.vnet.id
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
+
+  depends_on = [
+    module.hub1,
+    module.hub2,
+  ]
 }
 
 # hub2-to-hub1
@@ -26,6 +31,11 @@ resource "azurerm_virtual_network_peering" "hub2_to_hub1_peering" {
   remote_virtual_network_id    = module.hub1.vnet.id
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
+
+  depends_on = [
+    module.hub1,
+    module.hub2,
+  ]
 }
 
 ####################################################

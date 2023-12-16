@@ -16,14 +16,8 @@ resource "azurerm_virtual_network_peering" "hub1_to_hub2_peering" {
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
   depends_on = [
-    azurerm_virtual_network_peering.spoke1_to_hub1_peering,
-    azurerm_virtual_network_peering.spoke2_to_hub1_peering,
-    azurerm_virtual_network_peering.spoke4_to_hub2_peering,
-    azurerm_virtual_network_peering.spoke5_to_hub2_peering,
-    azurerm_virtual_network_peering.hub1_to_spoke1_peering,
-    azurerm_virtual_network_peering.hub1_to_spoke2_peering,
-    azurerm_virtual_network_peering.hub2_to_spoke4_peering,
-    azurerm_virtual_network_peering.hub2_to_spoke5_peering,
+    module.hub1,
+    module.hub2,
   ]
 }
 
@@ -37,14 +31,8 @@ resource "azurerm_virtual_network_peering" "hub2_to_hub1_peering" {
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
   depends_on = [
-    azurerm_virtual_network_peering.spoke1_to_hub1_peering,
-    azurerm_virtual_network_peering.spoke2_to_hub1_peering,
-    azurerm_virtual_network_peering.spoke4_to_hub2_peering,
-    azurerm_virtual_network_peering.spoke5_to_hub2_peering,
-    azurerm_virtual_network_peering.hub1_to_spoke1_peering,
-    azurerm_virtual_network_peering.hub1_to_spoke2_peering,
-    azurerm_virtual_network_peering.hub2_to_spoke4_peering,
-    azurerm_virtual_network_peering.hub2_to_spoke5_peering,
+    module.hub1,
+    module.hub2,
   ]
 }
 

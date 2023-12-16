@@ -3,10 +3,11 @@
 ####################################################
 
 locals {
-  prefix           = "Hs11"
-  region1          = "westeurope"
-  region2          = "northeurope"
-  spoke3_apps_fqdn = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
+  prefix             = "Hs11"
+  region1            = "westeurope"
+  region2            = "northeurope"
+  enable_diagnostics = false
+  spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
 }
 
 resource "random_id" "random" {
@@ -94,29 +95,33 @@ locals {
     }
 
     config_vpngw = {
-      enable = true
-      sku    = "VpnGw1AZ"
+      enable             = true
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
       bgp_settings = {
         asn = local.hub1_vpngw_asn
       }
     }
 
     config_ergw = {
-      enable = false
-      sku    = "ErGw1AZ"
+      enable             = false
+      sku                = "ErGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
     }
 
     config_firewall = {
       enable             = true
       firewall_sku       = local.firewall_sku
       firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
+      enable_diagnostics = local.enable_diagnostics
     }
 
     config_nva = {
-      enable           = false
-      type             = null
-      internal_lb_addr = null
-      custom_data      = null
+      enable             = false
+      type               = null
+      internal_lb_addr   = null
+      custom_data        = null
+      enable_diagnostics = local.enable_diagnostics
     }
   }
 }

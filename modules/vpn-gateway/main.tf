@@ -52,7 +52,21 @@ resource "azurerm_vpn_gateway" "this" {
 # diagnostic setting
 ####################################################
 
+# subscription id
+/*
+data "azurerm_subscription" "this" {}
+
+locals {
+  vpngw_id = "/subscriptions/${data.azurerm_subscription.this.subscription_id}/resourceGroups/${var.resource_group}|${azurerm_vpn_gateway.this.name}"
+}
+
+data "external" "check_diag_setting" {
+  program = ["bash", "${path.module}/../../scripts/check_diag_setting.sh", "${local.vpngw_id}"]
+}*/
+
 resource "azurerm_monitor_diagnostic_setting" "this" {
+  #count                      = data.external.check_diag_setting.result == "true" ? 1 : 0
+  count                      = var.enable_diagnostics ? 1 : 0
   name                       = "${var.prefix}vpngw-diag"
   target_resource_id         = azurerm_vpn_gateway.this.id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.this.id
@@ -91,7 +105,7 @@ locals {
 }
 
 resource "azurerm_portal_dashboard" "this" {
-  count                = var.create_dashboard ? 1 : 0
+  count                = var.enable_diagnostics ? 1 : 0
   name                 = "${var.prefix}vpngw-db"
   resource_group_name  = var.resource_group
   location             = var.location

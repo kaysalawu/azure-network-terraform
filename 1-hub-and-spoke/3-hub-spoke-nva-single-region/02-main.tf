@@ -3,10 +3,11 @@
 ####################################################
 
 locals {
-  prefix           = "Hs13"
-  region1          = "westeurope"
-  region2          = "northeurope"
-  spoke3_apps_fqdn = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
+  prefix             = "Hs13"
+  region1            = "westeurope"
+  region2            = "northeurope"
+  enable_diagnostics = false
+  spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
 }
 
 resource "random_id" "random" {
@@ -94,29 +95,33 @@ locals {
     }
 
     config_vpngw = {
-      enable = true
-      sku    = "VpnGw1AZ"
+      enable             = true
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
       bgp_settings = {
         asn = local.hub1_vpngw_asn
       }
     }
 
     config_ergw = {
-      enable = false
-      sku    = "ErGw1AZ"
+      enable             = false
+      sku                = "ErGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
     }
 
     config_firewall = {
       enable             = false
       firewall_sku       = local.firewall_sku
       firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
+      enable_diagnostics = local.enable_diagnostics
     }
 
     config_nva = {
-      enable           = true
-      type             = "linux"
-      internal_lb_addr = local.hub1_nva_ilb_addr
-      custom_data      = base64encode(local.hub1_linux_nva_init)
+      enable             = true
+      type               = "linux"
+      internal_lb_addr   = local.hub1_nva_ilb_addr
+      custom_data        = base64encode(local.hub1_linux_nva_init)
+      enable_diagnostics = local.enable_diagnostics
     }
   }
 }

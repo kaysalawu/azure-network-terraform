@@ -39,13 +39,15 @@ data "azurerm_virtual_hub_route_table" "default" {
 ####################################################
 
 module "vpngw" {
-  count          = var.s2s_vpn_gateway.enable ? 1 : 0
-  source         = "../../modules/vpn-gateway"
-  resource_group = var.resource_group
-  prefix         = local.prefix
-  location       = var.location
-  virtual_hub_id = azurerm_virtual_hub.this.id
-  bgp_settings   = var.s2s_vpn_gateway.bgp_settings
+  count              = var.s2s_vpn_gateway.enable ? 1 : 0
+  source             = "../../modules/vpn-gateway"
+  resource_group     = var.resource_group
+  prefix             = local.prefix
+  location           = var.location
+  virtual_hub_id     = azurerm_virtual_hub.this.id
+  bgp_settings       = var.s2s_vpn_gateway.bgp_settings
+  create_dashboard   = var.s2s_vpn_gateway.create_dashboard
+  enable_diagnostics = var.s2s_vpn_gateway.enable_diagnostics
 }
 
 ####################################################
@@ -65,6 +67,7 @@ module "azfw" {
 
   firewall_policy_id = var.config_security.firewall_policy_id
   create_dashboard   = var.config_security.create_dashboard
+  enable_diagnostics = var.config_security.enable_diagnostics
 
   depends_on = [
     module.vpngw,

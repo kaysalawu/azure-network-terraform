@@ -3,18 +3,28 @@
 # external load balancer
 ###################################################
 
-module "spoke1_elb" {
+module "spoke1_ilb" {
   source              = "../../modules/azure-load-balancer"
   resource_group_name = azurerm_resource_group.rg.name
   location            = local.spoke1_location
   prefix              = trimsuffix(local.spoke1_prefix, "-")
   name                = "wdp"
-  type                = "public"
+  type                = "private"
   lb_sku              = "Standard"
 
   frontend_ip_configuration = [
-    { name = "wdp", zones = ["1", "2", "3"] },
-    #{ name = "pace", zones = ["1", "2", "3"] },
+    {
+      name                          = "wdp"
+      zones                         = ["1", "2", "3"]
+      subnet_id                     = module.spoke1.subnets["LoadBalancerSubnet"].id
+      private_ip_address            = local.spoke1_ilb_addr
+      private_ip_address_allocation = "Static"
+    },
+    # {
+    #   name      = "pace"
+    #   zones     = ["1", "2", "3"]
+    #   subnet_id = module.spoke1.subnets["LoadBalancerSubnet"].id
+    # }
   ]
 
   probes = [

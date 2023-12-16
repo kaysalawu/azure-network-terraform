@@ -5,10 +5,9 @@ locals {
   nat_rules = { for rule in var.nat_rules : rule.name => rule }
   probes    = { for probe in var.probes : probe.name => probe }
 
-  backend_pools             = { for pool in var.backend_pools : pool.name => { interfaces = pool.interfaces, addresses = pool.addresses } }
-  backend_pools_addresses   = { for k, v in local.backend_pools : k => v.addresses if length(v.addresses) > 0 && length(v.interfaces) == 0 }
-  backend_pools_interfaces  = { for k, v in local.backend_pools : k => v.interfaces if length(v.interfaces) > 0 }
-  frontend_ip_configuration = { for feip in var.frontend_ip_configuration : feip.name => feip }
+  backend_pools            = { for pool in var.backend_pools : pool.name => { interfaces = pool.interfaces, addresses = pool.addresses } }  #TODO: convert to list of objects
+  backend_pools_addresses  = { for k, v in local.backend_pools : k => v.addresses if length(v.addresses) > 0 && length(v.interfaces) == 0 } #TODO: convert to list of objects
+  backend_pools_interfaces = { for k, v in local.backend_pools : k => v.interfaces if length(v.interfaces) > 0 }                            #TODO: convert to list of objects
 
   backend_pools_addresses_list = flatten([
     for pool_name, address_list in local.backend_pools_addresses : [
@@ -27,14 +26,17 @@ locals {
 ####################################################
 
 resource "azurerm_public_ip" "this" {
-  for_each            = var.type == "public" ? local.frontend_ip_configuration : {}
+  count               = var.type == "public" ? length(var.frontend_ip_configuration) : 0
   resource_group_name = var.resource_group_name
-  name                = "${local.prefix}${each.value.name}-pip"
+  name                = "${local.prefix}${var.frontend_ip_configuration[count.index].name}-pip"
   location            = var.location
   allocation_method   = var.allocation_method
   sku                 = var.pip_sku
-  zones               = each.value.zones
+  zones               = var.frontend_ip_configuration[count.index].zones
   tags                = var.tags
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 ####################################################
@@ -48,17 +50,21 @@ resource "azurerm_lb" "this" {
   sku                 = var.lb_sku
   tags                = var.tags
 
+  # iterate over list of objects to avoid error with map of objects
   dynamic "frontend_ip_configuration" {
-    for_each = local.frontend_ip_configuration
+    for_each = var.frontend_ip_configuration
     content {
       name                          = frontend_ip_configuration.value.name
-      public_ip_address_id          = var.type == "public" ? azurerm_public_ip.this[frontend_ip_configuration.value.name].id : null
-      zones                         = var.type == "private" ? frontend_ip_configuration.value.zones : null
-      private_ip_address            = var.type == "private" ? frontend_ip_configuration.value.private_ip_address : null
-      private_ip_address_allocation = var.type == "private" ? frontend_ip_configuration.value.private_ip_address_allocation : null
-      subnet_id                     = var.type == "private" ? frontend_ip_configuration.value.subnet_id : null
+      public_ip_address_id          = var.type == "public" ? azurerm_public_ip.this[frontend_ip_configuration.key].id : null
+      zones                         = var.type == "private" ? lookup(frontend_ip_configuration.value, "zones", null) : null
+      private_ip_address            = var.type == "private" ? lookup(frontend_ip_configuration.value, "private_ip_address", null) : null
+      subnet_id                     = var.type == "private" ? lookup(frontend_ip_configuration.value, "subnet_id", null) : null
+      private_ip_address_allocation = var.type == "private" ? lookup(frontend_ip_configuration.value, "private_ip_address_allocation", null) : null
     }
   }
+  depends_on = [
+    azurerm_public_ip.this,
+  ]
 }
 
 ####################################################

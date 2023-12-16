@@ -13,7 +13,7 @@ resource "random_id" "services_region1" {
 # internal load balancer
 
 module "spoke3_lb" {
-  source                                 = "../../modules/azlb"
+  source                                 = "../../modules/azure-load-balancer"
   resource_group_name                    = azurerm_resource_group.rg.name
   location                               = local.spoke3_location
   prefix                                 = trimsuffix(local.spoke3_prefix, "-")

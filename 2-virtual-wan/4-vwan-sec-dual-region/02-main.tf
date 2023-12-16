@@ -3,11 +3,12 @@
 ####################################################
 
 locals {
-  prefix           = "Vwan24"
-  region1          = "eastus"
-  region2          = "northeurope"
-  spoke3_apps_fqdn = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
-  spoke6_apps_fqdn = lower("${local.spoke6_prefix}${random_id.random.hex}-app.azurewebsites.net")
+  prefix             = "Vwan24"
+  region1            = "eastus"
+  region2            = "northeurope"
+  enable_diagnostics = false
+  spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
+  spoke6_apps_fqdn   = lower("${local.spoke6_prefix}${random_id.random.hex}-app.azurewebsites.net")
 }
 
 resource "random_id" "random" {
@@ -94,29 +95,33 @@ locals {
     }
 
     config_vpngw = {
-      enable = false
-      sku    = "VpnGw1AZ"
+      enable             = false
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
       bgp_settings = {
         asn = local.hub1_vpngw_asn
       }
     }
 
     config_ergw = {
-      enable = false
-      sku    = "ErGw1AZ"
+      enable             = false
+      sku                = "ErGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
     }
 
     config_firewall = {
       enable             = false
       firewall_sku       = local.firewall_sku
       firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
+      enable_diagnostics = local.enable_diagnostics
     }
 
     config_nva = {
-      enable           = true
-      type             = "linux"
-      internal_lb_addr = local.hub1_nva_ilb_addr
-      custom_data      = base64encode(local.hub1_linux_nva_init)
+      enable             = true
+      type               = "linux"
+      internal_lb_addr   = local.hub1_nva_ilb_addr
+      custom_data        = base64encode(local.hub1_linux_nva_init)
+      enable_diagnostics = local.enable_diagnostics
     }
   }
 
@@ -151,41 +156,47 @@ locals {
     }
 
     config_vpngw = {
-      enable = false
-      sku    = "VpnGw1AZ"
+      enable             = false
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
       bgp_settings = {
         asn = local.hub2_vpngw_asn
       }
     }
 
     config_ergw = {
-      enable = false
-      sku    = "ErGw1AZ"
+      enable             = false
+      sku                = "ErGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
     }
 
     config_firewall = {
       enable             = false
       firewall_sku       = local.firewall_sku
       firewall_policy_id = azurerm_firewall_policy.firewall_policy["region2"].id
+      enable_diagnostics = local.enable_diagnostics
     }
 
     config_nva = {
-      enable           = true
-      type             = "linux"
-      internal_lb_addr = local.hub2_nva_ilb_addr
-      custom_data      = base64encode(local.hub2_linux_nva_init)
+      enable             = true
+      type               = "linux"
+      internal_lb_addr   = local.hub2_nva_ilb_addr
+      custom_data        = base64encode(local.hub2_linux_nva_init)
+      enable_diagnostics = local.enable_diagnostics
     }
   }
 
   vhub1_features = {
     er_gateway = {
-      enable = false
-      sku    = "ErGw1AZ"
+      enable             = false
+      sku                = "ErGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
     }
 
     s2s_vpn_gateway = {
-      enable = true
-      sku    = "VpnGw1AZ"
+      enable             = true
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
       bgp_settings = {
         asn                                       = local.vhub1_bgp_asn
         peer_weight                               = 0
@@ -195,8 +206,9 @@ locals {
     }
 
     p2s_vpn_gateway = {
-      enable = false
-      sku    = "VpnGw1AZ"
+      enable             = false
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
     }
 
     config_security = {
@@ -204,6 +216,7 @@ locals {
       enable_routing_intent = true
       firewall_sku          = local.firewall_sku
       firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region1"].id
+      enable_diagnostics    = local.enable_diagnostics
       routing_policies = {
         internet            = true
         private_traffic     = true
@@ -214,13 +227,15 @@ locals {
 
   vhub2_features = {
     er_gateway = {
-      enable = false
-      sku    = "ErGw1AZ"
+      enable             = false
+      sku                = "ErGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
     }
 
     s2s_vpn_gateway = {
-      enable = true
-      sku    = "VpnGw1AZ"
+      enable             = true
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
       bgp_settings = {
         asn                                       = local.vhub2_bgp_asn
         peer_weight                               = 0
@@ -230,8 +245,9 @@ locals {
     }
 
     p2s_vpn_gateway = {
-      enable = false
-      sku    = "VpnGw1AZ"
+      enable             = false
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
     }
 
     config_security = {
@@ -239,6 +255,7 @@ locals {
       enable_routing_intent = true
       firewall_sku          = local.firewall_sku
       firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region2"].id
+      enable_diagnostics    = local.enable_diagnostics
       routing_policies = {
         internet            = true
         private_traffic     = true

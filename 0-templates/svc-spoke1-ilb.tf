@@ -38,7 +38,7 @@ module "spoke1_be2" {
 ####################################################
 
 module "spoke1_web_ilb" {
-  source                                 = "../../modules/azlb"
+  source                                 = "../../modules/azure-load-balancer"
   resource_group_name                    = azurerm_resource_group.rg.name
   location                               = local.spoke1_location
   prefix                                 = trimsuffix(local.spoke1_prefix, "-")
