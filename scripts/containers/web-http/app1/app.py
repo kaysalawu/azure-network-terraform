@@ -38,6 +38,9 @@ def path2():
     data_dict['headers'] = dict(request.headers)
     return data_dict
 
+@app.route("/healthz", host="healthz.az.corp")
+def healthz():
+    return "OK"
+
 if __name__ == "__main__":
     app.run(host= '0.0.0.0', port=8080, debug = True)
-EOF

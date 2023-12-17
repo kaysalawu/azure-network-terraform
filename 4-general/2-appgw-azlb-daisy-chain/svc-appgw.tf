@@ -20,18 +20,46 @@ module "hub1_appgw" {
     capacity = 2
   }
 
-  # backend_address_pools = [
-  #   {
-  #     name         = "wdp-beap",
-  #     ip_addresses = [local.hub1_nva_ilb_addr, ]
-  #   },
-  # ]
+  backend_address_pools = [
+    {
+      name = "wdp-beap",
+      ip_addresses = [
+        module.spoke1_be1.private_ip_address,
+        module.spoke1_be2.private_ip_address
+      ]
+    },
+    {
+      name = "pace-beap",
+      ip_addresses = [
+        module.spoke1_be1.private_ip_address,
+        module.spoke1_be2.private_ip_address
+      ]
+    },
+  ]
 
   backend_http_settings = [
     {
-      name                  = "wdp-behs"
+      name                  = "wdp-bhs"
       cookie_based_affinity = "Disabled"
+      protocol              = "Http"
+      port                  = 8080
       path                  = "/"
+      probe_name            = "wdp-hp"
+      enable_https          = false
+      request_timeout       = 30
+      connection_draining = {
+        enable_connection_draining = true
+        drain_timeout_sec          = 300
+
+      }
+    },
+    {
+      name                  = "pace-bhs"
+      cookie_based_affinity = "Disabled"
+      protocol              = "Http"
+      port                  = 8081
+      path                  = "/"
+      probe_name            = "pace-hp"
       enable_https          = false
       request_timeout       = 30
       connection_draining = {
@@ -42,19 +70,51 @@ module "hub1_appgw" {
     },
   ]
 
+  health_probes = [
+    {
+      name                = "wdp-hp"
+      host                = "healthz.az.corp"
+      protocol            = "Http"
+      port                = 8080
+      request_path        = "/healthz"
+      interval            = 30
+      timeout             = 30
+      unhealthy_threshold = 3
+    },
+    {
+      name                = "pace-hp"
+      host                = "healthz.az.corp"
+      port                = 8081
+      protocol            = "Http"
+      request_path        = "/healthz"
+      interval            = 30
+      timeout             = 30
+      unhealthy_threshold = 3
+    },
+  ]
+
   http_listeners = [
-    { name = "http-80", host_name = null },
+    { name = "wdp-lsn", host_name = "wdp.we.az.corp" },
+    { name = "pace-lsn", host_name = "pace.we.az.corp" },
     #{ name = "https-443", host_name = null }
   ]
 
   request_routing_rules = [
     {
       priority                   = 100
-      name                       = "wdp-routing-rule"
+      name                       = "wdp-rrr"
       rule_type                  = "Basic"
-      http_listener_name         = "http-80"
-      backend_address_pool_name  = "wdp-be-addr-pool"
-      backend_http_settings_name = "wdp-be-http-set"
+      http_listener_name         = "wdp-lsn"
+      backend_address_pool_name  = "wdp-beap"
+      backend_http_settings_name = "wdp-bhs"
+    },
+    {
+      priority                   = 200
+      name                       = "pace-rrr"
+      rule_type                  = "Basic"
+      http_listener_name         = "pace-lsn"
+      backend_address_pool_name  = "pace-beap"
+      backend_http_settings_name = "pace-bhs"
     },
   ]
 

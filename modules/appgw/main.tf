@@ -145,9 +145,9 @@ resource "azurerm_application_gateway" "main" {
       cookie_based_affinity               = lookup(backend_http_settings.value, "cookie_based_affinity", "Disabled")
       affinity_cookie_name                = lookup(backend_http_settings.value, "affinity_cookie_name", null)
       path                                = lookup(backend_http_settings.value, "path", "/")
-      port                                = backend_http_settings.value.enable_https ? 443 : 80
+      port                                = lookup(backend_http_settings.value, "port", 80)
       probe_name                          = lookup(backend_http_settings.value, "probe_name", null)
-      protocol                            = backend_http_settings.value.enable_https ? "Https" : "Http"
+      protocol                            = lookup(backend_http_settings.value, "port", 80) == 443 ? "Https" : "Http"
       request_timeout                     = lookup(backend_http_settings.value, "request_timeout", 30)
       host_name                           = backend_http_settings.value.pick_host_name_from_backend_address == false ? lookup(backend_http_settings.value, "host_name") : null
       pick_host_name_from_backend_address = lookup(backend_http_settings.value, "pick_host_name_from_backend_address", false)
@@ -286,13 +286,13 @@ resource "azurerm_application_gateway" "main" {
     for_each = var.health_probes
     content {
       name                                      = probe.value.name
-      host                                      = lookup(probe.value, "host", "127.0.0.1")
-      interval                                  = lookup(probe.value, "interval", 30)
       protocol                                  = probe.value.port == 443 ? "Https" : "Http"
+      port                                      = lookup(probe.value, "port", 443)
+      host                                      = lookup(probe.value, "host", "127.0.0.1")
       path                                      = lookup(probe.value, "path", "/")
+      interval                                  = lookup(probe.value, "interval", 30)
       timeout                                   = lookup(probe.value, "timeout", 30)
       unhealthy_threshold                       = lookup(probe.value, "unhealthy_threshold", 3)
-      port                                      = lookup(probe.value, "port", 443)
       pick_host_name_from_backend_http_settings = lookup(probe.value, "pick_host_name_from_backend_http_settings", false)
       minimum_servers                           = lookup(probe.value, "minimum_servers", 0)
     }

@@ -17,3 +17,8 @@ services:
     ports:
       - 8081:8081
     network_mode: host
+
+  httpbin:
+    image: kennethreitz/httpbin
+    ports:
+      - 80:80

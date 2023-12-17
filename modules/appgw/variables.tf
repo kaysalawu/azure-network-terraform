@@ -99,14 +99,16 @@ variable "backend_address_pools" {
 variable "backend_http_settings" {
   description = "List of backend HTTP settings."
   type = list(object({
-    name                                = string
-    cookie_based_affinity               = string
-    enable_https                        = bool
-    request_timeout                     = optional(number)
-    affinity_cookie_name                = optional(string)
-    path                                = optional(string)
-    probe_name                          = optional(string)
-    host_name                           = optional(string)
+    name                  = string
+    cookie_based_affinity = string
+    affinity_cookie_name  = optional(string)
+    path                  = optional(string)
+    port                  = optional(number, 80)
+    probe_name            = optional(string)
+    protocol              = optional(string, "Http")
+    request_timeout       = optional(number)
+    host_name             = optional(string)
+
     pick_host_name_from_backend_address = optional(bool)
     authentication_certificate = optional(object({
       name = string
@@ -202,13 +204,14 @@ variable "health_probes" {
   description = "List of Health probes used to test backend pools health."
   type = list(object({
     name                                      = string
-    host                                      = string
-    interval                                  = number
-    path                                      = string
-    timeout                                   = number
-    unhealthy_threshold                       = number
-    port                                      = optional(number)
-    pick_host_name_from_backend_http_settings = optional(bool)
+    protocol                                  = optional(string, "Http")
+    port                                      = optional(number, 80)
+    host                                      = optional(string, "127.0.0.1")
+    path                                      = optional(string, "/")
+    interval                                  = optional(number, 30)
+    timeout                                   = optional(number, 30)
+    unhealthy_threshold                       = optional(number, 3)
+    pick_host_name_from_backend_http_settings = optional(bool, false)
     minimum_servers                           = optional(number)
     match = optional(object({
       body        = optional(string)

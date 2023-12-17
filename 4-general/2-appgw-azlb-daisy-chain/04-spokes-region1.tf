@@ -80,21 +80,21 @@ locals {
   }
 }
 
-module "spoke1_backend_init" {
+module "spoke1_web_http_backend_init" {
   source = "../../modules/cloud-config-gen"
   files = {
-    "${local.spoke1_be_dir}/docker-compose.yml"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/multiport/docker-compose.yml", local.spoke1_be_vars) }
-    "${local.spoke1_be_dir}/service.sh"            = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/multiport/service.sh", local.spoke1_be_vars) }
-    "${local.spoke1_be_dir}/start.sh"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/multiport/start.sh", local.spoke1_be_vars) }
-    "${local.spoke1_be_dir}/stop.sh"               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/multiport/stop.sh", local.spoke1_be_vars) }
-    "${local.spoke1_be_dir}/app1/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/multiport/app1/Dockerfile", local.spoke1_be_vars) }
-    "${local.spoke1_be_dir}/app1/dockerignore"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/multiport/app1/dockerignore", local.spoke1_be_vars) }
-    "${local.spoke1_be_dir}/app1/app.py"           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/multiport/app1/app.py", local.spoke1_be_vars) }
-    "${local.spoke1_be_dir}/app1/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/multiport/app1/requirements.txt", local.spoke1_be_vars) }
-    "${local.spoke1_be_dir}/app2/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/multiport/app2/Dockerfile", local.spoke1_be_vars) }
-    "${local.spoke1_be_dir}/app2/dockerignore"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/multiport/app2/dockerignore", local.spoke1_be_vars) }
-    "${local.spoke1_be_dir}/app2/app.py"           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/multiport/app2/app.py", local.spoke1_be_vars) }
-    "${local.spoke1_be_dir}/app2/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/multiport/app2/requirements.txt", local.spoke1_be_vars) }
+    "${local.spoke1_be_dir}/docker-compose.yml"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/web-http/docker-compose.yml", local.spoke1_be_vars) }
+    "${local.spoke1_be_dir}/service.sh"            = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/web-http/service.sh", local.spoke1_be_vars) }
+    "${local.spoke1_be_dir}/start.sh"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/web-http/start.sh", local.spoke1_be_vars) }
+    "${local.spoke1_be_dir}/stop.sh"               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/web-http/stop.sh", local.spoke1_be_vars) }
+    "${local.spoke1_be_dir}/app1/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/web-http/app1/Dockerfile", local.spoke1_be_vars) }
+    "${local.spoke1_be_dir}/app1/dockerignore"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/web-http/app1/dockerignore", local.spoke1_be_vars) }
+    "${local.spoke1_be_dir}/app1/app.py"           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/web-http/app1/app.py", local.spoke1_be_vars) }
+    "${local.spoke1_be_dir}/app1/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/web-http/app1/requirements.txt", local.spoke1_be_vars) }
+    "${local.spoke1_be_dir}/app2/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/web-http/app2/Dockerfile", local.spoke1_be_vars) }
+    "${local.spoke1_be_dir}/app2/dockerignore"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/web-http/app2/dockerignore", local.spoke1_be_vars) }
+    "${local.spoke1_be_dir}/app2/app.py"           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/web-http/app2/app.py", local.spoke1_be_vars) }
+    "${local.spoke1_be_dir}/app2/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/web-http/app2/requirements.txt", local.spoke1_be_vars) }
   }
   run_commands = [
     ". ${local.spoke1_be_dir}/service.sh",
@@ -110,7 +110,7 @@ module "spoke1_be1" {
   subnet                = module.spoke1.subnets["MainSubnet"].id
   private_ip            = local.spoke1_be1_addr
   enable_public_ip      = true
-  custom_data           = base64encode(module.spoke1_backend_init.cloud_config)
+  custom_data           = base64encode(module.spoke1_web_http_backend_init.cloud_config)
   storage_account       = module.common.storage_accounts["region1"]
   source_image          = "ubuntu-22"
   private_dns_zone_name = local.spoke1_dns_zone
@@ -126,7 +126,7 @@ module "spoke1_be2" {
   subnet                = module.spoke1.subnets["MainSubnet"].id
   private_ip            = local.spoke1_be2_addr
   enable_public_ip      = true
-  custom_data           = base64encode(module.spoke1_backend_init.cloud_config)
+  custom_data           = base64encode(module.spoke1_web_http_backend_init.cloud_config)
   storage_account       = module.common.storage_accounts["region1"]
   source_image          = "ubuntu-22"
   private_dns_zone_name = local.spoke1_dns_zone
@@ -139,7 +139,7 @@ module "spoke1_be2" {
 
 locals {
   spoke1_files = {
-    "output/spoke1-be-init" = module.spoke1_backend_init.cloud_config
+    "output/spoke1-be-init" = module.spoke1_web_http_backend_init.cloud_config
   }
 }
 

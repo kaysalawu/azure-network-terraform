@@ -62,9 +62,12 @@ write_files:
           data_dict['headers'] = dict(request.headers)
           return data_dict
       
+      @app.route("/healthz", host="healthz.az.corp")
+      def healthz():
+          return "OK"
+      
       if __name__ == "__main__":
           app.run(host= '0.0.0.0', port=8080, debug = True)
-      EOF
       
   - path: /var/lib/spoke/app1/dockerignore
     owner: root
@@ -146,9 +149,12 @@ write_files:
           data_dict['headers'] = dict(request.headers)
           return data_dict
       
+      @app.route("/healthz", host="healthz.az.corp")
+      def healthz():
+          return "OK"
+      
       if __name__ == "__main__":
           app.run(host= '0.0.0.0', port=8081, debug = True)
-      EOF
       
   - path: /var/lib/spoke/app2/dockerignore
     owner: root
@@ -195,6 +201,11 @@ write_files:
           ports:
             - 8081:8081
           network_mode: host
+      
+        httpbin:
+          image: kennethreitz/httpbin
+          ports:
+            - 80:80
       
   - path: /var/lib/spoke/service.sh
     owner: root
