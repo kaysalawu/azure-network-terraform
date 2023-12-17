@@ -50,7 +50,6 @@ resource "azurerm_lb" "this" {
   sku                 = var.lb_sku
   tags                = var.tags
 
-  # iterate over list of objects to avoid error with map of objects
   dynamic "frontend_ip_configuration" {
     for_each = var.frontend_ip_configuration
     content {

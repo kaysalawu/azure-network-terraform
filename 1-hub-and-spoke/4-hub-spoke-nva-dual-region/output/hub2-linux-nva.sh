@@ -184,8 +184,8 @@ echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} 
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke5.ne.az.corp) - vm.spoke5.ne.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke6.ne.az.corp) - vm.spoke6.ne.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null hs14-spoke3-4a0c-app.azurewebsites.net) - hs14-spoke3-4a0c-app.azurewebsites.net"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null hs14-spoke6-4a0c-app.azurewebsites.net) - hs14-spoke6-4a0c-app.azurewebsites.net"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null hs14-spoke3-8e02-app.azurewebsites.net) - hs14-spoke3-8e02-app.azurewebsites.net"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null hs14-spoke6-8e02-app.azurewebsites.net) - hs14-spoke6-8e02-app.azurewebsites.net"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 

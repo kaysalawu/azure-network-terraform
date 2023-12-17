@@ -16,6 +16,10 @@ resource "azurerm_virtual_network_peering" "spoke1_to_hub1_peering" {
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
   use_remote_gateways          = false
+  depends_on = [
+    module.spoke1,
+    module.hub1,
+  ]
 }
 
 # hub1-to-spoke1
@@ -28,4 +32,8 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke1_peering" {
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
   allow_gateway_transit        = false
+  depends_on = [
+    module.spoke1,
+    module.hub1,
+  ]
 }
