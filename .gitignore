@@ -25,7 +25,6 @@ plugins/
 *scrap*
 *reference*
 *artifact
-*certs
 *anthos-keys
 backend.tf
 
