@@ -63,6 +63,7 @@ resource "pkcs12_from_pem" "this" {
 # local file
 
 resource "local_file" "result" {
+  count          = var.cert_output_path != "" ? 1 : 0
   filename       = "${var.cert_output_path}/${var.name}.p12"
   content_base64 = pkcs12_from_pem.this.result
 }
