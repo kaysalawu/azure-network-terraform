@@ -1,4 +1,13 @@
 
+locals {
+  spoke1_cert_name_app1   = "cert"
+  spoke1_cert_output_path = "certs/spoke1"
+  spoke1_common_name      = "*.az.corp"
+  spoke1_host_app1        = "app1.we.az.corp"
+  spoke1_host_app2        = "app2.we.az.corp"
+  spoke1_host_all         = "*.az.corp"
+}
+
 ####################################################
 # spoke1
 ####################################################
@@ -95,6 +104,8 @@ module "spoke1_web_http_backend_init" {
     "${local.spoke1_be_dir}/app2/dockerignore"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/web-http/app2/dockerignore", local.spoke1_be_vars) }
     "${local.spoke1_be_dir}/app2/app.py"           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/web-http/app2/app.py", local.spoke1_be_vars) }
     "${local.spoke1_be_dir}/app2/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/web-http/app2/requirements.txt", local.spoke1_be_vars) }
+    "/etc/ssl/app/cert.pem"                        = { owner = "root", permissions = "0400", content = join("\n", [module.spoke1_appgw_app1_cert.cert_pem, tls_self_signed_cert.root_ca.cert_pem]) }
+    "/etc/ssl/app/cert.key"                        = { owner = "root", permissions = "0400", content = module.spoke1_appgw_app1_cert.private_key_pem }
   }
   run_commands = [
     ". ${local.spoke1_be_dir}/service.sh",
@@ -134,12 +145,40 @@ module "spoke1_be2" {
 }
 
 ####################################################
+# client cert
+####################################################
+
+module "spoke1_appgw_app1_cert" {
+  source   = "../../modules/self-signed-cert"
+  name     = local.spoke1_cert_name_app1
+  rsa_bits = 2048
+  subject = {
+    common_name         = local.spoke1_host_all
+    organization        = "app1 demo"
+    organizational_unit = "app1 network team"
+    street_address      = "99 mpls chicken road, network avenue"
+    locality            = "London"
+    province            = "England"
+    country             = "UK"
+  }
+  dns_names = [
+    local.spoke1_host_all,
+  ]
+  ca_private_key_pem = tls_private_key.root_ca.private_key_pem
+  ca_cert_pem        = tls_self_signed_cert.root_ca.cert_pem
+  cert_output_path   = local.spoke1_cert_output_path
+}
+
+####################################################
 # output files
 ####################################################
 
 locals {
   spoke1_files = {
-    "output/spoke1-be-init" = module.spoke1_web_http_backend_init.cloud_config
+    "output/spoke1-be-init"    = module.spoke1_web_http_backend_init.cloud_config
+    "certs/spoke1/root-ca.pem" = tls_self_signed_cert.root_ca.cert_pem
+    "certs/spoke1/cert.key"    = module.spoke1_appgw_app1_cert.private_key_pem
+    "certs/spoke1/cert.pem"    = join("\n", [module.spoke1_appgw_app1_cert.cert_pem, tls_self_signed_cert.root_ca.cert_pem])
   }
 }
 
@@ -148,4 +187,3 @@ resource "local_file" "spoke1_files" {
   filename = each.key
   content  = each.value
 }
-

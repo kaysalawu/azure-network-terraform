@@ -147,7 +147,7 @@ resource "azurerm_application_gateway" "main" {
       path                                = lookup(backend_http_settings.value, "path", "/")
       port                                = lookup(backend_http_settings.value, "port", 80)
       probe_name                          = lookup(backend_http_settings.value, "probe_name", null)
-      protocol                            = lookup(backend_http_settings.value, "port", 80) == 443 ? "Https" : "Http"
+      protocol                            = lookup(backend_http_settings.value, "protocol", "Http")
       request_timeout                     = lookup(backend_http_settings.value, "request_timeout", 30)
       host_name                           = backend_http_settings.value.pick_host_name_from_backend_address == false ? lookup(backend_http_settings.value, "host_name") : null
       pick_host_name_from_backend_address = lookup(backend_http_settings.value, "pick_host_name_from_backend_address", false)
@@ -246,7 +246,7 @@ resource "azurerm_application_gateway" "main" {
     for_each = var.trusted_root_certificates
     content {
       name = trusted_root_certificate.value.name
-      data = filebase64(trusted_root_certificate.value.data)
+      data = trusted_root_certificate.value.data
     }
   }
 
@@ -286,8 +286,8 @@ resource "azurerm_application_gateway" "main" {
     for_each = var.health_probes
     content {
       name                                      = probe.value.name
-      protocol                                  = probe.value.port == 443 ? "Https" : "Http"
-      port                                      = lookup(probe.value, "port", 443)
+      protocol                                  = lookup(probe.value, "protocol", "Http")
+      port                                      = lookup(probe.value, "port", 80)
       host                                      = lookup(probe.value, "host", "127.0.0.1")
       path                                      = lookup(probe.value, "path", "/")
       interval                                  = lookup(probe.value, "interval", 30)
@@ -483,36 +483,25 @@ resource "azurerm_application_gateway" "main" {
 #   }
 # }
 
-# resource "azurerm_monitor_diagnostic_setting" "agw-diag" {
-#   count              = var.log_analytics_workspace_name != null || var.storage_account_name != null ? 1 : 0
-#   name               = lower("agw-${var.app_gateway_name}-diag")
-#   target_resource_id = azurerm_application_gateway.main.id
-#   #storage_account_id         = var.storage_account_name != null ? data.azurerm_storage_account.storeacc.0.id : null
-#   log_analytics_workspace_id = data.azurerm_log_analytics_workspace.logws.0.id
+resource "azurerm_monitor_diagnostic_setting" "agw-diag" {
+  count              = var.log_analytics_workspace_name != null || var.storage_account_name != null ? 1 : 0
+  name               = lower("agw-${var.app_gateway_name}-diag")
+  target_resource_id = azurerm_application_gateway.main.id
+  #storage_account_id         = var.storage_account_name != null ? data.azurerm_storage_account.storeacc.0.id : null
+  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.logws.0.id
 
-#   dynamic "log" {
-#     for_each = var.agw_diag_logs
-#     content {
-#       category = log.value
-#       enabled  = true
+  dynamic "enabled_log" {
+    for_each = var.agw_diag_logs
+    content {
+      category = enabled_log.value
+    }
+  }
 
-#       retention_policy {
-#         enabled = false
-#         days    = 0
-#       }
-#     }
-#   }
+  metric {
+    category = "AllMetrics"
+  }
 
-#   metric {
-#     category = "AllMetrics"
-
-#     retention_policy {
-#       enabled = false
-#       days    = 0
-#     }
-#   }
-
-#   lifecycle {
-#     ignore_changes = [log, metric]
-#   }
-# }
+  lifecycle {
+    ignore_changes = [log, metric]
+  }
+}

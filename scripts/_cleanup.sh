@@ -1,5 +1,14 @@
 #!/bin/bash
 
+char_pass="\u2714"
+char_fail="\u274c"
+char_question="\u2753"
+char_notfound="\u26D4"
+char_exclamation="\u2757"
+char_celebrate="\u2B50"
+char_executing="\u23F3"
+char_arrow="\u279C"
+
 # Check if a resource group name is provided
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 <Resource Group>"
@@ -9,73 +18,51 @@ fi
 RG=$1
 echo && echo "Resource group: $RG" && echo
 
+delete_diag_settings() {
+    local resource_type=$1
+    local list_command=$2
+
+    # Get all resources of the specified type in the resource group
+    local resource_ids=$($list_command -g "$RG" --query "[].id" -o tsv)
+
+    # Iterate over the resources and delete the diagnostic settings
+    echo -e "$char_arrow  Checking $resource_type ..."
+    for resource_id in $resource_ids; do
+        local resource_name=$(echo $resource_id | rev | cut -d'/' -f1 | rev)
+        local diag_settings=$(az monitor diagnostic-settings list --resource "$resource_id" --query "[].name" -o tsv)
+        for diag_setting in $diag_settings; do
+            echo -e " $char_fail Deleting: diag setting [$diag_setting] for $resource_type [$resource_name] ..."
+            az monitor diagnostic-settings delete --resource "$resource_id" --name "$diag_setting"
+        done
+    done
+}
+
 delete_azfw_diag_settings() {
-    # Get all firewalls in the specified resource group
-    firewallids=$(az network firewall list -g "$RG" --query "[].id" -o tsv)
-
-    # Iterate over the firewalls and delete the diagnostic settings
-    echo "Checking for diagnostic settings on firewalls ..."
-    for firewallid in $firewallids; do
-        firewallname=$(echo $firewallid | rev | cut -d'/' -f1 | rev)
-        azfw_diag_settings=$(az monitor diagnostic-settings list --resource "$firewallid" --query "[].name" -o tsv)
-        for azfw_diag_setting in $azfw_diag_settings; do
-            echo "Deleting: diag setting [$azfw_diag_setting] for firewall [$firewallname] ..."
-            az monitor diagnostic-settings delete --resource "$firewallid" --name "$azfw_diag_setting"
-        done
-    done
+    delete_diag_settings "firewall" "az network firewall list"
 }
 
-delete_vnetgw_diag_settings(){
-    # Get all vnetgw in the specified resource group
-    vnetgwids=$(az network vnet-gateway list -g "$RG" --query "[].id" -o tsv)
-
-    # Iterate over the vnetgw and delete the diagnostic settings
-    echo "Checking for diagnostic settings on vnet gateway ..."
-    for vnetgwid in $vnetgwids; do
-        vnetgwname=$(echo $vnetgwid | rev | cut -d'/' -f1 | rev)
-        vnetgw_diag_settings=$(az monitor diagnostic-settings list --resource "$vnetgwid" --query "[].name" -o tsv)
-        for vnetgw_diag_setting in $vnetgw_diag_settings; do
-            echo "Deleting: diag setting [$vnetgw_diag_setting] for vnetgw [$vnetgwname] ..."
-            az monitor diagnostic-settings delete --resource "$vnetgwid" --name "$vnetgw_diag_setting"
-        done
-    done
+delete_vnetgw_diag_settings() {
+    delete_diag_settings "vnet gateway" "az network vnet-gateway list"
 }
 
-delete_vpn_gateway_diag_settings(){
-    # Get all vpn gateway in the specified resource group
-    vpngatewayids=$(az network vpn-gateway list -g "$RG" --query "[].id" -o tsv)
-
-    # Iterate over the vpn gateway and delete the diagnostic settings
-    echo "Checking for diagnostic settings on vpn gateway ..."
-    for vpngatewayid in $vpngatewayids; do
-        vpngatewayname=$(echo $vpngatewayid | rev | cut -d'/' -f1 | rev)
-        vpngateway_diag_settings=$(az monitor diagnostic-settings list --resource "$vpngatewayid" --query "[].name" -o tsv)
-        for vpngateway_diag_setting in $vpngateway_diag_settings; do
-            echo "Deleting: diag setting [$vpngateway_diag_setting] for vpn gateway [$vpngatewayname] ..."
-            az monitor diagnostic-settings delete --resource "$vpngatewayid" --name "$vpngateway_diag_setting"
-        done
-    done
+delete_vpn_gateway_diag_settings() {
+    delete_diag_settings "vpn gateway" "az network vpn-gateway list"
 }
 
-delete_er_gateway_diag_settings(){
-    # Get all er gateway in the specified resource group
-    ergatewayids=$(az network express-route gateway list -g "$RG" --query "[].id" -o tsv)
-
-    # Iterate over the er gateway and delete the diagnostic settings
-    echo "Checking for diagnostic settings on er gateway ..."
-    for ergatewayid in $ergatewayids; do
-        ergatewayname=$(echo $ergatewayid | rev | cut -d'/' -f1 | rev)
-        ergateway_diag_settings=$(az monitor diagnostic-settings list --resource "$ergatewayid" --query "[].name" -o tsv)
-        for ergateway_diag_setting in $ergateway_diag_settings; do
-            echo "Deleting: diag setting [$ergateway_diag_setting] for er gateway [$ergatewayname] ..."
-            az monitor diagnostic-settings delete --resource "$ergatewayid" --name "$ergateway_diag_setting"
-        done
-    done
+delete_er_gateway_diag_settings() {
+    delete_diag_settings "er gateway" "az network express-route gateway list"
 }
+
+delete_app_gateway_diag_settings() {
+    delete_diag_settings "app gateway" "az network application-gateway list"
+}
+
+echo -e "$char_executing Checking for diagnostic settings on resources in $RG ..."
 
 delete_azfw_diag_settings
 delete_vnetgw_diag_settings
 delete_vpn_gateway_diag_settings
 delete_er_gateway_diag_settings
-echo "Done!"
+delete_app_gateway_diag_settings
 
+echo "Done!"

@@ -1,7 +1,10 @@
 
 locals {
-  cert_name_wdp  = "wdp"
-  cert_name_pace = "pace"
+  hub1_cert_name_app1   = "app1"
+  hub1_cert_name_app2   = "app2"
+  hub1_cert_output_path = "certs/hub1"
+  hub1_app1_host        = "app1.we.az.corp"
+  hub1_app2_host        = "app2.we.az.corp"
 }
 
 ####################################################
@@ -38,6 +41,14 @@ resource "azurerm_user_assigned_identity" "hub1_appgw_http" {
 # app gateway
 ####################################################
 
+# data "azurerm_monitor_diagnostic_categories" "example" {
+#   resource_id = module.hub1_appgw.application_gateway_id
+# }
+
+# output "test" {
+#   value = data.azurerm_monitor_diagnostic_categories.example
+# }
+
 module "hub1_appgw" {
   source               = "../../modules/appgw"
   resource_group_name  = azurerm_resource_group.rg.name
@@ -55,29 +66,34 @@ module "hub1_appgw" {
 
   backend_address_pools = [
     {
-      name = "wdp-beap",
+      name = "app1-beap",
       ip_addresses = [
-        module.spoke1_be1.private_ip_address,
-        module.spoke1_be2.private_ip_address
+        local.spoke1_ilb_addr,
       ]
     },
     {
-      name = "pace-beap",
+      name = "app2-beap",
       ip_addresses = [
-        module.spoke1_be1.private_ip_address,
-        module.spoke1_be2.private_ip_address
+        local.spoke1_ilb_addr,
       ]
+    },
+  ]
+
+  trusted_root_certificates = [
+    {
+      name = "hub1-root-ca"
+      data = base64encode(tls_self_signed_cert.root_ca.cert_pem)
     },
   ]
 
   backend_http_settings = [
     {
-      name                  = "wdp-bhs"
+      name                  = "app1-bhs"
       cookie_based_affinity = "Disabled"
-      protocol              = "Http"
+      protocol              = "Https"
       port                  = 8080
       path                  = "/"
-      probe_name            = "wdp-hp"
+      probe_name            = "app1-hp"
       enable_https          = false
       request_timeout       = 30
       connection_draining = {
@@ -85,14 +101,17 @@ module "hub1_appgw" {
         drain_timeout_sec          = 300
 
       }
+      trusted_root_certificate_names = [
+        "hub1-root-ca"
+      ]
     },
     {
-      name                  = "pace-bhs"
+      name                  = "app2-bhs"
       cookie_based_affinity = "Disabled"
       protocol              = "Http"
       port                  = 8081
       path                  = "/"
-      probe_name            = "pace-hp"
+      probe_name            = "app2-hp"
       enable_https          = false
       request_timeout       = 30
       connection_draining = {
@@ -105,21 +124,21 @@ module "hub1_appgw" {
 
   health_probes = [
     {
-      name                = "wdp-hp"
+      name                = "app1-hp"
       host                = "healthz.az.corp"
-      protocol            = "Http"
+      protocol            = "Https"
       port                = 8080
-      request_path        = "/healthz"
+      path                = "/healthz"
       interval            = 30
       timeout             = 30
       unhealthy_threshold = 3
     },
     {
-      name                = "pace-hp"
+      name                = "app2-hp"
       host                = "healthz.az.corp"
       port                = 8081
       protocol            = "Http"
-      request_path        = "/healthz"
+      path                = "/healthz"
       interval            = 30
       timeout             = 30
       unhealthy_threshold = 3
@@ -128,129 +147,77 @@ module "hub1_appgw" {
 
   http_listeners = [
     {
-      name                 = "wdp-lsn"
-      host_name            = "wdp.we.az.corp"
-      ssl_certificate_name = module.hub1_appgw_wdp_cert.cert_name
+      name                 = "app1-lsn"
+      host_name            = local.hub1_app1_host
+      ssl_certificate_name = module.hub1_appgw_app1_cert.cert_name
     },
     {
-      name      = "pace-lsn"
-      host_name = "pace.we.az.corp"
+      name      = "app2-lsn"
+      host_name = local.hub1_app2_host
     },
   ]
 
   request_routing_rules = [
     {
       priority                   = 100
-      name                       = "wdp-rrr"
+      name                       = "app1-rrr"
       rule_type                  = "Basic"
-      http_listener_name         = "wdp-lsn"
-      backend_address_pool_name  = "wdp-beap"
-      backend_http_settings_name = "wdp-bhs"
+      http_listener_name         = "app1-lsn"
+      backend_address_pool_name  = "app1-beap"
+      backend_http_settings_name = "app1-bhs"
     },
     {
       priority                   = 200
-      name                       = "pace-rrr"
+      name                       = "app2-rrr"
       rule_type                  = "Basic"
-      http_listener_name         = "pace-lsn"
-      backend_address_pool_name  = "pace-beap"
-      backend_http_settings_name = "pace-bhs"
+      http_listener_name         = "app2-lsn"
+      backend_address_pool_name  = "app2-beap"
+      backend_http_settings_name = "app2-bhs"
     },
   ]
 
   ssl_certificates = [
     {
-      name     = local.cert_name_wdp
-      data     = module.hub1_appgw_wdp_cert.cert_pfx_path
-      password = module.hub1_appgw_wdp_cert.password
+      name     = module.hub1_appgw_app1_cert.cert_name
+      data     = module.hub1_appgw_app1_cert.cert_pfx
+      password = module.hub1_appgw_app1_cert.password
     },
   ]
 
-  identity_ids = ["${azurerm_user_assigned_identity.hub1_appgw_http.id}"]
-  #log_analytics_workspace_name = azurerm_log_analytics_workspace.analytics_ws.name
+  log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
+
+  identity_ids = [
+    "${azurerm_user_assigned_identity.hub1_appgw_http.id}"
+  ]
+
   depends_on = [
     azurerm_resource_group.rg,
-    module.hub1
+    module.hub1,
   ]
 }
 
 ####################################################
-# cert - root ca
+# cert - app1
 ####################################################
 
-# private key
-
-resource "tls_private_key" "hub1_root_ca" {
-  algorithm = "RSA"
-  rsa_bits  = 2048
-}
-
-# root ca cert
-
-resource "tls_self_signed_cert" "hub1_root_ca" {
-  private_key_pem = tls_private_key.hub1_root_ca.private_key_pem
-  subject {
-    common_name         = "Self Root CA"
-    organization        = "demo"
-    organizational_unit = "cloud network team"
-    street_address      = ["mpls chicken road"]
-    locality            = "London"
-    province            = "England"
-    country             = "UK"
-  }
-  is_ca_certificate     = true
-  validity_period_hours = 8760
-  allowed_uses = [
-    "key_encipherment",
-    "digital_signature",
-    "cert_signing",
-  ]
-}
-
-####################################################
-# cert - wdp
-####################################################
-
-module "hub1_appgw_wdp_cert" {
-  source = "../../modules/self-signed-cert"
-  name   = local.cert_name_wdp
+module "hub1_appgw_app1_cert" {
+  source   = "../../modules/self-signed-cert"
+  name     = local.hub1_cert_name_app1
+  rsa_bits = 2048
   subject = {
-    common_name         = "wdp labs"
-    organization        = "wdp demo"
-    organizational_unit = "wdp network team"
+    common_name         = local.hub1_app1_host
+    organization        = "app1 demo"
+    organizational_unit = "app1 network team"
     street_address      = "99 mpls chicken road, network avenue"
     locality            = "London"
     province            = "England"
     country             = "UK"
   }
   dns_names = [
-    "wdp.we.az.corp",
+    local.hub1_app1_host,
   ]
-  ca_private_key_pem = tls_private_key.hub1_root_ca.private_key_pem
-  ca_cert_pem        = tls_self_signed_cert.hub1_root_ca.cert_pem
-  cert_output_path   = "certs"
+  ca_private_key_pem = tls_private_key.root_ca.private_key_pem
+  ca_cert_pem        = tls_self_signed_cert.root_ca.cert_pem
+  cert_output_path   = local.hub1_cert_output_path
 }
 
-
-####################################################
-# cert - pace
-####################################################
-
-module "hub1_appgw_pace_cert" {
-  source = "../../modules/self-signed-cert"
-  name   = local.cert_name_pace
-  subject = {
-    common_name         = "pace labs"
-    organization        = "pace demo"
-    organizational_unit = "pace network team"
-    street_address      = "99 mpls chicken road, network avenue"
-    locality            = "London"
-    province            = "England"
-    country             = "UK"
-  }
-  dns_names = [
-    "pace.we.az.corp",
-  ]
-  ca_private_key_pem = tls_private_key.hub1_root_ca.private_key_pem
-  ca_cert_pem        = tls_self_signed_cert.hub1_root_ca.cert_pem
-  cert_output_path   = "certs"
-}

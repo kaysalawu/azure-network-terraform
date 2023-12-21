@@ -515,13 +515,13 @@ RPKI validation codes: V valid, I invalid, N Not found
 2. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
 
    ```sh
-   sh ../../scripts/_cleanup.sh Vwan21RG
+   bash ../../scripts/_cleanup.sh Vwan21RG
    ```
 
    Sample output
 
    ```sh
-   1-vwan-single-region$    sh ../../scripts/_cleanup.sh Vwan21RG
+   1-vwan-single-region$    bash ../../scripts/_cleanup.sh Vwan21RG
 
    Resource group: Vwan21RG
 

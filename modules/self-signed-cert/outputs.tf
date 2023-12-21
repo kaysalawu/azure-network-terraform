@@ -15,9 +15,9 @@ output "cert_pfx" {
   value = pkcs12_from_pem.this.result
 }
 
-output "cert_pfx_path" {
-  value = "${var.cert_output_path}/${var.name}.p12"
-}
+# output "cert_pfx_path" {
+#   value = "${var.cert_output_path}/${var.name}.p12"
+# }
 
 output "password" {
   value = var.password

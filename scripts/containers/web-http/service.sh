@@ -2,6 +2,9 @@
 
 set -e
 
+export HOST_HOSTNAME=$(hostname)
+export HOST_IP=$(hostname -I | awk '{print $1}')
+
 base_dir=$(pwd)
 init_dir="/var/lib/spoke"
 log_init="$init_dir/log_init.txt"
@@ -65,6 +68,10 @@ start_services() {
   cd "$init_dir"
   echo "docker compose up -d"
   docker compose up -d
+  echo "docker-compose logs -f app1"
+  docker-compose logs -f app1
+  echo "docker-compose logs -f app2"
+  docker-compose logs -f app2
   cd "$dir_base"
 }
 

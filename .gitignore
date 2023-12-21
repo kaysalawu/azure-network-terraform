@@ -27,6 +27,7 @@ plugins/
 *artifact
 *anthos-keys
 backend.tf
+*certs/
 
 # Skaffold
 bin/

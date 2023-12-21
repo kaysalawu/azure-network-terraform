@@ -4,6 +4,92 @@ package_update: true
 
 
 write_files:
+  - path: /etc/ssl/app/cert.key
+    owner: root
+    permissions: 0400
+    content: |
+      -----BEGIN RSA PRIVATE KEY-----
+      MIIEpAIBAAKCAQEA1ufDkCJ/oR9sffqxIQxllB+ZUSDR3WHR/6gbb7526/uSot8q
+      9+5z5rdjGu1Y+t6T+K0tHYogWPplfPL+FykUMpO+Ku+Sp/HkXIbg121U9LKtHSUL
+      7jvvejtopHDakYv/GSR8O9J+Y7GjgOJw/k/izwevEV5tCjesOior48e5hyZkXwXs
+      HAQ99X4X6wZ5/cRctvihdygBGgNg+PwjK/nI9wNaSiGB4tODSk+ARVl1L8L039Cp
+      vGW8YQzZURyPUXnLbzT3lCm88UQlcoR8+AnVgNEexqwQ+Fdpyv0x0Apaux2mLLtf
+      2PzMwEfEVdoB3Mjum5qQQh1qLeI2M4l1N0Z+pQIDAQABAoIBAFRVQuMvBpK9+B8/
+      336ulLYZ6Fpz3KdZmcUPvSSOw7A7WwHbPctpocXqNVP9zCs2aS7vFoM/Dw6bxHPS
+      D3AbSLfITpoexZhuTkUZEOa5GtujuldzkEj+8C0xXxEY0EzJeWPuc2ouYjbRIO6U
+      7e5+fuzrgQH54iReUJHKtsp+OAoWiLm2ejzt6+NO15OKr32NnQoVG6X/pp2I7tSM
+      V7XzOzTuyXvWKdQSTSHZk+v0xwUeKGQ45epMcvqTvI/G0fIhPs3L0Zs/Qrn872q9
+      mSUAoGhxpWEDo9tsXoJWg26+RtqWo5OeHJ4n8f+NmDZwOeRhF76h2uncggplq/AU
+      cIelm8ECgYEA6s8EvTgHj/RdfSjN25RxM5XlsZMu/oBAYP0l2YGufHVEtMfMwf6W
+      zl45TJzmxS6caUWe6OzuQVknwvUR+t5hpAnnB1PmLiDJQeeb5iySbUV+jD3M7Uzm
+      ICNJdq4PCpwT/n6jbaLTLpD2ZTBv3IKuoDm+PB7j8WuILvOMFM9jPPkCgYEA6kzm
+      4odK7ku3XFzJPenw40Ea1+PcN3wppKZhFdxvALHSutMaLtFh+51m/d7ewnXhd/gR
+      mZlkb4N/e/ncLTIugGUjlGda4/1BzEXqmdWzmHqH2T38ky9fRXy63ER3NLgJnREA
+      MXou86fn9btRvDDNo2m/kNczYXo6HLGP/qK3Fg0CgYEA0YDIb7PQO4cC6ys/EY4O
+      usIh4SC7q2PvDRqRbNIiRvWyycIDVYu8LoEvisXruT9vWxY9RQIxSqkrqu1Sj41f
+      fSdAtO8Mz1d9eooWNXbLZye8U5DIiWo1YbNaVsPSs9qylD2Vv7qpxkCdN4fSJuOK
+      v3cF30qIgt048vtmnyKzHrECgYB9LKqpWYiRuQf0I2osVsCoWM8DiivLxNzmpzD1
+      Ifh30Yj44PF7E8gaSiSM+zXdhGb51iFpA0diQEmqrXmQ999aHy6cCX/IkDRH8w58
+      M2yoyMWtLW20ILnwgMvABB//nVcdf8ivpkxRRmIpqXLobNZgOI3sztwXdtp3G/IH
+      I11XPQKBgQCi/aUDAM0iv2JvqW5gH6pJp9tfgSzWb+l4ScwYGPUxEhUX9g1X9nCh
+      o0Zk3eQN5ZyioPBwW419hQTyMgACnt0ZFIqrn0KsH2XR+aUOJcj3vR/E3TCuGt2/
+      ItxtxOoETML445l/CvC+j/hnjzG8xX2REUtqy/omAZzcx0e1c+XX5g==
+      -----END RSA PRIVATE KEY-----
+      
+  - path: /etc/ssl/app/cert.pem
+    owner: root
+    permissions: 0400
+    content: |
+      -----BEGIN CERTIFICATE-----
+      MIIEPTCCAyWgAwIBAgIRALMrSLbS1hPPPEQtLa1zvTswDQYJKoZIhvcNAQELBQAw
+      gY8xCzAJBgNVBAYTAlVLMRAwDgYDVQQIEwdFbmdsYW5kMQ8wDQYDVQQHEwZMb25k
+      b24xGjAYBgNVBAkTEW1wbHMgY2hpY2tlbiByb2FkMQ0wCwYDVQQKEwRkZW1vMRsw
+      GQYDVQQLExJjbG91ZCBuZXR3b3JrIHRlYW0xFTATBgNVBAMTDFNlbGYgUm9vdCBD
+      QTAeFw0yMzEyMjExMDU0NDZaFw0yNDEyMjAxMDU0NDZaMIGrMQswCQYDVQQGEwJV
+      SzEQMA4GA1UECBMHRW5nbGFuZDEPMA0GA1UEBxMGTG9uZG9uMTUwFgYDVQQJEw8g
+      bmV0d29yayBhdmVudWUwGwYDVQQJExQ5OSBtcGxzIGNoaWNrZW4gcm9hZDESMBAG
+      A1UEChMJYXBwMSBkZW1vMRowGAYDVQQLExFhcHAxIG5ldHdvcmsgdGVhbTESMBAG
+      A1UEAwwJKi5hei5jb3JwMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
+      1ufDkCJ/oR9sffqxIQxllB+ZUSDR3WHR/6gbb7526/uSot8q9+5z5rdjGu1Y+t6T
+      +K0tHYogWPplfPL+FykUMpO+Ku+Sp/HkXIbg121U9LKtHSUL7jvvejtopHDakYv/
+      GSR8O9J+Y7GjgOJw/k/izwevEV5tCjesOior48e5hyZkXwXsHAQ99X4X6wZ5/cRc
+      tvihdygBGgNg+PwjK/nI9wNaSiGB4tODSk+ARVl1L8L039CpvGW8YQzZURyPUXnL
+      bzT3lCm88UQlcoR8+AnVgNEexqwQ+Fdpyv0x0Apaux2mLLtf2PzMwEfEVdoB3Mju
+      m5qQQh1qLeI2M4l1N0Z+pQIDAQABo3YwdDAOBgNVHQ8BAf8EBAMCBaAwHQYDVR0l
+      BBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgw
+      FoAUUMqDCnnoJfk58kLYmKMQaglJ7eAwFAYDVR0RBA0wC4IJKi5hei5jb3JwMA0G
+      CSqGSIb3DQEBCwUAA4IBAQC37+as5mngdycAnmcbiTFetP4i4+vhMU9TJHOjZs7W
+      9E34dE1xSv/6LKiUs+JTtnBjH17zYOSg6Oi2YSSj2ZqLh2QRkAVlUYOnSaT+KjBB
+      JtFEw/u3BNIaHLIf38Kgjafggq4gzDIKlNAvDaVyk2HzXm+dZ9Sxv/I3gBiNDiVz
+      yY+ii5h5JNFmZ3DGT4wXieQf6cqkXzEbWfsijVUcdHyNSWY7bsfGkzOcPNQN/QJw
+      BGjp5Ewi/Plb1lop9TYVJ5ZrFN13cvYuY6EiWkdiSOqkOyUejOOfUB/w7GpeZD9k
+      RGf4mBc9YAHhLePItxUt3L9ubd+VUx8Fqreslv/FkJzj
+      -----END CERTIFICATE-----
+      
+      -----BEGIN CERTIFICATE-----
+      MIID7DCCAtSgAwIBAgIQEyjbVfQnbTCQ5vod6T7QlTANBgkqhkiG9w0BAQsFADCB
+      jzELMAkGA1UEBhMCVUsxEDAOBgNVBAgTB0VuZ2xhbmQxDzANBgNVBAcTBkxvbmRv
+      bjEaMBgGA1UECRMRbXBscyBjaGlja2VuIHJvYWQxDTALBgNVBAoTBGRlbW8xGzAZ
+      BgNVBAsTEmNsb3VkIG5ldHdvcmsgdGVhbTEVMBMGA1UEAxMMU2VsZiBSb290IENB
+      MB4XDTIzMTIyMTA4NTk0MloXDTI0MTIyMDA4NTk0MlowgY8xCzAJBgNVBAYTAlVL
+      MRAwDgYDVQQIEwdFbmdsYW5kMQ8wDQYDVQQHEwZMb25kb24xGjAYBgNVBAkTEW1w
+      bHMgY2hpY2tlbiByb2FkMQ0wCwYDVQQKEwRkZW1vMRswGQYDVQQLExJjbG91ZCBu
+      ZXR3b3JrIHRlYW0xFTATBgNVBAMTDFNlbGYgUm9vdCBDQTCCASIwDQYJKoZIhvcN
+      AQEBBQADggEPADCCAQoCggEBAMOh7JQY1YX8gjGwmNJQEqwrD/fy8anGJnUZGRLI
+      WDvEmSP805urPzrzVD8DyAqNXxVA58kSGD39aZBng60AgEVBm3wLdOwXA5+nMkI3
+      3O8wXDrRE/lR0+6ZG49ZZy2ZAbQhoXOaqwt4XoB46SQjlkUNbsnDu7HY1TKCuDib
+      rV9pVw7ndV8MBfLe2o04RSGxMxxC35ZPWDEpOrvvTd55/IafRVBx2SwFMQXFFtFV
+      KLEfkHoU6GYsiNARrbw4ZEdJ5JGdx+M8c1J5v2GZ7/MEYhTkdhldQe9DjNFsN/M6
+      2JkOlAX+Dpcii1NHahWmqH9j2me2VcQEZTYY4e65gUVZ5ekCAwEAAaNCMEAwDgYD
+      VR0PAQH/BAQDAgKkMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFFDKgwp56CX5
+      OfJC2JijEGoJSe3gMA0GCSqGSIb3DQEBCwUAA4IBAQCfjCB6m/8kGJPFzEeQ3Yg8
+      kpZcPIknhdiPALjKeVoAFg+UIfitWD5uhyxqWvbpxmTkiefiq5rA1unnfExTcs4i
+      OvTyFHfPp8kOrtN+4QitpOOQ3J6xsV8KMWYzV/Cbnca/z/vU2EYlfuGcWFOO07X+
+      RJTUu334k+8UEC/4mfJZbUqBVFhaptkCerx2EhPwDMBVkbK7pa75PGwu2mQHd3yl
+      cOZPV1Qs8l6+5d/eBFRYm2bJWnfOuklBgEcSUkCE+h7T/BcmLXwLmTKGrBKCn9fD
+      wKYUUz94tAjHkn2l/diABFpvI/Px+0EBGPb05RI5qbqFRXVMCAaaaxLANFB5V/jZ
+      -----END CERTIFICATE-----
+      
   - path: /var/lib/spoke/app1/Dockerfile
     owner: root
     permissions: 0744
@@ -28,38 +114,35 @@ write_files:
       
       @app.route("/")
       def default():
-          hostname = socket.gethostname()
-          address = socket.gethostbyname(hostname)
-          data_dict = {}
-          data_dict['app'] = 'APP1'
-          data_dict['hostname'] = hostname
-          data_dict['local-ip'] = address
-          data_dict['remote-ip'] = request.remote_addr
-          data_dict['headers'] = dict(request.headers)
+          data_dict = {
+              'app': 'APP1',
+              'hostname': os.getenv('HOST_HOSTNAME', 'Unknown'),
+              'local-ip': os.getenv('HOST_IP', 'Unknown'),
+              'remote-ip': request.remote_addr,
+              'headers': dict(request.headers)
+          }
           return data_dict
       
       @app.route("/path1")
       def path1():
-          hostname = socket.gethostname()
-          address = socket.gethostbyname(hostname)
-          data_dict = {}
-          data_dict['app'] = 'APP1-PATH1'
-          data_dict['hostname'] = hostname
-          data_dict['local-ip'] = address
-          data_dict['remote-ip'] = request.remote_addr
-          data_dict['headers'] = dict(request.headers)
+          data_dict = {
+              'app': 'APP1-PATH1',
+              'hostname': os.getenv('HOST_HOSTNAME', 'Unknown'),
+              'local-ip': os.getenv('HOST_IP', 'Unknown'),
+              'remote-ip': request.remote_addr,
+              'headers': dict(request.headers)
+          }
           return data_dict
       
       @app.route("/path2")
       def path2():
-          hostname = socket.gethostname()
-          address = socket.gethostbyname(hostname)
-          data_dict = {}
-          data_dict['app'] = 'APP1-PATH2'
-          data_dict['hostname'] = hostname
-          data_dict['local-ip'] = address
-          data_dict['remote-ip'] = request.remote_addr
-          data_dict['headers'] = dict(request.headers)
+          data_dict = {
+              'app': 'APP1-PATH2',
+              'hostname': os.getenv('HOST_HOSTNAME', 'Unknown'),
+              'local-ip': os.getenv('HOST_IP', 'Unknown'),
+              'remote-ip': request.remote_addr,
+              'headers': dict(request.headers)
+          }
           return data_dict
       
       @app.route("/healthz", host="healthz.az.corp")
@@ -67,7 +150,9 @@ write_files:
           return "OK"
       
       if __name__ == "__main__":
-          app.run(host= '0.0.0.0', port=8080, debug = True)
+          cert_path = '/etc/ssl/app/cert.pem'
+          key_path = '/etc/ssl/app/cert.key'
+          app.run(host='0.0.0.0', port=8080, debug=True, ssl_context=(cert_path, key_path))
       
   - path: /var/lib/spoke/app1/dockerignore
     owner: root
@@ -115,38 +200,35 @@ write_files:
       
       @app.route("/")
       def default():
-          hostname = socket.gethostname()
-          address = socket.gethostbyname(hostname)
-          data_dict = {}
-          data_dict['app'] = 'APP2'
-          data_dict['hostname'] = hostname
-          data_dict['local-ip'] = address
-          data_dict['remote-ip'] = request.remote_addr
-          data_dict['headers'] = dict(request.headers)
+          data_dict = {
+              'app': 'APP2',
+              'hostname': os.getenv('HOST_HOSTNAME', 'Unknown'),
+              'local-ip': os.getenv('HOST_IP', 'Unknown'),
+              'remote-ip': request.remote_addr,
+              'headers': dict(request.headers)
+          }
           return data_dict
       
       @app.route("/path1")
       def path1():
-          hostname = socket.gethostname()
-          address = socket.gethostbyname(hostname)
-          data_dict = {}
-          data_dict['app'] = 'APP2-PATH1'
-          data_dict['hostname'] = hostname
-          data_dict['local-ip'] = address
-          data_dict['remote-ip'] = request.remote_addr
-          data_dict['headers'] = dict(request.headers)
+          data_dict = {
+              'app': 'APP2-PATH1',
+              'hostname': os.getenv('HOST_HOSTNAME', 'Unknown'),
+              'local-ip': os.getenv('HOST_IP', 'Unknown'),
+              'remote-ip': request.remote_addr,
+              'headers': dict(request.headers)
+          }
           return data_dict
       
       @app.route("/path2")
       def path2():
-          hostname = socket.gethostname()
-          address = socket.gethostbyname(hostname)
-          data_dict = {}
-          data_dict['app'] = 'APP2-PATH2'
-          data_dict['hostname'] = hostname
-          data_dict['local-ip'] = address
-          data_dict['remote-ip'] = request.remote_addr
-          data_dict['headers'] = dict(request.headers)
+          data_dict = {
+              'app': 'APP2-PATH2',
+              'hostname': os.getenv('HOST_HOSTNAME', 'Unknown'),
+              'local-ip': os.getenv('HOST_IP', 'Unknown'),
+              'remote-ip': request.remote_addr,
+              'headers': dict(request.headers)
+          }
           return data_dict
       
       @app.route("/healthz", host="healthz.az.corp")
@@ -154,7 +236,9 @@ write_files:
           return "OK"
       
       if __name__ == "__main__":
-          app.run(host= '0.0.0.0', port=8081, debug = True)
+          cert_path = '/etc/ssl/app/cert.pem'
+          key_path = '/etc/ssl/app/cert.key'
+          app.run(host='0.0.0.0', port=8080, debug=True, ssl_context=(cert_path, key_path))
       
   - path: /var/lib/spoke/app2/dockerignore
     owner: root
@@ -191,7 +275,9 @@ write_files:
             dockerfile: Dockerfile
           ports:
             - 8080:8080
-          network_mode: host
+          volumes:
+            - /etc/ssl/app/cert.pem:/etc/ssl/app/cert.pem
+            - /etc/ssl/app/cert.key:/etc/ssl/app/cert.key
       
         app2:
           container_name: app2
@@ -200,7 +286,6 @@ write_files:
             dockerfile: Dockerfile
           ports:
             - 8081:8081
-          network_mode: host
       
         httpbin:
           image: kennethreitz/httpbin
@@ -214,6 +299,9 @@ write_files:
       #! /bin/bash
       
       set -e
+      
+      export HOST_HOSTNAME=$(hostname)
+      export HOST_IP=$(hostname -I | awk '{print $1}')
       
       base_dir=$(pwd)
       init_dir="/var/lib/spoke"

@@ -362,6 +362,39 @@ locals {
 }
 
 ####################################################
+# root ca
+####################################################
+
+# private key
+
+resource "tls_private_key" "root_ca" {
+  algorithm = "RSA"
+  rsa_bits  = 2048
+}
+
+# root ca cert
+
+resource "tls_self_signed_cert" "root_ca" {
+  private_key_pem = tls_private_key.root_ca.private_key_pem
+  subject {
+    common_name         = "Self Root CA"
+    organization        = "demo"
+    organizational_unit = "cloud network team"
+    street_address      = ["mpls chicken road"]
+    locality            = "London"
+    province            = "England"
+    country             = "UK"
+  }
+  is_ca_certificate     = true
+  validity_period_hours = 8760
+  allowed_uses = [
+    "key_encipherment",
+    "digital_signature",
+    "cert_signing",
+  ]
+}
+
+####################################################
 # output files
 ####################################################
 

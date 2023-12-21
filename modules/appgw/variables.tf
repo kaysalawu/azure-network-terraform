@@ -143,7 +143,7 @@ variable "request_routing_rules" {
   type = list(object({
     priority                    = number
     name                        = string
-    rule_type                   = string
+    rule_type                   = optional(string, "Basic") # Basic, PathBasedRouting
     http_listener_name          = string
     backend_address_pool_name   = optional(string)
     backend_http_settings_name  = optional(string)
@@ -283,12 +283,20 @@ variable "waf_configuration" {
 
 variable "agw_diag_logs" {
   description = "Application Gateway Monitoring Category details for Azure Diagnostic setting"
-  default     = ["ApplicationGatewayAccessLog", "ApplicationGatewayPerformanceLog", "ApplicationGatewayFirewallLog"]
+  default = [
+    "ApplicationGatewayAccessLog",
+    "ApplicationGatewayPerformanceLog",
+    "ApplicationGatewayFirewallLog"
+  ]
 }
 
 variable "pip_diag_logs" {
   description = "Load balancer Public IP Monitoring Category details for Azure Diagnostic setting"
-  default     = ["DDoSProtectionNotifications", "DDoSMitigationFlowLogs", "DDoSMitigationReports"]
+  default = [
+    "DDoSProtectionNotifications",
+    "DDoSMitigationFlowLogs",
+    "DDoSMitigationReports"
+  ]
 }
 
 variable "tags" {

@@ -275,14 +275,14 @@ resource "azurerm_virtual_hub_route_table_route" "vhub1_default_rt_static_routes
 
 # hub1
 
-resource "azurerm_virtual_hub_bgp_connection" "vhub1_hub1_bgp_conn" {
-  name           = "${local.vhub1_prefix}hub1-bgp-conn"
-  virtual_hub_id = module.vhub1.virtual_hub.id
-  peer_asn       = local.hub1_nva_asn
-  peer_ip        = local.hub1_nva_trust_addr
+# resource "azurerm_virtual_hub_bgp_connection" "vhub1_hub1_bgp_conn" {
+#   name           = "${local.vhub1_prefix}hub1-bgp-conn"
+#   virtual_hub_id = module.vhub1.virtual_hub.id
+#   peer_asn       = local.hub1_nva_asn
+#   peer_ip        = local.hub1_nva_trust_addr
 
-  virtual_network_connection_id = azurerm_virtual_hub_connection.hub1_vnet_conn.id
-}
+#   virtual_network_connection_id = azurerm_virtual_hub_connection.hub1_vnet_conn.id
+# }
 
 ####################################################
 # output files

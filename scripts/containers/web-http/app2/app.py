@@ -4,38 +4,35 @@ app = Flask(__name__)
 
 @app.route("/")
 def default():
-    hostname = socket.gethostname()
-    address = socket.gethostbyname(hostname)
-    data_dict = {}
-    data_dict['app'] = 'APP2'
-    data_dict['hostname'] = hostname
-    data_dict['local-ip'] = address
-    data_dict['remote-ip'] = request.remote_addr
-    data_dict['headers'] = dict(request.headers)
+    data_dict = {
+        'app': 'APP2',
+        'hostname': os.getenv('HOST_HOSTNAME', 'Unknown'),
+        'local-ip': os.getenv('HOST_IP', 'Unknown'),
+        'remote-ip': request.remote_addr,
+        'headers': dict(request.headers)
+    }
     return data_dict
 
 @app.route("/path1")
 def path1():
-    hostname = socket.gethostname()
-    address = socket.gethostbyname(hostname)
-    data_dict = {}
-    data_dict['app'] = 'APP2-PATH1'
-    data_dict['hostname'] = hostname
-    data_dict['local-ip'] = address
-    data_dict['remote-ip'] = request.remote_addr
-    data_dict['headers'] = dict(request.headers)
+    data_dict = {
+        'app': 'APP2-PATH1',
+        'hostname': os.getenv('HOST_HOSTNAME', 'Unknown'),
+        'local-ip': os.getenv('HOST_IP', 'Unknown'),
+        'remote-ip': request.remote_addr,
+        'headers': dict(request.headers)
+    }
     return data_dict
 
 @app.route("/path2")
 def path2():
-    hostname = socket.gethostname()
-    address = socket.gethostbyname(hostname)
-    data_dict = {}
-    data_dict['app'] = 'APP2-PATH2'
-    data_dict['hostname'] = hostname
-    data_dict['local-ip'] = address
-    data_dict['remote-ip'] = request.remote_addr
-    data_dict['headers'] = dict(request.headers)
+    data_dict = {
+        'app': 'APP2-PATH2',
+        'hostname': os.getenv('HOST_HOSTNAME', 'Unknown'),
+        'local-ip': os.getenv('HOST_IP', 'Unknown'),
+        'remote-ip': request.remote_addr,
+        'headers': dict(request.headers)
+    }
     return data_dict
 
 @app.route("/healthz", host="healthz.az.corp")
@@ -43,4 +40,6 @@ def healthz():
     return "OK"
 
 if __name__ == "__main__":
-    app.run(host= '0.0.0.0', port=8081, debug = True)
+    cert_path = '/etc/ssl/app/cert.pem'
+    key_path = '/etc/ssl/app/cert.key'
+    app.run(host='0.0.0.0', port=8080, debug=True)

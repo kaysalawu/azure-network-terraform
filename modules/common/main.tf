@@ -9,6 +9,20 @@ data "http" "my_public_ip" {
 }
 
 ####################################################
+# log analytics workspace
+####################################################
+
+resource "azurerm_log_analytics_workspace" "log_analytics_workspaces" {
+  for_each            = var.regions
+  resource_group_name = var.resource_group
+  location            = each.value
+  name                = "${local.prefix}laws-${each.key}"
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+  tags                = var.tags
+}
+
+####################################################
 # storage accounts (boot diagnostics)
 ####################################################
 
