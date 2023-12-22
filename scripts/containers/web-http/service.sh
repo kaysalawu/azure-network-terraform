@@ -2,12 +2,12 @@
 
 set -e
 
-export HOST_HOSTNAME=$(hostname)
-export HOST_IP=$(hostname -I | awk '{print $1}')
-
 base_dir=$(pwd)
 init_dir="/var/lib/spoke"
 log_init="$init_dir/log_init.txt"
+
+echo "HOST_HOSTNAME: $HOST_HOSTNAME" | tee -a "$log_init"
+echo "HOST_IP: $HOST_IP" | tee -a "$log_init"
 
 if [ ! -d "$init_dir" ]; then mkdir -p "$init_dir"; fi
 
@@ -66,12 +66,9 @@ start_services() {
   echo "STEP 1: Start Services"
   echo "**************************************"
   cd "$init_dir"
-  echo "docker compose up -d"
-  docker compose up -d
-  echo "docker-compose logs -f app1"
-  docker-compose logs -f app1
-  echo "docker-compose logs -f app2"
-  docker-compose logs -f app2
+  export HOST_HOSTNAME=$(hostname)
+  export HOST_IP=$(hostname -I | awk '{print $1}')
+  HOST_HOSTNAME=$(hostname) HOST_IP=$(hostname -I | awk '{print $1}') docker compose up -d
   cd "$dir_base"
 }
 

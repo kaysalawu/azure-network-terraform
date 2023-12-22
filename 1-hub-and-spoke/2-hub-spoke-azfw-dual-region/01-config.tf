@@ -19,9 +19,10 @@ locals {
 
   default_region = "westeurope"
 
-  onprem_domain = "corp"
-  cloud_domain  = "az.corp"
-  azuredns      = "168.63.129.16"
+  onprem_domain  = "corp"
+  cloud_domain   = "az.corp"
+  azuredns       = "168.63.129.16"
+  internet_proxy = "8.8.8.8/32" # test only
   private_prefixes = [
     "10.0.0.0/8",
     "172.16.0.0/12",

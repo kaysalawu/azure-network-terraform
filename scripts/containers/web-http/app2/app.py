@@ -1,13 +1,18 @@
+import os
 import socket
 from flask import Flask, request
+
 app = Flask(__name__)
+
+hostname = socket.gethostname()
+address = socket.gethostbyname(hostname)
 
 @app.route("/")
 def default():
     data_dict = {
         'app': 'APP2',
-        'hostname': os.getenv('HOST_HOSTNAME', 'Unknown'),
-        'local-ip': os.getenv('HOST_IP', 'Unknown'),
+        'hostname': os.getenv('HOST_HOSTNAME', hostname),
+        'local-ip': os.getenv('HOST_IP', address),
         'remote-ip': request.remote_addr,
         'headers': dict(request.headers)
     }
@@ -17,8 +22,8 @@ def default():
 def path1():
     data_dict = {
         'app': 'APP2-PATH1',
-        'hostname': os.getenv('HOST_HOSTNAME', 'Unknown'),
-        'local-ip': os.getenv('HOST_IP', 'Unknown'),
+        'hostname': os.getenv('HOST_HOSTNAME', hostname),
+        'local-ip': os.getenv('HOST_IP', address),
         'remote-ip': request.remote_addr,
         'headers': dict(request.headers)
     }
@@ -28,8 +33,8 @@ def path1():
 def path2():
     data_dict = {
         'app': 'APP2-PATH2',
-        'hostname': os.getenv('HOST_HOSTNAME', 'Unknown'),
-        'local-ip': os.getenv('HOST_IP', 'Unknown'),
+        'hostname': os.getenv('HOST_HOSTNAME', hostname),
+        'local-ip': os.getenv('HOST_IP', address),
         'remote-ip': request.remote_addr,
         'headers': dict(request.headers)
     }
@@ -40,6 +45,4 @@ def healthz():
     return "OK"
 
 if __name__ == "__main__":
-    cert_path = '/etc/ssl/app/cert.pem'
-    key_path = '/etc/ssl/app/cert.key'
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=8081, debug=True)

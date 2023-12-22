@@ -143,7 +143,7 @@ variable "request_routing_rules" {
   type = list(object({
     priority                    = number
     name                        = string
-    rule_type                   = optional(string, "Basic") # Basic, PathBasedRouting
+    rule_type                   = optional(string, "PathBasedRouting") # Basic, PathBasedRouting
     http_listener_name          = string
     backend_address_pool_name   = optional(string)
     backend_http_settings_name  = optional(string)

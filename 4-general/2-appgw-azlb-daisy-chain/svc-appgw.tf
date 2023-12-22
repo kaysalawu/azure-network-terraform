@@ -161,7 +161,7 @@ module "hub1_appgw" {
     {
       priority                   = 100
       name                       = "app1-rrr"
-      rule_type                  = "Basic"
+      rule_type                  = "PathBasedRouting"
       http_listener_name         = "app1-lsn"
       backend_address_pool_name  = "app1-beap"
       backend_http_settings_name = "app1-bhs"
@@ -169,7 +169,7 @@ module "hub1_appgw" {
     {
       priority                   = 200
       name                       = "app2-rrr"
-      rule_type                  = "Basic"
+      rule_type                  = "PathBasedRouting"
       http_listener_name         = "app2-lsn"
       backend_address_pool_name  = "app2-beap"
       backend_http_settings_name = "app2-bhs"

@@ -7,12 +7,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - 8080:8080
+    network_mode: host
     volumes:
       - /etc/ssl/app/cert.pem:/etc/ssl/app/cert.pem
       - /etc/ssl/app/cert.key:/etc/ssl/app/cert.key
-    environment:
-      - HOST_HOSTNAME=${HOST_HOSTNAME}
-      - HOST_IP=${HOST_IP}
 
   app2:
     container_name: app2
@@ -21,8 +19,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - 8081:8081
+    network_mode: host
 
   httpbin:
     image: kennethreitz/httpbin
     ports:
       - 80:80
+    network_mode: host
