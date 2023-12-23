@@ -31,6 +31,12 @@ Docker Ubuntu
 
 EOF
 
+display_delimiter() {
+  echo "####################################################################################"
+  date
+  echo $(basename "$0")
+}
+
 install_packages() {
     echo "*****************************************"
     echo " Step 0: Install packages"
@@ -86,12 +92,12 @@ check_services() {
 
 systemd_config() {
   echo "**********************************************************"
-  echo "STEP 4:  Systemd Service for flaskapp"
+  echo "STEP 4:  Systemd Service for fastapp"
   echo "**********************************************************"
-  echo "Create: /etc/systemd/system/flaskapp.service"
-  cat <<EOF > /etc/systemd/system/flaskapp.service
+  echo "Create: /etc/systemd/system/fastapp.service"
+  cat <<EOF > /etc/systemd/system/fastapp.service
   [Unit]
-  Description=Script for flaskapp
+  Description=Script for fastapp
 
   [Service]
   Type=oneshot
@@ -103,12 +109,17 @@ systemd_config() {
   [Install]
   WantedBy=multi-user.target
 EOF
-  cat /etc/systemd/system/flaskapp.service
-  systemctl start flaskapp
-  systemctl enable flaskapp
+  cat /etc/systemd/system/fastapp.service
+  systemctl start fastapp
+  systemctl enable fastapp
 }
 
+start=$(date +%s)
+display_delimiter | tee -a "$log_init"
 install_packages | tee -a "$log_init"
 start_services | tee -a "$log_init"
 check_services | tee -a "$log_init"
 systemd_config | tee -a "$log_init"
+end=$(date +%s)
+elapsed=$(($end-$start))
+echo "Completed in $(($elapsed/60))m $(($elapsed%60))s!" | tee -a "$log_init"

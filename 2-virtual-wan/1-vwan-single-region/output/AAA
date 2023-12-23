@@ -1,0 +1,25 @@
+#cloud-config for Ubuntu 20.04
+
+package_update: true
+packages:
+  - tcpdump
+  - bind9-utils
+  - dnsutils
+  - net-tools
+  - unbound
+
+write_files:
+  - path: /var/log/unbound
+    permissions: '0755'
+    owner: unbound:unbound
+    content: |
+
+  - path: /etc/unbound/unbound.conf
+    permissions: '0640'
+    owner: unbound:unbound
+    content: |
+      # Your configuration content here ...
+
+runcmd:
+  - systemctl restart unbound
+  - systemctl enable unbound

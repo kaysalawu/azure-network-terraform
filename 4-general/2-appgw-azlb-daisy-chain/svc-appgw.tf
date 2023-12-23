@@ -159,21 +159,36 @@ module "hub1_appgw" {
 
   request_routing_rules = [
     {
-      priority                   = 100
-      name                       = "app1-rrr"
-      rule_type                  = "PathBasedRouting"
-      http_listener_name         = "app1-lsn"
-      backend_address_pool_name  = "app1-beap"
-      backend_http_settings_name = "app1-bhs"
+      priority           = 100
+      name               = "app1-rrr"
+      rule_type          = "PathBasedRouting"
+      http_listener_name = "app1-lsn"
+      url_path_map_name  = "app1-upm"
     },
     {
       priority                   = 200
       name                       = "app2-rrr"
-      rule_type                  = "PathBasedRouting"
+      rule_type                  = "Basic"
       http_listener_name         = "app2-lsn"
       backend_address_pool_name  = "app2-beap"
       backend_http_settings_name = "app2-bhs"
     },
+  ]
+
+  url_path_maps = [
+    {
+      name                               = "app1-upm"
+      default_backend_http_settings_name = "app1-bhs"
+      default_backend_address_pool_name  = "app1-beap"
+      path_rules = [
+        {
+          name                       = "app1-upm-pr"
+          paths                      = ["/path1", "/path2"]
+          backend_address_pool_name  = "app1-beap"
+          backend_http_settings_name = "app1-bhs"
+        },
+      ]
+    }
   ]
 
   ssl_certificates = [

@@ -196,6 +196,31 @@ locals {
     ENABLE_TRAFFIC_GEN        = false
   })
 
+  vm_startup_container_dir = "/var/lib/spoke"
+  vm_startup_fastapi_vars = {
+    INIT_DIR = local.vm_startup_container_dir
+  }
+  vm_startup_fastapi_files = {
+    "${local.vm_startup_container_dir}/docker-compose.yml"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/docker-compose.yml", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/service.sh"            = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/service.sh", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/start.sh"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/start.sh", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/stop.sh"               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/stop.sh", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/app1/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app1/app/Dockerfile", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/app1/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app1/app/.dockerignore", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/app1/main.py"          = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app1/app/main.py", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/app1/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app1/app/_app.py", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/app1/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app1/app/requirements.txt", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/app2/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app2/app/Dockerfile", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/app2/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app2/app/.dockerignore", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/app2/main.py"          = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app2/app/main.py", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/app2/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app2/app/_app.py", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/app2/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app2/app/requirements.txt", local.vm_startup_fastapi_vars) }
+    "/etc/ssl/app/cert.pem"                                   = { owner = "root", permissions = "0400", content = join("\n", [module.server_cert.cert_pem, tls_self_signed_cert.root_ca.cert_pem]) }
+    "/etc/ssl/app/key.pem"                                    = { owner = "root", permissions = "0400", content = module.server_cert.private_key_pem }
+  }
+  vm_startup_flaskapp_files = {
+  }
+
   unbound_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
@@ -392,6 +417,31 @@ resource "tls_self_signed_cert" "root_ca" {
     "digital_signature",
     "cert_signing",
   ]
+}
+
+####################################################
+# client cert
+####################################################
+
+module "server_cert" {
+  source   = "../../modules/self-signed-cert"
+  name     = local.spoke1_cert_name_app1
+  rsa_bits = 2048
+  subject = {
+    common_name         = local.spoke1_host_all
+    organization        = "app1 demo"
+    organizational_unit = "app1 network team"
+    street_address      = "99 mpls chicken road, network avenue"
+    locality            = "London"
+    province            = "England"
+    country             = "UK"
+  }
+  dns_names = [
+    local.spoke1_host_all,
+  ]
+  ca_private_key_pem = tls_private_key.root_ca.private_key_pem
+  ca_cert_pem        = tls_self_signed_cert.root_ca.cert_pem
+  cert_output_path   = local.spoke1_cert_output_path
 }
 
 ####################################################

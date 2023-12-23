@@ -1,0 +1,633 @@
+#cloud-config
+
+package_update: true
+
+
+write_files:
+  - path: /etc/ssl/app/cert.pem
+    owner: root
+    permissions: 0400
+    content: |
+      -----BEGIN CERTIFICATE-----
+      MIIEPTCCAyWgAwIBAgIRAL4sKcJp5gQ0GqKMVRnOOqQwDQYJKoZIhvcNAQELBQAw
+      gY8xCzAJBgNVBAYTAlVLMRAwDgYDVQQIEwdFbmdsYW5kMQ8wDQYDVQQHEwZMb25k
+      b24xGjAYBgNVBAkTEW1wbHMgY2hpY2tlbiByb2FkMQ0wCwYDVQQKEwRkZW1vMRsw
+      GQYDVQQLExJjbG91ZCBuZXR3b3JrIHRlYW0xFTATBgNVBAMTDFNlbGYgUm9vdCBD
+      QTAeFw0yMzEyMjMwMTA3MjBaFw0yNDEyMjIwMTA3MjBaMIGrMQswCQYDVQQGEwJV
+      SzEQMA4GA1UECBMHRW5nbGFuZDEPMA0GA1UEBxMGTG9uZG9uMTUwFgYDVQQJEw8g
+      bmV0d29yayBhdmVudWUwGwYDVQQJExQ5OSBtcGxzIGNoaWNrZW4gcm9hZDESMBAG
+      A1UEChMJYXBwMSBkZW1vMRowGAYDVQQLExFhcHAxIG5ldHdvcmsgdGVhbTESMBAG
+      A1UEAwwJKi5hei5jb3JwMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
+      0yqd3t7mZsCQqUGu8c4IQ2GGObSrhaMwsu/MQxjrIIVLeK+TiUSzlWEu4G5esKJQ
+      QoDabL5arUmB1eU95xvu3JoWTJ+mOhz1xrxNHqHog84hJqf+m5V/VtF0sK/6Icub
+      ZPGjmaRU7qhTnwDO8SFRNxdsoDFZoMCb7R1kEh0lsSSnPrrEruFXxm8k0vmTm6wT
+      WoxQudYAPpoKeMbdeZKj+4bInIaWOs+qxi/mFYPIqqBMneYmi06eRONjbDJzi1FX
+      YMev1vqGRdKPQ/B0WQbfyVaCcBfqa65Dm0Xsh5IYno6zH8lTNf4euixcyVuvzX6E
+      JfN3r4nHg6+vzGvSzI50pwIDAQABo3YwdDAOBgNVHQ8BAf8EBAMCBaAwHQYDVR0l
+      BBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgw
+      FoAU8aqh4QxzOeXxqjZosL/FuTBC4iAwFAYDVR0RBA0wC4IJKi5hei5jb3JwMA0G
+      CSqGSIb3DQEBCwUAA4IBAQA4ydZHZA0SCtopZWyhnV6vK+SboH77wEJA5RZuHzg/
+      v0c/l9N0iWME9Syj+tzOH8I4IRi7WVJhhG7oEzH0xf8J65IDijcbh/Ss+60ZLvYg
+      ilNy81RJliaM8/i/zb7b22bPFvoQPjzCHwT1tuneHlXNXTLkrrdFWW8rvkYgQqZV
+      uM2GPPoopzPIZaZiioFyYQTYnoZcIoH6i2/wa9bZjQhuYEhnGeqhViXNmHIuAsZF
+      d6jvqJO5qvZFxxXt4/JcpjWPXQZ5C/MCEs7ub0nSWT5mAb9CDt2xidrIqmxZazHO
+      JD58tBqxGMh6DOjKMwFDThHkuIKRJhzOBmUlPlXtw+Zg
+      -----END CERTIFICATE-----
+      
+      -----BEGIN CERTIFICATE-----
+      MIID7TCCAtWgAwIBAgIRAJzPiXR83DWudPFNd4jdoJgwDQYJKoZIhvcNAQELBQAw
+      gY8xCzAJBgNVBAYTAlVLMRAwDgYDVQQIEwdFbmdsYW5kMQ8wDQYDVQQHEwZMb25k
+      b24xGjAYBgNVBAkTEW1wbHMgY2hpY2tlbiByb2FkMQ0wCwYDVQQKEwRkZW1vMRsw
+      GQYDVQQLExJjbG91ZCBuZXR3b3JrIHRlYW0xFTATBgNVBAMTDFNlbGYgUm9vdCBD
+      QTAeFw0yMzEyMjIyMzA2MzdaFw0yNDEyMjEyMzA2MzdaMIGPMQswCQYDVQQGEwJV
+      SzEQMA4GA1UECBMHRW5nbGFuZDEPMA0GA1UEBxMGTG9uZG9uMRowGAYDVQQJExFt
+      cGxzIGNoaWNrZW4gcm9hZDENMAsGA1UEChMEZGVtbzEbMBkGA1UECxMSY2xvdWQg
+      bmV0d29yayB0ZWFtMRUwEwYDVQQDEwxTZWxmIFJvb3QgQ0EwggEiMA0GCSqGSIb3
+      DQEBAQUAA4IBDwAwggEKAoIBAQDJ1yWH8+n7t/suYI8KYkCHpp0SJ/lsE36vG3/s
+      hVcTA/zbmeUr60xKV3LbYG8Bw6zeJx2C5BTqfIQsG2K3AzOuMPLBy0wVaAUOyWld
+      ITiCQpGxYuXogpoRXGI4pcCR5Yjw+a0G3ozFGuNcyTiRjzftKq6HvoJHilwcoL2P
+      TJ51lXJsyF0hQLcmLu8qLC0N9mn8cR2n8CBVymb9fagX3kjn8Prz3bJbg+FFZ2Lo
+      yEPLpm3OAJFbNSgZkEs7L19vIvaTFKy3YAPchKIBd5wd3YkSYfd2rGYu49/mPJCC
+      HtPoWvrVjof32qfhMSrFlh72suCNBBPr/+IqXcH447jDW4ULAgMBAAGjQjBAMA4G
+      A1UdDwEB/wQEAwICpDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBTxqqHhDHM5
+      5fGqNmiwv8W5MELiIDANBgkqhkiG9w0BAQsFAAOCAQEAUqrMm0DrWDHVEutdv1JO
+      Dl78c0+OeR+YEoJRoPcLK//OseBQGMYGWh3PgSieRSBwXN80WX1G4E9qR6jMxMpg
+      0kNABj1LAUwjs3yw/L5tM2uYYjQ3bOKTxhDs+UWaMh8PGR3cMnOzw56LuEMoTlXz
+      2veH576hu6Hw6ZOgQ2snu7ovJo9BY1jBcuXqiVFvXbrd1rqvRgISOyFfwU6sX68e
+      9P2rKjP6s/JYNgHyef8+9VwTJUddpRzZTnVrCFPB6GWA3jGSXqfZ+QawJNtlq08B
+      yE+8WSRRrF0m6xtt4LbPn4IGKn7k0N/OoFrhLWo0Bw8PLz3Yjpe2dZOiRCA52ujL
+      Eg==
+      -----END CERTIFICATE-----
+      
+  - path: /etc/ssl/app/key.pem
+    owner: root
+    permissions: 0400
+    content: |
+      -----BEGIN RSA PRIVATE KEY-----
+      MIIEpQIBAAKCAQEA0yqd3t7mZsCQqUGu8c4IQ2GGObSrhaMwsu/MQxjrIIVLeK+T
+      iUSzlWEu4G5esKJQQoDabL5arUmB1eU95xvu3JoWTJ+mOhz1xrxNHqHog84hJqf+
+      m5V/VtF0sK/6IcubZPGjmaRU7qhTnwDO8SFRNxdsoDFZoMCb7R1kEh0lsSSnPrrE
+      ruFXxm8k0vmTm6wTWoxQudYAPpoKeMbdeZKj+4bInIaWOs+qxi/mFYPIqqBMneYm
+      i06eRONjbDJzi1FXYMev1vqGRdKPQ/B0WQbfyVaCcBfqa65Dm0Xsh5IYno6zH8lT
+      Nf4euixcyVuvzX6EJfN3r4nHg6+vzGvSzI50pwIDAQABAoIBABHSR+6WS0WivNK8
+      C2K267WcFnLqT4uAwUxotol3Iejltv/heYcdODbEM+uXBQDNQg7KxyRkUEzNplqB
+      9V562gbeLkGbO7Et3oQ+QhfyvCfbjqqvhOpmjI+sL7f1shuGDoBPcGo4Fz7pD92c
+      eNqa4DrRDEbcw16wwrgZQefRc+vmL8JB5Yg5eWm9NPTRswclsW+N/RJCdpRAwGq2
+      O3DX20SnPbZGcx9SsfCADtgNA89O2almPK0yzGnKOKbC43xwXjqIFpkTaNfe9wzy
+      K+3eOEj8ZI3aAjObj41Blrql9sA8r9aTmZaTmg9FgyhrsKIAPWWCbP9UO3XDTzVU
+      Pu1oo5kCgYEA7WwwbhDmm1fJ/EHJcG9Xf85bo0vm8CVwqZv/olvnumWm7pCGbY3a
+      DSr283MbNlvLxXfTmzYmn0/lxAtun4jC2+HlD9JHMrvIUv3zDzD1knNmeHAYaE2Q
+      Sz88O7Db11rXz7Jy29xIBcC+nxqLyUzh7Xk3lMuRVkr4tFWvpkfw89UCgYEA47B9
+      qoaDStcI0sEbx32SnfM/CwFfK+2vYzOT/KDTCThy1awXa/AIw+vB+wHC4RHAElCc
+      1s15YdcD5ZeuBEUHKWQ17mq2G23oZ7FEZsZOwsviuvscthzst0q4jfm3n//u+1gS
+      ptSKsw/B9YFSSBWnZpi/SbMtCARU0GO8w4Op0IsCgYEAuBEthteRgZPRI8H5IzMf
+      GhXpU7OPylSsgMJRsRUhlZAjmEbyAVN9XsIVjO6LhVwrod9hba7QyKhP0OqwC/0i
+      XQhH5zk2O638A+OgIgHqEW1oXy1ArvSbTssqrnhSKCbks8B8bdnc+KDS6FTTVPBH
+      JC3bGn+sIMOlB2J6+CZENzUCgYEAn96MXe+UwDe8Oj7dAnVpPP5Ohauw52c8fqr4
+      faluhEreVqk+yMsBXI9s5JGYA/AyrKltdmVPlSMj2VFnHhhZrvZt57mFpDzHsgcF
+      wCP9qUj/Kcqnnjcw/oG4k/eCtxU8974fWoRh3thxl6/11ideIuudZGIqfDaOVsOx
+      Bpar5YECgYEA2+7TF6HPQRbCUYF4/Arr8exrOMnGW4TIfcXK6vL7/eaOiQw/mZxY
+      /BvSllRlpVtzXLZciuxJsQ5ORSfIHhttIVQIyzJcMjuTqJJvPc1P7yvOXKfpFX6G
+      vwaFGG0Gukvgm6ojetuAhuKzUbk2r+dM2orXqxDdCkR2MxAEZLrgC1k=
+      -----END RSA PRIVATE KEY-----
+      
+  - path: /var/lib/spoke/app1/.dockerignore
+    owner: root
+    permissions: 0744
+    content: |
+      Dockerfile
+      docker-compose*
+      .gitignore
+      pyvenv.cfg
+      tests
+      node_modules/
+      npm-debug.log
+      bin/
+      include/
+      lib/
+      lib64/
+      
+  - path: /var/lib/spoke/app1/Dockerfile
+    owner: root
+    permissions: 0744
+    content: |
+      FROM python:3.12-alpine
+      
+      WORKDIR /app
+      COPY . .
+      RUN pip install --verbose --no-cache-dir -r requirements.txt
+      EXPOSE 8080
+      CMD ["python3", "main.py"]
+      
+  - path: /var/lib/spoke/app1/_app.py
+    owner: root
+    permissions: 0744
+    content: |
+      import os
+      import socket
+      from fastapi import APIRouter, Request, HTTPException
+      
+      router = APIRouter()
+      
+      hostname = socket.gethostname()
+      address = socket.gethostbyname(hostname)
+      
+      @router.get("/")
+      async def default(request: Request):
+          data_dict = {
+              'app': 'APP1',
+              'hostname': os.getenv('HOST_HOSTNAME', hostname),
+              'local-ip': os.getenv('HOST_IP', address),
+              'remote-ip': request.client.host,
+              'headers': dict(request.headers)
+          }
+          return data_dict
+      
+      @router.get("/path1")
+      async def path1(request: Request):
+          data_dict = {
+              'app': 'APP1-PATH1',
+              'hostname': os.getenv('HOST_HOSTNAME', hostname),
+              'local-ip': os.getenv('HOST_IP', address),
+              'remote-ip': request.client.host,
+              'headers': dict(request.headers)
+          }
+          return data_dict
+      
+      @router.get("/path2")
+      async def path2(request: Request):
+          data_dict = {
+              'app': 'APP1-PATH2',
+              'hostname': os.getenv('HOST_HOSTNAME', hostname),
+              'local-ip': os.getenv('HOST_IP', address),
+              'remote-ip': request.client.host,
+              'headers': dict(request.headers)
+          }
+          return data_dict
+      
+      @router.get("/healthz")
+      async def healthz(request: Request):
+          # allowed_hosts = ["healthz.az.corp"]
+          # if request.client.host not in allowed_hosts:
+          #     raise HTTPException(status_code=403, detail="Access denied")
+          return "OK"
+      
+  - path: /var/lib/spoke/app1/main.py
+    owner: root
+    permissions: 0744
+    content: |
+      from fastapi import FastAPI, Request, Response, HTTPException
+      from fastapi.middleware.cors import CORSMiddleware
+      from fastapi.responses import JSONResponse
+      from _app import router as app_router
+      import json
+      import ssl
+      import uvicorn
+      
+      class PrettyJSONResponse(Response):
+          media_type = "application/json"
+      
+          def render(self, content: any) -> bytes:
+              return json.dumps(content, indent=2).encode('utf-8')
+      
+      app = FastAPI(default_response_class=PrettyJSONResponse)
+      
+      # CORS middleware
+      app.add_middleware(
+          CORSMiddleware,
+          allow_origins=["*"],  # Replace * with actual frontend domain
+          allow_credentials=True,
+          allow_methods=["*"],
+          allow_headers=["*"],
+      )
+      
+      # Custom middleware to add Access-Control-Allow-Origin header
+      @app.middleware("http")
+      async def add_cors_header(request, call_next):
+          response = await call_next(request)
+          response.headers["Access-Control-Allow-Origin"] = "*"
+          return response
+      
+      # Include the API router
+      app.include_router(app_router, tags=["Features"])
+      
+      if __name__ == "__main__":
+          uvicorn.run(
+              "main:app",
+              host="0.0.0.0",
+              port=8080,
+              ssl_keyfile="/etc/ssl/app/key.pem",
+              ssl_certfile="/etc/ssl/app/cert.pem",
+              ssl_version=ssl.PROTOCOL_TLS
+          )
+      
+      
+  - path: /var/lib/spoke/app1/requirements.txt
+    owner: root
+    permissions: 0744
+    content: |
+      cryptography==41.0.7
+      fastapi==0.105.0
+      uvicorn==0.25.0
+      
+  - path: /var/lib/spoke/app2/.dockerignore
+    owner: root
+    permissions: 0744
+    content: |
+      Dockerfile
+      docker-compose*
+      .gitignore
+      pyvenv.cfg
+      tests
+      node_modules/
+      npm-debug.log
+      bin/
+      include/
+      lib/
+      lib64/
+      
+  - path: /var/lib/spoke/app2/Dockerfile
+    owner: root
+    permissions: 0744
+    content: |
+      FROM python:3.12-alpine
+      
+      WORKDIR /app
+      COPY . .
+      RUN pip install --verbose --no-cache-dir -r requirements.txt
+      EXPOSE 8081
+      CMD ["python3", "main.py"]
+      
+  - path: /var/lib/spoke/app2/_app.py
+    owner: root
+    permissions: 0744
+    content: |
+      import os
+      import socket
+      from fastapi import APIRouter, Request, HTTPException
+      
+      router = APIRouter()
+      
+      hostname = socket.gethostname()
+      address = socket.gethostbyname(hostname)
+      
+      @router.get("/")
+      async def default(request: Request):
+          data_dict = {
+              'app': 'APP2',
+              'hostname': os.getenv('HOST_HOSTNAME', hostname),
+              'local-ip': os.getenv('HOST_IP', address),
+              'remote-ip': request.client.host,
+              'headers': dict(request.headers)
+          }
+          return data_dict
+      
+      @router.get("/path1")
+      async def path1(request: Request):
+          data_dict = {
+              'app': 'APP2-PATH1',
+              'hostname': os.getenv('HOST_HOSTNAME', hostname),
+              'local-ip': os.getenv('HOST_IP', address),
+              'remote-ip': request.client.host,
+              'headers': dict(request.headers)
+          }
+          return data_dict
+      
+      @router.get("/path2")
+      async def path2(request: Request):
+          data_dict = {
+              'app': 'APP2-PATH2',
+              'hostname': os.getenv('HOST_HOSTNAME', hostname),
+              'local-ip': os.getenv('HOST_IP', address),
+              'remote-ip': request.client.host,
+              'headers': dict(request.headers)
+          }
+          return data_dict
+      
+      @router.get("/healthz")
+      async def healthz(request: Request):
+          allowed_hosts = ["healthz.az.corp"]
+          if request.client.host not in allowed_hosts:
+              raise HTTPException(status_code=403, detail="Access denied")
+          return "OK"
+      
+  - path: /var/lib/spoke/app2/main.py
+    owner: root
+    permissions: 0744
+    content: |
+      from fastapi import FastAPI, Request, Response, HTTPException
+      from fastapi.middleware.cors import CORSMiddleware
+      from fastapi.responses import JSONResponse
+      from _app import router as app_router
+      import json
+      import ssl
+      import uvicorn
+      
+      class PrettyJSONResponse(Response):
+          media_type = "application/json"
+      
+          def render(self, content: any) -> bytes:
+              return json.dumps(content, indent=2).encode('utf-8')
+      
+      app = FastAPI(default_response_class=PrettyJSONResponse)
+      
+      # CORS middleware
+      app.add_middleware(
+          CORSMiddleware,
+          allow_origins=["*"],  # Replace * with actual frontend domain
+          allow_credentials=True,
+          allow_methods=["*"],
+          allow_headers=["*"],
+      )
+      
+      # Custom middleware to add Access-Control-Allow-Origin header
+      @app.middleware("http")
+      async def add_cors_header(request, call_next):
+          response = await call_next(request)
+          response.headers["Access-Control-Allow-Origin"] = "*"
+          return response
+      
+      # Include the API router
+      app.include_router(app_router, tags=["Features"])
+      
+      if __name__ == "__main__":
+          uvicorn.run(
+              "main:app",
+              host="0.0.0.0",
+              port=8081
+          )
+      
+      
+  - path: /var/lib/spoke/app2/requirements.txt
+    owner: root
+    permissions: 0744
+    content: |
+      cryptography==41.0.7
+      fastapi==0.105.0
+      uvicorn==0.25.0
+      
+  - path: /var/lib/spoke/docker-compose.yml
+    owner: root
+    permissions: 0744
+    content: |
+      version: '3'
+      services:
+        app1:
+          container_name: app1
+          build:
+            context: ./app1
+            dockerfile: Dockerfile
+          ports:
+            - 8080:8080
+          network_mode: host
+          volumes:
+            - /etc/ssl/app/cert.pem:/etc/ssl/app/cert.pem
+            - /etc/ssl/app/key.pem:/etc/ssl/app/key.pem
+      
+        app2:
+          container_name: app2
+          build:
+            context: ./app2
+            dockerfile: Dockerfile
+          ports:
+            - 8081:8081
+          network_mode: host
+      
+        httpbin:
+          image: kennethreitz/httpbin
+          ports:
+            - 80:80
+          network_mode: host
+      
+  - path: /var/lib/spoke/service.sh
+    owner: root
+    permissions: 0744
+    content: |
+      #! /bin/bash
+      
+      set -e
+      
+      base_dir=$(pwd)
+      init_dir="/var/lib/spoke"
+      log_init="$init_dir/log_init.txt"
+      
+      echo "HOST_HOSTNAME: $HOST_HOSTNAME" | tee -a "$log_init"
+      echo "HOST_IP: $HOST_IP" | tee -a "$log_init"
+      
+      if [ ! -d "$init_dir" ]; then mkdir -p "$init_dir"; fi
+      
+      echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf
+      echo 'net.ipv6.conf.all.forwarding=1' >> /etc/sysctl.conf
+      sysctl -p
+      
+      sed -i "/#\$nrconf{restart} = 'i';/s/.*/\$nrconf{restart} = 'a';/" /etc/needrestart/needrestart.conf
+      
+      cat <<EOF > /etc/motd
+      ################################################
+               Docker Multiport Application
+      ################################################
+      Docker Ubuntu
+       Date:     $(date)
+      - Version:  1.0
+      - Distro:   $(cat /etc/issue)
+      - Packages:
+        - Docker
+      ################################################
+      
+      EOF
+      
+      display_delimiter() {
+        echo "####################################################################################"
+        date
+        echo $(basename "$0")
+      }
+      
+      install_packages() {
+          echo "*****************************************"
+          echo " Step 0: Install packages"
+          echo "*****************************************"
+          apt-get update
+          apt-get install -y python3-pip python3-dev tcpdump dnsutils net-tools nmap apache2-utils
+      
+          echo "*****************************************"
+          echo " Step 1: Install docker"
+          echo "*****************************************"
+          apt-get update
+          apt-get install -y ca-certificates curl gnupg lsb-release
+          mkdir -p /etc/apt/keyrings
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+          $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+          apt-get update
+          apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+          echo ""
+          docker version
+          docker compose version
+      
+          echo "*****************************************"
+          echo " Step 2: Cleanup apt"
+          echo "*****************************************"
+          apt-get --purge -y autoremove
+          apt-get clean
+          echo "done!"
+      }
+      
+      start_services() {
+        echo "**************************************"
+        echo "STEP 1: Start Services"
+        echo "**************************************"
+        cd "$init_dir"
+        export HOST_HOSTNAME=$(hostname)
+        export HOST_IP=$(hostname -I | awk '{print $1}')
+        HOST_HOSTNAME=$(hostname) HOST_IP=$(hostname -I | awk '{print $1}') docker compose up -d
+        cd "$dir_base"
+      }
+      
+      check_services() {
+        echo "**************************************"
+        echo "STEP 2: Check Service Status"
+        echo "**************************************"
+        echo "sleep 3 ..." && sleep 3
+        docker ps
+        echo ""
+        echo "#####################"
+        echo "netstat -tupanl|egrep \"80|8080|8081\"|grep -i listen"
+        netstat -tupanl|egrep "80|8080|8081"|grep -i listen
+      }
+      
+      systemd_config() {
+        echo "**********************************************************"
+        echo "STEP 4:  Systemd Service for fastapp"
+        echo "**********************************************************"
+        echo "Create: /etc/systemd/system/fastapp.service"
+        cat <<EOF > /etc/systemd/system/fastapp.service
+        [Unit]
+        Description=Script for fastapp
+      
+        [Service]
+        Type=oneshot
+        ExecStart=-$init_dir/start.sh
+        RemainAfterExit=true
+        ExecStop=-$init_dir/stop.sh
+        StandardOutput=journal
+      
+        [Install]
+        WantedBy=multi-user.target
+      EOF
+        cat /etc/systemd/system/fastapp.service
+        systemctl start fastapp
+        systemctl enable fastapp
+      }
+      
+      start=$(date +%s)
+      display_delimiter | tee -a "$log_init"
+      install_packages | tee -a "$log_init"
+      start_services | tee -a "$log_init"
+      check_services | tee -a "$log_init"
+      systemd_config | tee -a "$log_init"
+      end=$(date +%s)
+      elapsed=$(($end-$start))
+      echo "Completed in $(($elapsed/60))m $(($elapsed%60))s!" | tee -a "$log_init"
+      
+  - path: /var/lib/spoke/start.sh
+    owner: root
+    permissions: 0744
+    content: |
+      #!/bin/bash
+      
+      set -e
+      
+      base_dir=$(pwd)
+      init_dir="/var/lib/spoke"
+      log_service="$init_dir/log_service.txt"
+      
+      display_delimiter() {
+        echo "####################################################################################"
+        date
+        echo $(basename "$0")
+        echo "SYSTEMCTL - Start"
+      }
+      
+      start_services() {
+        echo "**************************************"
+        echo "STEP 1: Start Services"
+        echo "**************************************"
+        cd "$init_dir"
+        echo "docker compose up -d"
+        docker compose up -d
+        cd "$dir_base"
+      }
+      
+      check_services() {
+        echo "**************************************"
+        echo "STEP 2: Check Service Status"
+        echo "**************************************"
+        echo "sleep 3 ..." && sleep 3
+        docker ps
+        echo ""
+        echo "#####################"
+        echo "netstat -tupanl|egrep \"80|8080|8081\"|grep -i listen"
+        netstat -tupanl|egrep "80|8080|8081"|grep -i listen
+      }
+      
+      start=$(date +%s)
+      display_delimiter | tee -a $log_service
+      start_services | tee -a $log_service
+      check_services | tee -a $log_service
+      end=$(date +%s)
+      elapsed=$(($end-$start))
+      echo "Completed in $(($elapsed/60))m $(($elapsed%60))s!" | tee -a $log_service
+      
+  - path: /var/lib/spoke/stop.sh
+    owner: root
+    permissions: 0744
+    content: |
+      #!/bin/bash
+      
+      set -e
+      
+      base_dir=$(pwd)
+      init_dir="/var/lib/spoke"
+      log_service="$init_dir/log_service.txt"
+      
+      display_delimiter() {
+        echo "####################################################################################"
+        date
+        echo $(basename "$0")
+        echo "SYSTEMCTL - Start"
+      }
+      
+      stop_services() {
+        echo "**************************************"
+        echo "STEP 1: Stop Services"
+        echo "**************************************"
+        cd "$init_dir"
+        echo "docker compose down"
+        docker compose down
+        cd "$dir_base"
+      }
+      
+      check_services() {
+        echo "**************************************"
+        echo "STEP 2: Check Service Status"
+        echo "**************************************"
+        echo "sleep 3 ..." && sleep 3
+        docker ps
+        echo ""
+        echo "#####################"
+        echo "netstat -tupanl|egrep \"80|8080|8081\"|grep -i listen"
+        netstat -tupanl|egrep "80|8080|8081"|grep -i listen
+      }
+      
+      start=$(date +%s)
+      display_delimiter | tee -a $log_service
+      stop_services | tee -a $log_service
+      check_services | tee -a $log_service
+      end=$(date +%s)
+      elapsed=$(($end-$start))
+      echo "Completed in $(($elapsed/60))m $(($elapsed%60))s!" | tee -a $log_service
+      
+
+
+runcmd:
+  - . /var/lib/spoke/service.sh
