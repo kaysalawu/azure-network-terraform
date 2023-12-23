@@ -41,9 +41,3 @@ variable "password" {
   type        = string
   default     = "password"
 }
-
-variable "cert_output_path" {
-  description = "The path to store the self-signed certificate."
-  type        = string
-  default     = "certs"
-}

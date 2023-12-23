@@ -233,6 +233,5 @@ module "hub1_appgw_app1_cert" {
   ]
   ca_private_key_pem = tls_private_key.root_ca.private_key_pem
   ca_cert_pem        = tls_self_signed_cert.root_ca.cert_pem
-  cert_output_path   = local.hub1_cert_output_path
 }
 

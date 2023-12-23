@@ -91,7 +91,7 @@ locals {
 
 module "spoke1_web_http_backend_init" {
   source = "../../modules/cloud-config-gen"
-  files  = local.vm_startup_fastapi_files
+  files  = local.vm_startup_flaskapp_files
   run_commands = [
     ". ${local.spoke1_be_dir}/service.sh",
   ]
@@ -135,7 +135,7 @@ module "spoke1_be2" {
 
 locals {
   spoke1_files = {
-    "output/spoke1-be-init" = module.spoke1_web_http_backend_init.cloud_config
+    #"output/spoke1-be-init" = module.spoke1_web_http_backend_init.cloud_config
   }
 }
 

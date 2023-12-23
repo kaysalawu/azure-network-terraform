@@ -42,7 +42,7 @@ async def path2(request: Request):
 
 @router.get("/healthz")
 async def healthz(request: Request):
-    allowed_hosts = ["healthz.az.corp"]
-    if request.client.host not in allowed_hosts:
-        raise HTTPException(status_code=403, detail="Access denied")
+    # allowed_hosts = ["healthz.az.corp"]
+    # if request.client.host not in allowed_hosts:
+    #     raise HTTPException(status_code=403, detail="Access denied")
     return "OK"

@@ -28,6 +28,10 @@ plugins/
 *anthos-keys
 backend.tf
 *certs/
+*.pem
+*.crt
+*.key
+*.cer
 
 # Skaffold
 bin/
