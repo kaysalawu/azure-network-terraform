@@ -10,10 +10,6 @@ locals {
   ]
 }
 
-resource "random_id" "policy_region2" {
-  byte_length = 4
-}
-
 ####################################################
 # network groups
 ####################################################
@@ -28,7 +24,7 @@ resource "azurerm_network_manager_network_group" "ng_spokes_prod_region2" {
 ####################################################
 
 resource "azurerm_policy_definition" "ng_spokes_prod_region2" {
-  name         = "${local.prefix}-ng-spokes-prod-region2-${random_id.policy_region2.hex}"
+  name         = "${local.prefix}-ng-spokes-prod-region2"
   policy_type  = "Custom"
   mode         = "Microsoft.Network.Data"
   display_name = "All spokes in prod region2"
@@ -41,7 +37,7 @@ resource "azurerm_policy_definition" "ng_spokes_prod_region2" {
 ####################################################
 
 resource "azurerm_subscription_policy_assignment" "ng_spokes_prod_region2" {
-  name                 = "${local.prefix}-ng-spokes-prod-region2-${random_id.policy_region2.hex}"
+  name                 = "${local.prefix}-ng-spokes-prod-region2"
   policy_definition_id = azurerm_policy_definition.ng_spokes_prod_region2.id
   subscription_id      = data.azurerm_subscription.current.id
 }

@@ -1,4 +1,9 @@
 
+/*
+This template creates PrivateLink Service in spoke3 access via private endpoint in hub1.
+It also creates PrivateLink Service (app service) accessed via private endpoint in hub1.
+*/
+
 ####################################################
 # private link service
 ####################################################

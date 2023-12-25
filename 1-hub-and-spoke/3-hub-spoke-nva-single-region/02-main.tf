@@ -6,6 +6,13 @@ locals {
   prefix             = "Hs13"
   enable_diagnostics = true
   spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
+
+  hub1_tags    = { "lab" = "Hs13", "nodeType" = "hub" }
+  branch1_tags = { "lab" = "Hs13", "nodeType" = "branch" }
+  branch2_tags = { "lab" = "Hs13", "nodeType" = "branch" }
+  spoke1_tags  = { "lab" = "Hs13", "nodeType" = "spoke" }
+  spoke2_tags  = { "lab" = "Hs13", "nodeType" = "spoke" }
+  spoke3_tags  = { "lab" = "Hs13", "nodeType" = "spoke" }
 }
 
 resource "random_id" "random" {
@@ -77,7 +84,7 @@ locals {
             { ip_address = local.branch1_dns_addr, port = 53 },
           ]
         }
-        "eu" = {
+        "we" = {
           domain = "we.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },

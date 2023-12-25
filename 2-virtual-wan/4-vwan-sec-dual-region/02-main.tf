@@ -7,6 +7,18 @@ locals {
   enable_diagnostics = true
   spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
   spoke6_apps_fqdn   = lower("${local.spoke6_prefix}${random_id.random.hex}-app.azurewebsites.net")
+
+  hub1_tags    = { "lab" = "Vwan24", "nodeType" = "hub" }
+  hub2_tags    = { "lab" = "Vwan24", "nodeType" = "hub" }
+  branch1_tags = { "lab" = "Vwan24", "nodeType" = "branch" }
+  branch2_tags = { "lab" = "Vwan24", "nodeType" = "branch" }
+  branch3_tags = { "lab" = "Vwan24", "nodeType" = "branch" }
+  spoke1_tags  = { "lab" = "Vwan24", "nodeType" = "spoke" }
+  spoke2_tags  = { "lab" = "Vwan24", "nodeType" = "spoke" }
+  spoke3_tags  = { "lab" = "Vwan24", "nodeType" = "spoke" }
+  spoke4_tags  = { "lab" = "Vwan24", "nodeType" = "spoke" }
+  spoke5_tags  = { "lab" = "Vwan24", "nodeType" = "spoke" }
+  spoke6_tags  = { "lab" = "Vwan24", "nodeType" = "spoke" }
 }
 
 resource "random_id" "random" {
@@ -71,7 +83,7 @@ locals {
             { ip_address = local.branch3_dns_addr, port = 53 },
           ]
         }
-        "eu" = {
+        "we" = {
           domain = "we.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
@@ -138,7 +150,7 @@ locals {
             { ip_address = local.branch1_dns_addr, port = 53 },
           ]
         }
-        "eu" = {
+        "we" = {
           domain = "we.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },

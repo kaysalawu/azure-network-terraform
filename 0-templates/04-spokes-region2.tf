@@ -1,4 +1,13 @@
 
+/*
+Overview
+--------
+This template creates the spoke vnets from the base module.
+It also deploys a simple web server VM in each spoke.
+Private DNS zones are created for each spoke and linked to the hub vnet.
+NSGs are assigned to selected subnets.
+*/
+
 ####################################################
 # spoke4
 ####################################################
@@ -35,6 +44,10 @@ module "spoke4" {
   config_vnet = {
     address_space = local.spoke4_address_space
     subnets       = local.spoke4_subnets
+    nat_gateway_subnet_names = [
+      "MainSubnet",
+      "UntrustSubnet",
+    ]
   }
 }
 
@@ -57,13 +70,14 @@ module "spoke4_vm" {
   location              = local.spoke4_location
   subnet                = module.spoke4.subnets["MainSubnet"].id
   private_ip            = local.spoke4_vm_addr
-  enable_public_ip      = true
   custom_data           = base64encode(local.spoke4_vm_init)
   storage_account       = module.common.storage_accounts["region2"]
   private_dns_zone_name = local.spoke4_dns_zone
   delay_creation        = "1m"
   tags                  = local.spoke4_tags
-  depends_on            = [module.spoke4]
+  depends_on = [
+    module.spoke4,
+  ]
 }
 
 ####################################################
@@ -102,6 +116,10 @@ module "spoke5" {
   config_vnet = {
     address_space = local.spoke5_address_space
     subnets       = local.spoke5_subnets
+    nat_gateway_subnet_names = [
+      "MainSubnet",
+      "UntrustSubnet",
+    ]
   }
 }
 
@@ -115,13 +133,14 @@ module "spoke5_vm" {
   location              = local.spoke5_location
   subnet                = module.spoke5.subnets["MainSubnet"].id
   private_ip            = local.spoke5_vm_addr
-  enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region2"]
   private_dns_zone_name = local.spoke5_dns_zone
   delay_creation        = "1m"
   tags                  = local.spoke5_tags
-  depends_on            = [module.spoke5]
+  depends_on = [
+    module.spoke2,
+  ]
 }
 
 ####################################################
@@ -160,6 +179,10 @@ module "spoke6" {
   config_vnet = {
     address_space = local.spoke6_address_space
     subnets       = local.spoke6_subnets
+    nat_gateway_subnet_names = [
+      "MainSubnet",
+      "UntrustSubnet",
+    ]
   }
 }
 
@@ -173,11 +196,12 @@ module "spoke6_vm" {
   location              = local.spoke6_location
   subnet                = module.spoke6.subnets["MainSubnet"].id
   private_ip            = local.spoke6_vm_addr
-  enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region2"]
   private_dns_zone_name = local.spoke6_dns_zone
   delay_creation        = "1m"
   tags                  = local.spoke6_tags
-  depends_on            = [module.spoke6]
+  depends_on = [
+    module.spoke3,
+  ]
 }

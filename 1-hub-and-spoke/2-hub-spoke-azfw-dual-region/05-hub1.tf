@@ -1,4 +1,17 @@
 
+/*
+Overview
+--------
+This template creates hub1 vnet from the base module.
+Extra configs defined in local variable "hub1_features" of "main.tf" to enable:
+  - VPN gateway, ExpressRoute gateway
+  - Azure Firewall and/or NVA
+  - Private DNS zone for the hub
+  - Private DNS Resolver and ruleset for onprem, cloud and PrivateLink DNS resolution
+It also deploys a simple web server VM in the hub.
+NSGs are assigned to selected subnets.
+*/
+
 ####################################################
 # vnet
 ####################################################
