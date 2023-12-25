@@ -27,10 +27,10 @@ ROOT_CA_KEY="$ROOT_CA_DIR/rootCA.key"
 ROOT_CA_CERT="$ROOT_CA_DIR/rootCA.pem"
 ROOT_CA_PFX="$ROOT_CA_DIR/rootCA.pfx"
 ROOT_CA_CER="$ROOT_CA_DIR/rootCA.cer"
-SERVER_KEY="$SERVER_DIR/server.key"
-SERVER_CSR="$SERVER_DIR/server.csr"
-SERVER_CERT="$SERVER_DIR/server.crt"
-SERVER_PEM="$SERVER_DIR/server.pem"
+SERVER_KEY="$SERVER_DIR/key.pem"
+SERVER_CSR="$SERVER_DIR/cert.csr"
+SERVER_CERT="$SERVER_DIR/cert.crt"
+SERVER_PEM="$SERVER_DIR/cert.pem"
 
 # Step 1: Create the Root CA
 openssl genrsa -out "$ROOT_CA_KEY" 2048

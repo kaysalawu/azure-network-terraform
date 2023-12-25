@@ -12,10 +12,7 @@ module "spoke4" {
   env             = "prod"
   location        = local.spoke4_location
   storage_account = module.common.storage_accounts["region2"]
-  tags = {
-    "nodeType" = "spoke"
-    "env"      = "prod"
-  }
+  tags            = local.spoke4_tags
 
   create_private_dns_zone = true
   private_dns_zone_name   = local.spoke4_dns_zone
@@ -82,10 +79,7 @@ module "spoke5" {
   env             = "prod"
   location        = local.spoke5_location
   storage_account = module.common.storage_accounts["region2"]
-  tags = {
-    "nodeType" = "spoke"
-    "env"      = "prod"
-  }
+  tags            = local.spoke5_tags
 
   create_private_dns_zone = true
   private_dns_zone_name   = local.spoke5_dns_zone
@@ -143,9 +137,7 @@ module "spoke6" {
   env             = "prod"
   location        = local.spoke6_location
   storage_account = module.common.storage_accounts["region2"]
-  tags = {
-    "env" = "prod"
-  }
+  tags            = local.spoke6_tags
 
   create_private_dns_zone = true
   private_dns_zone_name   = local.spoke6_dns_zone

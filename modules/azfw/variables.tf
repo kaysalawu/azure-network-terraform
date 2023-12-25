@@ -62,140 +62,22 @@ variable "firewall_policy_id" {
   default     = null
 }
 
-variable "metric_categories_firewall" {
-  type = list(any)
-  default = [
-    {
-      "enabled" = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      },
-      "category" = "AllMetrics"
-    }
-  ]
-}
-
 variable "log_categories_firewall" {
   type = list(any)
   default = [
-    {
-      "category"      = "AzureFirewallNetworkRule",
-      "categoryGroup" = null,
-      "enabled"       = true,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWNetworkRule",
-      "categoryGroup" = null,
-      "enabled"       = true,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWApplicationRule",
-      "categoryGroup" = null,
-      "enabled"       = true,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWNatRule",
-      "categoryGroup" = null,
-      "enabled"       = true,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWThreatIntel",
-      "categoryGroup" = null,
-      "enabled"       = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWIdpsSignature",
-      "categoryGroup" = null,
-      "enabled"       = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWDnsQuery",
-      "categoryGroup" = null,
-      "enabled"       = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWFqdnResolveFailure",
-      "categoryGroup" = null,
-      "enabled"       = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWFatFlow",
-      "categoryGroup" = null,
-      "enabled"       = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWFlowTrace",
-      "categoryGroup" = null,
-      "enabled"       = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWApplicationRuleAggregation",
-      "categoryGroup" = null,
-      "enabled"       = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWNetworkRuleAggregation",
-      "categoryGroup" = null,
-      "enabled"       = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "AZFWNatRuleAggregation",
-      "categoryGroup" = null,
-      "enabled"       = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    }
+    "AzureFirewallNetworkRule",
+    "AZFWNetworkRule",
+    "AZFWApplicationRule",
+    "AZFWNatRule",
+    "AZFWThreatIntel",
+    "AZFWIdpsSignature",
+    "AZFWDnsQuery",
+    "AZFWFqdnResolveFailure",
+    "AZFWFatFlow",
+    "AZFWFlowTrace",
+    "AZFWApplicationRuleAggregation",
+    "AZFWNetworkRuleAggregation",
+    "AZFWNatRuleAggregation"
   ]
 }
 

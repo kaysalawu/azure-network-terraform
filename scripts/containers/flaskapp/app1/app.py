@@ -40,11 +40,12 @@ def path2():
     }
     return data_dict
 
-@app.route("/healthz", host="healthz.az.corp")
+@app.route("/healthz")
 def healthz():
     return "OK"
 
 if __name__ == "__main__":
-    cert_path = '/etc/ssl/app/cert.pem'
-    key_path = '/etc/ssl/app/cert.key'
-    app.run(host='0.0.0.0', port=8080, debug=True, ssl_context=(cert_path, key_path))
+    #cert_path = '/etc/ssl/app/cert.pem'
+    #key_path = '/etc/ssl/app/key.pem'
+    #app.run(host='0.0.0.0', port=8080, debug=True, ssl_context=(cert_path, key_path))
+    app.run(host='0.0.0.0', port=${APP1_PORT}, debug=True)

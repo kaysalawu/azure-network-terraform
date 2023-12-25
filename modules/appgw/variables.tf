@@ -100,23 +100,23 @@ variable "backend_http_settings" {
   description = "List of backend HTTP settings."
   type = list(object({
     name                  = string
-    cookie_based_affinity = string
+    cookie_based_affinity = optional(string, "Disabled")
     affinity_cookie_name  = optional(string)
     path                  = optional(string)
     port                  = optional(number, 80)
     probe_name            = optional(string)
-    protocol              = optional(string, "Http")
-    request_timeout       = optional(number)
-    host_name             = optional(string)
+    #protocol              = optional(string, "Http")
+    request_timeout = optional(number, 30)
+    host_name       = optional(string)
 
     pick_host_name_from_backend_address = optional(bool)
     authentication_certificate = optional(object({
       name = string
     }))
-    trusted_root_certificate_names = optional(list(string))
+    trusted_root_certificate_names = optional(list(string), [])
     connection_draining = optional(object({
-      enable_connection_draining = bool
-      drain_timeout_sec          = number
+      enable_connection_draining = optional(bool, true)
+      drain_timeout_sec          = optional(number, 300)
     }))
   }))
 }
@@ -143,7 +143,7 @@ variable "request_routing_rules" {
   type = list(object({
     priority                    = number
     name                        = string
-    rule_type                   = optional(string, "PathBasedRouting") # Basic, PathBasedRouting
+    rule_type                   = optional(string, "Basic") # Basic, PathBasedRouting
     http_listener_name          = string
     backend_address_pool_name   = optional(string)
     backend_http_settings_name  = optional(string)
@@ -266,7 +266,7 @@ variable "waf_configuration" {
     firewall_mode            = string
     rule_set_version         = string
     file_upload_limit_mb     = optional(number)
-    request_body_check       = optional(bool)
+    request_body_check       = optional(bool, true)
     max_request_body_size_kb = optional(number)
     disabled_rule_group = optional(list(object({
       rule_group_name = string
@@ -308,6 +308,6 @@ variable "tags" {
 variable "public_ip_address_id" {
   description = "Public IP address of application gateway"
   type        = string
-  default     = ""
+  default     = null
 }
 

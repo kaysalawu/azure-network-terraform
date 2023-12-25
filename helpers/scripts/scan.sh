@@ -64,7 +64,7 @@ delete_files(){
     for file in "${files[@]}"; do
         local_file=$(basename "$file")
         if [ -e "$local_file" ]; then
-            echo -e "  ${char_fail} rm: $local_file"
+            echo -e "    ${char_fail} rm: $local_file"
         rm "$local_file"
         fi
     done

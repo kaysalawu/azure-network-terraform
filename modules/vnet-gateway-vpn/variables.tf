@@ -58,65 +58,11 @@ variable "ip_config1_apipa_addresses" {
 variable "log_categories" {
   type = list(any)
   default = [
-    {
-      "category"      = "GatewayDiagnosticLog",
-      "categoryGroup" = null,
-      "enabled"       = true,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "TunnelDiagnosticLog",
-      "categoryGroup" = null,
-      "enabled"       = true,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "RouteDiagnosticLog",
-      "categoryGroup" = null,
-      "enabled"       = true,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "IKEDiagnosticLog",
-      "categoryGroup" = null,
-      "enabled"       = true,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    },
-    {
-      "category"      = "P2SDiagnosticLog",
-      "categoryGroup" = null,
-      "enabled"       = true,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      }
-    }
-  ]
-}
-
-variable "metric_categories" {
-  type = list(any)
-  default = [
-    {
-      "enabled" = false,
-      "retentionPolicy" = {
-        "days"    = 0,
-        "enabled" = false
-      },
-      "category" = "AllMetrics"
-    }
+    "GatewayDiagnosticLog",
+    "TunnelDiagnosticLog",
+    "RouteDiagnosticLog",
+    "IKEDiagnosticLog",
+    "P2SDiagnosticLog"
   ]
 }
 

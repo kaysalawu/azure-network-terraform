@@ -3,6 +3,8 @@
 
 #----------------------------
 locals {
+  region1  = "eastus"
+  region2  = "northeurope"
   username = "azureuser"
   password = "Password123"
   vmsize   = "Standard_DS1_v2"
@@ -71,7 +73,6 @@ locals {
     }
   }
   hub1_dns_zone = "hub1.we.${local.cloud_domain}"
-  hub1_tags     = { "nodeType" = "hub" }
   hub1_subnets = {
     ("MainSubnet")                    = { address_prefixes = ["10.11.0.0/24"] }
     ("TrustSubnet")                   = { address_prefixes = ["10.11.1.0/24"] }
@@ -117,7 +118,6 @@ locals {
   hub2_location      = local.region2
   hub2_address_space = ["10.22.0.0/16", ]
   hub2_dns_zone      = "hub2.ne.${local.cloud_domain}"
-  hub2_tags          = { "nodeType" = "hub" }
   hub2_subnets = {
     ("MainSubnet")                    = { address_prefixes = ["10.22.0.0/24"] }
     ("TrustSubnet")                   = { address_prefixes = ["10.22.1.0/24"] }
@@ -163,7 +163,6 @@ locals {
   branch1_address_space = ["10.10.0.0/16", ]
   branch1_nva_asn       = "65001"
   branch1_dns_zone      = "branch1.${local.onprem_domain}"
-  branch1_tags          = { "nodeType" = "branch" }
   branch1_subnets = {
     ("MainSubnet")       = { address_prefixes = ["10.10.0.0/24"] }
     ("UntrustSubnet")    = { address_prefixes = ["10.10.1.0/24"] }
@@ -198,7 +197,6 @@ locals {
   branch2_address_space = ["10.20.0.0/16", ]
   branch2_nva_asn       = "65002"
   branch2_dns_zone      = "branch2.${local.onprem_domain}"
-  branch2_tags          = { "nodeType" = "branch" }
   branch2_subnets = {
     ("MainSubnet")       = { address_prefixes = ["10.20.0.0/24"] }
     ("UntrustSubnet")    = { address_prefixes = ["10.20.1.0/24"] }
@@ -231,7 +229,6 @@ locals {
   branch3_address_space = ["10.30.0.0/16", ]
   branch3_nva_asn       = "65003"
   branch3_dns_zone      = "branch3.${local.onprem_domain}"
-  branch3_tags          = { "nodeType" = "branch" }
   branch3_subnets = {
     ("MainSubnet")       = { address_prefixes = ["10.30.0.0/24"] }
     ("UntrustSubnet")    = { address_prefixes = ["10.30.1.0/24"] }
@@ -265,7 +262,6 @@ locals {
   spoke1_location      = local.region1
   spoke1_address_space = ["10.1.0.0/16"]
   spoke1_dns_zone      = "spoke1.we.${local.cloud_domain}"
-  spoke1_tags          = { "nodeType" = "spoke" }
   spoke1_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.1.0.0/24"] }
     ("TrustSubnet")              = { address_prefixes = ["10.1.1.0/24"] }
@@ -295,7 +291,6 @@ locals {
   spoke2_location      = local.region1
   spoke2_address_space = ["10.2.0.0/16"]
   spoke2_dns_zone      = "spoke2.we.${local.cloud_domain}"
-  spoke2_tags          = { "nodeType" = "spoke" }
   spoke2_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.2.0.0/24"] }
     ("TrustSubnet")              = { address_prefixes = ["10.2.1.0/24"] }
@@ -325,7 +320,6 @@ locals {
   spoke3_location      = local.region1
   spoke3_address_space = ["10.3.0.0/16", ]
   spoke3_dns_zone      = "spoke3.we.${local.cloud_domain}"
-  spoke3_tags          = { "nodeType" = "spoke" }
   spoke3_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.3.0.0/24"] }
     ("TrustSubnet")              = { address_prefixes = ["10.3.1.0/24"] }
@@ -355,7 +349,6 @@ locals {
   spoke4_location      = local.region2
   spoke4_address_space = ["10.4.0.0/16", ]
   spoke4_dns_zone      = "spoke4.ne.${local.cloud_domain}"
-  spoke4_tags          = { "nodeType" = "spoke" }
   spoke4_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.4.0.0/24"] }
     ("TrustSubnet")              = { address_prefixes = ["10.4.1.0/24"] }
@@ -385,7 +378,6 @@ locals {
   spoke5_location      = local.region2
   spoke5_address_space = ["10.5.0.0/16", ]
   spoke5_dns_zone      = "spoke5.ne.${local.cloud_domain}"
-  spoke5_tags          = { "nodeType" = "spoke" }
   spoke5_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.5.0.0/24"] }
     ("TrustSubnet")              = { address_prefixes = ["10.5.1.0/24"] }
@@ -415,7 +407,6 @@ locals {
   spoke6_location      = local.region2
   spoke6_address_space = ["10.6.0.0/16", ]
   spoke6_dns_zone      = "spoke6.ne.${local.cloud_domain}"
-  spoke6_tags          = { "nodeType" = "spoke" }
   spoke6_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.6.0.0/24"] }
     ("TrustSubnet")              = { address_prefixes = ["10.6.1.0/24"] }

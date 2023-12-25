@@ -40,9 +40,9 @@ def path2():
     }
     return data_dict
 
-@app.route("/healthz", host="healthz.az.corp")
+@app.route("/healthz")
 def healthz():
     return "OK"
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8081, debug=True)
+    app.run(host='0.0.0.0', port=${APP2_PORT}, debug=True)

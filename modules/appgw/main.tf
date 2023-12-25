@@ -1,3 +1,4 @@
+
 #---------------------------
 # Local declarations
 #---------------------------
@@ -53,6 +54,7 @@ data "azurerm_storage_account" "storeacc" {
 # Public IP for application gateway
 #-----------------------------------
 resource "azurerm_public_ip" "pip" {
+  count               = var.public_ip_address_id == null ? 1 : 0
   name                = lower("${var.app_gateway_name}-${var.location}-gw-pip")
   location            = var.location
   resource_group_name = local.resource_group_name
@@ -80,13 +82,13 @@ resource "azurerm_application_gateway" "main" {
     capacity = var.autoscale_configuration == null ? var.sku.capacity : null
   }
 
-  /*dynamic "autoscale_configuration" {
-    for_each = var.autoscale_configuration != null ? [var.autoscale_configuration] : []
-    content {
-      min_capacity = lookup(autoscale_configuration.value, "min_capacity")
-      max_capacity = lookup(autoscale_configuration.value, "max_capacity")
-    }
-  }*/
+  # dynamic "autoscale_configuration" {
+  #   for_each = var.autoscale_configuration != null ? [var.autoscale_configuration] : []
+  #   content {
+  #     min_capacity = lookup(autoscale_configuration.value, "min_capacity")
+  #     max_capacity = lookup(autoscale_configuration.value, "max_capacity")
+  #   }
+  # }
 
   gateway_ip_configuration {
     name      = local.gateway_ip_configuration_name
@@ -95,7 +97,7 @@ resource "azurerm_application_gateway" "main" {
 
   frontend_ip_configuration {
     name                 = local.frontend_ip_configuration_public_name
-    public_ip_address_id = azurerm_public_ip.pip.id
+    public_ip_address_id = var.public_ip_address_id != null ? var.public_ip_address_id : azurerm_public_ip.pip[0].id
   }
 
   frontend_ip_configuration {
@@ -147,7 +149,7 @@ resource "azurerm_application_gateway" "main" {
       path                                = lookup(backend_http_settings.value, "path", "/")
       port                                = lookup(backend_http_settings.value, "port", 80)
       probe_name                          = lookup(backend_http_settings.value, "probe_name", null)
-      protocol                            = lookup(backend_http_settings.value, "protocol", "Http")
+      protocol                            = length(backend_http_settings.value.trusted_root_certificate_names) > 0 ? "Https" : "Http"
       request_timeout                     = lookup(backend_http_settings.value, "request_timeout", 30)
       host_name                           = backend_http_settings.value.pick_host_name_from_backend_address == false ? lookup(backend_http_settings.value, "host_name") : null
       pick_host_name_from_backend_address = lookup(backend_http_settings.value, "pick_host_name_from_backend_address", false)

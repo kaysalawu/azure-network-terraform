@@ -6,11 +6,11 @@ services:
       context: ./app1
       dockerfile: Dockerfile
     ports:
-      - 8080:8080
+      - ${APP1_PORT}:${APP1_PORT}
     network_mode: host
-    volumes:
-      - /etc/ssl/app/cert.pem:/etc/ssl/app/cert.pem
-      - /etc/ssl/app/cert.key:/etc/ssl/app/cert.key
+    # volumes:
+    #   - /etc/ssl/app/cert.pem:/etc/ssl/app/cert.pem
+    #   - /etc/ssl/app/key.pem:/etc/ssl/app/key.pem
 
   app2:
     container_name: app2
@@ -18,7 +18,7 @@ services:
       context: ./app2
       dockerfile: Dockerfile
     ports:
-      - 8081:8081
+      - ${APP2_PORT}:${APP2_PORT}
     network_mode: host
 
   httpbin:

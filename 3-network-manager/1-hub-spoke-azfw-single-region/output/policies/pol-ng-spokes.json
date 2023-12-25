@@ -8,12 +8,16 @@
       {
         "allOf": [
           {
+            "field": "tags['attach']",
+            "equals": "true"
+          },
+          {
             "field": "tags['env']",
             "equals": "prod"
           },
           {
             "field": "location",
-            "equals": "westeurope"
+            "equals": "eastus"
           },
           {
             "anyOf": [

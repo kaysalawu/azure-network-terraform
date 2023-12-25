@@ -4,9 +4,7 @@
 
 locals {
   prefix             = "Hs12"
-  region1            = "eastus"
-  region2            = "northeurope"
-  enable_diagnostics = false
+  enable_diagnostics = true
   spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
   spoke6_apps_fqdn   = lower("${local.spoke6_prefix}${random_id.random.hex}-app.azurewebsites.net")
 }

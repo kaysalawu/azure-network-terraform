@@ -88,7 +88,7 @@ resource "azurerm_linux_virtual_machine" "this" {
     sku       = var.source_image_reference[var.source_image].sku
     version   = var.source_image_reference[var.source_image].version
   }
-  computer_name  = trimsuffix(local.name, "-")
+  computer_name  = replace(trimsuffix(local.name, "-"), "_", "")
   admin_username = var.admin_username
   admin_password = var.admin_password
   boot_diagnostics {

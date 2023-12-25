@@ -70,20 +70,16 @@ resource "azurerm_monitor_diagnostic_setting" "this" {
   name                       = "${var.prefix}vpngw-diag"
   target_resource_id         = azurerm_vpn_gateway.this.id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.this.id
-  #log_analytics_destination_type = "Dedicated"
 
-  dynamic "metric" {
-    for_each = var.metric_categories
-    content {
-      category = metric.value.category
-      enabled  = true
-    }
+  metric {
+    category = "AllMetrics"
+    enabled  = true
   }
 
   dynamic "enabled_log" {
-    for_each = { for k, v in var.log_categories : k => v if v.enabled }
+    for_each = var.log_categories
     content {
-      category = enabled_log.value.category
+      category = enabled_log.value
     }
   }
   timeouts {

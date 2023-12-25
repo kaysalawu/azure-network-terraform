@@ -16,7 +16,7 @@ resource "azurerm_log_analytics_workspace" "log_analytics_workspaces" {
   for_each            = var.regions
   resource_group_name = var.resource_group
   location            = each.value
-  name                = "${local.prefix}laws-${each.key}"
+  name                = replace(replace("${local.prefix}ws${each.key}", "-", ""), "_", "")
   sku                 = "PerGB2018"
   retention_in_days   = 30
   tags                = var.tags
@@ -27,13 +27,13 @@ resource "azurerm_log_analytics_workspace" "log_analytics_workspaces" {
 ####################################################
 
 resource "random_id" "storage_accounts" {
-  byte_length = 5
+  byte_length = 2
 }
 
 resource "azurerm_storage_account" "storage_accounts" {
   for_each                 = var.regions
   resource_group_name      = var.resource_group
-  name                     = lower("${var.prefix}${each.key}${random_id.storage_accounts.hex}")
+  name                     = replace(replace(lower("${var.prefix}${each.key}${random_id.storage_accounts.hex}"), "-", ""), "_", "")
   location                 = each.value
   account_replication_type = "LRS"
   account_tier             = "Standard"
@@ -98,6 +98,22 @@ resource "azurerm_network_security_rule" "nsg_main_private_outbound" {
   description                 = "Allow all outbound"
 }
 
+resource "azurerm_network_security_rule" "internet_inbound_self" {
+  for_each                    = var.regions
+  resource_group_name         = var.resource_group
+  network_security_group_name = azurerm_network_security_group.nsg_main[each.key].name
+  name                        = "internet-inbound-self"
+  direction                   = "Inbound"
+  access                      = "Allow"
+  priority                    = 110
+  source_address_prefix       = local.my_public_ip
+  source_port_range           = "*"
+  destination_address_prefix  = "*"
+  destination_port_range      = "*"
+  protocol                    = "Tcp"
+  description                 = "Allow inbound web traffic"
+}
+
 resource "azurerm_network_security_rule" "internet_inbound" {
   for_each                    = var.regions
   resource_group_name         = var.resource_group
@@ -105,14 +121,15 @@ resource "azurerm_network_security_rule" "internet_inbound" {
   name                        = "internet-inbound"
   direction                   = "Inbound"
   access                      = "Allow"
-  priority                    = 110
-  source_address_prefix       = local.my_public_ip
+  priority                    = 120
+  source_address_prefix       = "*"
   source_port_range           = "*"
   destination_address_prefix  = "*"
-  destination_port_ranges     = ["80", "8080", "8081", "443", ]
+  destination_port_ranges     = ["80", "443", "8080", "8081", "3000", ]
   protocol                    = "Tcp"
   description                 = "Allow inbound web traffic"
 }
+
 
 # open
 #----------------------------
@@ -254,7 +271,7 @@ resource "azurerm_network_security_rule" "nsg_lb_web_external_inbound" {
   source_address_prefix       = "0.0.0.0/0"
   source_port_range           = "*"
   destination_address_prefix  = "VirtualNetwork"
-  destination_port_ranges     = ["80", "8080", "443"]
+  destination_port_ranges     = ["80", "443", "8080", "8081", "3000"]
   protocol                    = "Tcp"
   description                 = "Allow inbound web traffic"
 }

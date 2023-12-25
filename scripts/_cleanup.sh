@@ -31,7 +31,7 @@ delete_diag_settings() {
         local resource_name=$(echo $resource_id | rev | cut -d'/' -f1 | rev)
         local diag_settings=$(az monitor diagnostic-settings list --resource "$resource_id" --query "[].name" -o tsv)
         for diag_setting in $diag_settings; do
-            echo -e " $char_fail Deleting: diag setting [$diag_setting] for $resource_type [$resource_name] ..."
+            echo -e "    $char_fail Deleting: diag setting [$diag_setting] for $resource_type [$resource_name] ..."
             az monitor diagnostic-settings delete --resource "$resource_id" --name "$diag_setting"
         done
     done

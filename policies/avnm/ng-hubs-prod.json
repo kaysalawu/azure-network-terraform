@@ -8,6 +8,10 @@
       {
         "allOf": [
           {
+            "field": "tags['attach']",
+            "equals": "true"
+          },
+          {
             "field": "tags['env']",
             "equals": "prod"
           },

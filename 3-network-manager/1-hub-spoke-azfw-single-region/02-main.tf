@@ -4,10 +4,15 @@
 
 locals {
   prefix             = "Ne31"
-  region1            = "eastus"
-  region2            = "northeurope"
-  enable_diagnostics = false
+  enable_diagnostics = true
   spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
+
+  hub1_tags    = { "env" = "prod", "nodeType" = "hub" }
+  branch1_tags = { "env" = "prod", "nodeType" = "branch" }
+  branch2_tags = { "env" = "prod", "nodeType" = "branch" }
+  spoke1_tags  = { "env" = "prod", "nodeType" = "spoke", "attach" = "true" }
+  spoke2_tags  = { "env" = "prod", "nodeType" = "spoke", "attach" = "true" }
+  spoke3_tags  = { "env" = "prod", "nodeType" = "spoke" }
 }
 
 resource "random_id" "random" {

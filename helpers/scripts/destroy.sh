@@ -6,6 +6,6 @@ terraform_destroy() {
 }
 
 terraform_destroy
-rm -rf .terraform
-rm .terraform.*
-rm terraform.*
+# rm -rf .terraform
+# rm .terraform.*
+# rm terraform.*

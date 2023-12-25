@@ -35,6 +35,11 @@ backend.tf
 
 # Skaffold
 bin/
+include/
+lib/
+lib64/
+share/
+pyvenv.cfg
 pkg/
 .DS_Store
 *.pyc

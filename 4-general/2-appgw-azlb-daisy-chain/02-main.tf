@@ -3,10 +3,15 @@
 ####################################################
 
 locals {
-  prefix           = "Ge42"
-  region1          = "westeurope"
-  region2          = "northeurope"
-  spoke3_apps_fqdn = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
+  prefix                = "Ge42"
+  region1               = "westeurope"
+  region2               = "northeurope"
+  spoke3_apps_fqdn      = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
+  server_cert_name_app1 = "cert"
+  server_common_name    = "healthz.az.corp"
+  server_host_app1      = "app1.we.az.corp"
+  server_host_app2      = "app2.we.az.corp"
+  server_host_wildcard  = "*.az.corp"
 }
 
 resource "random_id" "random" {
@@ -198,7 +203,9 @@ locals {
 
   vm_startup_container_dir = "/var/lib/spoke"
   vm_startup_fastapi_vars = {
-    INIT_DIR = local.vm_startup_container_dir
+    INIT_DIR  = local.vm_startup_container_dir
+    APP1_PORT = "8080"
+    APP2_PORT = "8081"
   }
   vm_startup_fastapi_files = {
     "${local.vm_startup_container_dir}/docker-compose.yml"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/docker-compose.yml", local.vm_startup_fastapi_vars) }
@@ -219,18 +226,18 @@ locals {
     "/etc/ssl/app/key.pem"                                    = { owner = "root", permissions = "0400", content = module.server_cert.private_key_pem }
   }
   vm_startup_flaskapp_files = {
-    "${local.vm_startup_container_dir}/docker-compose.yml"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/docker-compose.yml", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/service.sh"            = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/service.sh", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/start.sh"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/start.sh", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/stop.sh"               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/stop.sh", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app1/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app1/app/Dockerfile", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app1/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app1/app/.dockerignore", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app1/app.py"           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app1/app/main.py", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app1/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app1/app/requirements.txt", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app2/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app2/app/Dockerfile", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app2/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app2/app/.dockerignore", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app2/app.py"           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app2/app/main.py", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app2/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app2/app/requirements.txt", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/docker-compose.yml"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/docker-compose.yml", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/service.sh"            = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/service.sh", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/start.sh"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/start.sh", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/stop.sh"               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/stop.sh", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/app1/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/app1/Dockerfile", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/app1/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/app1/.dockerignore", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/app1/app.py"           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/app1/app.py", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/app1/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/app1/requirements.txt", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/app2/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/app2/Dockerfile", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/app2/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/app2/.dockerignore", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/app2/app.py"           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/app2/app.py", local.vm_startup_fastapi_vars) }
+    "${local.vm_startup_container_dir}/app2/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/app2/requirements.txt", local.vm_startup_fastapi_vars) }
     "/etc/ssl/app/cert.pem"                                   = { owner = "root", permissions = "0400", content = join("\n", [module.server_cert.cert_pem, tls_self_signed_cert.root_ca.cert_pem]) }
     "/etc/ssl/app/key.pem"                                    = { owner = "root", permissions = "0400", content = module.server_cert.private_key_pem }
   }
@@ -297,6 +304,14 @@ module "dnsmasq" {
   run_commands = [
     "systemctl restart dnsmasq",
     "systemctl enable dnsmasq",
+  ]
+}
+
+module "web_http_backend_init" {
+  source = "../../modules/cloud-config-gen"
+  files  = local.vm_startup_flaskapp_files
+  run_commands = [
+    ". ${local.spoke1_be_dir}/service.sh",
   ]
 }
 
@@ -416,7 +431,7 @@ resource "tls_private_key" "root_ca" {
 resource "tls_self_signed_cert" "root_ca" {
   private_key_pem = tls_private_key.root_ca.private_key_pem
   subject {
-    common_name         = "Self Root CA"
+    common_name         = local.server_host_wildcard
     organization        = "demo"
     organizational_unit = "cloud network team"
     street_address      = ["mpls chicken road"]
@@ -439,10 +454,10 @@ resource "tls_self_signed_cert" "root_ca" {
 
 module "server_cert" {
   source   = "../../modules/self-signed-cert"
-  name     = local.spoke1_cert_name_app1
+  name     = local.server_cert_name_app1
   rsa_bits = 2048
   subject = {
-    common_name         = local.spoke1_host_all
+    common_name         = local.server_host_wildcard
     organization        = "app1 demo"
     organizational_unit = "app1 network team"
     street_address      = "99 mpls chicken road, network avenue"
@@ -451,7 +466,7 @@ module "server_cert" {
     country             = "UK"
   }
   dns_names = [
-    local.spoke1_host_all,
+    local.server_host_wildcard,
   ]
   ca_private_key_pem = tls_private_key.root_ca.private_key_pem
   ca_cert_pem        = tls_self_signed_cert.root_ca.cert_pem

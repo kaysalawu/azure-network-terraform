@@ -1,13 +1,4 @@
 
-locals {
-  spoke1_cert_name_app1   = "cert"
-  spoke1_cert_output_path = "certs/spoke1"
-  spoke1_common_name      = "*.az.corp"
-  spoke1_host_app1        = "app1.we.az.corp"
-  spoke1_host_app2        = "app2.we.az.corp"
-  spoke1_host_all         = "*.az.corp"
-}
-
 ####################################################
 # spoke1
 ####################################################
@@ -89,14 +80,6 @@ locals {
   }
 }
 
-module "spoke1_web_http_backend_init" {
-  source = "../../modules/cloud-config-gen"
-  files  = local.vm_startup_flaskapp_files
-  run_commands = [
-    ". ${local.spoke1_be_dir}/service.sh",
-  ]
-}
-
 module "spoke1_be1" {
   source                = "../../modules/linux"
   resource_group        = azurerm_resource_group.rg.name
@@ -106,7 +89,7 @@ module "spoke1_be1" {
   subnet                = module.spoke1.subnets["MainSubnet"].id
   private_ip            = local.spoke1_be1_addr
   enable_public_ip      = true
-  custom_data           = base64encode(module.spoke1_web_http_backend_init.cloud_config)
+  custom_data           = base64encode(module.web_http_backend_init.cloud_config)
   storage_account       = module.common.storage_accounts["region1"]
   source_image          = "ubuntu-22"
   private_dns_zone_name = local.spoke1_dns_zone
@@ -122,7 +105,7 @@ module "spoke1_be2" {
   subnet                = module.spoke1.subnets["MainSubnet"].id
   private_ip            = local.spoke1_be2_addr
   enable_public_ip      = true
-  custom_data           = base64encode(module.spoke1_web_http_backend_init.cloud_config)
+  custom_data           = base64encode(module.web_http_backend_init.cloud_config)
   storage_account       = module.common.storage_accounts["region1"]
   source_image          = "ubuntu-22"
   private_dns_zone_name = local.spoke1_dns_zone
@@ -135,7 +118,7 @@ module "spoke1_be2" {
 
 locals {
   spoke1_files = {
-    #"output/spoke1-be-init" = module.spoke1_web_http_backend_init.cloud_config
+    #"output/spoke1-be-init" = module.web_http_backend_init.cloud_config
   }
 }
 

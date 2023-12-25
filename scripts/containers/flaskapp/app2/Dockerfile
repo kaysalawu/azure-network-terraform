@@ -1,9 +1,8 @@
 FROM python:3.12-alpine
 
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-EXPOSE 8081
+RUN pip install --verbose --no-cache-dir -r requirements.txt
+EXPOSE ${APP2_PORT}
 
-CMD ["python", "app.py"]
+CMD ["python3", "app.py"]

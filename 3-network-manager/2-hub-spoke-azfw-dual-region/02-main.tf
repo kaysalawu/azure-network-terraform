@@ -4,11 +4,21 @@
 
 locals {
   prefix             = "Ne32"
-  region1            = "eastus"
-  region2            = "northeurope"
   enable_diagnostics = false
   spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
   spoke6_apps_fqdn   = lower("${local.spoke6_prefix}${random_id.random.hex}-app.azurewebsites.net")
+
+  hub1_tags    = { "nodeType" = "hub" }
+  hub2_tags    = { "nodeType" = "hub" }
+  branch1_tags = { "nodeType" = "branch" }
+  branch2_tags = { "nodeType" = "branch" }
+  branch3_tags = { "nodeType" = "branch" }
+  spoke1_tags  = { "attach" = "true", "nodeType" = "spoke" }
+  spoke2_tags  = { "attach" = "true", "nodeType" = "spoke" }
+  spoke3_tags  = { "nodeType" = "spoke" }
+  spoke4_tags  = { "attach" = "true", "nodeType" = "spoke" }
+  spoke5_tags  = { "attach" = "true", "nodeType" = "spoke" }
+  spoke6_tags  = { "nodeType" = "spoke" }
 }
 
 resource "random_id" "random" {

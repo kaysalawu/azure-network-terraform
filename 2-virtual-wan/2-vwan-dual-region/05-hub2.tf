@@ -10,10 +10,7 @@ module "hub2" {
   env             = "prod"
   location        = local.hub2_location
   storage_account = module.common.storage_accounts["region2"]
-  tags = {
-    "nodeType" = "hub"
-    "env"      = "prod"
-  }
+  tags            = local.hub2_tags
 
   create_private_dns_zone = true
   private_dns_zone_name   = local.hub2_dns_zone
