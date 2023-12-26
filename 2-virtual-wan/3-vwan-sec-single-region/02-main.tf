@@ -251,7 +251,7 @@ locals {
     ENABLE_TRAFFIC_GEN        = false
   })
 
-  unbound_vars = {
+  onprem_dns_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones
@@ -264,12 +264,12 @@ locals {
       ]
     )
   }
-  branch_unbound_conf         = templatefile("../../scripts/unbound/unbound.conf", local.unbound_vars)
-  branch_unbound_startup      = templatefile("../../scripts/unbound/unbound.sh", local.unbound_vars)
-  branch_dnsmasq_startup      = templatefile("../../scripts/dnsmasq/dnsmasq.sh", local.unbound_vars)
-  branch_dnsmasq_cloud_config = templatefile("../../scripts/dnsmasq/cloud-config", local.unbound_vars)
-  branch_unbound_cloud_config = templatefile("../../scripts/unbound/cloud-config", local.unbound_vars)
-  branch_unbound_vars = {
+  branch_unbound_conf         = templatefile("../../scripts/unbound/unbound.conf", local.onprem_dns_vars)
+  branch_unbound_startup      = templatefile("../../scripts/unbound/unbound.sh", local.onprem_dns_vars)
+  branch_dnsmasq_startup      = templatefile("../../scripts/dnsmasq/dnsmasq.sh", local.onprem_dns_vars)
+  branch_dnsmasq_cloud_config = templatefile("../../scripts/dnsmasq/cloud-config", local.onprem_dns_vars)
+  branch_unbound_cloud_config = templatefile("../../scripts/unbound/cloud-config", local.onprem_dns_vars)
+  branch_onprem_dns_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones

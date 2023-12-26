@@ -1,4 +1,6 @@
 
+# Adapted from original - https://github.com/kumarvna/terraform-azurerm-application-gateway/tree/v1.1.0
+
 #---------------------------
 # Local declarations
 #---------------------------

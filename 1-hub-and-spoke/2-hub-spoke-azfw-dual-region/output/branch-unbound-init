@@ -1,0 +1,120 @@
+#cloud-config
+
+package_update: true
+package_upgrade: true
+packages:
+  - docker.io
+  - docker-compose
+  - dnsutils
+  - net-tools
+
+write_files:
+  - path: /etc/unbound/unbound.conf
+    owner: root
+    permissions: 0744
+    content: |
+      
+      server:
+          interface: 0.0.0.0
+      
+          access-control: 0.0.0.0 deny
+          access-control: 127.0.0.0/8 allow
+          access-control: 10.0.0.0/8 allow
+          access-control: 192.168.0.0/16 allow
+          access-control: 172.16.0.0/12 allow
+          access-control: 35.199.192.0/19 allow
+      
+          local-data: "vm.branch1.corp 3600 IN A 10.10.0.5"
+          local-data: "vm.branch2.corp 3600 IN A 10.20.0.5"
+          local-data: "vm.branch3.corp 3600 IN A 10.30.0.5"
+      
+      forward-zone:
+          name: "az.corp."
+          forward-addr: 10.11.8.4
+          forward-addr: 10.22.8.4
+      
+      forward-zone:
+          name: "az.corp."
+          forward-addr: 10.11.8.4
+          forward-addr: 10.22.8.4
+      
+      forward-zone:
+          name: "privatelink.blob.core.windows.net."
+          forward-addr: 10.11.8.4
+          forward-addr: 10.22.8.4
+      
+      forward-zone:
+          name: "privatelink.azurewebsites.net."
+          forward-addr: 10.11.8.4
+          forward-addr: 10.22.8.4
+      
+      forward-zone:
+          name: "privatelink.database.windows.net."
+          forward-addr: 10.11.8.4
+          forward-addr: 10.22.8.4
+      
+      forward-zone:
+          name: "privatelink.table.cosmos.azure.com."
+          forward-addr: 10.11.8.4
+          forward-addr: 10.22.8.4
+      
+      forward-zone:
+          name: "privatelink.queue.core.windows.net."
+          forward-addr: 10.11.8.4
+          forward-addr: 10.22.8.4
+      
+      forward-zone:
+          name: "privatelink.file.core.windows.net."
+          forward-addr: 10.11.8.4
+          forward-addr: 10.22.8.4
+      
+      forward-zone:
+          name: "."
+          forward-addr: 168.63.129.16
+      
+  - path: /etc/unbound/unbound.log
+    owner: root
+    permissions: 0744
+    content: |
+      
+  - path: /var/lib/labs/app/Dockerfile
+    owner: root
+    permissions: 0744
+    content: |
+      FROM alpine:3.19.0
+      RUN apk add --no-cache unbound
+      EXPOSE 53/tcp 53/udp
+      CMD ["unbound", "-d"]
+      
+  - path: /var/lib/labs/docker-compose.yml
+    owner: root
+    permissions: 0744
+    content: |
+      version: '3'
+      
+      services:
+        unbound:
+          container_name: unbound
+          build:
+            context: ./app
+            dockerfile: Dockerfile
+          ports:
+            - "53:53/tcp"
+            - "53:53/udp"
+          network_mode: "host"
+          volumes:
+            - /etc/unbound/unbound.log:/etc/unbound/unbound.log
+            - /etc/unbound/unbound.conf:/etc/unbound/unbound.conf
+          cap_add:
+            - NET_ADMIN
+          command: ["unbound", "-d"]
+          restart: always
+      
+
+runcmd:
+  - systemctl stop systemd-resolved
+  - systemctl disable systemd-resolved
+  - echo "nameserver 8.8.8.8" > /etc/resolv.conf
+  - systemctl restart unbound
+  - systemctl enable unbound
+  - docker-compose -f /var/lib/labs/docker-compose.yml up -d

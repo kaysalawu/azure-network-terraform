@@ -8,7 +8,7 @@
 ../../0-templates/05-hub2.tf
 ../../0-templates/avnm/06-conn-hub1-azfw.tf
 ../../0-templates/avnm/06-conn-hub2-azfw.tf
-../../0-templates/avnm/07-conn-interhub-azfw.tf
+../../0-templates/avnm/06-conn-interhub-azfw.tf
 ../../0-templates/services-region1.tf
 ../../0-templates/services-region2.tf
 ../../0-templates/outputs-dual-region.tf

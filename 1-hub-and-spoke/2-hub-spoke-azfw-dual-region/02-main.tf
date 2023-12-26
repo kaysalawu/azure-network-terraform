@@ -312,7 +312,7 @@ locals {
     ENABLE_TRAFFIC_GEN        = false
   })
 
-  unbound_vars = {
+  branch_dns_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones
@@ -325,12 +325,23 @@ locals {
       ]
     )
   }
-  branch_unbound_conf         = templatefile("../../scripts/unbound/unbound.conf", local.unbound_vars)
-  branch_unbound_startup      = templatefile("../../scripts/unbound/unbound.sh", local.unbound_vars)
-  branch_dnsmasq_startup      = templatefile("../../scripts/dnsmasq/dnsmasq.sh", local.unbound_vars)
-  branch_dnsmasq_cloud_config = templatefile("../../scripts/dnsmasq/cloud-config", local.unbound_vars)
-  branch_unbound_cloud_config = templatefile("../../scripts/unbound/cloud-config", local.unbound_vars)
-  branch_unbound_vars = {
+  branch_unbound_startup = templatefile("../../scripts/unbound/unbound.sh", local.branch_dns_vars)
+  branch_dnsmasq_startup = templatefile("../../scripts/dnsmasq/dnsmasq.sh", local.branch_dns_vars)
+  branch_dns_init_dir    = "/var/lib/labs"
+  branch_dnsmasq_init = {
+    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/app/Dockerfile", {}) }
+    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/docker-compose.yml", {}) }
+    "/etc/dnsmasq.d/local_records.conf"               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/app/conf/local_records.conf", local.branch_dns_vars) }
+    "/etc/dnsmasq.d/forwarding.conf"                  = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/app/conf/forwarding.conf", local.branch_dns_vars) }
+    "/etc/dnsmasq.d/default.conf"                     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/app/conf/default.conf", local.branch_dns_vars) }
+  }
+  branch_unbound_init = {
+    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/Dockerfile", {}) }
+    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/docker-compose.yml", {}) }
+    "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/conf/unbound.conf", local.branch_dns_vars) }
+    "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/conf/unbound.log", local.branch_dns_vars) }
+  }
+  branch_branch_dns_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones
@@ -355,26 +366,31 @@ locals {
   onprem_redirected_hosts = []
 }
 
-module "unbound" {
+module "branch_dnsmasq_init" {
   source   = "../../modules/cloud-config-gen"
-  packages = ["tcpdump", "dnsutils", "net-tools", "unbound"]
-  files = {
-    "/var/log/unbound"          = { owner = "root", permissions = "0755", content = "" }
-    "/etc/unbound/unbound.conf" = { owner = "root", permissions = "0640", content = local.branch_unbound_conf }
-  }
+  packages = ["docker.io", "docker-compose", "dnsutils", "net-tools", ]
+  files    = local.branch_dnsmasq_init
   run_commands = [
-    "systemctl restart unbound",
-    "systemctl enable unbound",
+    "systemctl stop systemd-resolved",
+    "systemctl disable systemd-resolved",
+    "echo \"nameserver 8.8.8.8\" > /etc/resolv.conf",
+    "systemctl enable docker",
+    "systemctl start docker",
+    "docker-compose -f ${local.branch_dns_init_dir}/docker-compose.yml up -d",
   ]
 }
 
-module "dnsmasq" {
+module "branch_unbound_init" {
   source   = "../../modules/cloud-config-gen"
-  packages = ["dnsmasq"]
-  files    = {}
+  packages = ["docker.io", "docker-compose", "dnsutils", "net-tools", ]
+  files    = local.branch_unbound_init
   run_commands = [
-    "systemctl restart dnsmasq",
-    "systemctl enable dnsmasq",
+    "systemctl stop systemd-resolved",
+    "systemctl disable systemd-resolved",
+    "echo \"nameserver 8.8.8.8\" > /etc/resolv.conf",
+    "systemctl restart unbound",
+    "systemctl enable unbound",
+    "docker-compose -f ${local.branch_dns_init_dir}/docker-compose.yml up -d",
   ]
 }
 
@@ -465,8 +481,11 @@ module "fw_policy_rule_collection_group" {
 
 locals {
   main_files = {
-    "output/branch-unbound.sh" = local.branch_unbound_startup
-    "output/server.sh"         = local.vm_startup
+    "output/branch-unbound.sh"   = local.branch_unbound_startup
+    "output/branch-dnsmasq.sh"   = local.branch_dnsmasq_startup
+    "output/branch-dnsmasq-init" = module.branch_dnsmasq_init.cloud_config
+    "output/branch-unbound-init" = module.branch_unbound_init.cloud_config
+    "output/server.sh"           = local.vm_startup
   }
 }
 
