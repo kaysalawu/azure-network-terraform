@@ -29,6 +29,7 @@ provider "azurerm" {
 }
 
 provider "azapi" {}
+provider "http" {}
 
 terraform {
   #required_version = ">= 1.4.6"
@@ -477,7 +478,6 @@ locals {
     }
   ))
 }
-
 
 ####################################################
 # output files

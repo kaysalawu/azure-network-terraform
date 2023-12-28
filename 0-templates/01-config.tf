@@ -19,6 +19,15 @@ locals {
   bgp_apipa_range7 = "169.254.21.24/30"
   bgp_apipa_range8 = "169.254.21.28/30"
 
+  csp_range1 = "172.16.0.0/30"
+  csp_range2 = "172.16.0.4/30"
+  csp_range3 = "172.16.0.8/30"
+  csp_range4 = "172.16.0.12/30"
+  csp_range5 = "172.16.0.16/30"
+  csp_range6 = "172.16.0.20/30"
+  csp_range7 = "172.16.0.24/30"
+  csp_range8 = "172.16.0.28/30"
+
   default_region = "westeurope"
 
   onprem_domain  = "corp"

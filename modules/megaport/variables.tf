@@ -58,9 +58,34 @@ variable "connection" {
     rate_limit     = number
     requested_vlan = optional(number, 0)
     service_key    = string
+    circuit_name   = string
     mcr_name       = string
 
-    auto_create_private_peering   = optional(bool, true)
+    private_peering = optional(object({
+      peer_asn         = number
+      requested_vlan   = number
+      primary_subnet   = optional(string, "172.16.0.0/30")
+      secondary_subnet = optional(string, "172.16.0.4/30")
+      shared_key       = optional(string, null)
+    }), null)
+
+    microsoft_peering = optional(object({
+      peer_asn         = number
+      requested_vlan   = number
+      primary_subnet   = string
+      secondary_subnet = string
+      shared_key       = string
+      public_prefixes  = list(string)
+    }), null)
+
+    gateway_connection = optional(object({
+      name                       = string
+      virtual_network_gateway_id = string
+      express_route_circuit_id   = string
+      authorization_key          = string
+    }), null)
+
+    auto_create_private_peering   = optional(bool, false)
     auto_create_microsoft_peering = optional(bool, false)
   }))
 }
