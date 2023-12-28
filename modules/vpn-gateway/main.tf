@@ -21,6 +21,8 @@ resource "azurerm_vpn_gateway" "this" {
   name                = "${var.prefix}vpngw"
   location            = var.location
   virtual_hub_id      = var.virtual_hub_id
+  scale_unit          = var.scale_unit
+  tags                = var.tags
 
   dynamic "bgp_settings" {
     for_each = var.bgp_settings != {} ? [1] : []
