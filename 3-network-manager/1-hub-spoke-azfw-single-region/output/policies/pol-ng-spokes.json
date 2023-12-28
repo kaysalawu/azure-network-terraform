@@ -8,8 +8,8 @@
       {
         "allOf": [
           {
-            "field": "tags['attach']",
-            "equals": "true"
+            "field": "tags['lab']",
+            "equals": "Ne31"
           },
           {
             "field": "tags['env']",

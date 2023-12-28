@@ -82,6 +82,8 @@ resource "azurerm_virtual_network_peering" "spoke5_to_hub2_peering" {
   depends_on = [
     module.spoke5,
     module.hub2,
+    azurerm_virtual_network_peering.spoke4_to_hub2_peering,
+    azurerm_virtual_network_peering.hub2_to_spoke4_peering,
   ]
 }
 
@@ -98,6 +100,8 @@ resource "azurerm_virtual_network_peering" "hub2_to_spoke5_peering" {
   depends_on = [
     module.spoke5,
     module.hub2,
+    azurerm_virtual_network_peering.spoke4_to_hub2_peering,
+    azurerm_virtual_network_peering.hub2_to_spoke4_peering,
   ]
 }
 

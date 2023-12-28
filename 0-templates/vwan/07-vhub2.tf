@@ -11,9 +11,9 @@ module "vhub2" {
   virtual_wan_id = azurerm_virtual_wan.vwan.id
   address_prefix = local.vhub2_address_prefix
 
-  er_gateway      = local.vhub2_features.er_gateway
-  s2s_vpn_gateway = local.vhub2_features.s2s_vpn_gateway
-  p2s_vpn_gateway = local.vhub2_features.p2s_vpn_gateway
+  express_route_gateway = local.vhub2_features.express_route_gateway
+  s2s_vpn_gateway       = local.vhub2_features.s2s_vpn_gateway
+  p2s_vpn_gateway       = local.vhub2_features.p2s_vpn_gateway
 
   config_security = local.vhub2_features.config_security
 }

@@ -51,6 +51,21 @@ module "vpngw" {
 }
 
 ####################################################
+# express route gateway
+####################################################
+
+module "ergw" {
+  count              = var.express_route_gateway.enable ? 1 : 0
+  source             = "../../modules/express-route-gateway"
+  resource_group     = var.resource_group
+  prefix             = local.prefix
+  location           = var.location
+  virtual_hub_id     = azurerm_virtual_hub.this.id
+  create_dashboard   = var.express_route_gateway.create_dashboard
+  enable_diagnostics = var.express_route_gateway.enable_diagnostics
+}
+
+####################################################
 # firewall
 ####################################################
 

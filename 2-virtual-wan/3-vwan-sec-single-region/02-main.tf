@@ -8,17 +8,11 @@ locals {
   spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
 
   hub1_tags    = { "lab" = "Vwan23", "nodeType" = "hub" }
-  hub2_tags    = { "lab" = "Vwan23", "nodeType" = "hub" }
   branch1_tags = { "lab" = "Vwan23", "nodeType" = "branch" }
   branch2_tags = { "lab" = "Vwan23", "nodeType" = "branch" }
-  branch3_tags = { "lab" = "Vwan23", "nodeType" = "branch" }
   spoke1_tags  = { "lab" = "Vwan23", "nodeType" = "spoke" }
   spoke2_tags  = { "lab" = "Vwan23", "nodeType" = "spoke" }
-  spoke3_tags  = { "lab" = "Vwan23", "nodeType" = "spoke" }
-  spoke4_tags  = { "lab" = "Vwan23", "nodeType" = "spoke" }
-  spoke5_tags  = { "lab" = "Vwan23", "nodeType" = "spoke" }
-  spoke6_tags  = { "lab" = "Vwan23", "nodeType" = "spoke" }
-}
+  spoke3_tags  = { "lab" = "Vwan23", "nodeType" = "float" }
 
 resource "random_id" "random" {
   byte_length = 2
@@ -127,7 +121,7 @@ locals {
   }
 
   vhub1_features = {
-    er_gateway = {
+    express_route_gateway = {
       enable             = false
       sku                = "ErGw1AZ"
       enable_diagnostics = local.enable_diagnostics

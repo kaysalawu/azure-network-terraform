@@ -12,7 +12,7 @@ locals {
   branch2_tags = { "lab" = "Hs13", "nodeType" = "branch" }
   spoke1_tags  = { "lab" = "Hs13", "nodeType" = "spoke" }
   spoke2_tags  = { "lab" = "Hs13", "nodeType" = "spoke" }
-  spoke3_tags  = { "lab" = "Hs13", "nodeType" = "spoke" }
+  spoke3_tags  = { "lab" = "Hs13", "nodeType" = "float" }
 }
 
 resource "random_id" "random" {
@@ -31,7 +31,6 @@ provider "azurerm" {
 provider "azapi" {}
 
 terraform {
-  #required_version = ">= 1.4.6"
   required_providers {
     megaport = {
       source  = "megaport/megaport"

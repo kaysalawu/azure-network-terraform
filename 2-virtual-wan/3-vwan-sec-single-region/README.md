@@ -551,13 +551,13 @@ Observe the firewall logs based on traffic flows generated from our tests.
 2. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
 
    ```sh
-   bash ../../scripts/_cleanup.sh Vwan23RG
+   bash ../../scripts/_cleanup.sh Vwan23
    ```
 
    Sample output
 
    ```sh
-   3-vwan-sec-single-region$    bash ../../scripts/_cleanup.sh Vwan23RG
+   3-vwan-sec-single-region$    bash ../../scripts/_cleanup.sh Vwan23
 
    Resource group: Vwan23RG
 

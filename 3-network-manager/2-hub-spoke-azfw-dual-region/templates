@@ -1,6 +1,6 @@
 ../../0-templates/01-config.tf
-../../0-templates/hub-spoke/03-branches-region1.tf
-../../0-templates/hub-spoke/03-branches-region2.tf
+../../0-templates/hub-spoke/03-branch1.tf
+../../0-templates/hub-spoke/03-branch3.tf
 ../../0-templates/03-conn-inter-branch.tf
 ../../0-templates/04-spokes-region1.tf
 ../../0-templates/04-spokes-region2.tf

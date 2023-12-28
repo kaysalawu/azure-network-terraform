@@ -561,13 +561,13 @@ Observe the firewall logs based on traffic flows generated from our tests.
 2. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
 
    ```sh
-   bash ../../scripts/_cleanup.sh Hs12RG
+   bash ../../scripts/_cleanup.sh Hs12
    ```
 
    Sample output
 
    ```sh
-   2-hub-spoke-azfw-dual-region$    bash ../../scripts/_cleanup.sh Hs12RG
+   2-hub-spoke-azfw-dual-region$    bash ../../scripts/_cleanup.sh Hs12
 
    Resource group: Hs12RG
 

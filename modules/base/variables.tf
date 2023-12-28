@@ -94,21 +94,21 @@ variable "private_dns_ruleset_linked_external_vnets" {
 
 variable "config_vnet" {
   type = object({
-    address_space               = list(string)
-    subnets                     = optional(map(any), {})
-    nsg_id                      = optional(string)
-    dns_servers                 = optional(list(string))
-    enable_private_dns_resolver = optional(bool, false)
-    enable_ars                  = optional(bool, false)
-    enable_er_gateway           = optional(bool, false)
-    nat_gateway_subnet_names    = optional(list(string), [])
-    subnet_names_private_dns    = optional(list(string), [])
+    address_space                = list(string)
+    subnets                      = optional(map(any), {})
+    nsg_id                       = optional(string)
+    dns_servers                  = optional(list(string))
+    enable_private_dns_resolver  = optional(bool, false)
+    enable_ars                   = optional(bool, false)
+    enable_express_route_gateway = optional(bool, false)
+    nat_gateway_subnet_names     = optional(list(string), [])
+    subnet_names_private_dns     = optional(list(string), [])
 
     private_dns_inbound_subnet_name  = optional(string, null)
     private_dns_outbound_subnet_name = optional(string, null)
     ruleset_dns_forwarding_rules     = optional(map(any), {})
 
-    er_gateway_sku = optional(string, "Standard")
+    express_route_gateway_sku = optional(string, "Standard")
 
     vpn_gateway_ip_config0_apipa_addresses = optional(list(string), ["169.254.21.1"])
     vpn_gateway_ip_config1_apipa_addresses = optional(list(string), ["169.254.21.5"])

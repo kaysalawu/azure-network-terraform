@@ -15,10 +15,10 @@ locals {
   branch3_tags = { "lab" = "Vwan24", "nodeType" = "branch" }
   spoke1_tags  = { "lab" = "Vwan24", "nodeType" = "spoke" }
   spoke2_tags  = { "lab" = "Vwan24", "nodeType" = "spoke" }
-  spoke3_tags  = { "lab" = "Vwan24", "nodeType" = "spoke" }
+  spoke3_tags  = { "lab" = "Vwan24", "nodeType" = "float" }
   spoke4_tags  = { "lab" = "Vwan24", "nodeType" = "spoke" }
   spoke5_tags  = { "lab" = "Vwan24", "nodeType" = "spoke" }
-  spoke6_tags  = { "lab" = "Vwan24", "nodeType" = "spoke" }
+  spoke6_tags  = { "lab" = "Vwan24", "nodeType" = "float" }
 }
 
 resource "random_id" "random" {
@@ -197,7 +197,7 @@ locals {
   }
 
   vhub1_features = {
-    er_gateway = {
+    express_route_gateway = {
       enable             = false
       sku                = "ErGw1AZ"
       enable_diagnostics = local.enable_diagnostics
@@ -236,7 +236,7 @@ locals {
   }
 
   vhub2_features = {
-    er_gateway = {
+    express_route_gateway = {
       enable             = false
       sku                = "ErGw1AZ"
       enable_diagnostics = local.enable_diagnostics

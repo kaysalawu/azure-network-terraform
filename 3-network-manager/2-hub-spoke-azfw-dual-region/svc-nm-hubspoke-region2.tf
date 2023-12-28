@@ -3,6 +3,7 @@ locals {
   policy_ng_spokes_prod_region2 = templatefile("../../policies/avnm/ng-spokes-prod-region.json", {
     NETWORK_GROUP_ID = azurerm_network_manager_network_group.ng_spokes_prod_region2.id
     LOCATION         = local.region2
+    LAB_ID           = local.prefix
   })
   policy_cleanup_commands_region2 = [
     "az policy assignment delete -n ${local.prefix}-ng-spokes-prod-region2",

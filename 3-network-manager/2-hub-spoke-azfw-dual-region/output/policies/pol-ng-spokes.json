@@ -8,12 +8,16 @@
       {
         "allOf": [
           {
+            "field": "tags['lab']",
+            "equals": "Ne32"
+          },
+          {
             "field": "tags['env']",
             "equals": "prod"
           },
           {
             "field": "location",
-            "equals": "northeurope"
+            "equals": "eastus"
           },
           {
             "anyOf": [
@@ -30,7 +34,7 @@
   "then": {
     "effect": "addToNetworkGroup",
     "details": {
-      "networkGroupId": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Ne32RG/providers/Microsoft.Network/networkManagers/Ne32-avnm/networkGroups/Ne32-ng-spokes-prod-region2"
+      "networkGroupId": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Ne32RG/providers/Microsoft.Network/networkManagers/Ne32-avnm/networkGroups/Ne32-ng-spokes-prod-region1"
     }
   }
 }

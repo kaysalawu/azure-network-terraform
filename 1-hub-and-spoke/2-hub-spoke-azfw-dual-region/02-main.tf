@@ -15,10 +15,10 @@ locals {
   branch3_tags = { "lab" = "Hs12", "nodeType" = "branch" }
   spoke1_tags  = { "lab" = "Hs12", "nodeType" = "spoke" }
   spoke2_tags  = { "lab" = "Hs12", "nodeType" = "spoke" }
-  spoke3_tags  = { "lab" = "Hs12", "nodeType" = "spoke" }
+  spoke3_tags  = { "lab" = "Hs12", "nodeType" = "float" }
   spoke4_tags  = { "lab" = "Hs12", "nodeType" = "spoke" }
   spoke5_tags  = { "lab" = "Hs12", "nodeType" = "spoke" }
-  spoke6_tags  = { "lab" = "Hs12", "nodeType" = "spoke" }
+  spoke6_tags  = { "lab" = "Hs12", "nodeType" = "float" }
 }
 
 resource "random_id" "random" {

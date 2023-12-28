@@ -24,7 +24,6 @@ module "branch1" {
   config_vnet = {
     address_space = local.branch1_address_space
     subnets       = local.branch1_subnets
-    #nat_gateway_subnet_names = ["${local.branch1_prefix}main", ]
   }
 
   depends_on = [

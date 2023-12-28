@@ -53,7 +53,7 @@ variable "config_security" {
   default = {}
 }
 
-variable "er_gateway" {
+variable "express_route_gateway" {
   type = object({
     enable             = optional(bool, false)
     sku                = optional(string, "ErGw1AZ")

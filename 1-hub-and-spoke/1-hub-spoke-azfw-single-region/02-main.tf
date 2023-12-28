@@ -12,7 +12,7 @@ locals {
   branch2_tags = { "lab" = "Hs11", "nodeType" = "branch" }
   spoke1_tags  = { "lab" = "Hs11", "nodeType" = "spoke" }
   spoke2_tags  = { "lab" = "Hs11", "nodeType" = "spoke" }
-  spoke3_tags  = { "lab" = "Hs11", "nodeType" = "spoke" }
+  spoke3_tags  = { "lab" = "Hs11", "nodeType" = "float" }
 }
 
 resource "random_id" "random" {
