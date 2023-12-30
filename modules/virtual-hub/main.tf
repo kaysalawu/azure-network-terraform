@@ -71,7 +71,7 @@ module "ergw" {
 
 module "azfw" {
   count          = var.config_security.create_firewall ? 1 : 0
-  source         = "../../modules/azfw"
+  source         = "../../modules/azure-firewall"
   resource_group = var.resource_group
   prefix         = local.prefix
   env            = var.env

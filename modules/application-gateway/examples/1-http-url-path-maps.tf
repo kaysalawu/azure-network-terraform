@@ -1,6 +1,6 @@
 
 module "hub1_appgw" {
-  source               = "../../modules/appgw"
+  source               = "../../modules/application-gateway"
   resource_group_name  = var.resource_group_name
   location             = var.location
   app_gateway_name     = "appgw"

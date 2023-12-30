@@ -282,7 +282,7 @@ output "test" {
 
 module "ergw" {
   count          = var.config_ergw.enable ? 1 : 0
-  source         = "../../modules/vnet-gateway-er"
+  source         = "../../modules/vnet-gateway-express-route"
   resource_group = var.resource_group
   prefix         = local.prefix
   env            = var.env
@@ -352,7 +352,7 @@ resource "azurerm_route_server" "ars" {
 
 module "azfw" {
   count          = var.config_firewall.enable ? 1 : 0
-  source         = "../../modules/azfw"
+  source         = "../../modules/azure-firewall"
   resource_group = var.resource_group
   prefix         = local.prefix
   env            = var.env
