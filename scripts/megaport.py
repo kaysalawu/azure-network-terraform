@@ -14,7 +14,7 @@ markets = set(location['market'] for location in data['data'])
 # Set up argument parser
 parser = argparse.ArgumentParser(description='Fetch and filter Megaport locations based on various criteria.')
 parser.add_argument('--mcr', action='store_true', help='Filter locations where MCR is available.')
-parser.add_argument('--market', type=str, choices=markets, help='Filter locations by market code.')
+parser.add_argument('-m', '--market', type=str, help='Filter locations by market code. Markets: ' + ', '.join(markets))
 parser.add_argument('-s', '--status', type=str, choices=statuses, help='Filter locations by their status.')
 parser.add_argument('-o', '--output', type=str, choices=['json', 'csv'], help='Output format: json or csv.')
 

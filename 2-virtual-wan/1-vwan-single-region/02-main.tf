@@ -29,14 +29,12 @@ provider "azurerm" {
 }
 
 provider "azapi" {}
-provider "http" {}
 
 terraform {
-  #required_version = ">= 1.4.6"
   required_providers {
     megaport = {
-      source = "megaport/megaport"
-      #version = "0.1.9"
+      source  = "megaport/megaport"
+      version = "0.4.0"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -124,7 +122,7 @@ locals {
 
   vhub1_features = {
     express_route_gateway = {
-      enable             = true
+      enable             = false
       sku                = "ErGw1AZ"
       enable_diagnostics = local.enable_diagnostics
     }
@@ -485,11 +483,8 @@ locals {
 
 locals {
   main_files = {
-    "output/branch-unbound.sh"   = local.branch_unbound_startup
-    "output/branch-dnsmasq.sh"   = local.branch_dnsmasq_startup
-    "output/branch-dnsmasq-init" = module.branch_dnsmasq_init.cloud_config
-    "output/branch-unbound-init" = module.branch_unbound_init.cloud_config
-    "output/server.sh"           = local.vm_startup
+    "output/branch-unbound.sh" = local.branch_unbound_startup
+    "output/server.sh"         = local.vm_startup
   }
 }
 

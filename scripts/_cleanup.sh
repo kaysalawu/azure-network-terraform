@@ -52,6 +52,15 @@ delete_azure_policies() {
     done
 }
 
+delete_express_route_private_peerings() {
+    local express_route_circuit_ids=$(az network express-route list --query "[].id" -o tsv)
+    for express_route_circuit_id in $express_route_circuit_ids; do
+        local express_route_circuit_name=$(echo $express_route_circuit_id | rev | cut -d'/' -f1 | rev)
+        echo -e "$char_delete Deleting: express route circuit [$express_route_circuit_name] ..."
+        az network express-route peering delete -g $RG --circuit-name $express_route_circuit_name -n AzurePrivatePeering
+    done
+}
+
 delete_azfw_diag_settings() {
     delete_diag_settings "firewall" "az network firewall list"
 }
@@ -73,13 +82,14 @@ delete_app_gateway_diag_settings() {
 }
 
 echo -e "$char_executing Checking for diagnostic settings on resources in $RG ..."
-delete_azfw_diag_settings
-delete_vnetgw_diag_settings
-delete_vpn_gateway_diag_settings
-delete_express_route_gateway_diag_settings
-delete_app_gateway_diag_settings
+# delete_azfw_diag_settings
+# delete_vnetgw_diag_settings
+# delete_vpn_gateway_diag_settings
+# delete_express_route_gateway_diag_settings
+# delete_app_gateway_diag_settings
+delete_express_route_private_peerings
 
-echo -e "$char_executing Checking for azure policies in $RG ..."
-delete_azure_policies
+# echo -e "$char_executing Checking for azure policies in $RG ..."
+# delete_azure_policies
 
 echo "Done!"

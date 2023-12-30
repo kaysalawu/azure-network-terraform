@@ -106,10 +106,10 @@ ipv6 forwarding
 !
 line vty
 !
-ip route 0.0.0.0/0 10.11.1.1
-ip route 192.168.11.69/32 10.11.1.1
-ip route 192.168.11.68/32 10.11.1.1
-ip route 10.2.0.0/16 10.11.1.1
+ip route 0.0.0.0/0 10.22.1.1
+ip route 192.168.22.69/32 10.22.1.1
+ip route 192.168.22.68/32 10.22.1.1
+ip route 10.5.0.0/16 10.22.1.1
 !
 
 EOF
@@ -119,16 +119,17 @@ cat <<EOF > /etc/quagga/bgpd.conf
 !
 log file /var/log/quagga/bgpd.log informational
 !
-router bgp 65010
-  bgp router-id 10.11.1.4
-  neighbor 192.168.11.69 remote-as 65515
-  neighbor 192.168.11.69 ebgp-multihop 255
-  neighbor 192.168.11.69 soft-reconfiguration inbound
-  neighbor 192.168.11.68 remote-as 65515
-  neighbor 192.168.11.68 ebgp-multihop 255
-  neighbor 192.168.11.68 soft-reconfiguration inbound
-  network 10.11.0.0/24
-  network 10.2.0.0/16
+router bgp 65020
+  bgp router-id 10.22.1.9
+  neighbor 192.168.22.69 remote-as 65515
+  neighbor 192.168.22.69 ebgp-multihop 255
+  neighbor 192.168.22.69 soft-reconfiguration inbound
+  neighbor 192.168.22.68 remote-as 65515
+  neighbor 192.168.22.68 ebgp-multihop 255
+  neighbor 192.168.22.68 soft-reconfiguration inbound
+  network 10.22.0.0/24
+  network 10.5.0.0/16
+  network 20.223.210.193/32
 !
   address-family ipv6
   exit-address-family
@@ -156,11 +157,10 @@ systemctl start bgpd
 
 cat <<EOF > /usr/local/bin/ping-ip
 echo -e "\n ping ip ...\n"
-echo "branch1 - 10.10.0.5 -\$(ping -qc2 -W1 10.10.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "hub1    - 10.11.0.5 -\$(ping -qc2 -W1 10.11.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke1  - 10.1.0.5 -\$(ping -qc2 -W1 10.1.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke2  - 10.2.0.5 -\$(ping -qc2 -W1 10.2.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "internet - icanhazip.com -\$(ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "branch3 - 10.30.0.5 -\$(ping -qc2 -W1 10.30.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "hub2    - 10.22.0.5 -\$(ping -qc2 -W1 10.22.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "spoke4  - 10.4.0.5 -\$(ping -qc2 -W1 10.4.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "spoke5  - 10.5.0.5 -\$(ping -qc2 -W1 10.5.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 EOF
 chmod a+x /usr/local/bin/ping-ip
 
@@ -168,11 +168,10 @@ chmod a+x /usr/local/bin/ping-ip
 
 cat <<EOF > /usr/local/bin/ping-dns
 echo -e "\n ping dns ...\n"
-echo "vm.branch1.corp - \$(dig +short vm.branch1.corp | tail -n1) -\$(ping -qc2 -W1 vm.branch1.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "vm.hub1.we.az.corp - \$(dig +short vm.hub1.we.az.corp | tail -n1) -\$(ping -qc2 -W1 vm.hub1.we.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "vm.spoke1.we.az.corp - \$(dig +short vm.spoke1.we.az.corp | tail -n1) -\$(ping -qc2 -W1 vm.spoke1.we.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "vm.spoke2.we.az.corp - \$(dig +short vm.spoke2.we.az.corp | tail -n1) -\$(ping -qc2 -W1 vm.spoke2.we.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "icanhazip.com - \$(dig +short icanhazip.com | tail -n1) -\$(ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "vm.branch3.corp - \$(dig +short vm.branch3.corp | tail -n1) -\$(ping -qc2 -W1 vm.branch3.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "vm.hub2.az.corp - \$(dig +short vm.hub2.az.corp | tail -n1) -\$(ping -qc2 -W1 vm.hub2.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "vm.spoke4.az.corp - \$(dig +short vm.spoke4.az.corp | tail -n1) -\$(ping -qc2 -W1 vm.spoke4.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "vm.spoke5.az.corp - \$(dig +short vm.spoke5.az.corp | tail -n1) -\$(ping -qc2 -W1 vm.spoke5.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 EOF
 chmod a+x /usr/local/bin/ping-dns
 
@@ -180,12 +179,11 @@ chmod a+x /usr/local/bin/ping-dns
 
 cat <<EOF > /usr/local/bin/curl-ip
 echo -e "\n curl ip ...\n"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.10.0.5) - branch1 (10.10.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.11.0.5) - hub1    (10.11.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.1.0.5) - spoke1  (10.1.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.2.0.5) - spoke2  (10.2.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.3.0.5) - spoke3  (10.3.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - internet (icanhazip.com)"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.30.0.5) - branch3 (10.30.0.5)"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.22.0.5) - hub2    (10.22.0.5)"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.4.0.5) - spoke4  (10.4.0.5)"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.5.0.5) - spoke5  (10.5.0.5)"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.6.0.5) - spoke6  (10.6.0.5)"
 EOF
 chmod a+x /usr/local/bin/curl-ip
 
@@ -193,14 +191,12 @@ chmod a+x /usr/local/bin/curl-ip
 
 cat <<EOF > /usr/local/bin/curl-dns
 echo -e "\n curl dns ...\n"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.branch1.corp) - vm.branch1.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.hub1.we.az.corp) - vm.hub1.we.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke3.p.hub1.we.az.corp) - spoke3.p.hub1.we.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke1.we.az.corp) - vm.spoke1.we.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke2.we.az.corp) - vm.spoke2.we.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke3.we.az.corp) - vm.spoke3.we.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vwan21-spoke3-36ba-app.azurewebsites.net) - vwan21-spoke3-36ba-app.azurewebsites.net"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.branch3.corp) - vm.branch3.corp"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.hub2.az.corp) - vm.hub2.az.corp"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null pep.hub2.az.corp) - pep.hub2.az.corp"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke4.az.corp) - vm.spoke4.az.corp"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke5.az.corp) - vm.spoke5.az.corp"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke6.az.corp) - vm.spoke6.az.corp"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 
@@ -208,24 +204,13 @@ chmod a+x /usr/local/bin/curl-dns
 
 cat <<EOF > /usr/local/bin/trace-ip
 echo -e "\n trace ip ...\n"
-traceroute 10.10.0.5
-echo -e "branch1\n"
-traceroute 10.11.0.5
-echo -e "hub1   \n"
-traceroute 10.1.0.5
-echo -e "spoke1 \n"
-traceroute 10.2.0.5
-echo -e "spoke2 \n"
-traceroute icanhazip.com
-echo -e "internet\n"
+traceroute 10.30.0.5
+echo -e "branch3\n"
+traceroute 10.22.0.5
+echo -e "hub2   \n"
+traceroute 10.4.0.5
+echo -e "spoke4 \n"
+traceroute 10.5.0.5
+echo -e "spoke5 \n"
 EOF
 chmod a+x /usr/local/bin/trace-ip
-
-# dns-info
-
-cat <<EOF > /usr/local/bin/dns-info
-echo -e "\n resolvectl ...\n"
-resolvectl status
-EOF
-chmod a+x /usr/local/bin/dns-info
-

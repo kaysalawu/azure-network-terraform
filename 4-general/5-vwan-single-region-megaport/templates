@@ -1,0 +1,9 @@
+../../0-templates/01-config.tf
+../../0-templates/vwan/03-branch1.tf
+../../0-templates/04-spokes-region1.tf
+../../0-templates/05-hub1.tf
+../../0-templates/vwan/06-vwan.tf
+../../0-templates/vwan/07-vhub1.tf
+../../0-templates/vwan/08-conn-hub1.tf
+../../0-templates/services-region1.tf
+../../0-templates/outputs-single-region.tf

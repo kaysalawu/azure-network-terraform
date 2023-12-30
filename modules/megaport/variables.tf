@@ -6,8 +6,12 @@ variable "prefix" {
   default     = "megaport"
 }
 
-variable "location" {
+variable "azure_location" {
   description = "azure region"
+}
+
+variable "megaport_location" {
+  description = "megaport location"
 }
 
 variable "resource_group" {
@@ -15,77 +19,36 @@ variable "resource_group" {
   type        = string
 }
 
-variable "access_key" {
-  description = "megaport access key"
-}
-
-variable "secret_key" {
-  description = "megaport secret key"
-}
-
-variable "megaport_locations" {
-  description = "megaport locations"
-  type        = list(string)
-  default = [
-    "Telehouse North",
-    "Equinix AM1",
-    "Interxion FRA6"
-  ]
-}
-
 variable "mcr" {
   description = "megaport cloud router"
   type = list(object({
     name          = string
-    location      = string
     port_speed    = number
     requested_asn = number
   }))
-  default = [
-    {
-      name          = "er1"
-      location      = "Interxion FRA6"
-      port_speed    = 1000
-      requested_asn = 64512
-    }
-  ]
+  default = []
 }
 
-variable "connection" {
-  description = "megaport connection"
+variable "circuits" {
+  description = "megaport circuits"
   type = list(object({
-    vxc_name       = string
-    rate_limit     = number
-    requested_vlan = optional(number, 0)
-    service_key    = string
-    circuit_name   = string
-    mcr_name       = string
+    name                  = string
+    location              = string
+    peering_location      = string
+    service_provider_name = optional(string, "Megaport")
+    bandwidth_in_mbps     = optional(number, 50)
+    requested_vlan        = optional(number, 0)
+    mcr_name              = string
+    sku_tier              = optional(string, "Standard")
+    sku_family            = optional(string, "MeteredData")
 
-    private_peering = optional(object({
-      peer_asn         = number
-      requested_vlan   = number
-      primary_subnet   = optional(string, "172.16.0.0/30")
-      secondary_subnet = optional(string, "172.16.0.4/30")
-      shared_key       = optional(string, null)
-    }), null)
-
-    microsoft_peering = optional(object({
-      peer_asn         = number
-      requested_vlan   = number
-      primary_subnet   = string
-      secondary_subnet = string
-      shared_key       = string
-      public_prefixes  = list(string)
-    }), null)
-
-    gateway_connection = optional(object({
-      name                       = string
-      virtual_network_gateway_id = string
-      express_route_circuit_id   = string
-      authorization_key          = string
-    }), null)
-
-    auto_create_private_peering   = optional(bool, false)
+    primary_peer_address_prefix   = string
+    secondary_peer_address_prefix = string
+    virtual_network_gateway_id    = optional(string, null)
+    express_route_gateway_id      = optional(string, null)
+    auto_create_private_peering   = optional(bool, true)
     auto_create_microsoft_peering = optional(bool, false)
   }))
+  default = []
 }
+

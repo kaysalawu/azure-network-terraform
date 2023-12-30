@@ -28,6 +28,11 @@ locals {
   csp_range7 = "172.16.0.24/30"
   csp_range8 = "172.16.0.28/30"
 
+  megaport_asn1 = "64511"
+  megaport_asn2 = "64512"
+  megaport_asn3 = "64513"
+  megaport_asn4 = "64514"
+
   default_region = "westeurope"
 
   onprem_domain  = "corp"

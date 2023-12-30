@@ -88,34 +88,7 @@ module "branch2_vm" {
   depends_on = [
     module.branch2,
     module.branch2_dns,
-    #module.branch2_nva,
   ]
-}
-
-####################################################
-# express route
-####################################################
-
-# circuits
-#----------------------------
-
-resource "azurerm_express_route_circuit" "branch2_er" {
-  resource_group_name   = azurerm_resource_group.rg.name
-  name                  = "${local.branch2_prefix}er"
-  location              = local.branch2_location
-  service_provider_name = "Megaport"
-  peering_location      = "Frankfurt"
-  bandwidth_in_mbps     = 50
-  sku {
-    tier   = "Standard"
-    family = "MeteredData"
-  }
-}
-
-resource "azurerm_express_route_circuit_authorization" "branch2_er" {
-  resource_group_name        = azurerm_resource_group.rg.name
-  name                       = "${local.branch2_prefix}er"
-  express_route_circuit_name = azurerm_express_route_circuit.branch2_er.name
 }
 
 ####################################################
@@ -124,7 +97,6 @@ resource "azurerm_express_route_circuit_authorization" "branch2_er" {
 
 locals {
   branch2_files = {
-    #"output/branch2-nva.sh" = local.branch2_nva_init
     "output/branch2-vm.sh" = local.branch2_vm_init
   }
 }
