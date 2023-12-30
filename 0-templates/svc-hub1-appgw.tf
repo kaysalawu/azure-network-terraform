@@ -6,7 +6,7 @@ resource "azurerm_user_assigned_identity" "hub1_appgw" {
 }
 
 module "hub1_appgw" {
-  source               = "../../modules/appgw"
+  source               = "../../modules/application-gateway"
   resource_group_name  = azurerm_resource_group.rg.name
   location             = local.hub1_location
   app_gateway_name     = "${local.hub1_prefix}appgw"

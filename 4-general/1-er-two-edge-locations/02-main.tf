@@ -313,7 +313,7 @@ resource "azurerm_firewall_policy" "firewall_policy" {
 
 module "fw_policy_rule_collection_group" {
   for_each           = local.regions
-  source             = "../../modules/fw-policy"
+  source             = "../../modules/firewall-policy"
   prefix             = local.prefix
   firewall_policy_id = azurerm_firewall_policy.firewall_policy[each.key].id
 
