@@ -10,11 +10,11 @@ proposal AZURE-IKE-PROPOSAL
 match address local 10.10.1.9
 !
 crypto ikev2 keyring AZURE-KEYRING
-peer 20.124.162.203
-address 20.124.162.203
+peer 20.241.162.252
+address 20.241.162.252
 pre-shared-key changeme
-peer 20.124.165.5
-address 20.124.165.5
+peer 20.241.162.198
+address 20.241.162.198
 pre-shared-key changeme
 peer 10.30.1.9
 address 10.30.1.9
@@ -22,8 +22,8 @@ pre-shared-key changeme
 !
 crypto ikev2 profile AZURE-IKE-PROPOSAL
 match address local 10.10.1.9
-match identity remote address 20.124.162.203 255.255.255.255
-match identity remote address 20.124.165.5 255.255.255.255
+match identity remote address 20.241.162.252 255.255.255.255
+match identity remote address 20.241.162.198 255.255.255.255
 match identity remote address 10.30.1.9 255.255.255.255
 authentication remote pre-share
 authentication local pre-share
@@ -44,7 +44,7 @@ ip address 10.10.10.1 255.255.255.252
 tunnel mode ipsec ipv4
 ip tcp adjust-mss 1350
 tunnel source 10.10.1.9
-tunnel destination 20.124.162.203
+tunnel destination 20.241.162.252
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
 interface Tunnel1
@@ -52,7 +52,7 @@ ip address 10.10.10.5 255.255.255.252
 tunnel mode ipsec ipv4
 ip tcp adjust-mss 1350
 tunnel source 10.10.1.9
-tunnel destination 20.124.165.5
+tunnel destination 20.241.162.198
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
 interface Tunnel2

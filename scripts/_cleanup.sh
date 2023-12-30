@@ -82,14 +82,16 @@ delete_app_gateway_diag_settings() {
 }
 
 echo -e "$char_executing Checking for diagnostic settings on resources in $RG ..."
-# delete_azfw_diag_settings
-# delete_vnetgw_diag_settings
-# delete_vpn_gateway_diag_settings
-# delete_express_route_gateway_diag_settings
-# delete_app_gateway_diag_settings
-delete_express_route_private_peerings
+delete_azfw_diag_settings
+delete_vnetgw_diag_settings
+delete_vpn_gateway_diag_settings
+delete_express_route_gateway_diag_settings
+delete_app_gateway_diag_settings
 
-# echo -e "$char_executing Checking for azure policies in $RG ..."
-# delete_azure_policies
+echo -e "$char_executing Checking for azure policies in $RG ..."
+delete_azure_policies
+
+# echo -e "$char_executing Checking for express route private peerings in $RG ..."
+# delete_express_route_private_peerings
 
 echo "Done!"

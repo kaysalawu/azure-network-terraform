@@ -1,10 +1,10 @@
 
 output "vpngw" {
-  value = module.vpngw[0].gateway
+  value = try(module.vpngw[0].gateway, {})
 }
 
 output "ergw" {
-  value = module.ergw[0].gateway
+  value = try(module.ergw[0].gateway, {})
 }
 
 output "vpngw_public_ip0" {

@@ -14,7 +14,7 @@ output "subnets" {
 #-----------------------------
 
 output "private_dns_forwarding_ruleset" {
-  value = try(azurerm_private_dns_resolver_dns_forwarding_ruleset.this[0], {})
+  value = try(module.dns_resolver[0].private_dns_forwarding_ruleset, {})
 }
 
 output "private_dns_zone" {
@@ -22,15 +22,15 @@ output "private_dns_zone" {
 }
 
 output "private_dns_resolver" {
-  value = try(azurerm_private_dns_resolver.this[0], {})
+  value = try(module.dns_resolver[0].private_dns_resolver, {})
 }
 
 output "private_dns_inbound_ep" {
-  value = try(azurerm_private_dns_resolver_inbound_endpoint.this[0], {})
+  value = try(module.dns_resolver[0].private_dns_inbound_ep, {})
 }
 
 output "private_dns_outbound_ep" {
-  value = try(azurerm_private_dns_resolver_outbound_endpoint.this[0], {})
+  value = try(module.dns_resolver[0].private_dns_outbound_ep, {})
 }
 
 # ars

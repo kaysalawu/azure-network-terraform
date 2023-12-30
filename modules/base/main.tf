@@ -107,89 +107,28 @@ resource "azurerm_private_dns_zone_virtual_network_link" "external" {
 # dns resolver
 ####################################################
 
-resource "azurerm_private_dns_resolver" "this" {
-  count               = var.config_vnet.enable_private_dns_resolver ? 1 : 0
-  resource_group_name = var.resource_group
-  name                = "${local.prefix}dns-resolver"
-  location            = var.location
-  virtual_network_id  = azurerm_virtual_network.this.id
-  timeouts {
-    create = "60m"
-  }
+module "dns_resolver" {
+  count              = var.config_vnet.enable_private_dns_resolver ? 1 : 0
+  source             = "../../modules/private-dns-resolver"
+  resource_group     = var.resource_group
+  prefix             = local.prefix
+  env                = var.env
+  location           = var.location
+  virtual_network_id = azurerm_virtual_network.this.id
+  tags               = var.tags
+
+  private_dns_inbound_subnet_id             = azurerm_subnet.this["DnsResolverInboundSubnet"].id
+  private_dns_outbound_subnet_id            = azurerm_subnet.this["DnsResolverOutboundSubnet"].id
+  ruleset_dns_forwarding_rules              = var.config_vnet.ruleset_dns_forwarding_rules
+  private_dns_ruleset_linked_external_vnets = var.private_dns_ruleset_linked_external_vnets
+
+  create_dashboard   = var.config_ergw.create_dashboard
+  enable_diagnostics = var.config_ergw.enable_diagnostics
+
   depends_on = [
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
   ]
-  tags = var.tags
-}
-
-resource "azurerm_private_dns_resolver_inbound_endpoint" "this" {
-  count                   = var.config_vnet.enable_private_dns_resolver ? 1 : 0
-  name                    = "${local.prefix}dns-in"
-  private_dns_resolver_id = azurerm_private_dns_resolver.this[0].id
-  location                = var.location
-  ip_configurations {
-    private_ip_allocation_method = "Dynamic"
-    subnet_id                    = azurerm_subnet.this["DnsResolverInboundSubnet"].id
-  }
-  timeouts {
-    create = "60m"
-  }
-}
-
-resource "azurerm_private_dns_resolver_outbound_endpoint" "this" {
-  count                   = var.config_vnet.enable_private_dns_resolver ? 1 : 0
-  name                    = "${local.prefix}dns-out"
-  private_dns_resolver_id = azurerm_private_dns_resolver.this[0].id
-  location                = var.location
-  subnet_id               = azurerm_subnet.this["DnsResolverOutboundSubnet"].id
-  timeouts {
-    create = "60m"
-  }
-}
-
-# ruleset
-
-resource "azurerm_private_dns_resolver_dns_forwarding_ruleset" "this" {
-  count                                      = var.config_vnet.enable_private_dns_resolver ? 1 : 0
-  resource_group_name                        = var.resource_group
-  name                                       = "${local.prefix}ruleset"
-  location                                   = var.location
-  private_dns_resolver_outbound_endpoint_ids = [azurerm_private_dns_resolver_outbound_endpoint.this[0].id]
-}
-
-# dns resolver links (local)
-
-resource "azurerm_private_dns_resolver_virtual_network_link" "this" {
-  count                     = var.config_vnet.enable_private_dns_resolver ? 1 : 0
-  name                      = "${local.prefix}vnet-link"
-  dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.this[0].id
-  virtual_network_id        = azurerm_virtual_network.this.id
-}
-
-# dns resolver links (external)
-
-resource "azurerm_private_dns_resolver_virtual_network_link" "external" {
-  for_each                  = { for k, v in var.private_dns_ruleset_linked_external_vnets : k => v if var.config_vnet.enable_private_dns_resolver }
-  name                      = "${local.prefix}${each.key}-vnet-link"
-  dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.this[0].id
-  virtual_network_id        = each.value
-}
-
-resource "azurerm_private_dns_resolver_forwarding_rule" "this" {
-  for_each                  = { for k, v in var.config_vnet.ruleset_dns_forwarding_rules : k => v if var.config_vnet.enable_private_dns_resolver }
-  name                      = "${local.prefix}${each.key}-rule"
-  dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.this[0].id
-  domain_name               = "${each.value.domain}."
-  enabled                   = true
-
-  dynamic "target_dns_servers" {
-    for_each = each.value.target_dns_servers
-    content {
-      ip_address = target_dns_servers.value.ip_address
-      port       = target_dns_servers.value.port
-    }
-  }
 }
 
 ####################################################

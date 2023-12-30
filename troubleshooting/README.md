@@ -3,22 +3,172 @@
 
 Errors
 
-- [1. Network Security Group - "Context Deadline Exceeded"](#1-network-security-group---context-deadline-exceeded)
-- [2. Network Security Group - "Already Exists"](#2-network-security-group---already-exists)
-- [3. Subnet - "Already Exists"](#3-subnet---already-exists)
-- [4. Backend Adress Pool - "Error Updating"](#4-backend-adress-pool---error-updating)
-- [5. Azure Firewall Diagnostic Setting - "Already Exists"](#5-azure-firewall-diagnostic-setting---already-exists)
-- [6. Virtual Machine Extension - "Already Exists"](#6-virtual-machine-extension---already-exists)
-- [7. Azure Policy Assignment - "Already Exists"](#7-azure-policy-assignment---already-exists)
-- [8. Waitiing for Virtual Network Peering"](#8-waitiing-for-virtual-network-peering)
+- [1. Diagnostic Setting - "Already Exists"](#1-diagnostic-setting---already-exists)
+- [2. Azure Policy Assignment - "Already Exists"](#2-azure-policy-assignment---already-exists)
+- [3. Waiting for Virtual Network Peering"](#3-waiting-for-virtual-network-peering)
+- [4. Backend Address Pool - "Error Updating"](#4-backend-address-pool---error-updating)
+- [5. Resource - "Context Deadline Exceeded"](#5-resource---context-deadline-exceeded)
+- [6. Network Security Group - "Already Exists"](#6-network-security-group---already-exists)
+- [7. Subnet - "Already Exists"](#7-subnet---already-exists)
+- [8. Virtual Machine Extension - "Already Exists"](#8-virtual-machine-extension---already-exists)
 
-Terraform seializes some resource creation which creates situations where some resources wait for a long time for dependent resources to be created. There are scenarios where you might encounter errors after running terraform to deploy any of the labs. This could be as a result of occassional race conditions that come up because some terraform resources are dependent on Azure resources that take a long time to deploy - such as virtual network gateways.
+Terraform serializes some resource creation which creates situations where some resources wait for a long time for dependent resources to be created. There are scenarios where you might encounter errors after running terraform to deploy any of the labs. This could be as a result of occasional race conditions that come up because some terraform resources are dependent on Azure resources that take a long time to deploy - such as virtual network gateways.
 
-The folowing are some of the common errors and how to resolve them.
+The following are some of the common errors and how to resolve them.
 
-## 1. Network Security Group - "Context Deadline Exceeded"
 
-This occurs when terraform times out on associating the NSG to a subnet.
+## 1. Diagnostic Setting - "Already Exists"
+
+This error occurs when terraform is trying to create a diagnostic setting that already exists. This is because the lab had been previously deployed. Diagnostic settings for resources are part of subscriptions and not resource groups. This means that if you have a resource group with a resource that has a diagnostic setting, and you delete the resource group, the diagnostic setting will still exist. When you re-create the same resource group and same resources, you will get this error.
+
+**Example:**
+
+```sh
+│ Error: A resource with the ID "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan24RG/providers/Microsoft.Network/azureFirewalls/Vwan24-vhub2-azfw|Vwan24-vhub2-azfw-diag" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_monitor_diagnostic_setting" for more information.
+│
+│   with module.vhub2.azurerm_monitor_diagnostic_setting.this[0],
+│   on ../../modules/virtual-hub/main.tf line 74, in resource "azurerm_monitor_diagnostic_setting" "this":
+│   74: resource "azurerm_monitor_diagnostic_setting" "this" {
+```
+
+**Solution:**
+
+1. Navigate to the **Cleanup** section of the current lab and run the [_cleanup.sh script](../scripts/_cleanup.sh) to delete all diagnostic settings for the resource group.
+
+ See an example for [Secured Hub and Spoke - Dual Region](../1-hub-and-spoke/2-hub-spoke-azfw-dual-region/README.md#cleanup) below which deletes Azure firewall and vnet gateway diagnostic settings.
+
+ Sample output
+
+ ```sh
+ 2-hub-spoke-azfw-dual-region$    bash ../../scripts/_cleanup.sh Hs12
+
+ Resource group: Hs12RG
+
+ ⏳ Checking for diagnostic settings on resources in Hs12RG ...
+ ➜  Checking firewall ...
+      ❌ Deleting: diag setting [Hs12-hub1-azfw-diag] for firewall [Hs12-hub1-azfw] ...
+      ❌ Deleting: diag setting [Hs12-hub2-azfw-diag] for firewall [Hs12-hub2-azfw] ...
+ ➜  Checking vnet gateway ...
+      ❌ Deleting: diag setting [Hs12-hub1-vpngw-diag] for vnet gateway [Hs12-hub1-vpngw] ...
+      ❌ Deleting: diag setting [Hs12-hub2-vpngw-diag] for vnet gateway [Hs12-hub2-vpngw] ...
+ ➜  Checking vpn gateway ...
+ ➜  Checking er gateway ...
+ ➜  Checking app gateway ...
+ ⏳ Checking for azure policies in Vwan24RG ...
+ Done!
+ ```
+2. Re-apply terraform to create the diagnostic settings and deploy the remaining lab resources.
+```sh
+terraform plan
+terraform apply
+```
+
+## 2. Azure Policy Assignment - "Already Exists"
+
+This error occurs when terraform is trying to create an Azure policy assignment that already exists. This is because the lab had been previously deployed. Azure policy assignments are part of subscriptions and not resource groups. This means that if you have a resource group with a resource that has an Azure policy assignment, and you delete the resource group, the Azure policy assignment will still exist. When you re-create the same resource group and same resources, you will get this error.
+
+**Example:**
+
+```sh
+Error: A resource with the ID "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/providers/Microsoft.Authorization/policyAssignments/Ne31-ng-spokes-prod-region1" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_subscription_policy_assignment" for more information.
+│
+│   with azurerm_subscription_policy_assignment.ng_spokes_prod_region1,
+│   on svc-nm-common.tf line 57, in resource "azurerm_subscription_policy_assignment" "ng_spokes_prod_region1":
+│   57: resource "azurerm_subscription_policy_assignment" "ng_spokes_prod_region1" {
+```
+
+**Solution:**
+
+1. Navigate to the **Cleanup** section of the current lab and run the [_cleanup.sh script](../scripts/_cleanup.sh) to delete all Azure policy assignments for the resource group. The script also deletes diagnostic settings for the resource group.
+
+See an example for [Secured Hub and Spoke - Dual Region (Virtual Network Manager](../3-network-manager/2-hub-spoke-azfw-dual-region/README.md#cleanup) below which deletes Azure policy assignments.
+
+Sample output
+
+```sh
+2-hub-spoke-azfw-dual-region$    bash ../../scripts/_cleanup.sh Ne32
+
+Resource group: Ne32RG
+
+⏳ Checking for diagnostic settings on resources in Ne32RG ...
+➜  Checking firewall ...
+    ❌ Deleting: diag setting [Ne32-hub1-azfw-diag] for firewall [Ne32-hub1-azfw] ...
+    ❌ Deleting: diag setting [Ne32-hub2-azfw-diag] for firewall [Ne32-hub2-azfw] ...
+➜  Checking vnet gateway ...
+    ❌ Deleting: diag setting [Ne32-hub1-vpngw-diag] for vnet gateway [Ne32-hub1-vpngw] ...
+    ❌ Deleting: diag setting [Ne32-hub2-vpngw-diag] for vnet gateway [Ne32-hub2-vpngw] ...
+➜  Checking vpn gateway ...
+➜  Checking er gateway ...
+➜  Checking app gateway ...
+⏳ Checking for azure policies in Ne32RG ...
+    ❌ Deleting: policy assignment [Ne32-ng-spokes-prod-region1] ...
+    ❌ Deleting: policy definition [Ne32-ng-spokes-prod-region1] ...
+    ❌ Deleting: policy assignment [Ne32-ng-spokes-prod-region2] ...
+    ❌ Deleting: policy definition [Ne32-ng-spokes-prod-region2] ...
+Done!
+```
+
+1. Re-apply terraform to create the Azure policy assignments and deploy the remaining lab resources.
+```sh
+terraform plan
+terraform apply
+```
+
+  ## 3. Waiting for Virtual Network Peering"
+
+  This error could occur due to simultaneous Vnet peering creation operations.
+
+  **Example:**
+
+```sh
+Error: waiting for Virtual Network Peering: (Name "Vwan22-hub2-to-spoke5-peering" / Virtual Network Name "Vwan22-hub2-vnet" / Resource Group "Vwan22RG") to be created: network.VirtualNetworkPeeringsClient#CreateOrUpdate: Failure sending request: StatusCode=400 -- Original Error: Code="ReferencedResourceNotProvisioned" Message="Cannot proceed with operation because resource /subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan22RG/providers/Microsoft.Network/virtualNetworks/Vwan22-hub2-vnet used by resource /subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan22RG/providers/Microsoft.Network/virtualNetworks/Vwan22-hub2-vnet/virtualNetworkPeerings/Vwan22-hub2-to-spoke5-peering is not in Succeeded state. Resource is in Updating state and the last operation that updated/is updating the resource is PutSubnetOperation." Details=[]
+│
+│   with azurerm_virtual_network_peering.hub2_to_spoke5_peering,
+│   on 08-conn-hub2.tf line 23, in resource "azurerm_virtual_network_peering" "hub2_to_spoke5_peering":
+│   23: resource "azurerm_virtual_network_peering" "hub2_to_spoke5_peering" {
+```
+
+ **Solution:**
+
+ Re-apply terraform to create the virtual network peering and deploy the remaining lab resources.
+ ```sh
+ terraform plan
+ terraform apply
+ ```
+
+## 4. Backend Address Pool - "Error Updating"
+
+This error could occur when terraform is trying to update the backend address pool of a load balancer. This could be as a result of the load balancer being in a state of updating from a previous terraform run, or as a result of race condition encountered when deploying multiple terraform resources at the same time.
+
+**Example:**
+
+```sh
+│ Error: updating Backend Address Pool Address: (Address Name "Vwan23-hub1-nva-beap-addr" / Backend Address Pool Name "Vwan23-hub1-nva-beap" / Load Balancer Name "Vwan23-hub1-nva-lb" / Resource Group "Vwan23RG"): network.LoadBalancerBackendAddressPoolsClient#CreateOrUpdate: Failure sending request: StatusCode=409 -- Original Error: Code="AnotherOperationInProgress" Message="Another operation on this or dependent resource is in progress. To retrieve status of the operation use uri: https://management.azure.com/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/providers/Microsoft.Network/locations/westeurope/operations/5d66a0e0-e08b-4ecf-aee5-0ff5a461962b?api-version=2022-07-01." Details=[]
+│
+│   with azurerm_lb_backend_address_pool_address.hub1_nva,
+│   on 08-conn-hub1.tf line 208, in resource "azurerm_lb_backend_address_pool_address" "hub1_nva":
+│  208: resource "azurerm_lb_backend_address_pool_address" "hub1_nva" {
+│
+│ updating Backend Address Pool Address: (Address Name "Vwan23-hub1-nva-beap-addr" / Backend Address Pool Name "Vwan23-hub1-nva-beap" / Load Balancer Name "Vwan23-hub1-nva-lb" / Resource Group "Vwan23RG"):
+│ network.LoadBalancerBackendAddressPoolsClient#CreateOrUpdate: Failure sending request: StatusCode=409 -- Original Error: Code="AnotherOperationInProgress" Message="Another operation on this or dependent resource is in
+│ progress. To retrieve status of the operation use uri:
+│ https://management.azure.com/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/providers/Microsoft.Network/locations/westeurope/operations/5d66a0e0-e08b-4ecf-aee5-0ff5a461962b?api-version=2022-07-01." Details=[]
+ ```
+
+ **Solution:**
+
+Re-apply terraform
+```sh
+terraform plan
+terraform apply
+```
+
+Repeat the above steps for all similar errors.
+
+
+## 5. Resource - "Context Deadline Exceeded"
+
+This occurs when terraform occasionally times out while waiting to create a resource.
 
 **Example:**
 
@@ -45,9 +195,7 @@ terraform plam
 terraform apply
 ```
 
-Repeat the above steps for all similar errors.
-
-## 2. Network Security Group - "Already Exists"
+## 6. Network Security Group - "Already Exists"
 
 This occurs when terraform is trying to apply an NSG rule to a subnet which already has the NSG associated with the subnet from the previous terraform run.
 
@@ -80,7 +228,7 @@ terraform apply
 
 Repeat the above steps for all similar errors.
 
-## 3. Subnet - "Already Exists"
+## 7. Subnet - "Already Exists"
 
 This occurs when terraform is attempting to create a subnet which already exists from a previous terraform run.
 
@@ -105,87 +253,7 @@ terraform apply
 
 Repeat the above steps for all similar errors.
 
-## 4. Backend Adress Pool - "Error Updating"
-
-This error could occur when terraform is trying to update the backend address pool of a load balancer. This could be as a result of the load balancer being in a state of updating from a previous terraform run, or as a result of race condition encountered when deploying multiple terraform resources at the same time.
-
-**Example:**
-
-```sh
-│ Error: updating Backend Address Pool Address: (Address Name "Vwan23-hub1-nva-beap-addr" / Backend Address Pool Name "Vwan23-hub1-nva-beap" / Load Balancer Name "Vwan23-hub1-nva-lb" / Resource Group "Vwan23RG"): network.LoadBalancerBackendAddressPoolsClient#CreateOrUpdate: Failure sending request: StatusCode=409 -- Original Error: Code="AnotherOperationInProgress" Message="Another operation on this or dependent resource is in progress. To retrieve status of the operation use uri: https://management.azure.com/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/providers/Microsoft.Network/locations/westeurope/operations/5d66a0e0-e08b-4ecf-aee5-0ff5a461962b?api-version=2022-07-01." Details=[]
-│
-│   with azurerm_lb_backend_address_pool_address.hub1_nva,
-│   on 08-conn-hub1.tf line 208, in resource "azurerm_lb_backend_address_pool_address" "hub1_nva":
-│  208: resource "azurerm_lb_backend_address_pool_address" "hub1_nva" {
-│
-│ updating Backend Address Pool Address: (Address Name "Vwan23-hub1-nva-beap-addr" / Backend Address Pool Name "Vwan23-hub1-nva-beap" / Load Balancer Name "Vwan23-hub1-nva-lb" / Resource Group "Vwan23RG"):
-│ network.LoadBalancerBackendAddressPoolsClient#CreateOrUpdate: Failure sending request: StatusCode=409 -- Original Error: Code="AnotherOperationInProgress" Message="Another operation on this or dependent resource is in
-│ progress. To retrieve status of the operation use uri:
-│ https://management.azure.com/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/providers/Microsoft.Network/locations/westeurope/operations/5d66a0e0-e08b-4ecf-aee5-0ff5a461962b?api-version=2022-07-01." Details=[]
- ```
-
- **Solution:**
-
-Re-apply terraform
-```sh
-terraform plan
-terraform apply
-```
-
-Repeat the above steps for all similar errors.
-
-## 5. Azure Firewall Diagnostic Setting - "Already Exists"
-
-This error could occur when terraform is trying to create a diagnostic setting for Azure Firewall. This could be as a result of the diagnostic setting already existing from a previous terraform run, or as a result of race condition encountered when deploying multiple terraform resources at the same time.
-
-**Example:**
-
-```sh
-│ Error: A resource with the ID "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan24RG/providers/Microsoft.Network/azureFirewalls/Vwan24-vhub2-azfw|Vwan24-vhub2-azfw-diag" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_monitor_diagnostic_setting" for more information.
-│
-│   with module.vhub2.azurerm_monitor_diagnostic_setting.this[0],
-│   on ../../modules/virtual-hub/main.tf line 74, in resource "azurerm_monitor_diagnostic_setting" "this":
-│   74: resource "azurerm_monitor_diagnostic_setting" "this" {
- ```
-
- **Solution 1:**
-
- 1. Identify the terraform resource that is causing the error. In the example above, the resource is `azurerm_monitor_diagnostic_setting.this[0]`
- 2. Identify the resource ID in the error message. In the example above, the resource ID is `/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan24RG/providers/Microsoft.Network/azureFirewalls/Vwan24-vhub2-azfw|Vwan24-vhub2-azfw-diag`
- 3. Import the resource into the terraform state. Substitute the resource ID in the command below with the resource ID from the error message above.
-
-```sh
-import <Resource_Name> "<Resource_ID>"
-```
-In this example, the command will be:
-
- ```sh
-terraform import module.vhub2.azurerm_monitor_diagnostic_setting.this[0] "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan24RG/providers/Microsoft.Network/azureFirewalls/Vwan24-vhub2-
-azfw|Vwan24-vhub2-azfw-diag"
-```
-4. Re-apply terraform
-```sh
-terraform plan
-terraform apply
-```
-
- **Solution 2:**
-
- Alternatively, you can delete the resource from the Azure portal and re-apply terraform.
-
- 1. Select teh firewall from teh Azure portal.
- 2. Select Diagnostic Settings
- 3. Click on *Edit setting*
- 4. Click on *Delete* to delete the diagnostic setting
-
-![tshoot-5-azfw-diag-setting](../images/troubleshooting/tshoot-5-azfw-diag.png)
- 5. Re-apply terraform
-```sh
-terraform plan
-terraform apply
-```
-
-## 6. Virtual Machine Extension - "Already Exists"
+## 8. Virtual Machine Extension - "Already Exists"
 
 This error could occur when terraform is trying to create a virtual machine extension. This could be as a result of the virtual machine extension already existing from a previous terraform run, or as a result of race condition encountered when deploying multiple terraform resources at the same time.
 
@@ -217,67 +285,3 @@ This error could occur when terraform is trying to create a virtual machine exte
   ```
 
   Repeat the above steps for all similar errors.
-
-  ## 7. Azure Policy Assignment - "Already Exists"
-
-This error could occur when terraform is trying to create an Azure policy assignment. This could be as a result of the policy asignment already existing from a previous terraform run, or as a result of race condition encountered when deploying multiple terraform resources at the same time.
-
-**Example:**
-
-```sh
-Error: A resource with the ID "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/providers/Microsoft.Authorization/policyAssignments/Ne31-ng-spokes-prod-region1" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_subscription_policy_assignment" for more information.
-│
-│   with azurerm_subscription_policy_assignment.ng_spokes_prod_region1,
-│   on svc-nm-common.tf line 57, in resource "azurerm_subscription_policy_assignment" "ng_spokes_prod_region1":
-│   57: resource "azurerm_subscription_policy_assignment" "ng_spokes_prod_region1" {
-│
-│ A resource with the ID
-│ "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/providers/Microsoft.Authorization/policyAssignments/Ne31-ng-spokes-prod-region1"
-│ already exists - to be managed via Terraform this resource needs to be imported into the
-│ State. Please see the resource documentation for "azurerm_subscription_policy_assignment"
-│ for more information.
-```
-
- **Solution:**
-
- Delete the policy assignment using azure CLI and re-apply terraform.
-
-  1. Run the command below to delete the policy assignment. Substitute the policy assignment name with the name of the policy assignment in the error message above.
-
-  ```sh
-  az policy assignment delete --name <policy_assignment_name>
-  ```
-
-  In this example, the command will be:
-
-  ```sh
-  az policy assignment delete --name Ne31-ng-spokes-prod-region1
-  ```
-
-  2. Re-apply terraform
-  ```sh
-  terraform plan
-  terraform apply
-  ```
-
-  ## 8. Waitiing for Virtual Network Peering"
-
-  This error could occur due to simultaneous Vnet peering creation operations.
-
-  **Example:**
-
-```sh
-Error: waiting for Virtual Network Peering: (Name "Vwan22-hub2-to-spoke5-peering" / Virtual Network Name "Vwan22-hub2-vnet" / Resource Group "Vwan22RG") to be created: network.VirtualNetworkPeeringsClient#CreateOrUpdate: Failure sending request: StatusCode=400 -- Original Error: Code="ReferencedResourceNotProvisioned" Message="Cannot proceed with operation because resource /subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan22RG/providers/Microsoft.Network/virtualNetworks/Vwan22-hub2-vnet used by resource /subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan22RG/providers/Microsoft.Network/virtualNetworks/Vwan22-hub2-vnet/virtualNetworkPeerings/Vwan22-hub2-to-spoke5-peering is not in Succeeded state. Resource is in Updating state and the last operation that updated/is updating the resource is PutSubnetOperation." Details=[]
-│
-│   with azurerm_virtual_network_peering.hub2_to_spoke5_peering,
-│   on 08-conn-hub2.tf line 23, in resource "azurerm_virtual_network_peering" "hub2_to_spoke5_peering":
-│   23: resource "azurerm_virtual_network_peering" "hub2_to_spoke5_peering" {
-```
-
- **Solution:**
-
- Re-apply terraform
- ```sh
- terraform plan
- terraform apply
- ```
