@@ -37,11 +37,10 @@ provider "azurerm" {
 provider "azapi" {}
 
 terraform {
-  #required_version = ">= 1.4.6"
-  required_providers {
+    required_providers {
     megaport = {
       source  = "megaport/megaport"
-      version = "0.1.9"
+      version = "0.4.0"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -341,7 +340,7 @@ locals {
     "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/conf/unbound.conf", local.branch_dns_vars) }
     "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/conf/unbound.log", local.branch_dns_vars) }
   }
-  branch_branch_dns_vars = {
+  branch_dns_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones
@@ -437,8 +436,7 @@ resource "azurerm_firewall_policy" "firewall_policy" {
   private_ip_ranges = concat(
     local.private_prefixes,
     [
-      #"${local.spoke3_vm_public_ip}/32",
-      #"${local.spoke6_vm_public_ip}/32",
+      local.internet_proxy,
     ]
   )
 
@@ -481,11 +479,8 @@ module "fw_policy_rule_collection_group" {
 
 locals {
   main_files = {
-    "output/branch-unbound.sh"   = local.branch_unbound_startup
-    "output/branch-dnsmasq.sh"   = local.branch_dnsmasq_startup
-    "output/branch-dnsmasq-init" = module.branch_dnsmasq_init.cloud_config
-    "output/branch-unbound-init" = module.branch_unbound_init.cloud_config
-    "output/server.sh"           = local.vm_startup
+    "output/branch-unbound.sh" = local.branch_unbound_startup
+    "output/server.sh"         = local.vm_startup
   }
 }
 

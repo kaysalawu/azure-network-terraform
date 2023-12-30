@@ -271,7 +271,7 @@ locals {
     "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/conf/unbound.conf", local.branch_dns_vars) }
     "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/conf/unbound.log", local.branch_dns_vars) }
   }
-  branch_branch_dns_vars = {
+  branch_dns_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones
