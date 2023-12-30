@@ -1,0 +1,534 @@
+{
+  "lenses": {
+    "0": {
+      "order": 0,
+      "parts": {
+        "0": {
+          "position": {
+            "x": 0,
+            "y": 0,
+            "colSpan": 6,
+            "rowSpan": 4
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              },
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${VIRTUAL_MACHINE_ID}"
+                        },
+                        "name": "Network In Total",
+                        "aggregationType": 1,
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metricVisualization": {
+                          "displayName": "Network In Total"
+                        }
+                      },
+                      {
+                        "resourceMetadata": {
+                          "id": "${VIRTUAL_MACHINE_ID}"
+                        },
+                        "name": "Network Out Total",
+                        "aggregationType": 1,
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metricVisualization": {
+                          "displayName": "Network Out Total"
+                        }
+                      }
+                    ],
+                    "title": "Network In Total / Network Out Total [Sum]",
+                    "titleKind": 1,
+                    "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "isVisible": true,
+                        "position": 2,
+                        "hideSubtitle": false
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "isVisible": true,
+                          "axisType": 2
+                        },
+                        "y": {
+                          "isVisible": true,
+                          "axisType": 1
+                        }
+                      }
+                    },
+                    "timespan": {
+                      "relative": {
+                        "duration": 86400000
+                      },
+                      "showUTCTime": false,
+                      "grain": 1
+                    }
+                  }
+                },
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${VIRTUAL_MACHINE_ID}"
+                        },
+                        "name": "Network In Total",
+                        "aggregationType": 1,
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metricVisualization": {
+                          "displayName": "Network In Total"
+                        }
+                      },
+                      {
+                        "resourceMetadata": {
+                          "id": "${VIRTUAL_MACHINE_ID}"
+                        },
+                        "name": "Network Out Total",
+                        "aggregationType": 1,
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metricVisualization": {
+                          "displayName": "Network Out Total"
+                        }
+                      }
+                    ],
+                    "title": "Network In Total / Network Out Total [Sum]",
+                    "titleKind": 2,
+                    "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "isVisible": true,
+                        "position": 2,
+                        "hideSubtitle": false
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "isVisible": true,
+                          "axisType": 2
+                        },
+                        "y": {
+                          "isVisible": true,
+                          "axisType": 1
+                        }
+                      },
+                      "disablePinning": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "1": {
+          "position": {
+            "x": 6,
+            "y": 0,
+            "colSpan": 6,
+            "rowSpan": 4
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              },
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${VIRTUAL_MACHINE_ID}"
+                        },
+                        "name": "Inbound Flows",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metricVisualization": {
+                          "displayName": "Inbound Flows"
+                        }
+                      },
+                      {
+                        "resourceMetadata": {
+                          "id": "${VIRTUAL_MACHINE_ID}"
+                        },
+                        "name": "Outbound Flows",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metricVisualization": {
+                          "displayName": "Outbound Flows"
+                        }
+                      }
+                    ],
+                    "title": "Inbound Flows / Outbound Flows [Avg]",
+                    "titleKind": 1,
+                    "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "isVisible": true,
+                        "position": 2,
+                        "hideSubtitle": false
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "isVisible": true,
+                          "axisType": 2
+                        },
+                        "y": {
+                          "isVisible": true,
+                          "axisType": 1
+                        }
+                      }
+                    },
+                    "timespan": {
+                      "relative": {
+                        "duration": 86400000
+                      },
+                      "showUTCTime": false,
+                      "grain": 1
+                    }
+                  }
+                },
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${VIRTUAL_MACHINE_ID}"
+                        },
+                        "name": "Inbound Flows",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metricVisualization": {
+                          "displayName": "Inbound Flows"
+                        }
+                      },
+                      {
+                        "resourceMetadata": {
+                          "id": "${VIRTUAL_MACHINE_ID}"
+                        },
+                        "name": "Outbound Flows",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metricVisualization": {
+                          "displayName": "Outbound Flows"
+                        }
+                      }
+                    ],
+                    "title": "Inbound Flows / Outbound Flows [Avg]",
+                    "titleKind": 2,
+                    "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "isVisible": true,
+                        "position": 2,
+                        "hideSubtitle": false
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "isVisible": true,
+                          "axisType": 2
+                        },
+                        "y": {
+                          "isVisible": true,
+                          "axisType": 1
+                        }
+                      },
+                      "disablePinning": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "2": {
+          "position": {
+            "x": 0,
+            "y": 4,
+            "colSpan": 6,
+            "rowSpan": 4
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              },
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${VIRTUAL_MACHINE_ID}"
+                        },
+                        "name": "Percentage CPU",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metricVisualization": {
+                          "displayName": "Percentage CPU"
+                        }
+                      }
+                    ],
+                    "title": "Percentage CPU [Avg]",
+                    "titleKind": 1,
+                    "visualization": {
+                      "chartType": 3,
+                      "legendVisualization": {
+                        "isVisible": true,
+                        "position": 2,
+                        "hideSubtitle": false
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "isVisible": true,
+                          "axisType": 2
+                        },
+                        "y": {
+                          "isVisible": true,
+                          "axisType": 1
+                        }
+                      }
+                    },
+                    "timespan": {
+                      "relative": {
+                        "duration": 86400000
+                      },
+                      "showUTCTime": false,
+                      "grain": 1
+                    }
+                  }
+                },
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${VIRTUAL_MACHINE_ID}"
+                        },
+                        "name": "Percentage CPU",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metricVisualization": {
+                          "displayName": "Percentage CPU"
+                        }
+                      }
+                    ],
+                    "title": "Percentage CPU [Avg]",
+                    "titleKind": 2,
+                    "visualization": {
+                      "chartType": 3,
+                      "legendVisualization": {
+                        "isVisible": true,
+                        "position": 2,
+                        "hideSubtitle": false
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "isVisible": true,
+                          "axisType": 2
+                        },
+                        "y": {
+                          "isVisible": true,
+                          "axisType": 1
+                        }
+                      },
+                      "disablePinning": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "3": {
+          "position": {
+            "x": 6,
+            "y": 4,
+            "colSpan": 6,
+            "rowSpan": 4
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              },
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${VIRTUAL_MACHINE_ID}"
+                        },
+                        "name": "OS Disk Write Bytes/sec",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metricVisualization": {
+                          "displayName": "OS Disk Write Bytes/Sec"
+                        }
+                      },
+                      {
+                        "resourceMetadata": {
+                          "id": "${VIRTUAL_MACHINE_ID}"
+                        },
+                        "name": "OS Disk Read Bytes/sec",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metricVisualization": {
+                          "displayName": "OS Disk Read Bytes/Sec"
+                        }
+                      }
+                    ],
+                    "title": "OS Disk Write Bps / Avg OS Disk Read Bbps [Avg]",
+                    "titleKind": 1,
+                    "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "isVisible": true,
+                        "position": 2,
+                        "hideSubtitle": false
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "isVisible": true,
+                          "axisType": 2
+                        },
+                        "y": {
+                          "isVisible": true,
+                          "axisType": 1
+                        }
+                      }
+                    },
+                    "timespan": {
+                      "relative": {
+                        "duration": 86400000
+                      },
+                      "showUTCTime": false,
+                      "grain": 1
+                    }
+                  }
+                },
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${VIRTUAL_MACHINE_ID}"
+                        },
+                        "name": "OS Disk Write Bytes/sec",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metricVisualization": {
+                          "displayName": "OS Disk Write Bytes/Sec"
+                        }
+                      },
+                      {
+                        "resourceMetadata": {
+                          "id": "${VIRTUAL_MACHINE_ID}"
+                        },
+                        "name": "OS Disk Read Bytes/sec",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.compute/virtualmachines",
+                        "metricVisualization": {
+                          "displayName": "OS Disk Read Bytes/Sec"
+                        }
+                      }
+                    ],
+                    "title": "OS Disk Write Bps / Avg OS Disk Read Bbps [Avg]",
+                    "titleKind": 2,
+                    "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "isVisible": true,
+                        "position": 2,
+                        "hideSubtitle": false
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "isVisible": true,
+                          "axisType": 2
+                        },
+                        "y": {
+                          "isVisible": true,
+                          "axisType": 1
+                        }
+                      },
+                      "disablePinning": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "metadata": {
+    "model": {
+      "timeRange": {
+        "value": {
+          "relative": {
+            "duration": 24,
+            "timeUnit": 1
+          }
+        },
+        "type": "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange"
+      },
+      "filterLocale": {
+        "value": "en-us"
+      },
+      "filters": {
+        "value": {
+          "MsPortalFx_TimeRange": {
+            "model": {
+              "format": "utc",
+              "granularity": "auto",
+              "relative": "4h"
+            },
+            "displayCache": {
+              "name": "UTC Time",
+              "value": "Past 4 hours"
+            }
+          }
+        }
+      }
+    }
+  }
+}

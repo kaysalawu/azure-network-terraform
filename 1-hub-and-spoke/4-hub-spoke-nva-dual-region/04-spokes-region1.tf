@@ -1,4 +1,14 @@
 
+/*
+Overview
+--------
+This template creates the spoke vnets from the base module.
+It also deploys a simple web server VM in each spoke.
+Spoke1 VM is configured to generate traffic to selected targets.
+Private DNS zones are created for each spoke and linked to the hub vnet.
+NSGs are assigned to selected subnets.
+*/
+
 ####################################################
 # spoke1
 ####################################################
@@ -12,13 +22,10 @@ module "spoke1" {
   env             = "prod"
   location        = local.spoke1_location
   storage_account = module.common.storage_accounts["region1"]
-  tags = {
-    "nodeType" = "spoke"
-    "env"      = "prod"
-  }
+  tags            = local.spoke1_tags
 
   create_private_dns_zone = true
-  private_dns_zone_name   = "spoke1.${local.cloud_domain}"
+  private_dns_zone_name   = local.spoke1_dns_zone
   private_dns_zone_linked_external_vnets = {
     "hub1" = module.hub1.vnet.id
   }
@@ -35,15 +42,26 @@ module "spoke1" {
     "AppServiceSubnet"         = module.common.nsg_default["region1"].id
   }
 
-  vnet_config = [
-    {
-      address_space = local.spoke1_address_space
-      subnets       = local.spoke1_subnets
-    }
-  ]
+  config_vnet = {
+    address_space = local.spoke1_address_space
+    subnets       = local.spoke1_subnets
+    nat_gateway_subnet_names = [
+      "MainSubnet",
+      "UntrustSubnet",
+    ]
+  }
 }
 
 # workload
+
+locals {
+  spoke1_vm_init = templatefile("../../scripts/server.sh", {
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
+    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
+    ENABLE_TRAFFIC_GEN        = true
+  })
+}
 
 module "spoke1_vm" {
   source                = "../../modules/linux"
@@ -53,13 +71,14 @@ module "spoke1_vm" {
   location              = local.spoke1_location
   subnet                = module.spoke1.subnets["MainSubnet"].id
   private_ip            = local.spoke1_vm_addr
-  enable_public_ip      = true
-  custom_data           = base64encode(local.vm_startup)
+  custom_data           = base64encode(local.spoke1_vm_init)
   storage_account       = module.common.storage_accounts["region1"]
-  private_dns_zone_name = "spoke1.${local.cloud_domain}"
+  private_dns_zone_name = local.spoke1_dns_zone
   delay_creation        = "1m"
   tags                  = local.spoke1_tags
-  depends_on            = [module.spoke1]
+  depends_on = [
+    module.spoke1,
+  ]
 }
 
 ####################################################
@@ -75,13 +94,10 @@ module "spoke2" {
   env             = "prod"
   location        = local.spoke2_location
   storage_account = module.common.storage_accounts["region1"]
-  tags = {
-    "nodeType" = "spoke"
-    "env"      = "prod"
-  }
+  tags            = local.spoke2_tags
 
   create_private_dns_zone = true
-  private_dns_zone_name   = "spoke2.${local.cloud_domain}"
+  private_dns_zone_name   = local.spoke2_dns_zone
   private_dns_zone_linked_external_vnets = {
     "hub1" = module.hub1.vnet.id
   }
@@ -98,12 +114,14 @@ module "spoke2" {
     "AppServiceSubnet"         = module.common.nsg_default["region1"].id
   }
 
-  vnet_config = [
-    {
-      address_space = local.spoke2_address_space
-      subnets       = local.spoke2_subnets
-    }
-  ]
+  config_vnet = {
+    address_space = local.spoke2_address_space
+    subnets       = local.spoke2_subnets
+    nat_gateway_subnet_names = [
+      "MainSubnet",
+      "UntrustSubnet",
+    ]
+  }
 }
 
 # workload
@@ -116,13 +134,14 @@ module "spoke2_vm" {
   location              = local.spoke2_location
   subnet                = module.spoke2.subnets["MainSubnet"].id
   private_ip            = local.spoke2_vm_addr
-  enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region1"]
-  private_dns_zone_name = "spoke2.${local.cloud_domain}"
+  private_dns_zone_name = local.spoke2_dns_zone
   delay_creation        = "1m"
   tags                  = local.spoke2_tags
-  depends_on            = [module.spoke2]
+  depends_on = [
+    module.spoke2,
+  ]
 }
 
 ####################################################
@@ -138,12 +157,10 @@ module "spoke3" {
   env             = "prod"
   location        = local.spoke3_location
   storage_account = module.common.storage_accounts["region1"]
-  tags = {
-    "env" = "prod"
-  }
+  tags            = local.spoke3_tags
 
   create_private_dns_zone = true
-  private_dns_zone_name   = "spoke3.${local.cloud_domain}"
+  private_dns_zone_name   = local.spoke3_dns_zone
   private_dns_zone_linked_external_vnets = {
     "hub1" = module.hub1.vnet.id
   }
@@ -160,12 +177,14 @@ module "spoke3" {
     "AppServiceSubnet"         = module.common.nsg_default["region1"].id
   }
 
-  vnet_config = [
-    {
-      address_space = local.spoke3_address_space
-      subnets       = local.spoke3_subnets
-    }
-  ]
+  config_vnet = {
+    address_space = local.spoke3_address_space
+    subnets       = local.spoke3_subnets
+    nat_gateway_subnet_names = [
+      "MainSubnet",
+      "UntrustSubnet",
+    ]
+  }
 }
 
 # workload
@@ -178,11 +197,12 @@ module "spoke3_vm" {
   location              = local.spoke3_location
   subnet                = module.spoke3.subnets["MainSubnet"].id
   private_ip            = local.spoke3_vm_addr
-  enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region1"]
-  private_dns_zone_name = "spoke3.${local.cloud_domain}"
+  private_dns_zone_name = local.spoke3_dns_zone
   delay_creation        = "1m"
   tags                  = local.spoke3_tags
-  depends_on            = [module.spoke3]
+  depends_on = [
+    module.spoke3,
+  ]
 }

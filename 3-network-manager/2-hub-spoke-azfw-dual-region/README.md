@@ -9,6 +9,7 @@ Contents
 - [Deploy the Lab](#deploy-the-lab)
 - [Troubleshooting](#troubleshooting)
 - [Outputs](#outputs)
+- [Dashboards](#dashboards)
 - [Testing](#testing)
   - [1. Ping IP](#1-ping-ip)
   - [2. Ping DNS](#2-ping-dns)
@@ -79,7 +80,34 @@ The table below show the auto-generated output files from the lab. They are loca
 | Branch1 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch1-nva.sh](./output/branch1-nva.sh) |
 | Branch3 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch3-nva.sh](./output/branch3-nva.sh) |
 | Web server for workload VMs | Python Flask web server and various test and debug scripts | [output/server.sh](./output/server.sh) |
+| Azure policies | Azure policies for Virtual Network Manager network groups | [output/policies.json](./output/policies/pol-ng-spokes.json) |
 ||||
+
+## Dashboards
+
+This lab contains a number of pre-configured dashboards for monitoring and troubleshooting network gateways, VPN gateways, and Azure Firewall.
+
+To view the dashboards, follow the steps below:
+
+1. From the Azure portal menu, select **Dashboard hub**.
+
+2. Under **Browse**, select **Shared dashboards**.
+
+3. Select the dashboard you want to view.
+
+   ![Shared dashboards](../../images/demos/network-manager/ne32-shared-dashboards.png)
+
+4. Click on the dashboard name.
+
+5. Click on **Go to dashboard**.
+
+   Sample dashboard for VPN gateway in ***hub1***.
+
+    ![Go to dashboard](../../images/demos/network-manager/ne32-hub1-vpngw-db.png)
+
+    Sample dashboard for Azure Firewall in ***hub1***.
+
+   ![Go to dashboard](../../images/demos/network-manager/ne32-hub1-azfw-db.png)
 
 ## Testing
 
@@ -186,20 +214,20 @@ azureuser@Ne32-spoke1-vm:~$ curl-dns
 200 (0.033479s) - 104.18.115.97 - icanhazip.com
 ```
 
-We can see that curl test to spoke3 virtual machine `vm.spoke3.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.az.corp`. The same explanation applies to ***spoke6*** virtual machine `vm.spoke6.az.corp`
+We can see that curl test to spoke3 virtual machine `vm.spoke3.we.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.we.az.corp`. The same explanation applies to ***spoke6*** virtual machine `vm.spoke6.ne.az.corp`
 
 ### 4. Private Link Service
 
 **4.1.** Test access to ***spoke3*** web application using the private endpoint in ***hub1***.
 
 ```sh
-curl spoke3.p.hub1.az.corp
+curl spoke3.p.hub1.we.az.corp
 ```
 
 Sample output
 
 ```sh
-azureuser@Ne32-spoke1-vm:~$ curl spoke3.p.hub1.az.corp
+azureuser@Ne32-spoke1-vm:~$ curl spoke3.p.hub1.we.az.corp
 {
   "Headers": {
     "Accept": "*/*",
@@ -215,13 +243,13 @@ azureuser@Ne32-spoke1-vm:~$ curl spoke3.p.hub1.az.corp
 **4.2.** Test access to ***spoke6*** web application using the private endpoint in ***hub2***.
 
 ```sh
-curl spoke6.p.hub2.az.corp
+curl spoke6.p.hub2.ne.az.corp
 ```
 
 Sample output
 
 ```sh
-azureuser@Ne32-spoke1-vm:~$ curl spoke6.p.hub2.az.corp
+azureuser@Ne32-spoke1-vm:~$ curl spoke6.p.hub2.ne.az.corp
 {
   "Headers": {
     "Accept": "*/*",
@@ -322,20 +350,7 @@ Sample output
 }
 ```
 
-Observe that we are connecting from our local client's public IP address (174.173.70.196) specified in the `X-Client-Ip`.
-
-Let's confirm the public IP address of our local machine
-
-```sh
-curl -4 icanhazip.com
-```
-
-Sample output (yours will be different)
-
-```sh
-$ curl -4 icanhazip.com
-152.37.70.253
-```
+Observe that we are connecting from our local client's public IP address specified in the `X-Client-Ip`.
 
 **(Optional)** Repeat *Step 5.1* through *Step 5.4* for the app service linked to ***spoke6***.
 
@@ -541,22 +556,35 @@ Observe the firewall logs based on traffic flows generated from our tests.
    cd azure-network-terraform/3-network-manager/2-hub-spoke-azfw-dual-region
    ```
 
-2. Run a cleanup script to remove some resources that may not be removed after the resource group deletion.
+2. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
 
    ```sh
-   bash ../../scripts/_cleanup.sh Ne32RG
+   bash ../../scripts/_cleanup.sh Ne32
    ```
 
    Sample output
 
    ```sh
-   2-hub-spoke-azfw-dual-region$    bash ../../scripts/_cleanup.sh Ne32RG
+   2-hub-spoke-azfw-dual-region$    bash ../../scripts/_cleanup.sh Ne32
 
    Resource group: Ne32RG
 
-   Deleting: diag setting [Ne32-hub2-azfw-diag] for firewall [Ne32-hub2-azfw] ...
-   Deleting: diag setting [Ne32-hub1-azfw-diag] for firewall [Ne32-hub1-azfw] ...
-   Deletion complete!
+   ⏳ Checking for diagnostic settings on resources in Ne32RG ...
+   ➜  Checking firewall ...
+       ❌ Deleting: diag setting [Ne32-hub1-azfw-diag] for firewall [Ne32-hub1-azfw] ...
+       ❌ Deleting: diag setting [Ne32-hub2-azfw-diag] for firewall [Ne32-hub2-azfw] ...
+   ➜  Checking vnet gateway ...
+       ❌ Deleting: diag setting [Ne32-hub1-vpngw-diag] for vnet gateway [Ne32-hub1-vpngw] ...
+       ❌ Deleting: diag setting [Ne32-hub2-vpngw-diag] for vnet gateway [Ne32-hub2-vpngw] ...
+   ➜  Checking vpn gateway ...
+   ➜  Checking er gateway ...
+   ➜  Checking app gateway ...
+   ⏳ Checking for azure policies in Ne32RG ...
+       ❌ Deleting: policy assignment [Ne32-ng-spokes-prod-region1] ...
+       ❌ Deleting: policy definition [Ne32-ng-spokes-prod-region1] ...
+       ❌ Deleting: policy assignment [Ne32-ng-spokes-prod-region2] ...
+       ❌ Deleting: policy definition [Ne32-ng-spokes-prod-region2] ...
+   Done!
    ```
 
 3. Delete the resource group to remove all resources installed.

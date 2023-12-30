@@ -40,9 +40,9 @@ module "hub1" {
     "DnsResolverOutboundSubnet" = module.common.nsg_default["region1"].id
   }
 
-  vnet_config     = local.hub1_features.vnet_config
-  firewall_config = local.hub1_features.firewall_config
-  nva_config      = local.hub1_features.nva_config
+  config_vnet     = local.hub1_features.config_vnet
+  config_firewall = local.hub1_features.config_firewall
+  config_nva      = local.hub1_features.config_nva
 }
 
 ####################################################

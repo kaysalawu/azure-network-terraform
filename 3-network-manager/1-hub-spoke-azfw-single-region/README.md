@@ -9,6 +9,7 @@ Contents
 - [Deploy the Lab](#deploy-the-lab)
 - [Troubleshooting](#troubleshooting)
 - [Outputs](#outputs)
+- [Dashboards](#dashboards)
 - [Testing](#testing)
   - [1. Ping IP](#1-ping-ip)
   - [2. Ping DNS](#2-ping-dns)
@@ -70,7 +71,34 @@ The table below show the auto-generated output files from the lab. They are loca
 | Branch DNS Server | Unbound DNS server configuration showing on-premises authoritative zones and conditional forwarding to hub private DNS resolver endpoint | [output/branch-unbound.sh](./output/branch-unbound.sh) |
 | Branch1 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch1-nva.sh](./output/branch1-nva.sh) |
 | Web server for workload VMs | Python Flask web server and various test and debug scripts | [output/server.sh](./output/server.sh) |
+| Azure policies | Azure policies for Virtual Network Manager network groups | [output/policies.json](./output/policies/pol-ng-spokes.json) |
 ||||
+
+## Dashboards
+
+This lab contains a number of pre-configured dashboards for monitoring and troubleshooting network gateways, VPN gateways, and Azure Firewall.
+
+To view the dashboards, follow the steps below:
+
+1. From the Azure portal menu, select **Dashboard hub**.
+
+2. Under **Browse**, select **Shared dashboards**.
+
+3. Select the dashboard you want to view.
+
+   ![Shared dashboards](../../images/demos/network-manager/ne31-shared-dashboards.png)
+
+4. Click on the dashboard name.
+
+5. Click on **Go to dashboard**.
+
+   Sample dashboard for VPN gateway in ***hub1***.
+
+    ![Go to dashboard](../../images/demos/network-manager/ne31-hub1-vpngw-db.png)
+
+    Sample dashboard for Azure Firewall in ***hub1***.
+
+   ![Go to dashboard](../../images/demos/network-manager/ne31-hub1-azfw-db.png)
 
 ## Testing
 
@@ -163,20 +191,20 @@ azureuser@Ne31-spoke1-vm:~$ curl-dns
 200 (0.019746s) - 104.18.114.97 - icanhazip.com
 ```
 
-We can see that curl test to spoke3 virtual machine `vm.spoke3.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.az.corp`.
+We can see that curl test to spoke3 virtual machine `vm.spoke3.we.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.we.az.corp`.
 
 ### 4. Private Link Service
 
 Test access to `Spoke3` application using the private endpoint in `Hub1`.
 
 ```sh
-curl spoke3.p.hub1.az.corp
+curl spoke3.p.hub1.we.az.corp
 ```
 
 Sample output
 
 ```sh
-azureuser@Ne31-spoke1-vm:~$ curl spoke3.p.hub1.az.corp
+azureuser@Ne31-spoke1-vm:~$ curl spoke3.p.hub1.we.az.corp
 {
   "Headers": {
     "Accept": "*/*",
@@ -277,20 +305,7 @@ Sample output
 }
 ```
 
-Observe that we are connecting from our local client's public IP address (174.173.70.196) specified in the `X-Client-Ip`.
-
-Let's confirm the public IP address of our local machine
-
-```sh
-curl -4 icanhazip.com
-```
-
-Sample output (yours will be different)
-
-```sh
-$ curl -4 icanhazip.com
-152.37.70.253
-```
+Observe that we are connecting from our local client's public IP address specified in the `X-Client-Ip`.
 
 **(Optional)** Repeat *Step 5.1* through *Step 5.4* for the app service linked to ***spoke6***.
 
@@ -467,11 +482,11 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
 - Click on **Firewall Logs (Resource Specific Tables)**.
 - Click on **Run** in the log category *Network rule logs*.
 
-![Ne31-hub1-azfw-network-rule-log](../../images/demos/ne31-hub1-net-rule-log.png)
+![Ne31-hub1-azfw-network-rule-log](../../images/demos/network-manager/ne31-hub1-net-rule-log.png)
 
 Observe the firewall logs based on traffic flows generated from our tests.
 
-![Ne31-hub1-azfw-network-rule-log-data](../../images/demos/ne31-hub1-net-rule-log-detail.png)
+![Ne31-hub1-azfw-network-rule-log-data](../../images/demos/network-manager/ne31-hub1-net-rule-log-detail.png)
 
 ## Cleanup
 
@@ -481,21 +496,31 @@ Observe the firewall logs based on traffic flows generated from our tests.
    cd azure-network-terraform/3-network-manager/1-hub-spoke-azfw-single-region
    ```
 
-2. Run a cleanup script to remove some resources that may not be removed after the resource group deletion.
+2. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
 
    ```sh
-   bash ../../scripts/_cleanup.sh Ne31RG
+   bash ../../scripts/_cleanup.sh Ne31
    ```
 
    Sample output
 
    ```sh
-   1-hub-spoke-azfw-single-region$ bash ../../scripts/_cleanup.sh Ne31RG
+   1-hub-spoke-azfw-single-region$    bash ../../scripts/_cleanup.sh Ne31
 
    Resource group: Ne31RG
 
-   Deleting: diag setting [Ne31-hub1-azfw-diag] for firewall [Ne31-hub1-azfw] ...
-   Deletion complete!
+   ⏳ Checking for diagnostic settings on resources in Ne31RG ...
+   ➜  Checking firewall ...
+       ❌ Deleting: diag setting [Ne31-hub1-azfw-diag] for firewall [Ne31-hub1-azfw] ...
+   ➜  Checking vnet gateway ...
+       ❌ Deleting: diag setting [Ne31-hub1-vpngw-diag] for vnet gateway [Ne31-hub1-vpngw] ...
+   ➜  Checking vpn gateway ...
+   ➜  Checking er gateway ...
+   ➜  Checking app gateway ...
+   ⏳ Checking for azure policies in Ne31RG ...
+       ❌ Deleting: policy assignment [Ne31-ng-spokes-prod-region1] ...
+       ❌ Deleting: policy definition [Ne31-ng-spokes-prod-region1] ...
+   Done!
    ```
 
 3. Delete the resource group to remove all resources installed.

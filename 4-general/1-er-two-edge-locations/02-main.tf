@@ -3,8 +3,12 @@
 ####################################################
 
 locals {
-  prefix = "Hs13"
-  #my_public_ip = chomp(data.http.my_public_ip.response_body)
+  prefix           = "Ge41"
+  spoke3_apps_fqdn = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
+}
+
+resource "random_id" "random" {
+  byte_length = 2
 }
 
 ####################################################
@@ -16,6 +20,8 @@ provider "azurerm" {
   features {}
 }
 
+provider "azapi" {}
+
 terraform {
   #required_version = ">= 1.4.6"
   required_providers {
@@ -26,6 +32,9 @@ terraform {
     azurerm = {
       source  = "hashicorp/azurerm"
       version = ">= 3.78.0"
+    }
+    azapi = {
+      source = "azure/azapi"
     }
   }
 }
@@ -54,15 +63,11 @@ locals {
   firewall_sku = "Basic"
 
   hub1_features = {
-    vnet_config = [{
+    config_vnet = {
       address_space               = local.hub1_address_space
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
       enable_ars                  = false
-      enable_vpn_gateway          = false
-      enable_er_gateway           = true
-      vpn_gateway_sku             = "VpnGw1AZ"
-      vpn_gateway_asn             = local.hub1_vpngw_asn
 
       ruleset_dns_forwarding_rules = {
         "onprem" = {
@@ -71,27 +76,46 @@ locals {
             { ip_address = local.branch1_dns_addr, port = 53 },
           ]
         }
-        "cloud" = {
-          domain = local.cloud_domain
+        "we" = {
+          domain = "we.${local.cloud_domain}"
+          target_dns_servers = [
+            { ip_address = local.hub1_dns_in_addr, port = 53 },
+          ]
+        }
+        "azurewebsites" = {
+          domain = "privatelink.azurewebsites.net"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
         }
       }
-    }]
+    }
 
-    firewall_config = [{
+    config_vpngw = {
+      enable = false
+      sku    = "VpnGw1AZ"
+      bgp_settings = {
+        asn = local.hub1_vpngw_asn
+      }
+    }
+
+    config_ergw = {
+      enable = true
+      sku    = "ErGw1AZ"
+    }
+
+    config_firewall = {
       enable             = false
       firewall_sku       = local.firewall_sku
       firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
-    }]
+    }
 
-    nva_config = [{
+    config_nva = {
       enable           = true
       type             = "linux"
       internal_lb_addr = local.hub1_nva_ilb_addr
       custom_data      = base64encode(local.hub1_linux_nva_init)
-    }]
+    }
   }
 }
 
@@ -105,13 +129,6 @@ resource "azurerm_resource_group" "rg" {
   name     = "${local.prefix}RG"
   location = local.default_region
 }
-
-# my public ip
-
-/* data "http" "my_public_ip" {
-  url = "http://ipv4.icanhazip.com"
-} */
-
 
 module "common" {
   source           = "../../modules/common"
@@ -160,25 +177,29 @@ locals {
   hub1_ars_asn   = "65515"
 
   vm_script_targets_region1 = [
-    { name = "branch1", dns = local.branch1_vm_fqdn, ip = local.branch1_vm_addr },
-    { name = "hub1   ", dns = local.hub1_vm_fqdn, ip = local.hub1_vm_addr },
-    { name = "hub1-spoke3-pep", dns = local.hub1_spoke3_pep_fqdn, ping = false },
-    { name = "spoke1 ", dns = local.spoke1_vm_fqdn, ip = local.spoke1_vm_addr },
-    { name = "spoke2 ", dns = local.spoke2_vm_fqdn, ip = local.spoke2_vm_addr },
+    { name = "branch1", dns = local.branch1_vm_fqdn, ip = local.branch1_vm_addr, probe = true },
+    { name = "hub1   ", dns = local.hub1_vm_fqdn, ip = local.hub1_vm_addr, probe = false },
+    { name = "hub1-spoke3-pep", dns = local.hub1_spoke3_pep_fqdn, ping = false, probe = true },
+    { name = "spoke1 ", dns = local.spoke1_vm_fqdn, ip = local.spoke1_vm_addr, probe = true },
+    { name = "spoke2 ", dns = local.spoke2_vm_fqdn, ip = local.spoke2_vm_addr, probe = true },
     { name = "spoke3 ", dns = local.spoke3_vm_fqdn, ip = local.spoke3_vm_addr, ping = false },
   ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ip = "icanhazip.com" },
+    { name = "hub1-spoke3-apps", dns = local.spoke3_apps_fqdn, ping = false, probe = true },
   ]
   vm_script_targets = concat(
     local.vm_script_targets_region1,
     local.vm_script_targets_misc,
   )
   vm_startup = templatefile("../../scripts/server.sh", {
-    TARGETS = local.vm_script_targets
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = []
+    TARGETS_HEAVY_TRAFFIC_GEN = []
+    ENABLE_TRAFFIC_GEN        = false
   })
 
-  unbound_vars = {
+  onprem_dns_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones
@@ -191,12 +212,12 @@ locals {
       ]
     )
   }
-  branch_unbound_conf         = templatefile("../../scripts/unbound/unbound.conf", local.unbound_vars)
-  branch_unbound_startup      = templatefile("../../scripts/unbound/unbound.sh", local.unbound_vars)
-  branch_dnsmasq_startup      = templatefile("../../scripts/dnsmasq/dnsmasq.sh", local.unbound_vars)
-  branch_dnsmasq_cloud_config = templatefile("../../scripts/dnsmasq/cloud-config", local.unbound_vars)
-  branch_unbound_cloud_config = templatefile("../../scripts/unbound/cloud-config", local.unbound_vars)
-  branch_unbound_vars = {
+  branch_unbound_conf         = templatefile("../../scripts/unbound/unbound.conf", local.onprem_dns_vars)
+  branch_unbound_startup      = templatefile("../../scripts/unbound/unbound.sh", local.onprem_dns_vars)
+  branch_dnsmasq_startup      = templatefile("../../scripts/dnsmasq/dnsmasq.sh", local.onprem_dns_vars)
+  branch_dnsmasq_cloud_config = templatefile("../../scripts/dnsmasq/cloud-config", local.onprem_dns_vars)
+  branch_unbound_cloud_config = templatefile("../../scripts/unbound/cloud-config", local.onprem_dns_vars)
+  branch_onprem_dns_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones
@@ -292,7 +313,7 @@ resource "azurerm_firewall_policy" "firewall_policy" {
 
 module "fw_policy_rule_collection_group" {
   for_each           = local.regions
-  source             = "../../modules/fw-policy"
+  source             = "../../modules/firewall-policy"
   prefix             = local.prefix
   firewall_policy_id = azurerm_firewall_policy.firewall_policy[each.key].id
 

@@ -136,6 +136,12 @@ variable "source_image_reference" {
       sku       = "20_04-lts"
       version   = "latest"
     }
+    "ubuntu-22" = {
+      publisher = "Canonical"
+      offer     = "0001-com-ubuntu-server-jammy"
+      sku       = "22_04-lts"
+      version   = "latest"
+    }
     "debian-10" = {
       publisher = "Debian"
       offer     = "debian-10"
@@ -155,4 +161,16 @@ variable "delay_creation" {
   description = "delay creation of vm by sepcified seconds"
   type        = string
   default     = "0s"
+}
+
+variable "create_dashboard" {
+  description = "create dashboard"
+  type        = bool
+  default     = true
+}
+
+variable "enable_diagnostics" {
+  description = "enable diagnostics"
+  type        = bool
+  default     = false
 }

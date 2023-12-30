@@ -13,12 +13,12 @@ resource "random_id" "services_region1" {
 # internal load balancer
 
 module "spoke3_lb" {
-  source                                 = "../../modules/azlb"
+  source                                 = "../../modules/azure-load-balancer"
   resource_group_name                    = azurerm_resource_group.rg.name
   location                               = local.spoke3_location
   prefix                                 = trimsuffix(local.spoke3_prefix, "-")
   type                                   = "private"
-  private_dns_zone                       = module.spoke3.private_dns_zone.name
+  private_dns_zone                       = local.spoke3_dns_zone
   dns_host                               = local.spoke3_ilb_host
   frontend_subnet_id                     = module.spoke3.subnets["LoadBalancerSubnet"].id
   frontend_private_ip_address_allocation = "Static"
@@ -49,7 +49,7 @@ module "spoke3_pls" {
   resource_group   = azurerm_resource_group.rg.name
   location         = local.spoke3_location
   prefix           = trimsuffix(local.spoke3_prefix, "-")
-  private_dns_zone = module.spoke3.private_dns_zone.name
+  private_dns_zone = local.spoke3_dns_zone
   dns_host         = local.spoke3_ilb_host
 
   nat_ip_config = [
@@ -81,7 +81,7 @@ resource "azurerm_private_endpoint" "hub1_spoke3_pls_pep" {
 resource "azurerm_private_dns_a_record" "hub1_spoke3_pls_pep" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = local.hub1_spoke3_pep_host
-  zone_name           = module.hub1.private_dns_zone.name
+  zone_name           = local.hub1_dns_zone
   ttl                 = 300
   records = [
     azurerm_private_endpoint.hub1_spoke3_pls_pep.private_service_connection[0].private_ip_address,

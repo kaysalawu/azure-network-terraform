@@ -21,15 +21,11 @@ module "branch1" {
     "DnsServerSubnet" = module.common.nsg_main["region1"].id
   }
 
-  vnet_config = [
-    {
-      address_space     = local.branch1_address_space
-      subnets           = local.branch1_subnets
-      enable_er_gateway = true
-      enable_ars        = false
-      #nat_gateway_subnet_names = ["${local.branch1_prefix}main", ]
-    }
-  ]
+  config_vnet = {
+    address_space = local.branch1_address_space
+    subnets       = local.branch1_subnets
+    #nat_gateway_subnet_names = ["${local.branch1_prefix}main", ]
+  }
 
   depends_on = [
     module.common,
@@ -60,7 +56,14 @@ module "branch1_dns" {
 # workload
 ####################################################
 
-# branch1
+locals {
+  branch1_vm_init = templatefile("../../scripts/server.sh", {
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
+    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
+    ENABLE_TRAFFIC_GEN        = true
+  })
+}
 
 module "branch1_vm" {
   source           = "../../modules/linux"
@@ -72,11 +75,12 @@ module "branch1_vm" {
   private_ip       = local.branch1_vm_addr
   enable_public_ip = true
   source_image     = "ubuntu-20"
-  custom_data      = base64encode(local.vm_startup)
   dns_servers      = [local.branch1_dns_addr, ]
+  custom_data      = base64encode(local.branch1_vm_init)
   storage_account  = module.common.storage_accounts["region1"]
-  #delay_creation   = "120s"
-  tags = local.branch1_tags
+  delay_creation   = "60s"
+  tags             = local.branch1_tags
+
   depends_on = [
     module.branch1,
     module.branch1_dns,

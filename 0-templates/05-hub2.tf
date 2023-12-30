@@ -1,4 +1,17 @@
 
+/*
+Overview
+--------
+This template creates hub2 vnet from the base module.
+Extra configs defined in local variable "hub2_features" of "main.tf" to enable:
+  - VPN gateway, ExpressRoute gateway
+  - Azure Firewall and/or NVA
+  - Private DNS zone for the hub
+  - Private DNS Resolver and ruleset for onprem, cloud and PrivateLink DNS resolution
+It also deploys a simple web server VM in the hub.
+NSGs are assigned to selected subnets.
+*/
+
 ####################################################
 # vnet
 ####################################################
@@ -10,13 +23,10 @@ module "hub2" {
   env             = "prod"
   location        = local.hub2_location
   storage_account = module.common.storage_accounts["region2"]
-  tags = {
-    "nodeType" = "hub"
-    "env"      = "prod"
-  }
+  tags            = local.hub2_tags
 
   create_private_dns_zone = true
-  private_dns_zone_name   = "hub2.${local.cloud_domain}"
+  private_dns_zone_name   = local.hub2_dns_zone
   private_dns_zone_linked_external_vnets = {
     "spoke4" = module.spoke4.vnet.id
     "spoke5" = module.spoke5.vnet.id
@@ -40,9 +50,11 @@ module "hub2" {
     "DnsResolverOutboundSubnet" = module.common.nsg_default["region2"].id
   }
 
-  vnet_config     = local.hub2_features.vnet_config
-  firewall_config = local.hub2_features.firewall_config
-  nva_config      = local.hub2_features.nva_config
+  config_vnet     = local.hub2_features.config_vnet
+  config_vpngw    = local.hub2_features.config_vpngw
+  config_ergw     = local.hub2_features.config_ergw
+  config_firewall = local.hub2_features.config_firewall
+  config_nva      = local.hub2_features.config_nva
 }
 
 ####################################################
@@ -60,6 +72,7 @@ module "hub2_vm" {
   enable_public_ip      = true
   custom_data           = base64encode(local.vm_startup)
   storage_account       = module.common.storage_accounts["region2"]
-  private_dns_zone_name = "hub2.${local.cloud_domain}"
+  private_dns_zone_name = local.hub2_dns_zone
   tags                  = local.hub2_tags
+  depends_on            = [module.hub2]
 }

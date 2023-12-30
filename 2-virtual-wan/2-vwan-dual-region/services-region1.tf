@@ -1,7 +1,8 @@
 
-resource "random_id" "services_region1" {
-  byte_length = 2
-}
+/*
+This template creates PrivateLink Service in spoke3 access via private endpoint in hub1.
+It also creates PrivateLink Service (app service) accessed via private endpoint in hub1.
+*/
 
 ####################################################
 # private link service
@@ -13,32 +14,51 @@ resource "random_id" "services_region1" {
 # internal load balancer
 
 module "spoke3_lb" {
-  source                                 = "../../modules/azlb"
-  resource_group_name                    = azurerm_resource_group.rg.name
-  location                               = local.spoke3_location
-  prefix                                 = trimsuffix(local.spoke3_prefix, "-")
-  type                                   = "private"
-  private_dns_zone                       = module.spoke3.private_dns_zone.name
-  dns_host                               = local.spoke3_ilb_host
-  frontend_subnet_id                     = module.spoke3.subnets["LoadBalancerSubnet"].id
-  frontend_private_ip_address_allocation = "Static"
-  frontend_private_ip_address            = local.spoke3_ilb_addr
-  lb_sku                                 = "Standard"
+  source              = "../../modules/azure-load-balancer"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = local.spoke3_location
+  prefix              = trimsuffix(local.spoke3_prefix, "-")
+  name                = "pls"
+  type                = "private"
+  lb_sku              = "Standard"
 
-  remote_port = { ssh = ["Tcp", "80"] }
-  lb_port     = { http = ["80", "Tcp", "80"] }
-  lb_probe    = { http = ["Tcp", "80", ""] }
+  frontend_ip_configuration = [
+    {
+      name                          = "pls"
+      zones                         = ["1", "2", "3"]
+      subnet_id                     = module.spoke3.subnets["LoadBalancerSubnet"].id
+      private_ip_address            = local.spoke3_ilb_addr
+      private_ip_address_allocation = "Static"
+    }
+  ]
 
-  backend_address_pools = {
-    name = "pls"
-    interfaces = [
-      {
-        name                  = module.spoke3_vm.vm.name
-        ip_configuration_name = module.spoke3_vm.interface.ip_configuration[0].name
-        network_interface_id  = module.spoke3_vm.interface.id
-      }
-    ]
-  }
+  probes = [
+    { name = "http", protocol = "Tcp", port = "80", request_path = "" },
+  ]
+
+  backend_pools = [
+    {
+      name = "pls"
+      interfaces = [
+        {
+          ip_configuration_name = module.spoke3_vm.interface.ip_configuration[0].name
+          network_interface_id  = module.spoke3_vm.interface.id
+        },
+      ]
+    },
+  ]
+
+  lb_rules = [
+    {
+      name                           = "pls-80"
+      protocol                       = "Tcp"
+      frontend_port                  = "80"
+      backend_port                   = "80"
+      frontend_ip_configuration_name = "pls"
+      backend_address_pool_name      = ["pls", ]
+      probe_name                     = "http"
+    },
+  ]
 }
 
 # service
@@ -57,7 +77,7 @@ module "spoke3_pls" {
       name            = "pls-nat-ip-config"
       primary         = true
       subnet_id       = module.spoke3.subnets["PrivateLinkServiceSubnet"].id
-      lb_frontend_ids = [module.spoke3_lb.frontend_ip_configuration.id, ]
+      lb_frontend_ids = [module.spoke3_lb.frontend_ip_configurations["pls"].id, ]
     }
   ]
 }
@@ -123,7 +143,7 @@ module "spoke3_apps" {
   resource_group    = azurerm_resource_group.rg.name
   location          = local.spoke3_location
   prefix            = lower(local.spoke3_prefix)
-  name              = random_id.services_region1.hex
+  name              = "${random_id.random.hex}-app"
   docker_image_name = "ksalawu/web:latest"
   subnet_id         = module.spoke3.subnets["AppServiceSubnet"].id
   depends_on = [

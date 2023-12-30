@@ -1,0 +1,28 @@
+version: '3'
+services:
+  app1:
+    container_name: app1
+    build:
+      context: ./app1
+      dockerfile: Dockerfile
+    ports:
+      - ${APP1_PORT}:${APP1_PORT}
+    network_mode: host
+    # volumes:
+    #   - /etc/ssl/app/cert.pem:/etc/ssl/app/cert.pem
+    #   - /etc/ssl/app/key.pem:/etc/ssl/app/key.pem
+
+  app2:
+    container_name: app2
+    build:
+      context: ./app2
+      dockerfile: Dockerfile
+    ports:
+      - ${APP2_PORT}:${APP2_PORT}
+    network_mode: host
+
+  httpbin:
+    image: kennethreitz/httpbin
+    ports:
+      - 80:80
+    network_mode: host

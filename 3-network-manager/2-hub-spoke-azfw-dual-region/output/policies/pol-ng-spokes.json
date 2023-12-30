@@ -8,6 +8,10 @@
       {
         "allOf": [
           {
+            "field": "tags['lab']",
+            "equals": "Ne32"
+          },
+          {
             "field": "tags['env']",
             "equals": "prod"
           },

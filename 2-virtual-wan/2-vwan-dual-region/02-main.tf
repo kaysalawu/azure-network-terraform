@@ -3,7 +3,26 @@
 ####################################################
 
 locals {
-  prefix = "Vwan22"
+  prefix             = "Vwan22"
+  enable_diagnostics = true
+  spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
+  spoke6_apps_fqdn   = lower("${local.spoke6_prefix}${random_id.random.hex}-app.azurewebsites.net")
+
+  hub1_tags    = { "lab" = "Vwan22", "nodeType" = "hub" }
+  hub2_tags    = { "lab" = "Vwan22", "nodeType" = "hub" }
+  branch1_tags = { "lab" = "Vwan22", "nodeType" = "branch" }
+  branch2_tags = { "lab" = "Vwan22", "nodeType" = "branch" }
+  branch3_tags = { "lab" = "Vwan22", "nodeType" = "branch" }
+  spoke1_tags  = { "lab" = "Vwan22", "nodeType" = "spoke" }
+  spoke2_tags  = { "lab" = "Vwan22", "nodeType" = "spoke" }
+  spoke3_tags  = { "lab" = "Vwan22", "nodeType" = "float" }
+  spoke4_tags  = { "lab" = "Vwan22", "nodeType" = "spoke" }
+  spoke5_tags  = { "lab" = "Vwan22", "nodeType" = "spoke" }
+  spoke6_tags  = { "lab" = "Vwan22", "nodeType" = "float" }
+}
+
+resource "random_id" "random" {
+  byte_length = 2
 }
 
 ####################################################
@@ -18,11 +37,10 @@ provider "azurerm" {
 provider "azapi" {}
 
 terraform {
-  #required_version = ">= 1.4.6"
   required_providers {
     megaport = {
       source  = "megaport/megaport"
-      version = "0.1.9"
+      version = "0.4.0"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -50,15 +68,11 @@ locals {
   firewall_sku = "Basic"
 
   hub1_features = {
-    vnet_config = [{
+    config_vnet = {
       address_space               = local.hub1_address_space
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
       enable_ars                  = false
-      enable_vpn_gateway          = false
-      enable_er_gateway           = false
-      vpn_gateway_sku             = "VpnGw1AZ"
-      vpn_gateway_asn             = local.hub1_vpngw_asn
 
       ruleset_dns_forwarding_rules = {
         "onprem" = {
@@ -68,40 +82,64 @@ locals {
             { ip_address = local.branch3_dns_addr, port = 53 },
           ]
         }
-        "cloud" = {
-          domain = local.cloud_domain
+        "we" = {
+          domain = "we.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
+          ]
+        }
+        "ne" = {
+          domain = "ne.${local.cloud_domain}"
+          target_dns_servers = [
             { ip_address = local.hub2_dns_in_addr, port = 53 },
           ]
         }
+        "azurewebsites" = {
+          domain = "privatelink.azurewebsites.net"
+          target_dns_servers = [
+            { ip_address = local.hub1_dns_in_addr, port = 53 },
+          ]
+        }
       }
-    }]
+    }
 
-    firewall_config = [{
+    config_vpngw = {
+      enable             = false
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
+      bgp_settings = {
+        asn = local.hub1_vpngw_asn
+      }
+    }
+
+    config_ergw = {
+      enable             = false
+      sku                = "ErGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
+    }
+
+    config_firewall = {
       enable             = false
       firewall_sku       = local.firewall_sku
       firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
-    }]
+      enable_diagnostics = local.enable_diagnostics
+    }
 
-    nva_config = [{
-      enable           = true
-      type             = "linux"
-      internal_lb_addr = local.hub1_nva_ilb_addr
-      custom_data      = base64encode(local.hub1_linux_nva_init)
-    }]
+    config_nva = {
+      enable             = true
+      type               = "linux"
+      internal_lb_addr   = local.hub1_nva_ilb_addr
+      custom_data        = base64encode(local.hub1_linux_nva_init)
+      enable_diagnostics = local.enable_diagnostics
+    }
   }
 
   hub2_features = {
-    vnet_config = [{
+    config_vnet = {
       address_space               = local.hub2_address_space
       subnets                     = local.hub2_subnets
       enable_private_dns_resolver = true
       enable_ars                  = false
-      enable_vpn_gateway          = false
-      enable_er_gateway           = false
-      vpn_gateway_sku             = "VpnGw1AZ"
-      vpn_gateway_asn             = local.hub1_vpngw_asn
 
       ruleset_dns_forwarding_rules = {
         "onprem" = {
@@ -111,54 +149,118 @@ locals {
             { ip_address = local.branch1_dns_addr, port = 53 },
           ]
         }
-        "cloud" = {
-          domain = local.cloud_domain
+        "we" = {
+          domain = "we.${local.cloud_domain}"
           target_dns_servers = [
-            { ip_address = local.hub2_dns_in_addr, port = 53 },
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
         }
+        "ne" = {
+          domain = "ne.${local.cloud_domain}"
+          target_dns_servers = [
+            { ip_address = local.hub2_dns_in_addr, port = 53 },
+          ]
+        }
       }
-    }]
+    }
 
-    firewall_config = [{
+    config_vpngw = {
+      enable             = false
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
+      bgp_settings = {
+        asn = local.hub2_vpngw_asn
+      }
+    }
+
+    config_ergw = {
+      enable             = false
+      sku                = "ErGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
+    }
+
+    config_firewall = {
       enable             = false
       firewall_sku       = local.firewall_sku
       firewall_policy_id = azurerm_firewall_policy.firewall_policy["region2"].id
-    }]
+      enable_diagnostics = local.enable_diagnostics
+    }
 
-    nva_config = [{
-      enable           = true
-      type             = "linux"
-      internal_lb_addr = local.hub2_nva_ilb_addr
-      custom_data      = base64encode(local.hub2_linux_nva_init)
-    }]
+    config_nva = {
+      enable             = true
+      type               = "linux"
+      internal_lb_addr   = local.hub2_nva_ilb_addr
+      custom_data        = base64encode(local.hub2_linux_nva_init)
+      enable_diagnostics = local.enable_diagnostics
+    }
   }
 
   vhub1_features = {
-    enable_er_gateway      = false
-    enable_s2s_vpn_gateway = true
-    enable_p2s_vpn_gateway = false
+    express_route_gateway = {
+      enable             = false
+      sku                = "ErGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
+    }
 
-    security = {
+    s2s_vpn_gateway = {
+      enable             = true
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
+      bgp_settings = {
+        asn                                       = local.vhub1_bgp_asn
+        peer_weight                               = 0
+        instance_0_bgp_peering_address_custom_ips = [local.vhub1_vpngw_bgp_apipa_0]
+        instance_1_bgp_peering_address_custom_ips = [local.vhub1_vpngw_bgp_apipa_1]
+      }
+    }
+
+    p2s_vpn_gateway = {
+      enable             = false
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
+    }
+
+    config_security = {
       create_firewall       = false
       enable_routing_intent = false
       firewall_sku          = local.firewall_sku
       firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region1"].id
+      enable_diagnostics    = local.enable_diagnostics
       routing_policies      = {}
     }
   }
 
   vhub2_features = {
-    enable_er_gateway      = false
-    enable_s2s_vpn_gateway = true
-    enable_p2s_vpn_gateway = false
+    express_route_gateway = {
+      enable             = false
+      sku                = "ErGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
+    }
 
-    security = {
+    s2s_vpn_gateway = {
+      enable             = true
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
+      bgp_settings = {
+        asn                                       = local.vhub2_bgp_asn
+        peer_weight                               = 0
+        instance_0_bgp_peering_address_custom_ips = [local.vhub2_vpngw_bgp_apipa_0]
+        instance_1_bgp_peering_address_custom_ips = [local.vhub2_vpngw_bgp_apipa_1]
+      }
+    }
+
+    p2s_vpn_gateway = {
+      enable             = false
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
+    }
+
+    config_security = {
       create_firewall       = false
       enable_routing_intent = false
       firewall_sku          = local.firewall_sku
       firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region2"].id
+      enable_diagnostics    = local.enable_diagnostics
       routing_policies      = {}
     }
   }
@@ -244,6 +346,8 @@ locals {
   ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ip = "icanhazip.com" },
+    { name = "hub1-spoke3-apps", dns = local.spoke3_apps_fqdn, ping = false, probe = true },
+    { name = "hub2-spoke6-apps", dns = local.spoke6_apps_fqdn, ping = false, probe = true },
   ]
   vm_script_targets = concat(
     local.vm_script_targets_region1,
@@ -257,7 +361,7 @@ locals {
     ENABLE_TRAFFIC_GEN        = false
   })
 
-  unbound_vars = {
+  branch_dns_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones
@@ -270,16 +374,21 @@ locals {
       ]
     )
   }
-  branch_unbound_conf         = templatefile("../../scripts/unbound/unbound.conf", local.unbound_vars)
-  branch_unbound_startup      = templatefile("../../scripts/unbound/unbound.sh", local.unbound_vars)
-  branch_dnsmasq_startup      = templatefile("../../scripts/dnsmasq/dnsmasq.sh", local.unbound_vars)
-  branch_dnsmasq_cloud_config = templatefile("../../scripts/dnsmasq/cloud-config", local.unbound_vars)
-  branch_unbound_cloud_config = templatefile("../../scripts/unbound/cloud-config", local.unbound_vars)
-  branch_unbound_vars = {
-    ONPREM_LOCAL_RECORDS = local.onprem_local_records
-    REDIRECTED_HOSTS     = local.onprem_redirected_hosts
-    FORWARD_ZONES        = local.onprem_forward_zones
-    TARGETS              = local.vm_script_targets_region1
+  branch_unbound_startup = templatefile("../../scripts/unbound/unbound.sh", local.branch_dns_vars)
+  branch_dnsmasq_startup = templatefile("../../scripts/dnsmasq/dnsmasq.sh", local.branch_dns_vars)
+  branch_dns_init_dir    = "/var/lib/labs"
+  branch_dnsmasq_init = {
+    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/app/Dockerfile", {}) }
+    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/docker-compose.yml", {}) }
+    "/etc/dnsmasq.d/local_records.conf"               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/app/conf/local_records.conf", local.branch_dns_vars) }
+    "/etc/dnsmasq.d/forwarding.conf"                  = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/app/conf/forwarding.conf", local.branch_dns_vars) }
+    "/etc/dnsmasq.d/default.conf"                     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/app/conf/default.conf", local.branch_dns_vars) }
+  }
+  branch_unbound_init = {
+    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/Dockerfile", {}) }
+    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/docker-compose.yml", {}) }
+    "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/conf/unbound.conf", local.branch_dns_vars) }
+    "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/conf/unbound.log", local.branch_dns_vars) }
   }
   onprem_local_records = [
     { name = (local.branch1_vm_fqdn), record = local.branch1_vm_addr },
@@ -300,26 +409,31 @@ locals {
   onprem_redirected_hosts = []
 }
 
-module "unbound" {
+module "branch_dnsmasq_init" {
   source   = "../../modules/cloud-config-gen"
-  packages = ["tcpdump", "dnsutils", "net-tools", "unbound"]
-  files = {
-    "/var/log/unbound"          = { owner = "root", permissions = "0755", content = "" }
-    "/etc/unbound/unbound.conf" = { owner = "root", permissions = "0640", content = local.branch_unbound_conf }
-  }
+  packages = ["docker.io", "docker-compose", "dnsutils", "net-tools", ]
+  files    = local.branch_dnsmasq_init
   run_commands = [
-    "systemctl restart unbound",
-    "systemctl enable unbound",
+    "systemctl stop systemd-resolved",
+    "systemctl disable systemd-resolved",
+    "echo \"nameserver 8.8.8.8\" > /etc/resolv.conf",
+    "systemctl enable docker",
+    "systemctl start docker",
+    "docker-compose -f ${local.branch_dns_init_dir}/docker-compose.yml up -d",
   ]
 }
 
-module "dnsmasq" {
+module "branch_unbound_init" {
   source   = "../../modules/cloud-config-gen"
-  packages = ["dnsmasq"]
-  files    = {}
+  packages = ["docker.io", "docker-compose", "dnsutils", "net-tools", ]
+  files    = local.branch_unbound_init
   run_commands = [
-    "systemctl restart dnsmasq",
-    "systemctl enable dnsmasq",
+    "systemctl stop systemd-resolved",
+    "systemctl disable systemd-resolved",
+    "echo \"nameserver 8.8.8.8\" > /etc/resolv.conf",
+    "systemctl restart unbound",
+    "systemctl enable unbound",
+    "docker-compose -f ${local.branch_dns_init_dir}/docker-compose.yml up -d",
   ]
 }
 
@@ -366,8 +480,7 @@ resource "azurerm_firewall_policy" "firewall_policy" {
   private_ip_ranges = concat(
     local.private_prefixes,
     [
-      #"${local.spoke3_vm_public_ip}/32",
-      #"${local.spoke6_vm_public_ip}/32",
+      local.internet_proxy,
     ]
   )
 
@@ -380,7 +493,7 @@ resource "azurerm_firewall_policy" "firewall_policy" {
 
 module "fw_policy_rule_collection_group" {
   for_each           = local.regions
-  source             = "../../modules/fw-policy"
+  source             = "../../modules/firewall-policy"
   prefix             = local.prefix
   firewall_policy_id = azurerm_firewall_policy.firewall_policy[each.key].id
 

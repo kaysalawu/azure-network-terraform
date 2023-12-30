@@ -25,12 +25,21 @@ plugins/
 *scrap*
 *reference*
 *artifact
-*certs
 *anthos-keys
 backend.tf
+*certs/
+*.pem
+*.crt
+*.key
+*.cer
 
 # Skaffold
 bin/
+include/
+lib/
+lib64/
+share/
+pyvenv.cfg
 pkg/
 .DS_Store
 *.pyc

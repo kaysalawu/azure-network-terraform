@@ -3,15 +3,12 @@ locals {
   policy_ng_spokes_prod_region1 = templatefile("../../policies/avnm/ng-spokes-prod-region.json", {
     NETWORK_GROUP_ID = azurerm_network_manager_network_group.ng_spokes_prod_region1.id
     LOCATION         = local.region1
+    LAB_ID           = local.prefix
   })
   policy_cleanup_commands_region1 = [
     "az policy assignment delete -n ${local.prefix}-ng-spokes-prod-region1",
     "az policy definition delete -n ${local.prefix}-ng-spokes-prod-region1",
   ]
-}
-
-resource "random_id" "policy_region1" {
-  byte_length = 4
 }
 
 ####################################################
@@ -28,7 +25,7 @@ resource "azurerm_network_manager_network_group" "ng_spokes_prod_region1" {
 ####################################################
 
 resource "azurerm_policy_definition" "ng_spokes_prod_region1" {
-  name         = "${local.prefix}-ng-spokes-prod-region1-${random_id.policy_region1.hex}"
+  name         = "${local.prefix}-ng-spokes-prod-region1"
   policy_type  = "Custom"
   mode         = "Microsoft.Network.Data"
   display_name = "All spokes in prod region1"
@@ -41,7 +38,7 @@ resource "azurerm_policy_definition" "ng_spokes_prod_region1" {
 ####################################################
 
 resource "azurerm_subscription_policy_assignment" "ng_spokes_prod_region1" {
-  name                 = "${local.prefix}-ng-spokes-prod-region1-${random_id.policy_region1.hex}"
+  name                 = "${local.prefix}-ng-spokes-prod-region1"
   policy_definition_id = azurerm_policy_definition.ng_spokes_prod_region1.id
   subscription_id      = data.azurerm_subscription.current.id
 }

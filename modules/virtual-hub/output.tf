@@ -1,22 +1,26 @@
 
 output "vpngw" {
-  value = azurerm_vpn_gateway.this[0]
+  value = try(module.vpngw[0].gateway, {})
+}
+
+output "ergw" {
+  value = try(module.ergw[0].gateway, {})
 }
 
 output "vpngw_public_ip0" {
-  value = try(tolist(azurerm_vpn_gateway.this[0].bgp_settings[0].instance_0_bgp_peering_address[0].tunnel_ips)[1], {})
+  value = try(module.vpngw[0].public_ip0, {})
 }
 
 output "vpngw_public_ip1" {
-  value = try(tolist(azurerm_vpn_gateway.this[0].bgp_settings[0].instance_1_bgp_peering_address[0].tunnel_ips)[1], {})
+  value = try(module.vpngw[0].public_ip1, {})
 }
 
 output "vpngw_bgp_ip0" {
-  value = try(tolist(azurerm_vpn_gateway.this[0].bgp_settings[0].instance_0_bgp_peering_address[0].default_ips)[0], {})
+  value = try(module.vpngw[0].bgp_ip0, {})
 }
 
 output "vpngw_bgp_ip1" {
-  value = try(tolist(azurerm_vpn_gateway.this[0].bgp_settings[0].instance_1_bgp_peering_address[0].default_ips)[0], {})
+  value = try(module.vpngw[0].bgp_ip1, {})
 }
 
 output "router_bgp_ip0" {
@@ -28,11 +32,11 @@ output "router_bgp_ip1" {
 }
 
 output "firewall" {
-  value = try(azurerm_firewall.this[0], {})
+  value = try(module.azfw[0], {})
 }
 
 output "firewall_private_ip" {
-  value = try(azurerm_firewall.this[0].virtual_hub[0].private_ip_address, {})
+  value = try(module.azfw[0].virtual_hub[0].private_ip_address, {})
 }
 
 output "virtual_hub" {
@@ -43,6 +47,3 @@ output "bgp_asn" {
   value = azurerm_virtual_hub.this.virtual_router_asn
 }
 
-output "azfw_diagnostic_setting" {
-  value = try(azurerm_monitor_diagnostic_setting.azfw[0], {})
-}

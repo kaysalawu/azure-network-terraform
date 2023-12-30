@@ -15,6 +15,10 @@ resource "azurerm_virtual_network_peering" "branch1_to_branch3_peering" {
   remote_virtual_network_id    = module.branch3.vnet.id
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
+  depends_on = [
+    module.branch1,
+    module.branch3,
+  ]
 }
 
 # branch3-to-branch1
@@ -26,5 +30,9 @@ resource "azurerm_virtual_network_peering" "branch3_to_branch1_peering" {
   remote_virtual_network_id    = module.branch1.vnet.id
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
+  depends_on = [
+    module.branch1,
+    module.branch3,
+  ]
 }
 

@@ -40,16 +40,3 @@ resource "azurerm_private_dns_zone_virtual_network_link" "dns_links_hub2_vnet" {
   }
 }
 
-####################################################
-# private dns resolver
-####################################################
-
-# dns resolver links
-
-# resource "azurerm_private_dns_resolver_virtual_network_link" "hub1" {
-#   for_each                  = local.hub1_private_dns_ruleset_links
-#   name                      = "${module.hub1.private_dns_forwarding_ruleset.name}-${each.key}-vnet-link}"
-#   dns_forwarding_ruleset_id = module.hub1.private_dns_forwarding_ruleset.id
-#   virtual_network_id        = each.value
-# }
-
