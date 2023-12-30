@@ -369,7 +369,7 @@ locals {
     ENABLE_TRAFFIC_GEN        = false
   })
 
-  onprem_dns_vars = {
+  branch_dns_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones
@@ -397,12 +397,6 @@ locals {
     "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/docker-compose.yml", {}) }
     "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/conf/unbound.conf", local.branch_dns_vars) }
     "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/conf/unbound.log", local.branch_dns_vars) }
-  }
-  branch_dns_vars = {
-    ONPREM_LOCAL_RECORDS = local.onprem_local_records
-    REDIRECTED_HOSTS     = local.onprem_redirected_hosts
-    FORWARD_ZONES        = local.onprem_forward_zones
-    TARGETS              = local.vm_script_targets_region1
   }
   onprem_local_records = [
     { name = (local.branch1_vm_fqdn), record = local.branch1_vm_addr },
