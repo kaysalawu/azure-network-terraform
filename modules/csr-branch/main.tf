@@ -66,7 +66,7 @@ resource "azurerm_linux_virtual_machine" "this" {
     product   = "cisco-csr-1000v" # offer
     name      = "17_3_4a-byol"    # sku
   }
-  computer_name  = "${local.name}vm"
+  computer_name  = replace("${local.name}vm", "_", "")
   admin_username = var.admin_username
   admin_password = var.admin_password
   boot_diagnostics {

@@ -5,7 +5,7 @@
 
 resource "azurerm_log_analytics_workspace" "this" {
   resource_group_name = var.resource_group
-  name                = "${var.prefix}vpngw-ws"
+  name                = replace("${var.prefix}vpngw-ws", "_", "")
   location            = var.location
   sku                 = "PerGB2018"
   retention_in_days   = 30
