@@ -1,7 +1,7 @@
 
 # Prerequisites
 
-## Using Cloudshell Bash (Option 1)
+## 1. Using Cloudshell Bash (Option 1)
 
 1. Ensure that you have [setup your Azure Cloud Shell](https://learn.microsoft.com/en-us/azure/cloud-shell/overview) environment.
 
@@ -13,14 +13,14 @@
 
 If you prefer to run the code on a local bash terminal, then proceed to [Option 2](#using-local-linux-machine-option-2).
 
-## Using Local Linux Machine (Option 2)
+## 2. Using Local Linux Machine (Option 2)
 
 To use a local Linux machine, do the following:
 
 1. Ensure that you have installed and configured [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
 2. Ensure that you have installed [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 
-## Remaining Steps
+## 3. Remaining Steps
 
 Run the following commands to ensure that your environment is ready for the lab:
 
@@ -47,4 +47,9 @@ Run the following commands to ensure that your environment is ready for the lab:
 4. Ensure that Azure CLI and extensions are up to date:
    ```sh
    az upgrade --yes
+   ```
+
+5. Run some additional commands:
+   ```sh
+   az config set extension.use_dynamic_install=yes_without_prompt
    ```
