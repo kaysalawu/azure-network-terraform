@@ -525,3 +525,10 @@ Observe the firewall logs based on traffic flows generated from our tests.
    ```sh
    az group delete -g Hs11RG --no-wait
    ```
+
+4. Delete terraform state files and other generated files.
+
+   ```sh
+   rm -rf .terraform*
+   rm terraform.tfstate*
+   ```

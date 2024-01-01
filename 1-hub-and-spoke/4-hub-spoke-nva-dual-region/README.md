@@ -667,3 +667,10 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
    ```sh
    az group delete -g Hs14RG --no-wait
    ```
+
+4. Delete terraform state files and other generated files.
+
+   ```sh
+   rm -rf .terraform*
+   rm terraform.tfstate*
+   ```
