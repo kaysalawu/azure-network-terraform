@@ -52,11 +52,17 @@ data "azurerm_storage_account" "storeacc" {
   resource_group_name = local.resource_group_name
 }
 
+data "azurerm_public_ip" "pip" {
+  count               = var.public_ip_address_name != null ? 1 : 0
+  name                = var.public_ip_address_name
+  resource_group_name = local.resource_group_name
+}
+
 #-----------------------------------
 # Public IP for application gateway
 #-----------------------------------
 resource "azurerm_public_ip" "pip" {
-  count               = var.public_ip_address_id == null ? 1 : 0
+  count               = length(data.azurerm_public_ip.pip) > 0 ? 0 : 1
   name                = lower("${var.app_gateway_name}-${var.location}-gw-pip")
   location            = var.location
   resource_group_name = local.resource_group_name
@@ -98,8 +104,9 @@ resource "azurerm_application_gateway" "main" {
   }
 
   frontend_ip_configuration {
-    name                 = local.frontend_ip_configuration_public_name
-    public_ip_address_id = var.public_ip_address_id != null ? var.public_ip_address_id : azurerm_public_ip.pip[0].id
+    name = local.frontend_ip_configuration_public_name
+    #public_ip_address_id = data.azurerm_public_ip.pip[0].id
+    public_ip_address_id = length(data.azurerm_public_ip.pip) > 0 ? data.azurerm_public_ip.pip[0].id : azurerm_public_ip.pip[0].id
   }
 
   frontend_ip_configuration {
