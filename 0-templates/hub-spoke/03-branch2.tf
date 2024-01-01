@@ -276,7 +276,6 @@ module "branch2_udr_main" {
 locals {
   branch2_files = {
     "output/branch2-nva.sh" = local.branch2_nva_init
-    "output/branch2-vm.sh"  = local.branch2_vm_init
   }
 }
 
