@@ -44,7 +44,7 @@ Run the following commands to ensure that your environment is ready for the lab:
    az extension add --name resource-graph
    ```
 
-4. Ensure that Azure CLI and extensions are up to date:
+4. Ensure that Azure CLI and extensions are up-to-date:
    ```sh
    az upgrade --yes
    ```
