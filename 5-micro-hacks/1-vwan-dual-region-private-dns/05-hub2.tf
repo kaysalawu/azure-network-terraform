@@ -25,15 +25,15 @@ module "hub2" {
   storage_account = module.common.storage_accounts["region2"]
   tags            = local.hub2_tags
 
-  create_private_dns_zone = true
+  create_private_dns_zone = false
   private_dns_zone_name   = local.hub2_dns_zone
   private_dns_zone_linked_external_vnets = {
-    "spoke4" = module.spoke4.vnet.id
-    "spoke5" = module.spoke5.vnet.id
+    # "spoke4" = module.spoke4.vnet.id
+    # "spoke5" = module.spoke5.vnet.id
   }
   private_dns_ruleset_linked_external_vnets = {
-    "spoke4" = module.spoke4.vnet.id
-    "spoke5" = module.spoke5.vnet.id
+    # "spoke4" = module.spoke4.vnet.id
+    # "spoke5" = module.spoke5.vnet.id
   }
 
   nsg_subnet_map = {
@@ -62,17 +62,17 @@ module "hub2" {
 ####################################################
 
 module "hub2_vm" {
-  source                = "../../modules/linux"
-  resource_group        = azurerm_resource_group.rg.name
-  prefix                = local.hub2_prefix
-  name                  = "vm"
-  location              = local.hub2_location
-  subnet                = module.hub2.subnets["MainSubnet"].id
-  private_ip            = local.hub2_vm_addr
-  enable_public_ip      = true
-  custom_data           = base64encode(local.vm_startup)
-  storage_account       = module.common.storage_accounts["region2"]
-  private_dns_zone_name = local.hub2_dns_zone
-  tags                  = local.hub2_tags
-  depends_on            = [module.hub2]
+  source           = "../../modules/linux"
+  resource_group   = azurerm_resource_group.rg.name
+  prefix           = local.hub2_prefix
+  name             = "vm"
+  location         = local.hub2_location
+  subnet           = module.hub2.subnets["MainSubnet"].id
+  private_ip       = local.hub2_vm_addr
+  enable_public_ip = true
+  custom_data      = base64encode(local.vm_startup)
+  storage_account  = module.common.storage_accounts["region2"]
+  #private_dns_zone_name = local.hub2_dns_zone
+  tags       = local.hub2_tags
+  depends_on = [module.hub2]
 }

@@ -3,10 +3,10 @@
 ####################################################
 
 locals {
-  prefix             = "mH51_Vwan_Dns"
+  prefix             = "mH51_VwanDns"
   enable_diagnostics = true
-  spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
-  spoke6_apps_fqdn   = lower("${local.spoke6_prefix}${random_id.random.hex}-app.azurewebsites.net")
+  spoke3_apps_fqdn   = lower("spoke3-${random_id.random.hex}.azurewebsites.net")
+  spoke6_apps_fqdn   = lower("spoke6-${random_id.random.hex}.azurewebsites.net")
 
   hub1_tags    = { "lab" = "mH51_Vwan_Dns", "nodeType" = "hub" }
   hub2_tags    = { "lab" = "mH51_Vwan_Dns", "nodeType" = "hub" }
@@ -75,31 +75,31 @@ locals {
       enable_ars                  = false
 
       ruleset_dns_forwarding_rules = {
-        "onprem" = {
-          domain = local.onprem_domain
-          target_dns_servers = [
-            { ip_address = local.branch1_dns_addr, port = 53 },
-            { ip_address = local.branch3_dns_addr, port = 53 },
-          ]
-        }
-        "we" = {
-          domain = "we.${local.cloud_domain}"
-          target_dns_servers = [
-            { ip_address = local.hub1_dns_in_addr, port = 53 },
-          ]
-        }
-        "ne" = {
-          domain = "ne.${local.cloud_domain}"
-          target_dns_servers = [
-            { ip_address = local.hub2_dns_in_addr, port = 53 },
-          ]
-        }
-        "azurewebsites" = {
-          domain = "privatelink.azurewebsites.net"
-          target_dns_servers = [
-            { ip_address = local.hub1_dns_in_addr, port = 53 },
-          ]
-        }
+        # "onprem" = {
+        #   domain = local.onprem_domain
+        #   target_dns_servers = [
+        #     { ip_address = local.branch1_dns_addr, port = 53 },
+        #     { ip_address = local.branch3_dns_addr, port = 53 },
+        #   ]
+        # }
+        # "we" = {
+        #   domain = "we.${local.cloud_domain}"
+        #   target_dns_servers = [
+        #     { ip_address = local.hub1_dns_in_addr, port = 53 },
+        #   ]
+        # }
+        # "ne" = {
+        #   domain = "ne.${local.cloud_domain}"
+        #   target_dns_servers = [
+        #     { ip_address = local.hub2_dns_in_addr, port = 53 },
+        #   ]
+        # }
+        # "azurewebsites" = {
+        #   domain = "privatelink.azurewebsites.net"
+        #   target_dns_servers = [
+        #     { ip_address = local.hub1_dns_in_addr, port = 53 },
+        #   ]
+        # }
       }
     }
 
@@ -142,25 +142,25 @@ locals {
       enable_ars                  = false
 
       ruleset_dns_forwarding_rules = {
-        "onprem" = {
-          domain = local.onprem_domain
-          target_dns_servers = [
-            { ip_address = local.branch3_dns_addr, port = 53 },
-            { ip_address = local.branch1_dns_addr, port = 53 },
-          ]
-        }
-        "we" = {
-          domain = "we.${local.cloud_domain}"
-          target_dns_servers = [
-            { ip_address = local.hub1_dns_in_addr, port = 53 },
-          ]
-        }
-        "ne" = {
-          domain = "ne.${local.cloud_domain}"
-          target_dns_servers = [
-            { ip_address = local.hub2_dns_in_addr, port = 53 },
-          ]
-        }
+        # "onprem" = {
+        #   domain = local.onprem_domain
+        #   target_dns_servers = [
+        #     { ip_address = local.branch3_dns_addr, port = 53 },
+        #     { ip_address = local.branch1_dns_addr, port = 53 },
+        #   ]
+        # }
+        # "we" = {
+        #   domain = "we.${local.cloud_domain}"
+        #   target_dns_servers = [
+        #     { ip_address = local.hub1_dns_in_addr, port = 53 },
+        #   ]
+        # }
+        # "ne" = {
+        #   domain = "ne.${local.cloud_domain}"
+        #   target_dns_servers = [
+        #     { ip_address = local.hub2_dns_in_addr, port = 53 },
+        #   ]
+        # }
       }
     }
 
@@ -373,7 +373,7 @@ locals {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones
-    TARGETS              = local.vm_script_targets_region1
+    TARGETS              = local.vm_script_targets
     ACCESS_CONTROL_PREFIXES = concat(
       local.private_prefixes,
       [
@@ -399,19 +399,19 @@ locals {
     "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/conf/unbound.log", local.branch_dns_vars) }
   }
   onprem_local_records = [
-    { name = (local.branch1_vm_fqdn), record = local.branch1_vm_addr },
-    { name = (local.branch2_vm_fqdn), record = local.branch2_vm_addr },
-    { name = (local.branch3_vm_fqdn), record = local.branch3_vm_addr },
+    # { name = (local.branch1_vm_fqdn), record = local.branch1_vm_addr },
+    # { name = (local.branch2_vm_fqdn), record = local.branch2_vm_addr },
+    # { name = (local.branch3_vm_fqdn), record = local.branch3_vm_addr },
   ]
   onprem_forward_zones = [
-    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "privatelink.blob.core.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "privatelink.azurewebsites.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "privatelink.database.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "privatelink.table.cosmos.azure.com.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "privatelink.queue.core.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "privatelink.file.core.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
+    # { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
+    # { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
+    # { zone = "privatelink.blob.core.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
+    # { zone = "privatelink.azurewebsites.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
+    # { zone = "privatelink.database.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
+    # { zone = "privatelink.table.cosmos.azure.com.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
+    # { zone = "privatelink.queue.core.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
+    # { zone = "privatelink.file.core.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
     { zone = ".", targets = [local.azuredns, ] },
   ]
   onprem_redirected_hosts = []
@@ -663,7 +663,7 @@ locals {
 
 locals {
   main_files = {
-    "output/branch-unbound.sh" = local.branch_unbound_startup
+    "output/branch-dnsmasq.sh" = local.branch_dnsmasq_startup
     "output/server.sh"         = local.vm_startup
   }
 }

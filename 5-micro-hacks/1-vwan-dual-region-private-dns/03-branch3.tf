@@ -45,7 +45,7 @@ module "branch3_dns" {
   private_ip       = local.branch3_dns_addr
   enable_public_ip = true
   source_image     = "ubuntu-20"
-  custom_data      = base64encode(local.branch_unbound_startup)
+  custom_data      = base64encode(local.branch_dnsmasq_startup)
   storage_account  = module.common.storage_accounts["region2"]
   tags             = local.branch3_tags
 }
@@ -276,7 +276,6 @@ module "branch3_udr_main" {
 locals {
   branch3_files = {
     "output/branch3-nva.sh" = local.branch3_nva_init
-    "output/branch3-vm.sh"  = local.branch3_vm_init
   }
 }
 
@@ -285,3 +284,4 @@ resource "local_file" "branch3_files" {
   filename = each.key
   content  = each.value
 }
+

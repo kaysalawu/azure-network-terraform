@@ -24,10 +24,10 @@ module "spoke1" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.spoke1_tags
 
-  create_private_dns_zone = true
-  private_dns_zone_name   = local.spoke1_dns_zone
+  create_private_dns_zone = false
+  #private_dns_zone_name   = local.spoke1_dns_zone
   private_dns_zone_linked_external_vnets = {
-    "hub1" = module.hub1.vnet.id
+    # "hub1" = module.hub1.vnet.id
   }
 
   nsg_subnet_map = {
@@ -64,18 +64,18 @@ locals {
 }
 
 module "spoke1_vm" {
-  source                = "../../modules/linux"
-  resource_group        = azurerm_resource_group.rg.name
-  prefix                = local.spoke1_prefix
-  name                  = "vm"
-  location              = local.spoke1_location
-  subnet                = module.spoke1.subnets["MainSubnet"].id
-  private_ip            = local.spoke1_vm_addr
-  custom_data           = base64encode(local.spoke1_vm_init)
-  storage_account       = module.common.storage_accounts["region1"]
-  private_dns_zone_name = local.spoke1_dns_zone
-  delay_creation        = "1m"
-  tags                  = local.spoke1_tags
+  source          = "../../modules/linux"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = local.spoke1_prefix
+  name            = "vm"
+  location        = local.spoke1_location
+  subnet          = module.spoke1.subnets["MainSubnet"].id
+  private_ip      = local.spoke1_vm_addr
+  custom_data     = base64encode(local.spoke1_vm_init)
+  storage_account = module.common.storage_accounts["region1"]
+  #private_dns_zone_name = local.spoke1_dns_zone
+  delay_creation = "1m"
+  tags           = local.spoke1_tags
   depends_on = [
     module.spoke1,
   ]
@@ -96,10 +96,10 @@ module "spoke2" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.spoke2_tags
 
-  create_private_dns_zone = true
-  private_dns_zone_name   = local.spoke2_dns_zone
+  create_private_dns_zone = false
+  #private_dns_zone_name   = local.spoke2_dns_zone
   private_dns_zone_linked_external_vnets = {
-    "hub1" = module.hub1.vnet.id
+    #"hub1" = module.hub1.vnet.id
   }
 
   nsg_subnet_map = {
@@ -127,18 +127,18 @@ module "spoke2" {
 # workload
 
 module "spoke2_vm" {
-  source                = "../../modules/linux"
-  resource_group        = azurerm_resource_group.rg.name
-  prefix                = local.spoke2_prefix
-  name                  = "vm"
-  location              = local.spoke2_location
-  subnet                = module.spoke2.subnets["MainSubnet"].id
-  private_ip            = local.spoke2_vm_addr
-  custom_data           = base64encode(local.vm_startup)
-  storage_account       = module.common.storage_accounts["region1"]
-  private_dns_zone_name = local.spoke2_dns_zone
-  delay_creation        = "1m"
-  tags                  = local.spoke2_tags
+  source          = "../../modules/linux"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = local.spoke2_prefix
+  name            = "vm"
+  location        = local.spoke2_location
+  subnet          = module.spoke2.subnets["MainSubnet"].id
+  private_ip      = local.spoke2_vm_addr
+  custom_data     = base64encode(local.vm_startup)
+  storage_account = module.common.storage_accounts["region1"]
+  #private_dns_zone_name = local.spoke2_dns_zone
+  delay_creation = "1m"
+  tags           = local.spoke2_tags
   depends_on = [
     module.spoke2,
   ]
@@ -159,10 +159,10 @@ module "spoke3" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.spoke3_tags
 
-  create_private_dns_zone = true
-  private_dns_zone_name   = local.spoke3_dns_zone
+  create_private_dns_zone = false
+  #private_dns_zone_name   = local.spoke3_dns_zone
   private_dns_zone_linked_external_vnets = {
-    "hub1" = module.hub1.vnet.id
+    # "hub1" = module.hub1.vnet.id
   }
 
   nsg_subnet_map = {
@@ -190,18 +190,18 @@ module "spoke3" {
 # workload
 
 module "spoke3_vm" {
-  source                = "../../modules/linux"
-  resource_group        = azurerm_resource_group.rg.name
-  prefix                = local.spoke3_prefix
-  name                  = "vm"
-  location              = local.spoke3_location
-  subnet                = module.spoke3.subnets["MainSubnet"].id
-  private_ip            = local.spoke3_vm_addr
-  custom_data           = base64encode(local.vm_startup)
-  storage_account       = module.common.storage_accounts["region1"]
-  private_dns_zone_name = local.spoke3_dns_zone
-  delay_creation        = "1m"
-  tags                  = local.spoke3_tags
+  source          = "../../modules/linux"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = local.spoke3_prefix
+  name            = "vm"
+  location        = local.spoke3_location
+  subnet          = module.spoke3.subnets["MainSubnet"].id
+  private_ip      = local.spoke3_vm_addr
+  custom_data     = base64encode(local.vm_startup)
+  storage_account = module.common.storage_accounts["region1"]
+  #private_dns_zone_name = local.spoke3_dns_zone
+  delay_creation = "1m"
+  tags           = local.spoke3_tags
   depends_on = [
     module.spoke3,
   ]

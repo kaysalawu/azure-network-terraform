@@ -258,17 +258,6 @@ resource "azurerm_virtual_hub_route_table_route" "vhub2_default_rt_static_routes
   depends_on        = [module.hub2]
 }
 
-# resource "azurerm_virtual_hub_route_table_route" "vhub2_custom_rt_static_routes" {
-#   for_each          = local.vhub2_features.config_security.create_firewall ? local.vhub2_custom_rt_static_routes : {}
-#   route_table_id    = azurerm_virtual_hub_route_table.vhub2_custom[0].id
-#   name              = each.key
-#   destinations_type = "CIDR"
-#   destinations      = each.value.destinations
-#   next_hop_type     = "ResourceId"
-#   next_hop          = each.value.next_hop
-#   depends_on        = [module.hub2]
-# }
-
 ####################################################
 # bgp connections
 ####################################################
