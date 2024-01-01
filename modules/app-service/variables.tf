@@ -7,6 +7,7 @@ variable "resource_group" {
 variable "prefix" {
   description = "prefix to append before all resources"
   type        = string
+  default     = ""
 }
 
 variable "name" {
