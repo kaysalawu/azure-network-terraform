@@ -6,7 +6,7 @@ locals {
   prefix                = "Ge42"
   region1               = "westeurope"
   region2               = "northeurope"
-  spoke3_apps_fqdn      = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
+  spoke3_apps_fqdn      = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
   server_cert_name_app1 = "cert"
   server_common_name    = "healthz.az.corp"
   server_host_app1      = "app1.we.az.corp"

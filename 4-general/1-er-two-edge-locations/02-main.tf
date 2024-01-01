@@ -4,7 +4,7 @@
 
 locals {
   prefix           = "Ge41"
-  spoke3_apps_fqdn = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
+  spoke3_apps_fqdn = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
 }
 
 resource "random_id" "random" {

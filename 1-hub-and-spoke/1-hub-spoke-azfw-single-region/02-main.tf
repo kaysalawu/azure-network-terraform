@@ -5,7 +5,7 @@
 locals {
   prefix             = "Hs11"
   enable_diagnostics = true
-  spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
+  spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
 
   hub1_tags    = { "lab" = "Hs11", "nodeType" = "hub" }
   branch1_tags = { "lab" = "Hs11", "nodeType" = "branch" }

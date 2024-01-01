@@ -114,7 +114,7 @@ Hs12-spoke3-main = 10.3.0.0/24
 Hs12-spoke3-pep = 10.3.4.0/24
 Hs12-spoke3-pls = 10.3.3.0/24
 --- Services ---
-APPS_URL = hs12-spoke3-16ef-app.azurewebsites.net
+APPS_URL = hs12-spoke3-16ef.azurewebsites.net
 
 # spoke4
 #----------------------------------------
@@ -160,5 +160,5 @@ Hs12-spoke6-main = 10.6.0.0/24
 Hs12-spoke6-pep = 10.6.4.0/24
 Hs12-spoke6-pls = 10.6.3.0/24
 --- Services ---
-APPS_URL = hs12-spoke6-e183-app.azurewebsites.net
+APPS_URL = hs12-spoke6-e183.azurewebsites.net
 

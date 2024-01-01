@@ -5,8 +5,8 @@
 locals {
   prefix             = "Vwan24"
   enable_diagnostics = true
-  spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
-  spoke6_apps_fqdn   = lower("${local.spoke6_prefix}${random_id.random.hex}-app.azurewebsites.net")
+  spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
+  spoke6_apps_fqdn   = lower("${local.spoke6_prefix}${random_id.random.hex}.azurewebsites.net")
 
   hub1_tags    = { "lab" = "Vwan24", "nodeType" = "hub" }
   hub2_tags    = { "lab" = "Vwan24", "nodeType" = "hub" }

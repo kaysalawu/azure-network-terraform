@@ -71,7 +71,7 @@ See the [troubleshooting](../../troubleshooting/) section for tips on how to res
 
 ## Outputs
 
-The table below show the auto-generated output files from the lab. They are located in the `output` directory.
+The table below shows the auto-generated output files from the lab. They are located in the `output` directory.
 
 | Item    | Description  | Location |
 |--------|--------|--------|
@@ -272,8 +272,8 @@ The app services are accessible via the private endpoints in ***hub1*** and ***h
 
 The app services have the following naming convention:
 
-- ne32-spoke3-AAAA-app.azurewebsites.net
-- ne32-spoke6-BBBB-app.azurewebsites.net
+- ne32-spoke3-AAAA.azurewebsites.net
+- ne32-spoke6-BBBB.azurewebsites.net
 
 Where ***AAAA*** and ***BBBB*** are randomly generated two-byte strings.
 
@@ -291,7 +291,7 @@ echo $spoke3_apps_url
 Sample output (yours will be different)
 
 ```sh
-ne32-spoke3-12bd-app.azurewebsites.net
+ne32-spoke3-12bd.azurewebsites.net
 ```
 
 **5.3.** Resolve the hostname
@@ -308,7 +308,7 @@ Server:         172.19.64.1
 Address:        172.19.64.1#53
 
 Non-authoritative answer:
-ne32-spoke3-12bd-app.azurewebsites.net  canonical name = ne32-spoke3-12bd-app.privatelink.azurewebsites.net.
+ne32-spoke3-12bd.azurewebsites.net  canonical name = ne32-spoke3-12bd-app.privatelink.azurewebsites.net.
 ne32-spoke3-12bd-app.privatelink.azurewebsites.net      canonical name = waws-prod-am2-603.sip.azurewebsites.windows.net.
 waws-prod-am2-603.sip.azurewebsites.windows.net canonical name = waws-prod-am2-603-2ca0.westeurope.cloudapp.azure.com.
 Name:   waws-prod-am2-603-2ca0.westeurope.cloudapp.azure.com
@@ -331,11 +331,11 @@ Sample output
   "Headers": {
     "Accept": "*/*",
     "Client-Ip": "152.37.70.253:4796",
-    "Disguised-Host": "ne32-spoke3-12bd-app.azurewebsites.net",
-    "Host": "ne32-spoke3-12bd-app.azurewebsites.net",
+    "Disguised-Host": "ne32-spoke3-12bd.azurewebsites.net",
+    "Host": "ne32-spoke3-12bd.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.74.0",
-    "Was-Default-Hostname": "ne32-spoke3-12bd-app.azurewebsites.net",
+    "Was-Default-Hostname": "ne32-spoke3-12bd.azurewebsites.net",
     "X-Arr-Log-Id": "081cb271-2ad7-48c6-b1e3-5a8cccd8cbc5",
     "X-Client-Ip": "152.37.70.253",
     "X-Client-Port": "4796",
@@ -356,34 +356,34 @@ Observe that we are connecting from our local client's public IP address specifi
 
 ### 6. Private Link (App Service) Access from On-premises
 
-**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `ne32-spoke3-12bd-app.azurewebsites.net`.
+**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `ne32-spoke3-12bd.azurewebsites.net`.
 
 **6.2.** Connect to the on-premises server `Ne32-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Ne32-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
 
-**6.3.** Resolve the hostname DNS - which is `ne32-spoke3-12bd-app.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
+**6.3.** Resolve the hostname DNS - which is `ne32-spoke3-12bd.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
 
 ```sh
-nslookup ne32-spoke3-<AAAA>-app.azurewebsites.net
+nslookup ne32-spoke3-<AAAA>.azurewebsites.net
 ```
 
 Sample output
 
 ```sh
-azureuser@Ne32-branch1-vm:~$ nslookup ne32-spoke3-12bd-app.azurewebsites.net
+azureuser@Ne32-branch1-vm:~$ nslookup ne32-spoke3-12bd.azurewebsites.net
 Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-ne32-spoke3-12bd-app.azurewebsites.net  canonical name = ne32-spoke3-12bd-app.privatelink.azurewebsites.net.
+ne32-spoke3-12bd.azurewebsites.net  canonical name = ne32-spoke3-12bd-app.privatelink.azurewebsites.net.
 Name:   ne32-spoke3-12bd-app.privatelink.azurewebsites.net
 Address: 10.11.7.5
 ```
 
 We can see that the app service hostname resolves to the private endpoint ***10.11.7.5*** in ***hub1***. The following is a summary of the DNS resolution from `Ne32-branch1-vm`:
 
-- On-premises server `Ne32-branch1-vm` makes a DNS request for `ne32-spoke3-12bd-app.azurewebsites.net`
+- On-premises server `Ne32-branch1-vm` makes a DNS request for `ne32-spoke3-12bd.azurewebsites.net`
 - The request is received by on-premises DNS server `Ne32-branch1-dns`
-- The DNS server resolves `ne32-spoke3-12bd-app.azurewebsites.net` to the CNAME `ne32-spoke3-12bd-app.privatelink.azurewebsites.net`
+- The DNS server resolves `ne32-spoke3-12bd.azurewebsites.net` to the CNAME `ne32-spoke3-12bd-app.privatelink.azurewebsites.net`
 - The DNS server has a conditional DNS forwarding defined in the [unbound DNS configuration file](./output/branch-unbound.sh).
 
   ```sh
@@ -399,22 +399,22 @@ We can see that the app service hostname resolves to the private endpoint ***10.
 **6.4.** From `Ne32-branch1-vm`, test access to the ***spoke3*** app service via the private endpoint. Use your actual hostname.
 
 ```sh
-curl ne32-spoke3-<AAAA>-app.azurewebsites.net
+curl ne32-spoke3-<AAAA>.azurewebsites.net
 ```
 
 Sample output
 
 ```sh
-azureuser@Ne32-branch1-vm:~$ curl ne32-spoke3-12bd-app.azurewebsites.net
+azureuser@Ne32-branch1-vm:~$ curl ne32-spoke3-12bd.azurewebsites.net
 {
   "Headers": {
     "Accept": "*/*",
     "Client-Ip": "[fd40:8400:12:2717:7512:900:a0a:5]:36948",
-    "Disguised-Host": "ne32-spoke3-12bd-app.azurewebsites.net",
-    "Host": "ne32-spoke3-12bd-app.azurewebsites.net",
+    "Disguised-Host": "ne32-spoke3-12bd.azurewebsites.net",
+    "Host": "ne32-spoke3-12bd.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.68.0",
-    "Was-Default-Hostname": "ne32-spoke3-12bd-app.azurewebsites.net",
+    "Was-Default-Hostname": "ne32-spoke3-12bd.azurewebsites.net",
     "X-Arr-Log-Id": "1c8fba21-cc70-43b5-bca7-551531920b04",
     "X-Client-Ip": "10.10.0.5",
     "X-Client-Port": "0",
