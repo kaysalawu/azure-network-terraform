@@ -541,3 +541,10 @@ RPKI validation codes: V valid, I invalid, N Not found
    ```sh
    az group delete -g Vwan21RG --no-wait
    ```
+
+4. Delete terraform state files and other generated files.
+
+   ```sh
+   rm -rf .terraform*
+   rm terraform.tfstate*
+   ```
