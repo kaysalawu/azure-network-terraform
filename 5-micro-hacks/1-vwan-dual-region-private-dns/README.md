@@ -49,7 +49,7 @@ Deploy a dual-region Secured Virtual WAN (Vwan) topology which will server as th
 * PaaS services (App Service) to be accessed publicly and privately.
 * [Routing Intent](https://learn.microsoft.com/en-us/azure/virtual-wan/how-to-routing-policies) in the virtual hubs for traffic inspection.
 
-![Secured Virtual WAN - Dual Region](../../images/scenarios/2-4-vwan-sec-dual-region.png)
+![Secured Virtual WAN - Dual Region](../../images/microhacks/mh51-0-base-lab-deployment.png)
 
 ***Spoke2*** and ***spoke5*** are indirect spokes from a Vwan perspective; and are connected to standard Vnet hubs - ***hub1*** and ***hub2*** respectively. ***Spoke2*** and ***spoke5*** use the Network Virtual Appliance (NVA) in the Vnet hubs as the next hop for traffic to all destinations.
 
@@ -153,29 +153,29 @@ curl-dns
 Sample output
 
 ```sh
-azureuser@mH51_Vwan_Dns-spoke1-vm:~$ curl-dns
+azureuser@mH51VwanDns-spoke1-vm:~$ curl-dns
 
  curl dns ...
 
-200 (0.058916s) - 10.10.0.5 - vm.branch1.corp
-200 (0.029715s) - 10.11.0.5 - vm.hub1.we.az.corp
-200 (0.021327s) - 10.11.7.4 - spoke3.p.hub1.we.az.corp
-200 (0.010701s) - 10.1.0.5 - vm.spoke1.we.az.corp
-200 (0.031434s) - 10.2.0.5 - vm.spoke2.we.az.corp
-000 (2.000205s) -  - vm.spoke3.we.az.corp
-200 (0.103006s) - 10.30.0.5 - vm.branch3.corp
-200 (0.077312s) - 10.22.0.5 - vm.hub2.ne.az.corp
-200 (0.076840s) - 10.22.7.4 - spoke6.p.hub2.ne.az.corp
-200 (0.082892s) - 10.4.0.5 - vm.spoke4.ne.az.corp
-200 (0.093531s) - 10.5.0.5 - vm.spoke5.ne.az.corp
-000 (2.001372s) -  - vm.spoke6.ne.az.corp
-200 (0.021990s) - 104.18.115.97 - icanhazip.com
-200 (0.036351s) - 10.11.7.5 - vwan24-spoke3-0425.azurewebsites.net
-200 (0.064745s) - 10.22.7.5 - vwan24-spoke6-0425.azurewebsites.net
+000 (0.045774s) -  - vm.branch1.corp
+000 (0.078401s) -  - vm.hub1.we.az.corp
+000 (0.087987s) -  - spoke3.p.hub1.we.az.corp
+000 (0.082900s) -  - vm.spoke1.we.az.corp
+000 (0.077184s) -  - vm.spoke2.we.az.corp
+000 (0.088936s) -  - vm.spoke3.we.az.corp
+000 (0.055307s) -  - vm.branch3.corp
+000 (0.091453s) -  - vm.hub2.ne.az.corp
+000 (0.025416s) -  - spoke6.p.hub2.ne.az.corp
+000 (0.032110s) -  - vm.spoke4.ne.az.corp
+000 (0.039810s) -  - vm.spoke5.ne.az.corp
+000 (0.154529s) -  - vm.spoke6.ne.az.corp
+200 (0.022036s) - 104.18.115.97 - icanhazip.com
+200 (0.034683s) - 20.119.8.30 - spoke3-f946.azurewebsites.net
+200 (0.211198s) - 20.107.224.16 - spoke6-f946.azurewebsites.net
 ```
 
-We can see that DNS resolution fails for all VMs. That is expected because we have not yet configured private DNS.
+We can see that private DNS resolution failed for all VMs. That is expected because we have not yet configured private DNS. We have public DNS resolution for Internet and public endpoints for app services.
 
 ## NEXT STEP <!-- omit from toc -->
-Go to exercise [1. Private DNS Zones, Vnet links and DNS auto-registration](./exercises/1.%20Private%20DNS%20Zones,%20Vnet%20links%20and%20DNS%20auto-registration.md.md)
+Go to exercise [1. Private DNS Zones, Vnet links and DNS auto-registration](./exercises/1.%20Private%20DNS%20Zones,%20Vnet%20links%20and%20DNS%20Auto-registration.md)
 
