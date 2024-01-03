@@ -7,7 +7,7 @@ locals {
 
 resource "azurerm_service_plan" "this" {
   resource_group_name = var.resource_group
-  name                = "${local.name}-asp"
+  name                = replace("${local.name}-asp", "_", "")
   location            = var.location
   os_type             = "Linux"
   sku_name            = "P1v2"
@@ -17,7 +17,7 @@ resource "azurerm_service_plan" "this" {
 
 resource "azurerm_linux_web_app" "this" {
   resource_group_name       = var.resource_group
-  name                      = local.name
+  name                      = replace(local.name, "_", "")
   location                  = var.location
   service_plan_id           = azurerm_service_plan.this.id
   virtual_network_subnet_id = var.subnet_id

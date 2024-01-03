@@ -64,7 +64,7 @@ See the [troubleshooting](../../troubleshooting/) section for tips on how to res
 
 ## Outputs
 
-The table below show the auto-generated output files from the lab. They are located in the `output` directory.
+The table below shows the auto-generated output files from the lab. They are located in the `output` directory.
 
 | Item    | Description  | Location |
 |--------|--------|--------|
@@ -202,7 +202,7 @@ The app service is accessible via the private endpoint in ***hub1***. The app se
 
 The app service uses the following naming convention:
 
-- hs13-spoke3-AAAA-app.azurewebsites.net
+- hs13-spoke3-AAAA.azurewebsites.net
 
 Where ***AAAA*** is a randomly generated two-byte string.
 
@@ -221,7 +221,7 @@ echo $spoke3_apps_url
 Sample output (yours will be different)
 
 ```sh
-hs13-spoke3-05e9-app.azurewebsites.net
+hs13-spoke3-05e9.azurewebsites.net
 ```
 
 **5.3.** Resolve the hostname
@@ -238,7 +238,7 @@ Server:         172.19.64.1
 Address:        172.19.64.1#53
 
 Non-authoritative answer:
-hs13-spoke3-05e9-app.azurewebsites.net  canonical name = hs13-spoke3-05e9-app.privatelink.azurewebsites.net.
+hs13-spoke3-05e9.azurewebsites.net  canonical name = hs13-spoke3-05e9-app.privatelink.azurewebsites.net.
 hs13-spoke3-05e9-app.privatelink.azurewebsites.net      canonical name = waws-prod-am2-569.sip.azurewebsites.windows.net.
 waws-prod-am2-569.sip.azurewebsites.windows.net canonical name = waws-prod-am2-569-4aa6.westeurope.cloudapp.azure.com.
 Name:   waws-prod-am2-569-4aa6.westeurope.cloudapp.azure.com
@@ -261,11 +261,11 @@ Sample output
   "Headers": {
     "Accept": "*/*",
     "Client-Ip": "152.37.70.253:2314",
-    "Disguised-Host": "hs13-spoke3-05e9-app.azurewebsites.net",
-    "Host": "hs13-spoke3-05e9-app.azurewebsites.net",
+    "Disguised-Host": "hs13-spoke3-05e9.azurewebsites.net",
+    "Host": "hs13-spoke3-05e9.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.74.0",
-    "Was-Default-Hostname": "hs13-spoke3-05e9-app.azurewebsites.net",
+    "Was-Default-Hostname": "hs13-spoke3-05e9.azurewebsites.net",
     "X-Arr-Log-Id": "9e81de29-02b6-469b-a609-bd8e3c5ff22d",
     "X-Client-Ip": "152.37.70.253",
     "X-Client-Port": "2314",
@@ -299,34 +299,34 @@ $ curl -4 icanhazip.com
 
 ### 6. Private Link (App Service) Access from On-premises
 
-**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `hs13-spoke3-05e9-app.azurewebsites.net`.
+**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `hs13-spoke3-05e9.azurewebsites.net`.
 
 **6.2.** Connect to the on-premises server `Hs13-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Hs13-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
 
-**6.3.** Resolve the hostname DNS - which is `hs13-spoke3-05e9-app.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
+**6.3.** Resolve the hostname DNS - which is `hs13-spoke3-05e9.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
 
 ```sh
-nslookup hs13-spoke3-<AAAA>-app.azurewebsites.net
+nslookup hs13-spoke3-<AAAA>.azurewebsites.net
 ```
 
 Sample output
 
 ```sh
-azureuser@Hs13-branch1-vm:~$ nslookup hs13-spoke3-05e9-app.azurewebsites.net
+azureuser@Hs13-branch1-vm:~$ nslookup hs13-spoke3-05e9.azurewebsites.net
 Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-hs13-spoke3-05e9-app.azurewebsites.net  canonical name = hs13-spoke3-05e9-app.privatelink.azurewebsites.net.
+hs13-spoke3-05e9.azurewebsites.net  canonical name = hs13-spoke3-05e9-app.privatelink.azurewebsites.net.
 Name:   hs13-spoke3-05e9-app.privatelink.azurewebsites.net
 Address: 10.11.7.5
 ```
 
 We can see that the app service hostname resolves to the private endpoint ***10.11.7.5*** in ***hub1***. The following is a summary of the DNS resolution from `Hs13-branch1-vm`:
 
-- On-premises server `Hs13-branch1-vm` makes a DNS request for `hs13-spoke3-05e9-app.azurewebsites.net`
+- On-premises server `Hs13-branch1-vm` makes a DNS request for `hs13-spoke3-05e9.azurewebsites.net`
 - The request is received by on-premises DNS server `Hs13-branch1-dns`
-- The DNS server resolves `hs13-spoke3-05e9-app.azurewebsites.net` to the CNAME `hs13-spoke3-05e9-app.privatelink.azurewebsites.net`
+- The DNS server resolves `hs13-spoke3-05e9.azurewebsites.net` to the CNAME `hs13-spoke3-05e9-app.privatelink.azurewebsites.net`
 - The DNS server has a conditional DNS forwarding defined in the [unbound DNS configuration file](./output/branch-unbound.sh).
 
   ```sh
@@ -341,22 +341,22 @@ We can see that the app service hostname resolves to the private endpoint ***10.
 **6.4.** From `Hs13-branch1-vm`, test access to the ***spoke3*** app service via the private endpoint. Use your actual hostname.
 
 ```sh
-curl hs13-spoke3-<AAAA>-app.azurewebsites.net
+curl hs13-spoke3-<AAAA>.azurewebsites.net
 ```
 
 Sample output
 
 ```sh
-azureuser@Hs13-branch1-vm:~$ curl hs13-spoke3-05e9-app.azurewebsites.net
+azureuser@Hs13-branch1-vm:~$ curl hs13-spoke3-05e9.azurewebsites.net
 {
   "Headers": {
     "Accept": "*/*",
     "Client-Ip": "[fd40:5257:112:886d:7b12:c00:a0a:5]:46066",
-    "Disguised-Host": "hs13-spoke3-05e9-app.azurewebsites.net",
-    "Host": "hs13-spoke3-05e9-app.azurewebsites.net",
+    "Disguised-Host": "hs13-spoke3-05e9.azurewebsites.net",
+    "Host": "hs13-spoke3-05e9.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.68.0",
-    "Was-Default-Hostname": "hs13-spoke3-05e9-app.azurewebsites.net",
+    "Was-Default-Hostname": "hs13-spoke3-05e9.azurewebsites.net",
     "X-Arr-Log-Id": "2f3f162b-7412-475a-834e-f4a4c172365e",
     "X-Client-Ip": "10.10.0.5",
     "X-Client-Port": "0",

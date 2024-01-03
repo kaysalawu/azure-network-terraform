@@ -4,9 +4,9 @@
 
 locals {
   prefix             = "Hs14"
-  enable_diagnostics = true
-  spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}-app.azurewebsites.net")
-  spoke6_apps_fqdn   = lower("${local.spoke6_prefix}${random_id.random.hex}-app.azurewebsites.net")
+  enable_diagnostics = false
+  spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
+  spoke6_apps_fqdn   = lower("${local.spoke6_prefix}${random_id.random.hex}.azurewebsites.net")
 
   hub1_tags    = { "lab" = "Hs14", "nodeType" = "hub" }
   hub2_tags    = { "lab" = "Hs14", "nodeType" = "hub" }
@@ -181,6 +181,12 @@ locals {
             { ip_address = local.hub2_dns_in_addr, port = 53 },
           ]
         }
+        "azurewebsites" = {
+          domain = "privatelink.azurewebsites.net"
+          target_dns_servers = [
+            { ip_address = local.hub2_dns_in_addr, port = 53 },
+          ]
+        }
       }
     }
 
@@ -315,7 +321,7 @@ locals {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones
-    TARGETS              = local.vm_script_targets_region1
+    TARGETS              = local.vm_script_targets
     ACCESS_CONTROL_PREFIXES = concat(
       local.private_prefixes,
       [

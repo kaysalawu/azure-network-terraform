@@ -8,6 +8,9 @@ char_exclamation="\u2757"
 char_celebrate="\u2B50"
 char_executing="\u23F3"
 
+color_green=$(tput setaf 2)
+reset=$(tput sgr0)
+
 working_dir=$(pwd)
 while [[ $PWD != '/' && ${PWD##*/} != 'azure-network-terraform' ]]; do cd ..; done
 
@@ -17,7 +20,7 @@ dirs=(
 3-network-manager
 )
 
-run_diff() {
+dir_diff() {
     local all_diffs_ok=true
     local original_dir=$(pwd)
     cd "$1" || exit
@@ -71,7 +74,7 @@ delete_files(){
     cd "$original_dir" || exit
 }
 
-terraform_test(){
+terraform_validate(){
     local original_dir=$(pwd)
     cd "$1" || exit
     terraform init > /dev/null 2>&1
@@ -84,6 +87,20 @@ terraform_test(){
     cd "$original_dir" || exit
 }
 
+terraform_plan(){
+    local original_dir=$(pwd)
+    cd "$1" || exit
+    terraform init > /dev/null 2>&1
+    echo -e "  ${char_pass} terraform init"
+    echo -e "  ${char_executing} terraform plan ..."
+    if ! terraform plan > /dev/null 2>&1; then
+        echo -e "Terraform plan failed"
+        return 1
+    fi
+    echo -e "  ${color_green}${char_pass} Success!${reset}\n"
+    cd "$original_dir" || exit
+}
+
 terraform_cleanup(){
     local original_dir=$(pwd)
     cd "$1" || exit
@@ -91,7 +108,7 @@ terraform_cleanup(){
     rm .terraform.lock.hcl 2> /dev/null
     rm terraform.tfstate.backup 2> /dev/null
     rm terraform.tfstate 2> /dev/null
-    echo -e "  ${char_pass} cleaned!"
+    echo -e "  ${color_green}${char_pass} Cleaned!${reset}"
     cd "$original_dir" || exit
 }
 
@@ -103,7 +120,7 @@ run_dir_diff() {
             for subdir in "$dir"/*/; do
                 if [ -d "$subdir" ]; then
                     echo -e "${subdir#*/}"
-                    run_diff "$subdir"
+                    dir_diff "$subdir"
                 fi
             done
         fi
@@ -151,7 +168,7 @@ run_delete_files() {
     echo -e "\n${char_celebrate} done!"
 }
 
-run_terraform_test() {
+run_terraform_plan() {
     clear
     for dir in "${dirs[@]}"; do
         if [ -d "$dir" ]; then
@@ -160,7 +177,24 @@ run_terraform_test() {
             for subdir in "$dir"/*/; do
                 if [ -d "$subdir" ]; then
                     echo -e "${subdir#*/}"
-                    terraform_test "$subdir"
+                    terraform_plan "$subdir"
+                fi
+            done
+        fi
+    done
+    echo -e "\n${char_celebrate} done!"
+}
+
+run_terraform_validate() {
+    clear
+    for dir in "${dirs[@]}"; do
+        if [ -d "$dir" ]; then
+            echo && echo -e "$dir"
+            echo "----------------------------------"
+            for subdir in "$dir"/*/; do
+                if [ -d "$subdir" ]; then
+                    echo -e "${subdir#*/}"
+                    terraform_validate "$subdir"
                 fi
             done
         fi
@@ -199,14 +233,16 @@ elif [[ "$1" == "--copy" || "$1" == "-c" ]]; then
     clear && run_copy_files
 elif [[ "$1" == "--df" || "$1" == "-x" ]]; then
     clear && run_delete_files
-elif [[ "$1" == "--test" || "$1" == "-t" ]]; then
-    clear && run_terraform_test
+elif [[ "$1" == "--plan" || "$1" == "-p" ]]; then
+    clear && run_terraform_plan
+elif [[ "$1" == "--validate" || "$1" == "-v" ]]; then
+    clear && run_terraform_validate
 elif [[ "$1" == "--cleanup" || "$1" == "-u" ]]; then
     clear && run_terraform_cleanup
 elif [[ "$1" == "--help" || "$1" == "-h" ]]; then
-    echo -e "Usage: $0 {--diff|-f|--copy|-c|--delete-files|-x|--test|-t|--cleanup|-u}"
+    echo -e "Usage: $0 {--diff|-f | --copy|-c | --delete-files|-x | --plan|-p | --validate|-v | --cleanup|-u}"
 else
-    echo -e "Usage: $0 {--diff|-f|--copy|-c|--delete-files|-x|--test|-t|--cleanup|-u}"
+    echo -e "Usage: $0 {--diff|-f | --copy|-c | --delete-files|-x | --plan|-p | --validate|-v | --cleanup|-u}"
 fi
 
 cd "$working_dir" || exit

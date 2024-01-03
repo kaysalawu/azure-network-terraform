@@ -9,7 +9,7 @@ Contents
 - [Deploy the Lab](#deploy-the-lab)
 - [Troubleshooting](#troubleshooting)
 - [Outputs](#outputs)
-- [Dashboards](#dashboards)
+- [Dashboards (Optional)](#dashboards-optional)
 - [Testing](#testing)
   - [1. Ping IP](#1-ping-ip)
   - [2. Ping DNS](#2-ping-dns)
@@ -63,7 +63,7 @@ See the [troubleshooting](../../troubleshooting/) section for tips on how to res
 
 ## Outputs
 
-The table below show the auto-generated output files from the lab. They are located in the `output` directory.
+The table below shows the auto-generated output files from the lab. They are located in the `output` directory.
 
 | Item    | Description  | Location |
 |--------|--------|--------|
@@ -73,9 +73,9 @@ The table below show the auto-generated output files from the lab. They are loca
 | Web server for workload VMs | Python Flask web server and various test and debug scripts | [output/server.sh](./output/server.sh) |
 ||||
 
-## Dashboards
+## Dashboards (Optional)
 
-This lab contains a number of pre-configured dashboards for monitoring and troubleshooting network gateways, VPN gateways, and Azure Firewall.
+This lab contains a number of pre-configured dashboards for monitoring and troubleshooting network gateways, VPN gateways, and Azure Firewall. If you have set `enable_diagnostics = true` in the `main.tf` file, then the dashboards will be created.
 
 To view the dashboards, follow the steps below:
 
@@ -187,7 +187,7 @@ azureuser@Hs11-spoke1-vm:~$ curl-dns
 200 (0.035203s) - 10.2.0.5 - vm.spoke2.we.az.corp
 000 (2.001527s) -  - vm.spoke3.we.az.corp
 200 (0.015364s) - 104.18.115.97 - icanhazip.com
-200 (0.044028s) - 10.11.7.5 - hs11-spoke3-983d-app.azurewebsites.net
+200 (0.044028s) - 10.11.7.5 - hs11-spoke3-983d.azurewebsites.net
 ```
 
 We can see that curl test to spoke3 virtual machine `vm.spoke3.we.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.we.az.corp`.
@@ -226,7 +226,7 @@ The app service is accessible via the private endpoint in ***hub1***. The app se
 
 The app service uses the following naming convention:
 
-- hs11-spoke3-AAAA-app.azurewebsites.net
+- hs11-spoke3-AAAA.azurewebsites.net
 
 Where ***AAAA*** is a randomly generated two-byte string.
 
@@ -245,7 +245,7 @@ echo $spoke3_apps_url
 Sample output (yours will be different)
 
 ```sh
-hs11-spoke3-983d-app.azurewebsites.net
+hs11-spoke3-983d.azurewebsites.net
 ```
 
 **5.3.** Resolve the hostname
@@ -262,7 +262,7 @@ Server:         172.29.160.1
 Address:        172.29.160.1#53
 
 Non-authoritative answer:
-hs11-spoke3-983d-app.azurewebsites.net  canonical name = hs11-spoke3-983d-app.privatelink.azurewebsites.net.
+hs11-spoke3-983d.azurewebsites.net  canonical name = hs11-spoke3-983d-app.privatelink.azurewebsites.net.
 hs11-spoke3-983d-app.privatelink.azurewebsites.net      canonical name = waws-prod-am2-551.sip.azurewebsites.windows.net.
 waws-prod-am2-551.sip.azurewebsites.windows.net canonical name = waws-prod-am2-551-a8b4.westeurope.cloudapp.azure.com.
 Name:   waws-prod-am2-551-a8b4.westeurope.cloudapp.azure.com
@@ -285,11 +285,11 @@ Sample output
   "Headers": {
     "Accept": "*/*",
     "Client-Ip": "140.228.48.45:29444",
-    "Disguised-Host": "hs11-spoke3-983d-app.azurewebsites.net",
-    "Host": "hs11-spoke3-983d-app.azurewebsites.net",
+    "Disguised-Host": "hs11-spoke3-983d.azurewebsites.net",
+    "Host": "hs11-spoke3-983d.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.74.0",
-    "Was-Default-Hostname": "hs11-spoke3-983d-app.azurewebsites.net",
+    "Was-Default-Hostname": "hs11-spoke3-983d.azurewebsites.net",
     "X-Arr-Log-Id": "74ac0989-87dd-4446-8226-0e3f6bed3aba",
     "X-Client-Ip": "140.228.48.45",
     "X-Client-Port": "29444",
@@ -310,34 +310,34 @@ Observe that we are connecting from our local client's public IP address specifi
 
 ### 6. Private Link (App Service) Access from On-premises
 
-**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `hs11-spoke3-983d-app.azurewebsites.net`.
+**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `hs11-spoke3-983d.azurewebsites.net`.
 
 **6.2.** Connect to the on-premises server `Hs11-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Hs11-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
 
-**6.3.** Resolve the hostname DNS - which is `hs11-spoke3-983d-app.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
+**6.3.** Resolve the hostname DNS - which is `hs11-spoke3-983d.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
 
 ```sh
-nslookup hs11-spoke3-<AAAA>-app.azurewebsites.net
+nslookup hs11-spoke3-<AAAA>.azurewebsites.net
 ```
 
 Sample output
 
 ```sh
-azureuser@Hs11-branch1-vm:~$ nslookup hs11-spoke3-983d-app.azurewebsites.net
+azureuser@Hs11-branch1-vm:~$ nslookup hs11-spoke3-983d.azurewebsites.net
 Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-hs11-spoke3-983d-app.azurewebsites.net  canonical name = hs11-spoke3-983d-app.privatelink.azurewebsites.net.
+hs11-spoke3-983d.azurewebsites.net  canonical name = hs11-spoke3-983d-app.privatelink.azurewebsites.net.
 Name:   hs11-spoke3-983d-app.privatelink.azurewebsites.net
 Address: 10.11.7.5
 ```
 
 We can see that the app service hostname resolves to the private endpoint ***10.11.7.5*** in ***hub1***. The following is a summary of the DNS resolution from `Hs11-branch1-vm`:
 
-- On-premises server `Hs11-branch1-vm` makes a DNS request for `hs11-spoke3-983d-app.azurewebsites.net`
+- On-premises server `Hs11-branch1-vm` makes a DNS request for `hs11-spoke3-983d.azurewebsites.net`
 - The request is received by on-premises DNS server `Hs11-branch1-dns`
-- The DNS server resolves `hs11-spoke3-983d-app.azurewebsites.net` to the CNAME `hs11-spoke3-983d-app.privatelink.azurewebsites.net`
+- The DNS server resolves `hs11-spoke3-983d.azurewebsites.net` to the CNAME `hs11-spoke3-983d-app.privatelink.azurewebsites.net`
 - The DNS server has a conditional DNS forwarding defined in the [unbound DNS configuration file](./output/branch-unbound.sh).
 
   ```sh
@@ -352,22 +352,22 @@ We can see that the app service hostname resolves to the private endpoint ***10.
 **6.4.** From `Hs11-branch1-vm`, test access to the ***spoke3*** app service via the private endpoint. Use your actual hostname.
 
 ```sh
-curl hs11-spoke3-<AAAA>-app.azurewebsites.net
+curl hs11-spoke3-<AAAA>.azurewebsites.net
 ```
 
 Sample output
 
 ```sh
-azureuser@Hs11-branch1-vm:~$ curl hs11-spoke3-983d-app.azurewebsites.net
+azureuser@Hs11-branch1-vm:~$ curl hs11-spoke3-983d.azurewebsites.net
 {
   "Headers": {
     "Accept": "*/*",
     "Client-Ip": "[fd40:de3d:12:8cd8:6a12:100:a0a:5]:39466",
-    "Disguised-Host": "hs11-spoke3-983d-app.azurewebsites.net",
-    "Host": "hs11-spoke3-983d-app.azurewebsites.net",
+    "Disguised-Host": "hs11-spoke3-983d.azurewebsites.net",
+    "Host": "hs11-spoke3-983d.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.68.0",
-    "Was-Default-Hostname": "hs11-spoke3-983d-app.azurewebsites.net",
+    "Was-Default-Hostname": "hs11-spoke3-983d.azurewebsites.net",
     "X-Arr-Log-Id": "9f782a62-f8b9-4824-94d3-bb1bbe6c4358",
     "X-Client-Ip": "10.10.0.5",
     "X-Client-Port": "0",
@@ -524,4 +524,11 @@ Observe the firewall logs based on traffic flows generated from our tests.
 
    ```sh
    az group delete -g Hs11RG --no-wait
+   ```
+
+4. Delete terraform state files and other generated files.
+
+   ```sh
+   rm -rf .terraform*
+   rm terraform.tfstate*
    ```

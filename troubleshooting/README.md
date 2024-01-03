@@ -31,7 +31,7 @@ This error occurs when terraform is trying to create a diagnostic setting that a
 │   74: resource "azurerm_monitor_diagnostic_setting" "this" {
 ```
 
-**Solution:**
+**Solution (Option 1):**
 
 1. Navigate to the **Cleanup** section of the current lab and run the [_cleanup.sh script](../scripts/_cleanup.sh) to delete all diagnostic settings for the resource group.
 
@@ -57,7 +57,28 @@ This error occurs when terraform is trying to create a diagnostic setting that a
  ⏳ Checking for azure policies in Vwan24RG ...
  Done!
  ```
+
 2. Re-apply terraform to create the diagnostic settings and deploy the remaining lab resources.
+```sh
+terraform plan
+terraform apply
+```
+
+**Solution (Option 2):**
+
+ 1. Identify the terraform resource that is causing the error. In the example above, the resource is `azurerm_monitor_diagnostic_setting.this[0]`
+ 2. Identify the resource ID in the error message. In the example above, the resource ID is `/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan24RG/providers/Microsoft.Network/azureFirewalls/Vwan24-vhub2-azfw|Vwan24-vhub2-azfw-diag`
+ 3. Import the resource into the terraform state. Substitute the resource ID in the command below with the resource ID from the error message above.
+
+```sh
+import <Resource_Name> "<Resource_ID>"
+```
+In this example, the command will be:
+
+ ```sh
+terraform import module.vhub2.azurerm_monitor_diagnostic_setting.this[0] "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan24RG/providers/Microsoft.Network/azureFirewalls/Vwan24-vhub2-azfw|Vwan24-vhub2-azfw-diag"
+```
+4. Re-apply terraform
 ```sh
 terraform plan
 terraform apply

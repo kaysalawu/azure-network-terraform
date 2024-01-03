@@ -14,14 +14,14 @@ resource "azurerm_user_assigned_identity" "hub1_appgw_http" {
 ####################################################
 
 module "hub1_appgw" {
-  source               = "../../modules/application-gateway"
-  resource_group_name  = azurerm_resource_group.rg.name
-  location             = local.hub1_location
-  app_gateway_name     = "${local.hub1_prefix}appgw"
-  virtual_network_name = module.hub1.vnet.name
-  subnet_name          = module.hub1.subnets["AppGatewaySubnet"].name
-  private_ip_address   = local.hub1_appgw_addr
-  public_ip_address_id = azurerm_public_ip.hub1_appgw_pip.id
+  source                 = "../../modules/application-gateway"
+  resource_group_name    = azurerm_resource_group.rg.name
+  location               = local.hub1_location
+  app_gateway_name       = "${local.hub1_prefix}appgw"
+  virtual_network_name   = module.hub1.vnet.name
+  subnet_name            = module.hub1.subnets["AppGatewaySubnet"].name
+  private_ip_address     = local.hub1_appgw_addr
+  public_ip_address_name = azurerm_public_ip.hub1_appgw_pip.name
 
   sku = {
     name     = "WAF_v2"

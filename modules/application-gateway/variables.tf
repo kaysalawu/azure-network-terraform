@@ -305,8 +305,8 @@ variable "tags" {
   default     = {}
 }
 
-variable "public_ip_address_id" {
-  description = "Public IP address of application gateway"
+variable "public_ip_address_name" {
+  description = "Public IP address name of application gateway"
   type        = string
   default     = null
 }

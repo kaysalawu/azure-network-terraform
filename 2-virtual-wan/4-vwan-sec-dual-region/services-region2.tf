@@ -143,7 +143,7 @@ module "spoke6_apps" {
   resource_group    = azurerm_resource_group.rg.name
   location          = local.spoke6_location
   prefix            = lower(local.spoke6_prefix)
-  name              = "${random_id.random.hex}-app"
+  name              = random_id.random.hex
   docker_image_name = "ksalawu/web:latest"
   subnet_id         = module.spoke6.subnets["AppServiceSubnet"].id
   depends_on = [
@@ -171,6 +171,6 @@ resource "azurerm_private_endpoint" "hub2_spoke6_apps_pep" {
     private_dns_zone_ids = [azurerm_private_dns_zone.privatelink_appservice.id]
   }
   depends_on = [
-    azurerm_private_endpoint.hub1_spoke3_pls_pep,
+    azurerm_private_endpoint.hub2_spoke6_pls_pep,
   ]
 }

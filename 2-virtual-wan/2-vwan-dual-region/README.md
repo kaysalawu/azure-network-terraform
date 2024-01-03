@@ -9,7 +9,7 @@ Contents
 - [Deploy the Lab](#deploy-the-lab)
 - [Troubleshooting](#troubleshooting)
 - [Outputs](#outputs)
-- [Dashboards](#dashboards)
+- [Dashboards (Optional)](#dashboards-optional)
 - [Testing](#testing)
   - [1. Ping IP](#1-ping-ip)
   - [2. Ping DNS](#2-ping-dns)
@@ -31,7 +31,7 @@ Standard Virtual Network (Vnet) hubs (***hub1*** and ***hub2***) connect to Vwan
 
 The isolated spokes (***spoke3*** and ***spoke6***) do not have Vnet peering to the Vnet hubs, but are reachable via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) endpoints in the hubs.
 
-***Branch1*** and ***branch3*** are on-premises networks simulated using Vnets. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the hubs using IPsec VPN connections with dynamic (BGP) routing. A simulated on-premises Wide Area Network (WAN) is created using Vnet peering between ***branch1*** and ***branch3*** as the underlay connectivity, and IPsec with BGP as the overlay connection.
+***Branch1*** and ***branch3*** are on-premises networks simulated using Vnets. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the hubs using IPsec VPN connections with dynamic (BGP) routing. Branches, ***branch1*** and ***branch3*** connect to each other via the Virtual WAN.
 
 ## Prerequisites
 
@@ -65,7 +65,7 @@ See the [troubleshooting](../../troubleshooting/) section for tips on how to res
 
 ## Outputs
 
-The table below show the auto-generated output files from the lab. They are located in the `output` directory.
+The table below shows the auto-generated output files from the lab. They are located in the `output` directory.
 
 | Item    | Description  | Location |
 |--------|--------|--------|
@@ -76,9 +76,9 @@ The table below show the auto-generated output files from the lab. They are loca
 | Web server for workload VMs | Python Flask web server and various test and debug scripts | [output/server.sh](./output/server.sh) |
 ||||
 
-## Dashboards
+## Dashboards (Optional)
 
-This lab contains a number of pre-configured dashboards for monitoring and troubleshooting network gateways, VPN gateways, and Azure Firewall.
+This lab contains a number of pre-configured dashboards for monitoring and troubleshooting network gateways, VPN gateways, and Azure Firewall. If you have set `enable_diagnostics = true` in the `main.tf` file, then the dashboards will be created.
 
 To view the dashboards, follow the steps below:
 
@@ -200,8 +200,8 @@ azureuser@Vwan22-spoke1-vm:~$ curl-dns
 200 (0.093627s) - 10.5.0.5 - vm.spoke5.ne.az.corp
 000 (2.000964s) -  - vm.spoke6.ne.az.corp
 200 (0.018706s) - 104.18.114.97 - icanhazip.com
-200 (0.037569s) - 10.11.7.5 - vwan22-spoke3-8162-app.azurewebsites.net
-200 (0.065763s) - 10.22.7.5 - vwan22-spoke6-8162-app.azurewebsites.net
+200 (0.037569s) - 10.11.7.5 - vwan22-spoke3-8162.azurewebsites.net
+200 (0.065763s) - 10.22.7.5 - vwan22-spoke6-8162.azurewebsites.net
 ```
 
 We can see that curl test to spoke3 virtual machine `vm.spoke3.we.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.we.az.corp`. The same explanation applies to ***spoke6*** virtual machine `vm.spoke6.ne.az.corp`
@@ -262,8 +262,8 @@ The app services are accessible via the private endpoints in ***hub1*** and ***h
 
 The app services have the following naming convention:
 
-- vwan22-spoke3-AAAA-app.azurewebsites.net
-- vwan22-spoke6-BBBB-app.azurewebsites.net
+- vwan22-spoke3-AAAA.azurewebsites.net
+- vwan22-spoke6-BBBB.azurewebsites.net
 
 Where ***AAAA*** and ***BBBB*** are randomly generated two-byte strings.
 
@@ -282,7 +282,7 @@ echo $spoke3_apps_url
 Sample output (yours will be different)
 
 ```sh
-vwan22-spoke3-8162-app.azurewebsites.net
+vwan22-spoke3-8162.azurewebsites.net
 ```
 
 **5.3.** Resolve the hostname
@@ -299,7 +299,7 @@ Server:         172.29.160.1
 Address:        172.29.160.1#53
 
 Non-authoritative answer:
-vwan22-spoke3-8162-app.azurewebsites.net        canonical name = vwan22-spoke3-8162-app.privatelink.azurewebsites.net.
+vwan22-spoke3-8162.azurewebsites.net        canonical name = vwan22-spoke3-8162-app.privatelink.azurewebsites.net.
 vwan22-spoke3-8162-app.privatelink.azurewebsites.net    canonical name = waws-prod-am2-733.sip.azurewebsites.windows.net.
 waws-prod-am2-733.sip.azurewebsites.windows.net canonical name = waws-prod-am2-733-a958.westeurope.cloudapp.azure.com.
 Name:   waws-prod-am2-733-a958.westeurope.cloudapp.azure.com
@@ -322,11 +322,11 @@ Sample output
   "Headers": {
     "Accept": "*/*",
     "Client-Ip": "140.228.48.45:33148",
-    "Disguised-Host": "vwan22-spoke3-8162-app.azurewebsites.net",
-    "Host": "vwan22-spoke3-8162-app.azurewebsites.net",
+    "Disguised-Host": "vwan22-spoke3-8162.azurewebsites.net",
+    "Host": "vwan22-spoke3-8162.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.74.0",
-    "Was-Default-Hostname": "vwan22-spoke3-8162-app.azurewebsites.net",
+    "Was-Default-Hostname": "vwan22-spoke3-8162.azurewebsites.net",
     "X-Arr-Log-Id": "af4194ec-c384-4796-893d-0595ea078baa",
     "X-Client-Ip": "140.228.48.45",
     "X-Client-Port": "33148",
@@ -347,35 +347,35 @@ Observe that we are connecting from our local client's public IP address specifi
 
 ### 6. Private Link (App Service) Access from On-premises
 
-**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `vwan22-spoke3-8162-app.azurewebsites.net`.
+**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `vwan22-spoke3-8162.azurewebsites.net`.
 
 **6.2.** Connect to the on-premises server `Vwan22-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Vwan22-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
 
-**6.3.** Resolve the hostname DNS - which is `vwan22-spoke3-8162-app.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
+**6.3.** Resolve the hostname DNS - which is `vwan22-spoke3-8162.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
 
 ```sh
-nslookup vwan22-spoke3-<AAAA>-app.azurewebsites.net
+nslookup vwan22-spoke3-<AAAA>.azurewebsites.net
 ```
 
 Sample output
 
 ```sh
-azureuser@Vwan22-branch1-vm:~$ nslookup vwan22-spoke3-8162-app.azurewebsites.net
+azureuser@Vwan22-branch1-vm:~$ nslookup vwan22-spoke3-8162.azurewebsites.net
 
 Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-vwan22-spoke3-8162-app.azurewebsites.net        canonical name = vwan22-spoke3-8162-app.privatelink.azurewebsites.net.
+vwan22-spoke3-8162.azurewebsites.net        canonical name = vwan22-spoke3-8162-app.privatelink.azurewebsites.net.
 Name:   vwan22-spoke3-8162-app.privatelink.azurewebsites.net
 Address: 10.11.7.5
 ```
 
 We can see that the app service hostname resolves to the private endpoint ***10.11.7.5*** in ***hub1***. The following is a summary of the DNS resolution from `Vwan22-branch1-vm`:
 
-- On-premises server `Vwan22-branch1-vm` makes a DNS request for `vwan22-spoke3-8162-app.azurewebsites.net`
+- On-premises server `Vwan22-branch1-vm` makes a DNS request for `vwan22-spoke3-8162.azurewebsites.net`
 - The request is received by on-premises DNS server `Vwan22-branch1-dns`
-- The DNS server resolves `vwan22-spoke3-8162-app.azurewebsites.net` to the CNAME `vwan22-spoke3-8162-app.privatelink.azurewebsites.net`
+- The DNS server resolves `vwan22-spoke3-8162.azurewebsites.net` to the CNAME `vwan22-spoke3-8162-app.privatelink.azurewebsites.net`
 - The DNS server has a conditional DNS forwarding defined in the [unbound DNS configuration file](./output/branch-unbound.sh).
 
   ```sh
@@ -391,22 +391,22 @@ We can see that the app service hostname resolves to the private endpoint ***10.
 **6.4.** From `Vwan22-branch1-vm`, test access to the ***spoke3*** app service via the private endpoint. Use your actual hostname.
 
 ```sh
-curl vwan22-spoke3-<AAAA>-app.azurewebsites.net
+curl vwan22-spoke3-<AAAA>.azurewebsites.net
 ```
 
 Sample output
 
 ```sh
-azureuser@Vwan22-branch1-vm:~$ curl vwan22-spoke3-8162-app.azurewebsites.net
+azureuser@Vwan22-branch1-vm:~$ curl vwan22-spoke3-8162.azurewebsites.net
 {
   "Headers": {
     "Accept": "*/*",
     "Client-Ip": "[fd40:4ccb:12:6cf8:7312:100:a0a:5]:38758",
-    "Disguised-Host": "vwan22-spoke3-8162-app.azurewebsites.net",
-    "Host": "vwan22-spoke3-8162-app.azurewebsites.net",
+    "Disguised-Host": "vwan22-spoke3-8162.azurewebsites.net",
+    "Host": "vwan22-spoke3-8162.azurewebsites.net",
     "Max-Forwards": "10",
     "User-Agent": "curl/7.68.0",
-    "Was-Default-Hostname": "vwan22-spoke3-8162-app.azurewebsites.net",
+    "Was-Default-Hostname": "vwan22-spoke3-8162.azurewebsites.net",
     "X-Arr-Log-Id": "f5ba941a-02e1-4696-b57a-df2d1e1bd9ac",
     "X-Client-Ip": "10.10.0.5",
     "X-Client-Port": "0",
@@ -615,4 +615,11 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
 
    ```sh
    az group delete -g Vwan22RG --no-wait
+   ```
+
+4. Delete terraform state files and other generated files.
+
+   ```sh
+   rm -rf .terraform*
+   rm terraform.tfstate*
    ```
