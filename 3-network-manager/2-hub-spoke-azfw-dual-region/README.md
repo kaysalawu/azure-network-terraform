@@ -9,7 +9,7 @@ Contents
 - [Deploy the Lab](#deploy-the-lab)
 - [Troubleshooting](#troubleshooting)
 - [Outputs](#outputs)
-- [Dashboards](#dashboards)
+- [Dashboards (Optional)](#dashboards-optional)
 - [Testing](#testing)
   - [1. Ping IP](#1-ping-ip)
   - [2. Ping DNS](#2-ping-dns)
@@ -83,9 +83,9 @@ The table below shows the auto-generated output files from the lab. They are loc
 | Azure policies | Azure policies for Virtual Network Manager network groups | [output/policies.json](./output/policies/pol-ng-spokes.json) |
 ||||
 
-## Dashboards
+## Dashboards (Optional)
 
-This lab contains a number of pre-configured dashboards for monitoring and troubleshooting network gateways, VPN gateways, and Azure Firewall.
+This lab contains a number of pre-configured dashboards for monitoring and troubleshooting network gateways, VPN gateways, and Azure Firewall. If you have set `enable_diagnostics = true` in the `main.tf` file, then the dashboards will be created.
 
 To view the dashboards, follow the steps below:
 

@@ -4,7 +4,7 @@
 
 locals {
   prefix             = "Vwan22"
-  enable_diagnostics = true
+  enable_diagnostics = false
   spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
   spoke6_apps_fqdn   = lower("${local.spoke6_prefix}${random_id.random.hex}.azurewebsites.net")
 

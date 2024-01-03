@@ -4,7 +4,7 @@
 
 locals {
   prefix             = "Vwan23"
-  enable_diagnostics = true
+  enable_diagnostics = false
   spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
 
   hub1_tags    = { "lab" = "Vwan23", "nodeType" = "hub" }
