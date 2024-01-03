@@ -24,6 +24,7 @@ module "branch1" {
   config_vnet = {
     address_space = local.branch1_address_space
     subnets       = local.branch1_subnets
+    enable_ars    = true
   }
 
   depends_on = [
@@ -144,12 +145,6 @@ locals {
       { network = "0.0.0.0", mask = "0.0.0.0", next_hop = local.branch1_untrust_default_gw },
       { network = module.hub1.vpngw_bgp_ip0, mask = "255.255.255.255", next_hop = "Tunnel0" },
       { network = module.hub1.vpngw_bgp_ip1, mask = "255.255.255.255", next_hop = "Tunnel1" },
-      { network = local.branch3_nva_loopback0, mask = "255.255.255.255", next_hop = "Tunnel2" },
-      {
-        network  = local.branch1_network
-        mask     = local.branch1_mask
-        next_hop = local.branch1_trust_default_gw
-      },
     ]
 
     BGP_SESSIONS = [
@@ -171,23 +166,24 @@ locals {
           { direction = "out", name = local.branch1_nva_route_map_azure }
         ]
       },
+      # added BGP session to ARS
       {
-        peer_asn        = local.branch3_nva_asn
-        peer_ip         = local.branch3_nva_loopback0
-        source_loopback = true
-        ebgp_multihop   = true
-        route_maps = [
-          { direction = "out", name = local.branch1_nva_route_map_onprem }
-        ]
+        peer_asn      = module.branch1.ars_bgp_asn
+        peer_ip       = module.branch1.ars_bgp_ip0
+        as_override   = true
+        ebgp_multihop = true
+        route_maps    = []
+      },
+      {
+        peer_asn      = module.branch1.ars_bgp_asn
+        peer_ip       = module.branch1.ars_bgp_ip1
+        as_override   = true
+        ebgp_multihop = true
+        route_maps    = []
       },
     ]
 
-    BGP_ADVERTISED_NETWORKS = [
-      {
-        network = cidrhost(local.branch1_subnets["MainSubnet"].address_prefixes[0], 0)
-        mask    = cidrnetmask(local.branch1_subnets["MainSubnet"].address_prefixes[0])
-      },
-    ]
+    BGP_ADVERTISED_NETWORKS = []
   })
 }
 
@@ -267,6 +263,19 @@ module "branch1_udr_main" {
     module.branch1_nva,
     module.branch1_dns,
   ]
+}
+
+####################################################
+# bgp connections
+####################################################
+
+# BGP session from ARs to Cisco CSR
+
+resource "azurerm_route_server_bgp_connection" "branch1_ars_bgp_conn" {
+  name            = "${local.branch1_prefix}ars-bgp-conn"
+  route_server_id = module.branch1.ars.id
+  peer_asn        = local.branch1_nva_asn
+  peer_ip         = local.branch1_nva_trust_addr
 }
 
 ####################################################

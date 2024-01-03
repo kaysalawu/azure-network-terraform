@@ -173,12 +173,13 @@ locals {
   branch1_nva_asn       = "65001"
   branch1_dns_zone      = "branch1.${local.onprem_domain}"
   branch1_subnets = {
-    ("MainSubnet")       = { address_prefixes = ["10.10.0.0/24"] }
-    ("UntrustSubnet")    = { address_prefixes = ["10.10.1.0/24"] }
-    ("ManagementSubnet") = { address_prefixes = ["10.10.2.0/24"] }
-    ("TrustSubnet")      = { address_prefixes = ["10.10.3.0/24"] }
-    ("DnsServerSubnet")  = { address_prefixes = ["10.10.4.0/24"] }
-    ("GatewaySubnet")    = { address_prefixes = ["10.10.5.0/24"] }
+    ("MainSubnet")        = { address_prefixes = ["10.10.0.0/24"] }
+    ("UntrustSubnet")     = { address_prefixes = ["10.10.1.0/24"] }
+    ("ManagementSubnet")  = { address_prefixes = ["10.10.2.0/24"] }
+    ("TrustSubnet")       = { address_prefixes = ["10.10.3.0/24"] }
+    ("DnsServerSubnet")   = { address_prefixes = ["10.10.4.0/24"] }
+    ("GatewaySubnet")     = { address_prefixes = ["10.10.5.0/24"] }
+    ("RouteServerSubnet") = { address_prefixes = ["10.10.6.0/24"] }
   }
   branch1_untrust_default_gw = cidrhost(local.branch1_subnets["UntrustSubnet"].address_prefixes[0], 1)
   branch1_trust_default_gw   = cidrhost(local.branch1_subnets["TrustSubnet"].address_prefixes[0], 1)
