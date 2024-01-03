@@ -145,12 +145,15 @@ locals {
       { network = "0.0.0.0", mask = "0.0.0.0", next_hop = local.branch1_untrust_default_gw },
       { network = module.hub1.vpngw_bgp_ip0, mask = "255.255.255.255", next_hop = "Tunnel0" },
       { network = module.hub1.vpngw_bgp_ip1, mask = "255.255.255.255", next_hop = "Tunnel1" },
+      { network = module.branch1.ars_bgp_ip0, mask = "255.255.255.255", next_hop = local.branch1_untrust_default_gw },
+      { network = module.branch1.ars_bgp_ip1, mask = "255.255.255.255", next_hop = local.branch1_untrust_default_gw },
     ]
 
     BGP_SESSIONS = [
       {
         peer_asn        = module.hub1.vpngw_bgp_asn,
         peer_ip         = module.hub1.vpngw_bgp_ip0,
+        as_override     = true
         source_loopback = true
         ebgp_multihop   = true
         route_maps = [
@@ -160,6 +163,7 @@ locals {
       {
         peer_asn        = module.hub1.vpngw_bgp_asn
         peer_ip         = module.hub1.vpngw_bgp_ip1
+        as_override     = true
         source_loopback = true
         ebgp_multihop   = true
         route_maps = [
