@@ -37,17 +37,15 @@ module "shared1" {
   # }
 
   nsg_subnet_map = {
-    "MainSubnet"                = module.common.nsg_main["region1"].id
-    "UntrustSubnet"             = module.common.nsg_open["region1"].id
-    "TrustSubnet"               = module.common.nsg_main["region1"].id
-    "ManagementSubnet"          = module.common.nsg_main["region1"].id
-    "AppGatewaySubnet"          = module.common.nsg_lb["region1"].id
-    "LoadBalancerSubnet"        = module.common.nsg_default["region1"].id
-    "PrivateLinkServiceSubnet"  = module.common.nsg_default["region1"].id
-    "PrivateEndpointSubnet"     = module.common.nsg_default["region1"].id
-    "AppServiceSubnet"          = module.common.nsg_default["region1"].id
-    "DnsResolverInboundSubnet"  = module.common.nsg_default["region1"].id
-    "DnsResolverOutboundSubnet" = module.common.nsg_default["region1"].id
+    "MainSubnet"               = module.common.nsg_main["region1"].id
+    "UntrustSubnet"            = module.common.nsg_open["region1"].id
+    "TrustSubnet"              = module.common.nsg_main["region1"].id
+    "ManagementSubnet"         = module.common.nsg_main["region1"].id
+    "AppGatewaySubnet"         = module.common.nsg_lb["region1"].id
+    "LoadBalancerSubnet"       = module.common.nsg_default["region1"].id
+    "PrivateLinkServiceSubnet" = module.common.nsg_default["region1"].id
+    "PrivateEndpointSubnet"    = module.common.nsg_default["region1"].id
+    "AppServiceSubnet"         = module.common.nsg_default["region1"].id
   }
 
   config_vnet = local.shared1_features.config_vnet

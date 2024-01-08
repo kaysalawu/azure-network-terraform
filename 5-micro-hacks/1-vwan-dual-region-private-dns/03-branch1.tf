@@ -24,6 +24,7 @@ module "branch1" {
   config_vnet = {
     address_space = local.branch1_address_space
     subnets       = local.branch1_subnets
+    dns_servers   = [local.branch1_dns_addr, ]
   }
 
   depends_on = [
@@ -209,7 +210,6 @@ module "branch1_vm" {
   private_ip       = local.branch1_vm_addr
   enable_public_ip = true
   source_image     = "ubuntu-20"
-  dns_servers      = [local.branch1_dns_addr, ]
   custom_data      = base64encode(local.branch1_vm_init)
   storage_account  = module.common.storage_accounts["region1"]
   delay_creation   = "60s"

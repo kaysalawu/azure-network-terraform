@@ -42,6 +42,7 @@ Run the following commands to ensure that your environment is ready for the lab:
    az extension add --name virtual-wan
    az extension add --name log-analytics
    az extension add --name resource-graph
+   az extension add --name dns-resolver
    ```
 
 4. Ensure that Azure CLI and extensions are up-to-date:

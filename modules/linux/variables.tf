@@ -14,6 +14,12 @@ variable "name" {
   type        = string
 }
 
+variable "computer_name" {
+  description = "computer name"
+  type        = string
+  default     = ""
+}
+
 variable "location" {
   description = "vnet region location"
   type        = string

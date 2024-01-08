@@ -3,8 +3,8 @@
 
 #----------------------------
 locals {
-  region1  = "eastus"
-  region2  = "northeurope"
+  region1  = "northeurope"
+  region2  = "eastus"
   username = "azureuser"
   password = "Password123"
   vmsize   = "Standard_DS1_v2"
@@ -91,8 +91,6 @@ locals {
     ("LoadBalancerSubnet")            = { address_prefixes = ["10.11.5.0/24"] }
     ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.11.6.0/24"], enable_private_link_policies = [true] }
     ("PrivateEndpointSubnet")         = { address_prefixes = ["10.11.7.0/24"], enable_private_endpoint_policies = [true] }
-    ("DnsResolverInboundSubnet")      = { address_prefixes = ["10.11.8.0/24"], delegate = ["Microsoft.Network/dnsResolvers"] }
-    ("DnsResolverOutboundSubnet")     = { address_prefixes = ["10.11.9.0/24"], delegate = ["Microsoft.Network/dnsResolvers"] }
     ("GatewaySubnet")                 = { address_prefixes = ["10.11.10.0/24"] }
     ("RouteServerSubnet")             = { address_prefixes = ["10.11.11.0/24"] }
     ("AzureFirewallSubnet")           = { address_prefixes = ["10.11.12.0/24"] }
@@ -105,7 +103,6 @@ locals {
   shared1_nva_trust_addr    = cidrhost(local.shared1_subnets["TrustSubnet"].address_prefixes[0], 4)
   shared1_nva_ilb_addr      = cidrhost(local.shared1_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
   shared1_appgw_addr        = cidrhost(local.shared1_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
-  shared1_dns_in_addr       = cidrhost(local.shared1_subnets["DnsResolverInboundSubnet"].address_prefixes[0], 4)
   shared1_vpngw_bgp_ip      = cidrhost(local.shared1_subnets["GatewaySubnet"].address_prefixes[0], 254)
   shared1_nva_loopback0     = "10.11.11.11"
   shared1_nva_tun_range0    = "10.11.50.0/30"
@@ -136,8 +133,6 @@ locals {
     ("LoadBalancerSubnet")            = { address_prefixes = ["10.22.5.0/24"] }
     ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.22.6.0/24"], enable_private_link_service_network_policies = [true] }
     ("PrivateEndpointSubnet")         = { address_prefixes = ["10.22.7.0/24"], enable_private_endpoint_network_policies = [true] }
-    ("DnsResolverInboundSubnet")      = { address_prefixes = ["10.22.8.0/24"], delegate = ["Microsoft.Network/dnsResolvers"] }
-    ("DnsResolverOutboundSubnet")     = { address_prefixes = ["10.22.9.0/24"], delegate = ["Microsoft.Network/dnsResolvers"] }
     ("GatewaySubnet")                 = { address_prefixes = ["10.22.10.0/24"] }
     ("RouteServerSubnet")             = { address_prefixes = ["10.22.11.0/24"] }
     ("AzureFirewallSubnet")           = { address_prefixes = ["10.22.12.0/24"] }
@@ -150,7 +145,6 @@ locals {
   shared2_nva_trust_addr    = cidrhost(local.shared2_subnets["TrustSubnet"].address_prefixes[0], 4)
   shared2_nva_ilb_addr      = cidrhost(local.shared2_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
   shared2_appgw_addr        = cidrhost(local.shared2_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
-  shared2_dns_in_addr       = cidrhost(local.shared2_subnets["DnsResolverInboundSubnet"].address_prefixes[0], 4)
   shared2_vpngw_bgp_ip      = cidrhost(local.shared2_subnets["GatewaySubnet"].address_prefixes[0], 254)
   shared2_nva_loopback0     = "10.22.22.22"
   shared2_nva_tun_range0    = "10.22.50.0/30"

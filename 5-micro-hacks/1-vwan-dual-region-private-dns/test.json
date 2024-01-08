@@ -1,0 +1,237 @@
+{
+  "addressSpace": {
+    "addressPrefixes": [
+      "10.1.0.0/16"
+    ]
+  },
+  "dhcpOptions": {
+    "dnsServers": []
+  },
+  "enableDdosProtection": false,
+  "etag": "W/\"f4284918-a2cd-4ee8-9b47-4b995b6e1cac\"",
+  "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/virtualNetworks/Vwan_Dns-spoke1-vnet",
+  "location": "eastus",
+  "name": "Vwan_Dns-spoke1-vnet",
+  "provisioningState": "Succeeded",
+  "resourceGroup": "Vwan_DnsRG",
+  "resourceGuid": "344f8910-664b-4ce3-ac6e-dfaeb4a80d8b",
+  "subnets": [
+    {
+      "addressPrefix": "10.1.4.0/24",
+      "delegations": [],
+      "etag": "W/\"f4284918-a2cd-4ee8-9b47-4b995b6e1cac\"",
+      "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/virtualNetworks/Vwan_Dns-spoke1-vnet/subnets/AppGatewaySubnet",
+      "name": "AppGatewaySubnet",
+      "networkSecurityGroup": {
+        "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/networkSecurityGroups/Vwan_Dns-nsg-eastus-appgw",
+        "resourceGroup": "Vwan_DnsRG"
+      },
+      "privateEndpointNetworkPolicies": "Disabled",
+      "privateLinkServiceNetworkPolicies": "Disabled",
+      "provisioningState": "Succeeded",
+      "resourceGroup": "Vwan_DnsRG",
+      "serviceEndpoints": [],
+      "type": "Microsoft.Network/virtualNetworks/subnets"
+    },
+    {
+      "addressPrefix": "10.1.1.0/24",
+      "delegations": [],
+      "etag": "W/\"f4284918-a2cd-4ee8-9b47-4b995b6e1cac\"",
+      "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/virtualNetworks/Vwan_Dns-spoke1-vnet/subnets/TrustSubnet",
+      "name": "TrustSubnet",
+      "networkSecurityGroup": {
+        "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/networkSecurityGroups/Vwan_Dns-nsg-region1-main",
+        "resourceGroup": "Vwan_DnsRG"
+      },
+      "privateEndpointNetworkPolicies": "Disabled",
+      "privateLinkServiceNetworkPolicies": "Disabled",
+      "provisioningState": "Succeeded",
+      "resourceGroup": "Vwan_DnsRG",
+      "serviceEndpoints": [],
+      "type": "Microsoft.Network/virtualNetworks/subnets"
+    },
+    {
+      "addressPrefix": "10.1.6.0/24",
+      "delegations": [],
+      "etag": "W/\"f4284918-a2cd-4ee8-9b47-4b995b6e1cac\"",
+      "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/virtualNetworks/Vwan_Dns-spoke1-vnet/subnets/PrivateLinkServiceSubnet",
+      "name": "PrivateLinkServiceSubnet",
+      "networkSecurityGroup": {
+        "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/networkSecurityGroups/Vwan_Dns-nsg-eastus-default",
+        "resourceGroup": "Vwan_DnsRG"
+      },
+      "privateEndpointNetworkPolicies": "Disabled",
+      "privateLinkServiceNetworkPolicies": "Disabled",
+      "provisioningState": "Succeeded",
+      "resourceGroup": "Vwan_DnsRG",
+      "serviceEndpoints": [],
+      "type": "Microsoft.Network/virtualNetworks/subnets"
+    },
+    {
+      "addressPrefix": "10.1.3.0/24",
+      "delegations": [],
+      "etag": "W/\"f4284918-a2cd-4ee8-9b47-4b995b6e1cac\"",
+      "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/virtualNetworks/Vwan_Dns-spoke1-vnet/subnets/ManagementSubnet",
+      "name": "ManagementSubnet",
+      "networkSecurityGroup": {
+        "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/networkSecurityGroups/Vwan_Dns-nsg-region1-main",
+        "resourceGroup": "Vwan_DnsRG"
+      },
+      "privateEndpointNetworkPolicies": "Disabled",
+      "privateLinkServiceNetworkPolicies": "Disabled",
+      "provisioningState": "Succeeded",
+      "resourceGroup": "Vwan_DnsRG",
+      "serviceEndpoints": [],
+      "type": "Microsoft.Network/virtualNetworks/subnets"
+    },
+    {
+      "addressPrefix": "10.1.8.0/24",
+      "delegations": [
+        {
+          "actions": [
+            "Microsoft.Network/virtualNetworks/subnets/action"
+          ],
+          "etag": "W/\"f4284918-a2cd-4ee8-9b47-4b995b6e1cac\"",
+          "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/virtualNetworks/Vwan_Dns-spoke1-vnet/subnets/AppServiceSubnet/delegations/Microsoft.Web/serverFarms",
+          "name": "Microsoft.Web/serverFarms",
+          "provisioningState": "Succeeded",
+          "resourceGroup": "Vwan_DnsRG",
+          "serviceName": "Microsoft.Web/serverFarms",
+          "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+        }
+      ],
+      "etag": "W/\"f4284918-a2cd-4ee8-9b47-4b995b6e1cac\"",
+      "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/virtualNetworks/Vwan_Dns-spoke1-vnet/subnets/AppServiceSubnet",
+      "name": "AppServiceSubnet",
+      "networkSecurityGroup": {
+        "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/networkSecurityGroups/Vwan_Dns-nsg-eastus-default",
+        "resourceGroup": "Vwan_DnsRG"
+      },
+      "privateEndpointNetworkPolicies": "Disabled",
+      "privateLinkServiceNetworkPolicies": "Disabled",
+      "provisioningState": "Succeeded",
+      "resourceGroup": "Vwan_DnsRG",
+      "serviceEndpoints": [],
+      "type": "Microsoft.Network/virtualNetworks/subnets"
+    },
+    {
+      "addressPrefix": "10.1.5.0/24",
+      "delegations": [],
+      "etag": "W/\"f4284918-a2cd-4ee8-9b47-4b995b6e1cac\"",
+      "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/virtualNetworks/Vwan_Dns-spoke1-vnet/subnets/LoadBalancerSubnet",
+      "name": "LoadBalancerSubnet",
+      "networkSecurityGroup": {
+        "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/networkSecurityGroups/Vwan_Dns-nsg-eastus-default",
+        "resourceGroup": "Vwan_DnsRG"
+      },
+      "privateEndpointNetworkPolicies": "Disabled",
+      "privateLinkServiceNetworkPolicies": "Disabled",
+      "provisioningState": "Succeeded",
+      "resourceGroup": "Vwan_DnsRG",
+      "serviceEndpoints": [],
+      "type": "Microsoft.Network/virtualNetworks/subnets"
+    },
+    {
+      "addressPrefix": "10.1.7.0/24",
+      "delegations": [],
+      "etag": "W/\"f4284918-a2cd-4ee8-9b47-4b995b6e1cac\"",
+      "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/virtualNetworks/Vwan_Dns-spoke1-vnet/subnets/PrivateEndpointSubnet",
+      "name": "PrivateEndpointSubnet",
+      "networkSecurityGroup": {
+        "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/networkSecurityGroups/Vwan_Dns-nsg-eastus-default",
+        "resourceGroup": "Vwan_DnsRG"
+      },
+      "privateEndpointNetworkPolicies": "Disabled",
+      "privateLinkServiceNetworkPolicies": "Disabled",
+      "provisioningState": "Succeeded",
+      "resourceGroup": "Vwan_DnsRG",
+      "serviceEndpoints": [],
+      "type": "Microsoft.Network/virtualNetworks/subnets"
+    },
+    {
+      "addressPrefix": "10.1.0.0/24",
+      "delegations": [],
+      "etag": "W/\"f4284918-a2cd-4ee8-9b47-4b995b6e1cac\"",
+      "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/virtualNetworks/Vwan_Dns-spoke1-vnet/subnets/MainSubnet",
+      "ipConfigurations": [
+        {
+          "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/VWAN_DNSRG/providers/Microsoft.Network/networkInterfaces/VWAN_DNS-SPOKE1-VM-NIC/ipConfigurations/IP-CONFIG",
+          "resourceGroup": "VWAN_DNSRG"
+        }
+      ],
+      "name": "MainSubnet",
+      "natGateway": {
+        "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/natGateways/Vwan_Dns-spoke1-natgw",
+        "resourceGroup": "Vwan_DnsRG"
+      },
+      "networkSecurityGroup": {
+        "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/networkSecurityGroups/Vwan_Dns-nsg-region1-main",
+        "resourceGroup": "Vwan_DnsRG"
+      },
+      "privateEndpointNetworkPolicies": "Disabled",
+      "privateLinkServiceNetworkPolicies": "Disabled",
+      "provisioningState": "Succeeded",
+      "resourceGroup": "Vwan_DnsRG",
+      "serviceEndpoints": [],
+      "type": "Microsoft.Network/virtualNetworks/subnets"
+    },
+    {
+      "addressPrefix": "10.1.2.0/24",
+      "delegations": [],
+      "etag": "W/\"f4284918-a2cd-4ee8-9b47-4b995b6e1cac\"",
+      "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/virtualNetworks/Vwan_Dns-spoke1-vnet/subnets/UntrustSubnet",
+      "name": "UntrustSubnet",
+      "natGateway": {
+        "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/natGateways/Vwan_Dns-spoke1-natgw",
+        "resourceGroup": "Vwan_DnsRG"
+      },
+      "networkSecurityGroup": {
+        "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/networkSecurityGroups/Vwan_Dns-nsg-eastus-open",
+        "resourceGroup": "Vwan_DnsRG"
+      },
+      "privateEndpointNetworkPolicies": "Disabled",
+      "privateLinkServiceNetworkPolicies": "Disabled",
+      "provisioningState": "Succeeded",
+      "resourceGroup": "Vwan_DnsRG",
+      "serviceEndpoints": [],
+      "type": "Microsoft.Network/virtualNetworks/subnets"
+    }
+  ],
+  "tags": {
+    "lab": "mH51_Vwan_Dns",
+    "nodeType": "spoke"
+  },
+  "type": "Microsoft.Network/virtualNetworks",
+  "virtualNetworkPeerings": [
+    {
+      "allowForwardedTraffic": false,
+      "allowGatewayTransit": false,
+      "allowVirtualNetworkAccess": true,
+      "doNotVerifyRemoteGateways": true,
+      "etag": "W/\"f4284918-a2cd-4ee8-9b47-4b995b6e1cac\"",
+      "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan_DnsRG/providers/Microsoft.Network/virtualNetworks/Vwan_Dns-spoke1-vnet/virtualNetworkPeerings/RemoteVnetToHubPeering_3d965c47-b5a6-4e51-b343-0714282e1d4a",
+      "name": "RemoteVnetToHubPeering_3d965c47-b5a6-4e51-b343-0714282e1d4a",
+      "peeringState": "Connected",
+      "peeringSyncLevel": "FullyInSync",
+      "provisioningState": "Succeeded",
+      "remoteAddressSpace": {
+        "addressPrefixes": [
+          "192.168.11.0/24"
+        ]
+      },
+      "remoteVirtualNetwork": {
+        "id": "/subscriptions/f8871663-d002-41b9-8749-f9f90fb246d2/resourceGroups/RG_Vwan_Dns-vhub1-hub_f05d6eed-eeb2-4fd9-a3a6-c949ea54ba4d/providers/Microsoft.Network/virtualNetworks/HV_Vwan_Dns-vhub1-hub_192a970e-455a-433b-9f28-6d6f66b4ee6c",
+        "resourceGroup": "RG_Vwan_Dns-vhub1-hub_f05d6eed-eeb2-4fd9-a3a6-c949ea54ba4d"
+      },
+      "remoteVirtualNetworkAddressSpace": {
+        "addressPrefixes": [
+          "192.168.11.0/24"
+        ]
+      },
+      "resourceGroup": "Vwan_DnsRG",
+      "resourceGuid": "09d9d557-d3ed-02b2-1f2d-d8ba9c8610c1",
+      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+      "useRemoteGateways": true
+    }
+  ]
+}

@@ -68,7 +68,7 @@ locals {
     config_vnet = {
       address_space               = local.shared1_address_space
       subnets                     = local.shared1_subnets
-      enable_private_dns_resolver = true
+      enable_private_dns_resolver = false
       enable_ars                  = false
 
       ruleset_dns_forwarding_rules = {
@@ -105,7 +105,7 @@ locals {
     config_vnet = {
       address_space               = local.shared2_address_space
       subnets                     = local.shared2_subnets
-      enable_private_dns_resolver = true
+      enable_private_dns_resolver = false
       enable_ars                  = false
 
       ruleset_dns_forwarding_rules = {
@@ -292,14 +292,14 @@ locals {
     { name = (local.branch2_vm_fqdn), record = local.branch2_vm_addr },
   ]
   onprem_forward_zones = [
-    { zone = "${local.cloud_domain}.", targets = [local.shared1_dns_in_addr, local.shared2_dns_in_addr], },
-    { zone = "${local.cloud_domain}.", targets = [local.shared1_dns_in_addr, local.shared2_dns_in_addr], },
-    { zone = "privatelink.blob.core.windows.net.", targets = [local.shared1_dns_in_addr, local.shared2_dns_in_addr], },
-    { zone = "privatelink.azurewebsites.net.", targets = [local.shared1_dns_in_addr, local.shared2_dns_in_addr], },
-    { zone = "privatelink.database.windows.net.", targets = [local.shared1_dns_in_addr, local.shared2_dns_in_addr], },
-    { zone = "privatelink.table.cosmos.azure.com.", targets = [local.shared1_dns_in_addr, local.shared2_dns_in_addr], },
-    { zone = "privatelink.queue.core.windows.net.", targets = [local.shared1_dns_in_addr, local.shared2_dns_in_addr], },
-    { zone = "privatelink.file.core.windows.net.", targets = [local.shared1_dns_in_addr, local.shared2_dns_in_addr], },
+    #{ zone = "${local.cloud_domain}.", targets = [local.shared1_dns_in_addr, local.shared2_dns_in_addr], },
+    #{ zone = "${local.cloud_domain}.", targets = [local.shared1_dns_in_addr, local.shared2_dns_in_addr], },
+    #{ zone = "privatelink.blob.core.windows.net.", targets = [local.shared1_dns_in_addr, local.shared2_dns_in_addr], },
+    #{ zone = "privatelink.azurewebsites.net.", targets = [local.shared1_dns_in_addr, local.shared2_dns_in_addr], },
+    #{ zone = "privatelink.database.windows.net.", targets = [local.shared1_dns_in_addr, local.shared2_dns_in_addr], },
+    #{ zone = "privatelink.table.cosmos.azure.com.", targets = [local.shared1_dns_in_addr, local.shared2_dns_in_addr], },
+    #{ zone = "privatelink.queue.core.windows.net.", targets = [local.shared1_dns_in_addr, local.shared2_dns_in_addr], },
+    #{ zone = "privatelink.file.core.windows.net.", targets = [local.shared1_dns_in_addr, local.shared2_dns_in_addr], },
     { zone = ".", targets = [local.azuredns, ] },
   ]
   onprem_redirected_hosts = []
@@ -387,7 +387,7 @@ module "fw_policy_rule_collection_group" {
 
 locals {
   main_files = {
-    "output/branch-dnsmasq.sh" = local.branch_dnsmasq_startup
+    "output/branch-unbound.sh" = local.branch_unbound_startup
     "output/server.sh"         = local.vm_startup
   }
 }
