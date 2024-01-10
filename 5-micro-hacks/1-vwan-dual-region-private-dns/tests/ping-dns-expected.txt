@@ -1,0 +1,60 @@
+
+Spoke 1
+--------------------------------------------
+
+azureuser@vm:~$ ping-dns
+
+ ping dns ...
+
+vm.branch1.corp - 10.10.0.5 -OK 2.984 ms
+vm.spoke1.eu.az.corp - 10.1.0.5 -OK 0.041 ms
+vm.spoke2.eu.az.corp - 10.2.0.5 -OK 3.129 ms
+vm.branch2.corp - 10.20.0.5 -OK 95.060 ms
+vm.spoke3.us.az.corp - 10.3.0.5 -OK 93.148 ms
+vm.spoke4.us.az.corp - 10.4.0.5 -OK 93.982 ms
+icanhazip.com - 104.18.115.97 -NA
+
+Spoke 2
+--------------------------------------------
+
+azureuser@vm:~$ ping-dns
+
+ ping dns ...
+
+vm.branch1.corp - 10.10.0.5 -OK 7.515 ms
+vm.spoke1.eu.az.corp - 10.1.0.5 -OK 2.110 ms
+vm.spoke2.eu.az.corp - 10.2.0.5 -OK 0.034 ms
+vm.branch2.corp - 10.20.0.5 -OK 102.037 ms
+vm.spoke3.us.az.corp - 10.3.0.5 -OK 93.318 ms
+vm.spoke4.us.az.corp - 10.4.0.5 -OK 93.800 ms
+icanhazip.com - 104.18.114.97 -NA
+
+Spoke 3
+--------------------------------------------
+
+azureuser@vm:~$ ping-dns
+
+ ping dns ...
+
+vm.branch1.corp - 10.10.0.5 -OK 94.443 ms
+vm.spoke1.eu.az.corp - 10.1.0.5 -OK 93.080 ms
+vm.spoke2.eu.az.corp - 10.2.0.5 -OK 93.705 ms
+vm.branch2.corp - 10.20.0.5 -OK 19.514 ms
+vm.spoke3.us.az.corp - 10.3.0.5 -OK 0.032 ms
+vm.spoke4.us.az.corp - 10.4.0.5 -OK 3.063 ms
+icanhazip.com - 104.18.115.97 -NA
+
+Spoke 4
+--------------------------------------------
+
+azureuser@vm:~$ ping-dns
+
+ ping dns ...
+
+vm.branch1.corp - 10.10.0.5 -OK 94.353 ms
+vm.spoke1.eu.az.corp - 10.1.0.5 -OK 94.425 ms
+vm.spoke2.eu.az.corp - 10.2.0.5 -OK 93.270 ms
+vm.branch2.corp - 10.20.0.5 -OK 5.641 ms
+vm.spoke3.us.az.corp - 10.3.0.5 -OK 3.023 ms
+vm.spoke4.us.az.corp - 10.4.0.5 -OK 0.027 ms
+icanhazip.com - 104.18.115.97 -NA
