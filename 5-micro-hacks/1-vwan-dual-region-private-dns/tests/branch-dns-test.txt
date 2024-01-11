@@ -1,0 +1,14 @@
+
+Branch 1
+--------------------------------------------
+
+vm.branch1.corp - 10.10.0.5 -OK 0.034 ms
+vm.spoke1.eu.az.corp - 10.1.0.5 -OK 3.629 ms
+vm.spoke2.eu.az.corp - 10.2.0.5 -OK 3.679 ms
+vm.branch2.corp - 10.20.0.5 -OK 88.142 ms
+vm.spoke3.us.az.corp - 10.3.0.5 -OK 87.148 ms
+vm.spoke4.us.az.corp - 10.4.0.5 -OK 87.066 ms
+icanhazip.com - 104.18.115.97 -OK 1.639 ms
+
+Branch 2
+--------------------------------------------
