@@ -39,15 +39,15 @@ resource "azurerm_linux_virtual_machine" "this" {
     storage_account_type = "Standard_LRS"
   }
   source_image_reference {
-    publisher = "cisco"
-    offer     = "cisco-csr-1000v"
-    sku       = "17_3_4a-byol"
-    version   = "latest"
+    publisher = var.source_image_reference[var.source_image].publisher
+    offer     = var.source_image_reference[var.source_image].offer
+    sku       = var.source_image_reference[var.source_image].sku
+    version   = var.source_image_reference[var.source_image].version
   }
   plan {
-    publisher = "cisco"
-    product   = "cisco-csr-1000v" # offer
-    name      = "17_3_4a-byol"    # sku
+    publisher = var.source_image_reference[var.source_image].publisher
+    product   = var.source_image_reference[var.source_image].offer
+    name      = var.source_image_reference[var.source_image].sku
   }
   computer_name  = replace("${local.name}vm", "_", "")
   admin_username = var.admin_username

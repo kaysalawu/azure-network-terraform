@@ -3,7 +3,7 @@
 ####################################################
 
 locals {
-  prefix                = "Ge42"
+  prefix                = "G02"
   region1               = "westeurope"
   region2               = "northeurope"
   spoke3_apps_fqdn      = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
@@ -30,7 +30,6 @@ provider "azurerm" {
 provider "azapi" {}
 
 terraform {
-  #required_version = ">= 1.4.6"
   required_providers {
     megaport = {
       source  = "megaport/megaport"
@@ -200,46 +199,60 @@ locals {
     TARGETS_HEAVY_TRAFFIC_GEN = []
     ENABLE_TRAFFIC_GEN        = false
   })
-
-  vm_startup_container_dir = "/var/lib/spoke"
-  vm_startup_fastapi_vars = {
-    INIT_DIR  = local.vm_startup_container_dir
-    APP1_PORT = "8080"
-    APP2_PORT = "8081"
+  init_dir               = "/var/lib/spoke"
+  init_port_app1         = "8080" # nginx tls
+  init_port_app1_target  = "9000"
+  init_port_app2_target  = "8081"
+  init_name_app1         = "app1"
+  init_name_app2         = "app2"
+  init_niginx_cert_path  = "/etc/ssl/app/cert.pem"
+  init_niginx_key_path   = "/etc/ssl/app/key.pem"
+  init_nginx_config_path = "/etc/nginx/nginx.conf"
+  init_vars = {
+    INIT_DIR = local.init_dir
+    NGINX = {
+      enable_tls  = true
+      port        = local.init_port_app1
+      cert_path   = local.init_niginx_cert_path
+      key_path    = local.init_niginx_key_path
+      config_path = local.init_nginx_config_path
+      proxy_pass  = "http://localhost:${local.init_port_app1_target}"
+    }
+    APPS = [
+      { name = local.init_name_app1, port = local.init_port_app1_target },
+      { name = local.init_name_app2, port = local.init_port_app2_target },
+    ]
   }
+  init_vars_app1 = merge(local.init_vars, {
+    APP_NAME = local.init_name_app1
+    APP_PORT = local.init_port_app1_target
+  })
+  init_vars_app2 = merge(local.init_vars, {
+    APP_NAME = local.init_name_app2
+    APP_PORT = local.init_port_app2_target
+  })
   vm_startup_fastapi_files = {
-    "${local.vm_startup_container_dir}/docker-compose.yml"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/docker-compose.yml", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/service.sh"            = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/service.sh", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/start.sh"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/start.sh", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/stop.sh"               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/stop.sh", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app1/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app1/app/Dockerfile", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app1/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app1/app/.dockerignore", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app1/main.py"          = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app1/app/main.py", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app1/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app1/app/_app.py", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app1/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app1/app/requirements.txt", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app2/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app2/app/Dockerfile", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app2/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app2/app/.dockerignore", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app2/main.py"          = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app2/app/main.py", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app2/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app2/app/_app.py", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app2/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/fastapi/app2/app/requirements.txt", local.vm_startup_fastapi_vars) }
-    "/etc/ssl/app/cert.pem"                                   = { owner = "root", permissions = "0400", content = join("\n", [module.server_cert.cert_pem, tls_self_signed_cert.root_ca.cert_pem]) }
-    "/etc/ssl/app/key.pem"                                    = { owner = "root", permissions = "0400", content = module.server_cert.private_key_pem }
-  }
-  vm_startup_flaskapp_files = {
-    "${local.vm_startup_container_dir}/docker-compose.yml"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/docker-compose.yml", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/service.sh"            = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/service.sh", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/start.sh"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/start.sh", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/stop.sh"               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/stop.sh", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app1/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/app1/Dockerfile", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app1/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/app1/.dockerignore", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app1/app.py"           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/app1/app.py", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app1/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/app1/requirements.txt", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app2/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/app2/Dockerfile", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app2/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/app2/.dockerignore", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app2/app.py"           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/app2/app.py", local.vm_startup_fastapi_vars) }
-    "${local.vm_startup_container_dir}/app2/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/flaskapp/app2/requirements.txt", local.vm_startup_fastapi_vars) }
-    "/etc/ssl/app/cert.pem"                                   = { owner = "root", permissions = "0400", content = join("\n", [module.server_cert.cert_pem, tls_self_signed_cert.root_ca.cert_pem]) }
-    "/etc/ssl/app/key.pem"                                    = { owner = "root", permissions = "0400", content = module.server_cert.private_key_pem }
+    "${local.init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/docker-compose.yml", local.init_vars) }
+    "${local.init_dir}/start.sh"           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/start.sh", local.init_vars) }
+    "${local.init_dir}/stop.sh"            = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/stop.sh", local.init_vars) }
+    "${local.init_dir}/service.sh"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/service.sh", local.init_vars) }
+    "/etc/ssl/app/cert.pem"                = { owner = "root", permissions = "0400", content = join("\n", [module.server_cert.cert_pem, tls_self_signed_cert.root_ca.cert_pem]) }
+    "/etc/ssl/app/key.pem"                 = { owner = "root", permissions = "0400", content = module.server_cert.private_key_pem }
+
+    "${local.init_dir}/nginx/Dockerfile" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/nginx/Dockerfile", local.init_vars) }
+    "/etc/nginx/nginx.conf"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/nginx/nginx.conf", local.init_vars) }
+
+    "${local.init_dir}/app1/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/Dockerfile", local.init_vars_app1) }
+    "${local.init_dir}/app1/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/.dockerignore", local.init_vars_app1) }
+    "${local.init_dir}/app1/main.py"          = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/main.py", local.init_vars_app1) }
+    "${local.init_dir}/app1/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/_app.py", local.init_vars_app1) }
+    "${local.init_dir}/app1/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/requirements.txt", local.init_vars) }
+
+    "${local.init_dir}/app2/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/Dockerfile", local.init_vars_app2) }
+    "${local.init_dir}/app2/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/.dockerignore", local.init_vars_app2) }
+    "${local.init_dir}/app2/main.py"          = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/main.py", local.init_vars_app2) }
+    "${local.init_dir}/app2/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/_app.py", local.init_vars_app2) }
+    "${local.init_dir}/app2/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/requirements.txt", local.init_vars_app2) }
   }
 
   onprem_dns_vars = {
@@ -309,9 +322,13 @@ module "dnsmasq" {
 
 module "web_http_backend_init" {
   source = "../../modules/cloud-config-gen"
-  files  = local.vm_startup_flaskapp_files
+  packages = [
+    "docker.io", "docker-compose",
+    "tcpdump", "dnsutils", "net-tools", "nmap", "apache2-utils",
+  ]
+  files = local.vm_startup_fastapi_files
   run_commands = [
-    ". ${local.spoke1_be_dir}/service.sh",
+    ". ${local.init_dir}/service.sh",
   ]
 }
 
@@ -480,6 +497,7 @@ locals {
   main_files = {
     "output/branch-unbound.sh" = local.branch_unbound_startup
     "output/server.sh"         = local.vm_startup
+    "output/cloud-init"        = module.web_http_backend_init.cloud_config
   }
 }
 
@@ -488,3 +506,9 @@ resource "local_file" "main_files" {
   filename = each.key
   content  = each.value
 }
+
+# resource "local_file" "docker_files" {
+#   for_each = local.vm_startup_fastapi_files
+#   filename = "output/docker/${each.key}"
+#   content  = each.value.content
+# }

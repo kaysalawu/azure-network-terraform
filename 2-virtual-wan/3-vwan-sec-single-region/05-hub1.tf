@@ -62,17 +62,16 @@ module "hub1" {
 ####################################################
 
 module "hub1_vm" {
-  source                = "../../modules/linux"
-  resource_group        = azurerm_resource_group.rg.name
-  prefix                = local.hub1_prefix
-  name                  = "vm"
-  location              = local.hub1_location
-  subnet                = module.hub1.subnets["MainSubnet"].id
-  private_ip            = local.hub1_vm_addr
-  enable_public_ip      = true
-  custom_data           = base64encode(local.vm_startup)
-  storage_account       = module.common.storage_accounts["region1"]
-  private_dns_zone_name = local.hub1_dns_zone
-  tags                  = local.hub1_tags
-  depends_on            = [module.hub1]
+  source           = "../../modules/linux"
+  resource_group   = azurerm_resource_group.rg.name
+  prefix           = local.hub1_prefix
+  name             = "vm"
+  location         = local.hub1_location
+  subnet           = module.hub1.subnets["MainSubnet"].id
+  private_ip       = local.hub1_vm_addr
+  enable_public_ip = true
+  custom_data      = base64encode(local.vm_startup)
+  storage_account  = module.common.storage_accounts["region1"]
+  tags             = local.hub1_tags
+  depends_on       = [module.hub1]
 }

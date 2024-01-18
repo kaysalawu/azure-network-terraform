@@ -15,7 +15,7 @@ display_delimiter() {
 
 start_services() {
   echo "**************************************"
-  echo "STEP 1: Start Services"
+  echo " Start Services"
   echo "**************************************"
   cd "$init_dir"
   echo "docker compose up -d"
@@ -25,7 +25,7 @@ start_services() {
 
 check_services() {
   echo "**************************************"
-  echo "STEP 2: Check Service Status"
+  echo " Check Service Status"
   echo "**************************************"
   echo "sleep 3 ..." && sleep 3
   docker ps

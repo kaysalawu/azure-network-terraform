@@ -45,7 +45,7 @@ def healthz():
     return "OK"
 
 if __name__ == "__main__":
-    #cert_path = '/etc/ssl/app/cert.pem'
-    #key_path = '/etc/ssl/app/key.pem'
-    #app.run(host='0.0.0.0', port=8080, debug=True, ssl_context=(cert_path, key_path))
-    app.run(host='0.0.0.0', port=${APP1_PORT}, debug=True)
+    # cert_path = '/etc/ssl/app/cert.pem'
+    # key_path = '/etc/ssl/app/key.pem'
+    # app.run(host='0.0.0.0', port=8080, debug=True, ssl_context=(cert_path, key_path))
+    app.run(host='0.0.0.0', port=9000, debug=True)

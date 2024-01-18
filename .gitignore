@@ -21,7 +21,6 @@ modulez/
 *credentials/
 plugins/
 *plugins/
-*.x
 *scrap*
 *reference*
 *artifact

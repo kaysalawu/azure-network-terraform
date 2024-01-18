@@ -60,6 +60,34 @@ resource "azurerm_subnet_network_security_group_association" "this" {
 }
 
 ####################################################
+# nsg flow logs
+####################################################
+
+resource "azurerm_network_watcher_flow_log" "this" {
+  count                = length(var.flow_log_nsg_ids)
+  resource_group_name  = var.network_watcher_resource_group
+  network_watcher_name = var.network_watcher_name
+  name                 = "${local.prefix}flowlog-${count.index}"
+
+  network_security_group_id = var.flow_log_nsg_ids[count.index]
+  storage_account_id        = var.storage_account.id
+  enabled                   = true
+
+  retention_policy {
+    enabled = true
+    days    = 7
+  }
+
+  traffic_analytics {
+    enabled               = true
+    workspace_id          = data.azurerm_log_analytics_workspace.this[0].workspace_id
+    workspace_region      = data.azurerm_log_analytics_workspace.this[0].location
+    workspace_resource_id = data.azurerm_log_analytics_workspace.this[0].id
+    interval_in_minutes   = 10
+  }
+}
+
+####################################################
 # dns
 ####################################################
 
@@ -324,28 +352,40 @@ module "azfw" {
 # appliance
 
 module "nva_linux" {
-  count                = var.config_nva.enable && var.config_nva.type == "linux" ? 1 : 0
-  source               = "../../modules/linux"
-  resource_group       = var.resource_group
-  prefix               = local.prefix
-  name                 = "nva"
-  location             = var.location
-  subnet               = azurerm_subnet.this["TrustSubnet"].id
+  count          = var.config_nva.enable && var.config_nva.type == "linux" ? 1 : 0
+  source         = "../../modules/virtual-machine-linux"
+  resource_group = var.resource_group
+  name           = "${local.prefix}nva"
+  location       = var.location
+
+  storage_account = var.storage_account
+  admin_username  = var.admin_username
+  admin_password  = var.admin_password
+  source_image    = "ubuntu-20"
+  custom_data     = var.config_nva.custom_data
+
   enable_ip_forwarding = true
-  enable_public_ip     = true
-  source_image         = "ubuntu-20"
-  storage_account      = var.storage_account
-  admin_username       = var.admin_username
-  admin_password       = var.admin_password
-  custom_data          = var.config_nva.custom_data
-  create_dashboard     = false #var.config_nva.create_dashboard
-  enable_diagnostics   = var.config_nva.enable_diagnostics
+  #create_dashboard     = false #var.config_nva.create_dashboard
+  #enable_diagnostics   = var.config_nva.enable_diagnostics
+
+  interfaces = [
+    {
+      name             = "untrust"
+      subnet_id        = azurerm_subnet.this["UntrustSubnet"].id
+      create_public_ip = true
+    },
+    {
+      name      = "trust"
+      subnet_id = azurerm_subnet.this["TrustSubnet"].id
+    },
+  ]
 
   depends_on = [
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
   ]
 }
+
 
 # internal lb
 
@@ -380,7 +420,7 @@ module "ilb_nva_linux" {
         {
           name               = module.nva_linux[0].vm.name
           virtual_network_id = azurerm_virtual_network.this.id
-          ip_address         = module.nva_linux[0].interface.ip_configuration[0].private_ip_address
+          ip_address         = module.nva_linux[0].interfaces["untrust"].ip_configuration[0].private_ip_address
         },
       ]
     }

@@ -15,7 +15,7 @@ display_delimiter() {
 
 stop_services() {
   echo "**************************************"
-  echo "STEP 1: Stop Services"
+  echo " Stop Services"
   echo "**************************************"
   cd "$init_dir"
   echo "docker compose down"
@@ -25,7 +25,7 @@ stop_services() {
 
 check_services() {
   echo "**************************************"
-  echo "STEP 2: Check Service Status"
+  echo " Check Service Status"
   echo "**************************************"
   echo "sleep 3 ..." && sleep 3
   docker ps

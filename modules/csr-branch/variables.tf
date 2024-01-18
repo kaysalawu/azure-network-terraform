@@ -26,24 +26,24 @@ variable "zone" {
   default     = null
 }
 
-variable "subnet_ext" {
-  description = "NVA's external subnet"
+variable "subnet_untrust" {
+  description = "NVA's untrust subnet"
   type        = any
 }
 
-variable "subnet_int" {
-  description = "NVA's internal subnet"
+variable "subnet_trust" {
+  description = "NVA's trust subnet"
   type        = any
 }
 
-variable "private_ip_ext" {
-  description = "optional static private external ip of vm"
+variable "private_ip_untrust" {
+  description = "optional static private untrust ip of vm"
   type        = any
   default     = null
 }
 
-variable "private_ip_int" {
-  description = "optional static private external ip of vm"
+variable "private_ip_trust" {
+  description = "optional static private trust ip of vm"
   type        = any
   default     = null
 }
@@ -106,4 +106,29 @@ variable "dns_servers" {
   description = "DNS servers"
   type        = list(any)
   default     = null
+}
+
+variable "source_image" {
+  description = "source image"
+  type        = string
+  default     = "cisco-csr-1000v"
+}
+
+variable "source_image_reference" {
+  description = "source image reference"
+  type        = map(any)
+  default = {
+    "cisco-csr-1000v" = {
+      publisher = "cisco"
+      offer     = "cisco-csr-1000v"
+      sku       = "17_3_4a-byol"
+      version   = "latest"
+    }
+    "cisco-c8000v" = {
+      publisher = "cisco"
+      offer     = "cisco-c8000v"
+      sku       = "17_12_01a-byol"
+      version   = "latest"
+    }
+  }
 }

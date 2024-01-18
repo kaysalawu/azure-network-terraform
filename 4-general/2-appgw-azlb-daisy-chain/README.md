@@ -483,13 +483,13 @@ Observe the firewall logs based on traffic flows generated from our tests.
 2. Run a cleanup script to remove some resources that may not be removed after the resource group deletion.
 
    ```sh
-   babash ../../scripts/_cleanup.sh Ge411RG
+   bash ../../scripts/_cleanup.sh Ge02RG
    ```
 
    Sample output
 
    ```sh
-   1-hub-spoke-azfw-single-region$ babash ../../scripts/_cleanup.sh Ge411RG
+   1-hub-spoke-azfw-single-region$ bash ../../scripts/_cleanup.sh Ge411RG
 
    Resource group: Ge411RG
 

@@ -198,10 +198,10 @@ module "branch1_nva" {
   location             = local.branch1_location
   enable_ip_forwarding = true
   enable_public_ip     = true
-  subnet_ext           = module.branch1.subnets["UntrustSubnet"].id
-  subnet_int           = module.branch1.subnets["TrustSubnet"].id
-  private_ip_ext       = local.branch1_nva_untrust_addr
-  private_ip_int       = local.branch1_nva_trust_addr
+  subnet_untrust       = module.branch1.subnets["UntrustSubnet"].id
+  subnet_trust         = module.branch1.subnets["TrustSubnet"].id
+  private_ip_untrust   = local.branch1_nva_untrust_addr
+  private_ip_trust     = local.branch1_nva_trust_addr
   public_ip            = azurerm_public_ip.branch1_nva_pip.id
   storage_account      = module.common.storage_accounts["region1"]
   admin_username       = local.username

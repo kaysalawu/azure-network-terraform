@@ -63,18 +63,17 @@ locals {
 }
 
 module "spoke4_vm" {
-  source                = "../../modules/linux"
-  resource_group        = azurerm_resource_group.rg.name
-  prefix                = local.spoke4_prefix
-  name                  = "vm"
-  location              = local.spoke4_location
-  subnet                = module.spoke4.subnets["MainSubnet"].id
-  private_ip            = local.spoke4_vm_addr
-  custom_data           = base64encode(local.spoke4_vm_init)
-  storage_account       = module.common.storage_accounts["region2"]
-  private_dns_zone_name = local.spoke4_dns_zone
-  delay_creation        = "1m"
-  tags                  = local.spoke4_tags
+  source          = "../../modules/linux"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = local.spoke4_prefix
+  name            = "vm"
+  location        = local.spoke4_location
+  subnet          = module.spoke4.subnets["MainSubnet"].id
+  private_ip      = local.spoke4_vm_addr
+  custom_data     = base64encode(local.spoke4_vm_init)
+  storage_account = module.common.storage_accounts["region2"]
+  delay_creation  = "1m"
+  tags            = local.spoke4_tags
   depends_on = [
     module.spoke4,
   ]
@@ -126,20 +125,19 @@ module "spoke5" {
 # workload
 
 module "spoke5_vm" {
-  source                = "../../modules/linux"
-  resource_group        = azurerm_resource_group.rg.name
-  prefix                = local.spoke5_prefix
-  name                  = "vm"
-  location              = local.spoke5_location
-  subnet                = module.spoke5.subnets["MainSubnet"].id
-  private_ip            = local.spoke5_vm_addr
-  custom_data           = base64encode(local.vm_startup)
-  storage_account       = module.common.storage_accounts["region2"]
-  private_dns_zone_name = local.spoke5_dns_zone
-  delay_creation        = "1m"
-  tags                  = local.spoke5_tags
+  source          = "../../modules/linux"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = local.spoke5_prefix
+  name            = "vm"
+  location        = local.spoke5_location
+  subnet          = module.spoke5.subnets["MainSubnet"].id
+  private_ip      = local.spoke5_vm_addr
+  custom_data     = base64encode(local.vm_startup)
+  storage_account = module.common.storage_accounts["region2"]
+  delay_creation  = "1m"
+  tags            = local.spoke5_tags
   depends_on = [
-    module.spoke2,
+    module.spoke5,
   ]
 }
 
@@ -189,19 +187,18 @@ module "spoke6" {
 # workload
 
 module "spoke6_vm" {
-  source                = "../../modules/linux"
-  resource_group        = azurerm_resource_group.rg.name
-  prefix                = local.spoke6_prefix
-  name                  = "vm"
-  location              = local.spoke6_location
-  subnet                = module.spoke6.subnets["MainSubnet"].id
-  private_ip            = local.spoke6_vm_addr
-  custom_data           = base64encode(local.vm_startup)
-  storage_account       = module.common.storage_accounts["region2"]
-  private_dns_zone_name = local.spoke6_dns_zone
-  delay_creation        = "1m"
-  tags                  = local.spoke6_tags
+  source          = "../../modules/linux"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = local.spoke6_prefix
+  name            = "vm"
+  location        = local.spoke6_location
+  subnet          = module.spoke6.subnets["MainSubnet"].id
+  private_ip      = local.spoke6_vm_addr
+  custom_data     = base64encode(local.vm_startup)
+  storage_account = module.common.storage_accounts["region2"]
+  delay_creation  = "1m"
+  tags            = local.spoke6_tags
   depends_on = [
-    module.spoke3,
+    module.spoke6,
   ]
 }

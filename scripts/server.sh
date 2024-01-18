@@ -109,8 +109,10 @@ chmod a+x /usr/local/bin/ping-dns
 cat <<EOF > /usr/local/bin/curl-ip
 echo -e "\n curl ip ...\n"
 %{ for target in TARGETS ~}
+%{~ if try(target.curl, true) ~}
 %{~ if try(target.ip, "") != "" ~}
 echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.ip}) - ${target.name} (${target.ip})"
+%{ endif ~}
 %{ endif ~}
 %{ endfor ~}
 EOF
@@ -121,7 +123,9 @@ chmod a+x /usr/local/bin/curl-ip
 cat <<EOF > /usr/local/bin/curl-dns
 echo -e "\n curl dns ...\n"
 %{ for target in TARGETS ~}
+%{~ if try(target.curl, true) ~}
 echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.dns}) - ${target.dns}"
+%{ endif ~}
 %{ endfor ~}
 EOF
 chmod a+x /usr/local/bin/curl-dns
@@ -149,7 +153,7 @@ chmod a+x /usr/local/bin/trace-ip
 cat <<EOF > /usr/local/bin/light-traffic
 %{ for target in TARGETS_LIGHT_TRAFFIC_GEN ~}
 %{~ if try(target.probe, false) ~}
-nping -c 3 --${try(target.protocol, "tcp")} -p ${try(target.port, "80")} ${target.dns} > /dev/null 2>&1
+nping -c ${try(target.count, "3")} --${try(target.protocol, "tcp")} -p ${try(target.port, "80")} ${target.dns} > /dev/null 2>&1
 %{ endif ~}
 %{ endfor ~}
 EOF

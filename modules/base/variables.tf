@@ -32,6 +32,30 @@ variable "storage_account" {
   default     = null
 }
 
+variable "log_analytics_workspace_name" {
+  description = "log analytics workspace name"
+  type        = string
+  default     = null
+}
+
+variable "network_watcher_resource_group" {
+  description = "network watcher resource group"
+  type        = string
+  default     = null
+}
+
+variable "network_watcher_name" {
+  description = "network watcher name"
+  type        = string
+  default     = null
+}
+
+variable "flow_log_nsg_ids" {
+  description = "flow log nsg id"
+  type        = list(string)
+  default     = []
+}
+
 variable "admin_username" {
   description = "test username. please change for production"
   type        = string

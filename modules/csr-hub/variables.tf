@@ -96,3 +96,28 @@ variable "dns_servers" {
   type        = list(any)
   default     = null
 }
+
+variable "source_image" {
+  description = "source image"
+  type        = string
+  default     = "cisco-csr-1000v"
+}
+
+variable "source_image_reference" {
+  description = "source image reference"
+  type        = map(any)
+  default = {
+    "cisco-csr-1000v" = {
+      publisher = "cisco"
+      offer     = "cisco-csr-1000v"
+      sku       = "17_3_4a-byol"
+      version   = "latest"
+    }
+    "cisco-c8000v" = {
+      publisher = "cisco"
+      offer     = "cisco-c8000v"
+      sku       = "17_4_1a-byol"
+      version   = "latest"
+    }
+  }
+}

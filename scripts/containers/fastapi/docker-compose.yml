@@ -1,28 +1,22 @@
 version: '3'
 services:
-  app1:
-    container_name: app1
+  %{~ if try(NGINX.enable_tls, false) ~}
+  nginx:
+    container_name: nginx
     build:
-      context: ./app1
+      context: ./nginx
       dockerfile: Dockerfile
-    ports:
-      - 8080:8080
     network_mode: host
     volumes:
-      - /etc/ssl/app/cert.pem:/etc/ssl/app/cert.pem
-      - /etc/ssl/app/key.pem:/etc/ssl/app/key.pem
-
-  app2:
-    container_name: app2
+      - ${NGINX.cert_path}:${NGINX.cert_path}
+      - ${NGINX.key_path}:${NGINX.key_path}
+      - ${NGINX.config_path}:${NGINX.config_path}
+  %{~ endif ~}
+  %{~ for v in APPS }
+  ${v.name}:
+    container_name: ${v.name}
     build:
-      context: ./app2
+      context: ./${v.name}
       dockerfile: Dockerfile
-    ports:
-      - 8081:8081
     network_mode: host
-
-  httpbin:
-    image: kennethreitz/httpbin
-    ports:
-      - 80:80
-    network_mode: host
+  %{~ endfor ~}

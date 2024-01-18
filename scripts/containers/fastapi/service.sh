@@ -37,30 +37,9 @@ display_delimiter() {
   echo $(basename "$0")
 }
 
-install_packages() {
+cleanup() {
     echo "*****************************************"
-    echo " Step 0: Install packages"
-    echo "*****************************************"
-    apt-get update
-    apt-get install -y python3-pip python3-dev tcpdump dnsutils net-tools nmap apache2-utils
-
-    echo "*****************************************"
-    echo " Step 1: Install docker"
-    echo "*****************************************"
-    apt-get update
-    apt-get install -y ca-certificates curl gnupg lsb-release
-    mkdir -p /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-    $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-    apt-get update
-    apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-    echo ""
-    docker version
-    docker compose version
-
-    echo "*****************************************"
-    echo " Step 2: Cleanup apt"
+    echo " Cleanup apt"
     echo "*****************************************"
     apt-get --purge -y autoremove
     apt-get clean
@@ -69,30 +48,27 @@ install_packages() {
 
 start_services() {
   echo "**************************************"
-  echo "STEP 1: Start Services"
+  echo " Start Services"
   echo "**************************************"
   cd "$init_dir"
   export HOST_HOSTNAME=$(hostname)
   export HOST_IP=$(hostname -I | awk '{print $1}')
-  HOST_HOSTNAME=$(hostname) HOST_IP=$(hostname -I | awk '{print $1}') docker compose up -d
+  HOST_HOSTNAME=$(hostname) HOST_IP=$(hostname -I | awk '{print $1}') docker-compose up -d
   cd "$dir_base"
 }
 
 check_services() {
   echo "**************************************"
-  echo "STEP 2: Check Service Status"
+  echo " Check Service Status"
   echo "**************************************"
   echo "sleep 3 ..." && sleep 3
+  echo "docker ps"
   docker ps
-  echo ""
-  echo "#####################"
-  echo "netstat -tupanl|egrep \"80|8080|8081\"|grep -i listen"
-  netstat -tupanl|egrep "80|8080|8081"|grep -i listen
 }
 
 systemd_config() {
   echo "**********************************************************"
-  echo "STEP 4:  Systemd Service for fastapp"
+  echo " Systemd Service for fastapp"
   echo "**********************************************************"
   echo "Create: /etc/systemd/system/fastapp.service"
   cat <<EOF > /etc/systemd/system/fastapp.service
@@ -116,7 +92,7 @@ EOF
 
 start=$(date +%s)
 display_delimiter | tee -a "$log_init"
-install_packages | tee -a "$log_init"
+cleanup | tee -a "$log_init"
 start_services | tee -a "$log_init"
 check_services | tee -a "$log_init"
 systemd_config | tee -a "$log_init"

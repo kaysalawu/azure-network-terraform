@@ -53,20 +53,19 @@ locals {
 }
 
 module "spoke1_vm" {
-  source                = "../../modules/linux"
-  resource_group        = azurerm_resource_group.rg.name
-  prefix                = local.spoke1_prefix
-  name                  = "vm"
-  location              = local.spoke1_location
-  subnet                = module.spoke1.subnets["MainSubnet"].id
-  private_ip            = local.spoke1_vm_addr
-  enable_public_ip      = true
-  custom_data           = base64encode(local.spoke1_vm_init)
-  storage_account       = module.common.storage_accounts["region1"]
-  private_dns_zone_name = local.spoke1_dns_zone
-  delay_creation        = "1m"
-  tags                  = local.spoke1_tags
-  depends_on            = [module.spoke1]
+  source           = "../../modules/linux"
+  resource_group   = azurerm_resource_group.rg.name
+  prefix           = local.spoke1_prefix
+  name             = "vm"
+  location         = local.spoke1_location
+  subnet           = module.spoke1.subnets["MainSubnet"].id
+  private_ip       = local.spoke1_vm_addr
+  enable_public_ip = true
+  custom_data      = base64encode(local.spoke1_vm_init)
+  storage_account  = module.common.storage_accounts["region1"]
+  delay_creation   = "1m"
+  tags             = local.spoke1_tags
+  depends_on       = [module.spoke1]
 }
 
 ####################################################
@@ -81,35 +80,33 @@ locals {
 }
 
 module "spoke1_be1" {
-  source                = "../../modules/linux"
-  resource_group        = azurerm_resource_group.rg.name
-  prefix                = local.spoke1_prefix
-  name                  = "be1"
-  location              = local.spoke1_location
-  subnet                = module.spoke1.subnets["MainSubnet"].id
-  private_ip            = local.spoke1_be1_addr
-  enable_public_ip      = true
-  custom_data           = base64encode(module.web_http_backend_init.cloud_config)
-  storage_account       = module.common.storage_accounts["region1"]
-  source_image          = "ubuntu-22"
-  private_dns_zone_name = local.spoke1_dns_zone
-  tags                  = local.spoke1_tags
+  source           = "../../modules/linux"
+  resource_group   = azurerm_resource_group.rg.name
+  prefix           = local.spoke1_prefix
+  name             = "be1"
+  location         = local.spoke1_location
+  subnet           = module.spoke1.subnets["MainSubnet"].id
+  private_ip       = local.spoke1_be1_addr
+  enable_public_ip = true
+  custom_data      = base64encode(module.web_http_backend_init.cloud_config)
+  storage_account  = module.common.storage_accounts["region1"]
+  source_image     = "ubuntu-22"
+  tags             = local.spoke1_tags
 }
 
 module "spoke1_be2" {
-  source                = "../../modules/linux"
-  resource_group        = azurerm_resource_group.rg.name
-  prefix                = local.spoke1_prefix
-  name                  = "be2"
-  location              = local.spoke1_location
-  subnet                = module.spoke1.subnets["MainSubnet"].id
-  private_ip            = local.spoke1_be2_addr
-  enable_public_ip      = true
-  custom_data           = base64encode(module.web_http_backend_init.cloud_config)
-  storage_account       = module.common.storage_accounts["region1"]
-  source_image          = "ubuntu-22"
-  private_dns_zone_name = local.spoke1_dns_zone
-  tags                  = local.spoke1_tags
+  source           = "../../modules/linux"
+  resource_group   = azurerm_resource_group.rg.name
+  prefix           = local.spoke1_prefix
+  name             = "be2"
+  location         = local.spoke1_location
+  subnet           = module.spoke1.subnets["MainSubnet"].id
+  private_ip       = local.spoke1_be2_addr
+  enable_public_ip = true
+  custom_data      = base64encode(module.web_http_backend_init.cloud_config)
+  storage_account  = module.common.storage_accounts["region1"]
+  source_image     = "ubuntu-22"
+  tags             = local.spoke1_tags
 }
 
 ####################################################
@@ -118,7 +115,7 @@ module "spoke1_be2" {
 
 locals {
   spoke1_files = {
-    #"output/spoke1-be-init" = module.web_http_backend_init.cloud_config
+    "output/spoke1-be-init" = module.web_http_backend_init.cloud_config
   }
 }
 
