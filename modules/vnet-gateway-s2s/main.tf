@@ -53,8 +53,8 @@ resource "azurerm_virtual_network_gateway" "this" {
   type                = "Vpn"
   vpn_type            = "RouteBased"
   sku                 = var.sku
-  enable_bgp          = true
-  active_active       = true
+  enable_bgp          = var.enable_bgp
+  active_active       = var.active_active
   tags                = var.tags
 
   ip_configuration {

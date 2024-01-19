@@ -77,3 +77,15 @@ variable "enable_diagnostics" {
   type        = bool
   default     = false
 }
+
+vraiable "enable_bgp" {
+  description = "enable bgp"
+  type        = bool
+  default     = true
+}
+
+variable "active_active" {
+  description = "active active"
+  type        = bool
+  default     = true
+}
