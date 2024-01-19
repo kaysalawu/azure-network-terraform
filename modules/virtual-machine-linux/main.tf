@@ -7,12 +7,6 @@ locals {
 # public ip
 ####################################################
 
-data "azurerm_public_ip" "this" {
-  for_each            = { for i in var.interfaces : i.name => i if i.public_ip_name != null }
-  resource_group_name = var.resource_group
-  name                = each.value.public_ip_name
-}
-
 resource "azurerm_public_ip" "this" {
   for_each            = { for i in var.interfaces : i.name => i if i.create_public_ip == true }
   resource_group_name = var.resource_group
@@ -43,13 +37,12 @@ resource "azurerm_network_interface" "this" {
     private_ip_address            = try(each.value.private_ip_address, null) != null ? each.value.private_ip_address : null
     public_ip_address_id = (
       try(each.value.create_public_ip, false) ? azurerm_public_ip.this[each.key].id :
-      try(data.azurerm_public_ip.this[each.key].id, null) == null ? null :
-      data.azurerm_public_ip.this[each.key].id
+      try(each.value.public_ip_id, null) != null ? each.value.public_ip_id :
+      null
     )
   }
   depends_on = [
     azurerm_public_ip.this,
-    data.azurerm_public_ip.this
   ]
 }
 

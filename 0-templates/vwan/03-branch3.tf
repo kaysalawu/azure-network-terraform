@@ -67,7 +67,7 @@ locals {
 locals {
   branch3_nva_route_map_onprem = "ONPREM"
   branch3_nva_route_map_azure  = "AZURE"
-  branch3_nva_init = templatefile("../../scripts/cisco-branch.sh", {
+  branch3_nva_init = templatefile("../../scripts/cisco-csr-1000v.sh", {
     LOCAL_ASN   = local.branch3_nva_asn
     LOOPBACK0   = local.branch3_nva_loopback0
     LOOPBACKS   = {}
@@ -192,21 +192,32 @@ locals {
 }
 
 module "branch3_nva" {
-  source               = "../../modules/csr-branch"
-  resource_group       = azurerm_resource_group.rg.name
-  name                 = "${local.branch3_prefix}nva"
-  location             = local.branch3_location
+  source         = "../../modules/virtual-machine-linux"
+  resource_group = azurerm_resource_group.rg.name
+  name           = "${local.branch3_prefix}nva"
+  location       = local.branch3_location
+
+  admin_username  = local.username
+  admin_password  = local.password
+  storage_account = module.common.storage_accounts["region2"]
+  source_image    = "cisco-csr-1000v"
+  custom_data     = base64encode(local.branch3_nva_init)
+
   enable_ip_forwarding = true
-  enable_public_ip     = true
-  subnet_untrust       = module.branch3.subnets["UntrustSubnet"].id
-  subnet_trust         = module.branch3.subnets["TrustSubnet"].id
-  private_ip_untrust   = local.branch3_nva_untrust_addr
-  private_ip_trust     = local.branch3_nva_trust_addr
-  public_ip            = azurerm_public_ip.branch3_nva_pip.id
-  storage_account      = module.common.storage_accounts["region2"]
-  admin_username       = local.username
-  admin_password       = local.password
-  custom_data          = base64encode(local.branch3_nva_init)
+
+  interfaces = [
+    {
+      name               = "untrust"
+      subnet_id          = module.branch3.subnets["UntrustSubnet"].id
+      private_ip_address = local.branch3_nva_untrust_addr
+      public_ip_id       = azurerm_public_ip.branch3_nva_pip.id
+    },
+    {
+      name               = "trust"
+      subnet_id          = module.branch3.subnets["TrustSubnet"].id
+      private_ip_address = local.branch3_nva_trust_addr
+    },
+  ]
 }
 
 ####################################################

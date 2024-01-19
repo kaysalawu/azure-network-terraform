@@ -9,6 +9,7 @@ char_celebrate="\u2B50"
 char_executing="\u23F3"
 
 color_green=$(tput setaf 2)
+color_red=$(tput setaf 1)
 reset=$(tput sgr0)
 
 working_dir=$(pwd)
@@ -81,7 +82,7 @@ terraform_validate(){
     echo -e "  ${char_pass} terraform init"
     echo -e "  ${char_executing} terraform validate ..."
     if ! terraform validate; then
-        echo -e "Terraform validation failed"
+        echo -e "${color_red}Terraform validation failed${reset}"
         return 1
     fi
     cd "$original_dir" || exit
@@ -94,7 +95,7 @@ terraform_plan(){
     echo -e "  ${char_pass} terraform init"
     echo -e "  ${char_executing} terraform plan ..."
     if ! terraform plan > /dev/null 2>&1; then
-        echo -e "Terraform plan failed"
+        echo -e "${color_red}Terraform plan failed${reset}"
         return 1
     fi
     echo -e "  ${color_green}${char_pass} Success!${reset}\n"

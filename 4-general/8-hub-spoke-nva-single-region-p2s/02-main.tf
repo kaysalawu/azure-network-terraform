@@ -98,7 +98,16 @@ locals {
       }
     }
 
-    config_vpngw = {
+    config_s2s_vpngw = {
+      enable             = false
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
+      bgp_settings = {
+        asn = local.hub1_vpngw_asn
+      }
+    }
+
+    config_p2s_vpngw = {
       enable             = true
       sku                = "VpnGw1AZ"
       enable_diagnostics = local.enable_diagnostics

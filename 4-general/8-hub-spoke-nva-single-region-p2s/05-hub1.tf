@@ -25,16 +25,10 @@ module "hub1" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.hub1_tags
 
-  create_private_dns_zone = true
-  private_dns_zone_name   = local.hub1_dns_zone
-  private_dns_zone_linked_external_vnets = {
-    # "spoke1" = module.spoke1.vnet.id
-    # "spoke2" = module.spoke2.vnet.id
-  }
-  private_dns_ruleset_linked_external_vnets = {
-    # "spoke1" = module.spoke1.vnet.id
-    # "spoke2" = module.spoke2.vnet.id
-  }
+  create_private_dns_zone                   = true
+  private_dns_zone_name                     = local.hub1_dns_zone
+  private_dns_zone_linked_external_vnets    = {}
+  private_dns_ruleset_linked_external_vnets = {}
 
   nsg_subnet_map = {
     "MainSubnet"                = module.common.nsg_main["region1"].id
@@ -50,11 +44,12 @@ module "hub1" {
     "DnsResolverOutboundSubnet" = module.common.nsg_default["region1"].id
   }
 
-  config_vnet     = local.hub1_features.config_vnet
-  config_vpngw    = local.hub1_features.config_vpngw
-  config_ergw     = local.hub1_features.config_ergw
-  config_firewall = local.hub1_features.config_firewall
-  config_nva      = local.hub1_features.config_nva
+  config_vnet      = local.hub1_features.config_vnet
+  config_p2s_vpngw = local.hub1_features.config_p2s_vpngw
+  config_s2s_vpngw = local.hub1_features.config_s2s_vpngw
+  config_ergw      = local.hub1_features.config_ergw
+  config_firewall  = local.hub1_features.config_firewall
+  config_nva       = local.hub1_features.config_nva
 }
 
 ####################################################

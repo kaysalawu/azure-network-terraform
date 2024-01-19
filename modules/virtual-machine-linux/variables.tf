@@ -32,7 +32,7 @@ variable "interfaces" {
     subnet_id          = string
     private_ip_address = optional(string, null)
     create_public_ip   = optional(bool, false)
-    public_ip_name     = optional(string, null)
+    public_ip_id       = optional(string, null)
   }))
 }
 
