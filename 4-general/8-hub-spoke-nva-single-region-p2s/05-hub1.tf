@@ -45,8 +45,8 @@ module "hub1" {
   }
 
   config_vnet      = local.hub1_features.config_vnet
-  config_p2s_vpngw = local.hub1_features.config_p2s_vpngw
   config_s2s_vpngw = local.hub1_features.config_s2s_vpngw
+  config_p2s_vpngw = local.hub1_features.config_p2s_vpngw
   config_ergw      = local.hub1_features.config_ergw
   config_firewall  = local.hub1_features.config_firewall
   config_nva       = local.hub1_features.config_nva

@@ -140,7 +140,7 @@ variable "config_vnet" {
   #default = {}
 }
 
-variable "config_vpngw" {
+variable "config_s2s_vpngw" {
   type = object({
     enable             = optional(bool, false)
     sku                = optional(string, "VpnGw1AZ")
@@ -158,6 +158,21 @@ variable "config_vpngw" {
     bgp_settings = {
       asn = 65515
     }
+  }
+}
+
+variable "config_p2s_vpngw" {
+  type = object({
+    enable             = optional(bool, false)
+    sku                = optional(string, "VpnGw1AZ")
+    create_dashboard   = optional(bool, true)
+    enable_diagnostics = optional(bool, false)
+  })
+  default = {
+    enable             = false
+    sku                = "VpnGw1AZ"
+    create_dashboard   = true
+    enable_diagnostics = false
   }
 }
 

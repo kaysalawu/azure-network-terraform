@@ -216,8 +216,8 @@ resource "azurerm_subnet_nat_gateway_association" "nat" {
 ####################################################
 
 module "vpngw" {
-  count          = var.config_vpngw.enable ? 1 : 0
-  source         = "../../modules/vnet-gateway-vpn"
+  count          = var.config_s2s_vpngw.enable ? 1 : 0
+  source         = "../../modules/vnet-gateway-s2s"
   resource_group = var.resource_group
   prefix         = local.prefix
   env            = var.env
@@ -225,13 +225,13 @@ module "vpngw" {
   subnet_id      = azurerm_subnet.this["GatewaySubnet"].id
   tags           = var.tags
 
-  sku                = var.config_vpngw.sku
-  bgp_asn            = var.config_vpngw.bgp_settings.asn
-  create_dashboard   = var.config_vpngw.create_dashboard
-  enable_diagnostics = var.config_vpngw.enable_diagnostics
+  sku                = var.config_s2s_vpngw.sku
+  bgp_asn            = var.config_s2s_vpngw.bgp_settings.asn
+  create_dashboard   = var.config_s2s_vpngw.create_dashboard
+  enable_diagnostics = var.config_s2s_vpngw.enable_diagnostics
 
-  ip_config0_apipa_addresses = try(var.config_vpngw.ip_config0_apipa_addresses, null)
-  ip_config1_apipa_addresses = try(var.config_vpngw.ip_config1_apipa_addresses, null)
+  ip_config0_apipa_addresses = try(var.config_s2s_vpngw.ip_config0_apipa_addresses, null)
+  ip_config1_apipa_addresses = try(var.config_s2s_vpngw.ip_config1_apipa_addresses, null)
 
   depends_on = [
     azurerm_subnet.this,
