@@ -90,7 +90,6 @@ write_files:
       Crj7XlP4cMjoe6eYUSzWByOs1loiQ2Y2Ix5MqROIq45iCKpEgANlezhfmTiJTEnh
       XOgbLcuW3PFXJAJRPqCKEOMjWw65GPKYVimVjIfhsh54FIbLK0o=
       -----END RSA PRIVATE KEY-----
-      
   - path: /var/lib/azure/docker-compose.yml
     owner: root
     permissions: 0744
@@ -548,4 +547,4 @@ write_files:
 
 runcmd:
   - . /var/lib/azure/service.sh
-  - . /var/lib/azure/tools.sh | tee /var/lib/azure/tools.log
+  - . /var/lib/azure/tools.sh

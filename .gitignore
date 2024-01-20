@@ -31,6 +31,7 @@ backend.tf
 *.crt
 *.key
 *.cer
+*.pfx
 
 # Skaffold
 bin/
