@@ -42,7 +42,7 @@ install_packages() {
     echo " Step 0: Install packages"
     echo "*****************************************"
     apt-get update
-    apt-get install -y python3-pip python3-dev tcpdump dnsutils net-tools nmap apache2-utils unzip
+    apt-get install -y unzip python3-pip python3-dev tcpdump dnsutils net-tools nmap apache2-utils
 
     echo "*****************************************"
     echo " Step 1: Install docker"

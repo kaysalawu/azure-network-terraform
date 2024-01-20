@@ -55,13 +55,16 @@ module "branch1_dns" {
 ####################################################
 
 locals {
-  branch1_vm_init = templatefile("../../scripts/server.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
-    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
-    ENABLE_TRAFFIC_GEN        = true
-  })
+  init_dir       = "/var/lib/azure"
+  app_name       = "web"
+  app_dir        = "${local.init_dir}/${local.app_name}"
+  init_dir_local = "../../scripts/init/${local.app_name}"
+  app_dir_local  = "../../scripts/init/${local.app_name}/app/app"
+  init_vars = {
+    INIT_DIR         = local.init_dir
+    APP_NAME         = local.app_name
+    USER_ASSIGNED_ID = azurerm_user_assigned_identity.machine.id
+  }
   vm_p2s_init_files = {
     "${local.init_dir}/docker-compose.yml"   = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/docker-compose.yml", local.init_vars) }
     "${local.init_dir}/start.sh"             = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/start.sh", local.init_vars) }
@@ -78,6 +81,13 @@ locals {
     "${local.app_dir}/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/_app.py", local.init_vars) }
     "${local.app_dir}/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/requirements.txt", local.init_vars) }
   }
+  branch1_vm_init = templatefile("../../scripts/server.sh", {
+    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
+    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
+    ENABLE_TRAFFIC_GEN        = true
+  })
 }
 
 # cloud-init

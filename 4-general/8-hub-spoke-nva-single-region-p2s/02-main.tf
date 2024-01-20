@@ -251,17 +251,6 @@ locals {
     TARGETS_HEAVY_TRAFFIC_GEN = []
     ENABLE_TRAFFIC_GEN        = false
   })
-  init_dir       = "/var/lib/azure"
-  app_name       = "web"
-  app_dir        = "${local.init_dir}/${local.app_name}"
-  init_dir_local = "../../scripts/init/${local.app_name}"
-  app_dir_local  = "../../scripts/init/${local.app_name}/app/app"
-  init_vars = {
-    INIT_DIR         = local.init_dir
-    APP_NAME         = local.app_name
-    USER_ASSIGNED_ID = azurerm_user_assigned_identity.machine.id
-  }
-
   branch_dns_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts

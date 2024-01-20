@@ -8,6 +8,7 @@
 cat <<EOF > /usr/local/bin/az-login
 az login --identity -u ${USER_ASSIGNED_ID}
 EOF
+chmod a+x /usr/local/bin/az-login
 
 # test scripts
 #-----------------------------------

@@ -1,9 +1,13 @@
 #! /bin/bash
 
 apt update
-apt install -y python3-pip python3-dev tcpdump dnsutils net-tools nmap apache2-utils unzip
+apt install -y python3-pip python3-dev unzip tcpdump dnsutils net-tools nmap apache2-utils
+
+apt install -y openvpn network-manager-openvpn
+sudo service network-manager restart
 
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+az login --identity -u ${USER_ASSIGNED_ID}
 
 # web server #
 pip3 install Flask requests

@@ -43,7 +43,11 @@ install_packages() {
     echo " Step 1: Install packages"
     echo "*****************************************"
     apt-get update
-    apt-get install -y tcpdump dnsutils net-tools nmap apache2-utils
+    apt-get install -y unzip tcpdump dnsutils net-tools nmap apache2-utils
+
+    apt install -y openvpn network-manager-openvpn
+    sudo service network-manager restart
+
     curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
     az login --identity -u ${USER_ASSIGNED_ID}
 

@@ -152,7 +152,7 @@ write_files:
           echo " Step 1: Install packages"
           echo "*****************************************"
           apt-get update
-          apt-get install -y tcpdump dnsutils net-tools nmap apache2-utils
+          apt-get install -y unzip tcpdump dnsutils net-tools nmap apache2-utils
           curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
           az login --identity -u /subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/G08RG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/G08-user
       
@@ -330,6 +330,7 @@ write_files:
       cat <<EOF > /usr/local/bin/az-login
       az login --identity -u /subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/G08RG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/G08-user
       EOF
+      chmod a+x /usr/local/bin/az-login
       
       # test scripts
       #-----------------------------------
