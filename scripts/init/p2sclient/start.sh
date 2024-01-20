@@ -3,7 +3,7 @@
 set -e
 
 base_dir=$(pwd)
-init_dir="/var/lib/spoke"
+init_dir="/var/lib/azure"
 log_service="$init_dir/log_service.txt"
 
 display_delimiter() {

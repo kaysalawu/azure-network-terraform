@@ -3,7 +3,7 @@
 set -e
 
 base_dir=$(pwd)
-init_dir="/var/lib/spoke"
+init_dir="${INIT_DIR}"
 log_service="$init_dir/log_service.txt"
 
 display_delimiter() {
@@ -13,19 +13,19 @@ display_delimiter() {
   echo "SYSTEMCTL - Start"
 }
 
-stop_services() {
+start_services() {
   echo "**************************************"
-  echo "STEP 1: Stop Services"
+  echo " Start Services"
   echo "**************************************"
   cd "$init_dir"
-  echo "docker compose down"
-  docker compose down
+  echo "docker compose up -d"
+  docker compose up -d
   cd "$dir_base"
 }
 
 check_services() {
   echo "**************************************"
-  echo "STEP 2: Check Service Status"
+  echo " Check Service Status"
   echo "**************************************"
   echo "sleep 3 ..." && sleep 3
   docker ps
@@ -37,7 +37,7 @@ check_services() {
 
 start=$(date +%s)
 display_delimiter | tee -a $log_service
-stop_services | tee -a $log_service
+start_services | tee -a $log_service
 check_services | tee -a $log_service
 end=$(date +%s)
 elapsed=$(($end-$start))

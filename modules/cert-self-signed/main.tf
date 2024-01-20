@@ -47,15 +47,10 @@ resource "tls_locally_signed_cert" "this" {
 # signed cert (pkcs12)
 ####################################################
 
-resource "random_password" "this" {
-  length  = 24
-  special = true
-}
-
 # signed cert (pkcs12)
 
 resource "pkcs12_from_pem" "this" {
   cert_pem        = tls_locally_signed_cert.this.cert_pem
   private_key_pem = tls_private_key.this.private_key_pem
-  password        = var.password
+  password        = var.cert_password
 }

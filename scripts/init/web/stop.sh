@@ -3,7 +3,7 @@
 set -e
 
 base_dir=$(pwd)
-init_dir="/var/lib/spoke"
+init_dir="${INIT_DIR}"
 log_service="$init_dir/log_service.txt"
 
 display_delimiter() {
@@ -20,6 +20,8 @@ stop_services() {
   cd "$init_dir"
   echo "docker compose down"
   docker compose down
+  docker rm -vf $(docker ps -aq) || true
+  docker rmi -f $(docker images -aq) || true
   cd "$dir_base"
 }
 

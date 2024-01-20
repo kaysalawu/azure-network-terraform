@@ -146,6 +146,12 @@ variable "config_s2s_vpngw" {
     sku                = optional(string, "VpnGw1AZ")
     create_dashboard   = optional(bool, true)
     enable_diagnostics = optional(bool, false)
+    ip_configuration = optional(list(object({
+      name                          = string
+      subnet_id                     = optional(string)
+      public_ip_address_id          = optional(string)
+      private_ip_address_allocation = optional(string, "Dynamic")
+    })))
     bgp_settings = optional(object({
       asn = optional(string, 65515)
     }))
@@ -167,12 +173,42 @@ variable "config_p2s_vpngw" {
     sku                = optional(string, "VpnGw1AZ")
     create_dashboard   = optional(bool, true)
     enable_diagnostics = optional(bool, false)
+
+    vpn_client_configuration = optional(object({
+      address_space = list(string)
+      clients = list(object({
+        name = string
+      }))
+    }))
+
+    ip_configuration = optional(list(object({
+      name                   = string
+      public_ip_address_name = optional(string)
+    })))
   })
+
   default = {
     enable             = false
     sku                = "VpnGw1AZ"
     create_dashboard   = true
     enable_diagnostics = false
+    ip_configuration = [
+      { name = "ip-config", public_ip_address_name = null },
+    ]
+  }
+}
+
+variable "vpn_client_configuration" {
+  description = "vpn client configuration for vnet gateway"
+  type = object({
+    address_space = list(string)
+    clients = list(object({
+      name = string
+    }))
+  })
+  default = {
+    address_space = []
+    clients       = []
   }
 }
 

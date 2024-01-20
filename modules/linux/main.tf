@@ -29,7 +29,7 @@ resource "azurerm_public_ip" "this" {
 }
 
 ####################################################
-# interface
+# interfaces
 ####################################################
 
 resource "azurerm_network_interface" "this" {
@@ -63,7 +63,7 @@ resource "time_sleep" "this" {
 }
 
 ####################################################
-# vm
+# virtual machine
 ####################################################
 
 resource "azurerm_linux_virtual_machine" "this" {
@@ -97,11 +97,11 @@ resource "azurerm_linux_virtual_machine" "this" {
   disable_password_authentication = false
 
   lifecycle {
-    /*ignore_changes = [
-      identity,
-      secure_boot_enabled,
-      tags,
-    ]*/
+    # ignore_changes = [
+    #   identity,
+    #   secure_boot_enabled,
+    #   tags,
+    # ]
   }
   timeouts {
     create = "60m"

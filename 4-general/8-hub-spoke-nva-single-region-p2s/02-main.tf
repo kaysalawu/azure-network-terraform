@@ -3,7 +3,7 @@
 ####################################################
 
 locals {
-  prefix             = "Ge08"
+  prefix             = "G08"
   enable_diagnostics = false
   spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
 
@@ -18,6 +18,8 @@ locals {
 resource "random_id" "random" {
   byte_length = 2
 }
+
+data "azurerm_subscription" "current" {}
 
 ####################################################
 # providers
@@ -44,6 +46,22 @@ terraform {
       source = "azure/azapi"
     }
   }
+}
+
+####################################################
+# user assigned identity
+####################################################
+
+resource "azurerm_user_assigned_identity" "machine" {
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = local.default_region
+  name                = "${local.prefix}-user"
+}
+
+resource "azurerm_role_assignment" "machine" {
+  role_definition_name = "Contributor"
+  principal_id         = azurerm_user_assigned_identity.machine.principal_id
+  scope                = data.azurerm_subscription.current.id
 }
 
 ####################################################
@@ -111,8 +129,15 @@ locals {
       enable             = true
       sku                = "VpnGw1AZ"
       enable_diagnostics = local.enable_diagnostics
-      bgp_settings = {
-        asn = local.hub1_vpngw_asn
+      ip_configuration = [
+        { name = "ip-config", public_ip_address_name = azurerm_public_ip.hub1_p2s_vpngw_pip.name },
+      ]
+      vpn_client_configuration = {
+        address_space = ["172.16.0.0/24"]
+        clients = [
+          { name = "client1" },
+          { name = "client2" },
+        ]
       }
     }
 
@@ -130,7 +155,7 @@ locals {
     }
 
     config_nva = {
-      enable             = true
+      enable             = false
       type               = "linux"
       internal_lb_addr   = local.hub1_nva_ilb_addr
       custom_data        = base64encode(local.hub1_linux_nva_init)
@@ -213,11 +238,29 @@ locals {
     local.vm_script_targets_misc,
   )
   vm_startup = templatefile("../../scripts/server.sh", {
+    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
     ENABLE_TRAFFIC_GEN        = false
   })
+  server_scripts = templatefile("../../scripts/tools.sh", {
+    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = []
+    TARGETS_HEAVY_TRAFFIC_GEN = []
+    ENABLE_TRAFFIC_GEN        = false
+  })
+  init_dir       = "/var/lib/azure"
+  app_name       = "web"
+  app_dir        = "${local.init_dir}/${local.app_name}"
+  init_dir_local = "../../scripts/init/${local.app_name}"
+  app_dir_local  = "../../scripts/init/${local.app_name}/app/app"
+  init_vars = {
+    INIT_DIR         = local.init_dir
+    APP_NAME         = local.app_name
+    USER_ASSIGNED_ID = azurerm_user_assigned_identity.machine.id
+  }
 
   branch_dns_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
@@ -233,20 +276,12 @@ locals {
     )
   }
   branch_unbound_startup = templatefile("../../scripts/unbound/unbound.sh", local.branch_dns_vars)
-  branch_dnsmasq_startup = templatefile("../../scripts/dnsmasq/dnsmasq.sh", local.branch_dns_vars)
   branch_dns_init_dir    = "/var/lib/labs"
-  branch_dnsmasq_init = {
-    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/app/Dockerfile", {}) }
-    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/docker-compose.yml", {}) }
-    "/etc/dnsmasq.d/local_records.conf"               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/app/conf/local_records.conf", local.branch_dns_vars) }
-    "/etc/dnsmasq.d/forwarding.conf"                  = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/app/conf/forwarding.conf", local.branch_dns_vars) }
-    "/etc/dnsmasq.d/default.conf"                     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/app/conf/default.conf", local.branch_dns_vars) }
-  }
   branch_unbound_init = {
-    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/Dockerfile", {}) }
-    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/docker-compose.yml", {}) }
-    "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/conf/unbound.conf", local.branch_dns_vars) }
-    "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/conf/unbound.log", local.branch_dns_vars) }
+    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/Dockerfile", {}) }
+    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
+    "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.conf", local.branch_dns_vars) }
+    "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.log", local.branch_dns_vars) }
   }
   onprem_local_records = [
     { name = (local.branch1_vm_fqdn), record = local.branch1_vm_addr },
@@ -264,20 +299,6 @@ locals {
     { zone = ".", targets = [local.azuredns, ] },
   ]
   onprem_redirected_hosts = []
-}
-
-module "branch_dnsmasq_init" {
-  source   = "../../modules/cloud-config-gen"
-  packages = ["docker.io", "docker-compose", "dnsutils", "net-tools", ]
-  files    = local.branch_dnsmasq_init
-  run_commands = [
-    "systemctl stop systemd-resolved",
-    "systemctl disable systemd-resolved",
-    "echo \"nameserver 8.8.8.8\" > /etc/resolv.conf",
-    "systemctl enable docker",
-    "systemctl start docker",
-    "docker-compose -f ${local.branch_dns_init_dir}/docker-compose.yml up -d",
-  ]
 }
 
 module "branch_unbound_init" {
@@ -304,12 +325,27 @@ module "branch_unbound_init" {
 # addresses
 ####################################################
 
+# branch1
+
 resource "azurerm_public_ip" "branch1_nva_pip" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = "${local.branch1_prefix}nva-pip"
   location            = local.branch1_location
   sku                 = "Standard"
   allocation_method   = "Static"
+  tags                = local.branch1_tags
+}
+
+# hub1
+
+resource "azurerm_public_ip" "hub1_p2s_vpngw_pip" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.hub1_prefix}p2s-vpngw-pip"
+  location            = local.hub1_location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+  zones               = [1, 2, 3]
+  tags                = local.hub1_tags
 }
 
 ####################################################

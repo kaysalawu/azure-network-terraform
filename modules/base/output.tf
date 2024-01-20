@@ -67,31 +67,74 @@ output "ergw_public_ip" {
   value = try(module.ergw[0].public_ip, {})
 }
 
-# vpngw
+# s2s vpngw
 #-----------------------------
 
-output "vpngw" {
-  value = try(module.vpngw[0].gateway, {})
+output "s2s_vpngw" {
+  value = try(module.s2s_vpngw[0].gateway, {})
 }
 
-output "vpngw_bgp_asn" {
-  value = try(module.vpngw[0].bgp_asn, {})
+output "s2s_vpngw_bgp_asn" {
+  value = try(module.s2s_vpngw[0].bgp_asn, {})
 }
 
-output "vpngw_public_ip0" {
-  value = try(module.vpngw[0].public_ip0, {})
+output "s2s_vpngw_public_ip0" {
+  value = try(module.s2s_vpngw[0].public_ip0, {})
 }
 
-output "vpngw_public_ip1" {
-  value = try(module.vpngw[0].public_ip1, {})
+output "s2s_vpngw_public_ip1" {
+  value = try(module.s2s_vpngw[0].public_ip1, {})
 }
 
-output "vpngw_bgp_ip0" {
-  value = try(module.vpngw[0].bgp_ip0, {})
+output "s2s_vpngw_bgp_ip0" {
+  value = try(module.s2s_vpngw[0].bgp_ip0, {})
 }
 
-output "vpngw_bgp_ip1" {
-  value = try(module.vpngw[0].bgp_ip1, {})
+output "s2s_vpngw_bgp_ip1" {
+  value = try(module.s2s_vpngw[0].bgp_ip1, {})
+}
+
+# p2s vpngw
+#-----------------------------
+
+output "p2s_vpngw" {
+  value = try(module.p2s_vpngw[0].gateway, {})
+}
+
+output "p2s_vpngw_public_ip0" {
+  value = try(module.p2s_vpngw[0].public_ip0, {})
+}
+
+output "p2s_vpngw_public_ip1" {
+  value = try(module.p2s_vpngw[0].public_ip1, {})
+}
+
+output "p2s_client_certificates" {
+  value = try(module.p2s_vpngw[0].client_certificates, {})
+}
+
+output "p2s_client_certificates_cert_name" {
+  value = try(module.p2s_vpngw[0].client_certificates_cert_name, {})
+}
+
+output "p2s_client_certificates_private_key_pem" {
+  value = try(module.p2s_vpngw[0].client_certificates_private_key_pem, {})
+}
+
+output "p2s_client_certificates_cert_pem" {
+  value = try(module.p2s_vpngw[0].client_certificates_cert_pem, {})
+}
+
+output "p2s_client_certificates_cert_pfx" {
+  value = try(module.p2s_vpngw[0].client_certificates_cert_pfx, {})
+}
+
+output "p2s_client_certificates_cert_pfx_password" {
+  value = try(module.p2s_vpngw[0].client_certificates_cert_pfx_password, {})
+}
+
+output "p2s_client_certificates_print" {
+  value = try(module.p2s_vpngw[0].client_certificates_print, {})
 }
 
 # firewall

@@ -36,8 +36,8 @@ variable "rsa_bits" {
   default     = 4096
 }
 
-variable "password" {
+variable "cert_password" {
   description = "The password to use for the self-signed certificate."
   type        = string
-  default     = "password"
+  default     = "Password123"
 }

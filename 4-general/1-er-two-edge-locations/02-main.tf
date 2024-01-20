@@ -27,7 +27,7 @@ terraform {
   required_providers {
     megaport = {
       source  = "megaport/megaport"
-      version = "0.1.9"
+      version = "0.4.0"
     }
     azurerm = {
       source  = "hashicorp/azurerm"

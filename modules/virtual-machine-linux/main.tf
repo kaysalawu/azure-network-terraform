@@ -1,6 +1,17 @@
 
 locals {
-  name = var.name == "" ? "" : format("%s-", var.name)
+  name = var.prefix == "" ? "${var.name}" : format("%s-%s", var.prefix, var.name)
+  cleanup_commands = [
+    "az vm extension delete -g ${var.resource_group} --vm-name ${local.name}-vm --name ${local.name}-vm-${random_id.this.hex} --no-wait",
+  ]
+}
+
+####################################################
+# random
+####################################################
+
+resource "random_id" "this" {
+  byte_length = 4
 }
 
 ####################################################
@@ -10,7 +21,7 @@ locals {
 resource "azurerm_public_ip" "this" {
   for_each            = { for i in var.interfaces : i.name => i if i.create_public_ip == true }
   resource_group_name = var.resource_group
-  name                = "${local.name}pip-${each.value.name}"
+  name                = "${local.name}-pip-${each.value.name}"
   location            = var.location
   sku                 = "Standard"
   allocation_method   = "Static"
@@ -24,14 +35,14 @@ resource "azurerm_public_ip" "this" {
 resource "azurerm_network_interface" "this" {
   for_each             = { for i in var.interfaces : i.name => i }
   resource_group_name  = var.resource_group
-  name                 = "${local.name}nic-${each.value.name}"
+  name                 = "${local.name}-nic-${each.value.name}"
   location             = var.location
   dns_servers          = var.dns_servers
   tags                 = var.tags
   enable_ip_forwarding = var.enable_ip_forwarding
 
   ip_configuration {
-    name                          = "${local.name}nic"
+    name                          = "${local.name}-nic"
     subnet_id                     = each.value.subnet_id
     private_ip_address_allocation = try(each.value.private_ip_address, null) != null ? "Static" : "Dynamic"
     private_ip_address            = try(each.value.private_ip_address, null) != null ? each.value.private_ip_address : null
@@ -44,6 +55,9 @@ resource "azurerm_network_interface" "this" {
   depends_on = [
     azurerm_public_ip.this,
   ]
+  timeouts {
+    create = "60m"
+  }
 }
 
 ####################################################
@@ -51,16 +65,20 @@ resource "azurerm_network_interface" "this" {
 ####################################################
 
 resource "azurerm_linux_virtual_machine" "this" {
-  resource_group_name   = var.resource_group
-  name                  = var.name
-  location              = var.location
-  zone                  = var.zone
-  size                  = var.vm_size
-  tags                  = var.tags
-  custom_data           = var.custom_data
-  network_interface_ids = [for i in var.interfaces : azurerm_network_interface.this[i.name].id]
+  resource_group_name = var.resource_group
+  name                = local.name
+  location            = var.location
+  zone                = var.zone
+  size                = var.vm_size
+  tags                = var.tags
+  custom_data         = var.custom_data
+
+  network_interface_ids = [
+    for i in var.interfaces : azurerm_network_interface.this[i.name].id
+  ]
+
   os_disk {
-    name                 = "${local.name}vm-os-disk"
+    name                 = "${local.name}-os-disk"
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
@@ -78,7 +96,7 @@ resource "azurerm_linux_virtual_machine" "this" {
       name      = plan.value.sku
     }
   }
-  computer_name  = replace("${local.name}vm", "_", "")
+  computer_name  = var.computer_name == "" ? var.name : var.computer_name
   admin_username = var.admin_username
   admin_password = var.admin_password
   boot_diagnostics {
@@ -86,12 +104,23 @@ resource "azurerm_linux_virtual_machine" "this" {
   }
   disable_password_authentication = false
 
+  dynamic "identity" {
+    for_each = var.identity_ids != null ? [1] : []
+    content {
+      type         = "UserAssigned"
+      identity_ids = var.identity_ids
+    }
+  }
+
   lifecycle {
-    ignore_changes = [
-      identity,
-      secure_boot_enabled,
-      tags,
-    ]
+    # ignore_changes = [
+    #   identity,
+    #   secure_boot_enabled,
+    #   tags,
+    # ]
+  }
+  timeouts {
+    create = "60m"
   }
 }
 

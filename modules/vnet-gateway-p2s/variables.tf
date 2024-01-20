@@ -78,9 +78,33 @@ variable "enable_diagnostics" {
   default     = false
 }
 
+variable "ip_configuration" {
+  description = "ip configurations for vnet gateway"
+  type = list(object({
+    name                          = string
+    subnet_id                     = string
+    public_ip_address_name        = optional(string)
+    private_ip_address_allocation = optional(string, "Dynamic")
+  }))
+  default = []
+}
 
-variable "active_active" {
-  description = "active active"
-  type        = bool
-  default     = true
+variable "vpn_client_configuration" {
+  description = "vpn client configuration for vnet gateway"
+  type = object({
+    address_space = list(string)
+    clients = list(object({
+      name = string
+    }))
+  })
+  default = {
+    address_space = ["172.16.0.0/24"]
+    clients       = []
+  }
+}
+
+variable "cert_password" {
+  description = "The password to use for the self-signed certificate."
+  type        = string
+  default     = "Password123"
 }

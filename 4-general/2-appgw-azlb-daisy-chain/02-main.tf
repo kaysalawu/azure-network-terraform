@@ -33,7 +33,7 @@ terraform {
   required_providers {
     megaport = {
       source  = "megaport/megaport"
-      version = "0.1.9"
+      version = "0.4.0"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -63,6 +63,7 @@ locals {
   }
   hub1_gateway_udr_destinations = {
     "spoke1" = local.spoke1_address_space[0]
+    "spoke2" = local.spoke2_address_space[0]
     "hub1"   = local.hub1_address_space[0]
   }
   firewall_sku = "Basic"
@@ -96,30 +97,34 @@ locals {
       }
     }
 
-    config_vpngw = {
-      enable = false
-      sku    = "VpnGw1AZ"
+    config_s2s_vpngw = {
+      enable             = false
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
       bgp_settings = {
         asn = local.hub1_vpngw_asn
       }
     }
 
     config_ergw = {
-      enable = false
-      sku    = "ErGw1AZ"
+      enable             = false
+      sku                = "ErGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
     }
 
     config_firewall = {
       enable             = false
       firewall_sku       = local.firewall_sku
       firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
+      enable_diagnostics = local.enable_diagnostics
     }
 
     config_nva = {
-      enable           = true
-      type             = "linux"
-      internal_lb_addr = local.hub1_nva_ilb_addr
-      custom_data      = base64encode(local.hub1_linux_nva_init)
+      enable             = true
+      type               = "linux"
+      internal_lb_addr   = local.hub1_nva_ilb_addr
+      custom_data        = base64encode(local.hub1_linux_nva_init)
+      enable_diagnostics = local.enable_diagnostics
     }
   }
 }
@@ -199,7 +204,8 @@ locals {
     TARGETS_HEAVY_TRAFFIC_GEN = []
     ENABLE_TRAFFIC_GEN        = false
   })
-  init_dir               = "/var/lib/spoke"
+  init_dir               = "/var/lib/azure"
+  init_local_path        = "../../scripts/docker/fastapi"
   init_port_app1         = "8080" # nginx tls
   init_port_app1_target  = "9000"
   init_port_app2_target  = "8081"
@@ -231,7 +237,7 @@ locals {
     APP_NAME = local.init_name_app2
     APP_PORT = local.init_port_app2_target
   })
-  vm_startup_fastapi_files = {
+  vm_startup_fastapi_init = {
     "${local.init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/docker-compose.yml", local.init_vars) }
     "${local.init_dir}/start.sh"           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/start.sh", local.init_vars) }
     "${local.init_dir}/stop.sh"            = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/stop.sh", local.init_vars) }
@@ -242,17 +248,17 @@ locals {
     "${local.init_dir}/nginx/Dockerfile" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/nginx/Dockerfile", local.init_vars) }
     "/etc/nginx/nginx.conf"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/nginx/nginx.conf", local.init_vars) }
 
-    "${local.init_dir}/app1/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/Dockerfile", local.init_vars_app1) }
-    "${local.init_dir}/app1/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/.dockerignore", local.init_vars_app1) }
-    "${local.init_dir}/app1/main.py"          = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/main.py", local.init_vars_app1) }
-    "${local.init_dir}/app1/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/_app.py", local.init_vars_app1) }
-    "${local.init_dir}/app1/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/requirements.txt", local.init_vars) }
+    "${local.init_dir}/${local.init_name_app1}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/Dockerfile", local.init_vars_app1) }
+    "${local.init_dir}/${local.init_name_app1}/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/.dockerignore", local.init_vars_app1) }
+    "${local.init_dir}/${local.init_name_app1}/main.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/main.py", local.init_vars_app1) }
+    "${local.init_dir}/${local.init_name_app1}/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/_app.py", local.init_vars_app1) }
+    "${local.init_dir}/${local.init_name_app1}/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/requirements.txt", local.init_vars) }
 
-    "${local.init_dir}/app2/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/Dockerfile", local.init_vars_app2) }
-    "${local.init_dir}/app2/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/.dockerignore", local.init_vars_app2) }
-    "${local.init_dir}/app2/main.py"          = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/main.py", local.init_vars_app2) }
-    "${local.init_dir}/app2/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/_app.py", local.init_vars_app2) }
-    "${local.init_dir}/app2/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/app/app/requirements.txt", local.init_vars_app2) }
+    "${local.init_dir}/${local.init_name_app2}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/Dockerfile", local.init_vars_app2) }
+    "${local.init_dir}/${local.init_name_app2}/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/.dockerignore", local.init_vars_app2) }
+    "${local.init_dir}/${local.init_name_app2}/main.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/main.py", local.init_vars_app2) }
+    "${local.init_dir}/${local.init_name_app2}/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/_app.py", local.init_vars_app2) }
+    "${local.init_dir}/${local.init_name_app2}/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/requirements.txt", local.init_vars_app2) }
   }
 
   onprem_dns_vars = {
@@ -326,7 +332,7 @@ module "web_http_backend_init" {
     "docker.io", "docker-compose",
     "tcpdump", "dnsutils", "net-tools", "nmap", "apache2-utils",
   ]
-  files = local.vm_startup_fastapi_files
+  files = local.vm_startup_fastapi_init
   run_commands = [
     ". ${local.init_dir}/service.sh",
   ]
@@ -470,7 +476,7 @@ resource "tls_self_signed_cert" "root_ca" {
 ####################################################
 
 module "server_cert" {
-  source   = "../../modules/self-signed-cert"
+  source   = "../../modules/cert-self-signed"
   name     = local.server_cert_name_app1
   rsa_bits = 2048
   subject = {
@@ -508,7 +514,7 @@ resource "local_file" "main_files" {
 }
 
 # resource "local_file" "docker_files" {
-#   for_each = local.vm_startup_fastapi_files
+#   for_each = local.vm_startup_fastapi_init
 #   filename = "output/docker/${each.key}"
 #   content  = each.value.content
 # }

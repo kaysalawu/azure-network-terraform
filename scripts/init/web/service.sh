@@ -3,7 +3,7 @@
 set -e
 
 base_dir=$(pwd)
-init_dir="/var/lib/spoke"
+init_dir="${INIT_DIR}"
 log_init="$init_dir/log_init.txt"
 
 echo "HOST_HOSTNAME: $HOST_HOSTNAME" | tee -a "$log_init"
@@ -15,11 +15,12 @@ echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf
 echo 'net.ipv6.conf.all.forwarding=1' >> /etc/sysctl.conf
 sysctl -p
 
-sed -i "/#\$nrconf{restart} = 'i';/s/.*/\$nrconf{restart} = 'a';/" /etc/needrestart/needrestart.conf
+# ubuntu 22 fix
+sed -i "/#\$nrconf{restart} = 'i';/s/.*/\$nrconf{restart} = 'a';/" /etc/needrestart/needrestart.conf || true
 
 cat <<EOF > /etc/motd
 ################################################
-         Docker Multiport Application
+                    Client
 ################################################
 Docker Ubuntu
  Date:     $(date)
@@ -37,9 +38,17 @@ display_delimiter() {
   echo $(basename "$0")
 }
 
-cleanup() {
+install_packages() {
     echo "*****************************************"
-    echo " Cleanup apt"
+    echo " Step 1: Install packages"
+    echo "*****************************************"
+    apt-get update
+    apt-get install -y tcpdump dnsutils net-tools nmap apache2-utils
+    curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+    az login --identity -u ${USER_ASSIGNED_ID}
+
+    echo "*****************************************"
+    echo " Step 2: Cleanup apt"
     echo "*****************************************"
     apt-get --purge -y autoremove
     apt-get clean
@@ -48,7 +57,7 @@ cleanup() {
 
 start_services() {
   echo "**************************************"
-  echo " Start Services"
+  echo "STEP 3: Start Services"
   echo "**************************************"
   cd "$init_dir"
   export HOST_HOSTNAME=$(hostname)
@@ -59,7 +68,7 @@ start_services() {
 
 check_services() {
   echo "**************************************"
-  echo " Check Service Status"
+  echo "STEP : Check Service Status"
   echo "**************************************"
   echo "sleep 3 ..." && sleep 3
   echo "docker ps"
@@ -68,12 +77,12 @@ check_services() {
 
 systemd_config() {
   echo "**********************************************************"
-  echo " Systemd Service for fastapp"
+  echo "STEP 5:  Systemd Service for webapp"
   echo "**********************************************************"
-  echo "Create: /etc/systemd/system/fastapp.service"
-  cat <<EOF > /etc/systemd/system/fastapp.service
+  echo "Create: /etc/systemd/system/webapp.service"
+  cat <<EOF > /etc/systemd/system/webapp.service
   [Unit]
-  Description=Script for fastapp
+  Description=Script for webapp
 
   [Service]
   Type=oneshot
@@ -85,14 +94,14 @@ systemd_config() {
   [Install]
   WantedBy=multi-user.target
 EOF
-  cat /etc/systemd/system/fastapp.service
-  systemctl start fastapp
-  systemctl enable fastapp
+  cat /etc/systemd/system/webapp.service
+  systemctl start webapp
+  systemctl enable webapp
 }
 
 start=$(date +%s)
 display_delimiter | tee -a "$log_init"
-cleanup | tee -a "$log_init"
+install_packages | tee -a "$log_init"
 start_services | tee -a "$log_init"
 check_services | tee -a "$log_init"
 systemd_config | tee -a "$log_init"

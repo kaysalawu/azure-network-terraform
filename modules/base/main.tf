@@ -212,10 +212,10 @@ resource "azurerm_subnet_nat_gateway_association" "nat" {
 }
 
 ####################################################
-# vpngw
+# s2s vpngw
 ####################################################
 
-module "vpngw" {
+module "s2s_vpngw" {
   count          = var.config_s2s_vpngw.enable ? 1 : 0
   source         = "../../modules/vnet-gateway-s2s"
   resource_group = var.resource_group
@@ -239,8 +239,42 @@ module "vpngw" {
   ]
 }
 
-output "test" {
-  value = try(module.vpngw[0].test, null)
+####################################################
+# p2s vpngw
+####################################################
+
+module "p2s_vpngw" {
+  count          = var.config_p2s_vpngw.enable ? 1 : 0
+  source         = "../../modules/vnet-gateway-p2s"
+  resource_group = var.resource_group
+  prefix         = local.prefix
+  env            = var.env
+  location       = var.location
+  sku            = var.config_p2s_vpngw.sku
+  subnet_id      = azurerm_subnet.this["GatewaySubnet"].id
+  tags           = var.tags
+
+  vpn_client_configuration = {
+    address_space = try(var.config_p2s_vpngw.vpn_client_configuration.address_space, ["172.16.0.0/24"])
+    clients       = try(var.config_p2s_vpngw.vpn_client_configuration.clients, [])
+  }
+
+  ip_configuration = [
+    {
+      name                          = try(var.config_p2s_vpngw.ip_configuration[0].name, "ip-config0")
+      subnet_id                     = azurerm_subnet.this["GatewaySubnet"].id
+      public_ip_address_name        = try(var.config_p2s_vpngw.ip_configuration[0].public_ip_address_name, null)
+      private_ip_address_allocation = try(var.config_p2s_vpngw.ip_configuration[0].private_ip_address_allocation, "Dynamic")
+    }
+  ]
+
+  create_dashboard   = var.config_p2s_vpngw.create_dashboard
+  enable_diagnostics = var.config_p2s_vpngw.enable_diagnostics
+
+  depends_on = [
+    azurerm_subnet.this,
+    azurerm_subnet_network_security_group_association.this,
+  ]
 }
 
 ####################################################
@@ -308,7 +342,8 @@ resource "azurerm_route_server" "ars" {
     create = "60m"
   }
   depends_on = [
-    module.vpngw,
+    module.s2s_vpngw,
+    module.p2s_vpngw,
     module.ergw,
   ]
 }
@@ -337,7 +372,8 @@ module "azfw" {
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
     azurerm_route_server.ars,
-    module.vpngw,
+    module.s2s_vpngw,
+    module.p2s_vpngw,
     module.ergw,
   ]
 }

@@ -3,7 +3,7 @@
 set -e
 
 base_dir=$(pwd)
-init_dir="/var/lib/spoke"
+init_dir="/var/lib/azure"
 log_init="$init_dir/log_init.txt"
 
 echo "HOST_HOSTNAME: $HOST_HOSTNAME" | tee -a "$log_init"
@@ -15,7 +15,7 @@ echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf
 echo 'net.ipv6.conf.all.forwarding=1' >> /etc/sysctl.conf
 sysctl -p
 
-sed -i "/#\$nrconf{restart} = 'i';/s/.*/\$nrconf{restart} = 'a';/" /etc/needrestart/needrestart.conf
+sed -i "/#\$nrconf{restart} = 'i';/s/.*/\$nrconf{restart} = 'a';/" /etc/needrestart/needrestart.conf || true
 
 cat <<EOF > /etc/motd
 ################################################

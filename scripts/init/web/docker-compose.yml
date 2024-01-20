@@ -1,0 +1,8 @@
+version: '3'
+services:
+  web:
+    container_name: web
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    network_mode: host

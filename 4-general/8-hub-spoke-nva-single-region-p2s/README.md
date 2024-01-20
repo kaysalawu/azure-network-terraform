@@ -536,7 +536,7 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
 2. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
 
    ```sh
-   bash ../../scripts/_cleanup.sh Hs13
+   bash ../../scripts/_cleanup.sh L08
    ```
 
    Sample output
@@ -544,7 +544,7 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
    ```sh
    3-hub-spoke-nva-single-region$    bash ../../scripts/_cleanup.sh Hs13
 
-   Resource group: Hs13RG
+   Resource group: L08RG
 
    ⏳ Checking for diagnostic settings on resources in Hs13RG ...
    ➜  Checking firewall ...

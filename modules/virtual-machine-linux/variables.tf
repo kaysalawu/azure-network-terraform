@@ -4,14 +4,32 @@ variable "resource_group" {
   type        = any
 }
 
+variable "prefix" {
+  description = "prefix to append before all resources"
+  type        = string
+  default     = ""
+}
+
 variable "name" {
   description = "prefix to append before all resources"
   type        = string
 }
 
+variable "computer_name" {
+  description = "computer name"
+  type        = string
+  default     = ""
+}
+
 variable "location" {
   description = "vnet region location"
   type        = string
+}
+
+variable "identity_ids" {
+  description = "list of identity ids"
+  type        = list(any)
+  default     = null
 }
 
 variable "tags" {
@@ -89,15 +107,15 @@ variable "storage_account" {
 }
 
 variable "admin_username" {
-  description = "private dns zone name"
+  description = "admin username"
   type        = string
   default     = "azureuser"
 }
 
 variable "admin_password" {
-  description = "private dns zone name"
+  description = "admin password"
   type        = string
-  default     = "azureuser"
+  default     = "Password123"
 }
 
 variable "enable_ip_forwarding" {

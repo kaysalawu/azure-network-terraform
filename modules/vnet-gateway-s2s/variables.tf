@@ -78,7 +78,7 @@ variable "enable_diagnostics" {
   default     = false
 }
 
-vraiable "enable_bgp" {
+variable "enable_bgp" {
   description = "enable bgp"
   type        = bool
   default     = true
