@@ -3,7 +3,7 @@ locals {
   client_certificates_print = flatten([
     for client, data in module.client_certificates : [
       { client_name = client, file_ext = ".pem", file_name = "cert", data = data.cert_pem },
-      { client_name = client, file_ext = ".pfx", file_name = "cert", data = data.cert_pfx },
+      #{ client_name = client, file_ext = ".pfx", file_name = "cert", data = data.cert_pfx },
       { client_name = client, file_ext = ".txt", file_name = "password", data = data.cert_pfx_password },
       { client_name = client, file_ext = ".pem", file_name = "key", data = data.private_key_pem }
     ]
