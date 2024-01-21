@@ -23,7 +23,7 @@ resource "azurerm_local_network_gateway" "hub1_branch1_lng" {
 
 data "azurerm_virtual_network_gateway" "hub1" {
   resource_group_name = azurerm_resource_group.rg.name
-  name                = module.hub1.vpngw.name
+  name                = module.hub1.s2s_vpngw.name
 }
 
 # egress (static)
@@ -31,7 +31,7 @@ data "azurerm_virtual_network_gateway" "hub1" {
 resource "azurerm_virtual_network_gateway_nat_rule" "hub1_branch1_static_nat_egress" {
   resource_group_name        = azurerm_resource_group.rg.name
   name                       = "${local.hub1_prefix}branch1-static-nat-egress"
-  virtual_network_gateway_id = module.hub1.vpngw.id
+  virtual_network_gateway_id = module.hub1.s2s_vpngw.id
   mode                       = "EgressSnat"
   type                       = "Static"
 
@@ -48,7 +48,7 @@ resource "azurerm_virtual_network_gateway_nat_rule" "hub1_branch1_static_nat_egr
 resource "azurerm_virtual_network_gateway_nat_rule" "hub1_branch1_dyn_nat_egress_0" {
   resource_group_name        = azurerm_resource_group.rg.name
   name                       = "${local.hub1_prefix}branch1-dyn-nat-egress-0"
-  virtual_network_gateway_id = module.hub1.vpngw.id
+  virtual_network_gateway_id = module.hub1.s2s_vpngw.id
   mode                       = "EgressSnat"
   type                       = "Dynamic"
   ip_configuration_id        = data.azurerm_virtual_network_gateway.hub1.ip_configuration.1.id
@@ -64,7 +64,7 @@ resource "azurerm_virtual_network_gateway_nat_rule" "hub1_branch1_dyn_nat_egress
 resource "azurerm_virtual_network_gateway_nat_rule" "hub1_branch1_dyn_nat_egress_1" {
   resource_group_name        = azurerm_resource_group.rg.name
   name                       = "${local.hub1_prefix}branch1-dyn-nat-egress-1"
-  virtual_network_gateway_id = module.hub1.vpngw.id
+  virtual_network_gateway_id = module.hub1.s2s_vpngw.id
   mode                       = "IngressSnat"
   type                       = "Dynamic"
   ip_configuration_id        = data.azurerm_virtual_network_gateway.hub1.ip_configuration.0.id
@@ -82,7 +82,7 @@ resource "azurerm_virtual_network_gateway_nat_rule" "hub1_branch1_dyn_nat_egress
 resource "azurerm_virtual_network_gateway_nat_rule" "hub1_branch1_static_nat_ingress" {
   resource_group_name        = azurerm_resource_group.rg.name
   name                       = "${local.hub1_prefix}branch1-static-nat-ingress"
-  virtual_network_gateway_id = module.hub1.vpngw.id
+  virtual_network_gateway_id = module.hub1.s2s_vpngw.id
   mode                       = "IngressSnat"
   type                       = "Static"
 
@@ -104,7 +104,7 @@ resource "azurerm_virtual_network_gateway_connection" "hub1_branch1_lng" {
   location                   = local.hub1_location
   type                       = "IPsec"
   enable_bgp                 = true
-  virtual_network_gateway_id = module.hub1.vpngw.id
+  virtual_network_gateway_id = module.hub1.s2s_vpngw.id
   local_network_gateway_id   = azurerm_local_network_gateway.hub1_branch1_lng.id
   shared_key                 = local.psk
   egress_nat_rule_ids = [

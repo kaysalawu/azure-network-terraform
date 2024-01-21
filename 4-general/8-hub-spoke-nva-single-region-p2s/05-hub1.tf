@@ -25,10 +25,12 @@ module "hub1" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.hub1_tags
 
-  create_private_dns_zone                   = true
-  private_dns_zone_name                     = local.hub1_dns_zone
-  private_dns_zone_linked_external_vnets    = {}
-  private_dns_ruleset_linked_external_vnets = {}
+  create_private_dns_zone = true
+  private_dns_zone_name   = local.hub1_dns_zone
+  private_dns_zone_linked_external_vnets = {
+  }
+  private_dns_ruleset_linked_external_vnets = {
+  }
 
   nsg_subnet_map = {
     "MainSubnet"                = module.common.nsg_main["region1"].id
@@ -76,15 +78,4 @@ module "hub1_vm" {
   ]
   depends_on = [module.hub1]
 }
-
-####################################################
-# output files
-####################################################
-
-# resource "local_file" "certificate_files" {
-#   for_each = { for client in module.hub1.p2s_client_certificates_print : "${client.client_name}-${client.file_name}-${client.file_ext}" => client }
-#   content  = each.value.data
-#   filename = "${path.module}/output/p2s/${each.value.client_name}/${each.value.client_name}_${each.value.file_name}${each.value.file_ext}"
-# }
-
 

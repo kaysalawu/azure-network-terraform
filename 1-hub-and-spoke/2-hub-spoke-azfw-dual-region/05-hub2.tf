@@ -50,11 +50,12 @@ module "hub2" {
     "DnsResolverOutboundSubnet" = module.common.nsg_default["region2"].id
   }
 
-  config_vnet     = local.hub2_features.config_vnet
-  config_vpngw    = local.hub2_features.config_vpngw
-  config_ergw     = local.hub2_features.config_ergw
-  config_firewall = local.hub2_features.config_firewall
-  config_nva      = local.hub2_features.config_nva
+  config_vnet      = local.hub2_features.config_vnet
+  config_s2s_vpngw = local.hub2_features.config_s2s_vpngw
+  config_p2s_vpngw = local.hub2_features.config_p2s_vpngw
+  config_ergw      = local.hub2_features.config_ergw
+  config_firewall  = local.hub2_features.config_firewall
+  config_nva       = local.hub2_features.config_nva
 }
 
 ####################################################
@@ -62,16 +63,22 @@ module "hub2" {
 ####################################################
 
 module "hub2_vm" {
-  source           = "../../modules/linux"
-  resource_group   = azurerm_resource_group.rg.name
-  prefix           = local.hub2_prefix
-  name             = "vm"
-  location         = local.hub2_location
-  subnet           = module.hub2.subnets["MainSubnet"].id
-  private_ip       = local.hub2_vm_addr
-  enable_public_ip = true
-  custom_data      = base64encode(local.vm_startup)
-  storage_account  = module.common.storage_accounts["region2"]
-  tags             = local.hub2_tags
-  depends_on       = [module.hub2]
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = trimsuffix(local.hub2_prefix, "-")
+  name            = "vm"
+  location        = local.hub2_location
+  storage_account = module.common.storage_accounts["region1"]
+  custom_data     = base64encode(local.vm_startup)
+
+  enable_ip_forwarding = true
+
+  interfaces = [
+    {
+      name             = "untrust"
+      subnet_id        = module.hub2.subnets["UntrustSubnet"].id
+      create_public_ip = true
+    },
+  ]
+  depends_on = [module.hub2]
 }

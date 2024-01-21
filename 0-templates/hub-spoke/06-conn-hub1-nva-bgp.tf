@@ -17,7 +17,7 @@ resource "azurerm_virtual_network_peering" "spoke1_to_hub1_peering" {
   allow_forwarded_traffic      = true
   use_remote_gateways          = true
   depends_on = [
-    module.hub1.vpngw
+    module.hub1.s2s_vpngw
   ]
 }
 
@@ -33,7 +33,7 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke1_peering" {
   allow_forwarded_traffic      = true
   allow_gateway_transit        = true
   depends_on = [
-    module.hub1.vpngw,
+    module.hub1.s2s_vpngw,
     azurerm_virtual_network_peering.spoke1_to_hub1_peering
   ]
 }
@@ -79,7 +79,7 @@ resource "azurerm_virtual_network_peering" "spoke2_to_hub1_peering" {
   allow_forwarded_traffic      = true
   use_remote_gateways          = true
   depends_on = [
-    module.hub1.vpngw
+    module.hub1.s2s_vpngw
   ]
 }
 
@@ -94,7 +94,7 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke2_peering" {
   allow_forwarded_traffic      = true
   allow_gateway_transit        = true
   depends_on = [
-    module.hub1.vpngw,
+    module.hub1.s2s_vpngw,
     azurerm_virtual_network_peering.spoke2_to_hub1_peering
   ]
 }
@@ -359,7 +359,7 @@ resource "azurerm_virtual_network_gateway_connection" "hub1_branch1_lng" {
   location                   = local.hub1_location
   type                       = "IPsec"
   enable_bgp                 = true
-  virtual_network_gateway_id = module.hub1.vpngw.id
+  virtual_network_gateway_id = module.hub1.s2s_vpngw.id
   local_network_gateway_id   = azurerm_local_network_gateway.hub1_branch1_lng.id
   shared_key                 = local.psk
   egress_nat_rule_ids        = []

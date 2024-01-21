@@ -1,4 +1,42 @@
 
+locals {
+  init_dir       = "/var/lib/azure"
+  app_name       = "web"
+  app_dir        = "${local.init_dir}/${local.app_name}"
+  init_dir_local = "../../scripts/init/${local.app_name}"
+  app_dir_local  = "../../scripts/init/${local.app_name}/app/app"
+  init_vars = {
+    INIT_DIR            = local.init_dir
+    APP_NAME            = local.app_name
+    USER_ASSIGNED_ID    = azurerm_user_assigned_identity.machine.id
+    RESOURCE_GROUP_NAME = azurerm_resource_group.rg.name
+    VPN_GATEWAY_NAME    = module.hub1.p2s_vpngw.name
+  }
+  vm_p2s_init_files = {
+    "${local.init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/docker-compose.yml", local.init_vars) }
+    "${local.init_dir}/start.sh"           = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/start.sh", local.init_vars) }
+    "${local.init_dir}/stop.sh"            = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/stop.sh", local.init_vars) }
+    "${local.init_dir}/service.sh"         = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/service.sh", local.init_vars) }
+    "${local.init_dir}/tools.sh"           = { owner = "root", permissions = "0744", content = local.tools }
+    "${local.init_dir}/client-config.sh"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/p2s/client-config.sh", local.init_vars) }
+    "${local.init_dir}/client1_cert.pem"   = { owner = "root", permissions = "0400", content = trimspace(module.hub1.p2s_client_certificates_cert_pem["client1"]) }
+    "${local.init_dir}/client1_key.pem"    = { owner = "root", permissions = "0400", content = trimspace(module.hub1.p2s_client_certificates_private_key_pem["client1"]) }
+
+    "${local.app_dir}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/Dockerfile", local.init_vars) }
+    "${local.app_dir}/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/.dockerignore", local.init_vars) }
+    "${local.app_dir}/main.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/main.py", local.init_vars) }
+    "${local.app_dir}/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/_app.py", local.init_vars) }
+    "${local.app_dir}/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/requirements.txt", local.init_vars) }
+  }
+  branch1_vm_init = templatefile("../../scripts/server.sh", {
+    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
+    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
+    ENABLE_TRAFFIC_GEN        = true
+  })
+}
+
 ####################################################
 # vnet
 ####################################################
@@ -54,44 +92,6 @@ module "branch1_dns" {
 # p2s client
 ####################################################
 
-locals {
-  init_dir       = "/var/lib/azure"
-  app_name       = "web"
-  app_dir        = "${local.init_dir}/${local.app_name}"
-  init_dir_local = "../../scripts/init/${local.app_name}"
-  app_dir_local  = "../../scripts/init/${local.app_name}/app/app"
-  init_vars = {
-    INIT_DIR            = local.init_dir
-    APP_NAME            = local.app_name
-    USER_ASSIGNED_ID    = azurerm_user_assigned_identity.machine.id
-    RESOURCE_GROUP_NAME = azurerm_resource_group.rg.name
-    VPN_GATEWAY_NAME    = module.hub1.p2s_vpngw.name
-  }
-  vm_p2s_init_files = {
-    "${local.init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/docker-compose.yml", local.init_vars) }
-    "${local.init_dir}/start.sh"           = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/start.sh", local.init_vars) }
-    "${local.init_dir}/stop.sh"            = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/stop.sh", local.init_vars) }
-    "${local.init_dir}/service.sh"         = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/service.sh", local.init_vars) }
-    "${local.init_dir}/tools.sh"           = { owner = "root", permissions = "0744", content = local.server_scripts }
-    "${local.init_dir}/client-config.sh"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/p2s/client-config.sh", local.init_vars) }
-    "${local.init_dir}/client1_cert.pem"   = { owner = "root", permissions = "0400", content = trimspace(module.hub1.p2s_client_certificates_cert_pem["client1"]) }
-    "${local.init_dir}/client1_key.pem"    = { owner = "root", permissions = "0400", content = trimspace(module.hub1.p2s_client_certificates_private_key_pem["client1"]) }
-
-    "${local.app_dir}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/Dockerfile", local.init_vars) }
-    "${local.app_dir}/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/.dockerignore", local.init_vars) }
-    "${local.app_dir}/main.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/main.py", local.init_vars) }
-    "${local.app_dir}/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/_app.py", local.init_vars) }
-    "${local.app_dir}/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/requirements.txt", local.init_vars) }
-  }
-  branch1_vm_init = templatefile("../../scripts/server.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
-    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
-    ENABLE_TRAFFIC_GEN        = true
-  })
-}
-
 # cloud-init
 
 module "vm_p2s_init" {
@@ -146,7 +146,7 @@ module "branch1_vm" {
   prefix           = local.branch1_prefix
   name             = "vm"
   location         = local.branch1_location
-  subnet           = module.branch1.subnets["MainSubnet"].id
+  subnet           = module.branch1.subnets["TrustSubnet"].id
   private_ip       = local.branch1_vm_addr
   enable_public_ip = true
   source_image     = "ubuntu-20"

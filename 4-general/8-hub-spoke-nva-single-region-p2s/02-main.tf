@@ -244,7 +244,7 @@ locals {
     TARGETS_HEAVY_TRAFFIC_GEN = []
     ENABLE_TRAFFIC_GEN        = false
   })
-  server_scripts = templatefile("../../scripts/tools.sh", {
+  tools = templatefile("../../scripts/tools.sh", {
     USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []

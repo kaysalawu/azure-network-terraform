@@ -275,17 +275,17 @@ locals {
   branch_dnsmasq_startup = templatefile("../../scripts/dnsmasq/dnsmasq.sh", local.branch_dns_vars)
   branch_dns_init_dir    = "/var/lib/labs"
   branch_dnsmasq_init = {
-    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/app/Dockerfile", {}) }
-    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/docker-compose.yml", {}) }
-    "/etc/dnsmasq.d/local_records.conf"               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/app/conf/local_records.conf", local.branch_dns_vars) }
-    "/etc/dnsmasq.d/forwarding.conf"                  = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/app/conf/forwarding.conf", local.branch_dns_vars) }
-    "/etc/dnsmasq.d/default.conf"                     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/dnsmasq/app/conf/default.conf", local.branch_dns_vars) }
+    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/dnsmasq/app/Dockerfile", {}) }
+    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/dnsmasq/docker-compose.yml", {}) }
+    "/etc/dnsmasq.d/local_records.conf"               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/dnsmasq/app/conf/local_records.conf", local.branch_dns_vars) }
+    "/etc/dnsmasq.d/forwarding.conf"                  = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/dnsmasq/app/conf/forwarding.conf", local.branch_dns_vars) }
+    "/etc/dnsmasq.d/default.conf"                     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/dnsmasq/app/conf/default.conf", local.branch_dns_vars) }
   }
   branch_unbound_init = {
-    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/Dockerfile", {}) }
-    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/docker-compose.yml", {}) }
-    "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/conf/unbound.conf", local.branch_dns_vars) }
-    "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/containers/unbound/app/conf/unbound.log", local.branch_dns_vars) }
+    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/Dockerfile", {}) }
+    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
+    "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.conf", local.branch_dns_vars) }
+    "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.log", local.branch_dns_vars) }
   }
   onprem_local_records = [
     { name = (local.branch1_vm_fqdn), record = local.branch1_vm_addr },

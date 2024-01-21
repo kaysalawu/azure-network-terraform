@@ -105,10 +105,10 @@ locals {
           address = cidrhost(local.branch2_nva_tun_range0, 1)
           mask    = cidrnetmask(local.branch2_nva_tun_range0)
           source  = local.branch2_nva_untrust_addr
-          dest    = module.hub1.vpngw_public_ip0
+          dest    = module.hub1.s2s_vpngw_public_ip0
         },
         ipsec = {
-          peer_ip = module.hub1.vpngw_public_ip0
+          peer_ip = module.hub1.s2s_vpngw_public_ip0
           psk     = local.psk
         }
       },
@@ -118,10 +118,10 @@ locals {
           address = cidrhost(local.branch2_nva_tun_range1, 1)
           mask    = cidrnetmask(local.branch2_nva_tun_range1)
           source  = local.branch2_nva_untrust_addr
-          dest    = module.hub1.vpngw_public_ip1
+          dest    = module.hub1.s2s_vpngw_public_ip1
         },
         ipsec = {
-          peer_ip = module.hub1.vpngw_public_ip1
+          peer_ip = module.hub1.s2s_vpngw_public_ip1
           psk     = local.psk
         }
       },
@@ -142,8 +142,8 @@ locals {
 
     STATIC_ROUTES = [
       { network = "0.0.0.0", mask = "0.0.0.0", next_hop = local.branch2_untrust_default_gw },
-      { network = module.hub1.vpngw_bgp_ip0, mask = "255.255.255.255", next_hop = "Tunnel0" },
-      { network = module.hub1.vpngw_bgp_ip1, mask = "255.255.255.255", next_hop = "Tunnel1" },
+      { network = module.hub1.s2s_vpngw_bgp_ip0, mask = "255.255.255.255", next_hop = "Tunnel0" },
+      { network = module.hub1.s2s_vpngw_bgp_ip1, mask = "255.255.255.255", next_hop = "Tunnel1" },
       { network = local.branch3_nva_loopback0, mask = "255.255.255.255", next_hop = "Tunnel2" },
       {
         network  = local.branch2_network
@@ -154,8 +154,8 @@ locals {
 
     BGP_SESSIONS = [
       {
-        peer_asn        = module.hub1.vpngw_bgp_asn,
-        peer_ip         = module.hub1.vpngw_bgp_ip0,
+        peer_asn        = module.hub1.s2s_vpngw_bgp_asn,
+        peer_ip         = module.hub1.s2s_vpngw_bgp_ip0,
         source_loopback = true
         ebgp_multihop   = true
         route_maps = [
@@ -163,8 +163,8 @@ locals {
         ]
       },
       {
-        peer_asn        = module.hub1.vpngw_bgp_asn
-        peer_ip         = module.hub1.vpngw_bgp_ip1
+        peer_asn        = module.hub1.s2s_vpngw_bgp_asn
+        peer_ip         = module.hub1.s2s_vpngw_bgp_ip1
         source_loopback = true
         ebgp_multihop   = true
         route_maps = [
@@ -215,6 +215,7 @@ module "branch2_nva" {
 
 locals {
   branch2_vm_init = templatefile("../../scripts/server.sh", {
+    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
     TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]

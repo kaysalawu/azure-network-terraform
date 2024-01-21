@@ -302,7 +302,7 @@ locals {
   spoke2_dns_zone      = "spoke2.we.${local.cloud_domain}"
   spoke2_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.2.0.0/24"] }
-    ("UnrustSubnet")             = { address_prefixes = ["10.2.1.0/24"] }
+    ("UntrustSubnet")            = { address_prefixes = ["10.2.1.0/24"] }
     ("TrustSubnet")              = { address_prefixes = ["10.2.2.0/24"] }
     ("ManagementSubnet")         = { address_prefixes = ["10.2.3.0/24"] }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.2.4.0/24"] }

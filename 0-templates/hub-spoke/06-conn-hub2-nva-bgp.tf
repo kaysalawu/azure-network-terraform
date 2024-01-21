@@ -357,7 +357,7 @@ resource "azurerm_virtual_network_gateway_connection" "hub2_branch3_lng" {
   location                   = local.hub2_location
   type                       = "IPsec"
   enable_bgp                 = true
-  virtual_network_gateway_id = module.hub2.vpngw.id
+  virtual_network_gateway_id = module.hub2.s2s_vpngw.id
   local_network_gateway_id   = azurerm_local_network_gateway.hub2_branch3_lng.id
   shared_key                 = local.psk
   egress_nat_rule_ids        = []
