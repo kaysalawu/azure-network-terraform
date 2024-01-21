@@ -101,8 +101,8 @@ locals {
             { ip_address = local.branch1_dns_addr, port = 53 },
           ]
         }
-        "we" = {
-          domain = "we.${local.cloud_domain}"
+        "eu" = {
+          domain = "eu.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
@@ -399,11 +399,9 @@ module "fw_policy_rule_collection_group" {
 
 locals {
   hub1_nva_vars = {
-    LOCAL_ASN = local.hub1_nva_asn
-    LOOPBACK0 = local.hub1_nva_loopback0
-    LOOPBACKS = {
-      Loopback1 = local.hub1_nva_ilb_addr
-    }
+    LOCAL_ASN   = local.hub1_nva_asn
+    LOOPBACK0   = local.hub1_nva_loopback0
+    LOOPBACKS   = { Loopback1 = local.hub1_nva_ilb_addr }
     CRYPTO_ADDR = local.hub1_nva_trust_addr
     VPN_PSK     = local.psk
   }

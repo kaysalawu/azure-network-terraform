@@ -40,60 +40,60 @@ write_files:
     permissions: 0400
     content: |
       -----BEGIN CERTIFICATE-----
-      MIIEHzCCAwegAwIBAgIQW92i9ImVmnXvQv6yPH0kSjANBgkqhkiG9w0BAQsFADCB
-      jjELMAkGA1UEBhMCVUsxEDAOBgNVBAgTB0VuZ2xhbmQxDzANBgNVBAcTBkxvbmRv
-      bjEaMBgGA1UECRMRbXBscyBjaGlja2VuIHJvYWQxDTALBgNVBAoTBGRlbW8xGzAZ
-      BgNVBAsTEmNsb3VkIG5ldHdvcmsgdGVhbTEUMBIGA1UEAxMLcDJzLXJvb3QtY2Ew
-      HhcNMjQwMTIxMDExNjE1WhcNMjUwMTIwMDExNjE1WjCBpTELMAkGA1UEBhMCVUsx
-      EDAOBgNVBAgTB0VuZ2xhbmQxDzANBgNVBAcTBkxvbmRvbjE1MBYGA1UECRMPIG5l
-      dHdvcmsgYXZlbnVlMBsGA1UECRMUOTkgbXBscyBjaGlja2VuIHJvYWQxEzARBgNV
-      BAoTCm5ldHdvcmtpbmcxFTATBgNVBAsTDG5ldHdvcmsgdGVhbTEQMA4GA1UEAxMH
-      Y2xpZW50MTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMeGYaSBUl0k
-      16Z7zkY8uxBUsMpVZwcpXs0xa4SG/Gp3X9TsN1CL1U+EsOuGkRYLN0C/DTnQasfz
-      EiIulSdPicrnTODq3J38irrz2ndFddpNJIA9MzX7QLkkAYoZCvadtEIFl3I9PIwN
-      BcYRJzEs0tYnRUw1wP/pX8WNUuwJxzzSq7fEFvX1UeMRNYaZYo0L4tqHIQblvN1r
-      U2qRcB4OYh1a27ZxbBs5mXWheCeBNexTagHM730lowjxjlc7WdxkDb+g6Q7hueZG
-      fMAqdznMI1YflcGOL3JBq7cayNyzpdTReKoJILzRYTD8EHIYNKNwyn3nMaopC098
-      7us2S/OpXPkCAwEAAaNgMF4wDgYDVR0PAQH/BAQDAgWgMB0GA1UdJQQWMBQGCCsG
-      AQUFBwMBBggrBgEFBQcDAjAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFCczIKzt
-      b/Z5jBesaUODZ9pdFBP2MA0GCSqGSIb3DQEBCwUAA4IBAQCcZK0I0alXMHZeh4iu
-      OZsR43MuhAWZpgn/O1yr0eeoiR5TaFkh5ZtDARvTqj0//oT7QviQB0kL5G6tGRNB
-      34V3W4U9/5y5bgttrQz6rfQmHb/JDIOC8o+Fjj1Qw6CVjoYYi6gip4OPsgDJwE6D
-      r8tzBQ8lTe8EqLZNuUZU8fZppaqEPO9QV1KBH6dGwU6KJ21ERUZn1vDXUeaSmvE3
-      xRHMttj0gIH6XHMh080uDFan8yqo/ooo36/NNuShDmr2igQXFPC+M/iP2HCDI9V/
-      bLjMhra3Unt5xWysfJcQdkrXcz3JOf7yfn9g7rS9t74uB4uhWqiIKBvvI1f8SfJ1
-      p/22
+      MIIEIDCCAwigAwIBAgIRAKI1yX6fEMsOGtnkRINCyZowDQYJKoZIhvcNAQELBQAw
+      gY4xCzAJBgNVBAYTAlVLMRAwDgYDVQQIEwdFbmdsYW5kMQ8wDQYDVQQHEwZMb25k
+      b24xGjAYBgNVBAkTEW1wbHMgY2hpY2tlbiByb2FkMQ0wCwYDVQQKEwRkZW1vMRsw
+      GQYDVQQLExJjbG91ZCBuZXR3b3JrIHRlYW0xFDASBgNVBAMTC3Aycy1yb290LWNh
+      MB4XDTI0MDEyMTExMTIyOFoXDTI1MDEyMDExMTIyOFowgaUxCzAJBgNVBAYTAlVL
+      MRAwDgYDVQQIEwdFbmdsYW5kMQ8wDQYDVQQHEwZMb25kb24xNTAWBgNVBAkTDyBu
+      ZXR3b3JrIGF2ZW51ZTAbBgNVBAkTFDk5IG1wbHMgY2hpY2tlbiByb2FkMRMwEQYD
+      VQQKEwpuZXR3b3JraW5nMRUwEwYDVQQLEwxuZXR3b3JrIHRlYW0xEDAOBgNVBAMT
+      B2NsaWVudDEwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDNEaDUB5vE
+      VDwcQrdz4Jx9q4U+vzGgVAAKYlIeQ5CnzuDYwOhhiodIKShDL56jrZi6hXrQmOx8
+      f22DdepZImnAyOumNEhxjac7U5i6QFO0mAWoHhZ6I/MFhqslLx9QF7nW/xeEbz/z
+      fm5N99wFm3e5UAui2w4ic0ltsTEauydT3yWUcQ8EWuzu08al91YzX9WQtQ6q0hNQ
+      f5uaFdB1mvpTRUNUrBbpDxWZyn0NNvAo6VMnhQ44AvSvOJh0Oo+OftIgriZ/0cJr
+      L0Rh3OlOagF++HnGAxxhty6QAGX7YCBwORyziFHiq3hpkSVJ8cBj7x7zbJB/59do
+      ohBDOn2nT+/BAgMBAAGjYDBeMA4GA1UdDwEB/wQEAwIFoDAdBgNVHSUEFjAUBggr
+      BgEFBQcDAQYIKwYBBQUHAwIwDAYDVR0TAQH/BAIwADAfBgNVHSMEGDAWgBRFEFGl
+      4IcdowEy/rEPl9F8sIQT7jANBgkqhkiG9w0BAQsFAAOCAQEAEXWiTzEIfY/5d4VY
+      yMbTzYXicFT/TJnigGKeCtDZcVTuUTbQH06O1cKhShtcy42Le0ptK0aSZS/X9QI3
+      E/haA3Awc0Fs2pVJhAJuVxZAcnnlq2cCB5SLC/rfkZfFpjgMPv9rpVShWC87lWAT
+      eGDozH3hF2nWb2CamioUso13cDTegz8Bju3hhqkDIYsfpMeZ+yuDRYAdZFThbzPf
+      axvAtMRQ2qrmVCTdHRpwzqX+EUeR8PBrSwFZsSLqOeUWniFFhHB55k/AVml1PHDL
+      aErhNwZAgIidou/PpbcU/5Evo04LyG4gIwACU0o0iyOY/TKM4iip0YaF+eduIfUy
+      Ow57MA==
       -----END CERTIFICATE-----
   - path: /var/lib/azure/client1_key.pem
     owner: root
     permissions: 0400
     content: |
       -----BEGIN RSA PRIVATE KEY-----
-      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
+      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
       -----END RSA PRIVATE KEY-----
   - path: /var/lib/azure/docker-compose.yml
     owner: root
@@ -348,7 +348,7 @@ write_files:
       
       cat <<EOF > /usr/local/bin/ping-ip
       echo -e "\n ping ip ...\n"
-      echo "branch1 - 10.10.2.5 -\$(timeout 3 ping -qc2 -W1 10.10.2.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+      echo "branch1 - 192.168.0.5 -\$(timeout 3 ping -qc2 -W1 192.168.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
       echo "hub1    - 10.11.0.5 -\$(timeout 3 ping -qc2 -W1 10.11.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
       echo "spoke1  - 10.1.0.5 -\$(timeout 3 ping -qc2 -W1 10.1.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
       echo "spoke2  - 10.2.0.5 -\$(timeout 3 ping -qc2 -W1 10.2.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
@@ -372,7 +372,7 @@ write_files:
       
       cat <<EOF > /usr/local/bin/curl-ip
       echo -e "\n curl ip ...\n"
-      echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.10.2.5) - branch1 (10.10.2.5)"
+      echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 192.168.0.5) - branch1 (192.168.0.5)"
       echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.11.0.5) - hub1    (10.11.0.5)"
       echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.1.0.5) - spoke1  (10.1.0.5)"
       echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.2.0.5) - spoke2  (10.2.0.5)"
@@ -392,7 +392,7 @@ write_files:
       echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke2.we.az.corp) - vm.spoke2.we.az.corp"
       echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke3.we.az.corp) - vm.spoke3.we.az.corp"
       echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-      echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null g08-spoke3-d2cc.azurewebsites.net) - g08-spoke3-d2cc.azurewebsites.net"
+      echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null g08-spoke3-2ee5.azurewebsites.net) - g08-spoke3-2ee5.azurewebsites.net"
       EOF
       chmod a+x /usr/local/bin/curl-dns
       
@@ -402,7 +402,7 @@ write_files:
       echo -e "\n trace ip ...\n"
       echo -e "\nbranch1"
       echo -e "-------------------------------------"
-      timeout 9 tracepath 10.10.2.5
+      timeout 9 tracepath 192.168.0.5
       echo -e "\nhub1   "
       echo -e "-------------------------------------"
       timeout 9 tracepath 10.11.0.5
