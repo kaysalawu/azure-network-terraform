@@ -82,3 +82,4 @@ module "hub2_vm" {
   ]
   depends_on = [module.hub2]
 }
+

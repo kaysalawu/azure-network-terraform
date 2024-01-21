@@ -12,6 +12,7 @@ color_green=$(tput setaf 2)
 reset=$(tput sgr0)
 
 dir_diff() {
+    echo -e "  ${char_executing} Running diff ...\n"
     local all_diffs_ok=true
     readarray -t files < templates
     for file in "${files[@]}"; do
@@ -28,6 +29,7 @@ dir_diff() {
             echo -e "  ${char_notfound} notFound: $local_file"
         fi
     done
+    echo ""
 
     if [ "$all_diffs_ok" = false ]; then
         return 1

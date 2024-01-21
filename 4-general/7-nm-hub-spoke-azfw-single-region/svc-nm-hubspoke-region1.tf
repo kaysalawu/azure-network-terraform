@@ -94,7 +94,7 @@ locals {
       direction               = "Inbound"
       priority                = 1
       protocol                = "Tcp"
-      destination_port_ranges = ["3389"]
+      destination_port_ranges = ["3333"]
       source = [
         { address_prefix_type = "IPPrefix", address_prefix = "*" }
       ]

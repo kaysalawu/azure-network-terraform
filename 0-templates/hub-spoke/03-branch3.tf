@@ -288,6 +288,7 @@ module "branch3_udr_main" {
 locals {
   branch3_files = {
     "output/branch3-nva.sh" = local.branch3_nva_init
+    "output/branch3-vm.sh"  = local.branch3_vm_init
   }
 }
 

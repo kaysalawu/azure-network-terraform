@@ -1,4 +1,14 @@
 
+locals {
+  branch1_vm_init = templatefile("../../scripts/server.sh", {
+    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
+    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
+    ENABLE_TRAFFIC_GEN        = true
+  })
+}
+
 ####################################################
 # vnet
 ####################################################
@@ -67,7 +77,7 @@ locals {
 locals {
   branch1_nva_route_map_onprem = "ONPREM"
   branch1_nva_route_map_azure  = "AZURE"
-  branch1_nva_init = templatefile("../../scripts/cisco-branch.sh", {
+  branch1_nva_init = templatefile("../../scripts/cisco-csr-1000v.sh", {
     LOCAL_ASN   = local.branch1_nva_asn
     LOOPBACK0   = local.branch1_nva_loopback0
     LOOPBACKS   = {}
@@ -192,35 +202,37 @@ locals {
 }
 
 module "branch1_nva" {
-  source               = "../../modules/csr-branch"
-  resource_group       = azurerm_resource_group.rg.name
-  name                 = "${local.branch1_prefix}nva"
-  location             = local.branch1_location
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = trimsuffix(local.branch1_prefix, "-")
+  name            = "nva"
+  location        = local.branch1_location
+  storage_account = module.common.storage_accounts["region1"]
+  custom_data     = base64encode(local.branch1_nva_init)
+  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
+  source_image    = "cisco-csr-1000v"
+
   enable_ip_forwarding = true
-  enable_public_ip     = true
-  subnet_ext           = module.branch1.subnets["UntrustSubnet"].id
-  subnet_int           = module.branch1.subnets["TrustSubnet"].id
-  private_ip_ext       = local.branch1_nva_untrust_addr
-  private_ip_int       = local.branch1_nva_trust_addr
-  public_ip            = azurerm_public_ip.branch1_nva_pip.id
-  storage_account      = module.common.storage_accounts["region1"]
-  admin_username       = local.username
-  admin_password       = local.password
-  custom_data          = base64encode(local.branch1_nva_init)
+
+  interfaces = [
+    {
+      name               = "untrust"
+      subnet_id          = module.branch1.subnets["UntrustSubnet"].id
+      private_ip_address = local.branch1_nva_untrust_addr
+      public_ip_id       = azurerm_public_ip.branch1_nva_pip.id
+    },
+    {
+      name               = "trust"
+      subnet_id          = module.branch1.subnets["TrustSubnet"].id
+      private_ip_address = local.branch1_nva_trust_addr
+    },
+  ]
+  depends_on = [module.branch1]
 }
 
 ####################################################
 # workload
 ####################################################
-
-locals {
-  branch1_vm_init = templatefile("../../scripts/server.sh", {
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
-    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
-    ENABLE_TRAFFIC_GEN        = true
-  })
-}
 
 module "branch1_vm" {
   source           = "../../modules/linux"
@@ -264,8 +276,8 @@ module "branch1_udr_main" {
   disable_bgp_route_propagation = true
   depends_on = [
     module.branch1,
-    module.branch1_nva,
     module.branch1_dns,
+    module.branch1_nva,
   ]
 }
 

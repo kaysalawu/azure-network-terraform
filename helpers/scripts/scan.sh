@@ -15,10 +15,17 @@ reset=$(tput sgr0)
 working_dir=$(pwd)
 while [[ $PWD != '/' && ${PWD##*/} != 'azure-network-terraform' ]]; do cd ..; done
 
-dirs=(
+main_dirs=(
 1-hub-and-spoke
 2-virtual-wan
 3-network-manager
+)
+
+all_dirs=(
+1-hub-and-spoke
+2-virtual-wan
+3-network-manager
+4-general
 )
 
 dir_diff() {
@@ -114,7 +121,7 @@ terraform_cleanup(){
 }
 
 run_dir_diff() {
-    for dir in "${dirs[@]}"; do
+    for dir in "${all_dirs[@]}"; do
         if [ -d "$dir" ]; then
             echo && echo -e "$dir"
             echo "----------------------------------"
@@ -130,7 +137,7 @@ run_dir_diff() {
 }
 
 run_copy_files() {
-    for dir in "${dirs[@]}"; do
+    for dir in "${main_dirs[@]}"; do
         if [ -d "$dir" ]; then
             echo && echo -e "$dir"
             echo "----------------------------------"
@@ -148,7 +155,7 @@ run_copy_files() {
 run_delete_files() {
     read -p "Delete all template files? (y/n): " yn
     if [[ $yn == [Yy] ]]; then
-        for dir in "${dirs[@]}"; do
+        for dir in "${main_dirs[@]}"; do
             if [ -d "$dir" ]; then
                 echo && echo -e "$dir"
                 echo "----------------------------------"
@@ -171,7 +178,7 @@ run_delete_files() {
 
 run_terraform_plan() {
     clear
-    for dir in "${dirs[@]}"; do
+    for dir in "${all_dirs[@]}"; do
         if [ -d "$dir" ]; then
             echo && echo -e "$dir"
             echo "----------------------------------"
@@ -188,7 +195,7 @@ run_terraform_plan() {
 
 run_terraform_validate() {
     clear
-    for dir in "${dirs[@]}"; do
+    for dir in "${all_dirs[@]}"; do
         if [ -d "$dir" ]; then
             echo && echo -e "$dir"
             echo "----------------------------------"
@@ -207,7 +214,7 @@ run_terraform_cleanup() {
     read -p "Delete terraform state? (y/n): " yn
     if [[ $yn == [Yy] ]]; then
         clear
-        for dir in "${dirs[@]}"; do
+        for dir in "${all_dirs[@]}"; do
             if [ -d "$dir" ]; then
                 echo && echo -e "$dir"
                 echo "----------------------------------"
