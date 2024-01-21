@@ -133,7 +133,7 @@ locals {
         { name = "ip-config", public_ip_address_name = azurerm_public_ip.hub1_p2s_vpngw_pip.name },
       ]
       vpn_client_configuration = {
-        address_space = ["172.16.0.0/24"]
+        address_space = ["192.168.0.0/24"]
         clients = [
           { name = "client1" },
           { name = "client2" },

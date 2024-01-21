@@ -25,6 +25,8 @@ resource "random_id" "random" {
   byte_length = 2
 }
 
+data "azurerm_subscription" "current" {}
+
 ####################################################
 # providers
 ####################################################

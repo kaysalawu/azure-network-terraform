@@ -169,14 +169,14 @@ locals {
 locals {
   branch1_prefix        = local.prefix == "" ? "branch1-" : join("-", [local.prefix, "branch1-"])
   branch1_location      = local.region1
-  branch1_address_space = ["10.10.0.0/16", ]
+  branch1_address_space = ["10.10.0.0/16", "192.168.0.0/16", ]
   branch1_nva_asn       = "65001"
   branch1_dns_zone      = "branch1.${local.onprem_domain}"
   branch1_subnets = {
     ("MainSubnet")       = { address_prefixes = ["10.10.0.0/24"] }
     ("UntrustSubnet")    = { address_prefixes = ["10.10.1.0/24"] }
-    ("ManagementSubnet") = { address_prefixes = ["10.10.2.0/24"] }
-    ("TrustSubnet")      = { address_prefixes = ["10.10.3.0/24"] }
+    ("TrustSubnet")      = { address_prefixes = ["192.168.0.0/24"] }
+    ("ManagementSubnet") = { address_prefixes = ["10.10.3.0/24"] }
     ("DnsServerSubnet")  = { address_prefixes = ["10.10.4.0/24"] }
     ("GatewaySubnet")    = { address_prefixes = ["10.10.5.0/24"] }
   }
@@ -184,7 +184,7 @@ locals {
   branch1_trust_default_gw   = cidrhost(local.branch1_subnets["TrustSubnet"].address_prefixes[0], 1)
   branch1_nva_untrust_addr   = cidrhost(local.branch1_subnets["UntrustSubnet"].address_prefixes[0], 9)
   branch1_nva_trust_addr     = cidrhost(local.branch1_subnets["TrustSubnet"].address_prefixes[0], 9)
-  branch1_vm_addr            = cidrhost(local.branch1_subnets["MainSubnet"].address_prefixes[0], 5)
+  branch1_vm_addr            = cidrhost(local.branch1_subnets["TrustSubnet"].address_prefixes[0], 5)
   branch1_dns_addr           = cidrhost(local.branch1_subnets["MainSubnet"].address_prefixes[0], 6)
   branch1_nva_loopback0      = "192.168.10.10"
   branch1_nva_tun_range0     = "10.10.10.0/30"
@@ -209,8 +209,8 @@ locals {
   branch2_subnets = {
     ("MainSubnet")       = { address_prefixes = ["10.20.0.0/24"] }
     ("UntrustSubnet")    = { address_prefixes = ["10.20.1.0/24"] }
-    ("ManagementSubnet") = { address_prefixes = ["10.20.2.0/24"] }
-    ("TrustSubnet")      = { address_prefixes = ["10.20.3.0/24"] }
+    ("TrustSubnet")      = { address_prefixes = ["10.20.2.0/24"] }
+    ("ManagementSubnet") = { address_prefixes = ["10.20.3.0/24"] }
     ("DnsServerSubnet")  = { address_prefixes = ["10.20.4.0/24"] }
     ("GatewaySubnet")    = { address_prefixes = ["10.20.5.0/24"] }
   }
@@ -273,8 +273,8 @@ locals {
   spoke1_dns_zone      = "spoke1.we.${local.cloud_domain}"
   spoke1_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.1.0.0/24"] }
-    ("TrustSubnet")              = { address_prefixes = ["10.1.1.0/24"] }
-    ("UntrustSubnet")            = { address_prefixes = ["10.1.2.0/24"] }
+    ("UntrustSubnet")            = { address_prefixes = ["10.1.1.0/24"] }
+    ("TrustSubnet")              = { address_prefixes = ["10.1.2.0/24"] }
     ("ManagementSubnet")         = { address_prefixes = ["10.1.3.0/24"] }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.1.4.0/24"] }
     ("LoadBalancerSubnet")       = { address_prefixes = ["10.1.5.0/24"] }
@@ -302,8 +302,8 @@ locals {
   spoke2_dns_zone      = "spoke2.we.${local.cloud_domain}"
   spoke2_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.2.0.0/24"] }
-    ("TrustSubnet")              = { address_prefixes = ["10.2.1.0/24"] }
-    ("UntrustSubnet")            = { address_prefixes = ["10.2.2.0/24"] }
+    ("UnrustSubnet")             = { address_prefixes = ["10.2.1.0/24"] }
+    ("TrustSubnet")              = { address_prefixes = ["10.2.2.0/24"] }
     ("ManagementSubnet")         = { address_prefixes = ["10.2.3.0/24"] }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.2.4.0/24"] }
     ("LoadBalancerSubnet")       = { address_prefixes = ["10.2.5.0/24"] }
@@ -331,8 +331,8 @@ locals {
   spoke3_dns_zone      = "spoke3.we.${local.cloud_domain}"
   spoke3_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.3.0.0/24"] }
-    ("TrustSubnet")              = { address_prefixes = ["10.3.1.0/24"] }
-    ("UntrustSubnet")            = { address_prefixes = ["10.3.2.0/24"] }
+    ("UntrustSubnet")            = { address_prefixes = ["10.3.1.0/24"] }
+    ("TrustSubnet")              = { address_prefixes = ["10.3.2.0/24"] }
     ("ManagementSubnet")         = { address_prefixes = ["10.3.3.0/24"] }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.3.4.0/24"] }
     ("LoadBalancerSubnet")       = { address_prefixes = ["10.3.5.0/24"] }
@@ -360,8 +360,8 @@ locals {
   spoke4_dns_zone      = "spoke4.ne.${local.cloud_domain}"
   spoke4_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.4.0.0/24"] }
-    ("TrustSubnet")              = { address_prefixes = ["10.4.1.0/24"] }
-    ("UntrustSubnet")            = { address_prefixes = ["10.4.2.0/24"] }
+    ("UntrustSubnet")            = { address_prefixes = ["10.4.1.0/24"] }
+    ("TrustSubnet")              = { address_prefixes = ["10.4.2.0/24"] }
     ("ManagementSubnet")         = { address_prefixes = ["10.4.3.0/24"] }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.4.4.0/24"] }
     ("LoadBalancerSubnet")       = { address_prefixes = ["10.4.5.0/24"] }
@@ -389,8 +389,8 @@ locals {
   spoke5_dns_zone      = "spoke5.ne.${local.cloud_domain}"
   spoke5_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.5.0.0/24"] }
-    ("TrustSubnet")              = { address_prefixes = ["10.5.1.0/24"] }
-    ("UntrustSubnet")            = { address_prefixes = ["10.5.2.0/24"] }
+    ("UntrustSubnet")            = { address_prefixes = ["10.5.1.0/24"] }
+    ("TrustSubnet")              = { address_prefixes = ["10.5.2.0/24"] }
     ("ManagementSubnet")         = { address_prefixes = ["10.5.3.0/24"] }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.5.4.0/24"] }
     ("LoadBalancerSubnet")       = { address_prefixes = ["10.5.5.0/24"] }
@@ -418,8 +418,8 @@ locals {
   spoke6_dns_zone      = "spoke6.ne.${local.cloud_domain}"
   spoke6_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.6.0.0/24"] }
-    ("TrustSubnet")              = { address_prefixes = ["10.6.1.0/24"] }
-    ("UntrustSubnet")            = { address_prefixes = ["10.6.2.0/24"] }
+    ("UntrustSubnet")            = { address_prefixes = ["10.6.1.0/24"] }
+    ("TrustSubnet")              = { address_prefixes = ["10.6.2.0/24"] }
     ("ManagementSubnet")         = { address_prefixes = ["10.6.3.0/24"] }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.6.4.0/24"] }
     ("LoadBalancerSubnet")       = { address_prefixes = ["10.6.5.0/24"] }

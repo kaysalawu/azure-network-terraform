@@ -61,19 +61,21 @@ locals {
   init_dir_local = "../../scripts/init/${local.app_name}"
   app_dir_local  = "../../scripts/init/${local.app_name}/app/app"
   init_vars = {
-    INIT_DIR         = local.init_dir
-    APP_NAME         = local.app_name
-    USER_ASSIGNED_ID = azurerm_user_assigned_identity.machine.id
+    INIT_DIR            = local.init_dir
+    APP_NAME            = local.app_name
+    USER_ASSIGNED_ID    = azurerm_user_assigned_identity.machine.id
+    RESOURCE_GROUP_NAME = azurerm_resource_group.rg.name
+    VPN_GATEWAY_NAME    = module.hub1.p2s_vpngw.name
   }
   vm_p2s_init_files = {
-    "${local.init_dir}/docker-compose.yml"   = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/docker-compose.yml", local.init_vars) }
-    "${local.init_dir}/start.sh"             = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/start.sh", local.init_vars) }
-    "${local.init_dir}/stop.sh"              = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/stop.sh", local.init_vars) }
-    "${local.init_dir}/service.sh"           = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/service.sh", local.init_vars) }
-    "${local.init_dir}/tools.sh"             = { owner = "root", permissions = "0744", content = local.server_scripts }
-    "${local.init_dir}/client-config-gen.sh" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/p2s/client-config-gen.sh", local.init_vars) }
-    "${local.init_dir}/client1_cert.pem"     = { owner = "root", permissions = "0400", content = trimspace(module.hub1.p2s_client_certificates_cert_pem["client1"]) }
-    "${local.init_dir}/client1_key.pem"      = { owner = "root", permissions = "0400", content = trimspace(module.hub1.p2s_client_certificates_private_key_pem["client1"]) }
+    "${local.init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/docker-compose.yml", local.init_vars) }
+    "${local.init_dir}/start.sh"           = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/start.sh", local.init_vars) }
+    "${local.init_dir}/stop.sh"            = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/stop.sh", local.init_vars) }
+    "${local.init_dir}/service.sh"         = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/service.sh", local.init_vars) }
+    "${local.init_dir}/tools.sh"           = { owner = "root", permissions = "0744", content = local.server_scripts }
+    "${local.init_dir}/client-config.sh"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/p2s/client-config.sh", local.init_vars) }
+    "${local.init_dir}/client1_cert.pem"   = { owner = "root", permissions = "0400", content = trimspace(module.hub1.p2s_client_certificates_cert_pem["client1"]) }
+    "${local.init_dir}/client1_key.pem"    = { owner = "root", permissions = "0400", content = trimspace(module.hub1.p2s_client_certificates_private_key_pem["client1"]) }
 
     "${local.app_dir}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/Dockerfile", local.init_vars) }
     "${local.app_dir}/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/.dockerignore", local.init_vars) }
@@ -102,6 +104,10 @@ module "vm_p2s_init" {
     ". ${local.init_dir}/service.sh",
     ". ${local.init_dir}/tools.sh",
   ]
+}
+
+output "test" {
+  value = module.hub1.p2s_vpngw.name
 }
 
 module "branch1_p2s" {
