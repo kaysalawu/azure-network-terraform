@@ -1,4 +1,14 @@
 
+locals {
+  branch3_vm_init = templatefile("../../scripts/server.sh", {
+    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
+    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
+    ENABLE_TRAFFIC_GEN        = true
+  })
+}
+
 ####################################################
 # vnet
 ####################################################
@@ -192,16 +202,15 @@ locals {
 }
 
 module "branch3_nva" {
-  source         = "../../modules/virtual-machine-linux"
-  resource_group = azurerm_resource_group.rg.name
-  name           = "${local.branch3_prefix}nva"
-  location       = local.branch3_location
-
-  admin_username  = local.username
-  admin_password  = local.password
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = trimsuffix(local.branch3_prefix, "-")
+  name            = "nva"
+  location        = local.branch3_location
   storage_account = module.common.storage_accounts["region2"]
-  source_image    = "cisco-csr-1000v"
   custom_data     = base64encode(local.branch3_nva_init)
+  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
+  source_image    = "cisco-csr-1000v"
 
   enable_ip_forwarding = true
 
@@ -218,21 +227,12 @@ module "branch3_nva" {
       private_ip_address = local.branch3_nva_trust_addr
     },
   ]
+  depends_on = [module.branch3]
 }
 
 ####################################################
 # workload
 ####################################################
-
-locals {
-  branch3_vm_init = templatefile("../../scripts/server.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
-    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
-    ENABLE_TRAFFIC_GEN        = true
-  })
-}
 
 module "branch3_vm" {
   source           = "../../modules/linux"
@@ -246,7 +246,7 @@ module "branch3_vm" {
   source_image     = "ubuntu-20"
   dns_servers      = [local.branch3_dns_addr, ]
   custom_data      = base64encode(local.branch1_vm_init)
-  storage_account  = module.common.storage_accounts["region1"]
+  storage_account  = module.common.storage_accounts["region2"]
   delay_creation   = "60s"
   tags             = local.branch3_tags
 
@@ -276,8 +276,8 @@ module "branch3_udr_main" {
   disable_bgp_route_propagation = true
   depends_on = [
     module.branch3,
-    module.branch3_nva,
     module.branch3_dns,
+    module.branch3_nva,
   ]
 }
 

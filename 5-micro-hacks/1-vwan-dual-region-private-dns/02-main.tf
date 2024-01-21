@@ -79,14 +79,14 @@ locals {
         #     { ip_address = local.branch2_dns_addr, port = 53 },
         #   ]
         # }
-        # "we" = {
-        #   domain = "we.${local.cloud_domain}"
+        # "eu" = {
+        #   domain = "eu.${local.cloud_domain}"
         #   target_dns_servers = [
         #     { ip_address = local.shared1_dns_in_addr, port = 53 },
         #   ]
         # }
-        # "ne" = {
-        #   domain = "ne.${local.cloud_domain}"
+        # "us" = {
+        #   domain = "us.${local.cloud_domain}"
         #   target_dns_servers = [
         #     { ip_address = local.shared2_dns_in_addr, port = 53 },
         #   ]
@@ -116,14 +116,14 @@ locals {
         #     { ip_address = local.branch1_dns_addr, port = 53 },
         #   ]
         # }
-        # "we" = {
-        #   domain = "we.${local.cloud_domain}"
+        # "eu" = {
+        #   domain = "eu.${local.cloud_domain}"
         #   target_dns_servers = [
         #     { ip_address = local.shared1_dns_in_addr, port = 53 },
         #   ]
         # }
-        # "ne" = {
-        #   domain = "ne.${local.cloud_domain}"
+        # "us" = {
+        #   domain = "us.${local.cloud_domain}"
         #   target_dns_servers = [
         #     { ip_address = local.shared2_dns_in_addr, port = 53 },
         #   ]

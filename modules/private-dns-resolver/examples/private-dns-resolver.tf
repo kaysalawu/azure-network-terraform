@@ -25,13 +25,13 @@ module "dns_resolver" {
       ]
     }
     "hub1-zones" = {
-      domain = "we.${local.cloud_domain}"
+      domain = "eu.${local.cloud_domain}"
       target_dns_servers = [
         { ip_address = "10.11.1.4", port = 53 },
       ]
     }
     "hub2-zones" = {
-      domain = "ne.${local.cloud_domain}"
+      domain = "us.${local.cloud_domain}"
       target_dns_servers = [
         { ip_address = "10.22.1.4", port = 53 },
       ]

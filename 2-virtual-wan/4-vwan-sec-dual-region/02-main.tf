@@ -101,13 +101,13 @@ locals {
           ]
         }
         "eu" = {
-          domain = "eu.${local.cloud_domain}"
+          domain = "${local.region1_code}.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
         }
         "us" = {
-          domain = "us.${local.cloud_domain}"
+          domain = "${local.region2_code}.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub2_dns_in_addr, port = 53 },
           ]
@@ -184,13 +184,13 @@ locals {
           ]
         }
         "eu" = {
-          domain = "eu.${local.cloud_domain}"
+          domain = "${local.region1_code}.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
         }
         "us" = {
-          domain = "us.${local.cloud_domain}"
+          domain = "${local.region2_code}.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub2_dns_in_addr, port = 53 },
           ]
