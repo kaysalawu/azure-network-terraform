@@ -9,9 +9,9 @@
 ../../0-templates/avnm/06-conn-hub1-azfw.tf
 ../../0-templates/avnm/06-conn-hub2-azfw.tf
 ../../0-templates/avnm/06-conn-interhub-azfw.tf
-../../0-templates/services-region1.tf
-../../0-templates/services-region2.tf
-../../0-templates/outputs-dual-region.tf
-../../0-templates/svc-nm-global.tf
+../../0-templates/services/svc-region1.tf
+../../0-templates/services/svc-region2.tf
+../../0-templates/outputs/outputs-dual-region.tf
+../../0-templates/avnm/svc-nm-global.tf
 ../../0-templates/avnm/svc-nm-hubspoke-region1.tf
 ../../0-templates/avnm/svc-nm-hubspoke-region2.tf
