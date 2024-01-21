@@ -40,12 +40,12 @@ locals {
         APPS_URL    = try(module.spoke3_apps.url, "")
         SUBNETS     = try({ for k, v in module.spoke3.subnets : k => v.address_prefixes[0] }, "")
       }
-      branch1 = {
-        VNET_NAME   = try(module.branch1.vnet.name, "")
-        VNET_RANGES = try(join(", ", module.branch1.vnet.address_space), "")
-        VM_NAME     = try(module.branch1_vm.vm.name, "")
-        VM_IP       = try(module.branch1_vm.vm.private_ip_address, "")
-        SUBNETS     = try({ for k, v in module.branch1.subnets : k => v.address_prefixes[0] }, "")
+      branch2 = {
+        VNET_NAME   = try(module.branch2.vnet.name, "")
+        VNET_RANGES = try(join(", ", module.branch2.vnet.address_space), "")
+        VM_NAME     = try(module.branch2_vm.vm.name, "")
+        VM_IP       = try(module.branch2_vm.vm.private_ip_address, "")
+        SUBNETS     = try({ for k, v in module.branch2.subnets : k => v.address_prefixes[0] }, "")
       }
     }
   })

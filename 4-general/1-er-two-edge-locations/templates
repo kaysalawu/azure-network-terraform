@@ -1,0 +1,7 @@
+../../0-templates/01-config.tf
+../../0-templates/hub-spoke/03-branch2.tf
+../../0-templates/04-spokes-region1.tf
+../../0-templates/05-hub1.tf
+../../0-templates/hub-spoke/06-conn-hub1-nva.tf
+../../0-templates/services/svc-region1.tf
+../../0-templates/outputs/outputs-single-region.tf

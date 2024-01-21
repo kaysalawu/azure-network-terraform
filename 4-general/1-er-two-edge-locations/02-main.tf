@@ -3,8 +3,16 @@
 ####################################################
 
 locals {
-  prefix           = "Ge41"
-  spoke3_apps_fqdn = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
+  prefix             = "G01"
+  enable_diagnostics = false
+  spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
+
+  hub1_tags    = { "lab" = "Hs13", "nodeType" = "hub" }
+  branch1_tags = { "lab" = "Hs13", "nodeType" = "branch" }
+  branch2_tags = { "lab" = "Hs13", "nodeType" = "branch" }
+  spoke1_tags  = { "lab" = "Hs13", "nodeType" = "spoke" }
+  spoke2_tags  = { "lab" = "Hs13", "nodeType" = "spoke" }
+  spoke3_tags  = { "lab" = "Hs13", "nodeType" = "float" }
 }
 
 resource "random_id" "random" {
@@ -25,7 +33,6 @@ provider "azurerm" {
 provider "azapi" {}
 
 terraform {
-  #required_version = ">= 1.4.6"
   required_providers {
     megaport = {
       source  = "megaport/megaport"
@@ -39,6 +46,22 @@ terraform {
       source = "azure/azapi"
     }
   }
+}
+
+####################################################
+# user assigned identity
+####################################################
+
+resource "azurerm_user_assigned_identity" "machine" {
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = local.default_region
+  name                = "${local.prefix}-user"
+}
+
+resource "azurerm_role_assignment" "machine" {
+  role_definition_name = "Contributor"
+  principal_id         = azurerm_user_assigned_identity.machine.principal_id
+  scope                = data.azurerm_subscription.current.id
 }
 
 ####################################################
@@ -79,7 +102,7 @@ locals {
           ]
         }
         "eu" = {
-          domain = "eu.${local.cloud_domain}"
+          domain = "${local.region1_code}.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
@@ -93,30 +116,50 @@ locals {
       }
     }
 
-    config_vpngw = {
-      enable = false
-      sku    = "VpnGw1AZ"
+    config_s2s_vpngw = {
+      enable             = true
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
       bgp_settings = {
         asn = local.hub1_vpngw_asn
       }
     }
 
+    config_p2s_vpngw = {
+      enable             = false
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
+      ip_configuration = [
+        # { name = "ip-config", public_ip_address_name = azurerm_public_ip.hub1_p2s_vpngw_pip.name },
+      ]
+      vpn_client_configuration = {
+        address_space = ["192.168.0.0/24"]
+        clients = [
+          # { name = "client1" },
+          # { name = "client2" },
+        ]
+      }
+    }
+
     config_ergw = {
-      enable = true
-      sku    = "ErGw1AZ"
+      enable             = true
+      sku                = "ErGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
     }
 
     config_firewall = {
       enable             = false
       firewall_sku       = local.firewall_sku
       firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
+      enable_diagnostics = local.enable_diagnostics
     }
 
     config_nva = {
-      enable           = true
-      type             = "linux"
-      internal_lb_addr = local.hub1_nva_ilb_addr
-      custom_data      = base64encode(local.hub1_linux_nva_init)
+      enable             = true
+      type               = "linux"
+      internal_lb_addr   = local.hub1_nva_ilb_addr
+      custom_data        = base64encode(local.hub1_linux_nva_init)
+      enable_diagnostics = local.enable_diagnostics
     }
   }
 }
@@ -195,13 +238,20 @@ locals {
     local.vm_script_targets_misc,
   )
   vm_startup = templatefile("../../scripts/server.sh", {
+    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
     ENABLE_TRAFFIC_GEN        = false
   })
-
-  onprem_dns_vars = {
+  tools = templatefile("../../scripts/tools.sh", {
+    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = []
+    TARGETS_HEAVY_TRAFFIC_GEN = []
+    ENABLE_TRAFFIC_GEN        = false
+  })
+  branch_dns_vars = {
     ONPREM_LOCAL_RECORDS = local.onprem_local_records
     REDIRECTED_HOSTS     = local.onprem_redirected_hosts
     FORWARD_ZONES        = local.onprem_forward_zones
@@ -214,16 +264,13 @@ locals {
       ]
     )
   }
-  branch_unbound_conf         = templatefile("../../scripts/unbound/unbound.conf", local.onprem_dns_vars)
-  branch_unbound_startup      = templatefile("../../scripts/unbound/unbound.sh", local.onprem_dns_vars)
-  branch_dnsmasq_startup      = templatefile("../../scripts/dnsmasq/dnsmasq.sh", local.onprem_dns_vars)
-  branch_dnsmasq_cloud_config = templatefile("../../scripts/dnsmasq/cloud-config", local.onprem_dns_vars)
-  branch_unbound_cloud_config = templatefile("../../scripts/unbound/cloud-config", local.onprem_dns_vars)
-  branch_onprem_dns_vars = {
-    ONPREM_LOCAL_RECORDS = local.onprem_local_records
-    REDIRECTED_HOSTS     = local.onprem_redirected_hosts
-    FORWARD_ZONES        = local.onprem_forward_zones
-    TARGETS              = local.vm_script_targets
+  branch_unbound_startup = templatefile("../../scripts/unbound/unbound.sh", local.branch_dns_vars)
+  branch_dns_init_dir    = "/var/lib/labs"
+  branch_unbound_init = {
+    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/Dockerfile", {}) }
+    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
+    "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.conf", local.branch_dns_vars) }
+    "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.log", local.branch_dns_vars) }
   }
   onprem_local_records = [
     { name = (local.branch1_vm_fqdn), record = local.branch1_vm_addr },
@@ -243,26 +290,17 @@ locals {
   onprem_redirected_hosts = []
 }
 
-module "unbound" {
+module "branch_unbound_init" {
   source   = "../../modules/cloud-config-gen"
-  packages = ["tcpdump", "dnsutils", "net-tools", "unbound"]
-  files = {
-    "/var/log/unbound"          = { owner = "root", permissions = "0755", content = "" }
-    "/etc/unbound/unbound.conf" = { owner = "root", permissions = "0640", content = local.branch_unbound_conf }
-  }
+  packages = ["docker.io", "docker-compose", "dnsutils", "net-tools", ]
+  files    = local.branch_unbound_init
   run_commands = [
+    "systemctl stop systemd-resolved",
+    "systemctl disable systemd-resolved",
+    "echo \"nameserver 8.8.8.8\" > /etc/resolv.conf",
     "systemctl restart unbound",
     "systemctl enable unbound",
-  ]
-}
-
-module "dnsmasq" {
-  source   = "../../modules/cloud-config-gen"
-  packages = ["dnsmasq"]
-  files    = {}
-  run_commands = [
-    "systemctl restart dnsmasq",
-    "systemctl enable dnsmasq",
+    "docker-compose -f ${local.branch_dns_init_dir}/docker-compose.yml up -d",
   ]
 }
 
@@ -275,6 +313,8 @@ module "dnsmasq" {
 ####################################################
 # addresses
 ####################################################
+
+# branch1
 
 resource "azurerm_public_ip" "branch1_nva_pip" {
   resource_group_name = azurerm_resource_group.rg.name
@@ -301,8 +341,7 @@ resource "azurerm_firewall_policy" "firewall_policy" {
   private_ip_ranges = concat(
     local.private_prefixes,
     [
-      #"${local.spoke3_vm_public_ip}/32",
-      #"${local.spoke6_vm_public_ip}/32",
+      local.internet_proxy,
     ]
   )
 
@@ -347,11 +386,9 @@ module "fw_policy_rule_collection_group" {
 
 locals {
   hub1_nva_vars = {
-    LOCAL_ASN = local.hub1_nva_asn
-    LOOPBACK0 = local.hub1_nva_loopback0
-    LOOPBACKS = {
-      Loopback1 = local.hub1_nva_ilb_addr
-    }
+    LOCAL_ASN   = local.hub1_nva_asn
+    LOOPBACK0   = local.hub1_nva_loopback0
+    LOOPBACKS   = { Loopback1 = local.hub1_nva_ilb_addr }
     CRYPTO_ADDR = local.hub1_nva_trust_addr
     VPN_PSK     = local.psk
   }
