@@ -90,6 +90,10 @@ resource "azurerm_virtual_network_gateway" "this" {
   active_active       = false
   tags                = var.tags
 
+  custom_route {
+    address_prefixes = var.custom_route_address_prefixes
+  }
+
   dynamic "ip_configuration" {
     for_each = var.ip_configuration
     content {

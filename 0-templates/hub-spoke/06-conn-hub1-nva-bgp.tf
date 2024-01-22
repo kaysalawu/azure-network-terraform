@@ -44,7 +44,7 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke1_peering" {
 # main
 
 module "spoke1_udr_main" {
-  source                 = "../../modules/udr"
+  source                 = "../../modules/route"
   resource_group         = azurerm_resource_group.rg.name
   prefix                 = "${local.spoke1_prefix}main"
   location               = local.spoke1_location
@@ -105,7 +105,7 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke2_peering" {
 # main
 
 module "spoke2_udr_main" {
-  source                 = "../../modules/udr"
+  source                 = "../../modules/route"
   resource_group         = azurerm_resource_group.rg.name
   prefix                 = "${local.spoke2_prefix}main"
   location               = local.spoke2_location
@@ -233,7 +233,7 @@ module "hub1_nva" {
 # gateway
 
 module "hub1_udr_gateway" {
-  source                 = "../../modules/udr"
+  source                 = "../../modules/route"
   resource_group         = azurerm_resource_group.rg.name
   prefix                 = "${local.hub1_prefix}gateway"
   location               = local.hub1_location
@@ -247,7 +247,7 @@ module "hub1_udr_gateway" {
 # main
 
 module "hub1_udr_main" {
-  source                 = "../../modules/udr"
+  source                 = "../../modules/route"
   resource_group         = azurerm_resource_group.rg.name
   prefix                 = "${local.hub1_prefix}main"
   location               = local.hub1_location

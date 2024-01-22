@@ -1,7 +1,16 @@
 #!/bin/bash
 
-export RESOURCE_GROUP_NAME=${RESOURCE_GROUP_NAME}
-export VPN_GATEWAY_NAME=${VPN_GATEWAY_NAME}
+if [ "$1" == "-h" ] || [ "$1" == "--helper" ]; then
+    echo "Usage: $0 RESOURCE_GROUP_NAME VPN_GATEWAY_NAME"
+    exit 0
+fi
+
+if [ $# -eq 2 ]; then
+    RESOURCE_GROUP_NAME=$1
+    VPN_GATEWAY_NAME=$2
+else
+    source .env
+fi
 
 curl $(az network vnet-gateway vpn-client generate \
 --resource-group $RESOURCE_GROUP_NAME \

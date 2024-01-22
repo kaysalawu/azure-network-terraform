@@ -108,3 +108,9 @@ variable "cert_password" {
   type        = string
   default     = "Password123"
 }
+
+variable "custom_route_address_prefixes" {
+  description = "custom route address prefixes for vnet gateway"
+  type        = list(string)
+  default     = []
+}

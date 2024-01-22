@@ -103,6 +103,8 @@ module "vm_p2s_init" {
   run_commands = [
     ". ${local.init_dir}/service.sh",
     ". ${local.init_dir}/tools.sh",
+    "echo 'RESOURCE_GROUP_NAME=${azurerm_resource_group.rg.name}' >> ${local.init_dir}/.env",
+    "echo 'VPN_GATEWAY_NAME=${module.hub1.p2s_vpngw.name}' >> ${local.init_dir}/.env",
   ]
 }
 
@@ -169,7 +171,7 @@ module "branch1_vm" {
 # main
 
 module "branch1_udr_main" {
-  source                        = "../../modules/udr"
+  source                        = "../../modules/route"
   resource_group                = azurerm_resource_group.rg.name
   prefix                        = "${local.branch1_prefix}main"
   location                      = local.branch1_location

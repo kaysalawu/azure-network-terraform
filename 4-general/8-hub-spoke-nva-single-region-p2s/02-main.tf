@@ -139,6 +139,7 @@ locals {
           { name = "client2" },
         ]
       }
+      custom_route_address_prefixes = ["8.8.8.8/32"]
     }
 
     config_ergw = {

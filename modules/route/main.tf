@@ -38,6 +38,6 @@ resource "azurerm_route" "this" {
   route_table_name       = azurerm_route_table.this.name
   address_prefix         = each.value
   next_hop_type          = var.next_hop_type
-  next_hop_in_ip_address = var.next_hop_in_ip_address
+  next_hop_in_ip_address = var.next_hop_in_ip_address == null ? null : var.next_hop_in_ip_address
   depends_on             = [time_sleep.this]
 }

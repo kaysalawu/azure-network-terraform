@@ -79,3 +79,24 @@ module "hub1_vm" {
   depends_on = [module.hub1]
 }
 
+####################################################
+# udr
+####################################################
+
+# main
+
+# module "hub1_udr_main" {
+#   source                        = "../../modules/route"
+#   resource_group                = azurerm_resource_group.rg.name
+#   prefix                        = "${local.hub1_prefix}main"
+#   location                      = local.hub1_location
+#   subnet_id                     = module.hub1.subnets["MainSubnet"].id
+#   next_hop_type                 = "VirtualAppliance"
+#   next_hop_in_ip_address        = local.hub1_nva_trust_addr
+#   destinations                  = { "ps2-lan" = "192.168.0.0/24" }
+#   delay_creation                = "90s"
+#   disable_bgp_route_propagation = true
+#   depends_on = [
+#     module.hub1,
+#   ]
+# }

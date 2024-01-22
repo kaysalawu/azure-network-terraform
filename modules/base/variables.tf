@@ -174,6 +174,8 @@ variable "config_p2s_vpngw" {
     create_dashboard   = optional(bool, true)
     enable_diagnostics = optional(bool, false)
 
+    custom_route_address_prefixes = optional(list(string), [])
+
     vpn_client_configuration = optional(object({
       address_space = list(string)
       clients = list(object({

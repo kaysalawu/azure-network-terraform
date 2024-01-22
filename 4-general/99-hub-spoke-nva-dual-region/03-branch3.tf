@@ -252,7 +252,7 @@ module "branch3_vm" {
 # main
 
 module "branch3_udr_main" {
-  source                        = "../../modules/udr"
+  source                        = "../../modules/route"
   resource_group                = azurerm_resource_group.rg.name
   prefix                        = "${local.branch3_prefix}main"
   location                      = local.branch3_location

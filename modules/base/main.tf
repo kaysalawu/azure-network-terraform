@@ -254,6 +254,8 @@ module "p2s_vpngw" {
   subnet_id      = azurerm_subnet.this["GatewaySubnet"].id
   tags           = var.tags
 
+  custom_route_address_prefixes = try(var.config_p2s_vpngw.custom_route_address_prefixes, [])
+
   vpn_client_configuration = {
     address_space = try(var.config_p2s_vpngw.vpn_client_configuration.address_space, ["172.16.0.0/24"])
     clients       = try(var.config_p2s_vpngw.vpn_client_configuration.clients, [])
