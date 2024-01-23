@@ -63,6 +63,10 @@ module "hub1" {
   config_ergw      = local.hub1_features.config_ergw
   config_firewall  = local.hub1_features.config_firewall
   config_nva       = local.hub1_features.config_nva
+
+  depends_on = [
+    module.common,
+  ]
 }
 
 ####################################################

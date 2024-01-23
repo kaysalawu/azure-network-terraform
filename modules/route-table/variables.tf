@@ -21,28 +21,18 @@ variable "subnet_id" {
   type = string
 }
 
-variable "destinations" {
-  type    = map(any)
-  default = {}
-}
-
-variable "next_hop_type" {
-  type    = string
-  default = "VirtualAppliance"
-}
-
-variable "next_hop_in_ip_address" {
-  type    = string
-  default = null
-}
-
 variable "disable_bgp_route_propagation" {
   type    = bool
   default = false
 }
 
-variable "delay_creation" {
-  description = "delay creation of vm by sepcified seconds"
-  type        = string
-  default     = "0s"
+variable "routes" {
+  type = list(object({
+    name                   = string
+    address_prefix         = list(string)
+    next_hop_type          = string
+    next_hop_in_ip_address = optional(string, null)
+    delay_creation         = optional(string, "0s")
+  }))
+  default = []
 }

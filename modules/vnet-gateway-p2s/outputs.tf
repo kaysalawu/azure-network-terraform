@@ -15,7 +15,12 @@ output "gateway" {
 }
 
 output "public_ip" {
-  value = try(azurerm_public_ip.this, null)
+  value = {
+    for v in var.ip_configuration : v.name => try(
+      data.azurerm_public_ip.this[v.name].ip_address,
+      azurerm_public_ip.this[v.name].ip_address
+    )
+  }
 }
 
 output "client_certificates" {

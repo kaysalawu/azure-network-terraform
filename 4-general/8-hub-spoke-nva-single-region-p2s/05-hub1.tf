@@ -71,8 +71,8 @@ module "hub1_vm" {
 
   interfaces = [
     {
-      name             = "untrust"
-      subnet_id        = module.hub1.subnets["UntrustSubnet"].id
+      name             = "main"
+      subnet_id        = module.hub1.subnets["MainSubnet"].id
       create_public_ip = true
     },
   ]
@@ -80,23 +80,30 @@ module "hub1_vm" {
 }
 
 ####################################################
-# udr
+# nva
 ####################################################
 
-# main
+module "hub1_nva" {
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = trimsuffix(local.hub1_prefix, "-")
+  name            = "nva"
+  location        = local.hub1_location
+  storage_account = module.common.storage_accounts["region1"]
+  custom_data     = base64encode(local.hub1_linux_nva_init)
 
-# module "hub1_udr_main" {
-#   source                        = "../../modules/route"
-#   resource_group                = azurerm_resource_group.rg.name
-#   prefix                        = "${local.hub1_prefix}main"
-#   location                      = local.hub1_location
-#   subnet_id                     = module.hub1.subnets["MainSubnet"].id
-#   next_hop_type                 = "VirtualAppliance"
-#   next_hop_in_ip_address        = local.hub1_nva_trust_addr
-#   destinations                  = { "ps2-lan" = "192.168.0.0/24" }
-#   delay_creation                = "90s"
-#   disable_bgp_route_propagation = true
-#   depends_on = [
-#     module.hub1,
-#   ]
-# }
+  enable_ip_forwarding = true
+
+  interfaces = [
+    {
+      name             = "untrust"
+      subnet_id        = module.hub1.subnets["UntrustSubnet"].id
+      create_public_ip = true
+    },
+    {
+      name      = "trust"
+      subnet_id = module.hub1.subnets["TrustSubnet"].id
+    },
+  ]
+  depends_on = [module.hub1]
+}

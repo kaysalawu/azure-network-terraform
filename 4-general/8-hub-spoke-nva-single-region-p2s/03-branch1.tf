@@ -1,32 +1,32 @@
 
 locals {
-  init_dir       = "/var/lib/azure"
-  app_name       = "web"
-  app_dir        = "${local.init_dir}/${local.app_name}"
-  init_dir_local = "../../scripts/init/${local.app_name}"
-  app_dir_local  = "../../scripts/init/${local.app_name}/app/app"
-  init_vars = {
-    INIT_DIR            = local.init_dir
-    APP_NAME            = local.app_name
+  branch1_init_dir       = "/var/lib/azure"
+  branch1_app_name       = "web"
+  branch1_app_dir        = "${local.branch1_init_dir}/${local.branch1_app_name}"
+  branch1_init_dir_local = "../../scripts/init/${local.branch1_app_name}"
+  branch1_app_dir_local  = "../../scripts/init/${local.branch1_app_name}/app/app"
+  branch1_init_vars = {
+    INIT_DIR            = local.branch1_init_dir
+    APP_NAME            = local.branch1_app_name
     USER_ASSIGNED_ID    = azurerm_user_assigned_identity.machine.id
     RESOURCE_GROUP_NAME = azurerm_resource_group.rg.name
     VPN_GATEWAY_NAME    = module.hub1.p2s_vpngw.name
   }
-  vm_p2s_init_files = {
-    "${local.init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/docker-compose.yml", local.init_vars) }
-    "${local.init_dir}/start.sh"           = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/start.sh", local.init_vars) }
-    "${local.init_dir}/stop.sh"            = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/stop.sh", local.init_vars) }
-    "${local.init_dir}/service.sh"         = { owner = "root", permissions = "0744", content = templatefile("${local.init_dir_local}/service.sh", local.init_vars) }
-    "${local.init_dir}/tools.sh"           = { owner = "root", permissions = "0744", content = local.tools }
-    "${local.init_dir}/client-config.sh"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/p2s/client-config.sh", local.init_vars) }
-    "${local.init_dir}/client1_cert.pem"   = { owner = "root", permissions = "0400", content = trimspace(module.hub1.p2s_client_certificates_cert_pem["client1"]) }
-    "${local.init_dir}/client1_key.pem"    = { owner = "root", permissions = "0400", content = trimspace(module.hub1.p2s_client_certificates_private_key_pem["client1"]) }
+  branch1_vm_p2s_init_files = {
+    "${local.branch1_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("${local.branch1_init_dir_local}/docker-compose.yml", local.branch1_init_vars) }
+    "${local.branch1_init_dir}/start.sh"           = { owner = "root", permissions = "0744", content = templatefile("${local.branch1_init_dir_local}/start.sh", local.branch1_init_vars) }
+    "${local.branch1_init_dir}/stop.sh"            = { owner = "root", permissions = "0744", content = templatefile("${local.branch1_init_dir_local}/stop.sh", local.branch1_init_vars) }
+    "${local.branch1_init_dir}/service.sh"         = { owner = "root", permissions = "0744", content = templatefile("${local.branch1_init_dir_local}/service.sh", local.branch1_init_vars) }
+    "${local.branch1_init_dir}/tools.sh"           = { owner = "root", permissions = "0744", content = local.tools }
+    "${local.branch1_init_dir}/client-config.sh"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/p2s/client-config.sh", local.branch1_init_vars) }
+    "${local.branch1_init_dir}/client1_cert.pem"   = { owner = "root", permissions = "0400", content = trimspace(module.hub1.p2s_client_certificates_cert_pem["client1"]) }
+    "${local.branch1_init_dir}/client1_key.pem"    = { owner = "root", permissions = "0400", content = trimspace(module.hub1.p2s_client_certificates_private_key_pem["client1"]) }
 
-    "${local.app_dir}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/Dockerfile", local.init_vars) }
-    "${local.app_dir}/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/.dockerignore", local.init_vars) }
-    "${local.app_dir}/main.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/main.py", local.init_vars) }
-    "${local.app_dir}/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/_app.py", local.init_vars) }
-    "${local.app_dir}/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("${local.app_dir_local}/requirements.txt", local.init_vars) }
+    "${local.branch1_app_dir}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("${local.branch1_app_dir_local}/Dockerfile", local.branch1_init_vars) }
+    "${local.branch1_app_dir}/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("${local.branch1_app_dir_local}/.dockerignore", local.branch1_init_vars) }
+    "${local.branch1_app_dir}/main.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.branch1_app_dir_local}/main.py", local.branch1_init_vars) }
+    "${local.branch1_app_dir}/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.branch1_app_dir_local}/_app.py", local.branch1_init_vars) }
+    "${local.branch1_app_dir}/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("${local.branch1_app_dir_local}/requirements.txt", local.branch1_init_vars) }
   }
   branch1_vm_init = templatefile("../../scripts/server.sh", {
     USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
@@ -94,22 +94,18 @@ module "branch1_dns" {
 
 # cloud-init
 
-module "vm_p2s_init" {
+module "branch1_vm_p2s_init" {
   source = "../../modules/cloud-config-gen"
   packages = [
     "docker.io", "docker-compose",
   ]
-  files = local.vm_p2s_init_files
+  files = local.branch1_vm_p2s_init_files
   run_commands = [
-    ". ${local.init_dir}/service.sh",
-    ". ${local.init_dir}/tools.sh",
-    "echo 'RESOURCE_GROUP_NAME=${azurerm_resource_group.rg.name}' >> ${local.init_dir}/.env",
-    "echo 'VPN_GATEWAY_NAME=${module.hub1.p2s_vpngw.name}' >> ${local.init_dir}/.env",
+    ". ${local.branch1_init_dir}/service.sh",
+    ". ${local.branch1_init_dir}/tools.sh",
+    "echo 'RESOURCE_GROUP_NAME=${azurerm_resource_group.rg.name}' >> ${local.branch1_init_dir}/.env",
+    "echo 'VPN_GATEWAY_NAME=${module.hub1.p2s_vpngw.name}' >> ${local.branch1_init_dir}/.env",
   ]
-}
-
-output "test" {
-  value = module.hub1.p2s_vpngw.name
 }
 
 module "branch1_p2s" {
@@ -119,7 +115,7 @@ module "branch1_p2s" {
   name            = "p2s"
   location        = local.branch1_location
   storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(module.vm_p2s_init.cloud_config)
+  custom_data     = base64encode(module.branch1_vm_p2s_init.cloud_config)
   identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
 
   enable_ip_forwarding = true
@@ -148,7 +144,7 @@ module "branch1_vm" {
   prefix           = local.branch1_prefix
   name             = "vm"
   location         = local.branch1_location
-  subnet           = module.branch1.subnets["TrustSubnet"].id
+  subnet           = module.branch1.subnets["MainSubnet"].id
   private_ip       = local.branch1_vm_addr
   enable_public_ip = true
   source_image     = "ubuntu-20"
@@ -170,20 +166,29 @@ module "branch1_vm" {
 
 # main
 
+locals {
+  branch1_routes_main = [
+    # {
+    #   name                   = "p2s-gw"
+    #   address_prefix         = ["${azurerm_public_ip.hub1_p2s_vpngw_pip.ip_address}/32"]
+    #   next_hop_type          = "VirtualAppliance"
+    #   next_hop_in_ip_address = local.hub1_nva_trust_addr
+    # },
+  ]
+}
+
 module "branch1_udr_main" {
-  source                        = "../../modules/route"
-  resource_group                = azurerm_resource_group.rg.name
-  prefix                        = "${local.branch1_prefix}main"
-  location                      = local.branch1_location
-  subnet_id                     = module.branch1.subnets["MainSubnet"].id
-  next_hop_type                 = "VirtualAppliance"
-  next_hop_in_ip_address        = local.branch1_nva_trust_addr
-  destinations                  = local.private_prefixes_map
-  delay_creation                = "90s"
+  source         = "../../modules/route-table"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = "${local.branch1_prefix}main"
+  location       = local.branch1_location
+  subnet_id      = module.branch1.subnets["MainSubnet"].id
+  routes         = local.branch1_routes_main
+
   disable_bgp_route_propagation = true
   depends_on = [
-    module.branch1,
-    module.branch1_dns,
+    module.branch2,
+    module.branch2_dns,
   ]
 }
 
@@ -193,7 +198,7 @@ module "branch1_udr_main" {
 
 locals {
   branch1_files = {
-    "output/branch1-p2s-client.sh" = module.vm_p2s_init.cloud_config
+    "output/branch1-p2s-client.sh" = module.branch1_vm_p2s_init.cloud_config
   }
 }
 

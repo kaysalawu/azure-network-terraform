@@ -92,16 +92,19 @@ module "branch2_vm" {
 
 # main
 
+locals {
+  branch2_routes_main = [
+  ]
+}
+
 module "branch2_udr_main" {
-  source                        = "../../modules/route"
-  resource_group                = azurerm_resource_group.rg.name
-  prefix                        = "${local.branch2_prefix}main"
-  location                      = local.branch2_location
-  subnet_id                     = module.branch2.subnets["MainSubnet"].id
-  next_hop_type                 = "VirtualAppliance"
-  next_hop_in_ip_address        = local.branch2_nva_trust_addr
-  destinations                  = local.private_prefixes_map
-  delay_creation                = "90s"
+  source         = "../../modules/route-table"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = "${local.branch2_prefix}main"
+  location       = local.branch2_location
+  subnet_id      = module.branch2.subnets["MainSubnet"].id
+  routes         = local.branch2_routes_main
+
   disable_bgp_route_propagation = true
   depends_on = [
     module.branch2,
@@ -119,8 +122,8 @@ locals {
   }
 }
 
-resource "local_file" "branch1_files" {
-  for_each = local.branch1_files
+resource "local_file" "branch2_files" {
+  for_each = local.branch2_files
   filename = each.key
   content  = each.value
 }

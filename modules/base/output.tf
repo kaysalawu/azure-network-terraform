@@ -101,12 +101,8 @@ output "p2s_vpngw" {
   value = try(module.p2s_vpngw[0].gateway, {})
 }
 
-output "p2s_vpngw_public_ip0" {
-  value = try(module.p2s_vpngw[0].public_ip0, {})
-}
-
-output "p2s_vpngw_public_ip1" {
-  value = try(module.p2s_vpngw[0].public_ip1, {})
+output "p2s_vpngw_public_ip" {
+  value = try(module.p2s_vpngw[0].public_ip, {})
 }
 
 output "p2s_client_certificates" {

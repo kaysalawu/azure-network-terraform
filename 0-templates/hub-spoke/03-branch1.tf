@@ -263,16 +263,25 @@ module "branch1_vm" {
 
 # main
 
+locals {
+  branch1_routes_main = [
+    {
+      name                   = "private"
+      address_prefix         = local.private_prefixes
+      next_hop_type          = "VirtualAppliance"
+      next_hop_in_ip_address = local.branch1_nva_trust_addr
+    },
+  ]
+}
+
 module "branch1_udr_main" {
-  source                        = "../../modules/route"
-  resource_group                = azurerm_resource_group.rg.name
-  prefix                        = "${local.branch1_prefix}main"
-  location                      = local.branch1_location
-  subnet_id                     = module.branch1.subnets["MainSubnet"].id
-  next_hop_type                 = "VirtualAppliance"
-  next_hop_in_ip_address        = local.branch1_nva_trust_addr
-  destinations                  = local.private_prefixes_map
-  delay_creation                = "90s"
+  source         = "../../modules/route"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = "${local.branch1_prefix}main"
+  location       = local.branch1_location
+  subnet_id      = module.branch1.subnets["MainSubnet"].id
+  routes         = local.branch1_routes_main
+
   disable_bgp_route_propagation = true
   depends_on = [
     module.branch1,

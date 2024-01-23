@@ -48,12 +48,12 @@ write_files:
       echo "ps aux | grep "[o]penvpn""
       ps aux | grep "[o]penvpn"
       
-  - path: /var/lib/azure/client1_cert.pem
+  - path: /var/lib/azure/client2_cert.pem
     owner: root
     permissions: 0400
     content: |
       -----BEGIN CERTIFICATE-----
-      MIIEIDCCAwigAwIBAgIRANkFCo8FNQKZ+8Juzjkw8SAwDQYJKoZIhvcNAQELBQAw
+      MIIEIDCCAwigAwIBAgIRAL6X8yshjG2H58gyvrEYRrYwDQYJKoZIhvcNAQELBQAw
       gY4xCzAJBgNVBAYTAlVLMRAwDgYDVQQIEwdFbmdsYW5kMQ8wDQYDVQQHEwZMb25k
       b24xGjAYBgNVBAkTEW1wbHMgY2hpY2tlbiByb2FkMQ0wCwYDVQQKEwRkZW1vMRsw
       GQYDVQQLExJjbG91ZCBuZXR3b3JrIHRlYW0xFDASBgNVBAMTC3Aycy1yb290LWNh
@@ -61,52 +61,52 @@ write_files:
       MRAwDgYDVQQIEwdFbmdsYW5kMQ8wDQYDVQQHEwZMb25kb24xNTAWBgNVBAkTDyBu
       ZXR3b3JrIGF2ZW51ZTAbBgNVBAkTFDk5IG1wbHMgY2hpY2tlbiByb2FkMRMwEQYD
       VQQKEwpuZXR3b3JraW5nMRUwEwYDVQQLEwxuZXR3b3JrIHRlYW0xEDAOBgNVBAMT
-      B2NsaWVudDEwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCtAtyf0bVr
-      Vz7USUFyg2IUTyGt4MRjOwaVVjueHyNeXPxYYaV7t2evouNfcu0bGKaapdyVYhQh
-      cxWTgEismNHHPSPp6qs2VIEylAG49DKbzVJtBo0bmAF/bDqiSXSKUkJ/oa2dgKS8
-      QIPYh/GTRTN/R/Dw+oOh5VuBgQpBWhujiajg6Ck2Xoan1wnYgtqb7/fMbEeuPGJv
-      HtwUzAHPG9v9MIVjgR/IEdgSH3QhJIaP9Srv2mpZKRX/XaFBoZpYYp+1JRvDjOmP
-      wfKUXF9znlMZ3N8x8FLlzRmKLi5NaCID0x4q975i9jAtKDQr9qXM5iPtVYBj774g
-      QpWgnCOglX0xAgMBAAGjYDBeMA4GA1UdDwEB/wQEAwIFoDAdBgNVHSUEFjAUBggr
+      B2NsaWVudDIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCw4iu1fD7L
+      PMCI3ekPI738AuTikQUYiTZZRF34UIQA2sVjFVANzof1oVmaNCLItwl6HDiNu8DJ
+      ew+Wct43LOcFe4PBCDrWpCv9a1sJJ/eXQh/RP9MQSTnaz+kBWTFonopSMYwpGOLb
+      nbttkzGgM1WFPTgVO9AbHiS0bP6duFB99BGZ7+Z5X5b4D2YaqUZm+jgNRDD7YTRK
+      3gcrFAL51iGQzlEp9zWKxkRRT+MwHZz1otQs1CueL01wT2EoS6yL2BbwM8GgSlgW
+      K27RN9EQZtLmgvv9xv6is3XWlgXUgypoLN1WhtmyaF4zYst4l8RT7KXgapVl3LF6
+      NmjeZdzEpwl3AgMBAAGjYDBeMA4GA1UdDwEB/wQEAwIFoDAdBgNVHSUEFjAUBggr
       BgEFBQcDAQYIKwYBBQUHAwIwDAYDVR0TAQH/BAIwADAfBgNVHSMEGDAWgBR8qbX4
-      WCEdHfxnohkQOLC1SEgrmTANBgkqhkiG9w0BAQsFAAOCAQEAiSP7XiM4SY2lHXMC
-      8qkMiOJk1aloDvn5smMRZVOqvVhIYHc0ERKoHUvJu5M/BF3TAkhCRQS33ptXD5vn
-      eWkX3/AmxZzMpHFjNXbf75tWNNf2WkqWOrFJcinu7KJ/wv9Dh/njg7odWBHuXspq
-      f1w3P8tzqY/1scevbaiRIwtIv9hHCO47LlX5c/j7mkKSX0Dyboqh4oA/vDzTYHJL
-      0Smsmkf5V1QDjQost/38ukVnn9+7L+dnwMbfH+43sZ91D2iG0Mpb1BU1GKFMJqX0
-      skebnK99b1gsAKJn7Zw8XyaEWgyeF9Yjaa7sqTcb3d1EAhd2wwlT2eCviwPHl/Jb
-      968JPA==
+      WCEdHfxnohkQOLC1SEgrmTANBgkqhkiG9w0BAQsFAAOCAQEAtDdTgf9Y8FAVbtBC
+      ffnHTYCiHmbR35K0TITME3mnfWmhkw2u4Ujp0BTdp26RHTjQv+rs2mbvTCNnQtZp
+      b6lL62Ne44PhkOZMfwZyzh2WrWNEwkVyVMTxRsYGqOrOQP1BRGOAkU28Zy3lTY9g
+      kiQ6g3/0o4HrIhDCVenAZaEZibdQeJla4yNZvaJnXtvuyHF6LW+sj2ORAmRMEtBX
+      FdMNM6fd9o7Y0Ndy8jhkytF/olfFV4uQxUt/mvmod3zZfH+VYRskc2wVwOEG5bbd
+      UmgxFh+MAgxcxkezAjzgWTzxHu73BnuhnG/tB4EijO5R+0JVSM6uKBFaclFrRg/q
+      SMFAgQ==
       -----END CERTIFICATE-----
-  - path: /var/lib/azure/client1_key.pem
+  - path: /var/lib/azure/client2_key.pem
     owner: root
     permissions: 0400
     content: |
       -----BEGIN RSA PRIVATE KEY-----
-      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
+      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
       -----END RSA PRIVATE KEY-----
   - path: /var/lib/azure/docker-compose.yml
     owner: root
@@ -573,3 +573,4 @@ runcmd:
   - . /var/lib/azure/tools.sh
   - echo 'RESOURCE_GROUP_NAME=G08RG' >> /var/lib/azure/.env
   - echo 'VPN_GATEWAY_NAME=G08-hub1-vpngw' >> /var/lib/azure/.env
+  - echo 'VPN_GATEWAY_IP=40.67.248.94' >> /var/lib/azure/.env

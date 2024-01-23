@@ -5,9 +5,10 @@ if [ "$1" == "-h" ] || [ "$1" == "--helper" ]; then
     exit 0
 fi
 
-if [ $# -eq 2 ]; then
+if [ $# -eq 3 ]; then
     RESOURCE_GROUP_NAME=$1
     VPN_GATEWAY_NAME=$2
+    VPN_GATEWAY_IP=$3
 else
     source .env
 fi
@@ -24,6 +25,9 @@ VPN_CLIENT_KEY=$(awk '{printf "%s\\n", $0}' ./*_key.pem)
 
 sed -i "s~\$CLIENTCERTIFICATE~$VPN_CLIENT_CERT~" "./vpnClient/OpenVPN/vpnconfig.ovpn"
 sed -i "s~\$PRIVATEKEY~$VPN_CLIENT_KEY~g" "./vpnClient/OpenVPN/vpnconfig.ovpn"
+if [ -n "$VPN_GATEWAY_IP" ]; then
+    sed -i "s/remote .* 443/remote $VPN_GATEWAY_IP 443/g" ./vpnClient/OpenVPN/vpnconfig.ovpn
+fi
 
 echo "sudo openvpn --config ./vpnClient/OpenVPN/vpnconfig.ovpn"
 sudo openvpn --config ./vpnClient/OpenVPN/vpnconfig.ovpn &

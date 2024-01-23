@@ -10,6 +10,7 @@ locals {
   hub1_tags    = { "lab" = "Hs13", "nodeType" = "hub" }
   branch1_tags = { "lab" = "Hs13", "nodeType" = "branch" }
   branch2_tags = { "lab" = "Hs13", "nodeType" = "branch" }
+  branch3_tags = { "lab" = "Hs13", "nodeType" = "branch" }
   spoke1_tags  = { "lab" = "Hs13", "nodeType" = "spoke" }
   spoke2_tags  = { "lab" = "Hs13", "nodeType" = "spoke" }
   spoke3_tags  = { "lab" = "Hs13", "nodeType" = "float" }
@@ -409,8 +410,11 @@ locals {
     VPN_PSK     = local.psk
   }
   hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
-    TARGETS           = local.vm_script_targets
-    IPTABLES_RULES    = []
+    TARGETS = local.vm_script_targets
+    IPTABLES_RULES = [
+      "sudo iptables -t nat -A PREROUTING -i eth1 -j DNAT --to-destination ${azurerm_public_ip.hub1_p2s_vpngw_pip.ip_address}",
+      "sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE",
+    ]
     ROUTE_MAPS        = []
     TUNNELS           = []
     QUAGGA_ZEBRA_CONF = ""

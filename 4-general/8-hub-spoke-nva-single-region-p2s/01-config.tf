@@ -3,12 +3,15 @@
 
 #----------------------------
 locals {
-  region1  = "eastus"
-  region2  = "northeurope"
   username = "azureuser"
   password = "Password123"
   vmsize   = "Standard_DS1_v2"
   psk      = "changeme"
+
+  region1      = "northeurope"
+  region2      = "eastus"
+  region1_code = "eu"
+  region2_code = "us"
 
   bgp_apipa_range1 = "169.254.21.0/30"
   bgp_apipa_range2 = "169.254.21.4/30"
@@ -81,11 +84,11 @@ locals {
       "ingress-static" = "10.11.80.0/24"
     }
   }
-  hub1_dns_zone = "hub1.we.${local.cloud_domain}"
+  hub1_dns_zone = "hub1.${local.region1_code}.${local.cloud_domain}"
   hub1_subnets = {
     ("MainSubnet")                    = { address_prefixes = ["10.11.0.0/24"] }
-    ("TrustSubnet")                   = { address_prefixes = ["10.11.1.0/24"] }
-    ("UntrustSubnet")                 = { address_prefixes = ["10.11.2.0/24"] }
+    ("UntrustSubnet")                 = { address_prefixes = ["10.11.1.0/24"] }
+    ("TrustSubnet")                   = { address_prefixes = ["10.11.2.0/24"] }
     ("ManagementSubnet")              = { address_prefixes = ["10.11.3.0/24"] }
     ("AppGatewaySubnet")              = { address_prefixes = ["10.11.4.0/24"] }
     ("LoadBalancerSubnet")            = { address_prefixes = ["10.11.5.0/24"] }
@@ -126,11 +129,11 @@ locals {
   hub2_prefix        = local.prefix == "" ? "hub2-" : join("-", [local.prefix, "hub2-"])
   hub2_location      = local.region2
   hub2_address_space = ["10.22.0.0/16", ]
-  hub2_dns_zone      = "hub2.ne.${local.cloud_domain}"
+  hub2_dns_zone      = "hub2.${local.region2_code}.${local.cloud_domain}"
   hub2_subnets = {
     ("MainSubnet")                    = { address_prefixes = ["10.22.0.0/24"] }
-    ("TrustSubnet")                   = { address_prefixes = ["10.22.1.0/24"] }
-    ("UntrustSubnet")                 = { address_prefixes = ["10.22.2.0/24"] }
+    ("UntrustSubnet")                 = { address_prefixes = ["10.22.1.0/24"] }
+    ("TrustSubnet")                   = { address_prefixes = ["10.22.2.0/24"] }
     ("ManagementSubnet")              = { address_prefixes = ["10.22.3.0/24"] }
     ("AppGatewaySubnet")              = { address_prefixes = ["10.22.4.0/24"] }
     ("LoadBalancerSubnet")            = { address_prefixes = ["10.22.5.0/24"] }
@@ -169,11 +172,11 @@ locals {
 locals {
   branch1_prefix        = local.prefix == "" ? "branch1-" : join("-", [local.prefix, "branch1-"])
   branch1_location      = local.region1
-  branch1_address_space = ["10.10.0.0/16", "192.168.0.0/16", ]
+  branch1_address_space = ["10.10.0.0/16", ]
   branch1_nva_asn       = "65001"
   branch1_dns_zone      = "branch1.${local.onprem_domain}"
   branch1_subnets = {
-    ("MainSubnet")       = { address_prefixes = ["192.168.0.128/25"] }
+    ("MainSubnet")       = { address_prefixes = ["10.10.0.0/24"] }
     ("UntrustSubnet")    = { address_prefixes = ["10.10.1.0/24"] }
     ("TrustSubnet")      = { address_prefixes = ["10.10.2.0/24"] }
     ("ManagementSubnet") = { address_prefixes = ["10.10.3.0/24"] }
@@ -184,7 +187,7 @@ locals {
   branch1_trust_default_gw   = cidrhost(local.branch1_subnets["TrustSubnet"].address_prefixes[0], 1)
   branch1_nva_untrust_addr   = cidrhost(local.branch1_subnets["UntrustSubnet"].address_prefixes[0], 9)
   branch1_nva_trust_addr     = cidrhost(local.branch1_subnets["TrustSubnet"].address_prefixes[0], 9)
-  branch1_vm_addr            = cidrhost(local.branch1_subnets["TrustSubnet"].address_prefixes[0], 5)
+  branch1_vm_addr            = cidrhost(local.branch1_subnets["MainSubnet"].address_prefixes[0], 5)
   branch1_dns_addr           = cidrhost(local.branch1_subnets["MainSubnet"].address_prefixes[0], 6)
   branch1_nva_loopback0      = "192.168.10.10"
   branch1_nva_tun_range0     = "10.10.10.0/30"
@@ -270,7 +273,7 @@ locals {
   spoke1_prefix        = local.prefix == "" ? "spoke1-" : join("-", [local.prefix, "spoke1-"])
   spoke1_location      = local.region1
   spoke1_address_space = ["10.1.0.0/16"]
-  spoke1_dns_zone      = "spoke1.we.${local.cloud_domain}"
+  spoke1_dns_zone      = "spoke1.${local.region1_code}.${local.cloud_domain}"
   spoke1_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.1.0.0/24"] }
     ("UntrustSubnet")            = { address_prefixes = ["10.1.1.0/24"] }
@@ -299,10 +302,10 @@ locals {
   spoke2_prefix        = local.prefix == "" ? "spoke2-" : join("-", [local.prefix, "spoke2-"])
   spoke2_location      = local.region1
   spoke2_address_space = ["10.2.0.0/16"]
-  spoke2_dns_zone      = "spoke2.we.${local.cloud_domain}"
+  spoke2_dns_zone      = "spoke2.${local.region1_code}.${local.cloud_domain}"
   spoke2_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.2.0.0/24"] }
-    ("UnrustSubnet")             = { address_prefixes = ["10.2.1.0/24"] }
+    ("UntrustSubnet")            = { address_prefixes = ["10.2.1.0/24"] }
     ("TrustSubnet")              = { address_prefixes = ["10.2.2.0/24"] }
     ("ManagementSubnet")         = { address_prefixes = ["10.2.3.0/24"] }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.2.4.0/24"] }
@@ -328,7 +331,7 @@ locals {
   spoke3_prefix        = local.prefix == "" ? "spoke3-" : join("-", [local.prefix, "spoke3-"])
   spoke3_location      = local.region1
   spoke3_address_space = ["10.3.0.0/16", ]
-  spoke3_dns_zone      = "spoke3.we.${local.cloud_domain}"
+  spoke3_dns_zone      = "spoke3.${local.region1_code}.${local.cloud_domain}"
   spoke3_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.3.0.0/24"] }
     ("UntrustSubnet")            = { address_prefixes = ["10.3.1.0/24"] }
@@ -357,7 +360,7 @@ locals {
   spoke4_prefix        = local.prefix == "" ? "spoke4-" : join("-", [local.prefix, "spoke4-"])
   spoke4_location      = local.region2
   spoke4_address_space = ["10.4.0.0/16", ]
-  spoke4_dns_zone      = "spoke4.ne.${local.cloud_domain}"
+  spoke4_dns_zone      = "spoke4.${local.region2_code}.${local.cloud_domain}"
   spoke4_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.4.0.0/24"] }
     ("UntrustSubnet")            = { address_prefixes = ["10.4.1.0/24"] }
@@ -386,7 +389,7 @@ locals {
   spoke5_prefix        = local.prefix == "" ? "spoke5-" : join("-", [local.prefix, "spoke5-"])
   spoke5_location      = local.region2
   spoke5_address_space = ["10.5.0.0/16", ]
-  spoke5_dns_zone      = "spoke5.ne.${local.cloud_domain}"
+  spoke5_dns_zone      = "spoke5.${local.region2_code}.${local.cloud_domain}"
   spoke5_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.5.0.0/24"] }
     ("UntrustSubnet")            = { address_prefixes = ["10.5.1.0/24"] }
@@ -415,7 +418,7 @@ locals {
   spoke6_prefix        = local.prefix == "" ? "spoke6-" : join("-", [local.prefix, "spoke6-"])
   spoke6_location      = local.region2
   spoke6_address_space = ["10.6.0.0/16", ]
-  spoke6_dns_zone      = "spoke6.ne.${local.cloud_domain}"
+  spoke6_dns_zone      = "spoke6.${local.region2_code}.${local.cloud_domain}"
   spoke6_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.6.0.0/24"] }
     ("UntrustSubnet")            = { address_prefixes = ["10.6.1.0/24"] }

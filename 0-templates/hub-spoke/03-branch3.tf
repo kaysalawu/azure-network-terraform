@@ -22,7 +22,7 @@ module "branch3" {
   prefix          = trimsuffix(local.branch3_prefix, "-")
   location        = local.branch3_location
   storage_account = module.common.storage_accounts["region2"]
-  tags            = local.branch1_tags
+  tags            = local.branch3_tags
 
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region2"].id
@@ -245,7 +245,7 @@ module "branch3_vm" {
   enable_public_ip = true
   source_image     = "ubuntu-20"
   dns_servers      = [local.branch3_dns_addr, ]
-  custom_data      = base64encode(local.branch1_vm_init)
+  custom_data      = base64encode(local.branch3_vm_init)
   storage_account  = module.common.storage_accounts["region2"]
   delay_creation   = "60s"
   tags             = local.branch3_tags
@@ -263,16 +263,25 @@ module "branch3_vm" {
 
 # main
 
+locals {
+  branch3_routes_main = [
+    {
+      name                   = "private"
+      address_prefix         = local.private_prefixes
+      next_hop_type          = "VirtualAppliance"
+      next_hop_in_ip_address = local.branch3_nva_trust_addr
+    },
+  ]
+}
+
 module "branch3_udr_main" {
-  source                        = "../../modules/route"
-  resource_group                = azurerm_resource_group.rg.name
-  prefix                        = "${local.branch3_prefix}main"
-  location                      = local.branch3_location
-  subnet_id                     = module.branch3.subnets["MainSubnet"].id
-  next_hop_type                 = "VirtualAppliance"
-  next_hop_in_ip_address        = local.branch3_nva_trust_addr
-  destinations                  = local.private_prefixes_map
-  delay_creation                = "90s"
+  source         = "../../modules/route"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = "${local.branch3_prefix}main"
+  location       = local.branch3_location
+  subnet_id      = module.branch3.subnets["MainSubnet"].id
+  routes         = local.branch3_routes_main
+
   disable_bgp_route_propagation = true
   depends_on = [
     module.branch3,

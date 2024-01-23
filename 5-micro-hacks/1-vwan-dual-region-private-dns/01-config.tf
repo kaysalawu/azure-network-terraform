@@ -84,8 +84,8 @@ locals {
   shared1_dns_zone = "shared1.eu.${local.cloud_domain}"
   shared1_subnets = {
     ("MainSubnet")                    = { address_prefixes = ["10.11.0.0/24"] }
-    ("TrustSubnet")                   = { address_prefixes = ["10.11.1.0/24"] }
-    ("UntrustSubnet")                 = { address_prefixes = ["10.11.2.0/24"] }
+    ("UntrustSubnet")                 = { address_prefixes = ["10.11.1.0/24"] }
+    ("TrustSubnet")                   = { address_prefixes = ["10.11.2.0/24"] }
     ("ManagementSubnet")              = { address_prefixes = ["10.11.3.0/24"] }
     ("AppGatewaySubnet")              = { address_prefixes = ["10.11.4.0/24"] }
     ("LoadBalancerSubnet")            = { address_prefixes = ["10.11.5.0/24"] }
@@ -126,8 +126,8 @@ locals {
   shared2_dns_zone      = "shared2.us.${local.cloud_domain}"
   shared2_subnets = {
     ("MainSubnet")                    = { address_prefixes = ["10.22.0.0/24"] }
-    ("TrustSubnet")                   = { address_prefixes = ["10.22.1.0/24"] }
-    ("UntrustSubnet")                 = { address_prefixes = ["10.22.2.0/24"] }
+    ("UntrustSubnet")                 = { address_prefixes = ["10.22.1.0/24"] }
+    ("TrustSubnet")                   = { address_prefixes = ["10.22.2.0/24"] }
     ("ManagementSubnet")              = { address_prefixes = ["10.22.3.0/24"] }
     ("AppGatewaySubnet")              = { address_prefixes = ["10.22.4.0/24"] }
     ("LoadBalancerSubnet")            = { address_prefixes = ["10.22.5.0/24"] }
