@@ -35,7 +35,7 @@ resource "azurerm_virtual_network_peering" "hub2_to_hub1_peering" {
 # hub1
 
 module "hub1_udr_appliance" {
-  source                 = "../../modules/route"
+  source                 = "../../modules/route-table"
   resource_group         = azurerm_resource_group.rg.name
   prefix                 = "${local.hub1_prefix}azfw"
   location               = local.hub1_location
@@ -49,7 +49,7 @@ module "hub1_udr_appliance" {
 # hub2
 
 module "hub2_udr_applicance" {
-  source                 = "../../modules/route"
+  source                 = "../../modules/route-table"
   resource_group         = azurerm_resource_group.rg.name
   prefix                 = "${local.hub2_prefix}azfw"
   location               = local.hub2_location

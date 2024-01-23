@@ -36,6 +36,12 @@ module "branch2" {
     subnets       = local.branch2_subnets
   }
 
+  config_ergw = {
+    enable             = true
+    sku                = "ErGw1AZ"
+    enable_diagnostics = local.enable_diagnostics
+  }
+
   depends_on = [
     module.common,
   ]

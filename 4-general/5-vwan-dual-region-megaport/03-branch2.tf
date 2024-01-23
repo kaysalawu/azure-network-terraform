@@ -1,4 +1,14 @@
 
+locals {
+  branch2_vm_init = templatefile("../../scripts/server.sh", {
+    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
+    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
+    ENABLE_TRAFFIC_GEN        = true
+  })
+}
+
 ####################################################
 # vnet
 ####################################################
@@ -60,15 +70,6 @@ module "branch2_dns" {
 # workload
 ####################################################
 
-locals {
-  branch2_vm_init = templatefile("../../scripts/server.sh", {
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
-    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
-    ENABLE_TRAFFIC_GEN        = true
-  })
-}
-
 module "branch2_vm" {
   source           = "../../modules/linux"
   resource_group   = azurerm_resource_group.rg.name
@@ -85,6 +86,32 @@ module "branch2_vm" {
   delay_creation   = "60s"
   tags             = local.branch2_tags
 
+  depends_on = [
+    module.branch2,
+    module.branch2_dns,
+  ]
+}
+
+####################################################
+# udr
+####################################################
+
+# main
+
+locals {
+  branch2_routes_main = [
+  ]
+}
+
+module "branch2_udr_main" {
+  source         = "../../modules/route-table"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = "${local.branch2_prefix}main"
+  location       = local.branch2_location
+  subnet_id      = module.branch2.subnets["MainSubnet"].id
+  routes         = local.branch2_routes_main
+
+  disable_bgp_route_propagation = true
   depends_on = [
     module.branch2,
     module.branch2_dns,

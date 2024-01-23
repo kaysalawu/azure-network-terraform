@@ -10,17 +10,21 @@ proposal AZURE-IKE-PROPOSAL
 match address local 10.30.1.9
 !
 crypto ikev2 keyring AZURE-KEYRING
-peer 20.105.41.196
-address 20.105.41.196
+peer 52.226.239.138
+address 52.226.239.138
 pre-shared-key changeme
-peer 20.105.41.112
-address 20.105.41.112
+peer 20.232.74.141
+address 20.232.74.141
+pre-shared-key changeme
+peer 10.10.1.9
+address 10.10.1.9
 pre-shared-key changeme
 !
 crypto ikev2 profile AZURE-IKE-PROPOSAL
 match address local 10.30.1.9
-match identity remote address 20.105.41.196 255.255.255.255
-match identity remote address 20.105.41.112 255.255.255.255
+match identity remote address 52.226.239.138 255.255.255.255
+match identity remote address 20.232.74.141 255.255.255.255
+match identity remote address 10.10.1.9 255.255.255.255
 authentication remote pre-share
 authentication local pre-share
 keyring local AZURE-KEYRING
@@ -40,7 +44,7 @@ ip address 10.30.30.1 255.255.255.252
 tunnel mode ipsec ipv4
 ip tcp adjust-mss 1350
 tunnel source 10.30.1.9
-tunnel destination 20.105.41.196
+tunnel destination 52.226.239.138
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
 interface Tunnel1
@@ -48,20 +52,41 @@ ip address 10.30.30.5 255.255.255.252
 tunnel mode ipsec ipv4
 ip tcp adjust-mss 1350
 tunnel source 10.30.1.9
-tunnel destination 20.105.41.112
+tunnel destination 20.232.74.141
+tunnel protection ipsec profile AZURE-IPSEC-PROFILE
+!
+interface Tunnel2
+ip address 10.30.30.9 255.255.255.252
+tunnel mode ipsec ipv4
+ip tcp adjust-mss 1350
+tunnel source 10.30.1.9
+tunnel destination 10.10.1.9
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
 interface Loopback0
 ip address 192.168.30.30 255.255.255.255
 !
+ip access-list extended NAT-ACL
+permit ip 10.0.0.0 0.255.255.255 any
+permit ip 172.16.0.0 0.15.255.255 any
+permit ip 192.168.0.0 0.0.255.255 any
+interface GigabitEthernet1
+ip nat outside
+ip nat inside
+exit
+ip nat inside source list NAT-ACL interface GigabitEthernet1 overload
+!
 ip route 0.0.0.0 0.0.0.0 10.30.1.1
 ip route 192.168.22.13 255.255.255.255 Tunnel0
 ip route 192.168.22.12 255.255.255.255 Tunnel1
+ip route 192.168.10.10 255.255.255.255 Tunnel2
 ip route 10.30.0.0 255.255.255.0 10.30.2.1
 !
-route-map NEXT-HOP permit 100
+route-map ONPREM permit 100
 match ip address prefix-list all
 set as-path prepend 65003 65003 65003
+route-map AZURE permit 110
+match ip address prefix-list all
 !
 router bgp 65003
 bgp router-id 192.168.30.30
@@ -69,8 +94,15 @@ neighbor 192.168.22.13 remote-as 65515
 neighbor 192.168.22.13 ebgp-multihop 255
 neighbor 192.168.22.13 soft-reconfiguration inbound
 neighbor 192.168.22.13 update-source Loopback0
+neighbor 192.168.22.13 route-map AZURE out
 neighbor 192.168.22.12 remote-as 65515
 neighbor 192.168.22.12 ebgp-multihop 255
 neighbor 192.168.22.12 soft-reconfiguration inbound
 neighbor 192.168.22.12 update-source Loopback0
+neighbor 192.168.22.12 route-map AZURE out
+neighbor 192.168.10.10 remote-as 65001
+neighbor 192.168.10.10 ebgp-multihop 255
+neighbor 192.168.10.10 soft-reconfiguration inbound
+neighbor 192.168.10.10 update-source Loopback0
+neighbor 192.168.10.10 route-map ONPREM out
 network 10.30.0.0 mask 255.255.255.0

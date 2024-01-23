@@ -44,7 +44,7 @@ resource "azurerm_virtual_network_peering" "hub2_to_spoke5_peering" {
 # main
 
 module "spoke5_udr_main" {
-  source                        = "../../modules/route"
+  source                        = "../../modules/route-table"
   resource_group                = azurerm_resource_group.rg.name
   prefix                        = "${local.spoke5_prefix}main"
   location                      = local.spoke5_location
@@ -73,7 +73,7 @@ module "spoke5_udr_main" {
 # main
 
 module "hub2_udr_main" {
-  source                        = "../../modules/route"
+  source                        = "../../modules/route-table"
   resource_group                = azurerm_resource_group.rg.name
   prefix                        = "${local.hub2_prefix}main"
   location                      = local.hub2_location

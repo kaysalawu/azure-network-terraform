@@ -264,7 +264,7 @@ module "branch2_vm" {
 # main
 
 module "branch2_udr_main" {
-  source                        = "../../modules/route"
+  source                        = "../../modules/route-table"
   resource_group                = azurerm_resource_group.rg.name
   prefix                        = "${local.branch2_prefix}main"
   location                      = local.branch2_location

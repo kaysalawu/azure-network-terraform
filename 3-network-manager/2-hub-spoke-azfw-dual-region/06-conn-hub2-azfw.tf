@@ -9,7 +9,7 @@
 # main
 
 module "spoke4_udr_main" {
-  source                        = "../../modules/route"
+  source                        = "../../modules/route-table"
   resource_group                = azurerm_resource_group.rg.name
   prefix                        = "${local.spoke4_prefix}main"
   location                      = local.spoke4_location
@@ -37,7 +37,7 @@ module "spoke4_udr_main" {
 # main
 
 module "spoke5_udr_main" {
-  source                        = "../../modules/route"
+  source                        = "../../modules/route-table"
   resource_group                = azurerm_resource_group.rg.name
   prefix                        = "${local.spoke5_prefix}main"
   location                      = local.spoke5_location
@@ -65,7 +65,7 @@ module "spoke5_udr_main" {
 # gateway
 
 module "hub2_udr_gateway" {
-  source                 = "../../modules/route"
+  source                 = "../../modules/route-table"
   resource_group         = azurerm_resource_group.rg.name
   prefix                 = "${local.hub2_prefix}gateway"
   location               = local.hub2_location
@@ -81,7 +81,7 @@ module "hub2_udr_gateway" {
 # main
 
 module "hub2_udr_main" {
-  source                        = "../../modules/route"
+  source                        = "../../modules/route-table"
   resource_group                = azurerm_resource_group.rg.name
   prefix                        = "${local.hub2_prefix}main"
   location                      = local.hub2_location

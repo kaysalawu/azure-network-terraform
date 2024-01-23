@@ -25,6 +25,13 @@ module "hub1" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.hub1_tags
 
+  log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
+  flow_log_nsg_ids = [
+    module.common.nsg_main["region1"].id,
+  ]
+  network_watcher_name           = "NetworkWatcher_${local.region1}"
+  network_watcher_resource_group = "NetworkWatcherRG"
+
   create_private_dns_zone = true
   private_dns_zone_name   = local.hub1_dns_zone
   private_dns_zone_linked_external_vnets = {
@@ -50,11 +57,16 @@ module "hub1" {
     "DnsResolverOutboundSubnet" = module.common.nsg_default["region1"].id
   }
 
-  config_vnet     = local.hub1_features.config_vnet
-  config_vpngw    = local.hub1_features.config_vpngw
-  config_ergw     = local.hub1_features.config_ergw
-  config_firewall = local.hub1_features.config_firewall
-  config_nva      = local.hub1_features.config_nva
+  config_vnet      = local.hub1_features.config_vnet
+  config_s2s_vpngw = local.hub1_features.config_s2s_vpngw
+  config_p2s_vpngw = local.hub1_features.config_p2s_vpngw
+  config_ergw      = local.hub1_features.config_ergw
+  config_firewall  = local.hub1_features.config_firewall
+  config_nva       = local.hub1_features.config_nva
+
+  depends_on = [
+    module.common,
+  ]
 }
 
 ####################################################
@@ -62,17 +74,23 @@ module "hub1" {
 ####################################################
 
 module "hub1_vm" {
-  source                = "../../modules/linux"
-  resource_group        = azurerm_resource_group.rg.name
-  prefix                = local.hub1_prefix
-  name                  = "vm"
-  location              = local.hub1_location
-  subnet                = module.hub1.subnets["MainSubnet"].id
-  private_ip            = local.hub1_vm_addr
-  enable_public_ip      = true
-  custom_data           = base64encode(local.vm_startup)
-  storage_account       = module.common.storage_accounts["region1"]
-  private_dns_zone_name = local.hub1_dns_zone
-  tags                  = local.hub1_tags
-  depends_on            = [module.hub1]
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = trimsuffix(local.hub1_prefix, "-")
+  name            = "vm"
+  location        = local.hub1_location
+  storage_account = module.common.storage_accounts["region1"]
+  custom_data     = base64encode(local.vm_startup)
+  tags            = local.hub1_tags
+
+  enable_ip_forwarding = true
+
+  interfaces = [
+    {
+      name             = "untrust"
+      subnet_id        = module.hub1.subnets["UntrustSubnet"].id
+      create_public_ip = true
+    },
+  ]
+  depends_on = [module.hub1]
 }

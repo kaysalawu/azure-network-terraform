@@ -275,7 +275,7 @@ locals {
 }
 
 module "branch1_udr_main" {
-  source         = "../../modules/route"
+  source         = "../../modules/route-table"
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.branch1_prefix}main"
   location       = local.branch1_location
