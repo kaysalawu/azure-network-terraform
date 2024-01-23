@@ -11,7 +11,7 @@ variable "prefix" {
 }
 
 variable "name" {
-  description = "prefix to append before all resources"
+  description = "virtual machine resource name"
   type        = string
 }
 
@@ -53,16 +53,6 @@ variable "interfaces" {
     public_ip_id       = optional(string, null)
   }))
 }
-
-# variable "subnet_untrust" {
-#   description = "NVA's untrust subnet"
-#   type        = any
-# }
-
-# variable "subnet_trust" {
-#   description = "NVA's trust subnet"
-#   type        = any
-# }
 
 variable "private_ip_untrust" {
   description = "optional static private untrust ip of vm"

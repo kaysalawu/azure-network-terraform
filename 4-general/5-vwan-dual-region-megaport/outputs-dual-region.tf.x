@@ -95,3 +95,4 @@ resource "local_file" "output_files" {
   filename = "output/values.md"
   content  = local.output_values
 }
+

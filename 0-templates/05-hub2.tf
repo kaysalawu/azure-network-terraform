@@ -74,6 +74,7 @@ module "hub2_vm" {
   location        = local.hub2_location
   storage_account = module.common.storage_accounts["region1"]
   custom_data     = base64encode(local.vm_startup)
+  tags            = local.hub2_tags
 
   enable_ip_forwarding = true
 

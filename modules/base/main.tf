@@ -390,30 +390,26 @@ module "azfw" {
 # appliance
 
 module "nva_linux" {
-  count          = var.config_nva.enable && var.config_nva.type == "linux" ? 1 : 0
-  source         = "../../modules/virtual-machine-linux"
-  resource_group = var.resource_group
-  name           = "${local.prefix}nva"
-  location       = var.location
-
+  count           = var.config_nva.enable && var.config_nva.type == "linux" ? 1 : 0
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = var.resource_group
+  name            = "${local.prefix}nva"
+  location        = var.location
   storage_account = var.storage_account
-  admin_username  = var.admin_username
-  admin_password  = var.admin_password
   source_image    = "ubuntu-20"
   custom_data     = var.config_nva.custom_data
-
-  enable_ip_forwarding = true
   #create_dashboard     = false #var.config_nva.create_dashboard
   #enable_diagnostics   = var.config_nva.enable_diagnostics
 
+  enable_ip_forwarding = true
   interfaces = [
     {
-      name             = "untrust"
+      name             = "${local.prefix}untrust"
       subnet_id        = azurerm_subnet.this["UntrustSubnet"].id
       create_public_ip = true
     },
     {
-      name      = "trust"
+      name      = "${local.prefix}trust"
       subnet_id = azurerm_subnet.this["TrustSubnet"].id
     },
   ]
@@ -458,7 +454,7 @@ module "ilb_nva_linux" {
         {
           name               = module.nva_linux[0].vm.name
           virtual_network_id = azurerm_virtual_network.this.id
-          ip_address         = module.nva_linux[0].interfaces["untrust"].ip_configuration[0].private_ip_address
+          ip_address         = module.nva_linux[0].interfaces["${local.prefix}untrust"].ip_configuration[0].private_ip_address
         },
       ]
     }

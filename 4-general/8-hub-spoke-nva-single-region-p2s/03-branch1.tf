@@ -112,22 +112,23 @@ module "client1" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
   prefix          = trimsuffix(local.branch1_prefix, "-")
-  name            = "client1"
+  name            = "${local.branch1_prefix}client1"
   location        = local.branch1_location
   storage_account = module.common.storage_accounts["region1"]
   custom_data     = base64encode(module.branch1_vm_p2s_init.cloud_config)
   identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
+  tags            = local.branch1_tags
 
   enable_ip_forwarding = true
 
   interfaces = [
     {
-      name             = "untrust"
+      name             = "${local.branch1_prefix}untrust"
       subnet_id        = module.branch1.subnets["UntrustSubnet"].id
       create_public_ip = true
     },
     {
-      name      = "trust"
+      name      = "${local.branch1_prefix}trust"
       subnet_id = module.branch1.subnets["TrustSubnet"].id
     },
   ]

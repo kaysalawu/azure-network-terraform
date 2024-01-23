@@ -1,6 +1,6 @@
 # Virtual WAN - Single Region <!-- omit from toc -->
 
-## Lab: Vwan21 <!-- omit from toc -->
+## Lab: G05 <!-- omit from toc -->
 
 Contents
 
@@ -101,15 +101,15 @@ To view the dashboards, follow the steps below:
 
 Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of network reachability tests. Serial console access has been configured for all virtual machines. You can [access the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal) of a virtual machine from the Azure portal.
 
-Login to virtual machine `Vwan21-spoke1-vm` via the serial console:
+Login to virtual machine `G05-spoke1-vm` via the serial console:
 
 - On Azure portal select *Virtual machines*
-- Select the virtual machine `Vwan21-spoke1-vm`
+- Select the virtual machine `G05-spoke1-vm`
 - Under ***Help*** section, select ***Serial console*** and wait for a login prompt
 - Enter the login credentials
   - username = ***azureuser***
   - password = ***Password123***
-- You should now be in a shell session `azureuser@Vwan21-spoke1-vm:~$`
+- You should now be in a shell session `azureuser@G05-spoke1-vm:~$`
 
 Run the following tests from inside the serial console session.
 
@@ -126,7 +126,7 @@ ping-ip
 Sample output
 
 ```sh
-azureuser@Vwan21-spoke1-vm:~$ ping-ip
+azureuser@G05-spoke1-vm:~$ ping-ip
 
  ping ip ...
 
@@ -150,7 +150,7 @@ ping-dns
 Sample output
 
 ```sh
-azureuser@Vwan21-spoke1-vm:~$ ping-dns
+azureuser@G05-spoke1-vm:~$ ping-dns
 
  ping dns ...
 
@@ -174,7 +174,7 @@ curl-dns
 Sample output
 
 ```sh
-azureuser@Vwan21-spoke1-vm:~$ curl-dns
+azureuser@G05-spoke1-vm:~$ curl-dns
 
  curl dns ...
 
@@ -201,14 +201,14 @@ curl spoke3.p.hub1.we.az.corp
 Sample output
 
 ```sh
-azureuser@Vwan21-spoke1-vm:~$ curl spoke3.p.hub1.we.az.corp
+azureuser@G05-spoke1-vm:~$ curl spoke3.p.hub1.we.az.corp
 {
   "Headers": {
     "Accept": "*/*",
     "Host": "spoke3.p.hub1.we.az.corp",
     "User-Agent": "curl/7.68.0"
   },
-  "Hostname": "Vwan21-spoke3-vm",
+  "Hostname": "G05-spoke3-vm",
   "Local-IP": "10.3.0.5",
   "Remote-IP": "10.3.6.4"
 }
@@ -232,7 +232,7 @@ Where ***AAAA*** is a randomly generated two-byte string.
 **5.1.** On your local machine, get the hostname of the app service linked to ***spoke3***
 
 ```sh
-spoke3_apps_url=$(az webapp list --resource-group Vwan21RG --query "[?contains(name, 'vwan21-spoke3')].defaultHostName" -o tsv)
+spoke3_apps_url=$(az webapp list --resource-group G05RG --query "[?contains(name, 'vwan21-spoke3')].defaultHostName" -o tsv)
 ```
 
 **5.2.** Display the hostname
@@ -311,7 +311,7 @@ Observe that we are connecting from our local client's public IP address specifi
 
 **6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `vwan21-spoke3-b6a0.azurewebsites.net`.
 
-**6.2.** Connect to the on-premises server `Vwan21-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Vwan21-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
+**6.2.** Connect to the on-premises server `G05-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `G05-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
 
 **6.3.** Resolve the hostname DNS - which is `vwan21-spoke3-b6a0.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
 
@@ -322,7 +322,7 @@ nslookup vwan21-spoke3-<AAAA>.azurewebsites.net
 Sample output
 
 ```sh
-azureuser@Vwan21-branch1-vm:~$ nslookup vwan21-spoke3-b6a0.azurewebsites.net
+azureuser@G05-branch1-vm:~$ nslookup vwan21-spoke3-b6a0.azurewebsites.net
 
 Server:         127.0.0.53
 Address:        127.0.0.53#53
@@ -333,10 +333,10 @@ Name:   vwan21-spoke3-b6a0-app.privatelink.azurewebsites.net
 Address: 10.11.7.5
 ```
 
-We can see that the app service hostname resolves to the private endpoint ***10.11.7.5*** in ***hub1***. The following is a summary of the DNS resolution from `Vwan21-branch1-vm`:
+We can see that the app service hostname resolves to the private endpoint ***10.11.7.5*** in ***hub1***. The following is a summary of the DNS resolution from `G05-branch1-vm`:
 
-- On-premises server `Vwan21-branch1-vm` makes a DNS request for `vwan21-spoke3-b6a0.azurewebsites.net`
-- The request is received by on-premises DNS server `Vwan21-branch1-dns`
+- On-premises server `G05-branch1-vm` makes a DNS request for `vwan21-spoke3-b6a0.azurewebsites.net`
+- The request is received by on-premises DNS server `G05-branch1-dns`
 - The DNS server resolves `vwan21-spoke3-b6a0.azurewebsites.net` to the CNAME `vwan21-spoke3-b6a0-app.privatelink.azurewebsites.net`
 - The DNS server has a conditional DNS forwarding defined in the [unbound DNS configuration file](./output/branch-unbound.sh).
 
@@ -349,7 +349,7 @@ We can see that the app service hostname resolves to the private endpoint ***10.
   DNS Requests matching `privatelink.azurewebsites.net` will be forwarded to the private DNS resolver inbound endpoint in ***hub1*** (10.11.8.4).
 - The DNS server forwards the DNS request to the private DNS resolver inbound endpoint in ***hub1*** - which returns the IP address of the app service private endpoint in ***hub1*** (10.11.7.5)
 
-**6.4.** From `Vwan21-branch1-vm`, test access to the ***spoke3*** app service via the private endpoint. Use your actual hostname.
+**6.4.** From `G05-branch1-vm`, test access to the ***spoke3*** app service via the private endpoint. Use your actual hostname.
 
 ```sh
 curl vwan21-spoke3-<AAAA>.azurewebsites.net
@@ -358,7 +358,7 @@ curl vwan21-spoke3-<AAAA>.azurewebsites.net
 Sample output
 
 ```sh
-azureuser@Vwan21-branch1-vm:~$ curl vwan21-spoke3-b6a0.azurewebsites.net
+azureuser@G05-branch1-vm:~$ curl vwan21-spoke3-b6a0.azurewebsites.net
 {
   "Headers": {
     "Accept": "*/*",
@@ -382,7 +382,7 @@ azureuser@Vwan21-branch1-vm:~$ curl vwan21-spoke3-b6a0.azurewebsites.net
 }
 ```
 
-Observe that we are connecting from the private IP address of `Vwan21-branch1-vm` (10.10.0.5) specified in the `X-Client-Ip`.
+Observe that we are connecting from the private IP address of `G05-branch1-vm` (10.10.0.5) specified in the `X-Client-Ip`.
 
 ### 7. Virtual WAN Routes
 
@@ -391,17 +391,17 @@ Observe that we are connecting from the private IP address of `Vwan21-branch1-vm
 **7.2.** Display the virtual WAN routing table(s)
 
 ```sh
-sh ../../scripts/_routes.sh Vwan21RG
+sh ../../scripts/_routes.sh G05RG
 ```
 
 Sample output
 
 ```sh
-1-vwan-single-region$ sh ../../scripts/_routes.sh Vwan21RG
+1-vwan-single-region$ sh ../../scripts/_routes.sh G05RG
 
-Resource group: Vwan21RG
+Resource group: G05RG
 
-vHub:       Vwan21-vhub1-hub
+vHub:       G05-vhub1-hub
 RouteTable: defaultRouteTable
 -------------------------------------------------------
 
@@ -416,9 +416,9 @@ AddressPrefixes    NextHopType                 AsPath
 
 ### 8. On-premises Routes
 
-Login to the onprem router `Vwan21-branch1-nva` in order to observe its dynamic routes.
+Login to the onprem router `G05-branch1-nva` in order to observe its dynamic routes.
 
-**8.1.** Login to virtual machine `Vwan21-branch1-nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal).
+**8.1.** Login to virtual machine `G05-branch1-nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal).
 
 **8.2.** Enter username and password
 
@@ -440,7 +440,7 @@ show ip route
 Sample output
 
 ```sh
-Vwan21-branch1-nva-vm#show ip route
+G05-branch1-nva-vm#show ip route
 ...
 [Truncated for brevity]
 ...
@@ -483,7 +483,7 @@ show ip bgp
 Sample output
 
 ```sh
-Vwan21-branch1-nva-vm#show ip bgp
+G05-branch1-nva-vm#show ip bgp
 BGP table version is 6, local router ID is 192.168.10.10
 Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
               r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
@@ -515,21 +515,21 @@ RPKI validation codes: V valid, I invalid, N Not found
 2. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
 
    ```sh
-   bash ../../scripts/_cleanup.sh Vwan21
+   bash ../../scripts/_cleanup.sh G05
    ```
 
    Sample output
 
    ```sh
-   1-vwan-single-region$    bash ../../scripts/_cleanup.sh Vwan21
+   1-vwan-single-region$    bash ../../scripts/_cleanup.sh G05
 
-   Resource group: Vwan21RG
+   Resource group: G05RG
 
-   ⏳ Checking for diagnostic settings on resources in Vwan21RG ...
+   ⏳ Checking for diagnostic settings on resources in G05RG ...
    ➜  Checking firewall ...
    ➜  Checking vnet gateway ...
    ➜  Checking vpn gateway ...
-       ❌ Deleting: diag setting [Vwan21-vhub1-vpngw-diag] for vpn gateway [Vwan21-vhub1-vpngw] ...
+       ❌ Deleting: diag setting [G05-vhub1-vpngw-diag] for vpn gateway [G05-vhub1-vpngw] ...
    ➜  Checking er gateway ...
    ➜  Checking app gateway ...
    Done!
@@ -538,5 +538,5 @@ RPKI validation codes: V valid, I invalid, N Not found
 3. Delete the resource group to remove all resources installed.
 
    ```sh
-   az group delete -g Vwan21RG --no-wait
+   az group delete -g G05RG --no-wait
    ```

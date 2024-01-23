@@ -120,7 +120,7 @@ cat <<EOF > /etc/quagga/bgpd.conf
 log file /var/log/quagga/bgpd.log informational
 !
 router bgp 65010
-  bgp router-id 10.11.2.4
+  bgp router-id 10.11.1.4
   neighbor 192.168.11.69 remote-as 65515
   neighbor 192.168.11.69 ebgp-multihop 255
   neighbor 192.168.11.69 soft-reconfiguration inbound

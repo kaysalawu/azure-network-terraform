@@ -79,9 +79,9 @@ locals {
     region1 = local.region1
     region2 = local.region2
   }
-  default_udr_destinations = {
-    "default" = "0.0.0.0/0"
-  }
+  default_udr_destinations = [
+    "0.0.0.0/0"
+  ]
 
   firewall_sku = "Basic"
 
@@ -585,7 +585,7 @@ locals {
     LOOPBACKS = {
       Loopback1 = local.hub1_nva_ilb_addr
     }
-    CRYPTO_ADDR = local.hub1_nva_trust_addr
+    CRYPTO_ADDR = local.hub1_nva_untrust_addr
     VPN_PSK     = local.psk
   }
   hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
@@ -597,8 +597,8 @@ locals {
         action = "permit"
         rule   = 100
         commands = [
-          "match ip address prefix-list all",
-          "set ip next-hop ${local.hub1_nva_ilb_addr}"
+          # "match ip address prefix-list all",
+          # "set ip next-hop ${local.hub1_nva_ilb_addr}"
         ]
       }
     ]
@@ -663,7 +663,7 @@ locals {
     LOOPBACKS = {
       Loopback1 = local.hub2_nva_ilb_addr
     }
-    CRYPTO_ADDR = local.hub2_nva_trust_addr
+    CRYPTO_ADDR = local.hub2_nva_untrust_addr
     VPN_PSK     = local.psk
   }
   hub2_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub2_nva_vars, {
@@ -675,8 +675,8 @@ locals {
         action = "permit"
         rule   = 100
         commands = [
-          "match ip address prefix-list all",
-          "set ip next-hop ${local.hub2_nva_ilb_addr}"
+          # "match ip address prefix-list all",
+          # "set ip next-hop ${local.hub2_nva_ilb_addr}"
         ]
       }
     ]
