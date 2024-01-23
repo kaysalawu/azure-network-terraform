@@ -138,6 +138,7 @@ locals {
         clients = [
           { name = "client1" },
           { name = "client2" },
+          { name = "client3" },
         ]
       }
       custom_route_address_prefixes = ["8.8.8.8/32"]
@@ -412,7 +413,7 @@ locals {
   hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
     TARGETS = local.vm_script_targets
     IPTABLES_RULES = [
-      "sudo iptables -t nat -A PREROUTING -i eth1 -j DNAT --to-destination ${azurerm_public_ip.hub1_p2s_vpngw_pip.ip_address}",
+      "sudo iptables -t nat -A PREROUTING -i eth1 -d $(ip -4 addr show eth1 | awk '/inet/ {print $2}' | cut -d/ -f1) -j DNAT --to-destination ${azurerm_public_ip.hub1_p2s_vpngw_pip.ip_address}",
       "sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE",
     ]
     ROUTE_MAPS        = []

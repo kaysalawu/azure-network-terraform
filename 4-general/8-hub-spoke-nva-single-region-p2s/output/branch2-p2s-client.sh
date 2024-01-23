@@ -573,4 +573,3 @@ runcmd:
   - . /var/lib/azure/tools.sh
   - echo 'RESOURCE_GROUP_NAME=G08RG' >> /var/lib/azure/.env
   - echo 'VPN_GATEWAY_NAME=G08-hub1-vpngw' >> /var/lib/azure/.env
-  - echo 'VPN_GATEWAY_IP=40.67.248.94' >> /var/lib/azure/.env

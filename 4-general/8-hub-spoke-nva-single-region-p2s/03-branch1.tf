@@ -12,7 +12,7 @@ locals {
     RESOURCE_GROUP_NAME = azurerm_resource_group.rg.name
     VPN_GATEWAY_NAME    = module.hub1.p2s_vpngw.name
   }
-  branch1_vm_p2s_init_files = {
+  client1_init_files = {
     "${local.branch1_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("${local.branch1_init_dir_local}/docker-compose.yml", local.branch1_init_vars) }
     "${local.branch1_init_dir}/start.sh"           = { owner = "root", permissions = "0744", content = templatefile("${local.branch1_init_dir_local}/start.sh", local.branch1_init_vars) }
     "${local.branch1_init_dir}/stop.sh"            = { owner = "root", permissions = "0744", content = templatefile("${local.branch1_init_dir_local}/stop.sh", local.branch1_init_vars) }
@@ -99,7 +99,7 @@ module "branch1_vm_p2s_init" {
   packages = [
     "docker.io", "docker-compose",
   ]
-  files = local.branch1_vm_p2s_init_files
+  files = local.client1_init_files
   run_commands = [
     ". ${local.branch1_init_dir}/service.sh",
     ". ${local.branch1_init_dir}/tools.sh",
@@ -108,11 +108,11 @@ module "branch1_vm_p2s_init" {
   ]
 }
 
-module "branch1_p2s" {
+module "client1" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
   prefix          = trimsuffix(local.branch1_prefix, "-")
-  name            = "p2s"
+  name            = "client1"
   location        = local.branch1_location
   storage_account = module.common.storage_accounts["region1"]
   custom_data     = base64encode(module.branch1_vm_p2s_init.cloud_config)
@@ -187,8 +187,8 @@ module "branch1_udr_main" {
 
   disable_bgp_route_propagation = true
   depends_on = [
-    module.branch2,
-    module.branch2_dns,
+    module.branch1,
+    module.branch1_dns,
   ]
 }
 
