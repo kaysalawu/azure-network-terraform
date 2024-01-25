@@ -64,19 +64,25 @@ locals {
 }
 
 module "spoke4_vm" {
-  source          = "../../modules/linux"
+  source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  prefix          = local.spoke4_prefix
-  name            = "vm"
+  name            = "${local.spoke4_prefix}vm"
+  computer_name   = "vm"
   location        = local.spoke4_location
-  subnet          = module.spoke4.subnets["MainSubnet"].id
-  private_ip      = local.spoke4_vm_addr
-  custom_data     = base64encode(local.spoke4_vm_init)
   storage_account = module.common.storage_accounts["region2"]
-  delay_creation  = "1m"
+  custom_data     = base64encode(local.spoke4_vm_init)
+  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
   tags            = local.spoke4_tags
+
+  interfaces = [
+    {
+      name               = "${local.spoke4_prefix}vm-main-nic"
+      subnet_id          = module.spoke4.subnets["MainSubnet"].id
+      private_ip_address = local.spoke4_vm_addr
+    },
+  ]
   depends_on = [
-    module.spoke4,
+    module.spoke4
   ]
 }
 
@@ -126,20 +132,24 @@ module "spoke5" {
 # workload
 
 module "spoke5_vm" {
-  source          = "../../modules/linux"
+  source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  prefix          = local.spoke5_prefix
-  name            = "vm"
+  name            = "${local.spoke5_prefix}vm"
+  computer_name   = "vm"
   location        = local.spoke5_location
-  subnet          = module.spoke5.subnets["MainSubnet"].id
-  private_ip      = local.spoke5_vm_addr
-  custom_data     = base64encode(local.vm_startup)
   storage_account = module.common.storage_accounts["region2"]
-  delay_creation  = "1m"
+  custom_data     = base64encode(local.vm_startup)
+  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
   tags            = local.spoke5_tags
-  depends_on = [
-    module.spoke5,
+
+  interfaces = [
+    {
+      name               = "${local.spoke5_prefix}vm-main-nic"
+      subnet_id          = module.spoke5.subnets["MainSubnet"].id
+      private_ip_address = local.spoke5_vm_addr
+    },
   ]
+  depends_on = [module.spoke5]
 }
 
 ####################################################
@@ -188,18 +198,23 @@ module "spoke6" {
 # workload
 
 module "spoke6_vm" {
-  source          = "../../modules/linux"
+  source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  prefix          = local.spoke6_prefix
-  name            = "vm"
+  name            = "${local.spoke6_prefix}vm"
+  computer_name   = "vm"
   location        = local.spoke6_location
-  subnet          = module.spoke6.subnets["MainSubnet"].id
-  private_ip      = local.spoke6_vm_addr
-  custom_data     = base64encode(local.vm_startup)
   storage_account = module.common.storage_accounts["region2"]
-  delay_creation  = "1m"
+  custom_data     = base64encode(local.vm_startup)
+  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
   tags            = local.spoke6_tags
-  depends_on = [
-    module.spoke6,
+
+  interfaces = [
+    {
+      name               = "${local.spoke6_prefix}vm-main-nic"
+      subnet_id          = module.spoke6.subnets["MainSubnet"].id
+      private_ip_address = local.spoke6_vm_addr
+    },
   ]
+  depends_on = [module.spoke6]
 }
+

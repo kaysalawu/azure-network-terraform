@@ -36,6 +36,12 @@ module "branch2" {
     subnets       = local.branch2_subnets
   }
 
+  config_ergw = {
+    enable             = true
+    sku                = "ErGw1AZ"
+    enable_diagnostics = local.enable_diagnostics
+  }
+
   depends_on = [
     module.common,
   ]
@@ -46,188 +52,23 @@ module "branch2" {
 ####################################################
 
 module "branch2_dns" {
-  source           = "../../modules/linux"
-  resource_group   = azurerm_resource_group.rg.name
-  prefix           = local.branch2_prefix
-  name             = "dns"
-  location         = local.branch2_location
-  subnet           = module.branch2.subnets["MainSubnet"].id
-  private_ip       = local.branch2_dns_addr
-  enable_public_ip = true
-  source_image     = "ubuntu-20"
-  custom_data      = base64encode(local.branch_unbound_startup)
-  storage_account  = module.common.storage_accounts["region1"]
-  tags             = local.branch2_tags
-}
-
-####################################################
-# nva
-####################################################
-
-locals {
-  branch2_network       = cidrhost(local.branch2_subnets["MainSubnet"].address_prefixes[0], 0)
-  branch2_mask          = cidrnetmask(local.branch2_subnets["MainSubnet"].address_prefixes[0])
-  branch2_inverse_mask_ = [for octet in split(".", local.branch2_mask) : 255 - tonumber(octet)]
-  branch2_inverse_mask  = join(".", local.branch2_inverse_mask_)
-}
-
-# nva
-#----------------------------
-
-locals {
-  branch2_nva_route_map_onprem = "ONPREM"
-  branch2_nva_route_map_azure  = "AZURE"
-  branch2_nva_init = templatefile("../../scripts/cisco-branch.sh", {
-    LOCAL_ASN   = local.branch2_nva_asn
-    LOOPBACK0   = local.branch2_nva_loopback0
-    LOOPBACKS   = {}
-    CRYPTO_ADDR = local.branch2_nva_untrust_addr
-    VPN_PSK     = local.psk
-
-    NAT_ACL_PREFIXES = [
-      { network = local.branch2_network, inverse_mask = local.branch2_inverse_mask }
-    ]
-
-    ROUTE_MAPS = [
-      {
-        name   = local.branch2_nva_route_map_onprem
-        action = "permit"
-        rule   = 100
-        commands = [
-          "match ip address prefix-list all",
-          "set as-path prepend ${local.branch2_nva_asn} ${local.branch2_nva_asn} ${local.branch2_nva_asn}"
-        ]
-      },
-      {
-        name   = local.branch2_nva_route_map_azure
-        action = "permit"
-        rule   = 110
-        commands = [
-          "match ip address prefix-list all",
-        ]
-      }
-    ]
-
-    TUNNELS = [
-      {
-        ike = {
-          name    = "Tunnel0"
-          address = cidrhost(local.branch2_nva_tun_range0, 1)
-          mask    = cidrnetmask(local.branch2_nva_tun_range0)
-          source  = local.branch2_nva_untrust_addr
-          dest    = module.vhub1.vpngw_public_ip0
-        },
-        ipsec = {
-          peer_ip = module.vhub1.vpngw_public_ip0
-          psk     = local.psk
-        }
-      },
-      {
-        ike = {
-          name    = "Tunnel1"
-          address = cidrhost(local.branch2_nva_tun_range1, 1)
-          mask    = cidrnetmask(local.branch2_nva_tun_range1)
-          source  = local.branch2_nva_untrust_addr
-          dest    = module.vhub1.vpngw_public_ip1
-        },
-        ipsec = {
-          peer_ip = module.vhub1.vpngw_public_ip1
-          psk     = local.psk
-        }
-      },
-      {
-        ike = {
-          name    = "Tunnel2"
-          address = cidrhost(local.branch2_nva_tun_range2, 1)
-          mask    = cidrnetmask(local.branch2_nva_tun_range2)
-          source  = local.branch2_nva_untrust_addr
-          dest    = local.branch3_nva_untrust_addr
-        },
-        ipsec = {
-          peer_ip = local.branch3_nva_untrust_addr
-          psk     = local.psk
-        }
-      },
-    ]
-
-    STATIC_ROUTES = [
-      { network = "0.0.0.0", mask = "0.0.0.0", next_hop = local.branch2_untrust_default_gw },
-      { network = module.vhub1.vpngw_bgp_ip0, mask = "255.255.255.255", next_hop = "Tunnel0" },
-      { network = module.vhub1.vpngw_bgp_ip1, mask = "255.255.255.255", next_hop = "Tunnel1" },
-      { network = local.branch3_nva_loopback0, mask = "255.255.255.255", next_hop = "Tunnel2" },
-      {
-        network  = local.branch2_network
-        mask     = local.branch2_mask
-        next_hop = local.branch2_trust_default_gw
-      },
-    ]
-
-    BGP_SESSIONS = [
-      {
-        peer_asn        = module.vhub1.bgp_asn,
-        peer_ip         = module.vhub1.vpngw_bgp_ip0,
-        source_loopback = true
-        ebgp_multihop   = true
-        route_maps = [
-          { direction = "out", name = local.branch2_nva_route_map_azure }
-        ]
-      },
-      {
-        peer_asn        = module.vhub1.bgp_asn
-        peer_ip         = module.vhub1.vpngw_bgp_ip1
-        source_loopback = true
-        ebgp_multihop   = true
-        route_maps = [
-          { direction = "out", name = local.branch2_nva_route_map_azure }
-        ]
-      },
-      {
-        peer_asn        = local.branch3_nva_asn
-        peer_ip         = local.branch3_nva_loopback0
-        source_loopback = true
-        ebgp_multihop   = true
-        route_maps = [
-          { direction = "out", name = local.branch2_nva_route_map_onprem }
-        ]
-      },
-    ]
-
-    BGP_ADVERTISED_NETWORKS = [
-      {
-        network = cidrhost(local.branch2_subnets["MainSubnet"].address_prefixes[0], 0)
-        mask    = cidrnetmask(local.branch2_subnets["MainSubnet"].address_prefixes[0])
-      },
-    ]
-  })
-}
-
-module "branch2_nva" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  prefix          = trimsuffix(local.branch2_prefix, "-")
-  name            = "nva"
+  name            = "${local.branch2_prefix}dns"
   location        = local.branch2_location
   storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(local.branch2_nva_init)
+  custom_data     = base64encode(local.branch_unbound_startup)
   identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
-  source_image    = "cisco-csr-1000v"
-
-  enable_ip_forwarding = true
+  tags            = local.branch2_tags
 
   interfaces = [
     {
-      name               = "untrust"
-      subnet_id          = module.branch2.subnets["UntrustSubnet"].id
-      private_ip_address = local.branch2_nva_untrust_addr
-      public_ip_id       = azurerm_public_ip.branch2_nva_pip.id
-    },
-    {
-      name               = "trust"
-      subnet_id          = module.branch2.subnets["TrustSubnet"].id
-      private_ip_address = local.branch2_nva_trust_addr
+      name               = "${local.branch2_prefix}dns-main"
+      subnet_id          = module.branch2.subnets["MainSubnet"].id
+      private_ip_address = local.branch2_dns_addr
+      create_public_ip   = true
     },
   ]
-  depends_on = [module.branch2]
 }
 
 ####################################################
@@ -235,25 +76,28 @@ module "branch2_nva" {
 ####################################################
 
 module "branch2_vm" {
-  source           = "../../modules/linux"
-  resource_group   = azurerm_resource_group.rg.name
-  prefix           = local.branch2_prefix
-  name             = "vm"
-  location         = local.branch2_location
-  subnet           = module.branch2.subnets["MainSubnet"].id
-  private_ip       = local.branch2_vm_addr
-  enable_public_ip = true
-  source_image     = "ubuntu-20"
-  dns_servers      = [local.branch2_dns_addr, ]
-  custom_data      = base64encode(local.branch2_vm_init)
-  storage_account  = module.common.storage_accounts["region1"]
-  delay_creation   = "60s"
-  tags             = local.branch2_tags
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  name            = "${local.branch2_prefix}vm"
+  computer_name   = "vm"
+  location        = local.branch2_location
+  storage_account = module.common.storage_accounts["region1"]
+  dns_servers     = [local.branch2_dns_addr, ]
+  custom_data     = base64encode(local.branch2_vm_init)
+  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
+  tags            = local.branch2_tags
 
+  interfaces = [
+    {
+      name               = "${local.branch2_prefix}vm-main-nic"
+      subnet_id          = module.branch2.subnets["MainSubnet"].id
+      private_ip_address = local.branch2_vm_addr
+      create_public_ip   = true
+    },
+  ]
   depends_on = [
     module.branch2,
     module.branch2_dns,
-    module.branch2_nva,
   ]
 }
 
@@ -263,21 +107,23 @@ module "branch2_vm" {
 
 # main
 
+locals {
+  branch2_routes_main = [
+  ]
+}
+
 module "branch2_udr_main" {
-  source                        = "../../modules/route-table"
-  resource_group                = azurerm_resource_group.rg.name
-  prefix                        = "${local.branch2_prefix}main"
-  location                      = local.branch2_location
-  subnet_id                     = module.branch2.subnets["MainSubnet"].id
-  next_hop_type                 = "VirtualAppliance"
-  next_hop_in_ip_address        = local.branch2_nva_trust_addr
-  destinations                  = local.private_prefixes_map
-  delay_creation                = "90s"
+  source         = "../../modules/route-table"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = "${local.branch2_prefix}main"
+  location       = local.branch2_location
+  subnet_id      = module.branch2.subnets["MainSubnet"].id
+  routes         = local.branch2_routes_main
+
   disable_bgp_route_propagation = true
   depends_on = [
     module.branch2,
     module.branch2_dns,
-    module.branch2_nva,
   ]
 }
 
@@ -287,7 +133,7 @@ module "branch2_udr_main" {
 
 locals {
   branch2_files = {
-    "output/branch2-nva.sh" = local.branch2_nva_init
+    "output/branch2-vm.sh" = local.branch2_vm_init
   }
 }
 

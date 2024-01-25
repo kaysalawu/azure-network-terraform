@@ -1,5 +1,12 @@
 #! /bin/bash
 
+# disable systemd-resolved as it conflicts with dnsmasq on port 53
+
+systemctl stop systemd-resolved
+systemctl disable systemd-resolved
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+echo "$(hostname -I | cut -d' ' -f1) $(hostname)" >> /etc/hosts
+
 apt update
 apt install -y tcpdump dnsutils net-tools
 apt install -y unbound
@@ -68,8 +75,7 @@ forward-zone:
         forward-addr: 168.63.129.16
 EOF
 
-systemctl stop systemd-resolved
-systemctl disable systemd-resolved
-systemctl restart unbound
 systemctl enable unbound
-
+systemctl restart unbound
+apt install resolvconf
+resolvconf -u

@@ -100,13 +100,13 @@ locals {
             { ip_address = local.branch3_dns_addr, port = 53 },
           ]
         }
-        "eu" = {
+        "${local.region1_code}" = {
           domain = "${local.region1_code}.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
         }
-        "us" = {
+        "${local.region2_code}" = {
           domain = "${local.region2_code}.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub2_dns_in_addr, port = 53 },
@@ -183,13 +183,13 @@ locals {
             { ip_address = local.branch1_dns_addr, port = 53 },
           ]
         }
-        "eu" = {
+        "${local.region1_code}" = {
           domain = "${local.region1_code}.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
         }
-        "us" = {
+        "${local.region2_code}" = {
           domain = "${local.region2_code}.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub2_dns_in_addr, port = 53 },

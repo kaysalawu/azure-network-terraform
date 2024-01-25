@@ -35,14 +35,14 @@ resource "azurerm_public_ip" "this" {
 resource "azurerm_network_interface" "this" {
   for_each             = { for i in var.interfaces : i.name => i }
   resource_group_name  = var.resource_group
-  name                 = "${each.value.name}-nic"
+  name                 = each.value.name
   location             = var.location
   dns_servers          = var.dns_servers
   tags                 = var.tags
   enable_ip_forwarding = var.enable_ip_forwarding
 
   ip_configuration {
-    name                          = "${each.value.name}-nic"
+    name                          = each.value.name
     subnet_id                     = each.value.subnet_id
     private_ip_address_allocation = try(each.value.private_ip_address, null) != null ? "Static" : "Dynamic"
     private_ip_address            = try(each.value.private_ip_address, null) != null ? each.value.private_ip_address : null

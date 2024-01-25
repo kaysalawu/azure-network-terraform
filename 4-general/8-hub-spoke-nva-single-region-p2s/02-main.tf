@@ -6,6 +6,7 @@ locals {
   prefix             = "G08"
   enable_diagnostics = false
   spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
+  p2s_address_space  = ["192.168.0.0/24"]
 
   hub1_tags    = { "lab" = "Hs13", "nodeType" = "hub" }
   branch1_tags = { "lab" = "Hs13", "nodeType" = "branch" }
@@ -102,7 +103,7 @@ locals {
             { ip_address = local.branch1_dns_addr, port = 53 },
           ]
         }
-        "eu" = {
+        "${local.region1_code}" = {
           domain = "eu.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
@@ -134,7 +135,7 @@ locals {
         { name = "ip-config", public_ip_address_name = azurerm_public_ip.hub1_p2s_vpngw_pip.name },
       ]
       vpn_client_configuration = {
-        address_space = ["192.168.0.0/24"]
+        address_space = local.p2s_address_space
         clients = [
           { name = "client1" },
           { name = "client2" },
@@ -145,7 +146,7 @@ locals {
     }
 
     config_ergw = {
-      enable             = false
+      enable             = true
       sku                = "ErGw1AZ"
       enable_diagnostics = local.enable_diagnostics
     }
@@ -225,12 +226,12 @@ locals {
   hub1_ars_asn   = "65515"
 
   vm_script_targets_region1 = [
-    { name = "branch1", dns = local.branch1_vm_fqdn, ip = local.branch1_vm_addr, probe = true },
-    { name = "hub1   ", dns = local.hub1_vm_fqdn, ip = local.hub1_vm_addr, probe = false },
-    { name = "hub1-spoke3-pep", dns = local.hub1_spoke3_pep_fqdn, ping = false, probe = true },
-    { name = "spoke1 ", dns = local.spoke1_vm_fqdn, ip = local.spoke1_vm_addr, probe = true },
-    { name = "spoke2 ", dns = local.spoke2_vm_fqdn, ip = local.spoke2_vm_addr, probe = true },
-    { name = "spoke3 ", dns = local.spoke3_vm_fqdn, ip = local.spoke3_vm_addr, ping = false },
+    { name = "branch1", dns = local.branch1_vm_fqdn, ip = local.branch1_vm_addr },
+    { name = "branch2", dns = local.branch2_vm_fqdn, ip = local.branch2_vm_addr },
+    { name = "hub1   ", dns = local.hub1_vm_fqdn, ip = local.hub1_vm_addr },
+    { name = "client1-p2s", dns = "192.168.0.2", ip = "192.168.0.2" },
+    { name = "client2-p2s", dns = "192.168.0.3", ip = "192.168.0.3" },
+    { name = "client3-p2s", dns = "192.168.0.4", ip = "192.168.0.4" },
   ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ip = "icanhazip.com" },

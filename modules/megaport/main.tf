@@ -47,15 +47,37 @@ resource "azurerm_express_route_circuit_authorization" "this" {
 #----------------------------
 
 resource "azurerm_express_route_circuit_peering" "private" {
-  for_each                      = { for c in var.circuits : c.name => c }
+  for_each                      = { for c in var.circuits : c.name => c if c.peering_type == "AzurePrivatePeering" }
   resource_group_name           = var.resource_group
-  peering_type                  = "AzurePrivatePeering"
+  peering_type                  = each.value.peering_type
   express_route_circuit_name    = azurerm_express_route_circuit.this[each.value.name].name
   peer_asn                      = tolist(megaport_mcr.this[each.value.mcr_name].router)[0].assigned_asn
   primary_peer_address_prefix   = each.value.primary_peer_address_prefix
   secondary_peer_address_prefix = each.value.secondary_peer_address_prefix
   vlan_id                       = each.value.requested_vlan
   ipv4_enabled                  = true
+}
+
+resource "azurerm_express_route_circuit_peering" "microsoft" {
+  for_each                      = { for c in var.circuits : c.name => c if c.peering_type == "MicrosoftPeering" }
+  resource_group_name           = var.resource_group
+  peering_type                  = each.value.peering_type
+  express_route_circuit_name    = azurerm_express_route_circuit.this[each.value.name].name
+  peer_asn                      = tolist(megaport_mcr.this[each.value.mcr_name].router)[0].assigned_asn
+  primary_peer_address_prefix   = each.value.primary_peer_address_prefix
+  secondary_peer_address_prefix = each.value.secondary_peer_address_prefix
+  vlan_id                       = each.value.requested_vlan
+  ipv4_enabled                  = true
+
+  dynamic "microsoft_peering_config" {
+    for_each = { for c in var.circuits : c.name => c if c.peering_type == "MicrosoftPeering" }
+    content {
+      advertised_public_prefixes = microsoft_peering_config.value.advertised_public_prefixes
+      customer_asn               = try(microsoft_peering_config.value.customer_asn, null)
+      routing_registry_name      = try(microsoft_peering_config.value.routing_registry_name, null)
+      advertised_communities     = try(microsoft_peering_config.value.advertised_communities, null)
+    }
+  }
 }
 
 # vxc

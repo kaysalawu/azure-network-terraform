@@ -72,9 +72,9 @@ locals {
   regions = {
     region1 = local.region1
   }
-  default_udr_destinations = {
-    "default" = "0.0.0.0/0"
-  }
+  default_udr_destinations = [
+    "0.0.0.0/0"
+  ]
 
   firewall_sku = "Basic"
 
@@ -92,7 +92,7 @@ locals {
             { ip_address = local.branch1_dns_addr, port = 53 },
           ]
         }
-        "eu" = {
+        "${local.region1_code}" = {
           domain = "${local.region1_code}.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
@@ -440,8 +440,8 @@ locals {
         action = "permit"
         rule   = 100
         commands = [
-          "match ip address prefix-list all",
-          "set ip next-hop ${local.hub1_nva_ilb_addr}"
+          # "match ip address prefix-list all",
+          # "set ip next-hop ${local.hub1_nva_ilb_addr}"
         ]
       }
     ]

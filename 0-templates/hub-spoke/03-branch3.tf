@@ -36,6 +36,12 @@ module "branch3" {
     subnets       = local.branch3_subnets
   }
 
+  config_ergw = {
+    enable             = false
+    sku                = "ErGw1AZ"
+    enable_diagnostics = local.enable_diagnostics
+  }
+
   depends_on = [
     module.common,
   ]
@@ -46,18 +52,23 @@ module "branch3" {
 ####################################################
 
 module "branch3_dns" {
-  source           = "../../modules/linux"
-  resource_group   = azurerm_resource_group.rg.name
-  prefix           = local.branch3_prefix
-  name             = "dns"
-  location         = local.branch3_location
-  subnet           = module.branch3.subnets["MainSubnet"].id
-  private_ip       = local.branch3_dns_addr
-  enable_public_ip = true
-  source_image     = "ubuntu-20"
-  custom_data      = base64encode(local.branch_unbound_startup)
-  storage_account  = module.common.storage_accounts["region2"]
-  tags             = local.branch3_tags
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  name            = "${local.branch3_prefix}dns"
+  location        = local.branch3_location
+  storage_account = module.common.storage_accounts["region2"]
+  custom_data     = base64encode(local.branch_unbound_startup)
+  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
+  tags            = local.branch3_tags
+
+  interfaces = [
+    {
+      name               = "${local.branch3_prefix}dns-main"
+      subnet_id          = module.branch3.subnets["MainSubnet"].id
+      private_ip_address = local.branch3_dns_addr
+      create_public_ip   = true
+    },
+  ]
 }
 
 ####################################################
@@ -204,25 +215,24 @@ locals {
 module "branch3_nva" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  prefix          = trimsuffix(local.branch3_prefix, "-")
-  name            = "nva"
+  name            = "${local.branch3_prefix}nva"
   location        = local.branch3_location
   storage_account = module.common.storage_accounts["region2"]
   custom_data     = base64encode(local.branch3_nva_init)
   identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
+  tags            = local.branch3_tags
   source_image    = "cisco-csr-1000v"
 
   enable_ip_forwarding = true
-
   interfaces = [
     {
-      name               = "untrust"
+      name               = "${local.branch3_prefix}nva-untrust-nic"
       subnet_id          = module.branch3.subnets["UntrustSubnet"].id
       private_ip_address = local.branch3_nva_untrust_addr
       public_ip_id       = azurerm_public_ip.branch3_nva_pip.id
     },
     {
-      name               = "trust"
+      name               = "${local.branch3_prefix}nva-trust-nic"
       subnet_id          = module.branch3.subnets["TrustSubnet"].id
       private_ip_address = local.branch3_nva_trust_addr
     },
@@ -235,21 +245,25 @@ module "branch3_nva" {
 ####################################################
 
 module "branch3_vm" {
-  source           = "../../modules/linux"
-  resource_group   = azurerm_resource_group.rg.name
-  prefix           = local.branch3_prefix
-  name             = "vm"
-  location         = local.branch3_location
-  subnet           = module.branch3.subnets["MainSubnet"].id
-  private_ip       = local.branch3_vm_addr
-  enable_public_ip = true
-  source_image     = "ubuntu-20"
-  dns_servers      = [local.branch3_dns_addr, ]
-  custom_data      = base64encode(local.branch3_vm_init)
-  storage_account  = module.common.storage_accounts["region2"]
-  delay_creation   = "60s"
-  tags             = local.branch3_tags
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  name            = "${local.branch3_prefix}vm"
+  computer_name   = "vm"
+  location        = local.branch3_location
+  storage_account = module.common.storage_accounts["region2"]
+  dns_servers     = [local.branch3_dns_addr, ]
+  custom_data     = base64encode(local.branch3_vm_init)
+  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
+  tags            = local.branch3_tags
 
+  interfaces = [
+    {
+      name               = "${local.branch3_prefix}vm-main-nic"
+      subnet_id          = module.branch3.subnets["MainSubnet"].id
+      private_ip_address = local.branch3_vm_addr
+      create_public_ip   = true
+    },
+  ]
   depends_on = [
     module.branch3,
     module.branch3_dns,

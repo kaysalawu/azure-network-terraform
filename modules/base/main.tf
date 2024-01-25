@@ -404,12 +404,12 @@ module "nva_linux" {
   enable_ip_forwarding = true
   interfaces = [
     {
-      name             = "${local.prefix}untrust"
+      name             = "${local.prefix}nva-untrust-nic"
       subnet_id        = azurerm_subnet.this["UntrustSubnet"].id
       create_public_ip = true
     },
     {
-      name      = "${local.prefix}trust"
+      name      = "${local.prefix}nva-trust-nic"
       subnet_id = azurerm_subnet.this["TrustSubnet"].id
     },
   ]
@@ -454,7 +454,7 @@ module "ilb_nva_linux" {
         {
           name               = module.nva_linux[0].vm.name
           virtual_network_id = azurerm_virtual_network.this.id
-          ip_address         = module.nva_linux[0].interfaces["${local.prefix}untrust"].ip_configuration[0].private_ip_address
+          ip_address         = module.nva_linux[0].interfaces["${local.prefix}nva-untrust-nic"].ip_configuration[0].private_ip_address
         },
       ]
     }

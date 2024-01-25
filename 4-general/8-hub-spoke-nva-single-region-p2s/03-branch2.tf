@@ -80,6 +80,12 @@ module "branch2" {
     subnets       = local.branch2_subnets
   }
 
+  config_ergw = {
+    enable             = true
+    sku                = "ErGw1AZ"
+    enable_diagnostics = local.enable_diagnostics
+  }
+
   depends_on = [
     module.common,
   ]
@@ -134,23 +140,23 @@ module "client2_init" {
 module "client2" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  prefix          = trimsuffix(local.branch2_prefix, "-")
-  name            = "client2"
+  name            = "${local.branch2_prefix}client2"
   location        = local.branch2_location
   storage_account = module.common.storage_accounts["region1"]
   custom_data     = base64encode(module.client2_init.cloud_config)
   identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
+  tags            = local.branch2_tags
 
   enable_ip_forwarding = true
 
   interfaces = [
     {
-      name             = "untrust"
+      name             = "${local.branch2_prefix}client2-untrust"
       subnet_id        = module.branch2.subnets["UntrustSubnet"].id
       create_public_ip = true
     },
     {
-      name      = "trust"
+      name      = "${local.branch2_prefix}client2-trust"
       subnet_id = module.branch2.subnets["TrustSubnet"].id
     },
   ]
@@ -181,23 +187,23 @@ module "client3_init" {
 module "client3" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  prefix          = trimsuffix(local.branch2_prefix, "-")
-  name            = "client3"
+  name            = "${local.branch2_prefix}client3"
   location        = local.branch2_location
   storage_account = module.common.storage_accounts["region1"]
   custom_data     = base64encode(module.client3_init.cloud_config)
   identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
+  tags            = local.branch2_tags
 
   enable_ip_forwarding = true
 
   interfaces = [
     {
-      name             = "untrust"
+      name             = "${local.branch2_prefix}client3-untrust"
       subnet_id        = module.branch2.subnets["UntrustSubnet"].id
       create_public_ip = true
     },
     {
-      name      = "trust"
+      name      = "${local.branch2_prefix}client3-trust"
       subnet_id = module.branch2.subnets["TrustSubnet"].id
     },
   ]
@@ -209,25 +215,26 @@ module "client3" {
 ####################################################
 
 module "branch2_vm" {
-  source           = "../../modules/linux"
-  resource_group   = azurerm_resource_group.rg.name
-  prefix           = local.branch2_prefix
-  name             = "vm"
-  location         = local.branch2_location
-  subnet           = module.branch2.subnets["MainSubnet"].id
-  private_ip       = local.branch2_vm_addr
-  enable_public_ip = true
-  source_image     = "ubuntu-20"
-  dns_servers      = [local.branch2_dns_addr, ]
-  custom_data      = base64encode(local.branch2_vm_init)
-  storage_account  = module.common.storage_accounts["region1"]
-  delay_creation   = "60s"
-  tags             = local.branch2_tags
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  name            = "${local.branch2_prefix}vm"
+  computer_name   = "vm"
+  location        = local.branch2_location
+  storage_account = module.common.storage_accounts["region1"]
+  dns_servers     = [local.branch2_dns_addr, ]
+  custom_data     = base64encode(local.branch2_vm_init)
+  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
+  tags            = local.branch2_tags
 
-  depends_on = [
-    module.branch2,
-    module.branch2_dns,
+  interfaces = [
+    {
+      name               = "${local.branch2_prefix}vm-main"
+      subnet_id          = module.branch2.subnets["MainSubnet"].id
+      private_ip_address = local.branch2_vm_addr
+      create_public_ip   = true
+    },
   ]
+  depends_on = [module.branch2]
 }
 
 ####################################################
@@ -238,12 +245,12 @@ module "branch2_vm" {
 
 locals {
   branch2_routes_untrust = [
-    {
-      name                   = "p2s-gw"
-      address_prefix         = ["${azurerm_public_ip.hub1_p2s_vpngw_pip.ip_address}/32"]
-      next_hop_type          = "VirtualAppliance"
-      next_hop_in_ip_address = local.hub1_nva_trust_addr
-    },
+    # {
+    #   name                   = "p2s-gw"
+    #   address_prefix         = ["${azurerm_public_ip.hub1_p2s_vpngw_pip.ip_address}/32"]
+    #   next_hop_type          = "VirtualAppliance"
+    #   next_hop_in_ip_address = local.hub1_nva_trust_addr
+    # },
   ]
 }
 
@@ -255,7 +262,7 @@ module "branch2_udr_main" {
   subnet_id      = module.branch2.subnets["UntrustSubnet"].id
   routes         = local.branch2_routes_untrust
 
-  disable_bgp_route_propagation = true
+  disable_bgp_route_propagation = false
   depends_on = [
     module.branch2,
     module.branch2_dns,

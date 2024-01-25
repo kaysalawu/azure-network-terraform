@@ -71,9 +71,10 @@ module "hub1_vm" {
 
   interfaces = [
     {
-      name             = "main"
-      subnet_id        = module.hub1.subnets["MainSubnet"].id
-      create_public_ip = true
+      name               = "main"
+      subnet_id          = module.hub1.subnets["MainSubnet"].id
+      private_ip_address = local.hub1_vm_addr
+      create_public_ip   = true
     },
   ]
   depends_on = [module.hub1]
@@ -107,3 +108,4 @@ module "hub1_nva" {
   ]
   depends_on = [module.hub1]
 }
+
