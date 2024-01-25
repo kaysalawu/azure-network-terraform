@@ -149,7 +149,9 @@ module "spoke5_vm" {
       private_ip_address = local.spoke5_vm_addr
     },
   ]
-  depends_on = [module.spoke5]
+  depends_on = [
+    module.spoke5
+  ]
 }
 
 ####################################################
@@ -215,6 +217,8 @@ module "spoke6_vm" {
       private_ip_address = local.spoke6_vm_addr
     },
   ]
-  depends_on = [module.spoke6]
+  depends_on = [
+    module.spoke6
+  ]
 }
 

@@ -93,5 +93,7 @@ module "hub1_vm" {
       create_public_ip   = true
     },
   ]
-  depends_on = [module.hub1]
+  depends_on = [
+    module.hub1
+  ]
 }
