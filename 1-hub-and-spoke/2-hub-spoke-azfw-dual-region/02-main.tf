@@ -79,9 +79,9 @@ locals {
     region1 = local.region1
     region2 = local.region2
   }
-  default_udr_destinations = {
-    "default" = "0.0.0.0/0"
-  }
+  default_udr_destinations = [
+    "0.0.0.0/0"
+}
   hub1_appliance_udr_destinations = {
     "spoke4" = local.spoke4_address_space[0]
     "spoke5" = local.spoke5_address_space[0]

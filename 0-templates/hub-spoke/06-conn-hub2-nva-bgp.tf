@@ -230,7 +230,7 @@ module "hub2_nva" {
 
 # gateway
 
-module "hub2_udr_gateway" {
+module "hub2_gateway_udr" {
   source                 = "../../modules/route-table"
   resource_group         = azurerm_resource_group.rg.name
   prefix                 = "${local.hub2_prefix}gateway"

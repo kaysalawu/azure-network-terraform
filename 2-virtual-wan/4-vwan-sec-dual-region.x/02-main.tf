@@ -79,9 +79,9 @@ locals {
     region1 = local.region1
     region2 = local.region2
   }
-  default_udr_destinations = {
-    "default" = "0.0.0.0/0"
-  }
+  default_udr_destinations = [
+    "0.0.0.0/0"
+  ]
 
   firewall_sku = "Basic"
 
@@ -597,8 +597,8 @@ locals {
         action = "permit"
         rule   = 100
         commands = [
-          "match ip address prefix-list all",
-          "set ip next-hop ${local.hub1_nva_ilb_addr}"
+          # "match ip address prefix-list all",
+          # "set ip next-hop ${local.hub1_nva_ilb_addr}"
         ]
       }
     ]
@@ -675,8 +675,8 @@ locals {
         action = "permit"
         rule   = 100
         commands = [
-          "match ip address prefix-list all",
-          "set ip next-hop ${local.hub2_nva_ilb_addr}"
+          # "match ip address prefix-list all",
+          # "set ip next-hop ${local.hub2_nva_ilb_addr}"
         ]
       }
     ]
