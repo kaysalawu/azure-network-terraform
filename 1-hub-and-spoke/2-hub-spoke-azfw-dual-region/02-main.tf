@@ -4,7 +4,7 @@
 
 locals {
   prefix             = "Hs12"
-  enable_diagnostics = false
+  enable_diagnostics = true
   spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
   spoke6_apps_fqdn   = lower("${local.spoke6_prefix}${random_id.random.hex}.azurewebsites.net")
 
@@ -80,28 +80,28 @@ locals {
     region2 = local.region2
   }
   default_udr_destinations = [
-    "0.0.0.0/0"
-}
-  hub1_appliance_udr_destinations = {
-    "spoke4" = local.spoke4_address_space[0]
-    "spoke5" = local.spoke5_address_space[0]
-    "hub2"   = local.hub2_address_space[0]
-  }
-  hub2_appliance_udr_destinations = {
-    "spoke1" = local.spoke1_address_space[0]
-    "spoke2" = local.spoke2_address_space[0]
-    "hub1"   = local.hub1_address_space[0]
-  }
-  hub1_gateway_udr_destinations = {
-    "spoke1" = local.spoke1_address_space[0]
-    "spoke2" = local.spoke2_address_space[0]
-    "hub1"   = local.hub1_address_space[0]
-  }
-  hub2_gateway_udr_destinations = {
-    "spoke4" = local.spoke4_address_space[0]
-    "spoke5" = local.spoke5_address_space[0]
-    "hub2"   = local.hub2_address_space[0]
-  }
+    { name = "default", address_prefix = ["0.0.0.0/0"] }
+  ]
+  hub1_appliance_udr_destinations = [
+    { name = "spoke4", address_prefix = local.spoke4_address_space },
+    { name = "spoke5", address_prefix = local.spoke5_address_space },
+    { name = "hub2", address_prefix = local.hub2_address_space },
+  ]
+  hub2_appliance_udr_destinations = [
+    { name = "spoke1", address_prefix = local.spoke1_address_space },
+    { name = "spoke2", address_prefix = local.spoke2_address_space },
+    { name = "hub1", address_prefix = local.hub1_address_space },
+  ]
+  hub1_gateway_udr_destinations = [
+    { name = "spoke1", address_prefix = local.spoke1_address_space },
+    { name = "spoke2", address_prefix = local.spoke2_address_space },
+    { name = "hub1", address_prefix = local.hub1_address_space },
+  ]
+  hub2_gateway_udr_destinations = [
+    { name = "spoke4", address_prefix = local.spoke4_address_space },
+    { name = "spoke5", address_prefix = local.spoke5_address_space },
+    { name = "hub2", address_prefix = local.hub2_address_space },
+  ]
 
   firewall_sku = "Basic"
 

@@ -25,7 +25,7 @@ all_dirs=(
 1-hub-and-spoke
 2-virtual-wan
 3-network-manager
-4-general
+#4-general
 )
 
 dir_diff() {

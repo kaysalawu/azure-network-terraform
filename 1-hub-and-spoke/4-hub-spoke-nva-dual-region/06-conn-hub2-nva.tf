@@ -43,20 +43,27 @@ resource "azurerm_virtual_network_peering" "hub2_to_spoke4_peering" {
 
 # main
 
+locals {
+  spoke4_udr_main_routes = concat(local.default_udr_destinations, [
+    { name = "hub2", address_prefix = local.hub2_address_space },
+  ])
+}
+
 module "spoke4_udr_main" {
-  source                        = "../../modules/route-table"
-  resource_group                = azurerm_resource_group.rg.name
-  prefix                        = "${local.spoke4_prefix}main"
-  location                      = local.spoke4_location
-  subnet_id                     = module.spoke4.subnets["MainSubnet"].id
-  next_hop_type                 = "VirtualAppliance"
-  next_hop_in_ip_address        = local.hub2_nva_ilb_addr
+  source         = "../../modules/route-table"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = "${local.spoke4_prefix}main"
+  location       = local.spoke4_location
+  subnet_id      = module.spoke4.subnets["MainSubnet"].id
+  routes = [for r in local.spoke4_udr_main_routes : {
+    name                   = r.name
+    address_prefix         = r.address_prefix
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = local.hub2_nva_ilb_addr
+  }]
+
   disable_bgp_route_propagation = true
 
-  destinations = merge(
-    local.default_udr_destinations,
-    { "hub2" = local.hub2_address_space[0] }
-  )
   depends_on = [
     module.hub2,
   ]
@@ -110,20 +117,27 @@ resource "azurerm_virtual_network_peering" "hub2_to_spoke5_peering" {
 
 # main
 
+locals {
+  spoke5_routes_main = concat(local.default_udr_destinations, [
+    { name = "hub2", address_prefix = local.hub2_address_space },
+  ])
+}
+
 module "spoke5_udr_main" {
-  source                        = "../../modules/route-table"
-  resource_group                = azurerm_resource_group.rg.name
-  prefix                        = "${local.spoke5_prefix}main"
-  location                      = local.spoke5_location
-  subnet_id                     = module.spoke5.subnets["MainSubnet"].id
-  next_hop_type                 = "VirtualAppliance"
-  next_hop_in_ip_address        = local.hub2_nva_ilb_addr
+  source         = "../../modules/route-table"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = "${local.spoke5_prefix}main"
+  location       = local.spoke5_location
+  subnet_id      = module.spoke5.subnets["MainSubnet"].id
+  routes = [for r in local.spoke5_routes_main : {
+    name                   = r.name
+    address_prefix         = r.address_prefix
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = local.hub2_nva_ilb_addr
+  }]
+
   disable_bgp_route_propagation = true
 
-  destinations = merge(
-    local.default_udr_destinations,
-    { "hub2" = local.hub2_address_space[0] }
-  )
   depends_on = [
     module.hub2,
   ]
@@ -139,14 +153,18 @@ module "spoke5_udr_main" {
 # gateway
 
 module "hub2_gateway_udr" {
-  source                 = "../../modules/route-table"
-  resource_group         = azurerm_resource_group.rg.name
-  prefix                 = "${local.hub2_prefix}gateway"
-  location               = local.hub2_location
-  subnet_id              = module.hub2.subnets["GatewaySubnet"].id
-  next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub2_nva_ilb_addr
-  destinations           = local.hub2_gateway_udr_destinations
+  source         = "../../modules/route-table"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = "${local.hub2_prefix}gateway"
+  location       = local.hub2_location
+  subnet_id      = module.hub2.subnets["GatewaySubnet"].id
+  routes = [for r in local.hub2_gateway_udr_destinations : {
+    name                   = r.name
+    address_prefix         = r.address_prefix
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = local.hub2_gateway_udr_destinations
+  }]
+
   depends_on = [
     module.hub2,
   ]
@@ -154,23 +172,28 @@ module "hub2_gateway_udr" {
 
 # main
 
+locals {
+  hub2_udr_main_routes = concat(local.default_udr_destinations, [
+    { name = "spoke4", address_prefix = local.spoke4_address_space },
+    { name = "spoke5", address_prefix = local.spoke5_address_space },
+  ])
+}
+
 module "hub2_udr_main" {
-  source                        = "../../modules/route-table"
-  resource_group                = azurerm_resource_group.rg.name
-  prefix                        = "${local.hub2_prefix}main"
-  location                      = local.hub2_location
-  subnet_id                     = module.hub2.subnets["MainSubnet"].id
-  next_hop_type                 = "VirtualAppliance"
-  next_hop_in_ip_address        = local.hub2_nva_ilb_addr
+  source         = "../../modules/route-table"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = "${local.hub2_prefix}main"
+  location       = local.hub2_location
+  subnet_id      = module.hub2.subnets["MainSubnet"].id
+  routes = [for r in local.hub2_udr_main_routes : {
+    name                   = r.name
+    address_prefix         = r.address_prefix
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = local.hub2_nva_ilb_addr
+  }]
+
   disable_bgp_route_propagation = true
 
-  destinations = merge(
-    local.default_udr_destinations,
-    {
-      "spoke4" = local.spoke4_address_space[0]
-      "spoke5" = local.spoke5_address_space[0]
-    }
-  )
   depends_on = [
     module.hub2,
   ]

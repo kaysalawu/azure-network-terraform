@@ -10,11 +10,11 @@ proposal AZURE-IKE-PROPOSAL
 match address local 10.30.1.9
 !
 crypto ikev2 keyring AZURE-KEYRING
-peer 20.123.109.244
-address 20.123.109.244
+peer 4.156.125.45
+address 4.156.125.45
 pre-shared-key changeme
-peer 20.123.109.154
-address 20.123.109.154
+peer 4.156.120.64
+address 4.156.120.64
 pre-shared-key changeme
 peer 10.10.1.9
 address 10.10.1.9
@@ -22,8 +22,8 @@ pre-shared-key changeme
 !
 crypto ikev2 profile AZURE-IKE-PROPOSAL
 match address local 10.30.1.9
-match identity remote address 20.123.109.244 255.255.255.255
-match identity remote address 20.123.109.154 255.255.255.255
+match identity remote address 4.156.125.45 255.255.255.255
+match identity remote address 4.156.120.64 255.255.255.255
 match identity remote address 10.10.1.9 255.255.255.255
 authentication remote pre-share
 authentication local pre-share
@@ -44,7 +44,7 @@ ip address 10.30.30.1 255.255.255.252
 tunnel mode ipsec ipv4
 ip tcp adjust-mss 1350
 tunnel source 10.30.1.9
-tunnel destination 20.123.109.244
+tunnel destination 4.156.125.45
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
 interface Tunnel1
@@ -52,7 +52,7 @@ ip address 10.30.30.5 255.255.255.252
 tunnel mode ipsec ipv4
 ip tcp adjust-mss 1350
 tunnel source 10.30.1.9
-tunnel destination 20.123.109.154
+tunnel destination 4.156.120.64
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
 interface Tunnel2
@@ -67,11 +67,12 @@ interface Loopback0
 ip address 192.168.30.30 255.255.255.255
 !
 ip access-list extended NAT-ACL
-permit ip 10.30.0.0 0.0.0.255 any
-interface GigabitEthernet2
-ip nat inside
+permit ip 10.0.0.0 0.255.255.255 any
+permit ip 172.16.0.0 0.15.255.255 any
+permit ip 192.168.0.0 0.0.255.255 any
 interface GigabitEthernet1
 ip nat outside
+ip nat inside
 exit
 ip nat inside source list NAT-ACL interface GigabitEthernet1 overload
 !

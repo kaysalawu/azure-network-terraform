@@ -87,7 +87,7 @@ module "hub1_vm" {
   enable_ip_forwarding = true
   interfaces = [
     {
-      name               = "${local.hub1_prefix}main-nic"
+      name               = "${local.hub1_prefix}vm-main-nic"
       subnet_id          = module.hub1.subnets["MainSubnet"].id
       private_ip_address = local.hub1_vm_addr
       create_public_ip   = true

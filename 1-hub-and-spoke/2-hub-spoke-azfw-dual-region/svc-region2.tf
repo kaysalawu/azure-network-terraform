@@ -41,8 +41,8 @@ module "spoke6_lb" {
       name = "pls"
       interfaces = [
         {
-          ip_configuration_name = module.spoke6_vm.interface.ip_configuration[0].name
-          network_interface_id  = module.spoke6_vm.interface.id
+          ip_configuration_name = module.spoke6_vm.interface_names["${local.spoke6_prefix}vm-main-nic"]
+          network_interface_id  = module.spoke6_vm.interface_ids["${local.spoke6_prefix}vm-main-nic"]
         },
       ]
     },
