@@ -162,7 +162,7 @@ module "hub2_gateway_udr" {
     name                   = r.name
     address_prefix         = r.address_prefix
     next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = local.hub2_gateway_udr_destinations
+    next_hop_in_ip_address = local.hub2_nva_ilb_addr
   }]
 
   depends_on = [

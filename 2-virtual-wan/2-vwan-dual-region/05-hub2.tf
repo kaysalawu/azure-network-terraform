@@ -97,4 +97,3 @@ module "hub2_vm" {
     module.hub2
   ]
 }
-

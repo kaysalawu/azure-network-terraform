@@ -165,8 +165,6 @@ module "hub1_gateway_udr" {
     next_hop_in_ip_address = module.hub1.firewall_private_ip
   }]
 
-  disable_bgp_route_propagation = true
-
   depends_on = [
     module.hub1,
   ]

@@ -47,29 +47,37 @@ resource "azurerm_virtual_network_peering" "hub2_to_hub1_peering" {
 # hub1
 
 module "hub1_appliance_udr" {
-  source                 = "../../modules/route-table"
-  resource_group         = azurerm_resource_group.rg.name
-  prefix                 = "${local.hub1_prefix}nva"
-  location               = local.hub1_location
-  subnet_id              = module.hub1.subnets["TrustSubnet"].id
-  next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub2_nva_ilb_addr
-  destinations           = local.hub1_appliance_udr_destinations
-  depends_on             = [module.hub1, ]
+  source         = "../../modules/route-table"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = "${local.hub1_prefix}nva"
+  location       = local.hub1_location
+  subnet_id      = module.hub1.subnets["TrustSubnet"].id
+  routes = [for r in local.hub1_appliance_udr_destinations : {
+    name                   = r.name
+    address_prefix         = r.address_prefix
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = local.hub2_nva_ilb_addr
+  }]
+  depends_on = [module.hub1, ]
 }
 
 # hub2
 
 module "hub2_appliance_udr" {
-  source                 = "../../modules/route-table"
-  resource_group         = azurerm_resource_group.rg.name
-  prefix                 = "${local.hub2_prefix}nva"
-  location               = local.hub2_location
-  subnet_id              = module.hub2.subnets["TrustSubnet"].id
-  next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub1_nva_ilb_addr
-  destinations           = local.hub2_appliance_udr_destinations
-  depends_on             = [module.hub2, ]
+  source         = "../../modules/route-table"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = "${local.hub2_prefix}nva"
+  location       = local.hub2_location
+  subnet_id      = module.hub2.subnets["TrustSubnet"].id
+  routes = [for r in local.hub2_appliance_udr_destinations : {
+    name                   = r.name
+    address_prefix         = r.address_prefix
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = local.hub1_nva_ilb_addr
+  }]
+  depends_on = [
+    module.hub2,
+  ]
 }
 
 ####################################################

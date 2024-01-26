@@ -75,7 +75,9 @@ module "hub2_appliance_udr" {
     next_hop_type          = "VirtualAppliance"
     next_hop_in_ip_address = module.hub1.firewall_private_ip
   }]
-  depends_on = [module.hub2, ]
+  depends_on = [
+    module.hub2,
+  ]
 }
 
 ####################################################
