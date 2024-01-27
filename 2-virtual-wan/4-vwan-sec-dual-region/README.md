@@ -79,7 +79,7 @@ The table below shows the auto-generated output files from the lab. They are loc
 
 ## Dashboards (Optional)
 
-This lab contains a number of pre-configured dashboards for monitoring and troubleshooting network gateways, VPN gateways, and Azure Firewall. If you have set `enable_diagnostics = true` in the `main.tf` file, then the dashboards will be created.
+This lab contains a number of pre-configured dashboards for monitoring and troubleshooting network gateways, VPN gateways, and Azure Firewall. If you have set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf) file, then the dashboards will be created.
 
 To view the dashboards, follow the steps below:
 
@@ -267,8 +267,8 @@ The app services are accessible via the private endpoints in ***hub1*** and ***h
 
 The app services have the following naming convention:
 
-- vwan24-spoke3-AAAA.azurewebsites.net
-- vwan24-spoke6-BBBB.azurewebsites.net
+* vwan24-spoke3-AAAA.azurewebsites.net
+* vwan24-spoke6-BBBB.azurewebsites.net
 
 Where ***AAAA*** and ***BBBB*** are randomly generated two-byte strings.
 

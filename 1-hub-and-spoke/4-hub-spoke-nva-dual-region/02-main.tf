@@ -544,6 +544,7 @@ module "fw_policy_rule_collection_group" {
 # hub1
 
 locals {
+  hub1_router_route_map_name_nh = "NEXT-HOP"
   hub1_nva_vars = {
     LOCAL_ASN = local.hub1_nva_asn
     LOOPBACK0 = local.hub1_nva_loopback0
@@ -567,6 +568,7 @@ locals {
 # hub2
 
 locals {
+  hub2_router_route_map_name_nh = "NEXT-HOP"
   hub2_nva_vars = {
     LOCAL_ASN = local.hub2_nva_asn
     LOOPBACK0 = local.hub2_nva_loopback0

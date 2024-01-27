@@ -72,19 +72,19 @@ locals {
   regions = {
     region1 = local.region1
   }
-  default_udr_destinations = {
-    "default" = "0.0.0.0/0"
-  }
-  hub1_appliance_udr_destinations = {
-    "spoke4" = local.spoke4_address_space[0]
-    "spoke5" = local.spoke5_address_space[0]
-    "hub2"   = local.hub2_address_space[0]
-  }
-  hub1_gateway_udr_destinations = {
-    "spoke1" = local.spoke1_address_space[0]
-    "spoke2" = local.spoke2_address_space[0]
-    "hub1"   = local.hub1_address_space[0]
-  }
+  default_udr_destinations = [
+    { name = "default", address_prefix = ["0.0.0.0/0"] }
+  ]
+  hub1_appliance_udr_destinations = [
+    { name = "spoke4", address_prefix = local.spoke4_address_space },
+    { name = "spoke5", address_prefix = local.spoke5_address_space },
+    { name = "hub2", address_prefix = local.hub2_address_space },
+  ]
+  hub1_gateway_udr_destinations = [
+    { name = "spoke1", address_prefix = local.spoke1_address_space },
+    { name = "spoke2", address_prefix = local.spoke2_address_space },
+    { name = "hub1", address_prefix = local.hub1_address_space },
+  ]
   firewall_sku = "Basic"
 
   hub1_features = {

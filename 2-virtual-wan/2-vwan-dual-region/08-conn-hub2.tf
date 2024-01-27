@@ -44,20 +44,9 @@ resource "azurerm_virtual_network_peering" "hub2_to_spoke5_peering" {
 # main
 
 locals {
-  spoke5_routes_main = [
-    {
-      name                   = "default"
-      address_prefix         = local.default_udr_destinations
-      next_hop_type          = "VirtualAppliance"
-      next_hop_in_ip_address = local.hub2_nva_ilb_addr
-    },
-    {
-      name                   = "hub2"
-      address_prefix         = local.hub2_address_space
-      next_hop_type          = "VirtualAppliance"
-      next_hop_in_ip_address = local.hub2_nva_ilb_addr
-    },
-  ]
+  spoke5_routes_main = concat(local.default_udr_destinations, [
+    { name = "hub2", address_prefix = local.hub2_address_space },
+  ])
 }
 
 module "spoke5_udr_main" {
@@ -66,7 +55,12 @@ module "spoke5_udr_main" {
   prefix         = "${local.spoke5_prefix}main"
   location       = local.spoke5_location
   subnet_id      = module.spoke5.subnets["MainSubnet"].id
-  routes         = local.spoke5_routes_main
+  routes = [for r in local.spoke5_routes_main : {
+    name                   = r.name
+    address_prefix         = r.address_prefix
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = local.hub2_nva_ilb_addr
+  }]
 
   disable_bgp_route_propagation = true
 
@@ -86,26 +80,10 @@ module "spoke5_udr_main" {
 # main
 
 locals {
-  hub2_routes_main = [
-    {
-      name                   = "default"
-      address_prefix         = local.default_udr_destinations
-      next_hop_type          = "VirtualAppliance"
-      next_hop_in_ip_address = local.hub2_nva_ilb_addr
-    },
-    {
-      name                   = "spoke4"
-      address_prefix         = local.spoke4_address_space
-      next_hop_type          = "VirtualAppliance"
-      next_hop_in_ip_address = local.hub2_nva_ilb_addr
-    },
-    {
-      name                   = "spoke5"
-      address_prefix         = local.spoke5_address_space
-      next_hop_type          = "VirtualAppliance"
-      next_hop_in_ip_address = local.hub2_nva_ilb_addr
-    },
-  ]
+  hub2_udr_main_routes = concat(local.default_udr_destinations, [
+    { name = "spoke4", address_prefix = local.spoke4_address_space },
+    { name = "spoke5", address_prefix = local.spoke5_address_space },
+  ])
 }
 
 module "hub2_udr_main" {
@@ -114,7 +92,12 @@ module "hub2_udr_main" {
   prefix         = "${local.hub2_prefix}main"
   location       = local.hub2_location
   subnet_id      = module.hub2.subnets["MainSubnet"].id
-  routes         = local.hub2_routes_main
+  routes = [for r in local.hub2_udr_main_routes : {
+    name                   = r.name
+    address_prefix         = r.address_prefix
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = local.hub2_nva_ilb_addr
+  }]
 
   disable_bgp_route_propagation = true
 

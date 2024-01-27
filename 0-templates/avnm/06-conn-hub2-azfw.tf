@@ -91,8 +91,6 @@ module "hub2_gateway_udr" {
     next_hop_in_ip_address = module.hub2.firewall_private_ip
   }]
 
-  disable_bgp_route_propagation = true
-
   depends_on = [
     module.hub2,
   ]

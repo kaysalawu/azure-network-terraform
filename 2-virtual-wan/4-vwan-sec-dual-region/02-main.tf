@@ -80,9 +80,8 @@ locals {
     region2 = local.region2
   }
   default_udr_destinations = [
-    "0.0.0.0/0"
+    { name = "default", address_prefix = ["0.0.0.0/0"] }
   ]
-
   firewall_sku = "Basic"
 
   hub1_features = {
