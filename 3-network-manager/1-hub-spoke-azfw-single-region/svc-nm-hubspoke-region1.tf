@@ -161,6 +161,9 @@ resource "azurerm_network_manager_deployment" "secadmin_config_region1" {
   triggers = {
     connectivity_configuration_ids = azurerm_network_manager_security_admin_configuration.secadmin_config_region1.id
   }
+  depends_on = [
+    azurerm_network_manager_deployment.conn_config_hub_spoke_region1
+  ]
 }
 
 ####################################################
