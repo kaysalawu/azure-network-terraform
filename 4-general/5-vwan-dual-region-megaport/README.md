@@ -89,9 +89,7 @@ To view the dashboards, follow the steps below:
 
    ![Shared dashboards](../../images/demos/virtual-wan/vwan21-shared-dashboards.png)
 
-4. Click on the dashboard name.
-
-5. Click on **Go to dashboard**.
+4. Click on a link under **Go to dashboard** column.
 
    Sample dashboard for VPN gateway in ***hub1***.
 

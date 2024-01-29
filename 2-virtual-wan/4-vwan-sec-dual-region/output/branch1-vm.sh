@@ -158,8 +158,8 @@ echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{h
 echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke5.us.az.corp) - vm.spoke5.us.az.corp"
 echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke6.us.az.corp) - vm.spoke6.us.az.corp"
 echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vwan24-spoke3-71e4.azurewebsites.net) - vwan24-spoke3-71e4.azurewebsites.net"
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vwan24-spoke6-71e4.azurewebsites.net) - vwan24-spoke6-71e4.azurewebsites.net"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vwan24-spoke3-b070.azurewebsites.net) - vwan24-spoke3-b070.azurewebsites.net"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vwan24-spoke6-b070.azurewebsites.net) - vwan24-spoke6-b070.azurewebsites.net"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 
@@ -207,8 +207,8 @@ nping -c 3 --tcp -p 80 vm.branch3.corp > /dev/null 2>&1
 nping -c 3 --tcp -p 80 spoke6.p.hub2.us.az.corp > /dev/null 2>&1
 nping -c 3 --tcp -p 80 vm.spoke4.us.az.corp > /dev/null 2>&1
 nping -c 3 --tcp -p 80 vm.spoke5.us.az.corp > /dev/null 2>&1
-nping -c 3 --tcp -p 80 vwan24-spoke3-71e4.azurewebsites.net > /dev/null 2>&1
-nping -c 3 --tcp -p 80 vwan24-spoke6-71e4.azurewebsites.net > /dev/null 2>&1
+nping -c 3 --tcp -p 80 vwan24-spoke3-b070.azurewebsites.net > /dev/null 2>&1
+nping -c 3 --tcp -p 80 vwan24-spoke6-b070.azurewebsites.net > /dev/null 2>&1
 EOF
 chmod a+x /usr/local/bin/light-traffic
 
@@ -226,8 +226,8 @@ while [ \$i -lt 4 ]; do
     ab -n \$1 -c \$2 spoke6.p.hub2.us.az.corp > /dev/null 2>&1
     ab -n \$1 -c \$2 vm.spoke4.us.az.corp > /dev/null 2>&1
     ab -n \$1 -c \$2 vm.spoke5.us.az.corp > /dev/null 2>&1
-    ab -n \$1 -c \$2 vwan24-spoke3-71e4.azurewebsites.net > /dev/null 2>&1
-    ab -n \$1 -c \$2 vwan24-spoke6-71e4.azurewebsites.net > /dev/null 2>&1
+    ab -n \$1 -c \$2 vwan24-spoke3-b070.azurewebsites.net > /dev/null 2>&1
+    ab -n \$1 -c \$2 vwan24-spoke6-b070.azurewebsites.net > /dev/null 2>&1
     let i=i+1
   sleep 2
 done
