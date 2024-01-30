@@ -73,18 +73,18 @@ locals {
     region1 = local.region1
   }
   default_udr_destinations = [
-    "0.0.0.0/0"
+    { name = "default", address_prefix = ["0.0.0.0/0"] }
   ]
-  hub1_appliance_udr_destinations = {
-    "spoke4" = local.spoke4_address_space[0]
-    "spoke5" = local.spoke5_address_space[0]
-    "hub2"   = local.hub2_address_space[0]
-  }
-  hub1_gateway_udr_destinations = {
-    "spoke1" = local.spoke1_address_space[0]
-    "spoke2" = local.spoke2_address_space[0]
-    "hub1"   = local.hub1_address_space[0]
-  }
+  hub1_appliance_udr_destinations = [
+    { name = "spoke4", address_prefix = local.spoke4_address_space },
+    { name = "spoke5", address_prefix = local.spoke5_address_space },
+    { name = "hub2", address_prefix = local.hub2_address_space },
+  ]
+  hub1_gateway_udr_destinations = [
+    { name = "spoke1", address_prefix = local.spoke1_address_space },
+    { name = "spoke2", address_prefix = local.spoke2_address_space },
+    { name = "hub1", address_prefix = local.hub1_address_space },
+  ]
   firewall_sku = "Basic"
 
   hub1_features = {
@@ -133,12 +133,14 @@ locals {
         # { name = "ip-config", public_ip_address_name = azurerm_public_ip.hub1_p2s_vpngw_pip.name },
       ]
       vpn_client_configuration = {
-        address_space = ["192.168.0.0/24"]
+        address_space = []
         clients = [
           # { name = "client1" },
           # { name = "client2" },
+          # { name = "client3" },
         ]
       }
+      custom_route_address_prefixes = ["8.8.8.8/32"]
     }
 
     config_ergw = {
@@ -398,10 +400,13 @@ module "fw_policy_rule_collection_group" {
 # hub1
 
 locals {
+  hub1_router_route_map_name_nh = "NEXT-HOP"
   hub1_nva_vars = {
-    LOCAL_ASN   = local.hub1_nva_asn
-    LOOPBACK0   = local.hub1_nva_loopback0
-    LOOPBACKS   = { Loopback1 = local.hub1_nva_ilb_addr }
+    LOCAL_ASN = local.hub1_nva_asn
+    LOOPBACK0 = local.hub1_nva_loopback0
+    LOOPBACKS = {
+      Loopback1 = local.hub1_nva_ilb_addr
+    }
     CRYPTO_ADDR = local.hub1_nva_trust_addr
     VPN_PSK     = local.psk
   }

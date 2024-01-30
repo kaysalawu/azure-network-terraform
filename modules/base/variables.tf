@@ -144,6 +144,7 @@ variable "config_s2s_vpngw" {
   type = object({
     enable             = optional(bool, false)
     sku                = optional(string, "VpnGw1AZ")
+    active_active      = optional(bool, false)
     create_dashboard   = optional(bool, true)
     enable_diagnostics = optional(bool, false)
     ip_configuration = optional(list(object({
@@ -171,6 +172,7 @@ variable "config_p2s_vpngw" {
   type = object({
     enable             = optional(bool, false)
     sku                = optional(string, "VpnGw1AZ")
+    active_active      = optional(bool, false)
     create_dashboard   = optional(bool, true)
     enable_diagnostics = optional(bool, false)
 
@@ -218,6 +220,7 @@ variable "config_ergw" {
   type = object({
     enable             = optional(bool, false)
     sku                = optional(string, "ErGw1AZ")
+    active_active      = optional(bool, false)
     create_dashboard   = optional(bool, true)
     enable_diagnostics = optional(bool, false)
   })

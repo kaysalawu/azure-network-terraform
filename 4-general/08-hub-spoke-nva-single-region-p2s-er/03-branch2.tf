@@ -228,13 +228,15 @@ module "branch2_vm" {
 
   interfaces = [
     {
-      name               = "${local.branch2_prefix}vm-main"
+      name               = "${local.branch2_prefix}vm-main-nic"
       subnet_id          = module.branch2.subnets["MainSubnet"].id
       private_ip_address = local.branch2_vm_addr
       create_public_ip   = true
     },
   ]
-  depends_on = [module.branch2]
+  depends_on = [
+    module.branch2
+  ]
 }
 
 ####################################################
@@ -244,7 +246,7 @@ module "branch2_vm" {
 # main
 
 locals {
-  branch2_routes_untrust = [
+  branch2_routes_main = [
     # {
     #   name                   = "p2s-gw"
     #   address_prefix         = ["${azurerm_public_ip.hub1_p2s_vpngw_pip.ip_address}/32"]
@@ -257,10 +259,10 @@ locals {
 module "branch2_udr_main" {
   source         = "../../modules/route-table"
   resource_group = azurerm_resource_group.rg.name
-  prefix         = "${local.branch2_prefix}untrust"
+  prefix         = "${local.branch2_prefix}main"
   location       = local.branch2_location
-  subnet_id      = module.branch2.subnets["UntrustSubnet"].id
-  routes         = local.branch2_routes_untrust
+  subnet_id      = module.branch2.subnets["MainSubnet"].id
+  routes         = local.branch2_routes_main
 
   disable_bgp_route_propagation = false
   depends_on = [

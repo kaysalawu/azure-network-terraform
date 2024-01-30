@@ -226,6 +226,7 @@ module "s2s_vpngw" {
   tags           = var.tags
 
   sku                = var.config_s2s_vpngw.sku
+  active_active      = var.config_s2s_vpngw.active_active
   bgp_asn            = var.config_s2s_vpngw.bgp_settings.asn
   create_dashboard   = var.config_s2s_vpngw.create_dashboard
   enable_diagnostics = var.config_s2s_vpngw.enable_diagnostics
@@ -251,6 +252,7 @@ module "p2s_vpngw" {
   env            = var.env
   location       = var.location
   sku            = var.config_p2s_vpngw.sku
+  active_active  = false
   subnet_id      = azurerm_subnet.this["GatewaySubnet"].id
   tags           = var.tags
 
@@ -294,6 +296,7 @@ module "ergw" {
   tags           = var.tags
 
   sku                = var.config_vnet.express_route_gateway_sku
+  active_active      = var.config_ergw.active_active
   create_dashboard   = var.config_ergw.create_dashboard
   enable_diagnostics = var.config_ergw.enable_diagnostics
 

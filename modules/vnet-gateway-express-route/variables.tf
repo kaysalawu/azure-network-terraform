@@ -120,3 +120,8 @@ variable "enable_diagnostics" {
   default     = false
 }
 
+variable "active_active" {
+  description = "enable active active"
+  type        = bool
+  default     = false
+}

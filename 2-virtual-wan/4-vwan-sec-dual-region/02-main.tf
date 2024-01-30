@@ -82,6 +82,7 @@ locals {
   default_udr_destinations = [
     { name = "default", address_prefix = ["0.0.0.0/0"] }
   ]
+
   firewall_sku = "Basic"
 
   hub1_features = {

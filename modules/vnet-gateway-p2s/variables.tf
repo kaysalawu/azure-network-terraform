@@ -114,3 +114,9 @@ variable "custom_route_address_prefixes" {
   type        = list(string)
   default     = []
 }
+
+variable "active_active" {
+  description = "enable active active"
+  type        = bool
+  default     = false
+}

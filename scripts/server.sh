@@ -1,7 +1,7 @@
 #! /bin/bash
 
 apt update
-apt install -y python3-pip python3-dev unzip tcpdump dnsutils net-tools nmap apache2-utils
+apt install -y python3-pip python3-dev unzip tcpdump dnsutils net-tools nmap apache2-utils iperf3
 
 apt install -y openvpn network-manager-openvpn
 sudo service network-manager restart
