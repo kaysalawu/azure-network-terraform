@@ -37,9 +37,8 @@ module "branch2" {
   }
 
   config_ergw = {
-    enable             = true
-    sku                = "ErGw1AZ"
-    enable_diagnostics = local.enable_diagnostics
+    enable = true
+    sku    = "ErGw1AZ"
   }
 
   depends_on = [

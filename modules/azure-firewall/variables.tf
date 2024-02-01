@@ -87,12 +87,6 @@ variable "create_dashboard" {
   default     = true
 }
 
-variable "enable_diagnostics" {
-  description = "enable diagnostics"
-  type        = bool
-  default     = false
-}
-
 variable "virtual_hub_id" {
   description = "virtual hub id"
   type        = string

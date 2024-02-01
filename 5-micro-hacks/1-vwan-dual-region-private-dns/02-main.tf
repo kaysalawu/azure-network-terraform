@@ -140,9 +140,8 @@ locals {
 
   vhub1_features = {
     s2s_vpn_gateway = {
-      enable             = true
-      sku                = "VpnGw1AZ"
-      enable_diagnostics = local.enable_diagnostics
+      enable = true
+      sku    = "VpnGw1AZ"
       bgp_settings = {
         asn                                       = local.vhub1_bgp_asn
         peer_weight                               = 0
@@ -154,9 +153,8 @@ locals {
 
   vhub2_features = {
     s2s_vpn_gateway = {
-      enable             = true
-      sku                = "VpnGw1AZ"
-      enable_diagnostics = local.enable_diagnostics
+      enable = true
+      sku    = "VpnGw1AZ"
       bgp_settings = {
         asn                                       = local.vhub2_bgp_asn
         peer_weight                               = 0

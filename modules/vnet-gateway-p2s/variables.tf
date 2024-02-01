@@ -72,12 +72,6 @@ variable "create_dashboard" {
   default     = true
 }
 
-variable "enable_diagnostics" {
-  description = "enable diagnostics"
-  type        = bool
-  default     = false
-}
-
 variable "ip_configuration" {
   description = "ip configurations for vnet gateway"
   type = list(object({

@@ -114,12 +114,6 @@ variable "create_dashboard" {
   default     = true
 }
 
-variable "enable_diagnostics" {
-  description = "enable diagnostics"
-  type        = bool
-  default     = false
-}
-
 variable "active_active" {
   description = "enable active active"
   type        = bool

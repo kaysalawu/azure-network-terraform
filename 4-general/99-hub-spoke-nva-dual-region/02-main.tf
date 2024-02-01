@@ -124,33 +124,29 @@ locals {
     }
 
     config_vpngw = {
-      enable             = true
-      sku                = "VpnGw1AZ"
-      enable_diagnostics = local.enable_diagnostics
+      enable = true
+      sku    = "VpnGw1AZ"
       bgp_settings = {
         asn = local.hub1_vpngw_asn
       }
     }
 
     config_ergw = {
-      enable             = false
-      sku                = "ErGw1AZ"
-      enable_diagnostics = local.enable_diagnostics
+      enable = false
+      sku    = "ErGw1AZ"
     }
 
     config_firewall = {
       enable             = false
       firewall_sku       = local.firewall_sku
       firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
-      enable_diagnostics = local.enable_diagnostics
     }
 
     config_nva = {
-      enable             = true
-      type               = "linux"
-      internal_lb_addr   = local.hub1_nva_ilb_addr
-      custom_data        = base64encode(local.hub1_linux_nva_init)
-      enable_diagnostics = local.enable_diagnostics
+      enable           = true
+      type             = "linux"
+      internal_lb_addr = local.hub1_nva_ilb_addr
+      custom_data      = base64encode(local.hub1_linux_nva_init)
     }
   }
 
@@ -191,33 +187,29 @@ locals {
     }
 
     config_vpngw = {
-      enable             = true
-      sku                = "VpnGw1AZ"
-      enable_diagnostics = local.enable_diagnostics
+      enable = true
+      sku    = "VpnGw1AZ"
       bgp_settings = {
         asn = local.hub2_vpngw_asn
       }
     }
 
     config_ergw = {
-      enable             = false
-      sku                = "ErGw1AZ"
-      enable_diagnostics = local.enable_diagnostics
+      enable = false
+      sku    = "ErGw1AZ"
     }
 
     config_firewall = {
       enable             = false
       firewall_sku       = local.firewall_sku
       firewall_policy_id = azurerm_firewall_policy.firewall_policy["region2"].id
-      enable_diagnostics = local.enable_diagnostics
     }
 
     config_nva = {
-      enable             = true
-      type               = "linux"
-      internal_lb_addr   = local.hub2_nva_ilb_addr
-      custom_data        = base64encode(local.hub2_linux_nva_init)
-      enable_diagnostics = local.enable_diagnostics
+      enable           = true
+      type             = "linux"
+      internal_lb_addr = local.hub2_nva_ilb_addr
+      custom_data      = base64encode(local.hub2_linux_nva_init)
     }
   }
 }

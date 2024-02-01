@@ -150,8 +150,7 @@ module "dns_resolver" {
   ruleset_dns_forwarding_rules              = var.config_vnet.ruleset_dns_forwarding_rules
   private_dns_ruleset_linked_external_vnets = var.private_dns_ruleset_linked_external_vnets
 
-  create_dashboard   = var.config_ergw.create_dashboard
-  enable_diagnostics = var.config_ergw.enable_diagnostics
+  create_dashboard = var.config_ergw.create_dashboard
 
   depends_on = [
     azurerm_subnet.this,
@@ -225,11 +224,10 @@ module "s2s_vpngw" {
   subnet_id      = azurerm_subnet.this["GatewaySubnet"].id
   tags           = var.tags
 
-  sku                = var.config_s2s_vpngw.sku
-  active_active      = var.config_s2s_vpngw.active_active
-  bgp_asn            = var.config_s2s_vpngw.bgp_settings.asn
-  create_dashboard   = var.config_s2s_vpngw.create_dashboard
-  enable_diagnostics = var.config_s2s_vpngw.enable_diagnostics
+  sku              = var.config_s2s_vpngw.sku
+  active_active    = var.config_s2s_vpngw.active_active
+  bgp_asn          = var.config_s2s_vpngw.bgp_settings.asn
+  create_dashboard = var.config_s2s_vpngw.create_dashboard
 
   ip_config0_apipa_addresses = try(var.config_s2s_vpngw.ip_config0_apipa_addresses, null)
   ip_config1_apipa_addresses = try(var.config_s2s_vpngw.ip_config1_apipa_addresses, null)
@@ -272,8 +270,7 @@ module "p2s_vpngw" {
     }
   ]
 
-  create_dashboard   = var.config_p2s_vpngw.create_dashboard
-  enable_diagnostics = var.config_p2s_vpngw.enable_diagnostics
+  create_dashboard = var.config_p2s_vpngw.create_dashboard
 
   depends_on = [
     azurerm_subnet.this,
@@ -295,10 +292,9 @@ module "ergw" {
   subnet_id      = azurerm_subnet.this["GatewaySubnet"].id
   tags           = var.tags
 
-  sku                = var.config_vnet.express_route_gateway_sku
-  active_active      = var.config_ergw.active_active
-  create_dashboard   = var.config_ergw.create_dashboard
-  enable_diagnostics = var.config_ergw.enable_diagnostics
+  sku              = var.config_vnet.express_route_gateway_sku
+  active_active    = var.config_ergw.active_active
+  create_dashboard = var.config_ergw.create_dashboard
 
   depends_on = [
     azurerm_subnet.this,
@@ -371,7 +367,6 @@ module "azfw" {
 
   firewall_policy_id = var.config_firewall.firewall_policy_id
   create_dashboard   = var.config_firewall.create_dashboard
-  enable_diagnostics = var.config_firewall.enable_diagnostics
 
   depends_on = [
     azurerm_subnet.this,
@@ -402,7 +397,6 @@ module "nva_linux" {
   source_image    = "ubuntu-20"
   custom_data     = var.config_nva.custom_data
   #create_dashboard     = false #var.config_nva.create_dashboard
-  #enable_diagnostics   = var.config_nva.enable_diagnostics
 
   enable_ip_forwarding = true
   interfaces = [

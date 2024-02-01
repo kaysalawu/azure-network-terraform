@@ -163,7 +163,7 @@ module "client_certificates" {
 
 # resource "azurerm_monitor_diagnostic_setting" "this" {
 #   #count                      = data.external.check_diag_setting.result["exists"] == "true" ? 0 : 1
-#   count                      = var.enable_diagnostics && var.create_dashboard ? 1 : 0
+#   count                      = var.log_analytics_workspace_name != null ? 1 : 0
 #   name                       = "${var.prefix}vpngw-diag"
 #   target_resource_id         = azurerm_virtual_network_gateway.this.id
 #   log_analytics_workspace_id = azurerm_log_analytics_workspace.this.id
@@ -198,7 +198,7 @@ module "client_certificates" {
 # }
 
 # resource "azurerm_portal_dashboard" "this" {
-#   count                = var.enable_diagnostics && var.create_dashboard ? 1 : 0
+#   count                = var.log_analytics_workspace_name != null ? 1 : 0
 #   name                 = "${var.prefix}vpngw-db"
 #   resource_group_name  = var.resource_group
 #   location             = var.location

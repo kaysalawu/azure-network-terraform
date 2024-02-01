@@ -106,7 +106,7 @@ locals {
 }
 
 resource "azurerm_portal_dashboard" "this" {
-  count                = var.enable_diagnostics && var.create_dashboard ? 1 : 0
+  count                = var.log_analytics_workspace_name != null ? 1 : 0
   name                 = "${var.prefix}private-dns-resolver"
   resource_group_name  = var.resource_group
   location             = var.location

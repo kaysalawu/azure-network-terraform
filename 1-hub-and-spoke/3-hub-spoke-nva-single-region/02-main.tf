@@ -117,18 +117,16 @@ locals {
     }
 
     config_s2s_vpngw = {
-      enable             = true
-      sku                = "VpnGw1AZ"
-      enable_diagnostics = local.enable_diagnostics
+      enable = true
+      sku    = "VpnGw1AZ"
       bgp_settings = {
         asn = local.hub1_vpngw_asn
       }
     }
 
     config_p2s_vpngw = {
-      enable             = false
-      sku                = "VpnGw1AZ"
-      enable_diagnostics = local.enable_diagnostics
+      enable = false
+      sku    = "VpnGw1AZ"
       ip_configuration = [
         # { name = "ip-config", public_ip_address_name = azurerm_public_ip.hub1_p2s_vpngw_pip.name },
       ]
@@ -144,24 +142,21 @@ locals {
     }
 
     config_ergw = {
-      enable             = false
-      sku                = "ErGw1AZ"
-      enable_diagnostics = local.enable_diagnostics
+      enable = false
+      sku    = "ErGw1AZ"
     }
 
     config_firewall = {
       enable             = false
       firewall_sku       = local.firewall_sku
       firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
-      enable_diagnostics = local.enable_diagnostics
     }
 
     config_nva = {
-      enable             = true
-      type               = "linux"
-      internal_lb_addr   = local.hub1_nva_ilb_addr
-      custom_data        = base64encode(local.hub1_linux_nva_init)
-      enable_diagnostics = local.enable_diagnostics
+      enable           = true
+      type             = "linux"
+      internal_lb_addr = local.hub1_nva_ilb_addr
+      custom_data      = base64encode(local.hub1_linux_nva_init)
     }
   }
 }

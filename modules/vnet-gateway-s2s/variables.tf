@@ -72,12 +72,6 @@ variable "create_dashboard" {
   default     = true
 }
 
-variable "enable_diagnostics" {
-  description = "enable diagnostics"
-  type        = bool
-  default     = false
-}
-
 variable "enable_bgp" {
   description = "enable bgp"
   type        = bool
