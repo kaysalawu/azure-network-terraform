@@ -3,10 +3,12 @@
 ####################################################
 
 locals {
-  prefix                = "G02"
-  region1               = "westeurope"
-  region2               = "northeurope"
-  spoke3_apps_fqdn      = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
+  prefix             = "G02"
+  enable_diagnostics = false
+
+  hub1_tags   = { "lab" = "Hs13", "nodeType" = "hub" }
+  spoke1_tags = { "lab" = "Hs13", "nodeType" = "spoke" }
+
   server_cert_name_app1 = "cert"
   server_common_name    = "healthz.az.corp"
   server_host_app1      = "app1.we.az.corp"
@@ -48,6 +50,22 @@ terraform {
 }
 
 ####################################################
+# user assigned identity
+####################################################
+
+resource "azurerm_user_assigned_identity" "machine" {
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = local.default_region
+  name                = "${local.prefix}-user"
+}
+
+resource "azurerm_role_assignment" "machine" {
+  role_definition_name = "Contributor"
+  principal_id         = azurerm_user_assigned_identity.machine.principal_id
+  scope                = data.azurerm_subscription.current.id
+}
+
+####################################################
 # network features
 ####################################################
 
@@ -55,19 +73,19 @@ locals {
   regions = {
     region1 = local.region1
   }
-  default_udr_destinations = {
-    "default" = "0.0.0.0/0"
-  }
-  hub1_appliance_udr_destinations = {
-    "spoke4" = local.spoke4_address_space[0]
-    "spoke5" = local.spoke5_address_space[0]
-    "hub2"   = local.hub2_address_space[0]
-  }
-  hub1_gateway_udr_destinations = {
-    "spoke1" = local.spoke1_address_space[0]
-    "spoke2" = local.spoke2_address_space[0]
-    "hub1"   = local.hub1_address_space[0]
-  }
+  default_udr_destinations = [
+    { name = "default", address_prefix = ["0.0.0.0/0"] }
+  ]
+  hub1_appliance_udr_destinations = [
+    { name = "spoke4", address_prefix = local.spoke4_address_space },
+    { name = "spoke5", address_prefix = local.spoke5_address_space },
+    { name = "hub2", address_prefix = local.hub2_address_space },
+  ]
+  hub1_gateway_udr_destinations = [
+    { name = "spoke1", address_prefix = local.spoke1_address_space },
+    { name = "spoke2", address_prefix = local.spoke2_address_space },
+    { name = "hub1", address_prefix = local.hub1_address_space },
+  ]
   firewall_sku = "Basic"
 
   hub1_features = {
@@ -85,7 +103,7 @@ locals {
           ]
         }
         "${local.region1_code}" = {
-          domain = "eu.${local.cloud_domain}"
+          domain = "${local.region1_code}.${local.cloud_domain}"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
@@ -106,6 +124,24 @@ locals {
       bgp_settings = {
         asn = local.hub1_vpngw_asn
       }
+    }
+
+    config_p2s_vpngw = {
+      enable             = false
+      sku                = "VpnGw1AZ"
+      enable_diagnostics = local.enable_diagnostics
+      ip_configuration = [
+        # { name = "ip-config", public_ip_address_name = azurerm_public_ip.hub1_p2s_vpngw_pip.name },
+      ]
+      vpn_client_configuration = {
+        address_space = []
+        clients = [
+          # { name = "client1" },
+          # { name = "client2" },
+          # { name = "client3" },
+        ]
+      }
+      custom_route_address_prefixes = ["8.8.8.8/32"]
     }
 
     config_ergw = {
@@ -201,6 +237,7 @@ locals {
     local.vm_script_targets_misc,
   )
   vm_startup = templatefile("../../scripts/server.sh", {
+    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
@@ -276,16 +313,13 @@ locals {
       ]
     )
   }
-  branch_unbound_conf         = templatefile("../../scripts/unbound/unbound.conf", local.onprem_dns_vars)
-  branch_unbound_startup      = templatefile("../../scripts/unbound/unbound.sh", local.onprem_dns_vars)
-  branch_dnsmasq_startup      = templatefile("../../scripts/dnsmasq/dnsmasq.sh", local.onprem_dns_vars)
-  branch_dnsmasq_cloud_config = templatefile("../../scripts/dnsmasq/cloud-config", local.onprem_dns_vars)
-  branch_unbound_cloud_config = templatefile("../../scripts/unbound/cloud-config", local.onprem_dns_vars)
-  branch_onprem_dns_vars = {
-    ONPREM_LOCAL_RECORDS = local.onprem_local_records
-    REDIRECTED_HOSTS     = local.onprem_redirected_hosts
-    FORWARD_ZONES        = local.onprem_forward_zones
-    TARGETS              = local.vm_script_targets
+  branch_unbound_startup = templatefile("../../scripts/unbound/unbound.sh", local.branch_dns_vars)
+  branch_dns_init_dir    = "/var/lib/labs"
+  branch_unbound_init = {
+    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/Dockerfile", {}) }
+    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
+    "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.conf", local.branch_dns_vars) }
+    "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.log", local.branch_dns_vars) }
   }
   onprem_local_records = [
     { name = (local.branch1_vm_fqdn), record = local.branch1_vm_addr },
@@ -305,26 +339,16 @@ locals {
   onprem_redirected_hosts = []
 }
 
-module "unbound" {
+module "branch_unbound_init" {
   source   = "../../modules/cloud-config-gen"
-  packages = ["tcpdump", "dnsutils", "net-tools", "unbound"]
-  files = {
-    "/var/log/unbound"          = { owner = "root", permissions = "0755", content = "" }
-    "/etc/unbound/unbound.conf" = { owner = "root", permissions = "0640", content = local.branch_unbound_conf }
-  }
+  packages = ["docker.io", "docker-compose", "dnsutils", "net-tools", ]
+  files    = local.branch_unbound_init
   run_commands = [
+    "systemctl stop systemd-resolved",
+    "systemctl disable systemd-resolved",
+    "echo \"nameserver 8.8.8.8\" > /etc/resolv.conf",
     "systemctl restart unbound",
     "systemctl enable unbound",
-  ]
-}
-
-module "dnsmasq" {
-  source   = "../../modules/cloud-config-gen"
-  packages = ["dnsmasq"]
-  files    = {}
-  run_commands = [
-    "systemctl restart dnsmasq",
-    "systemctl enable dnsmasq",
   ]
 }
 
@@ -338,24 +362,6 @@ module "web_http_backend_init" {
   run_commands = [
     ". ${local.init_dir}/service.sh",
   ]
-}
-
-####################################################
-# nsg
-####################################################
-
-# rules
-
-####################################################
-# addresses
-####################################################
-
-resource "azurerm_public_ip" "branch1_nva_pip" {
-  resource_group_name = azurerm_resource_group.rg.name
-  name                = "${local.branch1_prefix}nva-pip"
-  location            = local.branch1_location
-  sku                 = "Standard"
-  allocation_method   = "Static"
 }
 
 ####################################################
@@ -375,8 +381,7 @@ resource "azurerm_firewall_policy" "firewall_policy" {
   private_ip_ranges = concat(
     local.private_prefixes,
     [
-      #"${local.spoke3_vm_public_ip}/32",
-      #"${local.spoke6_vm_public_ip}/32",
+      local.internet_proxy,
     ]
   )
 
@@ -420,6 +425,7 @@ module "fw_policy_rule_collection_group" {
 # hub1
 
 locals {
+  hub1_router_route_map_name_nh = "NEXT-HOP"
   hub1_nva_vars = {
     LOCAL_ASN = local.hub1_nva_asn
     LOOPBACK0 = local.hub1_nva_loopback0
@@ -438,39 +444,6 @@ locals {
     QUAGGA_BGPD_CONF  = ""
     }
   ))
-}
-
-####################################################
-# root ca
-####################################################
-
-# private key
-
-resource "tls_private_key" "root_ca" {
-  algorithm = "RSA"
-  rsa_bits  = 2048
-}
-
-# root ca cert
-
-resource "tls_self_signed_cert" "root_ca" {
-  private_key_pem = tls_private_key.root_ca.private_key_pem
-  subject {
-    common_name         = local.server_host_wildcard
-    organization        = "demo"
-    organizational_unit = "cloud network team"
-    street_address      = ["mpls chicken road"]
-    locality            = "London"
-    province            = "England"
-    country             = "UK"
-  }
-  is_ca_certificate     = true
-  validity_period_hours = 8760
-  allowed_uses = [
-    "key_encipherment",
-    "digital_signature",
-    "cert_signing",
-  ]
 }
 
 ####################################################
@@ -514,9 +487,3 @@ resource "local_file" "main_files" {
   filename = each.key
   content  = each.value
 }
-
-# resource "local_file" "docker_files" {
-#   for_each = local.vm_startup_fastapi_init
-#   filename = "output/docker/${each.key}"
-#   content  = each.value.content
-# }

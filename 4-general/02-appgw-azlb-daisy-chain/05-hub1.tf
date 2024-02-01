@@ -1,17 +1,4 @@
 
-/*
-Overview
---------
-This template creates hub1 vnet from the base module.
-Extra configs defined in local variable "hub1_features" of "main.tf" to enable:
-  - VPN gateway, ExpressRoute gateway
-  - Azure Firewall and/or NVA
-  - Private DNS zone for the hub
-  - Private DNS Resolver and ruleset for onprem, cloud and PrivateLink DNS resolution
-It also deploys a simple web server VM in the hub.
-NSGs are assigned to selected subnets.
-*/
-
 ####################################################
 # vnet
 ####################################################
@@ -25,22 +12,20 @@ module "hub1" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.hub1_tags
 
-  log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
-  flow_log_nsg_ids = [
-    module.common.nsg_main["region1"].id,
-  ]
-  network_watcher_name           = "NetworkWatcher_${local.region1}"
-  network_watcher_resource_group = "NetworkWatcherRG"
+  # log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
+  # flow_log_nsg_ids = [
+  #   module.common.nsg_main["region1"].id,
+  # ]
+  # network_watcher_name           = "NetworkWatcher_${local.region1}"
+  # network_watcher_resource_group = "NetworkWatcherRG"
 
   create_private_dns_zone = true
   private_dns_zone_name   = local.hub1_dns_zone
   private_dns_zone_linked_external_vnets = {
     "spoke1" = module.spoke1.vnet.id
-    "spoke2" = module.spoke2.vnet.id
   }
   private_dns_ruleset_linked_external_vnets = {
     "spoke1" = module.spoke1.vnet.id
-    "spoke2" = module.spoke2.vnet.id
   }
 
   nsg_subnet_map = {
@@ -73,23 +58,27 @@ module "hub1" {
 # workload
 ####################################################
 
-# module "hub1_vm" {
-#   source          = "../../modules/virtual-machine-linux"
-#   resource_group  = azurerm_resource_group.rg.name
-#   prefix          = trimsuffix(local.hub1_prefix, "-")
-#   name            = "vm"
-#   location        = local.hub1_location
-#   storage_account = module.common.storage_accounts["region1"]
-#   custom_data     = base64encode(local.vm_startup)
+module "hub1_vm" {
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  name            = "${local.hub1_prefix}vm"
+  computer_name   = "vm"
+  location        = local.hub1_location
+  storage_account = module.common.storage_accounts["region1"]
+  custom_data     = base64encode(local.vm_startup)
+  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
+  tags            = local.hub1_tags
 
-#   enable_ip_forwarding = true
-
-#   interfaces = [
-#     {
-#       name             = "untrust"
-#       subnet_id        = module.hub1.subnets["UntrustSubnet"].id
-#       create_public_ip = true
-#     },
-#   ]
-#   depends_on = [module.hub1]
-# }
+  enable_ip_forwarding = true
+  interfaces = [
+    {
+      name               = "${local.hub1_prefix}vm-main-nic"
+      subnet_id          = module.hub1.subnets["MainSubnet"].id
+      private_ip_address = local.hub1_vm_addr
+      create_public_ip   = true
+    },
+  ]
+  depends_on = [
+    module.hub1
+  ]
+}

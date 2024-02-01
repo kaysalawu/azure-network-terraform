@@ -1,10 +1,20 @@
 
 locals {
-  branch1_vm_init = templatefile("./scripts/server.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
-    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
+  branch1_vm_init = templatefile("../../scripts/server.sh", {
+    USER_ASSIGNED_ID = azurerm_user_assigned_identity.machine.id
+    TARGETS          = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = [
+      { count = 10, protocol = "tcp", port = 80, ip = local.hub1_vm_addr, probe = true },
+      { count = 10, protocol = "tcp", port = 8080, ip = local.hub1_vm_addr, probe = true },
+      { count = 10, protocol = "tcp", port = 8000, ip = local.hub1_vm_addr, probe = true },
+      { count = 10, protocol = "tcp", port = 9000, ip = local.hub1_vm_addr, probe = true },
+
+      { count = 10, protocol = "udp", port = 3000, ip = local.hub1_vm_addr, probe = true },
+      { count = 10, protocol = "udp", port = 3001, ip = local.hub1_vm_addr, probe = true },
+      { count = 10, protocol = "udp", port = 3002, ip = local.hub1_vm_addr, probe = true },
+      { count = 10, protocol = "udp", port = 3003, ip = local.hub1_vm_addr, probe = true },
+    ]
+    TARGETS_HEAVY_TRAFFIC_GEN = [local.hub1_vm_fqdn, ]
     ENABLE_TRAFFIC_GEN        = true
     ENABLE_IPERF3_SERVER      = false
     ENABLE_IPERF3_CLIENT      = true

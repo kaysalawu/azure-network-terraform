@@ -3,13 +3,9 @@
 # log analytics workspace
 ####################################################
 
-resource "azurerm_log_analytics_workspace" "this" {
+data "azurerm_log_analytics_workspace" "this" {
+  name                = var.log_analytics_workspace_name
   resource_group_name = var.resource_group
-  name                = replace("${var.prefix}vpngw-ws", "_", "")
-  location            = var.location
-  sku                 = "PerGB2018"
-  retention_in_days   = 30
-  tags                = var.tags
 }
 
 ####################################################
@@ -90,24 +86,11 @@ resource "azurerm_virtual_network_gateway" "this" {
 # diagnostic setting
 ####################################################
 
-# subscription id
-/*
-data "azurerm_subscription" "this" {}
-
-locals {
-  vnetgw_id = "/subscriptions/${data.azurerm_subscription.this.subscription_id}/resourceGroups/${var.resource_group}|${azurerm_virtual_network_gateway.this.name}"
-}
-
-data "external" "check_diag_setting" {
-  program = ["bash", "${path.module}/../../scripts/check_diag_setting.sh", "${local.vnetgw_id}"]
-}*/
-
 resource "azurerm_monitor_diagnostic_setting" "this" {
-  #count                      = data.external.check_diag_setting.result["exists"] == "true" ? 0 : 1
-  count                      = var.enable_diagnostics && var.create_dashboard ? 1 : 0
+  count                      = var.log_analytics_workspace_name != null && var.create_dashboard ? 1 : 0
   name                       = "${var.prefix}vpngw-diag"
   target_resource_id         = azurerm_virtual_network_gateway.this.id
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.this.id
+  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.this.id
 
   metric {
     category = "AllMetrics"
@@ -139,7 +122,7 @@ locals {
 }
 
 resource "azurerm_portal_dashboard" "this" {
-  count                = var.enable_diagnostics && var.create_dashboard ? 1 : 0
+  count                = var.log_analytics_workspace_name != null && var.create_dashboard ? 1 : 0
   name                 = "${var.prefix}vpngw-db"
   resource_group_name  = var.resource_group
   location             = var.location

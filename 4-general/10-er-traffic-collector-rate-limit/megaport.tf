@@ -42,17 +42,11 @@ module "megaport" {
       port_speed    = 1000
       requested_asn = local.megaport_asn
     },
-    {
-      name          = "mcr2"
-      port_speed    = 1000
-      requested_asn = local.megaport_asn
-    },
   ]
 
   circuits = [
-    # azure (az)
     {
-      name                          = "az1"
+      name                          = "er1"
       location                      = local.region1
       peering_location              = local.express_route_location
       bandwidth_in_mbps             = local.bandwidth_in_mbps
@@ -63,7 +57,6 @@ module "megaport" {
       virtual_network_gateway_id    = module.hub1.ergw.id
       peering_type                  = "AzurePrivatePeering"
     },
-    # onprem (op)
     {
       name                          = "op1"
       location                      = local.region1
@@ -77,6 +70,10 @@ module "megaport" {
       peering_type                  = "AzurePrivatePeering"
     },
   ]
+  depends_on = [
+    module.hub1.ergw,
+    module.branch1,
+  ]
 }
 
 ####################################################
@@ -85,8 +82,7 @@ module "megaport" {
 
 locals {
   hub1_er_dashboard_vars = {
-    ER_CIRCUIT_AZ1 = module.megaport.expressroute_circuits["az1"].id
-    ER_CIRCUIT_AZ2 = module.megaport.expressroute_circuits["az2"].id
+    ER_CIRCUIT1 = module.megaport.expressroute_circuits["er1"].id
   }
   dashboard_properties = templatefile("./templates/dashboard.json", local.hub1_er_dashboard_vars)
 }

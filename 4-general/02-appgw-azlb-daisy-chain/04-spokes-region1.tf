@@ -12,10 +12,7 @@ module "spoke1" {
   env             = "prod"
   location        = local.spoke1_location
   storage_account = module.common.storage_accounts["region1"]
-  tags = {
-    "nodeType" = "spoke"
-    "env"      = "prod"
-  }
+  tags            = local.spoke1_tags
 
   create_private_dns_zone = true
   private_dns_zone_name   = local.spoke1_dns_zone
@@ -38,6 +35,10 @@ module "spoke1" {
   config_vnet = {
     address_space = local.spoke1_address_space
     subnets       = local.spoke1_subnets
+    nat_gateway_subnet_names = [
+      "MainSubnet",
+      "UntrustSubnet",
+    ]
   }
 }
 
@@ -45,6 +46,7 @@ module "spoke1" {
 
 locals {
   spoke1_vm_init = templatefile("../../scripts/server.sh", {
+    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
     TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
@@ -53,19 +55,26 @@ locals {
 }
 
 module "spoke1_vm" {
-  source           = "../../modules/linux"
-  resource_group   = azurerm_resource_group.rg.name
-  prefix           = local.spoke1_prefix
-  name             = "vm"
-  location         = local.spoke1_location
-  subnet           = module.spoke1.subnets["MainSubnet"].id
-  private_ip       = local.spoke1_vm_addr
-  enable_public_ip = true
-  custom_data      = base64encode(local.spoke1_vm_init)
-  storage_account  = module.common.storage_accounts["region1"]
-  delay_creation   = "1m"
-  tags             = local.spoke1_tags
-  depends_on       = [module.spoke1]
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  name            = "${local.spoke1_prefix}vm"
+  computer_name   = "vm"
+  location        = local.spoke1_location
+  storage_account = module.common.storage_accounts["region1"]
+  custom_data     = base64encode(local.spoke1_vm_init)
+  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
+  tags            = local.spoke1_tags
+
+  interfaces = [
+    {
+      name               = "${local.spoke1_prefix}vm-main-nic"
+      subnet_id          = module.spoke1.subnets["MainSubnet"].id
+      private_ip_address = local.spoke1_vm_addr
+    },
+  ]
+  depends_on = [
+    module.spoke1
+  ]
 }
 
 ####################################################
@@ -80,33 +89,47 @@ locals {
 }
 
 module "spoke1_be1" {
-  source           = "../../modules/linux"
-  resource_group   = azurerm_resource_group.rg.name
-  prefix           = local.spoke1_prefix
-  name             = "be1"
-  location         = local.spoke1_location
-  subnet           = module.spoke1.subnets["MainSubnet"].id
-  private_ip       = local.spoke1_be1_addr
-  enable_public_ip = true
-  custom_data      = base64encode(module.web_http_backend_init.cloud_config)
-  storage_account  = module.common.storage_accounts["region1"]
-  source_image     = "ubuntu-22"
-  tags             = local.spoke1_tags
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  name            = "${local.spoke1_prefix}be1"
+  computer_name   = "be1"
+  location        = local.spoke1_location
+  storage_account = module.common.storage_accounts["region1"]
+  custom_data     = base64encode(module.web_http_backend_init.cloud_config)
+  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
+  tags            = local.spoke1_tags
+
+  interfaces = [
+    {
+      name      = "${local.spoke1_prefix}vm-main-nic"
+      subnet_id = module.spoke1.subnets["MainSubnet"].id
+    },
+  ]
+  depends_on = [
+    module.spoke1
+  ]
 }
 
 module "spoke1_be2" {
-  source           = "../../modules/linux"
-  resource_group   = azurerm_resource_group.rg.name
-  prefix           = local.spoke1_prefix
-  name             = "be2"
-  location         = local.spoke1_location
-  subnet           = module.spoke1.subnets["MainSubnet"].id
-  private_ip       = local.spoke1_be2_addr
-  enable_public_ip = true
-  custom_data      = base64encode(module.web_http_backend_init.cloud_config)
-  storage_account  = module.common.storage_accounts["region1"]
-  source_image     = "ubuntu-22"
-  tags             = local.spoke1_tags
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  name            = "${local.spoke1_prefix}be2"
+  computer_name   = "be2"
+  location        = local.spoke1_location
+  storage_account = module.common.storage_accounts["region1"]
+  custom_data     = base64encode(module.web_http_backend_init.cloud_config)
+  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
+  tags            = local.spoke1_tags
+
+  interfaces = [
+    {
+      name      = "${local.spoke1_prefix}vm-main-nic"
+      subnet_id = module.spoke1.subnets["MainSubnet"].id
+    },
+  ]
+  depends_on = [
+    module.spoke1
+  ]
 }
 
 ####################################################

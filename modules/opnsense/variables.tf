@@ -181,3 +181,9 @@ variable "trusted_subnet_address_prefix" {
   type        = string
   default     = ""
 }
+
+variable "log_analytics_workspace_name" {
+  description = "log analytics workspace name"
+  type        = string
+  default     = null
+}

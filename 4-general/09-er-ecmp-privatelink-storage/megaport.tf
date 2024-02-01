@@ -52,7 +52,7 @@ module "megaport" {
   circuits = [
     # azure (az)
     {
-      name                          = "az1"
+      name                          = "er1"
       location                      = local.region1
       peering_location              = local.express_route_location
       bandwidth_in_mbps             = local.bandwidth_in_mbps
@@ -64,7 +64,7 @@ module "megaport" {
       peering_type                  = "AzurePrivatePeering"
     },
     {
-      name                          = "az2"
+      name                          = "er2"
       location                      = local.region1
       peering_location              = local.express_route_location
       bandwidth_in_mbps             = local.bandwidth_in_mbps
@@ -109,8 +109,8 @@ module "megaport" {
 
 locals {
   hub1_er_dashboard_vars = {
-    ER_CIRCUIT_AZ1 = module.megaport.expressroute_circuits["az1"].id
-    ER_CIRCUIT_AZ2 = module.megaport.expressroute_circuits["az2"].id
+    ER_CIRCUIT1 = module.megaport.expressroute_circuits["er1"].id
+    ER_CIRCUIT2 = module.megaport.expressroute_circuits["er2"].id
   }
   dashboard_properties = templatefile("./templates/dashboard.json", local.hub1_er_dashboard_vars)
 }

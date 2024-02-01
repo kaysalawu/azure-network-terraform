@@ -3,14 +3,14 @@
 # log analytics workspace
 ####################################################
 
-resource "azurerm_log_analytics_workspace" "this" {
-  resource_group_name = var.resource_group
-  name                = replace("${var.prefix}vpngw-ws", "_", "")
-  location            = var.location
-  sku                 = "PerGB2018"
-  retention_in_days   = 30
-  tags                = var.tags
-}
+# resource "azurerm_log_analytics_workspace" "this" {
+#   resource_group_name = var.resource_group
+#   name                = replace("${var.prefix}vpngw-ws", "_", "")
+#   location            = var.location
+#   sku                 = "PerGB2018"
+#   retention_in_days   = 30
+#   tags                = var.tags
+# }
 
 ####################################################
 # gateway

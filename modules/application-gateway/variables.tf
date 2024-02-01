@@ -311,3 +311,8 @@ variable "public_ip_address_name" {
   default     = null
 }
 
+variable "log_analytics_workspace_name" {
+  description = "log analytics workspace name"
+  type        = string
+  default     = null
+}

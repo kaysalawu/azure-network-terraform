@@ -120,3 +120,9 @@ variable "active_active" {
   type        = bool
   default     = false
 }
+
+variable "log_analytics_workspace_name" {
+  description = "log analytics workspace name"
+  type        = string
+  default     = null
+}

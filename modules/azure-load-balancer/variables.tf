@@ -173,3 +173,8 @@ variable "dns_host" {
   default     = null
 }
 
+variable "log_analytics_workspace_name" {
+  description = "log analytics workspace name"
+  type        = string
+  default     = null
+}

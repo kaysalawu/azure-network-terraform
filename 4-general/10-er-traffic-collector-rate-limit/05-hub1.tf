@@ -1,17 +1,4 @@
 
-/*
-Overview
---------
-This template creates hub1 vnet from the base module.
-Extra configs defined in local variable "hub1_features" of "main.tf" to enable:
-  - VPN gateway, ExpressRoute gateway
-  - Azure Firewall and/or NVA
-  - Private DNS zone for the hub
-  - Private DNS Resolver and ruleset for onprem, cloud and PrivateLink DNS resolution
-It also deploys a simple web server VM in the hub.
-NSGs are assigned to selected subnets.
-*/
-
 locals {
   hub1_vm_init = templatefile("./scripts/server.sh", {
     USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
@@ -22,6 +9,14 @@ locals {
     ENABLE_IPERF3_SERVER      = true
     ENABLE_IPERF3_CLIENT      = false
     IPERF3_SERVER_IP          = ""
+  })
+  hub1_vnet_flow_logs = templatefile("./scripts/vnet-flow-logs.sh", {
+    LOCATION             = local.hub1_location
+    RESOURCE_GROUP       = azurerm_resource_group.rg.name
+    NAME                 = "${local.hub1_prefix}vnet-flow-logs"
+    VNET_NAME            = module.hub1.vnet.name
+    STORAGE_ACCOUNT_NAME = module.common.storage_accounts["region1"].name
+    WORKSPACE_ID         = module.common.log_analytics_workspaces["region1"].workspace_id
   })
 }
 
@@ -105,4 +100,20 @@ module "hub1_vm" {
   depends_on = [
     module.hub1
   ]
+}
+
+####################################################
+# output files
+####################################################
+
+locals {
+  hub1_files = {
+    "output/vnet-flow-logs.sh" = local.hub1_vnet_flow_logs
+  }
+}
+
+resource "local_file" "hub1_files" {
+  for_each = local.branch1_files
+  filename = each.key
+  content  = each.value
 }

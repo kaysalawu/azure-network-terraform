@@ -23,7 +23,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_AZ1}"
+                          "id": "${ER_CIRCUIT1}"
                         },
                         "name": "BitsInPerSecond",
                         "aggregationType": 4,
@@ -34,7 +34,7 @@
                       },
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_AZ1}"
+                          "id": "${ER_CIRCUIT1}"
                         },
                         "name": "BitsOutPerSecond",
                         "aggregationType": 4,
@@ -84,7 +84,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_AZ1}"
+                          "id": "${ER_CIRCUIT1}"
                         },
                         "name": "BitsInPerSecond",
                         "aggregationType": 4,
@@ -95,7 +95,7 @@
                       },
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_AZ1}"
+                          "id": "${ER_CIRCUIT1}"
                         },
                         "name": "BitsOutPerSecond",
                         "aggregationType": 4,
@@ -152,7 +152,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_AZ2}"
+                          "id": "${ER_CIRCUIT2}"
                         },
                         "name": "BitsInPerSecond",
                         "aggregationType": 4,
@@ -163,7 +163,7 @@
                       },
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_AZ2}"
+                          "id": "${ER_CIRCUIT2}"
                         },
                         "name": "BitsOutPerSecond",
                         "aggregationType": 4,
@@ -213,7 +213,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_AZ2}"
+                          "id": "${ER_CIRCUIT2}"
                         },
                         "name": "BitsInPerSecond",
                         "aggregationType": 4,
@@ -224,7 +224,7 @@
                       },
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_AZ2}"
+                          "id": "${ER_CIRCUIT2}"
                         },
                         "name": "BitsOutPerSecond",
                         "aggregationType": 4,
@@ -281,7 +281,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_AZ1}"
+                          "id": "${ER_CIRCUIT1}"
                         },
                         "name": "BgpAvailability",
                         "aggregationType": 4,
@@ -342,7 +342,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_AZ1}"
+                          "id": "${ER_CIRCUIT1}"
                         },
                         "name": "BgpAvailability",
                         "aggregationType": 4,
@@ -409,7 +409,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_AZ2}"
+                          "id": "${ER_CIRCUIT2}"
                         },
                         "name": "BgpAvailability",
                         "aggregationType": 4,
@@ -470,7 +470,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_AZ2}"
+                          "id": "${ER_CIRCUIT2}"
                         },
                         "name": "BgpAvailability",
                         "aggregationType": 4,
@@ -537,7 +537,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_AZ1}"
+                          "id": "${ER_CIRCUIT1}"
                         },
                         "name": "BgpAvailability",
                         "aggregationType": 4,
@@ -598,7 +598,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_AZ1}"
+                          "id": "${ER_CIRCUIT1}"
                         },
                         "name": "BgpAvailability",
                         "aggregationType": 4,
@@ -665,7 +665,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_AZ2}"
+                          "id": "${ER_CIRCUIT2}"
                         },
                         "name": "BgpAvailability",
                         "aggregationType": 4,
@@ -726,7 +726,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_AZ2}"
+                          "id": "${ER_CIRCUIT2}"
                         },
                         "name": "BgpAvailability",
                         "aggregationType": 4,

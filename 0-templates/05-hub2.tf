@@ -25,12 +25,12 @@ module "hub2" {
   storage_account = module.common.storage_accounts["region2"]
   tags            = local.hub2_tags
 
-  log_analytics_workspace_name = module.common.log_analytics_workspaces["region2"].name
-  flow_log_nsg_ids = [
-    module.common.nsg_main["region2"].id,
-  ]
-  network_watcher_name           = "NetworkWatcher_${local.region2}"
-  network_watcher_resource_group = "NetworkWatcherRG"
+  # log_analytics_workspace_name = module.common.log_analytics_workspaces["region2"].name
+  # flow_log_nsg_ids = [
+  #   module.common.nsg_main["region2"].id,
+  # ]
+  # network_watcher_name           = "NetworkWatcher_${local.region2}"
+  # network_watcher_resource_group = "NetworkWatcherRG"
 
   create_private_dns_zone = true
   private_dns_zone_name   = local.hub2_dns_zone

@@ -168,7 +168,7 @@ chmod a+x /usr/local/bin/trace-ip
 cat <<EOF > /usr/local/bin/light-traffic
 %{ for target in TARGETS_LIGHT_TRAFFIC_GEN ~}
 %{~ if try(target.probe, false) ~}
-nping -c ${try(target.count, "3")} --${try(target.protocol, "tcp")} -p ${try(target.port, "80")} ${target.dns} > /dev/null 2>&1
+nping -c ${try(target.count, "10")} --${try(target.protocol, "tcp")} -p ${try(target.port, "80")} ${try(target.dns, target.ip)} > /dev/null 2>&1
 %{ endif ~}
 %{ endfor ~}
 EOF
@@ -181,12 +181,12 @@ chmod a+x /usr/local/bin/light-traffic
 cat <<EOF > /usr/local/bin/heavy-traffic
 #! /bin/bash
 i=0
-while [ \$i -lt 4 ]; do
+while [ \$i -lt 8 ]; do
   %{ for target in TARGETS_HEAVY_TRAFFIC_GEN ~}
   ab -n \$1 -c \$2 ${target} > /dev/null 2>&1
   %{ endfor ~}
   let i=i+1
-  sleep 2
+  sleep 5
 done
 EOF
 chmod a+x /usr/local/bin/heavy-traffic

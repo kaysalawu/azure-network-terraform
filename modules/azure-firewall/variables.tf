@@ -104,3 +104,9 @@ variable "virtual_hub_public_ip_count" {
   type        = number
   default     = 1
 }
+
+variable "log_analytics_workspace_name" {
+  description = "log analytics workspace name"
+  type        = string
+  default     = null
+}

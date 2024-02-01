@@ -175,3 +175,8 @@ variable "source_image_reference" {
   }
 }
 
+variable "log_analytics_workspace_name" {
+  description = "log analytics workspace name"
+  type        = string
+  default     = null
+}
