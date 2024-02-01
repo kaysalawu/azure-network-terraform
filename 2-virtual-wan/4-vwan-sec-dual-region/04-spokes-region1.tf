@@ -53,6 +53,9 @@ module "spoke1" {
       "UntrustSubnet",
     ]
   }
+  depends_on = [
+    module.common,
+  ]
 }
 
 # workload
@@ -134,6 +137,9 @@ module "spoke2" {
       "UntrustSubnet",
     ]
   }
+  depends_on = [
+    module.common,
+  ]
 }
 
 # workload
@@ -205,6 +211,9 @@ module "spoke3" {
       "UntrustSubnet",
     ]
   }
+  depends_on = [
+    module.common,
+  ]
 }
 
 # workload
