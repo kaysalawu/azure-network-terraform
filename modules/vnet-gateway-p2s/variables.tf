@@ -66,12 +66,6 @@ variable "log_categories" {
   ]
 }
 
-variable "create_dashboard" {
-  description = "create dashboard"
-  type        = bool
-  default     = true
-}
-
 variable "ip_configuration" {
   description = "ip configurations for vnet gateway"
   type = list(object({

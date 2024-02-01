@@ -65,12 +65,6 @@ variable "ruleset_dns_forwarding_rules" {
   default     = {}
 }
 
-variable "create_dashboard" {
-  description = "create dashboard"
-  type        = bool
-  default     = true
-}
-
 variable "log_analytics_workspace_name" {
   description = "log analytics workspace name"
   type        = string

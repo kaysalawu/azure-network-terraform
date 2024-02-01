@@ -17,12 +17,13 @@ locals {
 #----------------------------
 
 module "branch3" {
-  source          = "../../modules/base"
-  resource_group  = azurerm_resource_group.rg.name
-  prefix          = trimsuffix(local.branch3_prefix, "-")
-  location        = local.branch3_location
-  storage_account = module.common.storage_accounts["region2"]
-  tags            = local.branch3_tags
+  source             = "../../modules/base"
+  resource_group     = azurerm_resource_group.rg.name
+  prefix             = trimsuffix(local.branch3_prefix, "-")
+  location           = local.branch3_location
+  storage_account    = module.common.storage_accounts["region2"]
+  enable_diagnostics = local.enable_diagnostics
+  tags               = local.branch3_tags
 
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region2"].id

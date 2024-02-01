@@ -108,12 +108,6 @@ variable "metric_categories" {
   ]
 }
 
-variable "create_dashboard" {
-  description = "create dashboard"
-  type        = bool
-  default     = true
-}
-
 variable "active_active" {
   description = "enable active active"
   type        = bool

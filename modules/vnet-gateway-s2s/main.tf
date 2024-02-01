@@ -87,7 +87,7 @@ resource "azurerm_virtual_network_gateway" "this" {
 ####################################################
 
 resource "azurerm_monitor_diagnostic_setting" "this" {
-  count                      = var.log_analytics_workspace_name != null && var.create_dashboard ? 1 : 0
+  count                      = var.log_analytics_workspace_name != null ? 1 : 0
   name                       = "${var.prefix}vpngw-diag"
   target_resource_id         = azurerm_virtual_network_gateway.this.id
   log_analytics_workspace_id = data.azurerm_log_analytics_workspace.this.id
@@ -122,7 +122,7 @@ locals {
 }
 
 resource "azurerm_portal_dashboard" "this" {
-  count                = var.log_analytics_workspace_name != null && var.create_dashboard ? 1 : 0
+  count                = var.log_analytics_workspace_name != null ? 1 : 0
   name                 = "${var.prefix}vpngw-db"
   resource_group_name  = var.resource_group
   location             = var.location

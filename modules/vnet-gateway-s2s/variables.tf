@@ -66,12 +66,6 @@ variable "log_categories" {
   ]
 }
 
-variable "create_dashboard" {
-  description = "create dashboard"
-  type        = bool
-  default     = true
-}
-
 variable "enable_bgp" {
   description = "enable bgp"
   type        = bool

@@ -32,6 +32,12 @@ variable "storage_account" {
   default     = null
 }
 
+variable "enable_diagnostics" {
+  description = "enable diagnostics"
+  type        = bool
+  default     = false
+}
+
 variable "log_analytics_workspace_name" {
   description = "log analytics workspace name"
   type        = string
@@ -142,10 +148,9 @@ variable "config_vnet" {
 
 variable "config_s2s_vpngw" {
   type = object({
-    enable           = optional(bool, false)
-    sku              = optional(string, "VpnGw1AZ")
-    active_active    = optional(bool, false)
-    create_dashboard = optional(bool, true)
+    enable        = optional(bool, false)
+    sku           = optional(string, "VpnGw1AZ")
+    active_active = optional(bool, false)
     ip_configuration = optional(list(object({
       name                          = string
       subnet_id                     = optional(string)
@@ -157,9 +162,8 @@ variable "config_s2s_vpngw" {
     }))
   })
   default = {
-    enable           = false
-    sku              = "VpnGw1AZ"
-    create_dashboard = true
+    enable = false
+    sku    = "VpnGw1AZ"
     bgp_settings = {
       asn = 65515
     }
@@ -168,10 +172,9 @@ variable "config_s2s_vpngw" {
 
 variable "config_p2s_vpngw" {
   type = object({
-    enable           = optional(bool, false)
-    sku              = optional(string, "VpnGw1AZ")
-    active_active    = optional(bool, false)
-    create_dashboard = optional(bool, true)
+    enable        = optional(bool, false)
+    sku           = optional(string, "VpnGw1AZ")
+    active_active = optional(bool, false)
 
     custom_route_address_prefixes = optional(list(string), [])
 
@@ -189,9 +192,8 @@ variable "config_p2s_vpngw" {
   })
 
   default = {
-    enable           = false
-    sku              = "VpnGw1AZ"
-    create_dashboard = true
+    enable = false
+    sku    = "VpnGw1AZ"
     ip_configuration = [
       { name = "ip-config", public_ip_address_name = null },
     ]
@@ -214,15 +216,13 @@ variable "vpn_client_configuration" {
 
 variable "config_ergw" {
   type = object({
-    enable           = optional(bool, false)
-    sku              = optional(string, "ErGw1AZ")
-    active_active    = optional(bool, false)
-    create_dashboard = optional(bool, true)
+    enable        = optional(bool, false)
+    sku           = optional(string, "ErGw1AZ")
+    active_active = optional(bool, false)
   })
   default = {
-    enable           = false
-    sku              = "ErGw1AZ"
-    create_dashboard = true
+    enable = false
+    sku    = "ErGw1AZ"
   }
 }
 
@@ -231,13 +231,11 @@ variable "config_firewall" {
     enable             = optional(bool, false)
     firewall_sku       = optional(string, "Basic")
     firewall_policy_id = optional(string, null)
-    create_dashboard   = optional(bool, true)
   })
   default = {
     enable             = false,
     firewall_sku       = "Basic"
     firewall_policy_id = null
-    create_dashboard   = true
   }
 }
 
@@ -247,7 +245,6 @@ variable "config_nva" {
     type             = optional(string, "cisco")
     internal_lb_addr = optional(string)
     custom_data      = optional(string)
-    create_dashboard = optional(bool, true)
   })
   default = {
     enable           = false

@@ -79,7 +79,7 @@ resource "azurerm_network_watcher_flow_log" "this" {
   }
 
   traffic_analytics {
-    enabled               = true
+    enabled               = var.enable_diagnostics != null ? true : false
     workspace_id          = data.azurerm_log_analytics_workspace.this[0].workspace_id
     workspace_region      = data.azurerm_log_analytics_workspace.this[0].location
     workspace_resource_id = data.azurerm_log_analytics_workspace.this[0].id
@@ -150,7 +150,7 @@ module "dns_resolver" {
   ruleset_dns_forwarding_rules              = var.config_vnet.ruleset_dns_forwarding_rules
   private_dns_ruleset_linked_external_vnets = var.private_dns_ruleset_linked_external_vnets
 
-  create_dashboard = var.config_ergw.create_dashboard
+  log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 
   depends_on = [
     azurerm_subnet.this,
@@ -224,10 +224,11 @@ module "s2s_vpngw" {
   subnet_id      = azurerm_subnet.this["GatewaySubnet"].id
   tags           = var.tags
 
-  sku              = var.config_s2s_vpngw.sku
-  active_active    = var.config_s2s_vpngw.active_active
-  bgp_asn          = var.config_s2s_vpngw.bgp_settings.asn
-  create_dashboard = var.config_s2s_vpngw.create_dashboard
+  sku           = var.config_s2s_vpngw.sku
+  active_active = var.config_s2s_vpngw.active_active
+  bgp_asn       = var.config_s2s_vpngw.bgp_settings.asn
+
+  log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 
   ip_config0_apipa_addresses = try(var.config_s2s_vpngw.ip_config0_apipa_addresses, null)
   ip_config1_apipa_addresses = try(var.config_s2s_vpngw.ip_config1_apipa_addresses, null)
@@ -270,7 +271,7 @@ module "p2s_vpngw" {
     }
   ]
 
-  create_dashboard = var.config_p2s_vpngw.create_dashboard
+  log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 
   depends_on = [
     azurerm_subnet.this,
@@ -292,9 +293,10 @@ module "ergw" {
   subnet_id      = azurerm_subnet.this["GatewaySubnet"].id
   tags           = var.tags
 
-  sku              = var.config_vnet.express_route_gateway_sku
-  active_active    = var.config_ergw.active_active
-  create_dashboard = var.config_ergw.create_dashboard
+  sku           = var.config_vnet.express_route_gateway_sku
+  active_active = var.config_ergw.active_active
+
+  log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 
   depends_on = [
     azurerm_subnet.this,
@@ -365,8 +367,8 @@ module "azfw" {
   sku_name       = "AZFW_VNet"
   tags           = var.tags
 
-  firewall_policy_id = var.config_firewall.firewall_policy_id
-  create_dashboard   = var.config_firewall.create_dashboard
+  firewall_policy_id           = var.config_firewall.firewall_policy_id
+  log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 
   depends_on = [
     azurerm_subnet.this,
@@ -396,7 +398,8 @@ module "nva_linux" {
   storage_account = var.storage_account
   source_image    = "ubuntu-20"
   custom_data     = var.config_nva.custom_data
-  #create_dashboard     = false #var.config_nva.create_dashboard
+
+  #log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 
   enable_ip_forwarding = true
   interfaces = [

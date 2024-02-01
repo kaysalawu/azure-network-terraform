@@ -24,6 +24,9 @@ module "spoke1" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.spoke1_tags
 
+  enable_diagnostics           = local.enable_diagnostics
+  log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
+
   create_private_dns_zone = true
   private_dns_zone_name   = local.spoke1_dns_zone
   private_dns_zone_linked_external_vnets = {
@@ -102,6 +105,9 @@ module "spoke2" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.spoke2_tags
 
+  enable_diagnostics           = local.enable_diagnostics
+  log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
+
   create_private_dns_zone = true
   private_dns_zone_name   = local.spoke2_dns_zone
   private_dns_zone_linked_external_vnets = {
@@ -169,6 +175,9 @@ module "spoke3" {
   location        = local.spoke3_location
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.spoke3_tags
+
+  enable_diagnostics           = local.enable_diagnostics
+  log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
 
   create_private_dns_zone = true
   private_dns_zone_name   = local.spoke3_dns_zone
