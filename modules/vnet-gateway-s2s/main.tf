@@ -4,6 +4,7 @@
 ####################################################
 
 data "azurerm_log_analytics_workspace" "this" {
+  count               = var.log_analytics_workspace_name != null ? 1 : 0
   name                = var.log_analytics_workspace_name
   resource_group_name = var.resource_group
 }
@@ -12,22 +13,16 @@ data "azurerm_log_analytics_workspace" "this" {
 # ip addresses
 ####################################################
 
-resource "azurerm_public_ip" "pip0" {
+data "azurerm_public_ip" "this" {
+  for_each            = { for i in var.ip_configuration : i.name => i if i.public_ip_address_name != null }
   resource_group_name = var.resource_group
-  name                = "${var.prefix}vpngw-pip0"
-  location            = var.location
-  sku                 = "Standard"
-  allocation_method   = "Static"
-  zones               = [1, 2, 3]
-  timeouts {
-    create = "60m"
-  }
-  tags = var.tags
+  name                = each.value.public_ip_address_name
 }
 
-resource "azurerm_public_ip" "pip1" {
+resource "azurerm_public_ip" "this" {
+  for_each            = { for i in var.ip_configuration : i.name => i if i.public_ip_address_name == null }
   resource_group_name = var.resource_group
-  name                = "${var.prefix}vpngw-pip1"
+  name                = each.value.public_ip_address_name
   location            = var.location
   sku                 = "Standard"
   allocation_method   = "Static"
@@ -50,31 +45,28 @@ resource "azurerm_virtual_network_gateway" "this" {
   vpn_type            = "RouteBased"
   sku                 = var.sku
   enable_bgp          = var.enable_bgp
-  active_active       = var.active_active
+  active_active       = length(var.ip_configuration) > 1 ? true : var.active_active
   tags                = var.tags
 
-  ip_configuration {
-    name                          = "ip-config0"
-    subnet_id                     = var.subnet_id
-    public_ip_address_id          = azurerm_public_ip.pip0.id
-    private_ip_address_allocation = "Dynamic"
-  }
-  ip_configuration {
-    name                          = "ip-config1"
-    subnet_id                     = var.subnet_id
-    public_ip_address_id          = azurerm_public_ip.pip1.id
-    private_ip_address_allocation = "Dynamic"
+  dynamic "ip_configuration" {
+    for_each = { for i in var.ip_configuration : i.name => i if i.public_ip_address_name != null }
+    content {
+      name                          = ip_configuration.value["name"]
+      subnet_id                     = ip_configuration.value["subnet_id"]
+      public_ip_address_id          = data.azurerm_public_ip.this[ip_configuration.key].id != null ? data.azurerm_public_ip.this[ip_configuration.key].id : azurerm_public_ip.this[ip_configuration.key].id
+      private_ip_address_allocation = ip_configuration.value["private_ip_address_allocation"]
+    }
   }
 
   bgp_settings {
     asn = var.bgp_asn
-    peering_addresses {
-      ip_configuration_name = "ip-config0"
-      apipa_addresses       = try(var.ip_config0_apipa_addresses, ["169.254.21.1"])
-    }
-    peering_addresses {
-      ip_configuration_name = "ip-config1"
-      apipa_addresses       = try(var.ip_config1_apipa_addresses, ["169.254.21.5"])
+
+    dynamic "peering_addresses" {
+      for_each = { for i in var.ip_configuration : i.name => i if i.apipa_addresses != null }
+      content {
+        ip_configuration_name = peering_addresses.value["name"]
+        apipa_addresses       = peering_addresses.value["apipa_addresses"]
+      }
     }
   }
   timeouts {
@@ -90,7 +82,7 @@ resource "azurerm_monitor_diagnostic_setting" "this" {
   count                      = var.log_analytics_workspace_name != null ? 1 : 0
   name                       = "${var.prefix}vpngw-diag"
   target_resource_id         = azurerm_virtual_network_gateway.this.id
-  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.this.id
+  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.this[0].id
 
   metric {
     category = "AllMetrics"

@@ -1,7 +1,7 @@
 #! /bin/bash
 
 apt update
-apt install -y python3-pip python3-dev unzip tcpdump dnsutils net-tools nmap apache2-utils
+apt install -y python3-pip python3-dev unzip tcpdump dnsutils net-tools nmap apache2-utils iperf3
 
 apt install -y openvpn network-manager-openvpn
 sudo service network-manager restart
@@ -158,8 +158,8 @@ echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{h
 echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke5.us.az.corp) - vm.spoke5.us.az.corp"
 echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke6.us.az.corp) - vm.spoke6.us.az.corp"
 echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vwan22-spoke3-8537.azurewebsites.net) - vwan22-spoke3-8537.azurewebsites.net"
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vwan22-spoke6-8537.azurewebsites.net) - vwan22-spoke6-8537.azurewebsites.net"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vwan22-spoke3-2004.azurewebsites.net) - vwan22-spoke3-2004.azurewebsites.net"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vwan22-spoke6-2004.azurewebsites.net) - vwan22-spoke6-2004.azurewebsites.net"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 
@@ -199,16 +199,16 @@ chmod a+x /usr/local/bin/trace-ip
 # light-traffic generator
 
 cat <<EOF > /usr/local/bin/light-traffic
-nping -c 3 --tcp -p 80 vm.branch1.corp > /dev/null 2>&1
-nping -c 3 --tcp -p 80 spoke3.p.hub1.eu.az.corp > /dev/null 2>&1
-nping -c 3 --tcp -p 80 vm.spoke1.eu.az.corp > /dev/null 2>&1
-nping -c 3 --tcp -p 80 vm.spoke2.eu.az.corp > /dev/null 2>&1
-nping -c 3 --tcp -p 80 vm.branch3.corp > /dev/null 2>&1
-nping -c 3 --tcp -p 80 spoke6.p.hub2.us.az.corp > /dev/null 2>&1
-nping -c 3 --tcp -p 80 vm.spoke4.us.az.corp > /dev/null 2>&1
-nping -c 3 --tcp -p 80 vm.spoke5.us.az.corp > /dev/null 2>&1
-nping -c 3 --tcp -p 80 vwan22-spoke3-8537.azurewebsites.net > /dev/null 2>&1
-nping -c 3 --tcp -p 80 vwan22-spoke6-8537.azurewebsites.net > /dev/null 2>&1
+nping -c 10 --tcp -p 80 vm.branch1.corp > /dev/null 2>&1
+nping -c 10 --tcp -p 80 spoke3.p.hub1.eu.az.corp > /dev/null 2>&1
+nping -c 10 --tcp -p 80 vm.spoke1.eu.az.corp > /dev/null 2>&1
+nping -c 10 --tcp -p 80 vm.spoke2.eu.az.corp > /dev/null 2>&1
+nping -c 10 --tcp -p 80 vm.branch3.corp > /dev/null 2>&1
+nping -c 10 --tcp -p 80 spoke6.p.hub2.us.az.corp > /dev/null 2>&1
+nping -c 10 --tcp -p 80 vm.spoke4.us.az.corp > /dev/null 2>&1
+nping -c 10 --tcp -p 80 vm.spoke5.us.az.corp > /dev/null 2>&1
+nping -c 10 --tcp -p 80 vwan22-spoke3-2004.azurewebsites.net > /dev/null 2>&1
+nping -c 10 --tcp -p 80 vwan22-spoke6-2004.azurewebsites.net > /dev/null 2>&1
 EOF
 chmod a+x /usr/local/bin/light-traffic
 
@@ -217,7 +217,7 @@ chmod a+x /usr/local/bin/light-traffic
 cat <<EOF > /usr/local/bin/heavy-traffic
 #! /bin/bash
 i=0
-while [ \$i -lt 4 ]; do
+while [ \$i -lt 8 ]; do
     ab -n \$1 -c \$2 vm.branch1.corp > /dev/null 2>&1
     ab -n \$1 -c \$2 spoke3.p.hub1.eu.az.corp > /dev/null 2>&1
     ab -n \$1 -c \$2 vm.spoke1.eu.az.corp > /dev/null 2>&1
@@ -226,10 +226,10 @@ while [ \$i -lt 4 ]; do
     ab -n \$1 -c \$2 spoke6.p.hub2.us.az.corp > /dev/null 2>&1
     ab -n \$1 -c \$2 vm.spoke4.us.az.corp > /dev/null 2>&1
     ab -n \$1 -c \$2 vm.spoke5.us.az.corp > /dev/null 2>&1
-    ab -n \$1 -c \$2 vwan22-spoke3-8537.azurewebsites.net > /dev/null 2>&1
-    ab -n \$1 -c \$2 vwan22-spoke6-8537.azurewebsites.net > /dev/null 2>&1
+    ab -n \$1 -c \$2 vwan22-spoke3-2004.azurewebsites.net > /dev/null 2>&1
+    ab -n \$1 -c \$2 vwan22-spoke6-2004.azurewebsites.net > /dev/null 2>&1
     let i=i+1
-  sleep 2
+  sleep 5
 done
 EOF
 chmod a+x /usr/local/bin/heavy-traffic

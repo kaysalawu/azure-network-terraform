@@ -103,6 +103,12 @@ variable "custom_route_address_prefixes" {
   default     = []
 }
 
+variable "enable_bgp" {
+  description = "enable bgp"
+  type        = bool
+  default     = true
+}
+
 variable "active_active" {
   description = "enable active active"
   type        = bool

@@ -3,13 +3,10 @@
 # log analytics workspace
 ####################################################
 
-resource "azurerm_log_analytics_workspace" "this" {
+data "azurerm_log_analytics_workspace" "this" {
+  count               = var.log_analytics_workspace_name != null ? 1 : 0
+  name                = var.log_analytics_workspace_name
   resource_group_name = var.resource_group
-  name                = replace("${var.prefix}ergw-ws", "_", "")
-  location            = var.location
-  sku                 = "PerGB2018"
-  retention_in_days   = 30
-  tags                = var.tags
 }
 
 ####################################################
@@ -74,7 +71,7 @@ resource "azurerm_monitor_diagnostic_setting" "this" {
   count                      = var.log_analytics_workspace_name != null ? 1 : 0
   name                       = "${var.prefix}ergw-diag"
   target_resource_id         = azurerm_virtual_network_gateway.this.id
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.this.id
+  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.this[0].id
   #log_analytics_destination_type = "Dedicated"
 
   dynamic "metric" {

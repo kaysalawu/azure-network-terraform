@@ -4,6 +4,7 @@
 ####################################################
 
 data "azurerm_log_analytics_workspace" "this" {
+  count               = var.log_analytics_workspace_name != null ? 1 : 0
   name                = var.log_analytics_workspace_name
   resource_group_name = var.resource_group
 }
@@ -103,7 +104,7 @@ resource "azurerm_monitor_diagnostic_setting" "azfw" {
   count                          = var.log_analytics_workspace_name != null ? 1 : 0
   name                           = "${var.prefix}azfw-diag"
   target_resource_id             = azurerm_firewall.this.id
-  log_analytics_workspace_id     = data.azurerm_log_analytics_workspace.this.id
+  log_analytics_workspace_id     = data.azurerm_log_analytics_workspace.this[0].id
   log_analytics_destination_type = "Dedicated"
 
   metric {

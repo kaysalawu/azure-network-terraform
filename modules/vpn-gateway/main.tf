@@ -3,14 +3,11 @@
 # log analytics workspace
 ####################################################
 
-# resource "azurerm_log_analytics_workspace" "this" {
-#   resource_group_name = var.resource_group
-#   name                = replace("${var.prefix}vpngw-ws", "_", "")
-#   location            = var.location
-#   sku                 = "PerGB2018"
-#   retention_in_days   = 30
-#   tags                = var.tags
-# }
+data "azurerm_log_analytics_workspace" "this" {
+  count               = var.log_analytics_workspace_name != null ? 1 : 0
+  name                = var.log_analytics_workspace_name
+  resource_group_name = var.resource_group
+}
 
 ####################################################
 # gateway
@@ -54,24 +51,11 @@ resource "azurerm_vpn_gateway" "this" {
 # diagnostic setting
 ####################################################
 
-# subscription id
-/*
-data "azurerm_subscription" "this" {}
-
-locals {
-  vpngw_id = "/subscriptions/${data.azurerm_subscription.this.subscription_id}/resourceGroups/${var.resource_group}|${azurerm_vpn_gateway.this.name}"
-}
-
-data "external" "check_diag_setting" {
-  program = ["bash", "${path.module}/../../scripts/check_diag_setting.sh", "${local.vpngw_id}"]
-}*/
-
 resource "azurerm_monitor_diagnostic_setting" "this" {
-  #count                      = data.external.check_diag_setting.result == "true" ? 1 : 0
   count                      = var.log_analytics_workspace_name != null ? 1 : 0
   name                       = "${var.prefix}vpngw-diag"
   target_resource_id         = azurerm_vpn_gateway.this.id
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.this.id
+  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.this[0].id
 
   metric {
     category = "AllMetrics"

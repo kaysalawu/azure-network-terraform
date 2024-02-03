@@ -1,7 +1,7 @@
 #! /bin/bash
 
 apt update
-apt install -y python3-pip python3-dev unzip tcpdump dnsutils net-tools nmap apache2-utils
+apt install -y python3-pip python3-dev unzip tcpdump dnsutils net-tools nmap apache2-utils iperf3
 
 apt install -y openvpn network-manager-openvpn
 sudo service network-manager restart
@@ -158,8 +158,8 @@ echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{h
 echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke5.us.az.corp) - vm.spoke5.us.az.corp"
 echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke6.us.az.corp) - vm.spoke6.us.az.corp"
 echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null hs14-spoke3-a5ed.azurewebsites.net) - hs14-spoke3-a5ed.azurewebsites.net"
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null hs14-spoke6-a5ed.azurewebsites.net) - hs14-spoke6-a5ed.azurewebsites.net"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null hs14-spoke3-9e99.azurewebsites.net) - hs14-spoke3-9e99.azurewebsites.net"
+echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null hs14-spoke6-9e99.azurewebsites.net) - hs14-spoke6-9e99.azurewebsites.net"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 

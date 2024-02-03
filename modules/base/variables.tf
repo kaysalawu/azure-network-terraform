@@ -150,20 +150,22 @@ variable "config_s2s_vpngw" {
   type = object({
     enable        = optional(bool, false)
     sku           = optional(string, "VpnGw1AZ")
-    active_active = optional(bool, false)
+    active_active = optional(bool, true)
     ip_configuration = optional(list(object({
       name                          = string
       subnet_id                     = optional(string)
-      public_ip_address_id          = optional(string)
-      private_ip_address_allocation = optional(string, "Dynamic")
+      public_ip_address_name        = optional(string)
+      private_ip_address_allocation = optional(string)
+      apipa_addresses               = optional(list(string))
     })))
     bgp_settings = optional(object({
-      asn = optional(string, 65515)
+      asn = optional(string)
     }))
   })
   default = {
-    enable = false
-    sku    = "VpnGw1AZ"
+    enable        = false
+    sku           = "VpnGw1AZ"
+    active_active = true
     bgp_settings = {
       asn = 65515
     }

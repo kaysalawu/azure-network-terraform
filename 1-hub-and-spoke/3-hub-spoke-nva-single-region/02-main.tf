@@ -119,6 +119,10 @@ locals {
     config_s2s_vpngw = {
       enable = true
       sku    = "VpnGw1AZ"
+      ip_configuration = [
+        { name = "ipconf0", public_ip_address_name = azurerm_public_ip.hub1_s2s_vpngw_pip0.name, apipa_addresses = ["169.254.21.1"] },
+        { name = "ipconf1", public_ip_address_name = azurerm_public_ip.hub1_s2s_vpngw_pip1.name, apipa_addresses = ["169.254.21.5"] }
+      ]
       bgp_settings = {
         asn = local.hub1_vpngw_asn
       }
@@ -128,14 +132,13 @@ locals {
       enable = false
       sku    = "VpnGw1AZ"
       ip_configuration = [
-        # { name = "ip-config", public_ip_address_name = azurerm_public_ip.hub1_p2s_vpngw_pip.name },
+        #{ name = "ipconf", public_ip_address_name = azurerm_public_ip.hub1_p2s_vpngw_pip.name }
       ]
       vpn_client_configuration = {
-        address_space = []
+        address_space = ["192.168.0.0/24"]
         clients = [
           # { name = "client1" },
           # { name = "client2" },
-          # { name = "client3" },
         ]
       }
       custom_route_address_prefixes = ["8.8.8.8/32"]
@@ -324,9 +327,19 @@ resource "azurerm_public_ip" "branch1_nva_pip" {
 
 # hub1
 
-resource "azurerm_public_ip" "hub1_s2s_vpngw_pip" {
+resource "azurerm_public_ip" "hub1_s2s_vpngw_pip0" {
   resource_group_name = azurerm_resource_group.rg.name
-  name                = "${local.hub1_prefix}s2s-vpngw-pip"
+  name                = "${local.hub1_prefix}s2s-vpngw-pip0"
+  location            = local.hub1_location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+  zones               = [1, 2, 3]
+  tags                = local.hub1_tags
+}
+
+resource "azurerm_public_ip" "hub1_s2s_vpngw_pip1" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.hub1_prefix}s2s-vpngw-pip1"
   location            = local.hub1_location
   sku                 = "Standard"
   allocation_method   = "Static"

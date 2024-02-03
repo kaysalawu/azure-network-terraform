@@ -107,8 +107,8 @@ ipv6 forwarding
 line vty
 !
 ip route 0.0.0.0/0 10.22.2.1
-ip route 192.168.22.69/32 10.22.2.1
 ip route 192.168.22.68/32 10.22.2.1
+ip route 192.168.22.69/32 10.22.2.1
 ip route 10.5.0.0/16 10.22.2.1
 !
 
@@ -121,12 +121,12 @@ log file /var/log/quagga/bgpd.log informational
 !
 router bgp 65020
   bgp router-id 10.22.2.4
-  neighbor 192.168.22.69 remote-as 65515
-  neighbor 192.168.22.69 ebgp-multihop 255
-  neighbor 192.168.22.69 soft-reconfiguration inbound
   neighbor 192.168.22.68 remote-as 65515
   neighbor 192.168.22.68 ebgp-multihop 255
   neighbor 192.168.22.68 soft-reconfiguration inbound
+  neighbor 192.168.22.69 remote-as 65515
+  neighbor 192.168.22.69 ebgp-multihop 255
+  neighbor 192.168.22.69 soft-reconfiguration inbound
   network 10.22.0.0/24
   network 10.5.0.0/16
 !
@@ -219,8 +219,8 @@ echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} 
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke5.us.az.corp) - vm.spoke5.us.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vm.spoke6.us.az.corp) - vm.spoke6.us.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vwan22-spoke3-8537.azurewebsites.net) - vwan22-spoke3-8537.azurewebsites.net"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vwan22-spoke6-8537.azurewebsites.net) - vwan22-spoke6-8537.azurewebsites.net"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vwan22-spoke3-2004.azurewebsites.net) - vwan22-spoke3-2004.azurewebsites.net"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null vwan22-spoke6-2004.azurewebsites.net) - vwan22-spoke6-2004.azurewebsites.net"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 

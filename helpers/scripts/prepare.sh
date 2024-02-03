@@ -95,17 +95,17 @@ terraform_cleanup(){
 }
 
 if [[ "$1" == "--diff" || "$1" == "-f" ]]; then
-    clear && dir_diff
+    echo && dir_diff
 elif [[ "$1" == "--copy" || "$1" == "-c" ]]; then
-    clear && copy_files
+    echo && copy_files
 elif [[ "$1" == "--df" || "$1" == "-x" ]]; then
-    clear && delete_files
+    echo && delete_files
 elif [[ "$1" == "--plan" || "$1" == "-p" ]]; then
-    clear && terraform_plan
+    echo && terraform_plan
 elif [[ "$1" == "--validate" || "$1" == "-v" ]]; then
-    clear && terraform_validate
+    echo && terraform_validate
 elif [[ "$1" == "--cleanup" || "$1" == "-u" ]]; then
-    clear && terraform_cleanup
+    echo && terraform_cleanup
 elif [[ "$1" == "--help" || "$1" == "-h" ]]; then
     echo -e "Usage: $0 {--diff|-f | --copy|-c | --delete-files|-x | --plan|-p | --validate|-v | --cleanup|-u}"
 else

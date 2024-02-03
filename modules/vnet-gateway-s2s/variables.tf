@@ -43,6 +43,18 @@ variable "bgp_asn" {
   default     = 65515
 }
 
+variable "ip_configuration" {
+  description = "ip configurations for vnet gateway"
+  type = list(object({
+    name                          = string
+    subnet_id                     = string
+    public_ip_address_name        = optional(string, null)
+    private_ip_address_allocation = optional(string, "Dynamic")
+    apipa_addresses               = optional(list(string), null)
+  }))
+  default = []
+}
+
 variable "ip_config0_apipa_addresses" {
   description = "ip config0 apipa addresses for vnet gateway"
   type        = list(string)

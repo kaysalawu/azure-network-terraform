@@ -3,14 +3,11 @@
 # log analytics workspace
 ####################################################
 
-# resource "azurerm_log_analytics_workspace" "this" {
-#   resource_group_name = var.resource_group
-#   name                = replace("${var.prefix}vpngw-ws", "_", "")
-#   location            = var.location
-#   sku                 = "PerGB2018"
-#   retention_in_days   = 30
-#   tags                = var.tags
-# }
+data "azurerm_log_analytics_workspace" "this" {
+  count               = var.log_analytics_workspace_name != null ? 1 : 0
+  name                = var.log_analytics_workspace_name
+  resource_group_name = var.resource_group
+}
 
 ####################################################
 # ip addresses
@@ -25,7 +22,7 @@ data "azurerm_public_ip" "this" {
 resource "azurerm_public_ip" "this" {
   for_each            = { for i in var.ip_configuration : i.name => i if i.public_ip_address_name == null }
   resource_group_name = var.resource_group
-  name                = "${var.prefix}vpngw-pip-${each.value.name}"
+  name                = each.value.public_ip_address_name
   location            = var.location
   sku                 = "Standard"
   allocation_method   = "Static"
@@ -86,13 +83,9 @@ resource "azurerm_virtual_network_gateway" "this" {
   type                = "Vpn"
   vpn_type            = "RouteBased"
   sku                 = var.sku
-  enable_bgp          = false
+  enable_bgp          = var.enable_bgp
   active_active       = var.active_active
   tags                = var.tags
-
-  custom_route {
-    address_prefixes = var.custom_route_address_prefixes
-  }
 
   dynamic "ip_configuration" {
     for_each = { for i in var.ip_configuration : i.name => i if i.public_ip_address_name != null }
@@ -102,6 +95,10 @@ resource "azurerm_virtual_network_gateway" "this" {
       public_ip_address_id          = data.azurerm_public_ip.this[ip_configuration.key].id != null ? data.azurerm_public_ip.this[ip_configuration.key].id : azurerm_public_ip.this[ip_configuration.key].id
       private_ip_address_allocation = ip_configuration.value["private_ip_address_allocation"]
     }
+  }
+
+  custom_route {
+    address_prefixes = var.custom_route_address_prefixes
   }
 
   vpn_client_configuration {
@@ -163,10 +160,10 @@ module "client_certificates" {
 
 # resource "azurerm_monitor_diagnostic_setting" "this" {
 #   #count                      = data.external.check_diag_setting.result["exists"] == "true" ? 0 : 1
-#   count                      = var.log_analytics_workspace_name != null ? 1 : 0
+#   count                      = var.enable_diagnostics && var.create_dashboard ? 1 : 0
 #   name                       = "${var.prefix}vpngw-diag"
 #   target_resource_id         = azurerm_virtual_network_gateway.this.id
-#   log_analytics_workspace_id = azurerm_log_analytics_workspace.this.id
+#   log_analytics_workspace_id = data.azurerm_log_analytics_workspace[0].this.id
 
 #   metric {
 #     category = "AllMetrics"
@@ -198,7 +195,7 @@ module "client_certificates" {
 # }
 
 # resource "azurerm_portal_dashboard" "this" {
-#   count                = var.log_analytics_workspace_name != null ? 1 : 0
+#   count                = var.enable_diagnostics && var.create_dashboard ? 1 : 0
 #   name                 = "${var.prefix}vpngw-db"
 #   resource_group_name  = var.resource_group
 #   location             = var.location

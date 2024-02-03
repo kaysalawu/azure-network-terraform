@@ -86,12 +86,12 @@ output "s2s_vpngw_public_ip1" {
   value = try(module.s2s_vpngw[0].public_ip1, {})
 }
 
-output "s2s_vpngw_bgp_ip0" {
-  value = try(module.s2s_vpngw[0].bgp_ip0, {})
+output "s2s_vpngw_bgp_default_ip0" {
+  value = try(module.s2s_vpngw[0].bgp_default_ip0, {})
 }
 
-output "s2s_vpngw_bgp_ip1" {
-  value = try(module.s2s_vpngw[0].bgp_ip1, {})
+output "s2s_vpngw_bgp_default_ip1" {
+  value = try(module.s2s_vpngw[0].bgp_default_ip1, {})
 }
 
 # p2s vpngw

@@ -230,8 +230,13 @@ module "s2s_vpngw" {
 
   log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 
-  ip_config0_apipa_addresses = try(var.config_s2s_vpngw.ip_config0_apipa_addresses, null)
-  ip_config1_apipa_addresses = try(var.config_s2s_vpngw.ip_config1_apipa_addresses, null)
+  ip_configuration = [for c in var.config_s2s_vpngw.ip_configuration : {
+    name                          = c.name
+    subnet_id                     = azurerm_subnet.this["GatewaySubnet"].id
+    public_ip_address_name        = c.public_ip_address_name
+    private_ip_address_allocation = c.private_ip_address_allocation
+    apipa_addresses               = c.apipa_addresses
+  }]
 
   depends_on = [
     azurerm_subnet.this,
@@ -262,15 +267,12 @@ module "p2s_vpngw" {
     clients       = try(var.config_p2s_vpngw.vpn_client_configuration.clients, [])
   }
 
-  ip_configuration = [
-    {
-      name                          = try(var.config_p2s_vpngw.ip_configuration[0].name, "ip-config0")
-      subnet_id                     = azurerm_subnet.this["GatewaySubnet"].id
-      public_ip_address_name        = try(var.config_p2s_vpngw.ip_configuration[0].public_ip_address_name, null)
-      private_ip_address_allocation = try(var.config_p2s_vpngw.ip_configuration[0].private_ip_address_allocation, "Dynamic")
-    }
-  ]
-
+  ip_configuration = [for c in var.config_s2s_vpngw.ip_configuration : {
+    name                          = c.name
+    subnet_id                     = azurerm_subnet.this["GatewaySubnet"].id
+    public_ip_address_name        = c.public_ip_address_name
+    private_ip_address_allocation = c.private_ip_address_allocation
+  }]
   log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 
   depends_on = [

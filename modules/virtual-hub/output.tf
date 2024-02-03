@@ -16,19 +16,19 @@ output "vpngw_public_ip1" {
 }
 
 output "vpngw_bgp_ip0" {
-  value = try(module.vpngw[0].bgp_ip0, {})
+  value = module.vpngw[0].bgp_default_ip0
 }
 
 output "vpngw_bgp_ip1" {
-  value = try(module.vpngw[0].bgp_ip1, {})
+  value = module.vpngw[0].bgp_default_ip1
 }
 
 output "router_bgp_ip0" {
-  value = try(azurerm_virtual_hub.this.virtual_router_ips[1], {})
+  value = azurerm_virtual_hub.this.virtual_router_ips[1]
 }
 
 output "router_bgp_ip1" {
-  value = try(azurerm_virtual_hub.this.virtual_router_ips[0], {})
+  value = azurerm_virtual_hub.this.virtual_router_ips[0]
 }
 
 output "firewall" {

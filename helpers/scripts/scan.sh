@@ -177,7 +177,7 @@ run_delete_files() {
 }
 
 run_terraform_plan() {
-    clear
+    echo
     for dir in "${all_dirs[@]}"; do
         if [ -d "$dir" ]; then
             echo && echo -e "$dir"
@@ -194,7 +194,7 @@ run_terraform_plan() {
 }
 
 run_terraform_validate() {
-    clear
+    echo
     for dir in "${all_dirs[@]}"; do
         if [ -d "$dir" ]; then
             echo && echo -e "$dir"
@@ -213,7 +213,7 @@ run_terraform_validate() {
 run_terraform_cleanup() {
     read -p "Delete terraform state? (y/n): " yn
     if [[ $yn == [Yy] ]]; then
-        clear
+        echo
         for dir in "${all_dirs[@]}"; do
             if [ -d "$dir" ]; then
                 echo && echo -e "$dir"
@@ -236,17 +236,17 @@ run_terraform_cleanup() {
 }
 
 if [[ "$1" == "--diff" || "$1" == "-f" ]]; then
-    clear && run_dir_diff
+    echo && run_dir_diff
 elif [[ "$1" == "--copy" || "$1" == "-c" ]]; then
-    clear && run_copy_files
+    echo && run_copy_files
 elif [[ "$1" == "--df" || "$1" == "-x" ]]; then
-    clear && run_delete_files
+    echo && run_delete_files
 elif [[ "$1" == "--plan" || "$1" == "-p" ]]; then
-    clear && run_terraform_plan
+    echo && run_terraform_plan
 elif [[ "$1" == "--validate" || "$1" == "-v" ]]; then
-    clear && run_terraform_validate
+    echo && run_terraform_validate
 elif [[ "$1" == "--cleanup" || "$1" == "-u" ]]; then
-    clear && run_terraform_cleanup
+    echo && run_terraform_cleanup
 elif [[ "$1" == "--help" || "$1" == "-h" ]]; then
     echo -e "Usage: $0 {--diff|-f | --copy|-c | --delete-files|-x | --plan|-p | --validate|-v | --cleanup|-u}"
 else
