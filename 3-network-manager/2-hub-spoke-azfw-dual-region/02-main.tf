@@ -8,17 +8,17 @@ locals {
   spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
   spoke6_apps_fqdn   = lower("${local.spoke6_prefix}${random_id.random.hex}.azurewebsites.net")
 
-  hub1_tags    = { "lab" = "Ne32", "env" = "prod", "nodeType" = "hub" }
-  hub2_tags    = { "lab" = "Ne32", "env" = "prod", "nodeType" = "hub" }
-  branch1_tags = { "lab" = "Ne32", "env" = "prod", "nodeType" = "branch" }
-  branch2_tags = { "lab" = "Ne32", "env" = "prod", "nodeType" = "branch" }
-  branch3_tags = { "lab" = "Ne32", "env" = "prod", "nodeType" = "branch" }
-  spoke1_tags  = { "lab" = "Ne32", "env" = "prod", "nodeType" = "spoke" }
-  spoke2_tags  = { "lab" = "Ne32", "env" = "prod", "nodeType" = "spoke" }
-  spoke3_tags  = { "lab" = "Ne32", "env" = "prod", "nodeType" = "float" }
-  spoke4_tags  = { "lab" = "Ne32", "env" = "prod", "nodeType" = "spoke" }
-  spoke5_tags  = { "lab" = "Ne32", "env" = "prod", "nodeType" = "spoke" }
-  spoke6_tags  = { "lab" = "Ne32", "env" = "prod", "nodeType" = "float" }
+  hub1_tags    = { "lab" = local.prefix, "env" = "prod", "nodeType" = "hub" }
+  hub2_tags    = { "lab" = local.prefix, "env" = "prod", "nodeType" = "hub" }
+  branch1_tags = { "lab" = local.prefix, "env" = "prod", "nodeType" = "branch" }
+  branch2_tags = { "lab" = local.prefix, "env" = "prod", "nodeType" = "branch" }
+  branch3_tags = { "lab" = local.prefix, "env" = "prod", "nodeType" = "branch" }
+  spoke1_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "spoke" }
+  spoke2_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "spoke" }
+  spoke3_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "float" }
+  spoke4_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "spoke" }
+  spoke5_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "spoke" }
+  spoke6_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "float" }
 }
 
 resource "random_id" "random" {

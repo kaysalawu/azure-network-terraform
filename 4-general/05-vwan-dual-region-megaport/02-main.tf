@@ -4,21 +4,21 @@
 
 locals {
   prefix             = "G05"
-  enable_diagnostics = true
+  enable_diagnostics = false
   spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
   spoke6_apps_fqdn   = lower("${local.spoke6_prefix}${random_id.random.hex}.azurewebsites.net")
 
-  hub1_tags    = { "lab" = "Vwan24", "nodeType" = "hub" }
-  hub2_tags    = { "lab" = "Vwan24", "nodeType" = "hub" }
-  branch1_tags = { "lab" = "Vwan24", "nodeType" = "branch" }
-  branch2_tags = { "lab" = "Vwan24", "nodeType" = "branch" }
-  branch3_tags = { "lab" = "Vwan24", "nodeType" = "branch" }
-  spoke1_tags  = { "lab" = "Vwan24", "nodeType" = "spoke" }
-  spoke2_tags  = { "lab" = "Vwan24", "nodeType" = "spoke" }
-  spoke3_tags  = { "lab" = "Vwan24", "nodeType" = "float" }
-  spoke4_tags  = { "lab" = "Vwan24", "nodeType" = "spoke" }
-  spoke5_tags  = { "lab" = "Vwan24", "nodeType" = "spoke" }
-  spoke6_tags  = { "lab" = "Vwan24", "nodeType" = "float" }
+  hub1_tags    = { "lab" = local.prefix, "nodeType" = "hub" }
+  hub2_tags    = { "lab" = local.prefix, "nodeType" = "hub" }
+  branch1_tags = { "lab" = local.prefix, "nodeType" = "branch" }
+  branch2_tags = { "lab" = local.prefix, "nodeType" = "branch" }
+  branch3_tags = { "lab" = local.prefix, "nodeType" = "branch" }
+  spoke1_tags  = { "lab" = local.prefix, "nodeType" = "spoke" }
+  spoke2_tags  = { "lab" = local.prefix, "nodeType" = "spoke" }
+  spoke3_tags  = { "lab" = local.prefix, "nodeType" = "float" }
+  spoke4_tags  = { "lab" = local.prefix, "nodeType" = "spoke" }
+  spoke5_tags  = { "lab" = local.prefix, "nodeType" = "spoke" }
+  spoke6_tags  = { "lab" = local.prefix, "nodeType" = "float" }
 }
 
 resource "random_id" "random" {
@@ -80,7 +80,7 @@ locals {
     region2 = local.region2
   }
   default_udr_destinations = [
-    "0.0.0.0/0"
+    { name = "default", address_prefix = ["0.0.0.0/0"] }
   ]
 
   firewall_sku = "Basic"
@@ -124,6 +124,10 @@ locals {
     config_s2s_vpngw = {
       enable = false
       sku    = "VpnGw1AZ"
+      ip_configuration = [
+        #{ name = "ipconf0", public_ip_address_name = azurerm_public_ip.hub1_s2s_vpngw_pip0.name, apipa_addresses = ["169.254.21.1"] },
+        #{ name = "ipconf1", public_ip_address_name = azurerm_public_ip.hub1_s2s_vpngw_pip1.name, apipa_addresses = ["169.254.21.5"] }
+      ]
       bgp_settings = {
         asn = local.hub1_vpngw_asn
       }
@@ -133,7 +137,7 @@ locals {
       enable = false
       sku    = "VpnGw1AZ"
       ip_configuration = [
-        # { name = "ip-config", public_ip_address_name = azurerm_public_ip.hub1_p2s_vpngw_pip.name },
+        #{ name = "ipconf", public_ip_address_name = azurerm_public_ip.hub1_p2s_vpngw_pip.name }
       ]
       vpn_client_configuration = {
         address_space = ["192.168.0.0/24"]
@@ -142,6 +146,7 @@ locals {
           # { name = "client2" },
         ]
       }
+      custom_route_address_prefixes = ["8.8.8.8/32"]
     }
 
     config_ergw = {
@@ -202,6 +207,10 @@ locals {
     config_s2s_vpngw = {
       enable = false
       sku    = "VpnGw1AZ"
+      ip_configuration = [
+        #{ name = "ipconf0", public_ip_address_name = azurerm_public_ip.hub2_s2s_vpngw_pip0.name, apipa_addresses = ["169.254.21.1"] },
+        #{ name = "ipconf1", public_ip_address_name = azurerm_public_ip.hub2_s2s_vpngw_pip1.name, apipa_addresses = ["169.254.21.5"] }
+      ]
       bgp_settings = {
         asn = local.hub2_vpngw_asn
       }
@@ -211,7 +220,7 @@ locals {
       enable = false
       sku    = "VpnGw1AZ"
       ip_configuration = [
-        # { name = "ip-config", public_ip_address_name = azurerm_public_ip.hub2_p2s_vpngw_pip.name },
+        #{ name = "ipconf", public_ip_address_name = azurerm_public_ip.hub2_p2s_vpngw_pip.name },
       ]
       vpn_client_configuration = {
         address_space = ["192.168.1.0/24"]
@@ -264,15 +273,11 @@ locals {
     }
 
     config_security = {
-      create_firewall       = true
-      enable_routing_intent = true
+      create_firewall       = false
+      enable_routing_intent = false
       firewall_sku          = local.firewall_sku
       firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region1"].id
-      routing_policies = {
-        internet            = true
-        private_traffic     = true
-        additional_prefixes = { "private_traffic" = [local.internet_proxy, ] }
-      }
+      routing_policies      = {}
     }
   }
 
@@ -299,15 +304,11 @@ locals {
     }
 
     config_security = {
-      create_firewall       = true
-      enable_routing_intent = true
+      create_firewall       = false
+      enable_routing_intent = false
       firewall_sku          = local.firewall_sku
       firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region2"].id
-      routing_policies = {
-        internet            = true
-        private_traffic     = true
-        additional_prefixes = { "private_traffic" = ["8.8.8.8/32"] }
-      }
+      routing_policies      = {}
     }
   }
 }
@@ -567,7 +568,7 @@ locals {
     LOOPBACKS = {
       Loopback1 = local.hub1_nva_ilb_addr
     }
-    CRYPTO_ADDR = local.hub1_nva_untrust_addr
+    CRYPTO_ADDR = local.hub1_nva_trust_addr
     VPN_PSK     = local.psk
   }
   hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
@@ -645,7 +646,7 @@ locals {
     LOOPBACKS = {
       Loopback1 = local.hub2_nva_ilb_addr
     }
-    CRYPTO_ADDR = local.hub2_nva_untrust_addr
+    CRYPTO_ADDR = local.hub2_nva_trust_addr
     VPN_PSK     = local.psk
   }
   hub2_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub2_nva_vars, {

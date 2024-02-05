@@ -7,12 +7,12 @@ locals {
   enable_diagnostics = false
   spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
 
-  hub1_tags    = { "lab" = "Vwan23", "nodeType" = "hub" }
-  branch1_tags = { "lab" = "Vwan23", "nodeType" = "branch" }
-  branch2_tags = { "lab" = "Vwan23", "nodeType" = "branch" }
-  spoke1_tags  = { "lab" = "Vwan23", "nodeType" = "spoke" }
-  spoke2_tags  = { "lab" = "Vwan23", "nodeType" = "spoke" }
-  spoke3_tags  = { "lab" = "Vwan23", "nodeType" = "float" }
+  hub1_tags    = { "lab" = local.prefix, "nodeType" = "hub" }
+  branch1_tags = { "lab" = local.prefix, "nodeType" = "branch" }
+  branch2_tags = { "lab" = local.prefix, "nodeType" = "branch" }
+  spoke1_tags  = { "lab" = local.prefix, "nodeType" = "spoke" }
+  spoke2_tags  = { "lab" = local.prefix, "nodeType" = "spoke" }
+  spoke3_tags  = { "lab" = local.prefix, "nodeType" = "float" }
 }
 
 resource "random_id" "random" {
