@@ -1,5 +1,7 @@
 Section: IOS configuration
-
+!-----------------------------------------
+! IPSec
+!-----------------------------------------
 crypto ikev2 proposal AZURE-IKE-PROPOSAL
 encryption aes-cbc-256
 integrity sha1
@@ -63,11 +65,22 @@ tunnel source 10.10.1.9
 tunnel destination 10.30.1.9
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
+!
+!-----------------------------------------
+! Interface
+!-----------------------------------------
 interface Loopback0
 ip address 192.168.10.10 255.255.255.255
 !
+!-----------------------------------------
+! Prefix Lists
+!-----------------------------------------
 ip prefix-list BLOCK_HUB_GW_SUBNET deny 10.11.128.0/24
 ip prefix-list BLOCK_HUB_GW_SUBNET permit 0.0.0.0/0 le 32
+!
+!-----------------------------------------
+! NAT
+!-----------------------------------------
 ip access-list extended NAT-ACL
 permit ip 10.0.0.0 0.255.255.255 any
 permit ip 172.16.0.0 0.15.255.255 any
@@ -84,6 +97,9 @@ ip route 10.11.128.15 255.255.255.255 Tunnel1
 ip route 192.168.30.30 255.255.255.255 Tunnel2
 ip route 10.10.0.0 255.255.255.0 10.10.2.1
 !
+!-----------------------------------------
+! Route Maps
+!-----------------------------------------
 route-map ONPREM permit 100
 match ip address prefix-list all
 set as-path prepend 65001 65001 65001
@@ -92,6 +108,9 @@ match ip address prefix-list all
 route-map BLOCK_HUB_GW_SUBNET permit 120
 match ip address prefix-list BLOCK_HUB_GW_SUBNET
 !
+!-----------------------------------------
+! BGP
+!-----------------------------------------
 router bgp 65001
 bgp router-id 192.168.10.10
 neighbor 10.11.128.14 remote-as 65515

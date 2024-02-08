@@ -97,8 +97,8 @@ locals {
     VPN_PSK     = local.psk
 
     PREFIX_LISTS = [
-      "ip prefix-list BLOCK_HUB_GW_SUBNET deny ${local.hub1_subnets["GatewaySubnet"].address_prefixes[0]}",
-      "ip prefix-list BLOCK_HUB_GW_SUBNET permit 0.0.0.0/0 le 32",
+      "ip prefix-list ${local.branch1_nva_route_map_block_azure} deny ${local.hub1_subnets["GatewaySubnet"].address_prefixes[0]}",
+      "ip prefix-list ${local.branch1_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
     ]
 
     NAT_ACL_PREFIXES = [
@@ -106,32 +106,16 @@ locals {
     ]
 
     ROUTE_MAPS = [
-      {
-        name   = local.branch1_nva_route_map_onprem
-        action = "permit"
-        rule   = 100
-        commands = [
-          "match ip address prefix-list all",
-          "set as-path prepend ${local.branch1_nva_asn} ${local.branch1_nva_asn} ${local.branch1_nva_asn}"
-        ]
-      },
-      {
-        name   = local.branch1_nva_route_map_azure
-        action = "permit"
-        rule   = 110
-        commands = [
-          "match ip address prefix-list all",
-        ]
-      },
-      {
-        name        = local.branch1_nva_route_map_block_azure
-        description = "block inbound gateway subnet, allow all other hub and spoke cidrs"
-        action      = "permit"
-        rule        = 120
-        commands = [
-          "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
-        ]
-      }
+      "route-map ${local.branch1_nva_route_map_onprem} permit 100",
+      "match ip address prefix-list all",
+      "set as-path prepend ${local.branch1_nva_asn} ${local.branch1_nva_asn} ${local.branch1_nva_asn}",
+
+      "route-map ${local.branch1_nva_route_map_azure} permit 110",
+      "match ip address prefix-list all",
+
+      # block inbound gateway subnet, allow all other hub and spoke cidrs
+      "route-map ${local.branch1_nva_route_map_block_azure} permit 120",
+      "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
     ]
 
     TUNNELS = [

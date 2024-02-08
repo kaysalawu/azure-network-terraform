@@ -106,32 +106,15 @@ locals {
     ]
 
     ROUTE_MAPS = [
-      {
-        name   = local.branch3_nva_route_map_onprem
-        action = "permit"
-        rule   = 100
-        commands = [
-          "match ip address prefix-list all",
-          "set as-path prepend ${local.branch3_nva_asn} ${local.branch3_nva_asn} ${local.branch3_nva_asn}"
-        ]
-      },
-      {
-        name   = local.branch3_nva_route_map_azure
-        action = "permit"
-        rule   = 110
-        commands = [
-          "match ip address prefix-list all",
-        ]
-      },
-      {
-        name        = local.branch3_nva_route_map_block_azure
-        description = "block inbound vwan hub address space, allow only spoke cidrs"
-        action      = "permit"
-        rule        = 120
-        commands = [
-          "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
-        ]
-      }
+      "route-map ${local.branch3_nva_route_map_onprem} permit 100",
+      "match ip address prefix-list all",
+      "set as-path prepend ${local.branch3_nva_asn} ${local.branch3_nva_asn} ${local.branch3_nva_asn}",
+
+      "route-map ${local.branch3_nva_route_map_azure} permit 110",
+      "match ip address prefix-list all",
+
+      "route-map ${local.branch3_nva_route_map_block_azure} permit 120",
+      "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
     ]
 
     TUNNELS = [

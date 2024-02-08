@@ -1,5 +1,7 @@
 Section: IOS configuration
-
+!-----------------------------------------
+! IPSec
+!-----------------------------------------
 %{~ if TUNNELS != [] }
 crypto ikev2 proposal AZURE-IKE-PROPOSAL
 encryption aes-cbc-256
@@ -35,7 +37,6 @@ crypto ipsec profile AZURE-IPSEC-PROFILE
 set transform-set AZURE-IPSEC-TRANSFORM-SET
 set ikev2-profile AZURE-IKE-PROPOSAL
 set security-association lifetime seconds 3600
-%{~ endif }
 !
 %{~ for v in TUNNELS }
 interface ${v.ike.name}
@@ -47,6 +48,11 @@ tunnel destination ${v.ike.dest}
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
 %{~ endfor }
+%{~ endif }
+!
+!-----------------------------------------
+! Interface
+!-----------------------------------------
 interface Loopback0
 ip address ${LOOPBACK0} 255.255.255.255
 %{~ for k,v in LOOPBACKS }
@@ -54,9 +60,16 @@ interface ${k}
 ip address ${v} 255.255.255.255
 %{~ endfor }
 !
+!-----------------------------------------
+! Prefix Lists
+!-----------------------------------------
 %{~ for command in PREFIX_LISTS }
 ${command}
 %{~ endfor }
+!
+!-----------------------------------------
+! NAT
+!-----------------------------------------
 ip access-list extended NAT-ACL
 permit ip 10.0.0.0 0.255.255.255 any
 permit ip 172.16.0.0 0.15.255.255 any
@@ -71,13 +84,16 @@ ip nat inside source list NAT-ACL interface GigabitEthernet1 overload
 ip route ${route.network} ${route.mask} ${route.next_hop}
 %{~ endfor }
 !
-%{~ for x in ROUTE_MAPS }
-route-map ${x.name} ${x.action} ${x.rule}
-%{~ for y in x.commands }
-${y}
-%{~ endfor }
+!-----------------------------------------
+! Route Maps
+!-----------------------------------------
+%{~ for command in ROUTE_MAPS }
+${command}
 %{~ endfor }
 !
+!-----------------------------------------
+! BGP
+!-----------------------------------------
 router bgp ${LOCAL_ASN}
 bgp router-id ${LOOPBACK0}
 %{~ for s in BGP_SESSIONS }

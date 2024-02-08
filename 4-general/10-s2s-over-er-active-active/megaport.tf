@@ -42,27 +42,27 @@ module "megaport" {
   ]
 
   circuits = [
-    # {
-    #   name                          = "branch1"
-    #   location                      = local.region1
-    #   peering_location              = local.express_route_location
-    #   bandwidth_in_mbps             = local.bandwidth_in_mbps
-    #   requested_vlan                = 200
-    #   mcr_name                      = "mcr"
-    #   primary_peer_address_prefix   = local.csp_range1
-    #   secondary_peer_address_prefix = local.csp_range2
-    #   virtual_network_gateway_id    = module.branch1.ergw.id
-    # },
-    # {
-    #   name                          = "hub1"
-    #   location                      = local.region1
-    #   peering_location              = local.express_route_location
-    #   bandwidth_in_mbps             = local.bandwidth_in_mbps
-    #   requested_vlan                = 201
-    #   mcr_name                      = "mcr"
-    #   primary_peer_address_prefix   = local.csp_range3
-    #   secondary_peer_address_prefix = local.csp_range4
-    #   virtual_network_gateway_id    = module.hub1.ergw.id
-    # }
+    {
+      name                          = "branch1"
+      location                      = local.region1
+      peering_location              = local.express_route_location
+      bandwidth_in_mbps             = local.bandwidth_in_mbps
+      requested_vlan                = 200
+      mcr_name                      = "mcr"
+      primary_peer_address_prefix   = local.csp_range1
+      secondary_peer_address_prefix = local.csp_range2
+      virtual_network_gateway_id    = module.branch1.ergw.id
+    },
+    {
+      name                          = "hub1"
+      location                      = local.region1
+      peering_location              = local.express_route_location
+      bandwidth_in_mbps             = local.bandwidth_in_mbps
+      requested_vlan                = 201
+      mcr_name                      = "mcr"
+      primary_peer_address_prefix   = local.csp_range3
+      secondary_peer_address_prefix = local.csp_range4
+      virtual_network_gateway_id    = module.hub1.ergw.id
+    }
   ]
 }

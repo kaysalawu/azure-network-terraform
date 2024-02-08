@@ -5,5 +5,6 @@
 ../../0-templates/vwan/06-vwan.tf
 ../../0-templates/vwan/07-vhub1.tf
 ../../0-templates/vwan/08-conn-hub1.tf
-../../0-templates/services/svc-region1.tf
+../../0-templates/services/svc-privatelink-region1.tf
+../../0-templates/services/svc-privatelink-service-region1.tf
 ../../0-templates/outputs/outputs-single-region.tf

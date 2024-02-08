@@ -105,7 +105,7 @@ resource "megaport_azure_connection" "this" {
   depends_on = [
     azurerm_express_route_circuit_peering.private,
     azurerm_express_route_circuit_peering.microsoft,
-    azurerm_express_route_circuit,
+    azurerm_express_route_circuit.this,
   ]
 }
 
