@@ -97,8 +97,8 @@ locals {
     VPN_PSK     = local.psk
 
     PREFIX_LISTS = [
-      "ip prefix-list BLOCK_HUB_GW_SUBNET deny ${local.hub1_subnets["GatewaySubnet"].address_prefixes[0]}",
-      "ip prefix-list BLOCK_HUB_GW_SUBNET permit 0.0.0.0/0 le 32",
+      "ip prefix-list ${local.branch1_nva_route_map_block_azure} deny ${local.hub1_subnets["GatewaySubnet"].address_prefixes[0]}",
+      "ip prefix-list ${local.branch1_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
     ]
 
     NAT_ACL_PREFIXES = [

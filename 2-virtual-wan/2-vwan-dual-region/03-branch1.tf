@@ -86,14 +86,20 @@ locals {
 #----------------------------
 
 locals {
-  branch1_nva_route_map_onprem = "ONPREM"
-  branch1_nva_route_map_azure  = "AZURE"
+  branch1_nva_route_map_onprem      = "ONPREM"
+  branch1_nva_route_map_azure       = "AZURE"
+  branch1_nva_route_map_block_azure = "BLOCK_HUB_GW_SUBNET"
   branch1_nva_init = templatefile("../../scripts/cisco-csr-1000v.sh", {
     LOCAL_ASN   = local.branch1_nva_asn
     LOOPBACK0   = local.branch1_nva_loopback0
     LOOPBACKS   = {}
     CRYPTO_ADDR = local.branch1_nva_untrust_addr
     VPN_PSK     = local.psk
+
+    PREFIX_LISTS = [
+      "ip prefix-list ${local.branch1_nva_route_map_block_azure} deny ${local.vhub1_address_prefix}",
+      "ip prefix-list ${local.branch1_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
+    ]
 
     NAT_ACL_PREFIXES = [
       { network = local.branch1_network, inverse_mask = local.branch1_inverse_mask }
@@ -115,6 +121,15 @@ locals {
         rule   = 110
         commands = [
           "match ip address prefix-list all",
+        ]
+      },
+      {
+        name        = local.branch1_nva_route_map_block_azure
+        description = "block inbound vwan hub address space, allow only spoke cidrs"
+        action      = "permit"
+        rule        = 120
+        commands = [
+          "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
         ]
       }
     ]
@@ -180,7 +195,8 @@ locals {
         source_loopback = true
         ebgp_multihop   = true
         route_maps = [
-          { direction = "out", name = local.branch1_nva_route_map_azure }
+          { direction = "in", name = local.branch1_nva_route_map_block_azure },
+          { direction = "out", name = local.branch1_nva_route_map_azure },
         ]
       },
       {
@@ -189,7 +205,8 @@ locals {
         source_loopback = true
         ebgp_multihop   = true
         route_maps = [
-          { direction = "out", name = local.branch1_nva_route_map_azure }
+          { direction = "in", name = local.branch1_nva_route_map_block_azure },
+          { direction = "out", name = local.branch1_nva_route_map_azure },
         ]
       },
       {
