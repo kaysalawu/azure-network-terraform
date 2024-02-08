@@ -206,7 +206,7 @@ locals {
         ebgp_multihop   = true
         route_maps = [
           { direction = "in", name = local.branch1_nva_route_map_block_azure },
-          { direction = "out", name = local.branch1_nva_route_map_azure }
+          { direction = "out", name = local.branch1_nva_route_map_azure },
         ]
       },
       {

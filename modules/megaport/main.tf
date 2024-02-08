@@ -103,9 +103,9 @@ resource "megaport_azure_connection" "this" {
     ignore_changes = [a_end, csp_settings, ]
   }
   depends_on = [
-    # azurerm_express_route_circuit_peering.private,
-    # azurerm_express_route_circuit_peering.microsoft,
-    # azurerm_express_route_circuit,
+    azurerm_express_route_circuit_peering.private,
+    azurerm_express_route_circuit_peering.microsoft,
+    azurerm_express_route_circuit,
   ]
 }
 
@@ -124,10 +124,10 @@ resource "azurerm_virtual_network_gateway_connection" "this" {
   authorization_key          = azurerm_express_route_circuit_authorization.this[each.value.name].authorization_key
   express_route_circuit_id   = azurerm_express_route_circuit.this[each.value.name].id
   depends_on = [
-    # azurerm_express_route_circuit.this,
-    # azurerm_express_route_circuit_authorization.this,
-    # azurerm_express_route_circuit_peering.private,
-    # megaport_azure_connection.this,
+    azurerm_express_route_circuit.this,
+    azurerm_express_route_circuit_authorization.this,
+    azurerm_express_route_circuit_peering.private,
+    megaport_azure_connection.this,
   ]
 }
 
