@@ -389,13 +389,13 @@ Observe that we are connecting from the private IP address of `G05-branch1-vm` (
 **7.2.** Display the virtual WAN routing table(s)
 
 ```sh
-sh ../../scripts/_routes.sh G05RG
+bash ../../scripts/_vwan_routes.sh G05RG
 ```
 
 Sample output
 
 ```sh
-1-vwan-single-region$ sh ../../scripts/_routes.sh G05RG
+1-vwan-single-region$ bash ../../scripts/_vwan_routes.sh G05RG
 
 Resource group: G05RG
 

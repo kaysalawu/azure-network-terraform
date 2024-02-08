@@ -17,20 +17,21 @@ NSGs are assigned to selected subnets.
 ####################################################
 
 module "hub2" {
-  source          = "../../modules/base"
-  resource_group  = azurerm_resource_group.rg.name
-  prefix          = trimsuffix(local.hub2_prefix, "-")
-  env             = "prod"
-  location        = local.hub2_location
-  storage_account = module.common.storage_accounts["region2"]
-  tags            = local.hub2_tags
+  source             = "../../modules/base"
+  resource_group     = azurerm_resource_group.rg.name
+  prefix             = trimsuffix(local.hub2_prefix, "-")
+  env                = "prod"
+  location           = local.hub2_location
+  storage_account    = module.common.storage_accounts["region2"]
+  enable_diagnostics = local.enable_diagnostics
+  tags               = local.hub2_tags
 
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region2"].name
-  flow_log_nsg_ids = [
-    module.common.nsg_main["region2"].id,
-  ]
-  network_watcher_name           = "NetworkWatcher_${local.region2}"
-  network_watcher_resource_group = "NetworkWatcherRG"
+  # flow_log_nsg_ids = [
+  #   module.common.nsg_main["region2"].id,
+  # ]
+  # network_watcher_name           = "NetworkWatcher_${local.region2}"
+  # network_watcher_resource_group = "NetworkWatcherRG"
 
   create_private_dns_zone = true
   private_dns_zone_name   = local.hub2_dns_zone
@@ -76,7 +77,6 @@ module "hub2" {
 module "hub2_vm" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  prefix          = trimsuffix(local.hub2_prefix, "-")
   name            = "${local.hub2_prefix}vm"
   computer_name   = "vm"
   location        = local.hub2_location
@@ -88,11 +88,13 @@ module "hub2_vm" {
   enable_ip_forwarding = true
   interfaces = [
     {
-      name               = "${local.hub2_prefix}main"
+      name               = "${local.hub2_prefix}vm-main-nic"
       subnet_id          = module.hub2.subnets["MainSubnet"].id
       private_ip_address = local.hub2_vm_addr
       create_public_ip   = true
     },
   ]
-  depends_on = [module.hub2]
+  depends_on = [
+    module.hub2
+  ]
 }

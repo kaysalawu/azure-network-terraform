@@ -23,6 +23,9 @@ module "spoke4" {
   storage_account = module.common.storage_accounts["region2"]
   tags            = local.spoke4_tags
 
+  enable_diagnostics           = local.enable_diagnostics
+  log_analytics_workspace_name = module.common.log_analytics_workspaces["region2"].name
+
   create_private_dns_zone = true
   private_dns_zone_name   = local.spoke4_dns_zone
   private_dns_zone_linked_external_vnets = {
@@ -49,6 +52,9 @@ module "spoke4" {
       "UntrustSubnet",
     ]
   }
+  depends_on = [
+    module.common,
+  ]
 }
 
 # workload
@@ -71,16 +77,19 @@ module "spoke4_vm" {
   location        = local.spoke4_location
   storage_account = module.common.storage_accounts["region2"]
   custom_data     = base64encode(local.spoke4_vm_init)
+  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
   tags            = local.spoke4_tags
 
   interfaces = [
     {
-      name               = "${local.spoke4_prefix}vm-main"
+      name               = "${local.spoke4_prefix}vm-main-nic"
       subnet_id          = module.spoke4.subnets["MainSubnet"].id
       private_ip_address = local.spoke4_vm_addr
     },
   ]
-  depends_on = [module.spoke4]
+  depends_on = [
+    module.spoke4
+  ]
 }
 
 ####################################################
@@ -97,6 +106,9 @@ module "spoke5" {
   location        = local.spoke5_location
   storage_account = module.common.storage_accounts["region2"]
   tags            = local.spoke5_tags
+
+  enable_diagnostics           = local.enable_diagnostics
+  log_analytics_workspace_name = module.common.log_analytics_workspaces["region2"].name
 
   create_private_dns_zone = true
   private_dns_zone_name   = local.spoke5_dns_zone
@@ -124,6 +136,9 @@ module "spoke5" {
       "UntrustSubnet",
     ]
   }
+  depends_on = [
+    module.common,
+  ]
 }
 
 # workload
@@ -136,16 +151,19 @@ module "spoke5_vm" {
   location        = local.spoke5_location
   storage_account = module.common.storage_accounts["region2"]
   custom_data     = base64encode(local.vm_startup)
+  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
   tags            = local.spoke5_tags
 
   interfaces = [
     {
-      name               = "${local.spoke5_prefix}vm-main"
+      name               = "${local.spoke5_prefix}vm-main-nic"
       subnet_id          = module.spoke5.subnets["MainSubnet"].id
       private_ip_address = local.spoke5_vm_addr
     },
   ]
-  depends_on = [module.spoke5]
+  depends_on = [
+    module.spoke5
+  ]
 }
 
 ####################################################
@@ -162,6 +180,9 @@ module "spoke6" {
   location        = local.spoke6_location
   storage_account = module.common.storage_accounts["region2"]
   tags            = local.spoke6_tags
+
+  enable_diagnostics           = local.enable_diagnostics
+  log_analytics_workspace_name = module.common.log_analytics_workspaces["region2"].name
 
   create_private_dns_zone = true
   private_dns_zone_name   = local.spoke6_dns_zone
@@ -189,6 +210,9 @@ module "spoke6" {
       "UntrustSubnet",
     ]
   }
+  depends_on = [
+    module.common,
+  ]
 }
 
 # workload
@@ -196,21 +220,23 @@ module "spoke6" {
 module "spoke6_vm" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  prefix          = trimsuffix(local.spoke6_prefix, "-")
   name            = "${local.spoke6_prefix}vm"
   computer_name   = "vm"
   location        = local.spoke6_location
   storage_account = module.common.storage_accounts["region2"]
   custom_data     = base64encode(local.vm_startup)
+  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
   tags            = local.spoke6_tags
 
   interfaces = [
     {
-      name               = "${local.spoke6_prefix}vm-main"
+      name               = "${local.spoke6_prefix}vm-main-nic"
       subnet_id          = module.spoke6.subnets["MainSubnet"].id
       private_ip_address = local.spoke6_vm_addr
     },
   ]
-  depends_on = [module.spoke6]
+  depends_on = [
+    module.spoke6
+  ]
 }
 

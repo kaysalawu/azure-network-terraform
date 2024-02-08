@@ -389,13 +389,13 @@ Observe that we are connecting from the private IP address of `Vwan21-branch1-vm
 **7.2.** Display the virtual WAN routing table(s)
 
 ```sh
-sh ../../scripts/_routes.sh Vwan21RG
+bash ../../scripts/_vwan_routes.sh Vwan21RG
 ```
 
 Sample output
 
 ```sh
-1-vwan-single-region$ sh ../../scripts/_routes.sh Vwan21RG
+1-vwan-single-region$ bash ../../scripts/_vwan_routes.sh Vwan21RG
 
 Resource group: Vwan21RG
 

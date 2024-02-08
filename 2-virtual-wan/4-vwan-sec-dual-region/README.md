@@ -433,13 +433,13 @@ Observe that we are connecting from the private IP address of `Vwan24-branch1-vm
 **7.2.** Display the virtual WAN routing table(s)
 
 ```sh
-sh ../../scripts/_routes.sh Vwan24RG
+bash ../../scripts/_vwan_routes.sh Vwan24RG
 ```
 
 Sample output
 
 ```sh
-4-vwan-sec-dual-region$ sh ../../scripts/_routes.sh Vwan24RG
+4-vwan-sec-dual-region$ bash ../../scripts/_vwan_routes.sh Vwan24RG
 
 Resource group: Vwan24RG
 

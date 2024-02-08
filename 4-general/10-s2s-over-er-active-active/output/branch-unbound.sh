@@ -34,7 +34,6 @@ server:
         # local data records
         local-data: "vm.branch1.corp 300 IN A 10.10.0.5"
         local-data: "vm.branch2.corp 300 IN A 10.20.0.5"
-        local-data: "vm.branch3.corp 300 IN A 10.30.0.5"
 
         # hosts redirected to PrivateLink
 
@@ -42,42 +41,34 @@ server:
 forward-zone:
         name: "az.corp."
         forward-addr: 10.11.8.4
-        forward-addr: 10.22.8.4
 
 forward-zone:
         name: "az.corp."
         forward-addr: 10.11.8.4
-        forward-addr: 10.22.8.4
 
 forward-zone:
         name: "privatelink.blob.core.windows.net."
         forward-addr: 10.11.8.4
-        forward-addr: 10.22.8.4
 
 forward-zone:
         name: "privatelink.azurewebsites.net."
         forward-addr: 10.11.8.4
-        forward-addr: 10.22.8.4
 
 forward-zone:
         name: "privatelink.database.windows.net."
         forward-addr: 10.11.8.4
-        forward-addr: 10.22.8.4
 
 forward-zone:
         name: "privatelink.table.cosmos.azure.com."
         forward-addr: 10.11.8.4
-        forward-addr: 10.22.8.4
 
 forward-zone:
         name: "privatelink.queue.core.windows.net."
         forward-addr: 10.11.8.4
-        forward-addr: 10.22.8.4
 
 forward-zone:
         name: "privatelink.file.core.windows.net."
         forward-addr: 10.11.8.4
-        forward-addr: 10.22.8.4
 
 forward-zone:
         name: "."

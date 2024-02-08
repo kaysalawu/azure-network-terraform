@@ -54,6 +54,9 @@ interface ${k}
 ip address ${v} 255.255.255.255
 %{~ endfor }
 !
+%{~ for command in PREFIX_LISTS }
+${command}
+%{~ endfor }
 ip access-list extended NAT-ACL
 permit ip 10.0.0.0 0.255.255.255 any
 permit ip 172.16.0.0 0.15.255.255 any

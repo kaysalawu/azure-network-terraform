@@ -38,7 +38,7 @@ module "branch1" {
   }
 
   config_ergw = {
-    enable = false
+    enable = true
     sku    = "ErGw1AZ"
   }
 
@@ -86,14 +86,20 @@ locals {
 #----------------------------
 
 locals {
-  branch1_nva_route_map_onprem = "ONPREM"
-  branch1_nva_route_map_azure  = "AZURE"
+  branch1_nva_route_map_onprem      = "ONPREM"
+  branch1_nva_route_map_azure       = "AZURE"
+  branch1_nva_route_map_block_azure = "BLOCK_HUB_GW_SUBNET"
   branch1_nva_init = templatefile("../../scripts/cisco-csr-1000v.sh", {
     LOCAL_ASN   = local.branch1_nva_asn
     LOOPBACK0   = local.branch1_nva_loopback0
     LOOPBACKS   = {}
     CRYPTO_ADDR = local.branch1_nva_untrust_addr
     VPN_PSK     = local.psk
+
+    PREFIX_LISTS = [
+      "ip prefix-list BLOCK_HUB_GW_SUBNET deny ${local.hub1_subnets["GatewaySubnet"].address_prefixes[0]}",
+      "ip prefix-list BLOCK_HUB_GW_SUBNET permit 0.0.0.0/0 le 32",
+    ]
 
     NAT_ACL_PREFIXES = [
       { network = local.branch1_network, inverse_mask = local.branch1_inverse_mask }
@@ -116,6 +122,15 @@ locals {
         commands = [
           "match ip address prefix-list all",
         ]
+      },
+      {
+        name        = local.branch1_nva_route_map_block_azure
+        description = "block inbound gateway subnet, allow all other hub and spoke cidrs"
+        action      = "permit"
+        rule        = 120
+        commands = [
+          "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
+        ]
       }
     ]
 
@@ -126,10 +141,10 @@ locals {
           address = cidrhost(local.branch1_nva_tun_range0, 1)
           mask    = cidrnetmask(local.branch1_nva_tun_range0)
           source  = local.branch1_nva_untrust_addr
-          dest    = module.vhub1.vpngw_public_ip0
+          dest    = module.hub1.s2s_vpngw_private_ip0
         },
         ipsec = {
-          peer_ip = module.vhub1.vpngw_public_ip0
+          peer_ip = module.hub1.s2s_vpngw_private_ip0
           psk     = local.psk
         }
       },
@@ -139,10 +154,10 @@ locals {
           address = cidrhost(local.branch1_nva_tun_range1, 1)
           mask    = cidrnetmask(local.branch1_nva_tun_range1)
           source  = local.branch1_nva_untrust_addr
-          dest    = module.vhub1.vpngw_public_ip1
+          dest    = module.hub1.s2s_vpngw_private_ip1
         },
         ipsec = {
-          peer_ip = module.vhub1.vpngw_public_ip1
+          peer_ip = module.hub1.s2s_vpngw_private_ip1
           psk     = local.psk
         }
       },
@@ -163,8 +178,8 @@ locals {
 
     STATIC_ROUTES = [
       { network = "0.0.0.0", mask = "0.0.0.0", next_hop = local.branch1_untrust_default_gw },
-      { network = module.vhub1.vpngw_bgp_ip0, mask = "255.255.255.255", next_hop = "Tunnel0" },
-      { network = module.vhub1.vpngw_bgp_ip1, mask = "255.255.255.255", next_hop = "Tunnel1" },
+      { network = module.hub1.s2s_vpngw_bgp_default_ip0, mask = "255.255.255.255", next_hop = "Tunnel0" },
+      { network = module.hub1.s2s_vpngw_bgp_default_ip1, mask = "255.255.255.255", next_hop = "Tunnel1" },
       { network = local.branch3_nva_loopback0, mask = "255.255.255.255", next_hop = "Tunnel2" },
       {
         network  = local.branch1_network
@@ -175,20 +190,22 @@ locals {
 
     BGP_SESSIONS = [
       {
-        peer_asn        = module.vhub1.bgp_asn,
-        peer_ip         = module.vhub1.vpngw_bgp_ip0,
+        peer_asn        = module.hub1.s2s_vpngw_bgp_asn,
+        peer_ip         = module.hub1.s2s_vpngw_bgp_default_ip0,
         source_loopback = true
         ebgp_multihop   = true
         route_maps = [
-          { direction = "out", name = local.branch1_nva_route_map_azure }
+          { direction = "in", name = local.branch1_nva_route_map_block_azure },
+          { direction = "out", name = local.branch1_nva_route_map_azure },
         ]
       },
       {
-        peer_asn        = module.vhub1.bgp_asn
-        peer_ip         = module.vhub1.vpngw_bgp_ip1
+        peer_asn        = module.hub1.s2s_vpngw_bgp_asn
+        peer_ip         = module.hub1.s2s_vpngw_bgp_default_ip1
         source_loopback = true
         ebgp_multihop   = true
         route_maps = [
+          { direction = "in", name = local.branch1_nva_route_map_block_azure },
           { direction = "out", name = local.branch1_nva_route_map_azure }
         ]
       },

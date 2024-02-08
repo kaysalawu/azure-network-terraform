@@ -428,13 +428,13 @@ Observe that we are connecting from the private IP address of `Vwan22-branch1-vm
 **7.2.** Display the virtual WAN routing table(s)
 
 ```sh
-sh ../../scripts/_routes.sh Vwan22RG
+bash ../../scripts/_vwan_routes.sh Vwan22RG
 ```
 
 Sample output
 
 ```sh
-2-vwan-dual-region$ sh ../../scripts/_routes.sh Vwan22RG
+2-vwan-dual-region$ bash ../../scripts/_vwan_routes.sh Vwan22RG
 
 Resource group: Vwan22RG
 

@@ -393,13 +393,13 @@ Observe that we are connecting from the private IP address of `Vwan23-branch1-vm
 **7.2.** Display the virtual WAN routing table(s)
 
 ```sh
-sh ../../scripts/_routes.sh Vwan23RG
+bash ../../scripts/_vwan_routes.sh Vwan23RG
 ```
 
 Sample output
 
 ```sh
-3-vwan-sec-single-region$ sh ../../scripts/_routes.sh Vwan23RG
+3-vwan-sec-single-region$ bash ../../scripts/_vwan_routes.sh Vwan23RG
 
 Resource group: Vwan23RG
 

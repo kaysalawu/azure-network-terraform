@@ -17,12 +17,13 @@ locals {
 #----------------------------
 
 module "branch3" {
-  source          = "../../modules/base"
-  resource_group  = azurerm_resource_group.rg.name
-  prefix          = trimsuffix(local.branch3_prefix, "-")
-  location        = local.branch3_location
-  storage_account = module.common.storage_accounts["region2"]
-  tags            = local.branch1_tags
+  source             = "../../modules/base"
+  resource_group     = azurerm_resource_group.rg.name
+  prefix             = trimsuffix(local.branch3_prefix, "-")
+  location           = local.branch3_location
+  storage_account    = module.common.storage_accounts["region2"]
+  enable_diagnostics = local.enable_diagnostics
+  tags               = local.branch3_tags
 
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region2"].id
@@ -219,18 +220,19 @@ module "branch3_nva" {
   storage_account = module.common.storage_accounts["region2"]
   custom_data     = base64encode(local.branch3_nva_init)
   identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
+  tags            = local.branch3_tags
   source_image    = "cisco-csr-1000v"
 
   enable_ip_forwarding = true
   interfaces = [
     {
-      name               = "${local.branch3_prefix}nva-untrust"
+      name               = "${local.branch3_prefix}nva-untrust-nic"
       subnet_id          = module.branch3.subnets["UntrustSubnet"].id
       private_ip_address = local.branch3_nva_untrust_addr
       public_ip_id       = azurerm_public_ip.branch3_nva_pip.id
     },
     {
-      name               = "${local.branch3_prefix}nva-trust"
+      name               = "${local.branch3_prefix}nva-trust-nic"
       subnet_id          = module.branch3.subnets["TrustSubnet"].id
       private_ip_address = local.branch3_nva_trust_addr
     },
@@ -256,13 +258,17 @@ module "branch3_vm" {
 
   interfaces = [
     {
-      name               = "${local.branch3_prefix}vm-main"
+      name               = "${local.branch3_prefix}vm-main-nic"
       subnet_id          = module.branch3.subnets["MainSubnet"].id
       private_ip_address = local.branch3_vm_addr
       create_public_ip   = true
     },
   ]
-  depends_on = [module.branch3]
+  depends_on = [
+    module.branch3,
+    module.branch3_dns,
+    module.branch3_nva,
+  ]
 }
 
 ####################################################

@@ -17,7 +17,7 @@ Related articles and documentation:
 * [Optimize ExpressRoute Routing](https://learn.microsoft.com/en-us/azure/expressroute/expressroute-optimize-routing)
 * [How can I ensure high availability for a virtual network connected to ExpressRoute?](https://learn.microsoft.com/en-us/azure/expressroute/expressroute-faqs#how-can-i-ensure-high-availability-for-a-virtual-network-connected-to-expressroute)
 
-  <img src="../../images/general/09/01-topology.png" alt="er-ecmp-topology" width="600">
+  <img src="../../images/general/11/01-topology.png" alt="er-ecmp-topology" width="600">
 
 ## Prerequisites
 
@@ -38,7 +38,7 @@ You also need to have an active megaport account. You will need to supply the me
 2. Navigate to the lab directory
 
    ```sh
-   cd azure-network-terraform/4-general/09-er-ecmp-privatelink-storage
+   cd azure-network-terraform/4-general/11-er-ecmp-privatelink-storage
    ```
 
 3. Run the following terraform commands and type ***yes*** at the prompt:
@@ -92,7 +92,7 @@ You also need to have an active megaport account. You will need to supply the me
 
    3. Click the **Go to dashboard** link for dashboard `G10-hub1-er-db`.
 
-   <img src="../../images/general/09/00-dashboard.png" alt="er-ecmp-1-thread" width="1000">
+   <img src="../../images/general/11/00-dashboard.png" alt="er-ecmp-1-thread" width="1000">
 
    The sample dashboard shows the results obtained when using various iperf settings. In the lab we are using ExpressRoute gateway ErGw1AZ which works in active/passive mode. We can see from the dashboard that only the primary circuits is used for traffic. The secondary circuit is only used when the primary circuit is unavailable.
 
@@ -105,26 +105,26 @@ See the [troubleshooting](../../troubleshooting/) section for tips on how to res
 
 With a single connection on iperf, the traffic will only use one ExpressRoute Circuit. Bandwidth is capped at 50Mbps which is the ExpressRoute Standard bandwidth.
 
-<img src="../../images/general/09/03-1-thread.png" alt="er-ecmp-1-thread" width="1000">
+<img src="../../images/general/11/03-1-thread.png" alt="er-ecmp-1-thread" width="1000">
 
 ## Two Iperf Connections
 
 With two connections on iperf, the traffic will use both ExpressRoute Circuits. Bandwidth is capped at 50Mbps which is the ExpressRoute Standard bandwidth.
 
-<img src="../../images/general/09/02-2-threads.png" alt="er-ecmp-1-thread" width="1000">
+<img src="../../images/general/11/02-2-threads.png" alt="er-ecmp-1-thread" width="1000">
 
 ## Six Iperf Connections
 
 With six connections on iperf, the traffic will be distributed across both ExpressRoute Circuits. Bandwidth is capped at 50Mbps which is the ExpressRoute Standard bandwidth.
 
-<img src="../../images/general/09/04-6-threads.png" alt="er-ecmp-1-thread" width="1000">
+<img src="../../images/general/11/04-6-threads.png" alt="er-ecmp-1-thread" width="1000">
 
 ## Cleanup
 
 1. (Optional) Navigate back to the lab directory (if you are not already there)
 
    ```sh
-   cd azure-network-terraform/4-general/09-er-ecmp-privatelink-storage
+   cd azure-network-terraform/4-general/11-er-ecmp-privatelink-storage
    ```
 
 2. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.

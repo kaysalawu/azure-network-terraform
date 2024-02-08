@@ -38,15 +38,18 @@ resource "azurerm_public_ip" "this" {
 ####################################################
 
 resource "azurerm_virtual_network_gateway" "this" {
-  resource_group_name = var.resource_group
-  name                = "${var.prefix}vpngw"
-  location            = var.location
-  type                = "Vpn"
-  vpn_type            = "RouteBased"
-  sku                 = var.sku
-  enable_bgp          = var.enable_bgp
-  active_active       = length(var.ip_configuration) > 1 ? true : var.active_active
-  tags                = var.tags
+  resource_group_name         = var.resource_group
+  name                        = "${var.prefix}vpngw"
+  location                    = var.location
+  type                        = "Vpn"
+  vpn_type                    = "RouteBased"
+  sku                         = var.sku
+  enable_bgp                  = var.enable_bgp
+  active_active               = length(var.ip_configuration) > 1 ? true : var.active_active
+  private_ip_address_enabled  = var.private_ip_address_enabled
+  remote_vnet_traffic_enabled = var.remote_vnet_traffic_enabled
+  virtual_wan_traffic_enabled = var.virtual_wan_traffic_enabled
+  tags                        = var.tags
 
   dynamic "ip_configuration" {
     for_each = { for i in var.ip_configuration : i.name => i if i.public_ip_address_name != null }

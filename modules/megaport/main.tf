@@ -51,7 +51,7 @@ resource "azurerm_express_route_circuit_peering" "private" {
   resource_group_name           = var.resource_group
   peering_type                  = each.value.peering_type
   express_route_circuit_name    = azurerm_express_route_circuit.this[each.value.name].name
-  peer_asn                      = tolist(megaport_mcr.this[each.value.mcr_name].router)[0].assigned_asn
+  peer_asn                      = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
   primary_peer_address_prefix   = each.value.primary_peer_address_prefix
   secondary_peer_address_prefix = each.value.secondary_peer_address_prefix
   vlan_id                       = each.value.requested_vlan
@@ -63,7 +63,7 @@ resource "azurerm_express_route_circuit_peering" "microsoft" {
   resource_group_name           = var.resource_group
   peering_type                  = each.value.peering_type
   express_route_circuit_name    = azurerm_express_route_circuit.this[each.value.name].name
-  peer_asn                      = tolist(megaport_mcr.this[each.value.mcr_name].router)[0].assigned_asn
+  peer_asn                      = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
   primary_peer_address_prefix   = each.value.primary_peer_address_prefix
   secondary_peer_address_prefix = each.value.secondary_peer_address_prefix
   vlan_id                       = each.value.requested_vlan
@@ -103,7 +103,9 @@ resource "megaport_azure_connection" "this" {
     ignore_changes = [a_end, csp_settings, ]
   }
   depends_on = [
-    azurerm_express_route_circuit_peering.private
+    # azurerm_express_route_circuit_peering.private,
+    # azurerm_express_route_circuit_peering.microsoft,
+    # azurerm_express_route_circuit,
   ]
 }
 
@@ -122,10 +124,10 @@ resource "azurerm_virtual_network_gateway_connection" "this" {
   authorization_key          = azurerm_express_route_circuit_authorization.this[each.value.name].authorization_key
   express_route_circuit_id   = azurerm_express_route_circuit.this[each.value.name].id
   depends_on = [
-    azurerm_express_route_circuit.this,
-    azurerm_express_route_circuit_authorization.this,
-    azurerm_express_route_circuit_peering.private,
-    megaport_azure_connection.this,
+    # azurerm_express_route_circuit.this,
+    # azurerm_express_route_circuit_authorization.this,
+    # azurerm_express_route_circuit_peering.private,
+    # megaport_azure_connection.this,
   ]
 }
 
