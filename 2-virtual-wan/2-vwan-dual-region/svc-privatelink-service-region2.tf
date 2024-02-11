@@ -67,7 +67,7 @@ module "spoke6_pls" {
   location         = local.spoke6_location
   prefix           = trimsuffix(local.spoke6_prefix, "-")
   private_dns_zone = module.spoke6.private_dns_zone.name
-  dns_host         = local.spoke6_ilb_host
+  dns_host         = local.spoke6_ilb_hostname
 
   nat_ip_config = [
     {

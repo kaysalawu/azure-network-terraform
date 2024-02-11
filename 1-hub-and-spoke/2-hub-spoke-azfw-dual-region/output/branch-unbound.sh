@@ -32,9 +32,9 @@ server:
         access-control: 35.199.192.0/19 allow
 
         # local data records
-        local-data: "vm.branch1.corp 300 IN A 10.10.0.5"
-        local-data: "vm.branch2.corp 300 IN A 10.20.0.5"
-        local-data: "vm.branch3.corp 300 IN A 10.30.0.5"
+        local-data: "branch1vm.corp 300 IN A 10.10.0.5"
+        local-data: "branch2vm.corp 300 IN A 10.20.0.5"
+        local-data: "branch3vm.corp 300 IN A 10.30.0.5"
 
         # hosts redirected to PrivateLink
 

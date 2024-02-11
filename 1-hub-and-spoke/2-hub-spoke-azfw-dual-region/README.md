@@ -136,18 +136,18 @@ ping-ip
 Sample output
 
 ```sh
-azureuser@Hs12-spoke1-vm:~$ ping-ip
+azureuser@spoke1-vm:~$ ping-ip
 
  ping ip ...
 
-branch1 - 10.10.0.5 -OK 7.557 ms
-hub1    - 10.11.0.5 -OK 4.508 ms
-spoke1  - 10.1.0.5 -OK 0.040 ms
-spoke2  - 10.2.0.5 -OK 4.664 ms
-branch3 - 10.30.0.5 -OK 23.402 ms
-hub2    - 10.22.0.5 -OK 20.454 ms
-spoke4  - 10.4.0.5 -OK 20.100 ms
-spoke5  - 10.5.0.5 -OK 22.668 ms
+branch1 - 10.10.0.5 -OK 4.361 ms
+hub1    - 10.11.0.5 -OK 3.054 ms
+spoke1  - 10.1.0.5 -OK 0.045 ms
+spoke2  - 10.2.0.5 -OK 4.424 ms
+branch3 - 10.30.0.5 -OK 72.294 ms
+hub2    - 10.22.0.5 -OK 71.083 ms
+spoke4  - 10.4.0.5 -OK 70.130 ms
+spoke5  - 10.5.0.5 -OK 71.219 ms
 internet - icanhazip.com -NA
 ```
 
@@ -192,25 +192,25 @@ curl-dns
 Sample output
 
 ```sh
-azureuser@Hs12-spoke1-vm:~$ curl-dns
+azureuser@spoke1-vm:~$ curl-dns
 
  curl dns ...
 
-200 (0.058766s) - 10.10.0.5 - vm.branch1.corp
-200 (0.024193s) - 10.11.0.5 - vm.hub1.we.az.corp
-200 (0.015650s) - 10.11.7.4 - spoke3.p.hub1.we.az.corp
-200 (0.015236s) - 10.1.0.5 - vm.spoke1.we.az.corp
-200 (0.031717s) - 10.2.0.5 - vm.spoke2.we.az.corp
-000 (2.001516s) -  - vm.spoke3.we.az.corp
-200 (0.095913s) - 10.30.0.5 - vm.branch3.corp
-200 (0.090568s) - 10.22.0.5 - vm.hub2.ne.az.corp
-200 (0.115283s) - 10.22.7.4 - spoke6.p.hub2.ne.az.corp
-200 (0.083078s) - 10.4.0.5 - vm.spoke4.ne.az.corp
-200 (0.085840s) - 10.5.0.5 - vm.spoke5.ne.az.corp
-000 (2.000231s) -  - vm.spoke6.ne.az.corp
-200 (0.017188s) - 104.18.114.97 - icanhazip.com
-200 (0.036184s) - 10.11.7.5 - hs12-spoke3-1330.azurewebsites.net
-200 (0.068631s) - 10.22.7.5 - hs12-spoke6-1330.azurewebsites.net
+200 (0.027038s) - 10.10.0.5 - vm.branch1.corp
+200 (0.021901s) - 10.11.0.5 - hub1-vm.eu.az.corp
+200 (0.017871s) - 10.11.7.4 - spoke3.p.eu.az.corp
+200 (0.017671s) - 10.1.0.5 - spoke1-vm.eu.az.corp
+200 (0.016365s) - 10.2.0.5 - spoke2-vm.eu.az.corp
+000 (2.000980s) -  - spoke3-vm.eu.az.corp
+200 (0.181630s) - 10.30.0.5 - vm.branch3.corp
+200 (0.241917s) - 10.22.0.5 - hub2-vm.us.az.corp
+200 (0.232732s) - 10.22.7.4 - spoke6.p.us.az.corp
+200 (0.248705s) - 10.4.0.5 - spoke4-vm.us.az.corp
+200 (0.236043s) - 10.5.0.5 - spoke5-vm.us.az.corp
+000 (2.000051s) -  - spoke6-vm.us.az.corp
+200 (0.035322s) - 104.18.115.97 - icanhazip.com
+200 (0.057118s) - 10.11.7.5 - hs12-spoke3-eb4b.azurewebsites.net
+200 (0.174308s) - 10.22.7.5 - hs12-spoke6-eb4b.azurewebsites.net
 ```
 
 We can see that curl test to spoke3 virtual machine `vm.spoke3.we.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.we.az.corp`. The same explanation applies to ***spoke6*** virtual machine `vm.spoke6.ne.az.corp`

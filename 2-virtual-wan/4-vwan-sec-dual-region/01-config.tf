@@ -116,10 +116,10 @@ locals {
   hub1_nva_tun_range1    = "10.11.51.4/30"
   hub1_vpngw_bgp_apipa_0 = cidrhost(local.bgp_apipa_range1, 1)
   hub1_vpngw_bgp_apipa_1 = cidrhost(local.bgp_apipa_range2, 1)
-  hub1_vm_host           = "vm"
-  hub1_ilb_host          = "ilb"
+  hub1_vm_hostname       = "vm"
+  hub1_ilb_hostname      = "ilb"
   hub1_spoke3_pep_host   = "spoke3.p"
-  hub1_vm_fqdn           = "${local.hub1_vm_host}.${local.hub1_dns_zone}"
+  hub1_vm_fqdn           = "${local.hub1_vm_hostname}.${local.hub1_dns_zone}"
   hub1_spoke3_pep_fqdn   = "${local.hub1_spoke3_pep_host}.${local.hub1_dns_zone}"
 }
 
@@ -161,10 +161,10 @@ locals {
   hub2_nva_tun_range0    = "10.22.50.0/30"
   hub2_nva_tun_range1    = "10.22.51.4/30"
   hub2_vpngw_bgp_apipa_0 = cidrhost(local.bgp_apipa_range5, 1)
-  hub2_vm_host           = "vm"
-  hub2_ilb_host          = "ilb"
+  hub2_vm_hostname       = "vm"
+  hub2_ilb_hostname      = "ilb"
   hub2_spoke6_pep_host   = "spoke6.p"
-  hub2_vm_fqdn           = "${local.hub2_vm_host}.${local.hub2_dns_zone}"
+  hub2_vm_fqdn           = "${local.hub2_vm_hostname}.${local.hub2_dns_zone}"
   hub2_spoke6_pep_fqdn   = "${local.hub2_spoke6_pep_host}.${local.hub2_dns_zone}"
 }
 
@@ -174,7 +174,7 @@ locals {
 locals {
   branch1_prefix        = local.prefix == "" ? "branch1-" : join("-", [local.prefix, "branch1-"])
   branch1_location      = local.region1
-  branch1_address_space = ["10.10.0.0/20", "10.30.16.0/20", ]
+  branch1_address_space = ["10.10.0.0/20", "10.10.16.0/20", ]
   branch1_nva_asn       = "65001"
   branch1_dns_zone      = "branch1.${local.onprem_domain}"
   branch1_subnets = {
@@ -198,8 +198,8 @@ locals {
   branch1_nva_tun_range3     = "10.10.10.12/30"
   branch1_bgp_apipa_0        = cidrhost(local.bgp_apipa_range3, 2)
   branch1_bgp_apipa_1        = cidrhost(local.bgp_apipa_range4, 2)
-  branch1_vm_host            = "vm.branch1"
-  branch1_vm_fqdn            = "${local.branch1_vm_host}.${local.onprem_domain}"
+  branch1_vm_hostname        = "vm.branch1"
+  branch1_vm_fqdn            = "${local.branch1_vm_hostname}.${local.onprem_domain}"
 }
 
 # branch2
@@ -230,8 +230,8 @@ locals {
   branch2_nva_tun_range1     = "10.20.20.4/30"
   branch2_nva_tun_range2     = "10.20.20.8/30"
   branch2_nva_tun_range3     = "10.20.20.12/30"
-  branch2_vm_host            = "vm.branch2"
-  branch2_vm_fqdn            = "${local.branch2_vm_host}.${local.onprem_domain}"
+  branch2_vm_hostname        = "vm.branch2"
+  branch2_vm_fqdn            = "${local.branch2_vm_hostname}.${local.onprem_domain}"
 }
 
 # branch3
@@ -264,8 +264,8 @@ locals {
   branch3_nva_tun_range3     = "10.30.30.12/30"
   branch3_bgp_apipa_0        = cidrhost(local.bgp_apipa_range7, 2)
   branch3_bgp_apipa_1        = cidrhost(local.bgp_apipa_range8, 2)
-  branch3_vm_host            = "vm.branch3"
-  branch3_vm_fqdn            = "${local.branch3_vm_host}.${local.onprem_domain}"
+  branch3_vm_hostname        = "vm.branch3"
+  branch3_vm_fqdn            = "${local.branch3_vm_hostname}.${local.onprem_domain}"
 }
 
 # spoke1
@@ -274,7 +274,7 @@ locals {
 locals {
   spoke1_prefix        = local.prefix == "" ? "spoke1-" : join("-", [local.prefix, "spoke1-"])
   spoke1_location      = local.region1
-  spoke1_address_space = ["10.1.0.0/16", "10.1.16.0/20", ]
+  spoke1_address_space = ["10.1.0.0/20", ]
   spoke1_dns_zone      = "spoke1.${local.region1_code}.${local.cloud_domain}"
   spoke1_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.1.0.0/24"] }
@@ -288,14 +288,14 @@ locals {
     ("AppServiceSubnet")         = { address_prefixes = ["10.1.8.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.1.16.0/24"] }
   }
-  spoke1_vm_addr     = cidrhost(local.spoke1_subnets["MainSubnet"].address_prefixes[0], 5)
-  spoke1_ilb_addr    = cidrhost(local.spoke1_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
-  spoke1_appgw_addr  = cidrhost(local.spoke1_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
-  spoke1_pl_nat_addr = cidrhost(local.spoke1_subnets["MainSubnet"].address_prefixes[0], 50)
-  spoke1_vm_host     = "vm"
-  spoke1_ilb_host    = "ilb"
-  spoke1_pep_host    = "pep"
-  spoke1_vm_fqdn     = "${local.spoke1_vm_host}.${local.spoke1_dns_zone}"
+  spoke1_vm_addr      = cidrhost(local.spoke1_subnets["MainSubnet"].address_prefixes[0], 5)
+  spoke1_ilb_addr     = cidrhost(local.spoke1_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
+  spoke1_appgw_addr   = cidrhost(local.spoke1_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
+  spoke1_pl_nat_addr  = cidrhost(local.spoke1_subnets["MainSubnet"].address_prefixes[0], 50)
+  spoke1_vm_hostname  = "vm"
+  spoke1_ilb_hostname = "ilb"
+  spoke1_pep_host     = "pep"
+  spoke1_vm_fqdn      = "${local.spoke1_vm_hostname}.${local.spoke1_dns_zone}"
 }
 
 # spoke2
@@ -304,7 +304,7 @@ locals {
 locals {
   spoke2_prefix        = local.prefix == "" ? "spoke2-" : join("-", [local.prefix, "spoke2-"])
   spoke2_location      = local.region1
-  spoke2_address_space = ["10.2.0.0/16", "10.2.16.0/20", ]
+  spoke2_address_space = ["10.2.0.0/20", ]
   spoke2_dns_zone      = "spoke2.${local.region1_code}.${local.cloud_domain}"
   spoke2_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.2.0.0/24"] }
@@ -318,14 +318,14 @@ locals {
     ("AppServiceSubnet")         = { address_prefixes = ["10.2.8.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.2.16.0/24"] }
   }
-  spoke2_vm_addr     = cidrhost(local.spoke2_subnets["MainSubnet"].address_prefixes[0], 5)
-  spoke2_ilb_addr    = cidrhost(local.spoke2_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
-  spoke2_appgw_addr  = cidrhost(local.spoke2_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
-  spoke2_pl_nat_addr = cidrhost(local.spoke2_subnets["MainSubnet"].address_prefixes[0], 50)
-  spoke2_vm_host     = "vm"
-  spoke2_ilb_host    = "ilb"
-  spoke2_pep_host    = "pep"
-  spoke2_vm_fqdn     = "${local.spoke2_vm_host}.${local.spoke2_dns_zone}"
+  spoke2_vm_addr      = cidrhost(local.spoke2_subnets["MainSubnet"].address_prefixes[0], 5)
+  spoke2_ilb_addr     = cidrhost(local.spoke2_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
+  spoke2_appgw_addr   = cidrhost(local.spoke2_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
+  spoke2_pl_nat_addr  = cidrhost(local.spoke2_subnets["MainSubnet"].address_prefixes[0], 50)
+  spoke2_vm_hostname  = "vm"
+  spoke2_ilb_hostname = "ilb"
+  spoke2_pep_host     = "pep"
+  spoke2_vm_fqdn      = "${local.spoke2_vm_hostname}.${local.spoke2_dns_zone}"
 }
 
 # spoke3
@@ -334,7 +334,7 @@ locals {
 locals {
   spoke3_prefix        = local.prefix == "" ? "spoke3-" : join("-", [local.prefix, "spoke3-"])
   spoke3_location      = local.region1
-  spoke3_address_space = ["10.3.0.0/16", "10.3.16.0/20", ]
+  spoke3_address_space = ["10.3.0.0/20", ]
   spoke3_dns_zone      = "spoke3.${local.region1_code}.${local.cloud_domain}"
   spoke3_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.3.0.0/24"] }
@@ -348,14 +348,14 @@ locals {
     ("AppServiceSubnet")         = { address_prefixes = ["10.3.8.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.3.16.0/24"] }
   }
-  spoke3_vm_addr     = cidrhost(local.spoke3_subnets["MainSubnet"].address_prefixes[0], 5)
-  spoke3_ilb_addr    = cidrhost(local.spoke3_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
-  spoke3_appgw_addr  = cidrhost(local.spoke3_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
-  spoke3_pl_nat_addr = cidrhost(local.spoke3_subnets["PrivateLinkServiceSubnet"].address_prefixes[0], 50)
-  spoke3_vm_host     = "vm"
-  spoke3_ilb_host    = "ilb"
-  spoke3_pep_host    = "pep"
-  spoke3_vm_fqdn     = "${local.spoke3_vm_host}.${local.spoke3_dns_zone}"
+  spoke3_vm_addr      = cidrhost(local.spoke3_subnets["MainSubnet"].address_prefixes[0], 5)
+  spoke3_ilb_addr     = cidrhost(local.spoke3_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
+  spoke3_appgw_addr   = cidrhost(local.spoke3_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
+  spoke3_pl_nat_addr  = cidrhost(local.spoke3_subnets["PrivateLinkServiceSubnet"].address_prefixes[0], 50)
+  spoke3_vm_hostname  = "vm"
+  spoke3_ilb_hostname = "ilb"
+  spoke3_pep_host     = "pep"
+  spoke3_vm_fqdn      = "${local.spoke3_vm_hostname}.${local.spoke3_dns_zone}"
 }
 
 # spoke4
@@ -364,7 +364,7 @@ locals {
 locals {
   spoke4_prefix        = local.prefix == "" ? "spoke4-" : join("-", [local.prefix, "spoke4-"])
   spoke4_location      = local.region2
-  spoke4_address_space = ["10.4.0.0/16", "10.4.16.0/20", ]
+  spoke4_address_space = ["10.4.0.0/20", ]
   spoke4_dns_zone      = "spoke4.${local.region2_code}.${local.cloud_domain}"
   spoke4_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.4.0.0/24"] }
@@ -378,14 +378,14 @@ locals {
     ("AppServiceSubnet")         = { address_prefixes = ["10.4.8.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.4.16.0/24"] }
   }
-  spoke4_vm_addr     = cidrhost(local.spoke4_subnets["MainSubnet"].address_prefixes[0], 5)
-  spoke4_ilb_addr    = cidrhost(local.spoke4_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
-  spoke4_appgw_addr  = cidrhost(local.spoke4_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
-  spoke4_pl_nat_addr = cidrhost(local.spoke4_subnets["MainSubnet"].address_prefixes[0], 50)
-  spoke4_vm_host     = "vm"
-  spoke4_ilb_host    = "ilb"
-  spoke4_pep_host    = "pep"
-  spoke4_vm_fqdn     = "${local.spoke4_vm_host}.${local.spoke4_dns_zone}"
+  spoke4_vm_addr      = cidrhost(local.spoke4_subnets["MainSubnet"].address_prefixes[0], 5)
+  spoke4_ilb_addr     = cidrhost(local.spoke4_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
+  spoke4_appgw_addr   = cidrhost(local.spoke4_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
+  spoke4_pl_nat_addr  = cidrhost(local.spoke4_subnets["MainSubnet"].address_prefixes[0], 50)
+  spoke4_vm_hostname  = "vm"
+  spoke4_ilb_hostname = "ilb"
+  spoke4_pep_host     = "pep"
+  spoke4_vm_fqdn      = "${local.spoke4_vm_hostname}.${local.spoke4_dns_zone}"
 }
 
 # spoke5
@@ -394,7 +394,7 @@ locals {
 locals {
   spoke5_prefix        = local.prefix == "" ? "spoke5-" : join("-", [local.prefix, "spoke5-"])
   spoke5_location      = local.region2
-  spoke5_address_space = ["10.5.0.0/16", "10.5.16.0/20", ]
+  spoke5_address_space = ["10.5.0.0/20", ]
   spoke5_dns_zone      = "spoke5.${local.region2_code}.${local.cloud_domain}"
   spoke5_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.5.0.0/24"] }
@@ -408,14 +408,14 @@ locals {
     ("AppServiceSubnet")         = { address_prefixes = ["10.5.8.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.5.16.0/24"] }
   }
-  spoke5_vm_addr     = cidrhost(local.spoke5_subnets["MainSubnet"].address_prefixes[0], 5)
-  spoke5_ilb_addr    = cidrhost(local.spoke5_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
-  spoke5_appgw_addr  = cidrhost(local.spoke5_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
-  spoke5_pl_nat_addr = cidrhost(local.spoke5_subnets["MainSubnet"].address_prefixes[0], 50)
-  spoke5_vm_host     = "vm"
-  spoke5_ilb_host    = "ilb"
-  spoke5_pep_host    = "pep"
-  spoke5_vm_fqdn     = "${local.spoke5_vm_host}.${local.spoke5_dns_zone}"
+  spoke5_vm_addr      = cidrhost(local.spoke5_subnets["MainSubnet"].address_prefixes[0], 5)
+  spoke5_ilb_addr     = cidrhost(local.spoke5_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
+  spoke5_appgw_addr   = cidrhost(local.spoke5_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
+  spoke5_pl_nat_addr  = cidrhost(local.spoke5_subnets["MainSubnet"].address_prefixes[0], 50)
+  spoke5_vm_hostname  = "vm"
+  spoke5_ilb_hostname = "ilb"
+  spoke5_pep_host     = "pep"
+  spoke5_vm_fqdn      = "${local.spoke5_vm_hostname}.${local.spoke5_dns_zone}"
 }
 
 # spoke6
@@ -424,7 +424,7 @@ locals {
 locals {
   spoke6_prefix        = local.prefix == "" ? "spoke6-" : join("-", [local.prefix, "spoke6-"])
   spoke6_location      = local.region2
-  spoke6_address_space = ["10.6.0.0/16", "10.6.16.0/20", ]
+  spoke6_address_space = ["10.6.0.0/20", ]
   spoke6_dns_zone      = "spoke6.${local.region2_code}.${local.cloud_domain}"
   spoke6_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.6.0.0/24"] }
@@ -438,12 +438,12 @@ locals {
     ("AppServiceSubnet")         = { address_prefixes = ["10.6.8.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.6.16.0/24"] }
   }
-  spoke6_vm_addr     = cidrhost(local.spoke6_subnets["MainSubnet"].address_prefixes[0], 5)
-  spoke6_ilb_addr    = cidrhost(local.spoke6_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
-  spoke6_appgw_addr  = cidrhost(local.spoke6_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
-  spoke6_pl_nat_addr = cidrhost(local.spoke6_subnets["MainSubnet"].address_prefixes[0], 50)
-  spoke6_vm_host     = "vm"
-  spoke6_ilb_host    = "ilb"
-  spoke6_pep_host    = "pep"
-  spoke6_vm_fqdn     = "${local.spoke6_vm_host}.${local.spoke6_dns_zone}"
+  spoke6_vm_addr      = cidrhost(local.spoke6_subnets["MainSubnet"].address_prefixes[0], 5)
+  spoke6_ilb_addr     = cidrhost(local.spoke6_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
+  spoke6_appgw_addr   = cidrhost(local.spoke6_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
+  spoke6_pl_nat_addr  = cidrhost(local.spoke6_subnets["MainSubnet"].address_prefixes[0], 50)
+  spoke6_vm_hostname  = "vm"
+  spoke6_ilb_hostname = "ilb"
+  spoke6_pep_host     = "pep"
+  spoke6_vm_fqdn      = "${local.spoke6_vm_hostname}.${local.spoke6_dns_zone}"
 }

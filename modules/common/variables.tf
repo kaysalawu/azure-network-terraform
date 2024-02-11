@@ -23,8 +23,12 @@ variable "resource_group" {
 
 variable "regions" {
   description = "A map of regions to deploy resources to"
-  type        = map(any)
+  type = map(object({
+    name     = string
+    dns_zone = string
+  }))
 }
+
 
 variable "firewall_sku" {
   description = "The SKU of the firewall to deploy"

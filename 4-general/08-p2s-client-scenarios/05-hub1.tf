@@ -29,7 +29,7 @@ module "hub1" {
   private_dns_zone_name   = local.hub1_dns_zone
   private_dns_zone_linked_external_vnets = {
   }
-  private_dns_ruleset_linked_external_vnets = {
+  vnets_linked_to_ruleset = {
   }
 
   nsg_subnet_map = {

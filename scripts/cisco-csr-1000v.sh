@@ -1,5 +1,12 @@
 Section: IOS configuration
 !-----------------------------------------
+! Prefix Lists
+!-----------------------------------------
+%{~ for command in PREFIX_LISTS }
+${command}
+%{~ endfor }
+!
+!-----------------------------------------
 ! IPSec
 !-----------------------------------------
 %{~ if TUNNELS != [] }
@@ -58,13 +65,6 @@ ip address ${LOOPBACK0} 255.255.255.255
 %{~ for k,v in LOOPBACKS }
 interface ${k}
 ip address ${v} 255.255.255.255
-%{~ endfor }
-!
-!-----------------------------------------
-! Prefix Lists
-!-----------------------------------------
-%{~ for command in PREFIX_LISTS }
-${command}
 %{~ endfor }
 !
 !-----------------------------------------

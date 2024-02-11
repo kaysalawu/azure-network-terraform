@@ -70,7 +70,7 @@ module "spoke3_pls" {
   location         = local.spoke3_location
   prefix           = trimsuffix(local.spoke3_prefix, "-")
   private_dns_zone = module.spoke3.private_dns_zone.name
-  dns_host         = local.spoke3_ilb_host
+  dns_host         = local.spoke3_ilb_hostname
 
   nat_ip_config = [
     {

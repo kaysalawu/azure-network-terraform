@@ -91,40 +91,17 @@ resource "azurerm_network_watcher_flow_log" "this" {
 # dns
 ####################################################
 
-# dns zone
+# dns zones linked to vnet
 
-resource "azurerm_private_dns_zone" "this" {
-  count               = var.create_private_dns_zone && var.private_dns_zone_name != null ? 1 : 0
-  resource_group_name = var.resource_group
-  name                = var.private_dns_zone_name
-  tags                = var.tags
-}
-
-# zone link (local vnet)
-
-resource "azurerm_private_dns_zone_virtual_network_link" "internal" {
-  count                 = var.create_private_dns_zone && var.private_dns_zone_name != null ? 1 : 0
+resource "azurerm_private_dns_zone_virtual_network_link" "dns" {
+  for_each              = { for v in var.dns_zones_linked_to_vnet : v.name => v }
   resource_group_name   = var.resource_group
-  name                  = "${local.prefix}vnet-link"
-  private_dns_zone_name = var.create_private_dns_zone ? azurerm_private_dns_zone.this[0].name : var.private_dns_zone_name
+  name                  = "${azurerm_virtual_network.this.name}--link"
+  private_dns_zone_name = each.key
   virtual_network_id    = azurerm_virtual_network.this.id
-  registration_enabled  = true
-  timeouts {
-    create = "60m"
-  }
-}
-
-# zone links (external vnets)
-
-resource "azurerm_private_dns_zone_virtual_network_link" "external" {
-  for_each              = { for k, v in var.private_dns_zone_linked_external_vnets : k => v if var.create_private_dns_zone && var.private_dns_zone_name != null }
-  resource_group_name   = var.resource_group
-  name                  = "${local.prefix}${each.key}-vnet-link"
-  private_dns_zone_name = var.create_private_dns_zone ? azurerm_private_dns_zone.this[0].name : var.private_dns_zone_name
-  virtual_network_id    = each.value
-  registration_enabled  = false
+  registration_enabled  = each.value.registration_enabled
   depends_on = [
-    azurerm_private_dns_zone_virtual_network_link.internal,
+    azurerm_virtual_network.this,
   ]
   timeouts {
     create = "60m"
@@ -145,10 +122,10 @@ module "dns_resolver" {
   virtual_network_id = azurerm_virtual_network.this.id
   tags               = var.tags
 
-  private_dns_inbound_subnet_id             = azurerm_subnet.this["DnsResolverInboundSubnet"].id
-  private_dns_outbound_subnet_id            = azurerm_subnet.this["DnsResolverOutboundSubnet"].id
-  ruleset_dns_forwarding_rules              = var.config_vnet.ruleset_dns_forwarding_rules
-  private_dns_ruleset_linked_external_vnets = var.private_dns_ruleset_linked_external_vnets
+  private_dns_inbound_subnet_id  = azurerm_subnet.this["DnsResolverInboundSubnet"].id
+  private_dns_outbound_subnet_id = azurerm_subnet.this["DnsResolverOutboundSubnet"].id
+  ruleset_dns_forwarding_rules   = var.config_vnet.ruleset_dns_forwarding_rules
+  vnets_linked_to_ruleset        = var.vnets_linked_to_ruleset
 
   log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 
@@ -227,6 +204,10 @@ module "s2s_vpngw" {
   sku           = var.config_s2s_vpngw.sku
   active_active = var.config_s2s_vpngw.active_active
   bgp_asn       = var.config_s2s_vpngw.bgp_settings.asn
+
+  private_ip_address_enabled  = var.config_s2s_vpngw.private_ip_address_enabled
+  remote_vnet_traffic_enabled = var.config_s2s_vpngw.remote_vnet_traffic_enabled
+  virtual_wan_traffic_enabled = var.config_s2s_vpngw.remote_vnet_traffic_enabled
 
   log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 

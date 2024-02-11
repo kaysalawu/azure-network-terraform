@@ -80,28 +80,13 @@ variable "ssh_public_key" {
   default     = null
 }
 
-variable "create_private_dns_zone" {
-  description = "create private dns zone"
-  type        = bool
-  default     = false
-}
-
-variable "private_dns_zone_name" {
-  description = "private dns zone name"
-  type        = string
-  default     = null
-}
-
-variable "private_dns_zone_prefix" {
-  description = "private dns prefix"
-  type        = string
-  default     = null
-}
-
-variable "private_dns_zone_linked_external_vnets" {
-  description = "private dns zone"
-  type        = map(any)
-  default     = {}
+variable "dns_zones_linked_to_vnet" {
+  description = "dns zones linked to vnet"
+  type = list(object({
+    name                 = string
+    registration_enabled = optional(bool, false)
+  }))
+  default = []
 }
 
 variable "nsg_subnet_map" {
@@ -116,10 +101,13 @@ variable "dns_zone_linked_rulesets" {
   default     = {}
 }
 
-variable "private_dns_ruleset_linked_external_vnets" {
+variable "vnets_linked_to_ruleset" {
   description = "private dns rulesets"
-  type        = map(any)
-  default     = {}
+  type = list(object({
+    name    = string
+    vnet_id = string
+  }))
+  default = []
 }
 
 variable "config_vnet" {
@@ -143,7 +131,6 @@ variable "config_vnet" {
     vpn_gateway_ip_config0_apipa_addresses = optional(list(string), ["169.254.21.1"])
     vpn_gateway_ip_config1_apipa_addresses = optional(list(string), ["169.254.21.5"])
   })
-  #default = {}
 }
 
 variable "config_s2s_vpngw" {
@@ -151,6 +138,11 @@ variable "config_s2s_vpngw" {
     enable        = optional(bool, false)
     sku           = optional(string, "VpnGw1AZ")
     active_active = optional(bool, true)
+
+    private_ip_address_enabled  = optional(bool, true)
+    remote_vnet_traffic_enabled = optional(bool, true)
+    virtual_wan_traffic_enabled = optional(bool, true)
+
     ip_configuration = optional(list(object({
       name                          = string
       subnet_id                     = optional(string)

@@ -24,7 +24,7 @@ module "hub1" {
   private_dns_zone_linked_external_vnets = {
     "spoke1" = module.spoke1.vnet.id
   }
-  private_dns_ruleset_linked_external_vnets = {
+  vnets_linked_to_ruleset = {
     "spoke1" = module.spoke1.vnet.id
   }
 

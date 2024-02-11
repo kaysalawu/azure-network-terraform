@@ -64,6 +64,6 @@ resource "azurerm_private_endpoint" "hub2_spoke6_apps_pep" {
     private_dns_zone_ids = [azurerm_private_dns_zone.privatelink_appservice.id]
   }
   depends_on = [
-    azurerm_private_endpoint.hub2_spoke6_pls_pep,
+    #azurerm_private_endpoint.hub2_spoke6_pls_pep,
   ]
 }

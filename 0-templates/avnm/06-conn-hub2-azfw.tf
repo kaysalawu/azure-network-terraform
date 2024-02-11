@@ -152,16 +152,17 @@ resource "azurerm_local_network_gateway" "hub2_branch3_lng" {
 # branch3
 
 resource "azurerm_virtual_network_gateway_connection" "hub2_branch3_lng" {
-  resource_group_name        = azurerm_resource_group.rg.name
-  name                       = "${local.hub2_prefix}branch3-lng-conn"
-  location                   = local.hub2_location
-  type                       = "IPsec"
-  enable_bgp                 = true
-  virtual_network_gateway_id = module.hub2.s2s_vpngw.id
-  local_network_gateway_id   = azurerm_local_network_gateway.hub2_branch3_lng.id
-  shared_key                 = local.psk
-  egress_nat_rule_ids        = []
-  ingress_nat_rule_ids       = []
+  resource_group_name            = azurerm_resource_group.rg.name
+  name                           = "${local.hub2_prefix}branch3-lng-conn"
+  location                       = local.hub2_location
+  type                           = "IPsec"
+  enable_bgp                     = true
+  virtual_network_gateway_id     = module.hub2.s2s_vpngw.id
+  local_network_gateway_id       = azurerm_local_network_gateway.hub2_branch3_lng.id
+  local_azure_ip_address_enabled = false
+  shared_key                     = local.psk
+  egress_nat_rule_ids            = []
+  ingress_nat_rule_ids           = []
 }
 
 ####################################################

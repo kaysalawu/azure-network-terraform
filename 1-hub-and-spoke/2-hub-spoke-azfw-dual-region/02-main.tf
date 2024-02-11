@@ -76,8 +76,8 @@ resource "azurerm_role_assignment" "machine" {
 
 locals {
   regions = {
-    region1 = local.region1
-    region2 = local.region2
+    "region1" = { name = local.region1, dns_zone = local.region1_dns_zone }
+    "region2" = { name = local.region2, dns_zone = local.region2_dns_zone }
   }
   default_udr_destinations = [
     { name = "default", address_prefix = ["0.0.0.0/0"] }
@@ -121,15 +121,15 @@ locals {
           ]
         }
         "${local.region1_code}" = {
-          domain = "${local.region1_code}.${local.cloud_domain}"
+          domain = local.region1_dns_zone
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
         }
         "${local.region2_code}" = {
-          domain = "${local.region2_code}.${local.cloud_domain}"
+          domain = local.region2_dns_zone
           target_dns_servers = [
-            { ip_address = local.hub2_dns_in_addr, port = 53 },
+            { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
         }
         "azurewebsites" = {
@@ -204,13 +204,13 @@ locals {
           ]
         }
         "${local.region1_code}" = {
-          domain = "${local.region1_code}.${local.cloud_domain}"
+          domain = local.region1_dns_zone
           target_dns_servers = [
-            { ip_address = local.hub1_dns_in_addr, port = 53 },
+            { ip_address = local.hub2_dns_in_addr, port = 53 },
           ]
         }
         "${local.region2_code}" = {
-          domain = "${local.region2_code}.${local.cloud_domain}"
+          domain = local.region2_dns_zone
           target_dns_servers = [
             { ip_address = local.hub2_dns_in_addr, port = 53 },
           ]
@@ -334,20 +334,18 @@ locals {
   hub2_ars_asn   = "65515"
 
   vm_script_targets_region1 = [
-    { name = "branch1", dns = local.branch1_vm_fqdn, ip = local.branch1_vm_addr, probe = true },
-    { name = "hub1   ", dns = local.hub1_vm_fqdn, ip = local.hub1_vm_addr, probe = false },
-    { name = "hub1-spoke3-pep", dns = local.hub1_spoke3_pep_fqdn, ping = false, probe = true },
-    { name = "spoke1 ", dns = local.spoke1_vm_fqdn, ip = local.spoke1_vm_addr, probe = true },
-    { name = "spoke2 ", dns = local.spoke2_vm_fqdn, ip = local.spoke2_vm_addr, probe = true },
-    { name = "spoke3 ", dns = local.spoke3_vm_fqdn, ip = local.spoke3_vm_addr, ping = false },
+    { name = "branch1", dns = lower(local.branch1_vm_fqdn), ip = local.branch1_vm_addr, probe = true },
+    { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ip = local.hub1_vm_addr, probe = false },
+    { name = "hub1-spoke3-pep", dns = lower(local.hub1_spoke3_pep_fqdn), ping = false, probe = true },
+    { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ip = local.spoke1_vm_addr, probe = true },
+    { name = "spoke2 ", dns = lower(local.spoke2_vm_fqdn), ip = local.spoke2_vm_addr, probe = true },
   ]
   vm_script_targets_region2 = [
-    { name = "branch3", dns = local.branch3_vm_fqdn, ip = local.branch3_vm_addr, probe = true },
-    { name = "hub2   ", dns = local.hub2_vm_fqdn, ip = local.hub2_vm_addr, probe = false },
-    { name = "hub2-spoke6-pep", dns = local.hub2_spoke6_pep_fqdn, ping = false, probe = true },
-    { name = "spoke4 ", dns = local.spoke4_vm_fqdn, ip = local.spoke4_vm_addr, probe = true },
-    { name = "spoke5 ", dns = local.spoke5_vm_fqdn, ip = local.spoke5_vm_addr, probe = true },
-    { name = "spoke6 ", dns = local.spoke6_vm_fqdn, ip = local.spoke6_vm_addr, ping = false },
+    { name = "branch3", dns = lower(local.branch3_vm_fqdn), ip = local.branch3_vm_addr, probe = true },
+    { name = "hub2   ", dns = lower(local.hub2_vm_fqdn), ip = local.hub2_vm_addr, probe = false },
+    { name = "hub2-spoke6-pep", dns = lower(local.hub2_spoke6_pep_fqdn), ping = false, probe = true },
+    { name = "spoke4 ", dns = lower(local.spoke4_vm_fqdn), ip = local.spoke4_vm_addr, probe = true },
+    { name = "spoke5 ", dns = lower(local.spoke5_vm_fqdn), ip = local.spoke5_vm_addr, probe = true },
   ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ip = "icanhazip.com" },
@@ -395,9 +393,9 @@ locals {
     "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.log", local.branch_dns_vars) }
   }
   onprem_local_records = [
-    { name = (local.branch1_vm_fqdn), record = local.branch1_vm_addr },
-    { name = (local.branch2_vm_fqdn), record = local.branch2_vm_addr },
-    { name = (local.branch3_vm_fqdn), record = local.branch3_vm_addr },
+    { name = lower(local.branch1_vm_fqdn), record = local.branch1_vm_addr },
+    { name = lower(local.branch2_vm_fqdn), record = local.branch2_vm_addr },
+    { name = lower(local.branch3_vm_fqdn), record = local.branch3_vm_addr },
   ]
   onprem_forward_zones = [
     { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
@@ -512,7 +510,7 @@ resource "azurerm_firewall_policy" "firewall_policy" {
   for_each                 = local.regions
   resource_group_name      = azurerm_resource_group.rg.name
   name                     = "${local.prefix}-fw-policy-${each.key}"
-  location                 = each.value
+  location                 = each.value.name
   threat_intelligence_mode = "Alert"
   sku                      = local.firewall_sku
 

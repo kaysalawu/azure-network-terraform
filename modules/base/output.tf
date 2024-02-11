@@ -17,9 +17,9 @@ output "private_dns_forwarding_ruleset" {
   value = try(module.dns_resolver[0].private_dns_forwarding_ruleset, {})
 }
 
-output "private_dns_zone" {
-  value = try(azurerm_private_dns_zone.this[0], {})
-}
+# output "private_dns_zone" {
+#   value = try(azurerm_private_dns_zone.this[0], {})
+# }
 
 output "private_dns_resolver" {
   value = try(module.dns_resolver[0].private_dns_resolver, {})

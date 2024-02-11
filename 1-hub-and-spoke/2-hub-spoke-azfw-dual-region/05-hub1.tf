@@ -33,16 +33,16 @@ module "hub1" {
   # network_watcher_name           = "NetworkWatcher_${local.region1}"
   # network_watcher_resource_group = "NetworkWatcherRG"
 
-  create_private_dns_zone = true
-  private_dns_zone_name   = local.hub1_dns_zone
-  private_dns_zone_linked_external_vnets = {
-    "spoke1" = module.spoke1.vnet.id
-    "spoke2" = module.spoke2.vnet.id
-  }
-  private_dns_ruleset_linked_external_vnets = {
-    "spoke1" = module.spoke1.vnet.id
-    "spoke2" = module.spoke2.vnet.id
-  }
+  dns_zones_linked_to_vnet = [
+    { name = module.common.private_dns_zones[local.region1_dns_zone].name, registration_enabled = true },
+    { name = module.common.private_dns_zones[local.region2_dns_zone].name },
+  ]
+
+  vnets_linked_to_ruleset = [
+    { name = "hub1", vnet_id = module.hub1.vnet.id },
+    { name = "spoke1", vnet_id = module.spoke1.vnet.id },
+    { name = "spoke2", vnet_id = module.spoke2.vnet.id },
+  ]
 
   nsg_subnet_map = {
     "MainSubnet"                = module.common.nsg_main["region1"].id
@@ -70,6 +70,12 @@ module "hub1" {
   ]
 }
 
+# resource "azurerm_private_dns_zone" "hub1" {
+#   resource_group_name = azurerm_resource_group.rg.name
+#   name                = local.hub1_dns_zone
+#   tags                = local.hub1_tags
+# }
+
 ####################################################
 # workload
 ####################################################
@@ -77,8 +83,8 @@ module "hub1" {
 module "hub1_vm" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.hub1_prefix}vm"
-  computer_name   = "vm"
+  name            = "${local.prefix}-${local.hub1_vm_hostname}"
+  computer_name   = local.hub1_vm_hostname
   location        = local.hub1_location
   storage_account = module.common.storage_accounts["region1"]
   custom_data     = base64encode(local.vm_startup)

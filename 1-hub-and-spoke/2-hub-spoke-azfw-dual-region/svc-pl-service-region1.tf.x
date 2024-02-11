@@ -61,13 +61,38 @@ module "spoke3_lb" {
 # service
 #----------------------------
 
+resource "azurerm_private_link_service" "this" {
+  resource_group_name = var.resource_group
+  name                = "${local.prefix}pls"
+  location            = var.location
+  tags                = var.tags
+
+  nat_ip_configuration {
+    name               = "${local.prefix}${var.nat_ip_config[0].name}"
+    primary            = var.nat_ip_config[0].primary
+    subnet_id          = var.nat_ip_config[0].subnet_id
+    private_ip_address = var.nat_ip_config[0].private_ip_address == "" ? null : var.nat_ip_config[0].private_ip_address
+  }
+
+  load_balancer_frontend_ip_configuration_ids = var.nat_ip_config[0].lb_frontend_ids
+
+  lifecycle {
+    ignore_changes = [
+      nat_ip_configuration
+    ]
+  }
+  timeouts {
+    create = "60m"
+  }
+}
+
 module "spoke3_pls" {
   source           = "../../modules/privatelink"
   resource_group   = azurerm_resource_group.rg.name
   location         = local.spoke3_location
   prefix           = trimsuffix(local.spoke3_prefix, "-")
   private_dns_zone = module.spoke3.private_dns_zone.name
-  dns_host         = local.spoke3_ilb_host
+  dns_host         = local.spoke3_ilb_hostname
 
   nat_ip_config = [
     {
@@ -95,12 +120,12 @@ resource "azurerm_private_endpoint" "hub1_spoke3_pls_pep" {
   }
 }
 
-resource "azurerm_private_dns_a_record" "hub1_spoke3_pls_pep" {
-  resource_group_name = azurerm_resource_group.rg.name
-  name                = local.hub1_spoke3_pep_host
-  zone_name           = module.hub1.private_dns_zone.name
-  ttl                 = 300
-  records = [
-    azurerm_private_endpoint.hub1_spoke3_pls_pep.private_service_connection[0].private_ip_address,
-  ]
-}
+# resource "azurerm_private_dns_a_record" "hub1_spoke3_pls_pep" {
+#   resource_group_name = azurerm_resource_group.rg.name
+#   name                = local.hub1_spoke3_pep_host
+#   zone_name           = module.hub1.private_dns_zone.name
+#   ttl                 = 300
+#   records = [
+#     azurerm_private_endpoint.hub1_spoke3_pls_pep.private_service_connection[0].private_ip_address,
+#   ]
+# }

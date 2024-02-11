@@ -39,7 +39,7 @@ module "hub1" {
     "spoke1" = module.spoke1.vnet.id
     "spoke2" = module.spoke2.vnet.id
   }
-  private_dns_ruleset_linked_external_vnets = {
+  vnets_linked_to_ruleset = {
     "spoke1" = module.spoke1.vnet.id
     "spoke2" = module.spoke2.vnet.id
   }

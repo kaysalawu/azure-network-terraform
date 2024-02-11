@@ -37,10 +37,13 @@ variable "dns_zone_linked_rulesets" {
   default     = {}
 }
 
-variable "private_dns_ruleset_linked_external_vnets" {
+variable "vnets_linked_to_ruleset" {
   description = "private dns rulesets"
-  type        = map(any)
-  default     = {}
+  type = list(object({
+    name    = string
+    vnet_id = string
+  }))
+  default = []
 }
 
 variable "enable_private_dns_resolver" {

@@ -110,7 +110,7 @@ locals {
   shared1_vpngw_bgp_apipa_0 = cidrhost(local.bgp_apipa_range1, 1)
   shared1_vpngw_bgp_apipa_1 = cidrhost(local.bgp_apipa_range2, 1)
   shared1_vm_host           = "vm"
-  shared1_ilb_host          = "ilb"
+  shared1_ilb_hostname      = "ilb"
   shared1_spoke3_pep_host   = "spoke3.p"
   shared1_vm_fqdn           = "${local.shared1_vm_host}.${local.shared1_dns_zone}"
   shared1_spoke3_pep_fqdn   = "${local.shared1_spoke3_pep_host}.${local.shared1_dns_zone}"
@@ -151,7 +151,7 @@ locals {
   shared2_nva_tun_range1    = "10.22.51.4/30"
   shared2_vpngw_bgp_apipa_0 = cidrhost(local.bgp_apipa_range5, 1)
   shared2_vm_host           = "vm"
-  shared2_ilb_host          = "ilb"
+  shared2_ilb_hostname      = "ilb"
   shared2_spoke6_pep_host   = "spoke6.p"
   shared2_vm_fqdn           = "${local.shared2_vm_host}.${local.shared2_dns_zone}"
   shared2_spoke6_pep_fqdn   = "${local.shared2_spoke6_pep_host}.${local.shared2_dns_zone}"

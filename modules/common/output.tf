@@ -26,3 +26,7 @@ output "nsg_nva" {
 output "nsg_lb" {
   value = azurerm_network_security_group.nsg_lb
 }
+
+output "private_dns_zones" {
+  value = azurerm_private_dns_zone.private_dns_zones
+}

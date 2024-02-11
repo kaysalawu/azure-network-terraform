@@ -5,13 +5,13 @@
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Deploy the Lab](#deploy-the-lab)
-- [Branch1 NVA (Cisco)](#branch1-nva-cisco)
-- [Branch1 VM](#branch1-vm)
-- [Spoke1 VM](#spoke1-vm)
-- [Hub1 NVA](#hub1-nva)
-- [ExpressRoute Circuits](#expressroute-circuits)
-- [Gateway BGP Peers](#gateway-bgp-peers)
-- [Gateway Route Tables](#gateway-route-tables)
+- [Results](#results)
+  - [Branch1 NVA (Cisco)](#branch1-nva-cisco)
+  - [Branch1 VM](#branch1-vm)
+  - [Spoke1 VM](#spoke1-vm)
+  - [Hub1 NVA](#hub1-nva)
+  - [ExpressRoute Circuits](#expressroute-circuits)
+  - [Vnet Gateway](#vnet-gateway)
 - [Troubleshooting](#troubleshooting)
 - [Cleanup](#cleanup)
 
@@ -55,9 +55,11 @@ Ensure you meet all requirements in the [prerequisites](../../prerequisites/) be
    terraform apply -parallelism=50
    ```
 
-## Branch1 NVA (Cisco)
+## Results
 
-### Route table <!-- omit in toc -->
+### Branch1 NVA (Cisco)
+
+1. Route table
 
 ```sh
 G10-branch1-nva#show ip route
@@ -88,7 +90,7 @@ S        169.254.169.254 [254/0] via 10.10.1.1
 C        192.168.10.10 is directly connected, Loopback0
 ```
 
-### BGP table <!-- omit in toc -->
+2. BGP table
 
 ```sh
 G10-branch1-nva#show ip bgp
@@ -114,7 +116,7 @@ We can see that the inbound route map filtered out the Azure hub gateway subnet 
 
 The other hub subnets **10.11.0.0/17** are advertised because we need to reach resources like VMs and PrivateLink endpoints in the hub.
 
-### Interfaces <!-- omit in toc -->
+3. Interfaces
 
 ```sh
 G10-branch1-nva#show ip int br
@@ -128,7 +130,7 @@ Tunnel2                10.10.10.9      YES TFTP   up                    down
 VirtualPortGroup0      192.168.35.101  YES TFTP   up                    up
 ```
 
-### Advertised routes <!-- omit in toc -->
+4. Advertised Routes
 
 ```sh
 G10-branch1-nva#show ip bgp neighbors 10.11.128.14 advertised-routes
@@ -147,9 +149,9 @@ RPKI validation codes: V valid, I invalid, N Not found
  *>   10.11.0.0/17     10.11.128.14                           0 65515 i
 ```
 
-## Branch1 VM
+### Branch1 VM
 
-### Curl DNS <!-- omit in toc -->
+Curl DNS
 
 ```sh
 azureuser@vm:~$ curl-dns
@@ -166,9 +168,9 @@ azureuser@vm:~$ curl-dns
 200 (0.553922s) - 10.11.7.5 - g10-spoke3-d45e.azurewebsites.net
 ```
 
-## Spoke1 VM
+### Spoke1 VM
 
-### Curl DNS <!-- omit in toc -->
+1. Curl DNS
 
 ```sh
 azureuser@vm:~$ curl-dns
@@ -185,7 +187,7 @@ azureuser@vm:~$ curl-dns
 200 (0.023887s) - 10.11.7.5 - g10-spoke3-d45e.azurewebsites.net
 ```
 
-### Effective routes <!-- omit in toc -->
+2. Effective routes
 
 ```sh
 Effective routes for G10-spoke1-vm-main-nic
@@ -203,9 +205,9 @@ Default   10.11.7.4/32    Active   InterfaceEndpoint
 Default   10.11.7.5/32    Active   InterfaceEndpoint
 ```
 
-## Hub1 NVA
+### Hub1 NVA
 
-### Effective routes - Untrust <!-- omit in toc -->
+1. Effective routes - Untrust
 
 ```sh
 Effective routes for G10-hub1-nva-untrust-nic
@@ -226,9 +228,9 @@ Default                10.11.7.4/32    Active   InterfaceEndpoint
 Default                10.11.7.5/32    Active   InterfaceEndpoint
 ```
 
-## ExpressRoute Circuits
+### ExpressRoute Circuits
 
-### Route tables <!-- omit in toc -->
+1. Route tables
 
 ```sh
 10-s2s-over-er-active-active$ . ../../scripts/express-route/get_route_tables.sh G10RG
@@ -277,7 +279,9 @@ LocPrf    Network       NextHop        Path    Weight
 ⭐ Done!
 ```
 
-## Gateway BGP Peers
+### Vnet Gateway
+
+1. BGP Peers
 
 ```sh
 10-s2s-over-er-active-active$ . ../../scripts/vnet-gateway/get_bgp_peer_status.sh g10rg
@@ -316,7 +320,7 @@ Neighbor       ASN    LocalAddress    RoutesReceived    State
 10.11.128.15   65515  10.11.128.15    0                 Unknown
 ```
 
-## Gateway Route Tables
+2. Route Tables
 
 ```sh
 10-s2s-over-er-active-active$ . ../../scripts/vnet-gateway/get_route_tables.sh g10rg

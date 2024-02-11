@@ -31,7 +31,7 @@ module "shared2" {
   #   "spoke3" = module.spoke3.vnet.id
   #   "spoke4" = module.spoke4.vnet.id
   # }
-  # private_dns_ruleset_linked_external_vnets = {
+  # vnets_linked_to_ruleset = {
   #   "spoke3" = module.spoke3.vnet.id
   #   "spoke4" = module.spoke4.vnet.id
   # }

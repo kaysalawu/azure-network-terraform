@@ -11,7 +11,7 @@ module "dns_resolver" {
   private_dns_inbound_subnet_id  = azurerm_subnet.private_dns_inbound_subnet.id
   private_dns_outbound_subnet_id = azurerm_subnet.private_dns_outbound_subnet.id
 
-  private_dns_ruleset_linked_external_vnets = {
+  vnets_linked_to_ruleset = {
     "spoke1" = azurerm_virtual_network.spoke1.id
     "spoke2" = azurerm_virtual_network.spoke2.id
   }

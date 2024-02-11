@@ -67,7 +67,7 @@ module "spoke6_pls" {
   location         = local.spoke6_location
   prefix           = trimsuffix(local.spoke6_prefix, "-")
   private_dns_zone = module.spoke6.private_dns_zone.name
-  dns_host         = local.spoke6_ilb_host
+  dns_host         = local.spoke6_ilb_hostname
 
   nat_ip_config = [
     {
@@ -95,12 +95,12 @@ resource "azurerm_private_endpoint" "hub2_spoke6_pls_pep" {
   }
 }
 
-resource "azurerm_private_dns_a_record" "hub2_spoke6_pls_pep" {
-  resource_group_name = azurerm_resource_group.rg.name
-  name                = local.hub2_spoke6_pep_host
-  zone_name           = module.hub2.private_dns_zone.name
-  ttl                 = 300
-  records = [
-    azurerm_private_endpoint.hub2_spoke6_pls_pep.private_service_connection[0].private_ip_address,
-  ]
-}
+# resource "azurerm_private_dns_a_record" "hub2_spoke6_pls_pep" {
+#   resource_group_name = azurerm_resource_group.rg.name
+#   name                = local.hub2_spoke6_pep_host
+#   zone_name           = module.common.private_dns_zones["us.az.corp"].name
+#   ttl                 = 300
+#   records = [
+#     azurerm_private_endpoint.hub2_spoke6_pls_pep.private_service_connection[0].private_ip_address,
+#   ]
+# }

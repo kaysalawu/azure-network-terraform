@@ -28,6 +28,16 @@ all_dirs=(
 #4-general
 )
 
+function showUsage() {
+  echo -e "\nUsage: $0\n\
+  --diff, -d           : Run diff between local and template blueprints\n\
+  --copy, -c           : Copy templates files to local\n\
+  --delete, -x   : Delete local files specified in templates\n\
+  --plan, -p           : Run terraform plan on all target directories\n\
+  --validate, -v       : Run terraform validate on all target directories\n\
+  --cleanup, -u        : Delete terraform state files\n"
+}
+
 dir_diff() {
     local all_diffs_ok=true
     local original_dir=$(pwd)
@@ -248,9 +258,9 @@ elif [[ "$1" == "--validate" || "$1" == "-v" ]]; then
 elif [[ "$1" == "--cleanup" || "$1" == "-u" ]]; then
     echo && run_terraform_cleanup
 elif [[ "$1" == "--help" || "$1" == "-h" ]]; then
-    echo -e "Usage: $0 {--diff|-f | --copy|-c | --delete-files|-x | --plan|-p | --validate|-v | --cleanup|-u}"
+    showUsage
 else
-    echo -e "Usage: $0 {--diff|-f | --copy|-c | --delete-files|-x | --plan|-p | --validate|-v | --cleanup|-u}"
+    showUsage
 fi
 
 cd "$working_dir" || exit
