@@ -97,7 +97,7 @@ To view the dashboards, follow the steps below:
 
    ![Shared dashboards](../../images/demos/network-manager/ne32-shared-dashboards.png)
 
-4. Click on a link under **Go to dashboard** column.
+4. Click on a dashboard under **Go to dashboard** column.
 
    Sample dashboard for VPN gateway in ***hub1***.
 

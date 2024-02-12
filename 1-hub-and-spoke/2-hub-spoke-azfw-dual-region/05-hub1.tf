@@ -36,6 +36,8 @@ module "hub1" {
   dns_zones_linked_to_vnet = [
     { name = module.common.private_dns_zones[local.region1_dns_zone].name, registration_enabled = true },
     { name = module.common.private_dns_zones[local.region2_dns_zone].name },
+    { name = azurerm_private_dns_zone.privatelink_blob.name },
+    { name = azurerm_private_dns_zone.privatelink_appservice.name },
   ]
 
   vnets_linked_to_ruleset = [
@@ -69,12 +71,6 @@ module "hub1" {
     module.common,
   ]
 }
-
-# resource "azurerm_private_dns_zone" "hub1" {
-#   resource_group_name = azurerm_resource_group.rg.name
-#   name                = local.hub1_dns_zone
-#   tags                = local.hub1_tags
-# }
 
 ####################################################
 # workload

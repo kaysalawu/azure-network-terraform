@@ -112,9 +112,6 @@ locals {
 
       "route-map ${local.branch3_nva_route_map_azure} permit 110",
       "match ip address prefix-list all",
-
-      "route-map ${local.branch3_nva_route_map_block_azure} permit 120",
-      "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
     ]
 
     TUNNELS = [
@@ -178,7 +175,6 @@ locals {
         source_loopback = true
         ebgp_multihop   = true
         route_maps = [
-          { direction = "in", name = local.branch3_nva_route_map_block_azure },
           { direction = "out", name = local.branch3_nva_route_map_azure },
         ]
       },
@@ -188,7 +184,6 @@ locals {
         source_loopback = true
         ebgp_multihop   = true
         route_maps = [
-          { direction = "in", name = local.branch3_nva_route_map_block_azure },
           { direction = "out", name = local.branch3_nva_route_map_azure },
         ]
       },

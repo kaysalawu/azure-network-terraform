@@ -38,8 +38,12 @@
 
 | Item    | Value  |
 |--------|--------|
+| PRIVATELINK_BLOB_ENDPOINT_DNS   | spoke3pls.hub1.az.corp   |
+| PRIVATELINK_BLOB_ENDPOINT_IP   | 10.11.7.99   |
+| PRIVATELINK_SERVICE_ENDPOINT_DNS   | spoke3pls.hub1.az.corp   |
+| PRIVATELINK_SERVICE_ENDPOINT_IP   | 10.11.7.88   |
 | PRIVATE_DNS_INBOUND_IP   | 10.11.8.4   |
-| SPOKE3_WEB_APP_ENDPOINT_DNS   | spoke3pls.hub1.az.corp   |
+| SPOKE3_BLOB_URL (Sample)   | https://hs12spoke3sa2f2d.blob.core.windows.net/spoke3/spoke3.txt   |
 | *Subnets*|        |
 | AppGatewaySubnet   | 10.11.4.0/24   |
 | AppServiceSubnet   | 10.11.13.0/24   |
@@ -66,8 +70,12 @@
 
 | Item    | Value  |
 |--------|--------|
+| PRIVATELINK_BLOB_ENDPOINT_DNS   | spoke6pls.hub2.az.corp   |
+| PRIVATELINK_BLOB_ENDPOINT_IP   | 10.22.7.99   |
+| PRIVATELINK_SERVICE_ENDPOINT_DNS   | spoke6pls.hub2.az.corp   |
+| PRIVATELINK_SERVICE_ENDPOINT_IP   | 10.22.7.88   |
 | PRIVATE_DNS_INBOUND_IP   | 10.22.8.4   |
-| SPOKE6_WEB_APP_ENDPOINT_DNS   | spoke6pls.hub2.az.corp   |
+| SPOKE6_BLOB_URL (Sample)   | https://hs12spoke6sa2f2d.blob.core.windows.net/spoke6/spoke6.txt   |
 | *Subnets*|        |
 | AppGatewaySubnet   | 10.22.4.0/24   |
 | AppServiceSubnet   | 10.22.13.0/24   |

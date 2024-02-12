@@ -70,7 +70,7 @@ resource "azurerm_private_dns_resolver_virtual_network_link" "external" {
 
 resource "azurerm_private_dns_resolver_forwarding_rule" "this" {
   for_each                  = { for k, v in var.ruleset_dns_forwarding_rules : k => v }
-  name                      = "${var.prefix}${each.key}-rule"
+  name                      = "${replace("${var.prefix}${each.key}", ".", "-")}--rule"
   dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.this.id
   domain_name               = "${each.value.domain}."
   enabled                   = true

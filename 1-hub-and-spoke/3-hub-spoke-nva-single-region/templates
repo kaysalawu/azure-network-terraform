@@ -3,6 +3,5 @@
 ../../0-templates/04-spokes-region1.tf
 ../../0-templates/05-hub1.tf
 ../../0-templates/hub-spoke/06-conn-hub1-nva.tf
-../../0-templates/services/svc-privatelink-region1.tf
-../../0-templates/services/svc-privatelink-service-region1.tf
+../../0-templates/services/services-region1.tf
 ../../0-templates/outputs/outputs-single-region.tf

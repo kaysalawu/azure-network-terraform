@@ -93,11 +93,9 @@ To view the dashboards, follow the steps below:
 
 2. Under **Browse**, select **Shared dashboards**.
 
-3. Select the dashboard you want to view.
-
    ![Shared dashboards](../../images/demos/hub-and-spoke/hs12-shared-dashboards.png)
 
-4. Click on a link under **Go to dashboard** column.
+3. Click on a dashboard under **Go to dashboard** column.
 
    Sample dashboard for VPN gateway in ***hub1***.
 

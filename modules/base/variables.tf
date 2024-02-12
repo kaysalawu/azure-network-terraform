@@ -139,7 +139,7 @@ variable "config_s2s_vpngw" {
     sku           = optional(string, "VpnGw1AZ")
     active_active = optional(bool, true)
 
-    private_ip_address_enabled  = optional(bool, true)
+    private_ip_address_enabled  = optional(bool, false)
     remote_vnet_traffic_enabled = optional(bool, true)
     virtual_wan_traffic_enabled = optional(bool, true)
 

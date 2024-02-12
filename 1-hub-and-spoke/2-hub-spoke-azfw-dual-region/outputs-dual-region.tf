@@ -7,22 +7,30 @@ locals {
   output_values = templatefile("../../scripts/outputs/values.md", {
     NODES = {
       hub1 = {
-        VNET_NAME                   = try(module.hub1.vnet.name, "")
-        VNET_RANGES                 = try(join(", ", module.hub1.vnet.address_space), "")
-        VM_NAME                     = try(module.hub1_vm.vm.name, "")
-        VM_IP                       = try(module.hub1_vm.vm.private_ip_address, "")
-        PRIVATE_DNS_INBOUND_IP      = try(local.hub1_dns_in_addr, "")
-        SPOKE3_WEB_APP_ENDPOINT_DNS = "${local.hub1_spoke3_pep_host}.hub1.${local.cloud_domain}"
-        SUBNETS                     = try({ for k, v in module.hub1.subnets : k => v.address_prefixes[0] }, "")
+        VNET_NAME                        = try(module.hub1.vnet.name, "")
+        VNET_RANGES                      = try(join(", ", module.hub1.vnet.address_space), "")
+        VM_NAME                          = try(module.hub1_vm.vm.name, "")
+        VM_IP                            = try(module.hub1_vm.vm.private_ip_address, "")
+        PRIVATE_DNS_INBOUND_IP           = try(local.hub1_dns_in_addr, "")
+        PRIVATELINK_SERVICE_ENDPOINT_IP  = local.hub1_spoke3_pls_pep_ip
+        PRIVATELINK_SERVICE_ENDPOINT_DNS = "${local.hub1_spoke3_pep_host}.hub1.${local.cloud_domain}"
+        "SPOKE3_BLOB_URL (Sample)"       = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
+        PRIVATELINK_BLOB_ENDPOINT_IP     = local.hub1_spoke3_blob_pep_ip
+        PRIVATELINK_BLOB_ENDPOINT_DNS    = "${local.hub1_spoke3_pep_host}.hub1.${local.cloud_domain}"
+        SUBNETS                          = try({ for k, v in module.hub1.subnets : k => v.address_prefixes[0] }, "")
       }
       hub2 = {
-        VNET_NAME                   = try(module.hub2.vnet.name, "")
-        VNET_RANGES                 = try(join(", ", module.hub2.vnet.address_space), "")
-        VM_NAME                     = try(module.hub2_vm.vm.name, "")
-        VM_IP                       = try(module.hub2_vm.vm.private_ip_address, "")
-        PRIVATE_DNS_INBOUND_IP      = try(local.hub2_dns_in_addr, "")
-        SPOKE6_WEB_APP_ENDPOINT_DNS = "${local.hub2_spoke6_pep_host}.hub2.${local.cloud_domain}"
-        SUBNETS                     = try({ for k, v in module.hub2.subnets : k => v.address_prefixes[0] }, "")
+        VNET_NAME                        = try(module.hub2.vnet.name, "")
+        VNET_RANGES                      = try(join(", ", module.hub2.vnet.address_space), "")
+        VM_NAME                          = try(module.hub2_vm.vm.name, "")
+        VM_IP                            = try(module.hub2_vm.vm.private_ip_address, "")
+        PRIVATE_DNS_INBOUND_IP           = try(local.hub2_dns_in_addr, "")
+        PRIVATELINK_SERVICE_ENDPOINT_IP  = local.hub2_spoke6_pls_pep_ip
+        PRIVATELINK_SERVICE_ENDPOINT_DNS = "${local.hub2_spoke6_pep_host}.hub2.${local.cloud_domain}"
+        "SPOKE6_BLOB_URL (Sample)"       = "https://${local.spoke6_storage_account_name}.blob.core.windows.net/spoke6/spoke6.txt"
+        PRIVATELINK_BLOB_ENDPOINT_IP     = local.hub2_spoke6_blob_pep_ip
+        PRIVATELINK_BLOB_ENDPOINT_DNS    = "${local.hub2_spoke6_pep_host}.hub2.${local.cloud_domain}"
+        SUBNETS                          = try({ for k, v in module.hub2.subnets : k => v.address_prefixes[0] }, "")
       }
       spoke1 = {
         VNET_NAME   = try(module.spoke1.vnet.name, "")

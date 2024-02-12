@@ -33,16 +33,18 @@ module "hub2" {
   # network_watcher_name           = "NetworkWatcher_${local.region2}"
   # network_watcher_resource_group = "NetworkWatcherRG"
 
-  create_private_dns_zone = true
-  private_dns_zone_name   = local.hub2_dns_zone
-  private_dns_zone_linked_external_vnets = {
-    "spoke4" = module.spoke4.vnet.id
-    "spoke5" = module.spoke5.vnet.id
-  }
-  vnets_linked_to_ruleset = {
-    "spoke4" = module.spoke4.vnet.id
-    "spoke5" = module.spoke5.vnet.id
-  }
+  dns_zones_linked_to_vnet = [
+    { name = module.common.private_dns_zones[local.region1_dns_zone].name },
+    { name = module.common.private_dns_zones[local.region2_dns_zone].name, registration_enabled = true },
+    { name = azurerm_private_dns_zone.privatelink_blob.name },
+    { name = azurerm_private_dns_zone.privatelink_appservice.name },
+  ]
+
+  vnets_linked_to_ruleset = [
+    { name = "hub2", vnet_id = module.hub2.vnet.id },
+    { name = "spoke4", vnet_id = module.spoke4.vnet.id },
+    { name = "spoke5", vnet_id = module.spoke5.vnet.id },
+  ]
 
   nsg_subnet_map = {
     "MainSubnet"                = module.common.nsg_main["region2"].id
@@ -77,8 +79,8 @@ module "hub2" {
 module "hub2_vm" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.hub2_prefix}vm"
-  computer_name   = "vm"
+  name            = "${local.prefix}-${local.hub2_vm_hostname}"
+  computer_name   = local.hub2_vm_hostname
   location        = local.hub2_location
   storage_account = module.common.storage_accounts["region2"]
   custom_data     = base64encode(local.vm_startup)

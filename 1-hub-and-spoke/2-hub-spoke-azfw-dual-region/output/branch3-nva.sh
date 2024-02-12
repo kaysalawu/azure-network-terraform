@@ -18,11 +18,11 @@ proposal AZURE-IKE-PROPOSAL
 match address local 10.30.1.9
 !
 crypto ikev2 keyring AZURE-KEYRING
-peer 172.212.32.28
-address 172.212.32.28
+peer 172.210.124.81
+address 172.210.124.81
 pre-shared-key changeme
-peer 172.212.33.170
-address 172.212.33.170
+peer 172.210.124.87
+address 172.210.124.87
 pre-shared-key changeme
 peer 10.10.1.9
 address 10.10.1.9
@@ -30,8 +30,8 @@ pre-shared-key changeme
 !
 crypto ikev2 profile AZURE-IKE-PROPOSAL
 match address local 10.30.1.9
-match identity remote address 172.212.32.28 255.255.255.255
-match identity remote address 172.212.33.170 255.255.255.255
+match identity remote address 172.210.124.81 255.255.255.255
+match identity remote address 172.210.124.87 255.255.255.255
 match identity remote address 10.10.1.9 255.255.255.255
 authentication remote pre-share
 authentication local pre-share
@@ -52,7 +52,7 @@ ip address 10.30.30.1 255.255.255.252
 tunnel mode ipsec ipv4
 ip tcp adjust-mss 1350
 tunnel source 10.30.1.9
-tunnel destination 172.212.32.28
+tunnel destination 172.210.124.81
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
 interface Tunnel1
@@ -60,7 +60,7 @@ ip address 10.30.30.5 255.255.255.252
 tunnel mode ipsec ipv4
 ip tcp adjust-mss 1350
 tunnel source 10.30.1.9
-tunnel destination 172.212.33.170
+tunnel destination 172.210.124.87
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
 interface Tunnel2
@@ -92,8 +92,8 @@ exit
 ip nat inside source list NAT-ACL interface GigabitEthernet1 overload
 !
 ip route 0.0.0.0 0.0.0.0 10.30.1.1
-ip route 10.22.16.6 255.255.255.255 Tunnel0
-ip route 10.22.16.7 255.255.255.255 Tunnel1
+ip route 10.22.16.4 255.255.255.255 Tunnel0
+ip route 10.22.16.5 255.255.255.255 Tunnel1
 ip route 192.168.10.10 255.255.255.255 Tunnel2
 ip route 10.30.0.0 255.255.255.0 10.30.2.1
 !
@@ -105,26 +105,22 @@ match ip address prefix-list all
 set as-path prepend 65003 65003 65003
 route-map AZURE permit 110
 match ip address prefix-list all
-route-map BLOCK_HUB_GW_SUBNET permit 120
-match ip address prefix-list BLOCK_HUB_GW_SUBNET
 !
 !-----------------------------------------
 ! BGP
 !-----------------------------------------
 router bgp 65003
 bgp router-id 192.168.30.30
-neighbor 10.22.16.6 remote-as 65515
-neighbor 10.22.16.6 ebgp-multihop 255
-neighbor 10.22.16.6 soft-reconfiguration inbound
-neighbor 10.22.16.6 update-source Loopback0
-neighbor 10.22.16.6 route-map BLOCK_HUB_GW_SUBNET in
-neighbor 10.22.16.6 route-map AZURE out
-neighbor 10.22.16.7 remote-as 65515
-neighbor 10.22.16.7 ebgp-multihop 255
-neighbor 10.22.16.7 soft-reconfiguration inbound
-neighbor 10.22.16.7 update-source Loopback0
-neighbor 10.22.16.7 route-map BLOCK_HUB_GW_SUBNET in
-neighbor 10.22.16.7 route-map AZURE out
+neighbor 10.22.16.4 remote-as 65515
+neighbor 10.22.16.4 ebgp-multihop 255
+neighbor 10.22.16.4 soft-reconfiguration inbound
+neighbor 10.22.16.4 update-source Loopback0
+neighbor 10.22.16.4 route-map AZURE out
+neighbor 10.22.16.5 remote-as 65515
+neighbor 10.22.16.5 ebgp-multihop 255
+neighbor 10.22.16.5 soft-reconfiguration inbound
+neighbor 10.22.16.5 update-source Loopback0
+neighbor 10.22.16.5 route-map AZURE out
 neighbor 192.168.10.10 remote-as 65001
 neighbor 192.168.10.10 ebgp-multihop 255
 neighbor 192.168.10.10 soft-reconfiguration inbound

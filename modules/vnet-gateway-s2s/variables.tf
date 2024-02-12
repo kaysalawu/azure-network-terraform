@@ -87,7 +87,7 @@ variable "enable_bgp" {
 variable "private_ip_address_enabled" {
   description = "private ip address enabled"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "remote_vnet_traffic_enabled" {

@@ -98,7 +98,7 @@ echo -e "\n ping ip ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.ping, true) ~}
 %{~ if try(target.ip, "") != "" ~}
-echo "${target.name} - ${target.ip} -\$(timeout 3 ping -qc2 -W1 ${target.ip} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "${target.name} - ${target.ip} -\$(timeout 5 ping -qc2 -W1 ${target.ip} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 %{ endif ~}
 %{ endif ~}
 %{ endfor ~}
@@ -112,7 +112,7 @@ echo -e "\n ping dns ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.ping, true) ~}
 %{~ if try(target.ip, "") != "" ~}
-echo "${target.dns} - \$(timeout 3 dig +short ${target.dns} | tail -n1) -\$(timeout 3 ping -qc2 -W1 ${target.dns} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "${target.dns} - \$(timeout 5 dig +short ${target.dns} | tail -n1) -\$(timeout 5 ping -qc2 -W1 ${target.dns} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 %{ endif ~}
 %{ endif ~}
 %{ endfor ~}
@@ -126,7 +126,7 @@ echo -e "\n curl ip ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.curl, true) ~}
 %{~ if try(target.ip, "") != "" ~}
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.ip}) - ${target.name} (${target.ip})"
+echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.ip}) - ${target.name} (${target.ip})"
 %{ endif ~}
 %{ endif ~}
 %{ endfor ~}
@@ -139,7 +139,7 @@ cat <<EOF > /usr/local/bin/curl-dns
 echo -e "\n curl dns ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.curl, true) ~}
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.dns}) - ${target.dns}"
+echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.dns}) - ${target.dns}"
 %{ endif ~}
 %{ endfor ~}
 EOF

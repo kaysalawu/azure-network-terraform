@@ -3,10 +3,14 @@
 ####################################################
 
 locals {
-  prefix             = "Hs12"
-  enable_diagnostics = false
-  spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
-  spoke6_apps_fqdn   = lower("${local.spoke6_prefix}${random_id.random.hex}.azurewebsites.net")
+  prefix                      = "Hs12"
+  enable_diagnostics          = false
+  spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
+  spoke6_storage_account_name = lower(replace("${local.spoke6_prefix}sa${random_id.random.hex}", "-", ""))
+  spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
+  spoke6_blob_url             = "https://${local.spoke6_storage_account_name}.blob.core.windows.net/spoke6/spoke6.txt"
+  spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
+  spoke6_apps_fqdn            = lower("${local.spoke6_prefix}${random_id.random.hex}.azurewebsites.net")
 
   hub1_tags    = { "lab" = local.prefix, "nodeType" = "hub" }
   hub2_tags    = { "lab" = local.prefix, "nodeType" = "hub" }
@@ -138,6 +142,12 @@ locals {
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
         }
+        "blob" = {
+          domain = "privatelink.blob.core.windows.net"
+          target_dns_servers = [
+            { ip_address = local.hub1_dns_in_addr, port = 53 },
+          ]
+        }
       }
     }
 
@@ -217,6 +227,12 @@ locals {
         }
         "azurewebsites" = {
           domain = "privatelink.azurewebsites.net"
+          target_dns_servers = [
+            { ip_address = local.hub2_dns_in_addr, port = 53 },
+          ]
+        }
+        "blob.core.windows.net" = {
+          domain = "privatelink.blob.core.windows.net"
           target_dns_servers = [
             { ip_address = local.hub2_dns_in_addr, port = 53 },
           ]
@@ -349,8 +365,8 @@ locals {
   ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ip = "icanhazip.com" },
-    { name = "hub1-spoke3-apps", dns = local.spoke3_apps_fqdn, ping = false, probe = true },
-    { name = "hub2-spoke6-apps", dns = local.spoke6_apps_fqdn, ping = false, probe = true },
+    { name = "hub1-spoke3-apps", dns = local.spoke3_blob_url, ping = false, probe = true },
+    { name = "hub2-spoke6-apps", dns = local.spoke6_blob_url, ping = false, probe = true },
   ]
   vm_script_targets = concat(
     local.vm_script_targets_region1,
@@ -371,58 +387,13 @@ locals {
     TARGETS_HEAVY_TRAFFIC_GEN = []
     ENABLE_TRAFFIC_GEN        = false
   })
-  branch_dns_vars = {
-    ONPREM_LOCAL_RECORDS = local.onprem_local_records
-    REDIRECTED_HOSTS     = local.onprem_redirected_hosts
-    FORWARD_ZONES        = local.onprem_forward_zones
-    TARGETS              = local.vm_script_targets
-    ACCESS_CONTROL_PREFIXES = concat(
-      local.private_prefixes,
-      [
-        "127.0.0.0/8",
-        "35.199.192.0/19",
-      ]
-    )
-  }
-  branch_unbound_startup = templatefile("../../scripts/unbound/unbound.sh", local.branch_dns_vars)
-  branch_dns_init_dir    = "/var/lib/labs"
-  branch_unbound_init = {
-    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/Dockerfile", {}) }
-    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
-    "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.conf", local.branch_dns_vars) }
-    "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.log", local.branch_dns_vars) }
-  }
   onprem_local_records = [
     { name = lower(local.branch1_vm_fqdn), record = local.branch1_vm_addr },
     { name = lower(local.branch2_vm_fqdn), record = local.branch2_vm_addr },
     { name = lower(local.branch3_vm_fqdn), record = local.branch3_vm_addr },
   ]
-  onprem_forward_zones = [
-    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "privatelink.blob.core.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "privatelink.azurewebsites.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "privatelink.database.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "privatelink.table.cosmos.azure.com.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "privatelink.queue.core.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = "privatelink.file.core.windows.net.", targets = [local.hub1_dns_in_addr, local.hub2_dns_in_addr], },
-    { zone = ".", targets = [local.azuredns, ] },
-  ]
   onprem_redirected_hosts = []
-}
-
-module "branch_unbound_init" {
-  source   = "../../modules/cloud-config-gen"
-  packages = ["docker.io", "docker-compose", "dnsutils", "net-tools", ]
-  files    = local.branch_unbound_init
-  run_commands = [
-    "systemctl stop systemd-resolved",
-    "systemctl disable systemd-resolved",
-    "echo \"nameserver 8.8.8.8\" > /etc/resolv.conf",
-    "systemctl restart unbound",
-    "systemctl enable unbound",
-    "docker-compose -f ${local.branch_dns_init_dir}/docker-compose.yml up -d",
-  ]
+  branch_dns_init_dir     = "/var/lib/labs"
 }
 
 ####################################################
@@ -560,8 +531,9 @@ module "fw_policy_rule_collection_group" {
 
 locals {
   main_files = {
-    "output/branch-unbound.sh" = local.branch_unbound_startup
-    "output/server.sh"         = local.vm_startup
+    "output/branch1-unbound.sh" = local.branch1_unbound_startup
+    "output/branch3-unbound.sh" = local.branch3_unbound_startup
+    "output/server.sh"          = local.vm_startup
   }
 }
 
