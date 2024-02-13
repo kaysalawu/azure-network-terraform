@@ -34,7 +34,6 @@ module "hub2" {
   # network_watcher_resource_group = "NetworkWatcherRG"
 
   dns_zones_linked_to_vnet = [
-    { name = module.common.private_dns_zones[local.region1_dns_zone].name },
     { name = module.common.private_dns_zones[local.region2_dns_zone].name, registration_enabled = true },
     { name = azurerm_private_dns_zone.privatelink_blob.name },
     { name = azurerm_private_dns_zone.privatelink_appservice.name },

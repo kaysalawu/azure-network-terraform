@@ -4,7 +4,7 @@
 
 locals {
   prefix                      = "Vwan22"
-  enable_diagnostics          = false
+  enable_diagnostics          = true
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke6_storage_account_name = lower(replace("${local.spoke6_prefix}sa${random_id.random.hex}", "-", ""))
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
@@ -293,7 +293,8 @@ locals {
       enable_routing_intent = false
       firewall_sku          = local.firewall_sku
       firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region1"].id
-      routing_policies      = {}
+      routing_policies = {
+      }
     }
   }
 
@@ -324,7 +325,8 @@ locals {
       enable_routing_intent = false
       firewall_sku          = local.firewall_sku
       firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region2"].id
-      routing_policies      = {}
+      routing_policies = {
+      }
     }
   }
 }
@@ -689,8 +691,7 @@ locals {
 
 locals {
   main_files = {
-    "output/branch1-unbound.sh" = local.branch1_unbound_startup
-    "output/server.sh"          = local.vm_startup
+    "output/server.sh" = local.vm_startup
   }
 }
 

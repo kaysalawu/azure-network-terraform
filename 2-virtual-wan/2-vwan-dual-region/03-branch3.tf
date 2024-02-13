@@ -1,14 +1,4 @@
 
-locals {
-  branch3_vm_init = templatefile("../../scripts/server.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
-    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
-    ENABLE_TRAFFIC_GEN        = true
-  })
-}
-
 ####################################################
 # vnet
 ####################################################
@@ -287,6 +277,16 @@ module "branch3_nva" {
 # workload
 ####################################################
 
+locals {
+  branch3_vm_init = templatefile("../../scripts/server.sh", {
+    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
+    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
+    ENABLE_TRAFFIC_GEN        = true
+  })
+}
+
 module "branch3_vm" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
@@ -353,8 +353,9 @@ module "branch3_udr_main" {
 
 locals {
   branch3_files = {
-    "output/branch3-nva.sh" = local.branch3_nva_init
-    "output/branch3-vm.sh"  = local.branch3_vm_init
+    "output/branch3-unbound.sh" = local.branch3_unbound_startup
+    "output/branch3-nva.sh"     = local.branch3_nva_init
+    "output/branch3-vm.sh"      = local.branch3_vm_init
   }
 }
 

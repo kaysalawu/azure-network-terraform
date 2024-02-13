@@ -15,8 +15,8 @@ Contents
   - [2. Ping DNS](#2-ping-dns)
   - [3. Curl DNS](#3-curl-dns)
   - [4. Private Link Service](#4-private-link-service)
-  - [5. Private Link (App Service) Access from Public Client](#5-private-link-app-service-access-from-public-client)
-  - [6. Private Link (App Service) Access from On-premises](#6-private-link-app-service-access-from-on-premises)
+  - [5. Private Link (Storage Account) Access from Public Client](#5-private-link-storage-account-access-from-public-client)
+  - [6. Private Link (Storage Account) Access from On-premises](#6-private-link-storage-account-access-from-on-premises)
   - [7. Virtual WAN Routes](#7-virtual-wan-routes)
   - [8. On-premises Routes](#8-on-premises-routes)
 - [Cleanup](#cleanup)
@@ -25,7 +25,7 @@ Contents
 
 Deploy a dual-region Virtual WAN (Vwan) topology to observe traffic routing patterns. Learn about multi-region traffic routing patterns, [hybrid DNS](https://learn.microsoft.com/en-us/azure/dns/private-resolver-hybrid-dns) resolution, [connecting NVA](https://learn.microsoft.com/en-us/azure/virtual-wan/scenario-bgp-peering-hub) into the virtual hubs, and [PrivateLink Services](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) access to IaaS, [PrivateLink](https://learn.microsoft.com/en-us/azure/private-link/private-link-overview) access to PaaS services.
 
-![Virtual WAN - Dual Region](../../images/scenarios/2-2-vwan-dual-region.png)
+<img src="../../images/scenarios/2-2-vwan-dual-region.png" alt="Virtual WAN - Dual Region" width="900">
 
 Standard Virtual Network (Vnet) hubs (***hub1*** and ***hub2***) connect to Vwan hubs (***vHub1*** and ***vHub2*** respectively). Direct spokes (***spoke1*** and ***spoke4***) are connected directly to the Vwan hubs. ***Spoke2*** and ***spoke5*** are indirect spokes from a Vwan perspective; and are connected to standard Vnet hubs - ***hub1*** and ***hub2*** respectively. ***Spoke2*** and ***spoke5*** use the Network Virtual Appliance (NVA) in the Vnet hubs as the next hop for traffic to all destinations.
 
@@ -70,15 +70,18 @@ The table below shows the auto-generated output files from the lab. They are loc
 | Item    | Description  | Location |
 |--------|--------|--------|
 | IP ranges and DNS | IP ranges and DNS hostname values | [output/values.md](./output/values.md) |
-| Branch DNS Server | Unbound DNS server configuration showing on-premises authoritative zones and conditional forwarding to hub private DNS resolver endpoint | [output/branch-unbound.sh](./output/branch-unbound.sh) |
-| Branch1 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch1-nva.sh](./output/branch1-nva.sh) |
-| Branch3 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch3-nva.sh](./output/branch3-nva.sh) |
-| Web server for workload VMs | Python Flask web server and various test and debug scripts | [output/server.sh](./output/server.sh) |
+| Branch1 DNS | Authoritative DNS and forwarding | [output/branch1-unbound.sh](./output/branch1-unbound.sh) |
+| Branch3 DNS | Authoritative DNS and forwarding | [output/branch3-unbound.sh](./output/branch3-unbound.sh) |
+| Branch1 NVA | Cisco IOS configuration | [output/branch1-nva.sh](./output/branch1-nva.sh) |
+| Branch3 NVA | Cisco IOS configuration | [output/branch3-nva.sh](./output/branch3-nva.sh) |
+| Web server | Python Flask web server, test scripts | [output/server.sh](./output/server.sh) |
 ||||
 
 ## Dashboards (Optional)
 
-This lab contains a number of pre-configured dashboards for monitoring and troubleshooting network gateways, VPN gateways, and Azure Firewall. If you have set `enable_diagnostics = true` in the `main.tf` file, then the dashboards will be created.
+This lab contains a number of pre-configured dashboards for monitoring gateways, VPN gateways, and Azure Firewall.
+
+To view dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment.
 
 To view the dashboards, follow the steps below:
 
@@ -86,21 +89,19 @@ To view the dashboards, follow the steps below:
 
 2. Under **Browse**, select **Shared dashboards**.
 
-3. Select the dashboard you want to view.
+   <img src="../../images/demos/virtual-wan/vwan22-shared-dashboards.png" alt="Shared dashboards" width="900">
 
-   ![Shared dashboards](../../images/demos/virtual-wan/vwan22-shared-dashboards.png)
-
-4. Click on a dashboard under **Go to dashboard** column.
+3. Click on a dashboard under **Go to dashboard** column.
 
    Sample dashboard for VPN gateway in ***hub1***.
 
-    ![Go to dashboard](../../images/demos/virtual-wan/vwan22-vhub1-vpngw-db.png)
+    <img src="../../images/demos/virtual-wan/vwan22-vhub1-vpngw-db.png" alt="Go to dashboard" width="900">
 
 ## Testing
 
-Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of network reachability tests. Serial console access has been configured for all virtual machines. You can [access the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal) of a virtual machine from the Azure portal.
+Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of network reachability tests. Serial console access has been configured for all virtual machines.
 
-Login to virtual machine `Vwan22-spoke1-vm` via the serial console:
+Login to virtual machine `Vwan22-spoke1-vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
 
 - On Azure portal select *Virtual machines*
 - Select the virtual machine `Vwan22-spoke1-vm`
@@ -108,7 +109,7 @@ Login to virtual machine `Vwan22-spoke1-vm` via the serial console:
 - Enter the login credentials
   - username = ***azureuser***
   - password = ***Password123***
-- You should now be in a shell session `azureuser@Vwan22-spoke1-vm:~$`
+- You should now be in a shell session `azureuser@spoke1Vm:~$`
 
 Run the following tests from inside the serial console session.
 
@@ -125,19 +126,19 @@ ping-ip
 Sample output
 
 ```sh
-azureuser@Vwan22-spoke1-vm:~$ ping-ip
+azureuser@spoke1Vm:~$ ping-ip
 
  ping ip ...
 
-branch1 - 10.10.0.5 -OK 4.258 ms
-hub1    - 10.11.0.5 -OK 7.554 ms
-spoke1  - 10.1.0.5 -OK 0.039 ms
-spoke2  - 10.2.0.5 -OK 5.805 ms
-branch3 - 10.30.0.5 -OK 19.766 ms
-hub2    - 10.22.0.5 -OK 22.173 ms
-spoke4  - 10.4.0.5 -OK 20.804 ms
-spoke5  - 10.5.0.5 -OK 23.447 ms
-internet - icanhazip.com -OK 2.536 ms
+branch1 - 10.10.0.5 -OK 168.035 ms
+hub1    - 10.11.0.5 -OK 3.493 ms
+spoke1  - 10.1.0.5 -OK 0.025 ms
+spoke2  - 10.2.0.5 -OK 5.220 ms
+branch3 - 10.30.0.5 -OK 71.751 ms
+hub2    - 10.22.0.5 -OK 72.401 ms
+spoke4  - 10.4.0.5 -OK 71.363 ms
+spoke5  - 10.5.0.5 -OK 73.565 ms
+internet - icanhazip.com -NA
 ```
 
 ### 2. Ping DNS
@@ -153,19 +154,19 @@ ping-dns
 Sample output
 
 ```sh
-azureuser@Vwan22-spoke1-vm:~$ ping-dns
+azureuser@spoke1Vm:~$ ping-dns
 
  ping dns ...
 
-vm.branch1.corp - 10.10.0.5 -OK 4.478 ms
-vm.hub1.we.az.corp - 10.11.0.5 -OK 6.197 ms
-vm.spoke1.we.az.corp - 10.1.0.5 -OK 0.032 ms
-vm.spoke2.we.az.corp - 10.2.0.5 -OK 5.646 ms
-vm.branch3.corp - 10.30.0.5 -OK 21.321 ms
-vm.hub2.ne.az.corp - 10.22.0.5 -OK 22.077 ms
-vm.spoke4.ne.az.corp - 10.4.0.5 -OK 19.014 ms
-vm.spoke5.ne.az.corp - 10.5.0.5 -OK 21.719 ms
-icanhazip.com - 104.18.114.97 -OK 2.723 ms
+branch1Vm.corp - 10.10.0.5 -OK 125.373 ms
+hub1Vm.eu.az.corp - 10.11.0.5 -OK 4.204 ms
+spoke1Vm.eu.az.corp - 10.1.0.5 -OK 0.038 ms
+spoke2Vm.eu.az.corp - 10.2.0.5 -OK 4.895 ms
+branch3Vm.corp - 10.30.0.5 -OK 233.370 ms
+hub2Vm.us.az.corp - 10.22.0.5 -OK 72.582 ms
+spoke4Vm.us.az.corp - 10.4.0.5 -OK 73.349 ms
+spoke5Vm.us.az.corp - 10.5.0.5 -OK 73.290 ms
+icanhazip.com - 104.18.115.97 -NA
 ```
 
 ### 3. Curl DNS
@@ -181,48 +182,44 @@ curl-dns
 Sample output
 
 ```sh
-azureuser@Vwan22-spoke1-vm:~$ curl-dns
+azureuser@spoke1Vm:~$ curl-dns
 
  curl dns ...
 
-200 (0.037913s) - 10.10.0.5 - vm.branch1.corp
-200 (0.029532s) - 10.11.0.5 - vm.hub1.we.az.corp
-200 (0.020074s) - 10.11.7.4 - spoke3.p.hub1.we.az.corp
-200 (0.026171s) - 10.1.0.5 - vm.spoke1.we.az.corp
-200 (0.045119s) - 10.2.0.5 - vm.spoke2.we.az.corp
-000 (2.000961s) -  - vm.spoke3.we.az.corp
-200 (0.069959s) - 10.30.0.5 - vm.branch3.corp
-200 (0.059566s) - 10.22.0.5 - vm.hub2.ne.az.corp
-200 (0.063219s) - 10.22.7.4 - spoke6.p.hub2.ne.az.corp
-200 (0.097547s) - 10.4.0.5 - vm.spoke4.ne.az.corp
-200 (0.093627s) - 10.5.0.5 - vm.spoke5.ne.az.corp
-000 (2.000964s) -  - vm.spoke6.ne.az.corp
-200 (0.018706s) - 104.18.114.97 - icanhazip.com
-200 (0.037569s) - 10.11.7.5 - vwan22-spoke3-8162.azurewebsites.net
-200 (0.065763s) - 10.22.7.5 - vwan22-spoke6-8162.azurewebsites.net
+200 (0.600958s) - 10.10.0.5 - branch1Vm.corp
+200 (0.019073s) - 10.11.0.5 - hub1Vm.eu.az.corp
+200 (0.018330s) - 10.11.7.88 - spoke3pls.eu.az.corp
+200 (0.009043s) - 10.1.0.5 - spoke1Vm.eu.az.corp
+200 (0.018790s) - 10.2.0.5 - spoke2Vm.eu.az.corp
+200 (0.570640s) - 10.30.0.5 - branch3Vm.corp
+200 (0.171760s) - 10.22.0.5 - hub2Vm.us.az.corp
+200 (0.176879s) - 10.22.7.88 - spoke6pls.us.az.corp
+200 (0.167926s) - 10.4.0.5 - spoke4Vm.us.az.corp
+200 (0.172643s) - 10.5.0.5 - spoke5Vm.us.az.corp
+200 (0.012871s) - 104.18.115.97 - icanhazip.com
+200 (0.048498s) - 10.11.7.99 - https://vwan22spoke3sa97e7.blob.core.windows.net/spoke3/spoke3.txt
+200 (0.322608s) - 10.22.7.99 - https://vwan22spoke6sa97e7.blob.core.windows.net/spoke6/spoke6.txt
 ```
-
-We can see that curl test to spoke3 virtual machine `vm.spoke3.we.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.we.az.corp`. The same explanation applies to ***spoke6*** virtual machine `vm.spoke6.ne.az.corp`
 
 ### 4. Private Link Service
 
 **4.1.** Test access to ***spoke3*** web application using the private endpoint in ***hub1***.
 
 ```sh
-curl spoke3.p.hub1.we.az.corp
+curl spoke3pls.eu.az.corp
 ```
 
 Sample output
 
 ```sh
-azureuser@Vwan22-spoke1-vm:~$ curl spoke3.p.hub1.we.az.corp
+azureuser@spoke1Vm:~$ curl spoke3pls.eu.az.corp
 {
   "Headers": {
     "Accept": "*/*",
-    "Host": "spoke3.p.hub1.we.az.corp",
+    "Host": "spoke3pls.eu.az.corp",
     "User-Agent": "curl/7.68.0"
   },
-  "Hostname": "Vwan22-spoke3-vm",
+  "Hostname": "spoke3Vm",
   "Local-IP": "10.3.0.5",
   "Remote-IP": "10.3.6.4"
 }
@@ -231,20 +228,20 @@ azureuser@Vwan22-spoke1-vm:~$ curl spoke3.p.hub1.we.az.corp
 **4.2.** Test access to ***spoke6*** web application using the private endpoint in ***hub2***.
 
 ```sh
-curl spoke6.p.hub2.ne.az.corp
+curl spoke6pls.us.az.corp
 ```
 
 Sample output
 
 ```sh
-azureuser@Vwan22-spoke1-vm:~$ curl spoke6.p.hub2.ne.az.corp
+azureuser@spoke1Vm:~$ curl spoke6pls.us.az.corp
 {
   "Headers": {
     "Accept": "*/*",
-    "Host": "spoke6.p.hub2.ne.az.corp",
+    "Host": "spoke6pls.us.az.corp",
     "User-Agent": "curl/7.68.0"
   },
-  "Hostname": "Vwan22-spoke6-vm",
+  "Hostname": "spoke6Vm",
   "Local-IP": "10.6.0.5",
   "Remote-IP": "10.6.6.4"
 }
@@ -252,178 +249,147 @@ azureuser@Vwan22-spoke1-vm:~$ curl spoke6.p.hub2.ne.az.corp
 
 The `Hostname` and `Local-IP` fields identifies the actual web servers - in this case ***spoke3*** and ***spoke6*** virtual machines. The `Remote-IP` fields (as seen by the web servers) are IP addresses in the Private Link Service NAT subnets in ***spoke3*** and ***spoke6*** respectively.
 
-### 5. Private Link (App Service) Access from Public Client
+### 5. Private Link (Storage Account) Access from Public Client
 
-App service instances are deployed for ***spoke3*** and ***spoke6***. The app service instance is a fully managed PaaS service. In this lab, the services are linked to ***spoke3*** and ***spoke6***. By using [Virtual Network integration](https://learn.microsoft.com/en-us/azure/app-service/overview-vnet-integration#regional-virtual-network-integration), the app services are deployed in dedicated ***AppServiceSubnet*** subnets in ***spoke3*** and ***spoke6***. This allows each app service to access private resources through their linked spoke Vnet.
+Storage accounts with container blobs are deployed and accessible via private endpoints in ***hub1*** and ***hub2*** respectively. The storage accounts have the following naming convention:
 
-The app services are accessible via the private endpoints in ***hub1*** and ***hub2*** respectively. The app services are also accessible via their public endpoints. The app service application is a simple [python Flask web application](https://hub.docker.com/r/ksalawu/web) that returns the HTTP headers, hostname and IP addresses of the server running the application.
+* vwan22spoke3sa\<AAAA\>.blob.core.windows.net
+* vwan22spoke6sa\<BBBB\>.blob.core.windows.net
 
-The app services have the following naming convention:
+Where ***\<AAAA\>*** and ***\<BBBB\>*** are randomly generated two-byte strings.
 
-- vwan22-spoke3-AAAA.azurewebsites.net
-- vwan22-spoke6-BBBB.azurewebsites.net
-
-Where ***AAAA*** and ***BBBB*** are randomly generated two-byte strings.
-
-**5.1.** On your local machine, get the hostname of the app service linked to ***spoke3***
+**5.1.** On your local machine, get the storage account hostname and blob URL.
 
 ```sh
-spoke3_apps_url=$(az webapp list --resource-group Vwan22RG --query "[?contains(name, 'vwan22-spoke3')].defaultHostName" -o tsv)
-```
+spoke3_storage_account=$(az storage account list -g Vwan22RG --query "[?contains(name, 'vwan22spoke3sa')].name" -o tsv)
 
-**5.2.** Display the hostname
+spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
+spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
 
-```sh
-echo $spoke3_apps_url
+echo -e "\n$spoke3_sgtacct_host\n"
 ```
 
 Sample output (yours will be different)
 
 ```sh
-vwan22-spoke3-8162.azurewebsites.net
+vwan22spoke3sa97e7.blob.core.windows.net
 ```
 
-**5.3.** Resolve the hostname
+**5.2.** Resolve the hostname
 
 ```sh
-nslookup $spoke3_apps_url
+nslookup $spoke3_sgtacct_host
 ```
 
 Sample output (yours will be different)
 
 ```sh
-2-vwan-dual-region$ nslookup $spoke3_apps_url
-Server:         172.29.160.1
-Address:        172.29.160.1#53
+2-vwan-dual-region$ nslookup $spoke3_sgtacct_host
+Server:         8.8.8.8
+Address:        8.8.8.8#53
 
 Non-authoritative answer:
-vwan22-spoke3-8162.azurewebsites.net        canonical name = vwan22-spoke3-8162-app.privatelink.azurewebsites.net.
-vwan22-spoke3-8162-app.privatelink.azurewebsites.net    canonical name = waws-prod-am2-733.sip.azurewebsites.windows.net.
-waws-prod-am2-733.sip.azurewebsites.windows.net canonical name = waws-prod-am2-733-a958.westeurope.cloudapp.azure.com.
-Name:   waws-prod-am2-733-a958.westeurope.cloudapp.azure.com
-Address: 20.105.232.44
+vwan22spoke3sa97e7.blob.core.windows.net        canonical name = vwan22spoke3sa97e7.privatelink.blob.core.windows.net.
+vwan22spoke3sa97e7.privatelink.blob.core.windows.net    canonical name = blob.db3prdstr19a.store.core.windows.net.
+Name:   blob.db3prdstr19a.store.core.windows.net
+Address: 20.150.75.36
 ```
 
-We can see that the endpoint is a public IP address, ***20.105.232.44***. We can see the CNAME `vwan22-spoke3-8162-app.privatelink.azurewebsites.net` created for the app service which recursively resolves to the public IP address.
+We can see that the endpoint is a public IP address, ***20.150.75.36***. We can see the CNAME `vwan22spoke3sa97e7.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
 
-**5.4.** Test access to the ***spoke3*** app service via the public endpoint.
-
-```sh
-curl $spoke3_apps_url
-```
-
-Sample output
+**5.3.** Test access to the storage account blob.
 
 ```sh
-2-vwan-dual-region$ curl $spoke3_apps_url
-{
-  "Headers": {
-    "Accept": "*/*",
-    "Client-Ip": "140.228.48.45:33148",
-    "Disguised-Host": "vwan22-spoke3-8162.azurewebsites.net",
-    "Host": "vwan22-spoke3-8162.azurewebsites.net",
-    "Max-Forwards": "10",
-    "User-Agent": "curl/7.74.0",
-    "Was-Default-Hostname": "vwan22-spoke3-8162.azurewebsites.net",
-    "X-Arr-Log-Id": "af4194ec-c384-4796-893d-0595ea078baa",
-    "X-Client-Ip": "140.228.48.45",
-    "X-Client-Port": "33148",
-    "X-Forwarded-For": "140.228.48.45:33148",
-    "X-Original-Url": "/",
-    "X-Site-Deployment-Id": "vwan22-spoke3-8162-app",
-    "X-Waws-Unencoded-Url": "/"
-  },
-  "Hostname": "7102e67a15a2",
-  "Local-IP": "169.254.129.3",
-  "Remote-IP": "169.254.129.1"
-}
-```
-
-Observe that we are connecting from our local client's public IP address specified in the `X-Client-Ip`.
-
-**(Optional)** Repeat *Step 5.1* through *Step 5.4* for the app service linked to ***spoke6***.
-
-### 6. Private Link (App Service) Access from On-premises
-
-**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `vwan22-spoke3-8162.azurewebsites.net`.
-
-**6.2.** Connect to the on-premises server `Vwan22-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Vwan22-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
-
-**6.3.** Resolve the hostname DNS - which is `vwan22-spoke3-8162.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
-
-```sh
-nslookup vwan22-spoke3-<AAAA>.azurewebsites.net
+curl $spoke3_blob_url && echo
 ```
 
 Sample output
 
 ```sh
-azureuser@Vwan22-branch1-vm:~$ nslookup vwan22-spoke3-8162.azurewebsites.net
+Hello, World!
+```
 
+### 6. Private Link (Storage Account) Access from On-premises
+
+**6.1** Login to on-premises virtual machine `Vwan22-branch1-vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
+  - username = ***azureuser***
+  - password = ***Password123***
+
+ We will test access from `Vwan22-branch1-vm` to the storage account for ***spoke3*** via the private endpoint in ***hub1***.
+
+**6.2.** Run az login with user assigned managed identity to authenticate to Azure.
+
+```sh
+/usr/local/bin/az-login
+```
+
+**6.3.** Get the storage account hostname and blob URL.
+
+```sh
+spoke3_storage_account=$(az storage account list -g Vwan22RG --query "[?contains(name, 'vwan22spoke3sa')].name" -o tsv)
+
+spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
+spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
+
+echo -e "\n$spoke3_sgtacct_host\n"
+```
+
+Sample output (yours will be different)
+
+```sh
+vwan22spoke3sa97e7.blob.core.windows.net
+```
+
+**6.4.** Resolve the storage account DNS name
+
+```sh
+nslookup $spoke3_sgtacct_host
+```
+
+Sample output
+
+```sh
+azureuser@vm:~$ nslookup $spoke3_sgtacct_host
 Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-vwan22-spoke3-8162.azurewebsites.net        canonical name = vwan22-spoke3-8162-app.privatelink.azurewebsites.net.
-Name:   vwan22-spoke3-8162-app.privatelink.azurewebsites.net
-Address: 10.11.7.5
+vwan22spoke3sa97e7.blob.core.windows.net        canonical name = vwan22spoke3sa97e7.privatelink.blob.core.windows.net.
+Name:   vwan22spoke3sa97e7.privatelink.blob.core.windows.net
+Address: 10.11.7.99
 ```
 
-We can see that the app service hostname resolves to the private endpoint ***10.11.7.5*** in ***hub1***. The following is a summary of the DNS resolution from `Vwan22-branch1-vm`:
+We can see that the storage account hostname resolves to the private endpoint ***10.11.7.99*** in ***hub1***. The following is a summary of the DNS resolution from `Vwan22-branch1-vm`:
 
-- On-premises server `Vwan22-branch1-vm` makes a DNS request for `vwan22-spoke3-8162.azurewebsites.net`
+- On-premises server `Vwan22-branch1-vm` makes a DNS request for `vwan22spoke3sa97e7.blob.core.windows.net`
 - The request is received by on-premises DNS server `Vwan22-branch1-dns`
-- The DNS server resolves `vwan22-spoke3-8162.azurewebsites.net` to the CNAME `vwan22-spoke3-8162-app.privatelink.azurewebsites.net`
-- The DNS server has a conditional DNS forwarding defined in the [unbound DNS configuration file](./output/branch-unbound.sh).
+- The DNS server resolves `vwan22spoke3sa97e7.blob.core.windows.net` to the CNAME `vwan22spoke3sa97e7.privatelink.blob.core.windows.net`
+- The DNS server has a conditional DNS forwarding defined in the branch1 unbound DNS configuration file, [output/branch1-unbound.sh](./output/branch1-unbound.sh).
 
   ```sh
   forward-zone:
-          name: "privatelink.azurewebsites.net."
+          name: "privatelink.blob.core.windows.net."
           forward-addr: 10.11.8.4
-          forward-addr: 10.22.8.4
   ```
 
-  DNS Requests matching `privatelink.azurewebsites.net` will be forwarded to the private DNS resolver inbound endpoint in ***hub1*** (10.11.8.4). The DNS resolver inbound endpoint for ***hub2*** (10.22.8.4) is also included for redundancy.
-- The DNS server forwards the DNS request to the private DNS resolver inbound endpoint in ***hub1*** - which returns the IP address of the app service private endpoint in ***hub1*** (10.11.7.5)
+  DNS Requests matching `privatelink.blob.core.windows.net` will be forwarded to the private DNS resolver inbound endpoint in ***hub1*** (10.11.8.4).
+- The DNS server forwards the DNS request to the private DNS resolver inbound endpoint in ***hub1*** - which returns the IP address of the storage account private endpoint in ***hub1*** (10.11.7.99)
 
-**6.4.** From `Vwan22-branch1-vm`, test access to the ***spoke3*** app service via the private endpoint. Use your actual hostname.
+**6.5.** Test access to the storage account blob.
 
 ```sh
-curl vwan22-spoke3-<AAAA>.azurewebsites.net
+curl $spoke3_blob_url && echo
 ```
 
 Sample output
 
 ```sh
-azureuser@Vwan22-branch1-vm:~$ curl vwan22-spoke3-8162.azurewebsites.net
-{
-  "Headers": {
-    "Accept": "*/*",
-    "Client-Ip": "[fd40:4ccb:12:6cf8:7312:100:a0a:5]:38758",
-    "Disguised-Host": "vwan22-spoke3-8162.azurewebsites.net",
-    "Host": "vwan22-spoke3-8162.azurewebsites.net",
-    "Max-Forwards": "10",
-    "User-Agent": "curl/7.68.0",
-    "Was-Default-Hostname": "vwan22-spoke3-8162.azurewebsites.net",
-    "X-Arr-Log-Id": "f5ba941a-02e1-4696-b57a-df2d1e1bd9ac",
-    "X-Client-Ip": "10.10.0.5",
-    "X-Client-Port": "0",
-    "X-Forwarded-For": "10.10.0.5",
-    "X-Original-Url": "/",
-    "X-Site-Deployment-Id": "vwan22-spoke3-8162-app",
-    "X-Waws-Unencoded-Url": "/"
-  },
-  "Hostname": "7102e67a15a2",
-  "Local-IP": "169.254.129.3",
-  "Remote-IP": "169.254.129.1"
-}
+Hello, World!
 ```
-
-Observe that we are connecting from the private IP address of `Vwan22-branch1-vm` (10.10.0.5) specified in the `X-Client-Ip`.
 
 ### 7. Virtual WAN Routes
 
-**7.1.** Ensure you are in the lab directory `azure-network-terraform/2-virtual-wan/2-vwan-dual-region`
+**7.1.** Switch back to the lab directory `azure-network-terraform/2-virtual-wan/2-vwan-dual-region`
 
 **7.2.** Display the virtual WAN routing table(s)
 
@@ -442,47 +408,45 @@ vHub:       Vwan22-vhub2-hub
 RouteTable: defaultRouteTable
 -------------------------------------------------------
 
-AddressPrefixes    NextHopType                 AsPath
------------------  --------------------------  -----------------
-10.22.0.0/16       Virtual Network Connection
-10.4.0.0/16        Virtual Network Connection
-10.5.0.0/16        HubBgpConnection            65020
-10.1.0.0/16        Remote Hub                  65520-65520
-10.10.0.0/24       Remote Hub                  65520-65520-65001
-10.2.0.0/16        Remote Hub                  65520-65520-65010
-10.11.0.0/16       Remote Hub                  65520-65520
-10.30.0.0/24       VPN_S2S_Gateway             65003
+AddressPrefixes    AsPath             NextHopType
+-----------------  -----------------  --------------------------
+10.10.0.0/24       65520-65520-65001  Remote Hub
+10.1.0.0/20        65520-65520        Remote Hub
+10.2.0.0/20        65520-65520-65010  Remote Hub
+10.11.0.0/20       65520-65520        Remote Hub
+10.11.16.0/20      65520-65520        Remote Hub
+10.4.0.0/20                           Virtual Network Connection
+10.22.0.0/20                          Virtual Network Connection
+10.22.16.0/20                         Virtual Network Connection
+10.30.0.0/24       65003              VPN_S2S_Gateway
+10.5.0.0/20        65020              HubBgpConnection
 
 
 vHub:       Vwan22-vhub1-hub
 RouteTable: defaultRouteTable
 -------------------------------------------------------
 
-AddressPrefixes    NextHopType                 AsPath
------------------  --------------------------  -----------------
-10.11.0.0/16       Virtual Network Connection
-10.1.0.0/16        Virtual Network Connection
-10.2.0.0/16        HubBgpConnection            65010
-10.10.0.0/24       VPN_S2S_Gateway             65001
-10.5.0.0/16        Remote Hub                  65520-65520-65020
-10.30.0.0/24       Remote Hub                  65520-65520-65003
-10.22.0.0/16       Remote Hub                  65520-65520
-10.4.0.0/16        Remote Hub                  65520-65520
-
+AddressPrefixes    AsPath             NextHopType
+-----------------  -----------------  --------------------------
+10.10.0.0/24       65001              VPN_S2S_Gateway
+10.11.0.0/20                          Virtual Network Connection
+10.11.16.0/20                         Virtual Network Connection
+10.1.0.0/20                           Virtual Network Connection
+10.2.0.0/20        65010              HubBgpConnection
+10.4.0.0/20        65520-65520        Remote Hub
+10.5.0.0/20        65520-65520-65020  Remote Hub
+10.30.0.0/24       65520-65520-65003  Remote Hub
+10.22.0.0/20       65520-65520        Remote Hub
+10.22.16.0/20      65520-65520        Remote Hub
 ```
 
 ### 8. On-premises Routes
 
-Login to the onprem router `Vwan22-branch1-nva` in order to observe its dynamic routes.
+**8.1** Login to on-premises virtual machine `Vwan22-branch1-nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
+  - username = ***azureuser***
+  - password = ***Password123***
 
-**8.1.** Login to virtual machine `Vwan22-branch1-nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal).
-
-**8.2.** Enter username and password
-
-   - username = ***azureuser***
-   - password = ***Password123***
-
-**8.3.** Enter the Cisco ***enable*** mode
+**8.2.** Enter the Cisco ***enable*** mode
 
 ```sh
 enable
@@ -504,23 +468,25 @@ Vwan22-branch1-nva-vm#show ip route
 Gateway of last resort is 10.10.1.1 to network 0.0.0.0
 
 S*    0.0.0.0/0 [1/0] via 10.10.1.1
-      10.0.0.0/8 is variably subnetted, 16 subnets, 4 masks
-B        10.1.0.0/16 [20/0] via 192.168.11.12, 02:32:16
-B        10.2.0.0/16 [20/0] via 192.168.11.12, 02:32:16
-B        10.4.0.0/16 [20/0] via 192.168.11.12, 02:32:16
-B        10.5.0.0/16 [20/0] via 192.168.11.12, 02:32:16
-S        10.10.0.0/24 [1/0] via 10.10.3.1
+      10.0.0.0/8 is variably subnetted, 18 subnets, 4 masks
+B        10.1.0.0/20 [20/0] via 192.168.11.12, 01:51:26
+B        10.2.0.0/20 [20/0] via 192.168.11.12, 01:46:08
+B        10.4.0.0/20 [20/0] via 192.168.11.12, 00:48:34
+B        10.5.0.0/20 [20/0] via 192.168.11.13, 00:37:45
+S        10.10.0.0/24 [1/0] via 10.10.2.1
 C        10.10.1.0/24 is directly connected, GigabitEthernet1
 L        10.10.1.9/32 is directly connected, GigabitEthernet1
-C        10.10.3.0/24 is directly connected, GigabitEthernet2
-L        10.10.3.9/32 is directly connected, GigabitEthernet2
+C        10.10.2.0/24 is directly connected, GigabitEthernet2
+L        10.10.2.9/32 is directly connected, GigabitEthernet2
 C        10.10.10.0/30 is directly connected, Tunnel0
 L        10.10.10.1/32 is directly connected, Tunnel0
 C        10.10.10.4/30 is directly connected, Tunnel1
 L        10.10.10.5/32 is directly connected, Tunnel1
-B        10.11.0.0/16 [20/0] via 192.168.11.12, 02:32:16
-B        10.22.0.0/16 [20/0] via 192.168.11.12, 02:32:16
-B        10.30.0.0/24 [20/0] via 192.168.11.13, 02:31:10
+B        10.11.0.0/20 [20/0] via 192.168.11.12, 01:47:59
+B        10.11.16.0/20 [20/0] via 192.168.11.12, 01:47:59
+B        10.22.0.0/20 [20/0] via 192.168.11.12, 00:51:23
+B        10.22.16.0/20 [20/0] via 192.168.11.12, 00:51:23
+B        10.30.0.0/24 [20/0] via 192.168.11.12, 00:45:16
       168.63.0.0/32 is subnetted, 1 subnets
 S        168.63.129.16 [254/0] via 10.10.1.1
       169.254.0.0/32 is subnetted, 1 subnets
@@ -528,7 +494,7 @@ S        169.254.169.254 [254/0] via 10.10.1.1
       192.168.10.0/32 is subnetted, 1 subnets
 C        192.168.10.10 is directly connected, Loopback0
       192.168.11.0/24 is variably subnetted, 3 subnets, 2 masks
-B        192.168.11.0/24 [20/0] via 192.168.11.12, 02:32:16
+B        192.168.11.0/24 [20/0] via 192.168.11.12, 02:08:40
 S        192.168.11.12/32 is directly connected, Tunnel1
 S        192.168.11.13/32 is directly connected, Tunnel0
 ```
@@ -544,8 +510,8 @@ show ip bgp
 Sample output
 
 ```sh
-Vwan22-branch1-nva-vm#show ip bgp
-BGP table version is 10, local router ID is 192.168.10.10
+Vwan22-branch1-nva#show ip bgp
+BGP table version is 12, local router ID is 192.168.10.10
 Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
               r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
               x best-external, a additional-path, c RIB-compressed,
@@ -554,22 +520,26 @@ Origin codes: i - IGP, e - EGP, ? - incomplete
 RPKI validation codes: V valid, I invalid, N Not found
 
      Network          Next Hop            Metric LocPrf Weight Path
- *    10.1.0.0/16      192.168.11.13                          0 65515 i
+ *    10.1.0.0/20      192.168.11.13                          0 65515 i
  *>                    192.168.11.12                          0 65515 i
- *    10.2.0.0/16      192.168.11.13            0             0 65515 65010 i
+ *    10.2.0.0/20      192.168.11.13            0             0 65515 65010 i
  *>                    192.168.11.12            0             0 65515 65010 i
- *    10.4.0.0/16      192.168.11.13                          0 65515 65520 65520 e
+ *    10.4.0.0/20      192.168.11.13                          0 65515 65520 65520 e
  *>                    192.168.11.12                          0 65515 65520 65520 e
- *    10.5.0.0/16      192.168.11.13                          0 65515 65520 65520 65020 e
- *>                    192.168.11.12                          0 65515 65520 65520 65020 e
- *>   10.10.0.0/24     10.10.3.1                0         32768 i
+ *    10.5.0.0/20      192.168.11.12                          0 65515 65520 65520 65020 e
+ *>                    192.168.11.13                          0 65515 65520 65520 65020 e
+ *>   10.10.0.0/24     10.10.2.1                0         32768 i
      Network          Next Hop            Metric LocPrf Weight Path
- *    10.11.0.0/16     192.168.11.13                          0 65515 i
+ *    10.11.0.0/20     192.168.11.13                          0 65515 i
  *>                    192.168.11.12                          0 65515 i
- *    10.22.0.0/16     192.168.11.13                          0 65515 65520 65520 e
+ *    10.11.16.0/20    192.168.11.13                          0 65515 i
+ *>                    192.168.11.12                          0 65515 i
+ *    10.22.0.0/20     192.168.11.13                          0 65515 65520 65520 e
  *>                    192.168.11.12                          0 65515 65520 65520 e
- *    10.30.0.0/24     192.168.11.12                          0 65515 65520 65520 65003 e
- *>                    192.168.11.13                          0 65515 65520 65520 65003 e
+ *    10.22.16.0/20    192.168.11.13                          0 65515 65520 65520 e
+ *>                    192.168.11.12                          0 65515 65520 65520 e
+ *    10.30.0.0/24     192.168.11.13                          0 65515 65520 65520 65003 e
+ *>                    192.168.11.12                          0 65515 65520 65520 65003 e
  *    192.168.11.0     192.168.11.13                          0 65515 i
  *>                    192.168.11.12                          0 65515 i
 ```
@@ -584,7 +554,7 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
    cd azure-network-terraform/2-virtual-wan/2-vwan-dual-region
    ```
 
-2. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
+2. (Optional) This is not required if you have not set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
 
    ```sh
    bash ../../scripts/_cleanup.sh Vwan22

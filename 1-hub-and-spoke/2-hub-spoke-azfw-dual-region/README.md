@@ -211,24 +211,24 @@ azureuser@spoke1-vm:~$ curl-dns
 200 (0.174308s) - 10.22.7.5 - hs12-spoke6-eb4b.azurewebsites.net
 ```
 
-We can see that curl test to spoke3 virtual machine `vm.spoke3.we.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.we.az.corp`. The same explanation applies to ***spoke6*** virtual machine `vm.spoke6.ne.az.corp`
+We can see that curl test to spoke3 virtual machine `vm.spoke3.we.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3pls.eu.az.corp`. The same explanation applies to ***spoke6*** virtual machine `vm.spoke6.ne.az.corp`
 
 ### 4. Private Link Service
 
 **4.1.** Test access to ***spoke3*** web application using the private endpoint in ***hub1***.
 
 ```sh
-curl spoke3.p.hub1.we.az.corp
+curl spoke3pls.eu.az.corp
 ```
 
 Sample output
 
 ```sh
-azureuser@Hs12-spoke1-vm:~$ curl spoke3.p.hub1.we.az.corp
+azureuser@Hs12-spoke1-vm:~$ curl spoke3pls.eu.az.corp
 {
   "Headers": {
     "Accept": "*/*",
-    "Host": "spoke3.p.hub1.we.az.corp",
+    "Host": "spoke3pls.eu.az.corp",
     "User-Agent": "curl/7.68.0"
   },
   "Hostname": "Hs12-spoke3-vm",
@@ -240,17 +240,17 @@ azureuser@Hs12-spoke1-vm:~$ curl spoke3.p.hub1.we.az.corp
 **4.2.** Test access to ***spoke6*** web application using the private endpoint in ***hub2***.
 
 ```sh
-curl spoke6.p.hub2.ne.az.corp
+curl spoke6pls.us.az.corp
 ```
 
 Sample output
 
 ```sh
-azureuser@Hs12-spoke1-vm:~$ curl spoke6.p.hub2.ne.az.corp
+azureuser@Hs12-spoke1-vm:~$ curl spoke6pls.us.az.corp
 {
   "Headers": {
     "Accept": "*/*",
-    "Host": "spoke6.p.hub2.ne.az.corp",
+    "Host": "spoke6pls.us.az.corp",
     "User-Agent": "curl/7.68.0"
   },
   "Hostname": "Hs12-spoke6-vm",

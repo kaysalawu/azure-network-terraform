@@ -15,7 +15,7 @@ Contents
   - [2. Ping DNS](#2-ping-dns)
   - [3. Curl DNS](#3-curl-dns)
   - [4. Private Link Service](#4-private-link-service)
-  - [5. Private Link (App Service) Access from Public Client](#5-private-link-app-service-access-from-public-client)
+  - [5. Private Link (Storage Account) Access from Public Client](#5-private-link-storage-account-access-from-public-client)
   - [6. Private Link (Storage Account) Access from On-premises](#6-private-link-storage-account-access-from-on-premises)
   - [7. Virtual WAN Routes](#7-virtual-wan-routes)
   - [8. On-premises Routes](#8-on-premises-routes)
@@ -73,14 +73,14 @@ The table below shows the auto-generated output files from the lab. They are loc
 | IP ranges and DNS | IP ranges and DNS hostname values | [output/values.md](./output/values.md) |
 | Branch1 DNS | Authoritative DNS and forwarding | [output/branch1-unbound.sh](./output/branch1-unbound.sh) |
 | Branch3 DNS | Authoritative DNS and forwarding | [output/branch3-unbound.sh](./output/branch3-unbound.sh) |
-| Branch1 NVA | Cisco IOS commands - IPsec, BGP, route maps | [output/branch1-nva.sh](./output/branch1-nva.sh) |
-| Branch3 NVA | Cisco IOS commands - IPsec, BGP, route maps | [output/branch3-nva.sh](./output/branch3-nva.sh) |
+| Branch1 NVA | Cisco IOS configuration | [output/branch1-nva.sh](./output/branch1-nva.sh) |
+| Branch3 NVA | Cisco IOS configuration | [output/branch3-nva.sh](./output/branch3-nva.sh) |
 | Web server | Python Flask web server, test scripts | [output/server.sh](./output/server.sh) |
 ||||
 
 ## Dashboards (Optional)
 
-This lab contains a number of pre-configured dashboards for monitoring network gateways, VPN gateways, and Azure Firewall.
+This lab contains a number of pre-configured dashboards for monitoring gateways, VPN gateways, and Azure Firewall.
 
 To view dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment.
 
@@ -90,11 +90,9 @@ To view the dashboards, follow the steps below:
 
 2. Under **Browse**, select **Shared dashboards**.
 
-3. Select the dashboard you want to view.
-
    <img src="../../images/demos/virtual-wan/vwan24-shared-dashboards.png" alt="Shared dashboards" width="900">
 
-4. Click on a dashboard under **Go to dashboard** column.
+3. Click on a dashboard under **Go to dashboard** column.
 
    Sample dashboard for VPN gateway in ***hub1***.
 
@@ -256,9 +254,9 @@ azureuser@spoke1Vm:~$ curl spoke6pls.us.az.corp
 
 The `Hostname` and `Local-IP` fields identifies the actual web servers - in this case ***spoke3*** and ***spoke6*** virtual machines. The `Remote-IP` fields (as seen by the web servers) are IP addresses in the Private Link Service NAT subnets in ***spoke3*** and ***spoke6*** respectively.
 
-### 5. Private Link (App Service) Access from Public Client
+### 5. Private Link (Storage Account) Access from Public Client
 
-Storage account with container blobs are deployed and accessible via private endpoints in ***hub1*** and ***hub2*** respectively. The storage accounts have the following naming convention:
+Storage accounts with container blobs are deployed and accessible via private endpoints in ***hub1*** and ***hub2*** respectively. The storage accounts have the following naming convention:
 
 * vwan24spoke3sa\<AAAA\>.blob.core.windows.net
 * vwan24spoke6sa\<BBBB\>.blob.core.windows.net
@@ -396,7 +394,7 @@ Hello, World!
 
 ### 7. Virtual WAN Routes
 
-**7.1.** Go back to the lab directory `azure-network-terraform/2-virtual-wan/4-vwan-sec-dual-region`
+**7.1.** Switch back to the lab directory `azure-network-terraform/2-virtual-wan/4-vwan-sec-dual-region`
 
 **7.2.** Display the virtual WAN routing table(s)
 

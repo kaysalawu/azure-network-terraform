@@ -35,7 +35,6 @@ module "hub1" {
 
   dns_zones_linked_to_vnet = [
     { name = module.common.private_dns_zones[local.region1_dns_zone].name, registration_enabled = true },
-    { name = module.common.private_dns_zones[local.region2_dns_zone].name },
     { name = azurerm_private_dns_zone.privatelink_blob.name },
     { name = azurerm_private_dns_zone.privatelink_appservice.name },
   ]

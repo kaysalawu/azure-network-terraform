@@ -17,15 +17,15 @@ NSGs are assigned to selected subnets.
 ####################################################
 
 module "hub1" {
-  source             = "../../modules/base"
-  resource_group     = azurerm_resource_group.rg.name
-  prefix             = trimsuffix(local.hub1_prefix, "-")
-  env                = "prod"
-  location           = local.hub1_location
-  storage_account    = module.common.storage_accounts["region1"]
-  enable_diagnostics = local.enable_diagnostics
-  tags               = local.hub1_tags
+  source          = "../../modules/base"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = trimsuffix(local.hub1_prefix, "-")
+  env             = "prod"
+  location        = local.hub1_location
+  storage_account = module.common.storage_accounts["region1"]
+  tags            = local.hub1_tags
 
+  enable_diagnostics           = local.enable_diagnostics
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
   # flow_log_nsg_ids = [
   #   module.common.nsg_main["region1"].id,
@@ -35,7 +35,6 @@ module "hub1" {
 
   dns_zones_linked_to_vnet = [
     { name = module.common.private_dns_zones[local.region1_dns_zone].name, registration_enabled = true },
-    { name = module.common.private_dns_zones[local.region2_dns_zone].name },
     { name = azurerm_private_dns_zone.privatelink_blob.name },
     { name = azurerm_private_dns_zone.privatelink_appservice.name },
   ]

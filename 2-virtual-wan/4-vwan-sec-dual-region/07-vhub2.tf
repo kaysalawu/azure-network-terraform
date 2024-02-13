@@ -19,6 +19,10 @@ module "vhub2" {
 
   enable_diagnostics           = local.enable_diagnostics
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region2"].name
+
+  depends_on = [
+    module.common
+  ]
 }
 
 data "azurerm_virtual_hub_route_table" "vhub2_default" {

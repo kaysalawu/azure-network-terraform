@@ -177,7 +177,7 @@ azureuser@Hs13-spoke1-vm:~$ curl-dns
 
 200 (0.049944s) - 10.10.0.5 - vm.branch1.corp
 200 (0.023376s) - 10.11.0.5 - vm.hub1.we.az.corp
-200 (0.018509s) - 10.11.7.4 - spoke3.p.hub1.we.az.corp
+200 (0.018509s) - 10.11.7.4 - spoke3pls.eu.az.corp
 200 (0.010899s) - 10.1.0.5 - vm.spoke1.we.az.corp
 200 (0.024813s) - 10.2.0.5 - vm.spoke2.we.az.corp
 000 (2.001567s) -  - vm.spoke3.we.az.corp
@@ -185,24 +185,24 @@ azureuser@Hs13-spoke1-vm:~$ curl-dns
 200 (0.031713s) - 10.11.7.5 - hs13-spoke3-11fc.azurewebsites.net
 ```
 
-We can see that curl test to spoke3 virtual machine `vm.spoke3.we.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3.p.hub1.we.az.corp`.
+We can see that curl test to spoke3 virtual machine `vm.spoke3.we.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3pls.eu.az.corp`.
 
 ### 4. Private Link Service
 
 **4.1.** Test access to ***spoke3*** web application using the private endpoint in ***hub1***.
 
 ```sh
-curl spoke3.p.hub1.we.az.corp
+curl spoke3pls.eu.az.corp
 ```
 
 Sample output
 
 ```sh
-azureuser@Hs13-spoke1-vm:~$ curl spoke3.p.hub1.we.az.corp
+azureuser@Hs13-spoke1-vm:~$ curl spoke3pls.eu.az.corp
 {
   "Headers": {
     "Accept": "*/*",
-    "Host": "spoke3.p.hub1.we.az.corp",
+    "Host": "spoke3pls.eu.az.corp",
     "User-Agent": "curl/7.68.0"
   },
   "Hostname": "Hs13-spoke3-vm",
