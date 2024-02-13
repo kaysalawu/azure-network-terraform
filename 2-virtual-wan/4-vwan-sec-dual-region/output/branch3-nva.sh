@@ -1,5 +1,13 @@
 Section: IOS configuration
-
+!-----------------------------------------
+! Prefix Lists
+!-----------------------------------------
+ip prefix-list BLOCK_HUB_GW_SUBNET deny 10.22.16.0/24
+ip prefix-list BLOCK_HUB_GW_SUBNET permit 0.0.0.0/0 le 32
+!
+!-----------------------------------------
+! IPSec
+!-----------------------------------------
 crypto ikev2 proposal AZURE-IKE-PROPOSAL
 encryption aes-cbc-256
 integrity sha1
@@ -10,11 +18,11 @@ proposal AZURE-IKE-PROPOSAL
 match address local 10.30.1.9
 !
 crypto ikev2 keyring AZURE-KEYRING
-peer 20.246.196.94
-address 20.246.196.94
+peer 4.157.0.254
+address 4.157.0.254
 pre-shared-key changeme
-peer 20.246.192.6
-address 20.246.192.6
+peer 4.157.0.199
+address 4.157.0.199
 pre-shared-key changeme
 peer 10.10.1.9
 address 10.10.1.9
@@ -22,8 +30,8 @@ pre-shared-key changeme
 !
 crypto ikev2 profile AZURE-IKE-PROPOSAL
 match address local 10.30.1.9
-match identity remote address 20.246.196.94 255.255.255.255
-match identity remote address 20.246.192.6 255.255.255.255
+match identity remote address 4.157.0.254 255.255.255.255
+match identity remote address 4.157.0.199 255.255.255.255
 match identity remote address 10.10.1.9 255.255.255.255
 authentication remote pre-share
 authentication local pre-share
@@ -44,7 +52,7 @@ ip address 10.30.30.1 255.255.255.252
 tunnel mode ipsec ipv4
 ip tcp adjust-mss 1350
 tunnel source 10.30.1.9
-tunnel destination 20.246.196.94
+tunnel destination 4.157.0.254
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
 interface Tunnel1
@@ -52,7 +60,7 @@ ip address 10.30.30.5 255.255.255.252
 tunnel mode ipsec ipv4
 ip tcp adjust-mss 1350
 tunnel source 10.30.1.9
-tunnel destination 20.246.192.6
+tunnel destination 4.157.0.199
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
 interface Tunnel2
@@ -63,31 +71,38 @@ tunnel source 10.30.1.9
 tunnel destination 10.10.1.9
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
+!
+!-----------------------------------------
+! Interface
+!-----------------------------------------
 interface Loopback0
 ip address 192.168.30.30 255.255.255.255
 !
-ip access-list extended NAT-ACL
-permit ip 10.0.0.0 0.255.255.255 any
-permit ip 172.16.0.0 0.15.255.255 any
-permit ip 192.168.0.0 0.0.255.255 any
-interface GigabitEthernet1
-ip nat outside
-ip nat inside
-exit
-ip nat inside source list NAT-ACL interface GigabitEthernet1 overload
+!-----------------------------------------
+! NAT
+!-----------------------------------------
 !
+!-----------------------------------------
+! Static Routes
+!-----------------------------------------
 ip route 0.0.0.0 0.0.0.0 10.30.1.1
 ip route 192.168.22.13 255.255.255.255 Tunnel0
 ip route 192.168.22.12 255.255.255.255 Tunnel1
 ip route 192.168.10.10 255.255.255.255 Tunnel2
 ip route 10.30.0.0 255.255.255.0 10.30.2.1
 !
+!-----------------------------------------
+! Route Maps
+!-----------------------------------------
 route-map ONPREM permit 100
 match ip address prefix-list all
 set as-path prepend 65003 65003 65003
 route-map AZURE permit 110
 match ip address prefix-list all
 !
+!-----------------------------------------
+! BGP
+!-----------------------------------------
 router bgp 65003
 bgp router-id 192.168.30.30
 neighbor 192.168.22.13 remote-as 65515

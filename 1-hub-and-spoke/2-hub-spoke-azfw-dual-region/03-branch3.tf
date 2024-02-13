@@ -146,8 +146,11 @@ locals {
       "ip prefix-list ${local.branch3_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
     ]
 
-    NAT_ACL_PREFIXES = [
-      { network = local.branch3_network, inverse_mask = local.branch3_inverse_mask }
+    NAT_ACL = [
+      #"permit ip ${local.branch3_network} ${local.branch3_mask} any",
+      # "permit ip 10.0.0.0 0.255.255.255 any",
+      # "permit ip 172.16.0.0 0.15.255.255 any",
+      # "permit ip 192.168.0.0 0.0.255.255 any"
     ]
 
     ROUTE_MAPS = [

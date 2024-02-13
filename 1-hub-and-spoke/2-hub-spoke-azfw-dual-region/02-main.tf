@@ -365,8 +365,8 @@ locals {
   ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ip = "icanhazip.com" },
-    { name = "hub1-spoke3-apps", dns = local.spoke3_blob_url, ping = false, probe = true },
-    { name = "hub2-spoke6-apps", dns = local.spoke6_blob_url, ping = false, probe = true },
+    { name = "hub1-spoke3-blob", dns = local.spoke3_blob_url, ping = false, probe = true },
+    { name = "hub2-spoke6-blob", dns = local.spoke6_blob_url, ping = false, probe = true },
   ]
   vm_script_targets = concat(
     local.vm_script_targets_region1,

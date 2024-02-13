@@ -253,6 +253,12 @@ variable "log_categories_firewall" {
   ]
 }
 
+variable "enable_diagnostics" {
+  description = "enable diagnostics"
+  type        = bool
+  default     = false
+}
+
 variable "log_analytics_workspace_name" {
   description = "log analytics workspace name"
   type        = string

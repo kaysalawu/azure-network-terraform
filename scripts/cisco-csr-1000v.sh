@@ -70,16 +70,22 @@ ip address ${v} 255.255.255.255
 !-----------------------------------------
 ! NAT
 !-----------------------------------------
+%{~ if NAT_ACL != [] }
 ip access-list extended NAT-ACL
-permit ip 10.0.0.0 0.255.255.255 any
-permit ip 172.16.0.0 0.15.255.255 any
-permit ip 192.168.0.0 0.0.255.255 any
+%{~ for command in NAT_ACL }
+${command}
+%{~ endfor }
+interface GigabitEthernet2
+ip nat inside
 interface GigabitEthernet1
 ip nat outside
-ip nat inside
 exit
 ip nat inside source list NAT-ACL interface GigabitEthernet1 overload
+%{~ endif }
 !
+!-----------------------------------------
+! Static Routes
+!-----------------------------------------
 %{~ for route in STATIC_ROUTES }
 ip route ${route.network} ${route.mask} ${route.next_hop}
 %{~ endfor }

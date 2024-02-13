@@ -46,6 +46,8 @@ module "vpngw" {
   location       = var.location
   virtual_hub_id = azurerm_virtual_hub.this.id
   bgp_settings   = var.s2s_vpn_gateway.bgp_settings
+
+  log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 }
 
 ####################################################
@@ -59,6 +61,8 @@ module "ergw" {
   prefix         = local.prefix
   location       = var.location
   virtual_hub_id = azurerm_virtual_hub.this.id
+
+  log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 }
 
 ####################################################
@@ -76,7 +80,8 @@ module "azfw" {
   sku_name       = "AZFW_Hub"
   tags           = var.tags
 
-  firewall_policy_id = var.config_security.firewall_policy_id
+  firewall_policy_id           = var.config_security.firewall_policy_id
+  log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 
   depends_on = [
     module.vpngw,

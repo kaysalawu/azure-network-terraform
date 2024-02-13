@@ -51,13 +51,58 @@ module "branch1" {
 # dns
 ####################################################
 
+locals {
+  branch1_unbound_startup = templatefile("../../scripts/unbound/unbound.sh", local.branch1_dns_vars)
+  branch1_dns_vars = {
+    ONPREM_LOCAL_RECORDS = local.onprem_local_records
+    REDIRECTED_HOSTS     = local.onprem_redirected_hosts
+    FORWARD_ZONES        = local.branch1_forward_zones
+    TARGETS              = local.vm_script_targets
+    ACCESS_CONTROL_PREFIXES = concat(
+      local.private_prefixes,
+      ["127.0.0.0/8", "35.199.192.0/19", ]
+    )
+  }
+  branch1_unbound_files = {
+    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/Dockerfile", {}) }
+    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
+    "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.conf", local.branch1_dns_vars) }
+    "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.log", local.branch1_dns_vars) }
+  }
+  branch1_forward_zones = [
+    { zone = "${local.region1_dns_zone}.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "${local.region2_dns_zone}.", targets = [local.hub2_dns_in_addr, ] },
+    { zone = "privatelink.blob.core.windows.net.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "privatelink.azurewebsites.net.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "privatelink.database.windows.net.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "privatelink.table.cosmos.azure.com.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "privatelink.queue.core.windows.net.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "privatelink.file.core.windows.net.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = ".", targets = [local.azuredns, ] },
+  ]
+}
+
+module "branch1_unbound_init" {
+  source   = "../../modules/cloud-config-gen"
+  packages = ["docker.io", "docker-compose", "dnsutils", "net-tools", ]
+  files    = local.branch1_unbound_files
+  run_commands = [
+    "systemctl stop systemd-resolved",
+    "systemctl disable systemd-resolved",
+    "echo \"nameserver 8.8.8.8\" > /etc/resolv.conf",
+    "systemctl restart unbound",
+    "systemctl enable unbound",
+    "docker-compose -f ${local.branch_dns_init_dir}/docker-compose.yml up -d",
+  ]
+}
+
 module "branch1_dns" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
   name            = "${local.branch1_prefix}dns"
   location        = local.branch1_location
   storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(local.branch_unbound_startup)
+  custom_data     = base64encode(local.branch1_unbound_startup)
   identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
   tags            = local.branch1_tags
 
@@ -101,8 +146,11 @@ locals {
       "ip prefix-list ${local.branch1_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
     ]
 
-    NAT_ACL_PREFIXES = [
-      { network = local.branch1_network, inverse_mask = local.branch1_inverse_mask }
+    NAT_ACL = [
+      #"permit ip ${local.branch1_network} ${local.branch1_mask} any",
+      # "permit ip 10.0.0.0 0.255.255.255 any",
+      # "permit ip 172.16.0.0 0.15.255.255 any",
+      # "permit ip 192.168.0.0 0.0.255.255 any"
     ]
 
     ROUTE_MAPS = [
