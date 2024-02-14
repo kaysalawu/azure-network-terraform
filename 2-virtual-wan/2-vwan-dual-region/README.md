@@ -35,7 +35,7 @@ The isolated spokes (***spoke3*** and ***spoke6***) do not have Vnet peering to 
 
 ## Prerequisites
 
-Ensure you meet all requirements in the [prerequisites](../../prerequisites/) before proceeding.
+Ensure you meet all requirements in the [prerequisites](../../prerequisites/README.md) before proceeding.
 
 ## Deploy the Lab
 
@@ -70,10 +70,10 @@ The table below shows the auto-generated output files from the lab. They are loc
 | Item    | Description  | Location |
 |--------|--------|--------|
 | IP ranges and DNS | IP ranges and DNS hostname values | [output/values.md](./output/values.md) |
-| Branch1 DNS | Authoritative DNS and forwarding | [output/branch1-unbound.sh](./output/branch1-unbound.sh) |
-| Branch3 DNS | Authoritative DNS and forwarding | [output/branch3-unbound.sh](./output/branch3-unbound.sh) |
-| Branch1 NVA | Cisco IOS configuration | [output/branch1-nva.sh](./output/branch1-nva.sh) |
-| Branch3 NVA | Cisco IOS configuration | [output/branch3-nva.sh](./output/branch3-nva.sh) |
+| Branch1 DNS | Authoritative DNS and forwarding | [output/branch1Dns.sh](./output/branch1Dns.sh) |
+| Branch3 DNS | Authoritative DNS and forwarding | [output/branch3Dns.sh](./output/branch3Dns.sh) |
+| Branch1 NVA | Cisco IOS configuration | [output/branch1Nva.sh](./output/branch1Nva.sh) |
+| Branch3 NVA | Cisco IOS configuration | [output/branch3Nva.sh](./output/branch3Nva.sh) |
 | Web server | Python Flask web server, test scripts | [output/server.sh](./output/server.sh) |
 ||||
 
@@ -101,10 +101,10 @@ To view the dashboards, follow the steps below:
 
 Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of network reachability tests. Serial console access has been configured for all virtual machines.
 
-Login to virtual machine `Vwan22-spoke1-vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
+Login to virtual machine `Vwan22-spoke1Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
 
 - On Azure portal select *Virtual machines*
-- Select the virtual machine `Vwan22-spoke1-vm`
+- Select the virtual machine `Vwan22-spoke1Vm`
 - Under ***Help*** section, select ***Serial console*** and wait for a login prompt
 - Enter the login credentials
   - username = ***azureuser***
@@ -266,7 +266,7 @@ spoke3_storage_account=$(az storage account list -g Vwan22RG --query "[?contains
 spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
 spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
 
-echo -e "\n$spoke3_sgtacct_host\n"
+echo -e "\n$spoke3_sgtacct_host\n" && echo
 ```
 
 Sample output (yours will be different)
@@ -311,13 +311,13 @@ Hello, World!
 
 ### 6. Private Link (Storage Account) Access from On-premises
 
-**6.1** Login to on-premises virtual machine `Vwan22-branch1-vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
+**6.1** Login to on-premises virtual machine `Vwan22-branch1Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
   - username = ***azureuser***
   - password = ***Password123***
 
- We will test access from `Vwan22-branch1-vm` to the storage account for ***spoke3*** via the private endpoint in ***hub1***.
+ We will test access from `Vwan22-branch1Vm` to the storage account for ***spoke3*** via the private endpoint in ***hub1***.
 
-**6.2.** Run az login with user assigned managed identity to authenticate to Azure.
+**6.2.** Use the following script to run `az login` with a user assigned identity.
 
 ```sh
 /usr/local/bin/az-login
@@ -331,7 +331,7 @@ spoke3_storage_account=$(az storage account list -g Vwan22RG --query "[?contains
 spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
 spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
 
-echo -e "\n$spoke3_sgtacct_host\n"
+echo -e "\n$spoke3_sgtacct_host\n" && echo
 ```
 
 Sample output (yours will be different)
@@ -349,22 +349,22 @@ nslookup $spoke3_sgtacct_host
 Sample output
 
 ```sh
-azureuser@vm:~$ nslookup $spoke3_sgtacct_host
+azureuser@branch1Vm:~$ nslookup $spoke3_sgtacct_host
 Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-vwan22spoke3sa97e7.blob.core.windows.net        canonical name = vwan22spoke3sa97e7.privatelink.blob.core.windows.net.
-Name:   vwan22spoke3sa97e7.privatelink.blob.core.windows.net
+vwan22spoke3sa15e5.blob.core.windows.net        canonical name = vwan22spoke3sa15e5.privatelink.blob.core.windows.net.
+Name:   vwan22spoke3sa15e5.privatelink.blob.core.windows.net
 Address: 10.11.7.99
 ```
 
-We can see that the storage account hostname resolves to the private endpoint ***10.11.7.99*** in ***hub1***. The following is a summary of the DNS resolution from `Vwan22-branch1-vm`:
+We can see that the storage account hostname resolves to the private endpoint ***10.11.7.99*** in ***hub1***. The following is a summary of the DNS resolution from `Vwan22-branch1Vm`:
 
-- On-premises server `Vwan22-branch1-vm` makes a DNS request for `vwan22spoke3sa97e7.blob.core.windows.net`
+- On-premises server `Vwan22-branch1Vm` makes a DNS request for `vwan22spoke3sa97e7.blob.core.windows.net`
 - The request is received by on-premises DNS server `Vwan22-branch1-dns`
 - The DNS server resolves `vwan22spoke3sa97e7.blob.core.windows.net` to the CNAME `vwan22spoke3sa97e7.privatelink.blob.core.windows.net`
-- The DNS server has a conditional DNS forwarding defined in the branch1 unbound DNS configuration file, [output/branch1-unbound.sh](./output/branch1-unbound.sh).
+- The DNS server has a conditional DNS forwarding defined in the branch1 unbound DNS configuration file, [output/branch1Dns.sh](./output/branch1Dns.sh).
 
   ```sh
   forward-zone:
@@ -442,7 +442,7 @@ AddressPrefixes    AsPath             NextHopType
 
 ### 8. On-premises Routes
 
-**8.1** Login to on-premises virtual machine `Vwan22-branch1-nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
+**8.1** Login to on-premises virtual machine `Vwan22-branch1Nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
   - username = ***azureuser***
   - password = ***Password123***
 
@@ -461,7 +461,7 @@ show ip route
 Sample output
 
 ```sh
-Vwan22-branch1-nva-vm#show ip route
+Vwan22-branch1Nva# show ip route
 ...
 [Truncated for brevity]
 ...
@@ -510,7 +510,7 @@ show ip bgp
 Sample output
 
 ```sh
-Vwan22-branch1-nva#show ip bgp
+Vwan22-branch1Nva# show ip bgp
 BGP table version is 12, local router ID is 192.168.10.10
 Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
               r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
@@ -554,7 +554,7 @@ We can see our hub and spoke Vnet ranges being learned dynamically in the BGP ta
    cd azure-network-terraform/2-virtual-wan/2-vwan-dual-region
    ```
 
-2. (Optional) This is not required if you have not set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
+2. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
    ```sh
    bash ../../scripts/_cleanup.sh Vwan22

@@ -205,6 +205,8 @@ locals {
   branch1_bgp_apipa_0        = cidrhost(local.bgp_apipa_range3, 2)
   branch1_bgp_apipa_1        = cidrhost(local.bgp_apipa_range4, 2)
   branch1_vm_hostname        = "branch1Vm"
+  branch1_nva_hostname       = "branch1Nva"
+  branch1_dns_hostname       = "branch1Dns"
   branch1_vm_fqdn            = "${local.branch1_vm_hostname}.${local.onprem_domain}"
 }
 
@@ -237,6 +239,8 @@ locals {
   branch2_nva_tun_range2     = "10.20.20.8/30"
   branch2_nva_tun_range3     = "10.20.20.12/30"
   branch2_vm_hostname        = "branch2Vm"
+  branch2_nva_hostname       = "branch2Nva"
+  branch2_dns_hostname       = "branch2Dns"
   branch2_vm_fqdn            = "${local.branch2_vm_hostname}.${local.onprem_domain}"
 }
 
@@ -271,6 +275,8 @@ locals {
   branch3_bgp_apipa_0        = cidrhost(local.bgp_apipa_range7, 2)
   branch3_bgp_apipa_1        = cidrhost(local.bgp_apipa_range8, 2)
   branch3_vm_hostname        = "branch3Vm"
+  branch3_nva_hostname       = "branch3Nva"
+  branch3_dns_hostname       = "branch3Dns"
   branch3_vm_fqdn            = "${local.branch3_vm_hostname}.${local.onprem_domain}"
 }
 

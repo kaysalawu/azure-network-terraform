@@ -6,8 +6,8 @@
 - [Prerequisites](#prerequisites)
 - [Deploy the Lab](#deploy-the-lab)
 - [Results](#results)
-  - [Branch1 NVA (Cisco)](#branch1-nva-cisco)
-  - [Branch1 VM](#branch1-vm)
+  - [Branch1 NVA (Cisco)](#branch1Nva-cisco)
+  - [Branch1 VM](#branch1Vm)
   - [Spoke1 VM](#spoke1-vm)
   - [Hub1 NVA](#hub1-nva)
   - [ExpressRoute Circuits](#expressroute-circuits)
@@ -27,7 +27,7 @@ Related articles and documentation:
 
 ## Prerequisites
 
-Ensure you meet all requirements in the [prerequisites](../../prerequisites/) before proceeding.
+Ensure you meet all requirements in the [prerequisites](../../prerequisites/README.md) before proceeding.
 
 > **NOTE**: You need to have an active [megaport](https://www.megaport.com/) account. You will need to supply the megaport credentials in order to deploy the lab:
 * `megaport_access_key`
@@ -62,7 +62,7 @@ Ensure you meet all requirements in the [prerequisites](../../prerequisites/) be
 1. Route table
 
 ```sh
-G10-branch1-nva#show ip route
+G10-branch1Nva#show ip route
 ...
 Gateway of last resort is 10.10.1.1 to network 0.0.0.0
 
@@ -93,7 +93,7 @@ C        192.168.10.10 is directly connected, Loopback0
 2. BGP table
 
 ```sh
-G10-branch1-nva#show ip bgp
+G10-branch1Nva#show ip bgp
 BGP table version is 5, local router ID is 192.168.10.10
 Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
               r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
@@ -119,7 +119,7 @@ The other hub subnets **10.11.0.0/17** are advertised because we need to reach r
 3. Interfaces
 
 ```sh
-G10-branch1-nva#show ip int br
+G10-branch1Nva#show ip int br
 Interface              IP-Address      OK? Method Status                Protocol
 GigabitEthernet1       10.10.1.9       YES DHCP   up                    up
 GigabitEthernet2       10.10.2.9       YES DHCP   up                    up
@@ -133,7 +133,7 @@ VirtualPortGroup0      192.168.35.101  YES TFTP   up                    up
 4. Advertised Routes
 
 ```sh
-G10-branch1-nva#show ip bgp neighbors 10.11.128.14 advertised-routes
+G10-branch1Nva#show ip bgp neighbors 10.11.128.14 advertised-routes
 BGP table version is 5, local router ID is 192.168.10.10
 Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
               r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
@@ -190,7 +190,7 @@ azureuser@vm:~$ curl-dns
 2. Effective routes
 
 ```sh
-Effective routes for G10-spoke1-vm-main-nic
+Effective routes for G10-spoke1Vm-main-nic
 
 Source    Prefix          State    NextHopType        NextHopIP
 --------  --------------  -------  -----------------  -----------

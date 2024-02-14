@@ -13,7 +13,7 @@
 | UntrustSubnet   | 10.10.1.0/24   |
 | - | -  |
 | VM_IP   | 10.10.0.5   |
-| VM_NAME   | G10-branch1-vm   |
+| VM_NAME   | G10-branch1Vm   |
 | VNET_NAME   | G10-branch1-vnet   |
 | VNET_RANGES   | 10.10.0.0/16   |
 
@@ -64,7 +64,7 @@
 | UntrustSubnet   | 10.1.1.0/24   |
 | - | -  |
 | VM_IP   | 10.1.0.5   |
-| VM_NAME   | G10-spoke1-vm   |
+| VM_NAME   | G10-spoke1Vm   |
 | VNET_NAME   | G10-spoke1-vnet   |
 | VNET_RANGES   | 10.1.0.0/16   |
 

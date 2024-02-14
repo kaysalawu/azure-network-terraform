@@ -109,7 +109,7 @@ module "branch1_vm" {
 
 locals {
   branch1_files = {
-    "output/branch1-vm.sh" = local.branch1_vm_init
+    "output/branch1Vm.sh" = local.branch1_vm_init
   }
 }
 

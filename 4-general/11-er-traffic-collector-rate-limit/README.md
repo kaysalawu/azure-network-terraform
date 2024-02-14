@@ -21,7 +21,7 @@ Related articles and documentation:
 
 ## Prerequisites
 
-Ensure you meet all requirements in the [prerequisites](../../prerequisites/) before proceeding.
+Ensure you meet all requirements in the [prerequisites](../../prerequisites/README.md) before proceeding.
 
 You also need to have an active megaport account. You will need to supply the megaport credentials in order to deploy the lab:
 * `megaport_access_key`
@@ -51,7 +51,7 @@ You also need to have an active megaport account. You will need to supply the me
 
 # Test the Lab
 
-1. Login to the virtual machine `G10-hub1-vm` and `G10-branch1-vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
+1. Login to the virtual machine `G10-hub1-vm` and `G10-branch1Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
 
    - On Azure portal select *Virtual machines*
    - Select each virtual machine `G10-hub1-vm`
@@ -67,9 +67,9 @@ You also need to have an active megaport account. You will need to supply the me
       iperf3 -s -p 8080 -i 60
       ```
 
-3. Login to virtual machine  `G10-branch1-vm` using same steps as described in step 1.
+3. Login to virtual machine  `G10-branch1Vm` using same steps as described in step 1.
 
-4. Run `G10-branch1-vm` as iperf client connecting to the iperf server `G10-hub1-vm` on a single thread
+4. Run `G10-branch1Vm` as iperf client connecting to the iperf server `G10-hub1-vm` on a single thread
 
       ```sh
       iperf3 -c 10.11.0.5 -t 900 -P 2 -l 8192 -p 8080

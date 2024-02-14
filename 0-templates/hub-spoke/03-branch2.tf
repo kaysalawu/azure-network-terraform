@@ -54,7 +54,8 @@ module "branch2" {
 module "branch2_dns" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.branch2_prefix}dns"
+  name            = "${local.prefix}-${local.branch2_dns_hostname}"
+  computer_name   = local.branch2_dns_hostname
   location        = local.branch2_location
   storage_account = module.common.storage_accounts["region1"]
   custom_data     = base64encode(local.branch_unbound_startup)
@@ -78,8 +79,8 @@ module "branch2_dns" {
 module "branch2_vm" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.branch2_prefix}vm"
-  computer_name   = "vm"
+  name            = "${local.prefix}-${local.branch2_vm_hostname}"
+  computer_name   = local.branch2_vm_hostname
   location        = local.branch2_location
   storage_account = module.common.storage_accounts["region1"]
   dns_servers     = [local.branch2_dns_addr, ]

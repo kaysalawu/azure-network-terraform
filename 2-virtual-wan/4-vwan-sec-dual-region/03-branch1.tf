@@ -89,7 +89,8 @@ module "branch1_unbound_init" {
 module "branch1_dns" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.branch1_prefix}dns"
+  name            = "${local.prefix}-${local.branch1_dns_hostname}"
+  computer_name   = local.branch1_dns_hostname
   location        = local.branch1_location
   storage_account = module.common.storage_accounts["region1"]
   custom_data     = base64encode(local.branch1_unbound_startup)
@@ -248,7 +249,8 @@ locals {
 module "branch1_nva" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.branch1_prefix}nva"
+  name            = "${local.prefix}-${local.branch1_nva_hostname}"
+  computer_name   = local.branch1_nva_hostname
   location        = local.branch1_location
   storage_account = module.common.storage_accounts["region1"]
   custom_data     = base64encode(local.branch1_nva_init)
@@ -290,8 +292,8 @@ locals {
 module "branch1_vm" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.branch1_prefix}vm"
-  computer_name   = "vm"
+  name            = "${local.prefix}-${local.branch1_vm_hostname}"
+  computer_name   = local.branch1_vm_hostname
   location        = local.branch1_location
   storage_account = module.common.storage_accounts["region1"]
   dns_servers     = [local.branch1_dns_addr, ]
@@ -353,9 +355,9 @@ module "branch1_udr_main" {
 
 locals {
   branch1_files = {
-    "output/branch1-unbound.sh" = local.branch1_unbound_startup
-    "output/branch1-nva.sh"     = local.branch1_nva_init
-    "output/branch1-vm.sh"      = local.branch1_vm_init
+    "output/branch1Dns.sh" = local.branch1_unbound_startup
+    "output/branch1Nva.sh" = local.branch1_nva_init
+    "output/branch1Vm.sh"  = local.branch1_vm_init
   }
 }
 

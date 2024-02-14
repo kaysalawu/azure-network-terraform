@@ -288,7 +288,7 @@ resource "azurerm_route_server_bgp_connection" "branch1_ars_bgp_conn" {
 
 locals {
   branch1_files = {
-    "output/branch1-nva.sh" = local.branch1_nva_init
+    "output/branch1Nva.sh" = local.branch1_nva_init
   }
 }
 

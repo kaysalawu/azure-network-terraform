@@ -13,7 +13,7 @@
 | UntrustSubnet   | 10.10.1.0/24   |
 | - | -  |
 | VM_IP   | 10.10.0.5   |
-| VM_NAME   | Vwan22-branch1-vm   |
+| VM_NAME   | Vwan22-branch1Vm   |
 | VNET_NAME   | Vwan22-branch1-vnet   |
 | VNET_RANGES   | 10.10.0.0/20, 10.10.16.0/20   |
 
@@ -30,7 +30,7 @@
 | UntrustSubnet   | 10.30.1.0/24   |
 | - | -  |
 | VM_IP   | 10.30.0.5   |
-| VM_NAME   | Vwan22-branch3-vm   |
+| VM_NAME   | Vwan22-branch3Vm   |
 | VNET_NAME   | Vwan22-branch3-vnet   |
 | VNET_RANGES   | 10.30.0.0/20, 10.30.16.0/20   |
 
@@ -43,7 +43,7 @@
 | PRIVATELINK_SERVICE_ENDPOINT_DNS   | spoke3pls.hub1.az.corp   |
 | PRIVATELINK_SERVICE_ENDPOINT_IP   | 10.11.7.88   |
 | PRIVATE_DNS_INBOUND_IP   | 10.11.8.4   |
-| SPOKE3_BLOB_URL (Sample)   | https://vwan22spoke3sa97e7.blob.core.windows.net/spoke3/spoke3.txt   |
+| SPOKE3_BLOB_URL (Sample)   | https://vwan22spoke3sa15e5.blob.core.windows.net/spoke3/spoke3.txt   |
 | *Subnets*|        |
 | AppGatewaySubnet   | 10.11.4.0/24   |
 | AppServiceSubnet   | 10.11.13.0/24   |
@@ -75,7 +75,7 @@
 | PRIVATELINK_SERVICE_ENDPOINT_DNS   | spoke6pls.hub2.az.corp   |
 | PRIVATELINK_SERVICE_ENDPOINT_IP   | 10.22.7.88   |
 | PRIVATE_DNS_INBOUND_IP   | 10.22.8.4   |
-| SPOKE6_BLOB_URL (Sample)   | https://vwan22spoke6sa97e7.blob.core.windows.net/spoke6/spoke6.txt   |
+| SPOKE6_BLOB_URL (Sample)   | https://vwan22spoke6sa15e5.blob.core.windows.net/spoke6/spoke6.txt   |
 | *Subnets*|        |
 | AppGatewaySubnet   | 10.22.4.0/24   |
 | AppServiceSubnet   | 10.22.13.0/24   |

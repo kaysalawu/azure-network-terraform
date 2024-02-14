@@ -697,8 +697,8 @@ locals {
 
 locals {
   main_files = {
-    "output/branch1-unbound.sh" = local.branch1_unbound_startup
-    "output/server.sh"          = local.vm_startup
+    "output/branch1Dns.sh" = local.branch1_unbound_startup
+    "output/server.sh"     = local.vm_startup
   }
 }
 

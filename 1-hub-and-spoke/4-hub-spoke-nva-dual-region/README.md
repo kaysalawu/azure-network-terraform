@@ -41,7 +41,7 @@ Each branch connects to Vnet spokes in their local regions through the directly 
 
 ## Prerequisites
 
-Ensure you meet all requirements in the [prerequisites](../../prerequisites/) before proceeding.
+Ensure you meet all requirements in the [prerequisites](../../prerequisites/README.md) before proceeding.
 
 ## Deploy the Lab
 
@@ -77,8 +77,8 @@ The table below shows the auto-generated output files from the lab. They are loc
 |--------|--------|--------|
 | IP ranges and DNS | IP ranges and DNS hostname values | [output/values.md](./output/values.md) |
 | Branch DNS Server | Unbound DNS server configuration showing on-premises authoritative zones and conditional forwarding to hub private DNS resolver endpoint | [output/branch-unbound.sh](./output/branch-unbound.sh) |
-| Branch1 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch1-nva.sh](./output/branch1-nva.sh) |
-| Branch3 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch3-nva.sh](./output/branch3-nva.sh) |
+| Branch1 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch1Nva.sh](./output/branch1Nva.sh) |
+| Branch3 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch3Nva.sh](./output/branch3Nva.sh) |
 | Hub1 NVA | Linux NVA configuration. | [output/hub1-linux-nva.sh](./output/hub1-linux-nva.sh) |
 | Hub2 NVA | Linux NVA configuration. | [output/hub2-linux-nva.sh](./output/hub2-linux-nva.sh) |
 | Web server for workload VMs | Python Flask web server and various test and debug scripts | [output/server.sh](./output/server.sh) |
@@ -108,15 +108,15 @@ To view the dashboards, follow the steps below:
 
 Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of network reachability tests. Serial console access has been configured for all virtual machines. You can [access the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal) of a virtual machine from the Azure portal.
 
-Login to virtual machine `Hs14-spoke1-vm` via the serial console:
+Login to virtual machine `Hs14-spoke1Vm` via the serial console:
 
 - On Azure portal select *Virtual machines*
-- Select the virtual machine `Hs14-spoke1-vm`
+- Select the virtual machine `Hs14-spoke1Vm`
 - Under ***Help*** section, select ***Serial console*** and wait for a login prompt
 - Enter the login credentials
   - username = ***azureuser***
   - password = ***Password123***
-- You should now be in a shell session `azureuser@Hs14-spoke1-vm:~$`
+- You should now be in a shell session `azureuser@Hs14-spoke1Vm:~$`
 
 Run the following tests from inside the serial console session.
 
@@ -133,7 +133,7 @@ ping-ip
 Sample output
 
 ```sh
-azureuser@Hs14-spoke1-vm:~$ ping-ip
+azureuser@Hs14-spoke1Vm:~$ ping-ip
 
  ping ip ...
 
@@ -161,7 +161,7 @@ ping-dns
 Sample output
 
 ```sh
-azureuser@Hs14-spoke1-vm:~$ ping-dns
+azureuser@Hs14-spoke1Vm:~$ ping-dns
 
  ping dns ...
 
@@ -189,7 +189,7 @@ curl-dns
 Sample output
 
 ```sh
-azureuser@Hs14-spoke1-vm:~$ curl-dns
+azureuser@Hs14-spoke1Vm:~$ curl-dns
 
  curl dns ...
 
@@ -223,7 +223,7 @@ curl spoke3pls.eu.az.corp
 Sample output
 
 ```sh
-azureuser@Hs14-spoke1-vm:~$ curl spoke3pls.eu.az.corp
+azureuser@Hs14-spoke1Vm:~$ curl spoke3pls.eu.az.corp
 {
   "Headers": {
     "Accept": "*/*",
@@ -245,7 +245,7 @@ curl spoke6pls.us.az.corp
 Sample output
 
 ```sh
-azureuser@Hs14-spoke1-vm:~$ curl spoke6pls.us.az.corp
+azureuser@Hs14-spoke1Vm:~$ curl spoke6pls.us.az.corp
 {
   "Headers": {
     "Accept": "*/*",
@@ -355,7 +355,7 @@ Observe that we are connecting from our local client's public IP address (140.22
 
 **6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `hs14-spoke3-575a.azurewebsites.net`.
 
-**6.2.** Connect to the on-premises server `Hs14-branch1-vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Hs14-branch1-vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
+**6.2.** Connect to the on-premises server `Hs14-branch1Vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Hs14-branch1Vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
 
 **6.3.** Resolve the hostname DNS - which is `hs14-spoke3-575a.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
 
@@ -366,7 +366,7 @@ nslookup hs14-spoke3-<AAAA>.azurewebsites.net
 Sample output
 
 ```sh
-azureuser@Hs14-branch1-vm:~$ nslookup hs14-spoke3-575a.azurewebsites.net
+azureuser@Hs14-branch1Vm:~$ nslookup hs14-spoke3-575a.azurewebsites.net
 Server:         127.0.0.53
 Address:        127.0.0.53#53
 
@@ -376,9 +376,9 @@ Name:   hs14-spoke3-575a-app.privatelink.azurewebsites.net
 Address: 10.11.7.5
 ```
 
-We can see that the app service hostname resolves to the private endpoint ***10.11.7.5*** in ***hub1***. The following is a summary of the DNS resolution from `Hs14-branch1-vm`:
+We can see that the app service hostname resolves to the private endpoint ***10.11.7.5*** in ***hub1***. The following is a summary of the DNS resolution from `Hs14-branch1Vm`:
 
-- On-premises server `Hs14-branch1-vm` makes a DNS request for `hs14-spoke3-575a.azurewebsites.net`
+- On-premises server `Hs14-branch1Vm` makes a DNS request for `hs14-spoke3-575a.azurewebsites.net`
 - The request is received by on-premises DNS server `Hs14-branch1-dns`
 - The DNS server resolves `hs14-spoke3-575a.azurewebsites.net` to the CNAME `hs14-spoke3-575a-app.privatelink.azurewebsites.net`
 - The DNS server has a conditional DNS forwarding defined in the [unbound DNS configuration file](./output/branch-unbound.sh).
@@ -393,7 +393,7 @@ We can see that the app service hostname resolves to the private endpoint ***10.
   DNS Requests matching `privatelink.azurewebsites.net` will be forwarded to the private DNS resolver inbound endpoint in ***hub1*** (10.11.8.4). The DNS resolver inbound endpoint for ***hub2*** (10.22.8.4) is also included for redundancy.
 - The DNS server forwards the DNS request to the private DNS resolver inbound endpoint in ***hub1*** - which returns the IP address of the app service private endpoint in ***hub1*** (10.11.7.5)
 
-**6.4.** From `Hs14-branch1-vm`, test access to the ***spoke3*** app service via the private endpoint. Use your actual hostname.
+**6.4.** From `Hs14-branch1Vm`, test access to the ***spoke3*** app service via the private endpoint. Use your actual hostname.
 
 ```sh
 curl hs14-spoke3-<AAAA>.azurewebsites.net
@@ -402,7 +402,7 @@ curl hs14-spoke3-<AAAA>.azurewebsites.net
 Sample output
 
 ```sh
-azureuser@Hs14-branch1-vm:~$ curl hs14-spoke3-575a.azurewebsites.net
+azureuser@Hs14-branch1Vm:~$ curl hs14-spoke3-575a.azurewebsites.net
 {
   "Headers": {
     "Accept": "*/*",
@@ -426,23 +426,23 @@ azureuser@Hs14-branch1-vm:~$ curl hs14-spoke3-575a.azurewebsites.net
 }
 ```
 
-Observe that we are connecting from the private IP address of `Hs14-branch1-vm` (10.10.0.5) specified in the `X-Client-Ip`.
+Observe that we are connecting from the private IP address of `Hs14-branch1Vm` (10.10.0.5) specified in the `X-Client-Ip`.
 
 ### 7. Network Virtual Appliance (NVA)
 
-Whilst still logged into the on-premises server `Hs14-branch1-vm` via the serial console, we will test connectivity to all virtual machines using a `trace-ip` script using the linux `tracepath` utility.
+Whilst still logged into the on-premises server `Hs14-branch1Vm` via the serial console, we will test connectivity to all virtual machines using a `trace-ip` script using the linux `tracepath` utility.
 
 **7.1.** Run the `trace-ip` script
 
 ```sh
-azureuser@Hs14-branch1-vm:~$ trace-ip
+azureuser@Hs14-branch1Vm:~$ trace-ip
 
  trace ip ...
 
 
 branch1
 -------------------------------------
- 1:  Hs14-branch1-vm                                       0.076ms reached
+ 1:  Hs14-branch1Vm                                       0.076ms reached
      Resume: pmtu 65535 hops 1 back 1
 
 hub1
@@ -529,9 +529,9 @@ We can observe that traffic to ***spoke1***, ***spoke2*** and ***hub1*** flow sy
 
 ### 8. On-premises Routes
 
-Login to the onprem router `Hs14-branch1-nva` in order to observe its dynamic routes.
+Login to the onprem router `Hs14-branch1Nva` in order to observe its dynamic routes.
 
-**8.1.** Login to virtual machine `Hs14-branch1-nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal).
+**8.1.** Login to virtual machine `Hs14-branch1Nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal).
 
 **8.2.** Enter username and password
 
@@ -553,7 +553,7 @@ show ip route
 Sample output
 
 ```sh
-Hs14-branch1-nva-vm#show ip route
+Hs14-branch1Nva#show ip route
 ...
 [Truncated for brevity]
 ...
@@ -602,7 +602,7 @@ show ip bgp
 Sample output
 
 ```sh
-Hs14-branch1-nva-vm#show ip bgp
+Hs14-branch1Nva#show ip bgp
 BGP table version is 9, local router ID is 192.168.10.10
 Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
               r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
