@@ -355,6 +355,7 @@ module "branch1_udr_main" {
 
 locals {
   branch1_files = {
+    "output/branch1Dns.sh" = local.branch1_unbound_startup
     "output/branch1Nva.sh" = local.branch1_nva_init
     "output/branch1Vm.sh"  = local.branch1_vm_init
   }

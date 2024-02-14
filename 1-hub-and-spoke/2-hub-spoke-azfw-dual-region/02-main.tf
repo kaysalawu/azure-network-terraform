@@ -531,9 +531,7 @@ module "fw_policy_rule_collection_group" {
 
 locals {
   main_files = {
-    "output/branch1Dns.sh" = local.branch1_unbound_startup
-    "output/branch3Dns.sh" = local.branch3_unbound_startup
-    "output/server.sh"     = local.vm_startup
+    "output/server.sh" = local.vm_startup
   }
 }
 

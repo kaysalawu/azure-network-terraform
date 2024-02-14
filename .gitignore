@@ -17,7 +17,6 @@ modulez/
 # Other files
 *rendered
 *keys/
-*test/
 *credentials/
 plugins/
 *plugins/

@@ -9,7 +9,6 @@ locals {
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
   spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
 
-
   hub1_tags    = { "lab" = local.prefix, "nodeType" = "hub" }
   branch1_tags = { "lab" = local.prefix, "nodeType" = "branch" }
   branch2_tags = { "lab" = local.prefix, "nodeType" = "branch" }
@@ -371,8 +370,7 @@ module "fw_policy_rule_collection_group" {
 
 locals {
   main_files = {
-    "output/branch1Dns.sh" = local.branch1_unbound_startup
-    "output/server.sh"     = local.vm_startup
+    "output/server.sh" = local.vm_startup
   }
 }
 
