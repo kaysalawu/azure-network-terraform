@@ -17,7 +17,7 @@ Related articles and documentation:
 * [Optimize ExpressRoute Routing](https://learn.microsoft.com/en-us/azure/expressroute/expressroute-optimize-routing)
 * [How can I ensure high availability for a virtual network connected to ExpressRoute?](https://learn.microsoft.com/en-us/azure/expressroute/expressroute-faqs#how-can-i-ensure-high-availability-for-a-virtual-network-connected-to-expressroute)
 
-  <img src="../../images/general/11/01-topology.png" alt="er-ecmp-topology" width="600">
+  <img src="../../images/general/11/01-topology.png" alt="er-ecmp-topology" width="550">
 
 ## Prerequisites
 
