@@ -7,13 +7,15 @@
 #----------------------------
 
 module "branch3" {
-  source             = "../../modules/base"
-  resource_group     = azurerm_resource_group.rg.name
-  prefix             = trimsuffix(local.branch3_prefix, "-")
-  location           = local.branch3_location
-  storage_account    = module.common.storage_accounts["region2"]
+  source            = "../../modules/base"
+  resource_group    = azurerm_resource_group.rg.name
+  prefix            = trimsuffix(local.branch3_prefix, "-")
+  location          = local.branch3_location
+  storage_account   = module.common.storage_accounts["region2"]
+  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
+  tags              = local.branch3_tags
+
   enable_diagnostics = local.enable_diagnostics
-  tags               = local.branch3_tags
 
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region2"].id
@@ -256,7 +258,12 @@ module "branch3_nva" {
   custom_data     = base64encode(local.branch3_nva_init)
   identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
   tags            = local.branch3_tags
-  source_image    = "cisco-csr-1000v"
+
+  source_image_publisher = "cisco"
+  source_image_offer     = "cisco-c8000v"
+  source_image_sku       = "17_11_01a-byol"
+  source_image_version   = "latest"
+  enable_plan            = true
 
   enable_ip_forwarding = true
   interfaces = [

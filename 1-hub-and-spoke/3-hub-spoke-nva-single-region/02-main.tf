@@ -165,7 +165,7 @@ locals {
 
     config_nva = {
       enable           = true
-      type             = "linux"
+      type             = "opnsense"
       internal_lb_addr = local.hub1_nva_ilb_addr
       custom_data      = base64encode(local.hub1_linux_nva_init)
     }

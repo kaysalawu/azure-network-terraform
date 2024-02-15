@@ -126,13 +126,37 @@ variable "dns_servers" {
   default     = null
 }
 
-variable "source_image" {
-  description = "source image"
+variable "source_image_publisher" {
+  description = "source image reference publisher"
   type        = string
-  default     = "ubuntu-20"
+  default     = "Canonical"
 }
 
-variable "source_image_reference" {
+variable "source_image_offer" {
+  description = "source image reference offer"
+  type        = string
+  default     = "0001-com-ubuntu-server-focal"
+}
+
+variable "source_image_sku" {
+  description = "source image reference sku"
+  type        = string
+  default     = "20_04-lts"
+}
+
+variable "source_image_version" {
+  description = "source image reference version"
+  type        = string
+  default     = "latest"
+}
+
+variable "enable_plan" {
+  description = "enable plan"
+  type        = bool
+  default     = false
+}
+
+variable "source_image_reference_library" {
   description = "source image reference"
   type        = map(any)
   default = {
@@ -172,7 +196,23 @@ variable "source_image_reference" {
       sku       = "10"
       version   = "0.20201013.422"
     }
+    "freebsd-13" = {
+      publisher = "thefreebsdfoundation"
+      offer     = "freebsd-13_1"
+      sku       = "13_1-release"
+      version   = "latest"
+    }
   }
+}
+
+variable "images_with_plan" {
+  description = "images with plan"
+  type        = list(string)
+  default = [
+    "cisco-csr-1000v",
+    "cisco-c8000v",
+    "freebsd-13"
+  ]
 }
 
 variable "log_analytics_workspace_name" {
@@ -180,3 +220,40 @@ variable "log_analytics_workspace_name" {
   type        = string
   default     = null
 }
+
+variable "use_vm_extension" {
+  description = "use virtual machine extension"
+  type        = bool
+  default     = false
+}
+
+variable "vm_extension_publisher" {
+  description = "vm extension publisher"
+  type        = string
+  default     = "Microsoft.OSTCExtensions"
+}
+
+variable "vm_extension_type" {
+  description = "vm extension type"
+  type        = string
+  default     = "CustomScriptForLinux"
+}
+
+variable "vm_extension_type_handler_version" {
+  description = "vm extension type"
+  type        = string
+  default     = "1.5"
+}
+
+variable "vm_extension_settings" {
+  description = "vm extension settings"
+  type        = string
+  default     = ""
+}
+
+variable "vm_extension_auto_upgrade_minor_version" {
+  description = "vm extension settings"
+  type        = bool
+  default     = true
+}
+

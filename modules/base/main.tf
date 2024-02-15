@@ -379,8 +379,8 @@ module "nva_linux" {
   name            = "${local.prefix}nva"
   location        = var.location
   storage_account = var.storage_account
-  source_image    = "ubuntu-20"
-  custom_data     = var.config_nva.custom_data
+  #source_image    = "ubuntu-20"
+  custom_data = var.config_nva.custom_data
 
   #log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 
@@ -465,22 +465,56 @@ module "ilb_nva_linux" {
 # opnsense
 #----------------------------
 
-module "opns0" {
-  count          = var.config_nva.enable && var.config_nva.type == "opnsense" ? 1 : 0
-  source         = "../../modules/opnsense"
-  resource_group = var.resource_group
-  prefix         = trimsuffix(local.prefix, "-")
-  name           = "opns0"
-  location       = var.location
+locals {
+  params_opnsense = {
+    ShellScriptName               = var.shell_script_name
+    OpnScriptURI                  = var.opn_script_uri
+    OpnVersion                    = var.opn_version
+    WALinuxVersion                = var.walinux_version
+    OpnType                       = var.opn_type
+    TrustedSubnetAddressPrefix    = var.trusted_subnet_address_prefix
+    WindowsVmSubnetAddressPrefix  = var.deploy_windows_mgmt ? var.mgmt_subnet_address_prefix : "1.1.1.1/32"
+    publicIPAddress               = "azurerm_public_ip.this.ip_address"
+    opnSenseSecondarytrustedNicIP = var.scenario_option == "Active-Active" ? "SOME" : ""
+  }
+  settings_opnsense = templatefile("${path.module}/templates/settings.tpl", local.params_opnsense)
+}
 
-  untrust_subnet_id = azurerm_subnet.this["UntrustSubnet"].id
-  trust_subnet_id   = azurerm_subnet.this["TrustSubnet"].id
+# resource "local_file" "params_opnsense" {
+#   count    = var.config_nva.enable && var.config_nva.type == "opnsense" ? 1 : 0
+#   filename = "settings.json"
+#   content  = local.settings_opnsense
+# }
 
-  scenario_option               = "TwoNics"
-  opn_type                      = "TwnoNics"
-  deploy_windows_mgmt           = false
-  mgmt_subnet_address_prefix    = azurerm_subnet.this["ManagementSubnet"].address_prefixes[0]
-  trusted_subnet_address_prefix = azurerm_subnet.this["TrustSubnet"].address_prefixes[0]
+module "opnsense" {
+  count           = var.config_nva.enable && var.config_nva.type == "opnsense" ? 1 : 0
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = var.resource_group
+  name            = "${local.prefix}opns-${count.index}"
+  location        = var.location
+  storage_account = var.storage_account
+  identity_ids    = var.user_assigned_ids
+
+  source_image_publisher = "thefreebsdfoundation"
+  source_image_offer     = "freebsd-13_1"
+  source_image_sku       = "13_1-release"
+  source_image_version   = "latest"
+  enable_plan            = true
+
+  use_vm_extension      = true
+  vm_extension_settings = local.settings_opnsense
+
+
+  interfaces = [
+    {
+      name      = "${local.prefix}opns-untrust-nic"
+      subnet_id = azurerm_subnet.this["UntrustSubnet"].id
+    },
+    {
+      name      = "${local.prefix}opns-trust-nic"
+      subnet_id = azurerm_subnet.this["TrustSubnet"].id
+    },
+  ]
 
   depends_on = [
     azurerm_subnet.this,

@@ -25,6 +25,7 @@ resource "azurerm_public_ip" "this" {
   location            = var.location
   sku                 = "Standard"
   allocation_method   = "Static"
+  zones               = [1, 2, 3]
   tags                = var.tags
 }
 
@@ -71,7 +72,7 @@ resource "azurerm_linux_virtual_machine" "this" {
   zone                = var.zone
   size                = var.vm_size
   tags                = var.tags
-  custom_data         = var.custom_data
+  custom_data         = var.use_vm_extension ? null : var.custom_data
 
   network_interface_ids = [
     for i in var.interfaces : azurerm_network_interface.this[i.name].id
@@ -83,17 +84,17 @@ resource "azurerm_linux_virtual_machine" "this" {
     storage_account_type = "Standard_LRS"
   }
   source_image_reference {
-    publisher = var.source_image_reference[var.source_image].publisher
-    offer     = var.source_image_reference[var.source_image].offer
-    sku       = var.source_image_reference[var.source_image].sku
-    version   = var.source_image_reference[var.source_image].version
+    publisher = var.source_image_publisher
+    offer     = var.source_image_offer
+    sku       = var.source_image_sku
+    version   = var.source_image_version
   }
   dynamic "plan" {
-    for_each = length(regexall("cisco", var.source_image)) > 0 ? [var.source_image_reference[var.source_image]] : []
+    for_each = var.enable_plan ? [1] : []
     content {
-      publisher = plan.value.publisher
-      product   = plan.value.offer
-      name      = plan.value.sku
+      publisher = var.source_image_publisher
+      product   = var.source_image_offer
+      name      = var.source_image_sku
     }
   }
   computer_name  = var.computer_name == "" ? local.name : var.computer_name
@@ -124,3 +125,17 @@ resource "azurerm_linux_virtual_machine" "this" {
   }
 }
 
+####################################################
+# virtual machine extension
+####################################################
+
+resource "azurerm_virtual_machine_extension" "this" {
+  count                      = var.use_vm_extension ? 1 : 0
+  name                       = local.name
+  virtual_machine_id         = azurerm_linux_virtual_machine.this.id
+  publisher                  = var.vm_extension_publisher
+  type                       = var.vm_extension_type
+  type_handler_version       = var.vm_extension_type_handler_version
+  settings                   = var.vm_extension_settings
+  auto_upgrade_minor_version = var.vm_extension_auto_upgrade_minor_version
+}

@@ -277,3 +277,66 @@ variable "delegation" {
     }
   ]
 }
+
+variable "user_assigned_ids" {
+  description = "resource ids of user assigned identity"
+  type        = list(string)
+  default     = []
+}
+
+# opnsense parameters
+#--------------------------------------------------
+
+variable "opn_script_uri" {
+  description = "URI for Custom OPN Script and Config"
+  type        = string
+  default     = "https://raw.githubusercontent.com/dmauser/opnazure/master/scripts/"
+}
+
+variable "shell_script_name" {
+  description = "Shell Script to be executed"
+  type        = string
+  default     = "configureopnsense.sh"
+}
+
+variable "opn_version" {
+  description = "OPN Version"
+  type        = string
+  default     = "23.7"
+}
+
+variable "walinux_version" {
+  description = "WALinuxAgent Version"
+  type        = string
+  default     = "2.9.1.1"
+}
+
+variable "scenario_option" {
+  description = "scenario_option = Active-Active, TwnoNics"
+  type        = string
+  default     = "TwnoNics"
+}
+
+variable "opn_type" {
+  description = "opn type = Primary, Secondary, TwnoNics"
+  type        = string
+  default     = "TwnoNics"
+}
+
+variable "deploy_windows_mgmt" {
+  description = "deploy windows management vm in a management subnet"
+  type        = bool
+  default     = false
+}
+
+variable "mgmt_subnet_address_prefix" {
+  description = "management subnet address prefix"
+  type        = string
+  default     = ""
+}
+
+variable "trusted_subnet_address_prefix" {
+  description = "trusted subnet address prefix"
+  type        = string
+  default     = ""
+}
