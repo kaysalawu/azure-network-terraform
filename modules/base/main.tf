@@ -466,6 +466,7 @@ module "ilb_nva_linux" {
 #----------------------------
 
 locals {
+  settings_opnsense = templatefile("${path.module}/templates/settings.tpl", local.params_opnsense)
   params_opnsense = {
     ShellScriptName               = var.shell_script_name
     OpnScriptURI                  = var.opn_script_uri
@@ -474,20 +475,49 @@ locals {
     OpnType                       = var.opn_type
     TrustedSubnetAddressPrefix    = var.trusted_subnet_address_prefix
     WindowsVmSubnetAddressPrefix  = var.deploy_windows_mgmt ? var.mgmt_subnet_address_prefix : "1.1.1.1/32"
-    publicIPAddress               = "azurerm_public_ip.this.ip_address"
+    publicIPAddress               = length(azurerm_public_ip.opnsense) > 0 ? azurerm_public_ip.opnsense[0].ip_address : ""
     opnSenseSecondarytrustedNicIP = var.scenario_option == "Active-Active" ? "SOME" : ""
   }
-  settings_opnsense = templatefile("${path.module}/templates/settings.tpl", local.params_opnsense)
 }
 
-# resource "local_file" "params_opnsense" {
-#   count    = var.config_nva.enable && var.config_nva.type == "opnsense" ? 1 : 0
-#   filename = "settings.json"
-#   content  = local.settings_opnsense
-# }
+resource "local_file" "params_opnsense" {
+  count = (var.config_nva.enable && var.config_nva.type == "opnsense" ?
+    var.config_nva.scenario_option == "Active-Active" ? 2 :
+    var.config_nva.scenario_option == "TwoNics" ? 1 :
+    0 : 0
+  )
+  filename = "settings.json"
+  content  = local.settings_opnsense
+}
+
+# ip addresses
+
+resource "azurerm_public_ip" "opnsense" {
+  count = (var.config_nva.enable && var.config_nva.type == "opnsense" ?
+    var.config_nva.scenario_option == "Active-Active" ? 2 :
+    var.config_nva.scenario_option == "TwoNics" ? 1 :
+    0 : 0
+  )
+  resource_group_name = var.resource_group
+  name                = "${local.prefix}opns-${count.index}"
+  location            = var.location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+  zones               = [1, 2, 3]
+  timeouts {
+    create = "60m"
+  }
+  tags = var.tags
+}
+
+# appliances
 
 module "opnsense" {
-  count           = var.config_nva.enable && var.config_nva.type == "opnsense" ? 1 : 0
+  count = (var.config_nva.enable && var.config_nva.type == "opnsense" ?
+    var.config_nva.scenario_option == "Active-Active" ? 2 :
+    var.config_nva.scenario_option == "TwoNics" ? 1 :
+    0 : 0
+  )
   source          = "../../modules/virtual-machine-linux"
   resource_group  = var.resource_group
   name            = "${local.prefix}opns-${count.index}"
@@ -507,8 +537,9 @@ module "opnsense" {
 
   interfaces = [
     {
-      name      = "${local.prefix}opns-untrust-nic"
-      subnet_id = azurerm_subnet.this["UntrustSubnet"].id
+      name                 = "${local.prefix}opns-untrust-nic"
+      subnet_id            = azurerm_subnet.this["UntrustSubnet"].id
+      public_ip_address_id = azurerm_public_ip.opnsense[count.index].id
     },
     {
       name      = "${local.prefix}opns-trust-nic"

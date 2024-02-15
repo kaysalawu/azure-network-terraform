@@ -216,10 +216,10 @@ module "branch1_nva" {
 
   interfaces = [
     {
-      name               = "untrust"
-      subnet_id          = module.branch1.subnets["UntrustSubnet"].id
-      private_ip_address = local.branch1_nva_untrust_addr
-      public_ip_id       = azurerm_public_ip.branch1_nva_pip.id
+      name                 = "untrust"
+      subnet_id            = module.branch1.subnets["UntrustSubnet"].id
+      private_ip_address   = local.branch1_nva_untrust_addr
+      public_ip_address_id = azurerm_public_ip.branch1_nva_pip.id
     },
     {
       name               = "trust"

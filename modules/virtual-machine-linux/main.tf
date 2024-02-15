@@ -49,7 +49,7 @@ resource "azurerm_network_interface" "this" {
     private_ip_address            = try(each.value.private_ip_address, null) != null ? each.value.private_ip_address : null
     public_ip_address_id = (
       try(each.value.create_public_ip, false) ? azurerm_public_ip.this[each.key].id :
-      try(each.value.public_ip_id, null) != null ? each.value.public_ip_id :
+      try(each.value.public_ip_address_id, null) != null ? each.value.public_ip_address_id :
       null
     )
   }

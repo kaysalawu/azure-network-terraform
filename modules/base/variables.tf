@@ -239,6 +239,7 @@ variable "config_nva" {
     type             = optional(string, "cisco")
     internal_lb_addr = optional(string)
     custom_data      = optional(string)
+    scenario_option  = optional(string, "TwoNics") # Active-Active, TwoNics
   })
   default = {
     enable           = false
@@ -312,15 +313,15 @@ variable "walinux_version" {
 }
 
 variable "scenario_option" {
-  description = "scenario_option = Active-Active, TwnoNics"
+  description = "scenario_option = Active-Active, TwoNics"
   type        = string
-  default     = "TwnoNics"
+  default     = "TwoNics"
 }
 
 variable "opn_type" {
-  description = "opn type = Primary, Secondary, TwnoNics"
+  description = "opn type = Primary, Secondary, TwoNics"
   type        = string
-  default     = "TwnoNics"
+  default     = "TwoNics"
 }
 
 variable "deploy_windows_mgmt" {

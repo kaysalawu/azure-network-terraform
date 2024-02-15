@@ -46,11 +46,11 @@ variable "zone" {
 
 variable "interfaces" {
   type = list(object({
-    name               = string
-    subnet_id          = string
-    private_ip_address = optional(string, null)
-    create_public_ip   = optional(bool, false)
-    public_ip_id       = optional(string, null)
+    name                 = string
+    subnet_id            = string
+    private_ip_address   = optional(string, null)
+    create_public_ip     = optional(bool, false)
+    public_ip_address_id = optional(string, null)
   }))
 }
 
