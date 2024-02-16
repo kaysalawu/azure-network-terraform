@@ -73,7 +73,7 @@ module "hub2_appliance_udr" {
     name                   = r.name
     address_prefix         = r.address_prefix
     next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = local.hub1_nva_ilb_addr
+    next_hop_in_ip_address = local.hub1_nva_ilb_untrust_addr
   }]
   depends_on = [
     module.hub2,

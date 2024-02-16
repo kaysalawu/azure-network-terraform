@@ -163,7 +163,7 @@ locals {
     config_nva = {
       enable           = true
       type             = "linux"
-      internal_lb_addr = local.hub1_nva_ilb_addr
+      internal_lb_addr = local.hub1_nva_ilb_untrust_addr
       custom_data      = base64encode(local.hub1_linux_nva_init)
     }
   }
@@ -566,7 +566,7 @@ locals {
     LOCAL_ASN = local.hub1_nva_asn
     LOOPBACK0 = local.hub1_nva_loopback0
     LOOPBACKS = {
-      Loopback1 = local.hub1_nva_ilb_addr
+      Loopback1 = local.hub1_nva_ilb_untrust_addr
     }
     CRYPTO_ADDR = local.hub1_nva_trust_addr
     VPN_PSK     = local.psk
@@ -581,7 +581,7 @@ locals {
         rule   = 100
         commands = [
           # "match ip address prefix-list all",
-          # "set ip next-hop ${local.hub1_nva_ilb_addr}"
+          # "set ip next-hop ${local.hub1_nva_ilb_untrust_addr}"
         ]
       }
     ]

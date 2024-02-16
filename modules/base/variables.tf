@@ -235,11 +235,12 @@ variable "config_firewall" {
 
 variable "config_nva" {
   type = object({
-    enable           = optional(bool, false)
-    type             = optional(string, "cisco")
-    internal_lb_addr = optional(string)
-    custom_data      = optional(string)
-    scenario_option  = optional(string, "TwoNics") # Active-Active, TwoNics
+    enable          = optional(bool, false)
+    type            = optional(string, "cisco")
+    ilb_untrust_ip  = optional(string)
+    ilb_trust_ip    = optional(string)
+    custom_data     = optional(string)
+    scenario_option = optional(string, "TwoNics") # Active-Active, TwoNics
   })
   default = {
     enable           = false
@@ -285,59 +286,27 @@ variable "user_assigned_ids" {
   default     = []
 }
 
-# opnsense parameters
-#--------------------------------------------------
-
-variable "opn_script_uri" {
-  description = "URI for Custom OPN Script and Config"
-  type        = string
-  default     = "https://raw.githubusercontent.com/dmauser/opnazure/master/scripts/"
-}
-
-variable "shell_script_name" {
-  description = "Shell Script to be executed"
-  type        = string
-  default     = "configureopnsense.sh"
-}
-
-variable "opn_version" {
-  description = "OPN Version"
-  type        = string
-  default     = "23.7"
-}
-
-variable "walinux_version" {
-  description = "WALinuxAgent Version"
-  type        = string
-  default     = "2.9.1.1"
-}
-
-variable "scenario_option" {
-  description = "scenario_option = Active-Active, TwoNics"
-  type        = string
-  default     = "TwoNics"
-}
-
-variable "opn_type" {
-  description = "opn type = Primary, Secondary, TwoNics"
-  type        = string
-  default     = "TwoNics"
-}
-
-variable "deploy_windows_mgmt" {
-  description = "deploy windows management vm in a management subnet"
-  type        = bool
-  default     = false
-}
-
-variable "mgmt_subnet_address_prefix" {
-  description = "management subnet address prefix"
-  type        = string
-  default     = ""
-}
-
-variable "trusted_subnet_address_prefix" {
-  description = "trusted subnet address prefix"
-  type        = string
-  default     = ""
+variable "nva_image" {
+  description = "source image reference"
+  type        = map(any)
+  default = {
+    "cisco" = {
+      publisher = "cisco"
+      offer     = "cisco-csr-1000v"
+      sku       = "17_3_4a-byol"
+      version   = "latest"
+    }
+    "linux" = {
+      publisher = "Canonical"
+      offer     = "0001-com-ubuntu-server-focal"
+      sku       = "20_04-lts"
+      version   = "latest"
+    }
+    "opnsense" = {
+      publisher = "thefreebsdfoundation"
+      offer     = "freebsd-13_1"
+      sku       = "13_1-release"
+      version   = "latest"
+    }
+  }
 }

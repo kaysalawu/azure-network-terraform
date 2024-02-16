@@ -367,35 +367,22 @@ module "azfw" {
 # nva
 ####################################################
 
-# linux
-#----------------------------
+module "nva" {
+  count          = var.config_nva.enable ? 1 : 0
+  source         = "../../modules/network-virtual-appliance"
+  resource_group = var.resource_group
+  prefix         = trimsuffix(local.prefix, "-")
+  name           = "nva"
+  location       = var.location
 
-# appliance
+  custom_data     = var.config_nva.custom_data
+  scenario_option = var.config_nva.scenario_option
 
-module "nva_linux" {
-  count           = var.config_nva.enable && var.config_nva.type == "linux" ? 1 : 0
-  source          = "../../modules/virtual-machine-linux"
-  resource_group  = var.resource_group
-  name            = "${local.prefix}nva"
-  location        = var.location
-  storage_account = var.storage_account
-  #source_image    = "ubuntu-20"
-  custom_data = var.config_nva.custom_data
-
-  #log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
-
-  enable_ip_forwarding = true
-  interfaces = [
-    {
-      name             = "${local.prefix}nva-untrust-nic"
-      subnet_id        = azurerm_subnet.this["UntrustSubnet"].id
-      create_public_ip = true
-    },
-    {
-      name      = "${local.prefix}nva-trust-nic"
-      subnet_id = azurerm_subnet.this["TrustSubnet"].id
-    },
-  ]
+  subnet_id_untrust  = azurerm_subnet.this["UntrustSubnet"].id
+  subnet_id_trust    = azurerm_subnet.this["TrustSubnet"].id
+  ilb_untrust_ip     = var.config_nva.ilb_untrust_ip
+  ilb_trust_ip       = var.config_nva.ilb_trust_ip
+  virtual_network_id = azurerm_virtual_network.this.id
 
   depends_on = [
     azurerm_subnet.this,
@@ -403,153 +390,246 @@ module "nva_linux" {
   ]
 }
 
+# # linux
+# #----------------------------
 
-# internal lb
+# # appliance
 
-module "ilb_nva_linux" {
-  count               = var.config_nva.enable && var.config_nva.type == "linux" ? 1 : 0
-  source              = "../../modules/azure-load-balancer"
-  resource_group_name = var.resource_group
-  location            = var.location
-  prefix              = trimsuffix(local.prefix, "-")
-  name                = "nva"
-  type                = "private"
-  lb_sku              = "Standard"
+# module "nva_linux" {
+#   count           = var.config_nva.enable && var.config_nva.type == "linux" ? 1 : 0
+#   source          = "../../modules/virtual-machine-linux"
+#   resource_group  = var.resource_group
+#   name            = "${local.prefix}nva"
+#   location        = var.location
+#   storage_account = var.storage_account
+#   #source_image    = "ubuntu-20"
+#   custom_data = var.config_nva.custom_data
 
-  frontend_ip_configuration = [
-    {
-      name                          = "nva"
-      zones                         = ["1", "2", "3"]
-      subnet_id                     = azurerm_subnet.this["LoadBalancerSubnet"].id
-      private_ip_address            = var.config_nva.internal_lb_addr
-      private_ip_address_allocation = "Static"
-    }
-  ]
+#   #log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 
-  probes = [
-    { name = "ssh", protocol = "Tcp", port = "22", request_path = "" },
-  ]
+#   enable_ip_forwarding = true
+#   interfaces = [
+#     {
+#       name             = "${local.prefix}nva-untrust-nic"
+#       subnet_id        = azurerm_subnet.this["UntrustSubnet"].id
+#       create_public_ip = true
+#     },
+#     {
+#       name      = "${local.prefix}nva-trust-nic"
+#       subnet_id = azurerm_subnet.this["TrustSubnet"].id
+#     },
+#   ]
 
-  backend_pools = [
-    {
-      name = "nva"
-      addresses = [
-        {
-          name               = module.nva_linux[0].vm.name
-          virtual_network_id = azurerm_virtual_network.this.id
-          ip_address         = module.nva_linux[0].interfaces["${local.prefix}nva-untrust-nic"].ip_configuration[0].private_ip_address
-        },
-      ]
-    }
-  ]
+#   depends_on = [
+#     azurerm_subnet.this,
+#     azurerm_subnet_network_security_group_association.this,
+#   ]
+# }
 
-  lb_rules = [
-    {
-      name                           = "nva-ha"
-      protocol                       = "All"
-      frontend_port                  = "0"
-      backend_port                   = "0"
-      frontend_ip_configuration_name = "nva"
-      backend_address_pool_name      = ["nva", ]
-      probe_name                     = "ssh"
-    },
-  ]
 
-  depends_on = [
-    azurerm_subnet.this,
-    azurerm_subnet_network_security_group_association.this,
-    module.nva_linux,
-  ]
-}
+# # internal lb
+
+# module "ilb_nva_linux" {
+#   count               = var.config_nva.enable && var.config_nva.type == "linux" ? 1 : 0
+#   source              = "../../modules/azure-load-balancer"
+#   resource_group_name = var.resource_group
+#   location            = var.location
+#   prefix              = trimsuffix(local.prefix, "-")
+#   name                = "nva"
+#   type                = "private"
+#   lb_sku              = "Standard"
+
+#   frontend_ip_configuration = [
+#     {
+#       name                          = "nva"
+#       zones                         = ["1", "2", "3"]
+#       subnet_id                     = azurerm_subnet.this["LoadBalancerSubnet"].id
+#       private_ip_address            = var.config_nva.internal_lb_addr
+#       private_ip_address_allocation = "Static"
+#     }
+#   ]
+
+#   probes = [
+#     { name = "ssh", protocol = "Tcp", port = "22", request_path = "" },
+#   ]
+
+#   backend_pools = [
+#     {
+#       name = "nva"
+#       addresses = [
+#         {
+#           name               = module.nva_linux[0].vm.name
+#           virtual_network_id = azurerm_virtual_network.this.id
+#           ip_address         = module.nva_linux[0].interfaces["${local.prefix}nva-untrust-nic"].ip_configuration[0].private_ip_address
+#         },
+#       ]
+#     }
+#   ]
+
+#   lb_rules = [
+#     {
+#       name                           = "nva-ha"
+#       protocol                       = "All"
+#       frontend_port                  = "0"
+#       backend_port                   = "0"
+#       frontend_ip_configuration_name = "nva"
+#       backend_address_pool_name      = ["nva", ]
+#       probe_name                     = "ssh"
+#     },
+#   ]
+
+#   depends_on = [
+#     azurerm_subnet.this,
+#     azurerm_subnet_network_security_group_association.this,
+#     module.nva_linux,
+#   ]
+# }
 
 # opnsense
 #----------------------------
 
-locals {
-  settings_opnsense = templatefile("${path.module}/templates/settings.tpl", local.params_opnsense)
-  params_opnsense = {
-    ShellScriptName               = var.shell_script_name
-    OpnScriptURI                  = var.opn_script_uri
-    OpnVersion                    = var.opn_version
-    WALinuxVersion                = var.walinux_version
-    OpnType                       = var.opn_type
-    TrustedSubnetAddressPrefix    = var.trusted_subnet_address_prefix
-    WindowsVmSubnetAddressPrefix  = var.deploy_windows_mgmt ? var.mgmt_subnet_address_prefix : "1.1.1.1/32"
-    publicIPAddress               = length(azurerm_public_ip.opnsense) > 0 ? azurerm_public_ip.opnsense[0].ip_address : ""
-    opnSenseSecondarytrustedNicIP = var.scenario_option == "Active-Active" ? "SOME" : ""
-  }
-}
+# locals {
+#   settings_opnsense = templatefile("${path.module}/templates/settings.tpl", local.params_opnsense)
+#   params_opnsense = {
+#     ShellScriptName               = var.shell_script_name
+#     OpnScriptURI                  = var.opn_script_uri
+#     OpnVersion                    = var.opn_version
+#     WALinuxVersion                = var.walinux_version
+#     OpnType                       = var.opn_type
+#     TrustedSubnetAddressPrefix    = var.trusted_subnet_address_prefix
+#     WindowsVmSubnetAddressPrefix  = var.deploy_windows_mgmt ? var.mgmt_subnet_address_prefix : "1.1.1.1/32"
+#     publicIPAddress               = length(azurerm_public_ip.opnsense) > 0 ? azurerm_public_ip.opnsense[0].ip_address : ""
+#     opnSenseSecondarytrustedNicIP = var.scenario_option == "Active-Active" ? "SOME" : ""
+#   }
+# }
 
-resource "local_file" "params_opnsense" {
-  count = (var.config_nva.enable && var.config_nva.type == "opnsense" ?
-    var.config_nva.scenario_option == "Active-Active" ? 2 :
-    var.config_nva.scenario_option == "TwoNics" ? 1 :
-    0 : 0
-  )
-  filename = "settings.json"
-  content  = local.settings_opnsense
-}
+# resource "local_file" "params_opnsense" {
+#   count = (var.config_nva.enable && var.config_nva.type == "opnsense" ?
+#     var.config_nva.scenario_option == "Active-Active" ? 2 :
+#     var.config_nva.scenario_option == "TwoNics" ? 1 :
+#     0 : 0
+#   )
+#   filename = "settings.json"
+#   content  = local.settings_opnsense
+# }
 
-# ip addresses
+# # ip addresses
 
-resource "azurerm_public_ip" "opnsense" {
-  count = (var.config_nva.enable && var.config_nva.type == "opnsense" ?
-    var.config_nva.scenario_option == "Active-Active" ? 2 :
-    var.config_nva.scenario_option == "TwoNics" ? 1 :
-    0 : 0
-  )
-  resource_group_name = var.resource_group
-  name                = "${local.prefix}opns-${count.index}"
-  location            = var.location
-  sku                 = "Standard"
-  allocation_method   = "Static"
-  zones               = [1, 2, 3]
-  timeouts {
-    create = "60m"
-  }
-  tags = var.tags
-}
+# resource "azurerm_public_ip" "opnsense" {
+#   count = (var.config_nva.enable && var.config_nva.type == "opnsense" ?
+#     var.config_nva.scenario_option == "Active-Active" ? 2 :
+#     var.config_nva.scenario_option == "TwoNics" ? 1 :
+#     0 : 0
+#   )
+#   resource_group_name = var.resource_group
+#   name                = "${local.prefix}opns-${count.index}"
+#   location            = var.location
+#   sku                 = "Standard"
+#   allocation_method   = "Static"
+#   zones               = [1, 2, 3]
+#   timeouts {
+#     create = "60m"
+#   }
+#   tags = var.tags
+# }
 
-# appliances
+# # appliances
 
-module "opnsense" {
-  count = (var.config_nva.enable && var.config_nva.type == "opnsense" ?
-    var.config_nva.scenario_option == "Active-Active" ? 2 :
-    var.config_nva.scenario_option == "TwoNics" ? 1 :
-    0 : 0
-  )
-  source          = "../../modules/virtual-machine-linux"
-  resource_group  = var.resource_group
-  name            = "${local.prefix}opns-${count.index}"
-  location        = var.location
-  storage_account = var.storage_account
-  identity_ids    = var.user_assigned_ids
+# module "opnsense" {
+#   count = (var.config_nva.enable && var.config_nva.type == "opnsense" ?
+#     var.config_nva.scenario_option == "Active-Active" ? 2 :
+#     var.config_nva.scenario_option == "TwoNics" ? 1 :
+#     0 : 0
+#   )
+#   source          = "../../modules/virtual-machine-linux"
+#   resource_group  = var.resource_group
+#   name            = "${local.prefix}opns-${count.index}"
+#   location        = var.location
+#   storage_account = var.storage_account
+#   identity_ids    = var.user_assigned_ids
 
-  source_image_publisher = "thefreebsdfoundation"
-  source_image_offer     = "freebsd-13_1"
-  source_image_sku       = "13_1-release"
-  source_image_version   = "latest"
-  enable_plan            = true
+#   source_image_publisher = "thefreebsdfoundation"
+#   source_image_offer     = "freebsd-13_1"
+#   source_image_sku       = "13_1-release"
+#   source_image_version   = "latest"
+#   enable_plan            = true
 
-  use_vm_extension      = true
-  vm_extension_settings = local.settings_opnsense
+#   use_vm_extension      = true
+#   vm_extension_settings = local.settings_opnsense
 
 
-  interfaces = [
-    {
-      name                 = "${local.prefix}opns-untrust-nic"
-      subnet_id            = azurerm_subnet.this["UntrustSubnet"].id
-      public_ip_address_id = azurerm_public_ip.opnsense[count.index].id
-    },
-    {
-      name      = "${local.prefix}opns-trust-nic"
-      subnet_id = azurerm_subnet.this["TrustSubnet"].id
-    },
-  ]
+#   interfaces = [
+#     {
+#       name                 = "${local.prefix}opns-untrust-nic"
+#       subnet_id            = azurerm_subnet.this["UntrustSubnet"].id
+#       public_ip_address_id = azurerm_public_ip.opnsense[count.index].id
+#     },
+#     {
+#       name      = "${local.prefix}opns-trust-nic"
+#       subnet_id = azurerm_subnet.this["TrustSubnet"].id
+#     },
+#   ]
 
-  depends_on = [
-    azurerm_subnet.this,
-    azurerm_subnet_network_security_group_association.this,
-  ]
-}
+#   depends_on = [
+#     azurerm_subnet.this,
+#     azurerm_subnet_network_security_group_association.this,
+#   ]
+# }
 
+# # internal lb
+
+# module "ilb_opnsense" {
+#   count               = var.config_nva.enable && var.config_nva.type == "opnsense" ? 1 : 0
+#   source              = "../../modules/azure-load-balancer"
+#   resource_group_name = var.resource_group
+#   location            = var.location
+#   prefix              = trimsuffix(local.prefix, "-")
+#   name                = "nva"
+#   type                = "private"
+#   lb_sku              = "Standard"
+
+#   frontend_ip_configuration = [
+#     {
+#       name                          = "nva"
+#       zones                         = ["1", "2", "3"]
+#       subnet_id                     = azurerm_subnet.this["LoadBalancerSubnet"].id
+#       private_ip_address            = var.config_nva.internal_lb_addr
+#       private_ip_address_allocation = "Static"
+#     }
+#   ]
+
+#   probes = [
+#     { name = "ssh", protocol = "Tcp", port = "22", request_path = "" },
+#   ]
+
+#   backend_pools = [
+#     {
+#       name = "nva"
+#       addresses = [
+#         {
+#           name               = module.opnsense[0].vm.name
+#           virtual_network_id = azurerm_virtual_network.this.id
+#           ip_address         = module.opnsense[0].interfaces["${local.prefix}opns-untrust-nic"].ip_configuration[0].private_ip_address
+#         },
+#       ]
+#     }
+#   ]
+
+#   lb_rules = [
+#     {
+#       name                           = "nva-ha"
+#       protocol                       = "All"
+#       frontend_port                  = "0"
+#       backend_port                   = "0"
+#       frontend_ip_configuration_name = "nva"
+#       backend_address_pool_name      = ["nva", ]
+#       probe_name                     = "ssh"
+#     },
+#   ]
+
+#   depends_on = [
+#     azurerm_subnet.this,
+#     azurerm_subnet_network_security_group_association.this,
+#     module.nva_linux,
+#   ]
+# }

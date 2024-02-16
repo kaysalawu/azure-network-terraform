@@ -1,6 +1,0 @@
-{
-  "fileUris": [
-    "https://raw.githubusercontent.com/dmauser/opnazure/master/scripts/configureopnsense.sh"
-  ],
-  "commandToExecute": "sh configureopnsense.sh https://raw.githubusercontent.com/dmauser/opnazure/master/scripts/ 23.7 2.9.1.1 TwoNics  1.1.1.1/32 4.207.203.184 "
-}

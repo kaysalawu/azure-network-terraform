@@ -59,7 +59,7 @@ module "spoke2_udr_main" {
     name                   = r.name
     address_prefix         = r.address_prefix
     next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = local.hub1_nva_ilb_addr
+    next_hop_in_ip_address = local.hub1_nva_ilb_untrust_addr
   }]
 
   disable_bgp_route_propagation = true
@@ -96,7 +96,7 @@ module "hub1_udr_main" {
     name                   = r.name
     address_prefix         = r.address_prefix
     next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = local.hub1_nva_ilb_addr
+    next_hop_in_ip_address = local.hub1_nva_ilb_untrust_addr
   }]
 
   disable_bgp_route_propagation = true

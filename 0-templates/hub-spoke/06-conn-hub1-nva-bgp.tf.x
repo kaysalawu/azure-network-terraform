@@ -50,7 +50,7 @@ module "spoke1_udr_main" {
   location               = local.spoke1_location
   subnet_id              = module.spoke1.subnets["MainSubnet"].id
   next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub1_nva_ilb_addr
+  next_hop_in_ip_address = local.hub1_nva_ilb_untrust_addr
 
   destinations = merge(
     local.default_udr_destinations,
@@ -111,7 +111,7 @@ module "spoke2_udr_main" {
   location               = local.spoke2_location
   subnet_id              = module.spoke2.subnets["MainSubnet"].id
   next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub1_nva_ilb_addr
+  next_hop_in_ip_address = local.hub1_nva_ilb_untrust_addr
 
   destinations = merge(
     local.default_udr_destinations,
@@ -135,7 +135,7 @@ locals {
     LOCAL_ASN = local.hub1_nva_asn
     LOOPBACK0 = local.hub1_nva_loopback0
     LOOPBACKS = {
-      Loopback1 = local.hub1_nva_ilb_addr
+      Loopback1 = local.hub1_nva_ilb_untrust_addr
     }
     CRYPTO_ADDR = local.hub1_nva_trust_addr
     VPN_PSK     = local.psk
@@ -147,7 +147,7 @@ locals {
         rule   = 100
         commands = [
           "match ip address prefix-list all",
-          "set ip next-hop ${local.hub1_nva_ilb_addr}"
+          "set ip next-hop ${local.hub1_nva_ilb_untrust_addr}"
         ]
       }
     ]
@@ -239,7 +239,7 @@ module "hub1_gateway_udr" {
   location               = local.hub1_location
   subnet_id              = module.hub1.subnets["GatewaySubnet"].id
   next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub1_nva_ilb_addr
+  next_hop_in_ip_address = local.hub1_nva_ilb_untrust_addr
   destinations           = local.hub1_gateway_udr_destinations
   depends_on             = [module.hub1, ]
 }
@@ -253,7 +253,7 @@ module "hub1_udr_main" {
   location               = local.hub1_location
   subnet_id              = module.hub1.subnets["MainSubnet"].id
   next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub1_nva_ilb_addr
+  next_hop_in_ip_address = local.hub1_nva_ilb_untrust_addr
 
   destinations = merge(
     local.default_udr_destinations,
@@ -276,7 +276,7 @@ resource "azurerm_lb" "hub1_nva_lb" {
   frontend_ip_configuration {
     name                          = "${local.hub1_prefix}nva-lb-feip"
     subnet_id                     = module.hub1.subnets["${local.hub1_prefix}ilb"].id
-    private_ip_address            = local.hub1_nva_ilb_addr
+    private_ip_address            = local.hub1_nva_ilb_untrust_addr
     private_ip_address_allocation = "Static"
   }
   lifecycle {
