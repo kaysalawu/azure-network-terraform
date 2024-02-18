@@ -153,15 +153,15 @@ variable "walinux_version" {
 }
 
 variable "scenario_option" {
-  description = "scenario_option = Active-Active, TwnoNics"
+  description = "scenario_option = Active-Active, TwoNics"
   type        = string
-  default     = "TwnoNics"
+  default     = "TwoNics"
 }
 
 variable "opn_type" {
-  description = "opn type = Primary, Secondary, TwnoNics"
+  description = "opn type = Primary, Secondary, TwoNics"
   type        = string
-  default     = "TwnoNics"
+  default     = "TwoNics"
 }
 
 variable "deploy_windows_mgmt" {

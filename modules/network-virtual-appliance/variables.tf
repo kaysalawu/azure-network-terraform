@@ -44,61 +44,10 @@ variable "zone" {
   default     = null
 }
 
-# opnsense parameters
-#--------------------------------------------------
-
-variable "opn_script_uri" {
-  description = "URI for Custom OPN Script and Config"
-  type        = string
-  default     = "https://raw.githubusercontent.com/dmauser/opnazure/master/scripts/"
-}
-
-variable "shell_script_name" {
-  description = "Shell Script to be executed"
-  type        = string
-  default     = "configureopnsense.sh"
-}
-
-variable "opn_version" {
-  description = "OPN Version"
-  type        = string
-  default     = "23.7"
-}
-
-variable "walinux_version" {
-  description = "WALinuxAgent Version"
-  type        = string
-  default     = "2.9.1.1"
-}
-
 variable "scenario_option" {
   description = "scenario_option = Active-Active, TwoNics"
   type        = string
   default     = "TwoNics"
-}
-
-variable "opn_type" {
-  description = "opn type = Primary, Secondary, TwoNics"
-  type        = string
-  default     = "TwoNics"
-}
-
-variable "deploy_windows_mgmt" {
-  description = "deploy windows management vm in a management subnet"
-  type        = bool
-  default     = false
-}
-
-variable "mgmt_subnet_address_prefix" {
-  description = "management subnet address prefix"
-  type        = string
-  default     = ""
-}
-
-variable "trusted_subnet_address_prefix" {
-  description = "trusted subnet address prefix"
-  type        = string
-  default     = ""
 }
 
 variable "storage_account" {
@@ -115,6 +64,18 @@ variable "subnet_id_untrust" {
 variable "subnet_id_trust" {
   description = "subnet id for trust interface"
   type        = string
+}
+
+variable "ilb_untrust_ip" {
+  description = "internal load balancer untrust address"
+  type        = string
+  default     = null
+}
+
+variable "ilb_trust_ip" {
+  description = "internal load balancer trust address"
+  type        = string
+  default     = null
 }
 
 variable "use_vm_extension" {
@@ -189,22 +150,10 @@ variable "custom_data" {
   default     = null
 }
 
-variable "ilb_untrust_ip" {
-  description = "internal load balancer untrust address"
-  type        = string
-  default     = null
-}
-
-variable "ilb_trust_ip" {
-  description = "internal load balancer trust address"
-  type        = string
-  default     = null
-}
-
-variable "virtual_network_id" {
-  description = "virtual network id"
-  type        = string
-}
+# variable "virtual_network_id" {
+#   description = "virtual network id"
+#   type        = string
+# }
 
 # variable "private_ip_untrust" {
 #   description = "optional static private untrust ip of vm"

@@ -241,6 +241,7 @@ variable "config_nva" {
     ilb_trust_ip    = optional(string)
     custom_data     = optional(string)
     scenario_option = optional(string, "TwoNics") # Active-Active, TwoNics
+    opn_type        = optional(string, "TwoNics") # Primary, Secondary, TwoNics
   })
   default = {
     enable           = false
@@ -309,4 +310,61 @@ variable "nva_image" {
       version   = "latest"
     }
   }
+}
+
+# parameters
+#--------------------------------------------------
+
+variable "opn_script_uri" {
+  description = "URI for Custom OPN Script and Config"
+  type        = string
+  default     = "https://raw.githubusercontent.com/dmauser/opnazure/master/scripts/"
+}
+
+variable "shell_script_name" {
+  description = "Shell Script to be executed"
+  type        = string
+  default     = "configureopnsense.sh"
+}
+
+variable "opn_version" {
+  description = "OPN Version"
+  type        = string
+  default     = "23.7"
+}
+
+variable "walinux_version" {
+  description = "WALinuxAgent Version"
+  type        = string
+  default     = "2.9.1.1"
+}
+
+variable "scenario_option" {
+  description = "scenario_option = Active-Active, TwoNics"
+  type        = string
+  default     = "TwoNics"
+}
+
+variable "opn_type" {
+  description = "opn type = Primary, Secondary, TwoNics"
+  type        = string
+  default     = "TwoNics"
+}
+
+variable "deploy_windows_mgmt" {
+  description = "deploy windows management vm in a management subnet"
+  type        = bool
+  default     = false
+}
+
+variable "mgmt_subnet_address_prefix" {
+  description = "management subnet address prefix"
+  type        = string
+  default     = ""
+}
+
+variable "trusted_subnet_address_prefix" {
+  description = "trusted subnet address prefix"
+  type        = string
+  default     = ""
 }
