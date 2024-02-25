@@ -318,7 +318,7 @@ variable "nva_image" {
 variable "opn_script_uri" {
   description = "URI for Custom OPN Script and Config"
   type        = string
-  default     = "https://raw.githubusercontent.com/dmauser/opnazure/master/scripts/"
+  default     = "https://raw.githubusercontent.com/kaysalawu/opnazure/master/scripts/"
 }
 
 variable "shell_script_name" {

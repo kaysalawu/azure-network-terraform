@@ -60,7 +60,7 @@ module "nva" {
 }
 
 ####################################################
-# internal lb
+# internal lb untrust
 ####################################################
 
 module "ilb_untrust" {
@@ -68,7 +68,7 @@ module "ilb_untrust" {
   resource_group_name = var.resource_group
   location            = var.location
   prefix              = ""
-  name                = local.name
+  name                = "${local.name}-ilb-untrust"
   type                = "private"
   lb_sku              = "Standard"
 
@@ -82,9 +82,7 @@ module "ilb_untrust" {
     }
   ]
 
-  probes = [
-    { name = "ssh", protocol = "Tcp", port = "22", request_path = "" },
-  ]
+  probes = var.health_probes
 
   backend_pools = [
     {
@@ -92,6 +90,54 @@ module "ilb_untrust" {
       interfaces = [for nva in module.nva : {
         ip_configuration_name = nva.interfaces["${local.name}-untrust-nic"].ip_configuration[0].name
         network_interface_id  = nva.interfaces["${local.name}-untrust-nic"].id
+      }]
+    }
+  ]
+
+  lb_rules = [
+    {
+      name                           = "nva-ha"
+      protocol                       = "All"
+      frontend_port                  = "0"
+      backend_port                   = "0"
+      frontend_ip_configuration_name = "nva"
+      backend_address_pool_name      = ["nva", ]
+      probe_name                     = "ssh"
+    },
+  ]
+}
+
+####################################################
+# internal lb trust
+####################################################
+
+module "ilb_trust" {
+  source              = "../../modules/azure-load-balancer"
+  resource_group_name = var.resource_group
+  location            = var.location
+  prefix              = ""
+  name                = "${local.name}-trust"
+  type                = "private"
+  lb_sku              = "Standard"
+
+  frontend_ip_configuration = [
+    {
+      name                          = "nva"
+      zones                         = ["1", "2", "3"]
+      subnet_id                     = var.subnet_id_trust
+      private_ip_address            = var.ilb_trust_ip
+      private_ip_address_allocation = "Static"
+    }
+  ]
+
+  probes = var.health_probes
+
+  backend_pools = [
+    {
+      name = "nva"
+      interfaces = [for nva in module.nva : {
+        ip_configuration_name = nva.interfaces["${local.name}-trust-nic"].ip_configuration[0].name
+        network_interface_id  = nva.interfaces["${local.name}-trust-nic"].id
       }]
     }
   ]

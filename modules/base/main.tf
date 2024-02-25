@@ -390,7 +390,8 @@ module "nva" {
   name           = "nva"
   location       = var.location
 
-  custom_data = var.config_nva.type == "opnsense" ? null : var.config_nva.custom_data
+  custom_data   = var.config_nva.type == "opnsense" ? null : var.config_nva.custom_data
+  health_probes = var.config_nva.type == "opnsense" ? [{ name = "ssh", protocol = "Tcp", port = "443", request_path = "" }, ] : [{ name = "ssh", protocol = "Tcp", port = "22", request_path = "" }, ]
 
   enable_plan            = var.config_nva.type == "opnsense" ? true : false
   source_image_publisher = var.config_nva.type == "opnsense" ? "thefreebsdfoundation" : "Canonical"

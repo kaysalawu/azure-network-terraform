@@ -20,7 +20,7 @@
 This lab deploys a single region hub and spoke topology to demonstrate IPsec over ExpressRoute to an on-premises branch location. Megaport is used as the ExpressRoute provider.
 
 Related articles and documentation:
-* [Lab - Virtual WAN Scenario: IPsec VPN over ER](https://github.com/dmauser/azure-virtualwan/tree/main/vpn-over-er)
+* [Lab - Virtual WAN Scenario: IPsec VPN over ER](https://github.com/kaysalawu/azure-virtualwan/tree/main/vpn-over-er)
 * [Configure a Site-to-Site VPN connection over ExpressRoute private peering](https://learn.microsoft.com/en-us/azure/vpn-gateway/site-to-site-vpn-private-peering)
 
   <img src="../../images/general/10/topology.png" alt="er-ecmp-topology" width="500">

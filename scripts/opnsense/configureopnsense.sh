@@ -41,8 +41,8 @@ elif [ "$4" = "TwoNics" ]; then
 fi
 
 #OPNSense default configuration template
-#fetch https://raw.githubusercontent.com/dmauser/opnazure/dev_active_active/scripts/$1
-#fetch https://raw.githubusercontent.com/dmauser/opnazure/master/scripts/$1
+#fetch https://raw.githubusercontent.com/kaysalawu/opnazure/dev_active_active/scripts/$1
+#fetch https://raw.githubusercontent.com/kaysalawu/opnazure/master/scripts/$1
 #cp $1 /usr/local/etc/config.xml
 
 # 1. Package to get root certificate bundle from the Mozilla Project (FreeBSD)

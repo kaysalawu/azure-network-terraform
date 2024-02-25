@@ -150,6 +150,24 @@ variable "custom_data" {
   default     = null
 }
 
+variable "health_probes" {
+  description = "probe name"
+  type = list(object({
+    name         = string
+    port         = number
+    protocol     = string
+    request_path = optional(string, "")
+  }))
+  default = [
+    {
+      name         = "ssh"
+      port         = 22
+      protocol     = "Tcp"
+      request_path = ""
+    }
+  ]
+}
+
 # variable "virtual_network_id" {
 #   description = "virtual network id"
 #   type        = string
