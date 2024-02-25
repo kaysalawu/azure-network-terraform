@@ -375,8 +375,8 @@ locals {
     OpnVersion                    = var.opn_version
     WALinuxVersion                = var.walinux_version
     OpnType                       = var.config_nva.opn_type
-    TrustedSubnetAddressPrefix    = var.trusted_subnet_address_prefix
-    WindowsVmSubnetAddressPrefix  = var.deploy_windows_mgmt ? var.mgmt_subnet_address_prefix : "1.1.1.1/32"
+    TrustedSubnetAddressPrefix    = azurerm_subnet.this["TrustSubnet"].address_prefixes[0]
+    WindowsVmSubnetAddressPrefix  = var.deploy_windows_mgmt ? azurerm_subnet.this["ManagementSubnet"].address_prefixes[0] : "1.1.1.1/32"
     publicIPAddress               = "" #length(azurerm_public_ip.opnsense) > 0 ? azurerm_public_ip.opnsense[0].ip_address : ""
     opnSenseSecondarytrustedNicIP = var.config_nva.scenario_option == "Active-Active" ? "SOME" : ""
   }
@@ -390,8 +390,11 @@ module "nva" {
   name           = "nva"
   location       = var.location
 
-  custom_data   = var.config_nva.type == "opnsense" ? null : var.config_nva.custom_data
-  health_probes = var.config_nva.type == "opnsense" ? [{ name = "ssh", protocol = "Tcp", port = "443", request_path = "" }, ] : [{ name = "ssh", protocol = "Tcp", port = "22", request_path = "" }, ]
+  custom_data = var.config_nva.type == "opnsense" ? null : var.config_nva.custom_data
+  health_probes = (var.config_nva.type == "opnsense" ?
+    [{ name = "ssh", protocol = "Tcp", port = "443", request_path = "" }, ] :
+    [{ name = "ssh", protocol = "Tcp", port = "22", request_path = "" }, ]
+  )
 
   enable_plan            = var.config_nva.type == "opnsense" ? true : false
   source_image_publisher = var.config_nva.type == "opnsense" ? "thefreebsdfoundation" : "Canonical"
