@@ -191,10 +191,13 @@ locals {
     }
 
     config_nva = {
-      enable           = true
-      type             = "linux"
-      internal_lb_addr = local.hub1_nva_ilb_untrust_addr
-      custom_data      = base64encode(local.hub1_linux_nva_init)
+      enable          = true
+      type            = "opnsense"
+      scenario_option = "TwoNics"
+      opn_type        = "TwoNics"
+      custom_data     = base64encode(local.hub1_linux_nva_init)
+      ilb_untrust_ip  = local.hub1_nva_ilb_trust_addr
+      ilb_trust_ip    = local.hub1_nva_ilb_trust_addr
     }
   }
 
@@ -210,7 +213,6 @@ locals {
           domain = local.onprem_domain
           target_dns_servers = [
             { ip_address = local.branch3_dns_addr, port = 53 },
-            { ip_address = local.branch1_dns_addr, port = 53 },
           ]
         }
         "${local.region1_code}" = {
@@ -265,6 +267,7 @@ locals {
           # { name = "client4" },
         ]
       }
+      custom_route_address_prefixes = ["8.8.8.8/32"]
     }
 
     config_ergw = {
@@ -279,10 +282,13 @@ locals {
     }
 
     config_nva = {
-      enable           = true
-      type             = "linux"
-      internal_lb_addr = local.hub2_nva_ilb_addr
-      custom_data      = base64encode(local.hub2_linux_nva_init)
+      enable          = true
+      type            = "opnsense"
+      scenario_option = "TwoNics"
+      opn_type        = "TwoNics"
+      custom_data     = base64encode(local.hub2_linux_nva_init)
+      ilb_untrust_ip  = local.hub2_nva_ilb_trust_addr
+      ilb_trust_ip    = local.hub2_nva_ilb_trust_addr
     }
   }
 }
@@ -537,10 +543,10 @@ locals {
     LOCAL_ASN = local.hub1_nva_asn
     LOOPBACK0 = local.hub1_nva_loopback0
     LOOPBACKS = {
-      Loopback1 = local.hub1_nva_ilb_untrust_addr
+      Loopback1 = local.hub1_nva_ilb_trust_addr
     }
-    CRYPTO_ADDR = local.hub1_nva_trust_addr
-    VPN_PSK     = local.psk
+    #CRYPTO_ADDR = local.hub1_nva_trust_addr
+    VPN_PSK = local.psk
   }
   hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
     TARGETS           = local.vm_script_targets
@@ -561,10 +567,10 @@ locals {
     LOCAL_ASN = local.hub2_nva_asn
     LOOPBACK0 = local.hub2_nva_loopback0
     LOOPBACKS = {
-      Loopback1 = local.hub2_nva_ilb_addr
+      Loopback1 = local.hub2_nva_ilb_trust_addr
     }
-    CRYPTO_ADDR = local.hub2_nva_trust_addr
-    VPN_PSK     = local.psk
+    #CRYPTO_ADDR = local.hub2_nva_trust_addr
+    VPN_PSK = local.psk
   }
   hub2_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub2_nva_vars, {
     TARGETS           = local.vm_script_targets

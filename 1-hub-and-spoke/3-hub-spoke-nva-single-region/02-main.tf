@@ -104,7 +104,7 @@ locals {
           ]
         }
         "${local.region1_code}" = {
-          domain = "${local.region1_code}.${local.cloud_domain}"
+          domain = local.region1_dns_zone
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
@@ -169,7 +169,7 @@ locals {
       scenario_option = "TwoNics"
       opn_type        = "TwoNics"
       custom_data     = base64encode(local.hub1_linux_nva_init)
-      ilb_untrust_ip  = local.hub1_nva_ilb_untrust_addr
+      ilb_untrust_ip  = local.hub1_nva_ilb_trust_addr
       ilb_trust_ip    = local.hub1_nva_ilb_trust_addr
     }
   }
@@ -379,7 +379,7 @@ locals {
     LOCAL_ASN = local.hub1_nva_asn
     LOOPBACK0 = local.hub1_nva_loopback0
     LOOPBACKS = {
-      Loopback1 = local.hub1_nva_ilb_untrust_addr
+      Loopback1 = local.hub1_nva_ilb_trust_addr
     }
     CRYPTO_ADDR = local.hub1_nva_trust_addr
     VPN_PSK     = local.psk

@@ -56,7 +56,7 @@ module "hub1_appliance_udr" {
     name                   = r.name
     address_prefix         = r.address_prefix
     next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = local.hub2_nva_ilb_addr
+    next_hop_in_ip_address = local.hub2_nva_ilb_trust_addr
   }]
   depends_on = [module.hub1, ]
 }
@@ -73,7 +73,7 @@ module "hub2_appliance_udr" {
     name                   = r.name
     address_prefix         = r.address_prefix
     next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = local.hub1_nva_ilb_untrust_addr
+    next_hop_in_ip_address = local.hub1_nva_ilb_trust_addr
   }]
   depends_on = [
     module.hub2,
@@ -84,35 +84,32 @@ module "hub2_appliance_udr" {
 # dns
 ####################################################
 
-# locals {
-#   dns_zone_links_hub1_vnet = {
-#     "hub2" = module.hub2.vnet.id
-#   }
-#   dns_zone_links_hub2_vnet = {
-#     "hub1" = module.hub1.vnet.id
-#   }
-# }
+locals {
+  vnets_linked_dns_zone_region1 = { "hub2" = module.hub2.vnet.id }
+  vnets_linked_dns_zone_region2 = { "hub1" = module.hub1.vnet.id }
+}
 
-# resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_links_hub1_vnet" {
-#   for_each              = local.dns_zone_links_hub1_vnet
-#   resource_group_name   = azurerm_resource_group.rg.name
-#   name                  = "${local.prefix}${each.key}vnet-link"
-#   private_dns_zone_name = module.hub1.private_dns_zone.name
-#   virtual_network_id    = each.value
-#   registration_enabled  = false
-#   timeouts {
-#     create = "60m"
-#   }
-# }
+resource "azurerm_private_dns_zone_virtual_network_link" "region1" {
+  for_each              = local.vnets_linked_dns_zone_region1
+  resource_group_name   = azurerm_resource_group.rg.name
+  name                  = lower("${local.prefix}-${each.key}-vnet--link")
+  private_dns_zone_name = module.common.private_dns_zones[local.region1_dns_zone].name
+  virtual_network_id    = each.value
+  registration_enabled  = false
+  timeouts {
+    create = "60m"
+  }
+}
 
-# resource "azurerm_private_dns_zone_virtual_network_link" "dns_zone_links_hub2_vnet" {
-#   for_each              = local.dns_zone_links_hub2_vnet
-#   resource_group_name   = azurerm_resource_group.rg.name
-#   name                  = "${local.prefix}${each.key}vnet-link"
-#   private_dns_zone_name = module.hub2.private_dns_zone.name
-#   virtual_network_id    = each.value
-#   registration_enabled  = false
-#   timeouts {
-#     create = "60m"
-#   }
-# }
+resource "azurerm_private_dns_zone_virtual_network_link" "region2" {
+  for_each              = local.vnets_linked_dns_zone_region2
+  resource_group_name   = azurerm_resource_group.rg.name
+  name                  = lower("${local.prefix}-${each.key}-vnet--link")
+  private_dns_zone_name = module.common.private_dns_zones[local.region2_dns_zone].name
+  virtual_network_id    = each.value
+  registration_enabled  = false
+  timeouts {
+    create = "60m"
+  }
+}
+

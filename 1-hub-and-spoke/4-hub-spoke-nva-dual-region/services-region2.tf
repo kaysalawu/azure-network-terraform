@@ -14,6 +14,8 @@ module "spoke6_lb" {
   type                = "private"
   lb_sku              = "Standard"
 
+  log_analytics_workspace_name = module.common.log_analytics_workspaces["region2"].name
+
   frontend_ip_configuration = [
     {
       name                          = "pls"

@@ -104,11 +104,11 @@ locals {
     ("AppServiceSubnet")              = { address_prefixes = ["10.11.13.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")                 = { address_prefixes = ["10.11.16.0/24"] }
   }
-  hub1_default_gw_main      = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 1)
-  hub1_default_gw_nva       = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 1)
-  hub1_vm_addr              = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 5)
-  hub1_nva_trust_addr       = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 4)
-  hub1_nva_untrust_addr     = cidrhost(local.hub1_subnets["UntrustSubnet"].address_prefixes[0], 4)
+  hub1_default_gw_main = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 1)
+  hub1_default_gw_nva  = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 1)
+  hub1_vm_addr         = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 5)
+  # hub1_nva_trust_addr       = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 4)
+  # hub1_nva_untrust_addr     = cidrhost(local.hub1_subnets["UntrustSubnet"].address_prefixes[0], 4)
   hub1_nva_ilb_trust_addr   = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 99)
   hub1_nva_ilb_untrust_addr = cidrhost(local.hub1_subnets["UntrustSubnet"].address_prefixes[0], 99)
   hub1_appgw_addr           = cidrhost(local.hub1_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
@@ -153,26 +153,27 @@ locals {
     ("AppServiceSubnet")              = { address_prefixes = ["10.22.13.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")                 = { address_prefixes = ["10.22.16.0/24"] }
   }
-  hub2_default_gw_main    = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 1)
-  hub2_default_gw_nva     = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 1)
-  hub2_vm_addr            = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 5)
-  hub2_nva_trust_addr     = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 4)
-  hub2_nva_untrust_addr   = cidrhost(local.hub2_subnets["UntrustSubnet"].address_prefixes[0], 4)
-  hub2_nva_ilb_addr       = cidrhost(local.hub2_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
-  hub2_appgw_addr         = cidrhost(local.hub2_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
-  hub2_dns_in_addr        = cidrhost(local.hub2_subnets["DnsResolverInboundSubnet"].address_prefixes[0], 4)
-  hub2_vpngw_bgp_ip       = cidrhost(local.hub2_subnets["GatewaySubnet"].address_prefixes[0], 254)
-  hub2_spoke6_pls_pep_ip  = cidrhost(local.hub2_subnets["PrivateEndpointSubnet"].address_prefixes[0], 88)
-  hub2_spoke6_blob_pep_ip = cidrhost(local.hub2_subnets["PrivateEndpointSubnet"].address_prefixes[0], 99)
-  hub2_nva_loopback0      = "10.22.22.22"
-  hub2_nva_tun_range0     = "10.22.50.0/30"
-  hub2_nva_tun_range1     = "10.22.51.4/30"
-  hub2_vpngw_bgp_apipa_0  = cidrhost(local.bgp_apipa_range5, 1)
-  hub2_vm_hostname        = "hub2Vm"
-  hub2_ilb_hostname       = "hub2-ilb"
-  hub2_spoke6_pep_host    = "spoke6pls"
-  hub2_vm_fqdn            = "${local.hub2_vm_hostname}.${local.hub2_dns_zone}"
-  hub2_spoke6_pep_fqdn    = "${local.hub2_spoke6_pep_host}.${local.hub2_dns_zone}"
+  hub2_default_gw_main = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 1)
+  hub2_default_gw_nva  = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 1)
+  hub2_vm_addr         = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 5)
+  # hub2_nva_trust_addr       = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 4)
+  # hub2_nva_untrust_addr     = cidrhost(local.hub2_subnets["UntrustSubnet"].address_prefixes[0], 4)
+  hub2_nva_ilb_trust_addr   = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 99)
+  hub2_nva_ilb_untrust_addr = cidrhost(local.hub2_subnets["UntrustSubnet"].address_prefixes[0], 99)
+  hub2_appgw_addr           = cidrhost(local.hub2_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
+  hub2_dns_in_addr          = cidrhost(local.hub2_subnets["DnsResolverInboundSubnet"].address_prefixes[0], 4)
+  hub2_vpngw_bgp_ip         = cidrhost(local.hub2_subnets["GatewaySubnet"].address_prefixes[0], 254)
+  hub2_spoke6_pls_pep_ip    = cidrhost(local.hub2_subnets["PrivateEndpointSubnet"].address_prefixes[0], 88)
+  hub2_spoke6_blob_pep_ip   = cidrhost(local.hub2_subnets["PrivateEndpointSubnet"].address_prefixes[0], 99)
+  hub2_nva_loopback0        = "10.22.22.22"
+  hub2_nva_tun_range0       = "10.22.50.0/30"
+  hub2_nva_tun_range1       = "10.22.51.4/30"
+  hub2_vpngw_bgp_apipa_0    = cidrhost(local.bgp_apipa_range5, 1)
+  hub2_vm_hostname          = "hub2Vm"
+  hub2_ilb_hostname         = "hub2-ilb"
+  hub2_spoke6_pep_host      = "spoke6pls"
+  hub2_vm_fqdn              = "${local.hub2_vm_hostname}.${local.hub2_dns_zone}"
+  hub2_spoke6_pep_fqdn      = "${local.hub2_spoke6_pep_host}.${local.hub2_dns_zone}"
 }
 
 # branch1

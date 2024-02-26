@@ -244,9 +244,7 @@ resource "azurerm_virtual_network_gateway_connection" "hub2_branch3_lng" {
 ####################################################
 
 locals {
-  hub2_files = {
-    "output/hub2-linux-nva.sh" = local.hub2_linux_nva_init
-  }
+  hub2_files = {}
 }
 
 resource "local_file" "hub2_files" {
