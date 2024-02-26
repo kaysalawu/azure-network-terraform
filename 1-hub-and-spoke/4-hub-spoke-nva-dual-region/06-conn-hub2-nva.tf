@@ -59,7 +59,7 @@ module "spoke4_udr_main" {
     name                   = r.name
     address_prefix         = r.address_prefix
     next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = local.hub2_nva_ilb_addr
+    next_hop_in_ip_address = local.hub2_nva_ilb_trust_addr
   }]
 
   disable_bgp_route_propagation = true
@@ -133,7 +133,7 @@ module "spoke5_udr_main" {
     name                   = r.name
     address_prefix         = r.address_prefix
     next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = local.hub2_nva_ilb_addr
+    next_hop_in_ip_address = local.hub2_nva_ilb_trust_addr
   }]
 
   disable_bgp_route_propagation = true
@@ -162,7 +162,7 @@ module "hub2_gateway_udr" {
     name                   = r.name
     address_prefix         = r.address_prefix
     next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = local.hub2_nva_ilb_addr
+    next_hop_in_ip_address = local.hub2_nva_ilb_trust_addr
   }]
 
   depends_on = [
@@ -189,7 +189,7 @@ module "hub2_udr_main" {
     name                   = r.name
     address_prefix         = r.address_prefix
     next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = local.hub2_nva_ilb_addr
+    next_hop_in_ip_address = local.hub2_nva_ilb_trust_addr
   }]
 
   disable_bgp_route_propagation = true
