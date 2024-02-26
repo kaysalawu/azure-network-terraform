@@ -1,6 +1,6 @@
 
 locals {
-  name = var.prefix == "" ? "${var.name}" : format("%s-%s", var.prefix, var.name)
+  prefix = var.prefix == "" ? "${var.name}" : format("%s-%s", var.prefix, var.name)
 }
 
 ####################################################
@@ -10,7 +10,7 @@ locals {
 resource "azurerm_public_ip" "untrust" {
   count               = var.scenario_option == "Active-Active" ? 2 : var.scenario_option == "TwoNics" ? 1 : 0
   resource_group_name = var.resource_group
-  name                = "${local.name}-pip-untrust-${count.index}"
+  name                = "${local.prefix}-pip-untrust-${count.index}"
   location            = var.location
   sku                 = "Standard"
   allocation_method   = "Static"
@@ -29,8 +29,8 @@ module "nva" {
   count                = var.scenario_option == "Active-Active" ? 2 : var.scenario_option == "TwoNics" ? 1 : 0
   source               = "../../modules/virtual-machine-linux"
   resource_group       = var.resource_group
-  name                 = "${local.name}-${count.index}"
-  computer_name        = "${local.name}-${count.index}"
+  name                 = "${local.prefix}-${count.index}"
+  computer_name        = "${local.prefix}-${count.index}"
   location             = var.location
   storage_account      = var.storage_account
   identity_ids         = var.identity_ids
@@ -48,12 +48,12 @@ module "nva" {
 
   interfaces = [
     {
-      name                 = "${local.name}-untrust-nic"
+      name                 = "${local.prefix}-untrust-nic"
       subnet_id            = var.subnet_id_untrust
       public_ip_address_id = azurerm_public_ip.untrust[count.index].id
     },
     {
-      name      = "${local.name}-trust-nic"
+      name      = "${local.prefix}-trust-nic"
       subnet_id = var.subnet_id_trust
     },
   ]
@@ -67,10 +67,12 @@ module "ilb_untrust" {
   source              = "../../modules/azure-load-balancer"
   resource_group_name = var.resource_group
   location            = var.location
-  prefix              = ""
-  name                = "${local.name}-ilb-untrust"
+  prefix              = local.prefix
+  name                = "untrust"
   type                = "private"
   lb_sku              = "Standard"
+
+  log_analytics_workspace_name = var.log_analytics_workspace_name
 
   frontend_ip_configuration = [
     {
@@ -88,8 +90,8 @@ module "ilb_untrust" {
     {
       name = "nva"
       interfaces = [for nva in module.nva : {
-        ip_configuration_name = nva.interfaces["${local.name}-untrust-nic"].ip_configuration[0].name
-        network_interface_id  = nva.interfaces["${local.name}-untrust-nic"].id
+        ip_configuration_name = nva.interfaces["${local.prefix}-untrust-nic"].ip_configuration[0].name
+        network_interface_id  = nva.interfaces["${local.prefix}-untrust-nic"].id
       }]
     }
   ]
@@ -115,10 +117,12 @@ module "ilb_trust" {
   source              = "../../modules/azure-load-balancer"
   resource_group_name = var.resource_group
   location            = var.location
-  prefix              = ""
-  name                = "${local.name}-trust"
+  prefix              = local.prefix
+  name                = "trust"
   type                = "private"
   lb_sku              = "Standard"
+
+  log_analytics_workspace_name = var.log_analytics_workspace_name
 
   frontend_ip_configuration = [
     {
@@ -136,8 +140,8 @@ module "ilb_trust" {
     {
       name = "nva"
       interfaces = [for nva in module.nva : {
-        ip_configuration_name = nva.interfaces["${local.name}-trust-nic"].ip_configuration[0].name
-        network_interface_id  = nva.interfaces["${local.name}-trust-nic"].id
+        ip_configuration_name = nva.interfaces["${local.prefix}-trust-nic"].ip_configuration[0].name
+        network_interface_id  = nva.interfaces["${local.prefix}-trust-nic"].id
       }]
     }
   ]

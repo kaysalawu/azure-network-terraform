@@ -390,6 +390,8 @@ module "nva" {
   name           = "nva"
   location       = var.location
 
+  log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
+
   custom_data = var.config_nva.type == "opnsense" ? null : var.config_nva.custom_data
   health_probes = (var.config_nva.type == "opnsense" ?
     [{ name = "ssh", protocol = "Tcp", port = "443", request_path = "" }, ] :

@@ -168,6 +168,12 @@ variable "health_probes" {
   ]
 }
 
+variable "log_analytics_workspace_name" {
+  description = "log analytics workspace name"
+  type        = string
+  default     = null
+}
+
 # variable "virtual_network_id" {
 #   description = "virtual network id"
 #   type        = string
@@ -233,9 +239,6 @@ variable "health_probes" {
 #   default     = null
 # }
 
-
-
-
 # variable "images_with_plan" {
 #   description = "images with plan"
 #   type        = list(string)
@@ -244,12 +247,6 @@ variable "health_probes" {
 #     "cisco-c8000v",
 #     "freebsd-13"
 #   ]
-# }
-
-# variable "log_analytics_workspace_name" {
-#   description = "log analytics workspace name"
-#   type        = string
-#   default     = null
 # }
 
 
