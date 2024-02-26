@@ -67,7 +67,7 @@ Ensure you meet all requirements in the [prerequisites](../../prerequisites/READ
 
 ## Troubleshooting
 
-See the [troubleshooting](../../troubleshooting/) section for tips on how to resolve common issues that may occur during the deployment of the lab.
+See the [troubleshooting](../../troubleshooting/README.md) section for tips on how to resolve common issues that may occur during the deployment of the lab.
 
 ## Outputs
 
@@ -493,7 +493,7 @@ C        192.168.10.10 is directly connected, Loopback0
 S        192.168.30.30 is directly connected, Tunnel2
 ```
 
-We can see our hub and spoke Vnet ranges are learned dynamically via BGP.
+We can see the hub and spoke Vnet ranges are learned dynamically via BGP.
 
 **7.5.** Display BGP information by typing `show ip bgp`.
 
@@ -527,7 +527,7 @@ RPKI validation codes: V valid, I invalid, N Not found
  *>   10.30.0.0/24     192.168.30.30            0             0 65003 65003 65003 65003 i
 ```
 
-We can see our hub and spoke Vnet ranges being learned dynamically in the BGP table.
+We can see the hub and spoke Vnet ranges being learned dynamically in the BGP table.
 
 ### 8. Azure Firewall
 

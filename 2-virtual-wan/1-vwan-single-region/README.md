@@ -61,7 +61,7 @@ Ensure you meet all requirements in the [prerequisites](../../prerequisites/READ
 
 ## Troubleshooting
 
-See the [troubleshooting](../../troubleshooting/) section for tips on how to resolve common issues that may occur during the deployment of the lab.
+See the [troubleshooting](../../troubleshooting/README.md) section for tips on how to resolve common issues that may occur during the deployment of the lab.
 
 ## Outputs
 
@@ -467,7 +467,7 @@ RPKI validation codes: V valid, I invalid, N Not found
  *                     192.168.11.13                          0 65515 i
 ```
 
-We can see our hub and spoke Vnet ranges being learned dynamically in the BGP table.
+We can see the hub and spoke Vnet ranges being learned dynamically in the BGP table.
 
 ## Cleanup
 

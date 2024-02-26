@@ -61,7 +61,7 @@ Ensure you meet all requirements in the [prerequisites](../../prerequisites/READ
 
 ## Troubleshooting
 
-See the [troubleshooting](../../troubleshooting/) section for tips on how to resolve common issues that may occur during the deployment of the lab.
+See the [troubleshooting](../../troubleshooting/README.md) section for tips on how to resolve common issues that may occur during the deployment of the lab.
 
 ## Outputs
 

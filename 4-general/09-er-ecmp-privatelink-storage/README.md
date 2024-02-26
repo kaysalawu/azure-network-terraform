@@ -99,7 +99,7 @@ You also need to have an active megaport account. You will need to supply the me
 
 ## Troubleshooting
 
-See the [troubleshooting](../../troubleshooting/) section for tips on how to resolve common issues that may occur during the deployment of the lab.
+See the [troubleshooting](../../troubleshooting/README.md) section for tips on how to resolve common issues that may occur during the deployment of the lab.
 
 ## Single Iperf Connection
 

@@ -71,7 +71,7 @@ This microhack is based on some assumptions for the customer requirements. There
 
 ## Troubleshooting
 
-See the [troubleshooting](../../troubleshooting/) section for tips on how to resolve common issues that may occur after deploying the terraform code.
+See the [troubleshooting](../../troubleshooting/README.md) section for tips on how to resolve common issues that may occur after deploying the terraform code.
 
 ## NEXT STEP <!-- omit from toc -->
 Go to exercise [1. Private DNS Zones, Vnet links and DNS auto-registration](./exercises/1.%20Private%20DNS%20Zones,%20Vnet%20links%20and%20DNS%20Auto-registration.md)
