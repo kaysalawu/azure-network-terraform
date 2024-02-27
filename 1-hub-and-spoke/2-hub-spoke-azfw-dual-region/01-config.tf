@@ -104,11 +104,11 @@ locals {
     ("AppServiceSubnet")              = { address_prefixes = ["10.11.13.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")                 = { address_prefixes = ["10.11.16.0/24"] }
   }
-  hub1_default_gw_main      = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 1)
-  hub1_default_gw_nva       = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 1)
-  hub1_vm_addr              = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 5)
-  hub1_nva_trust_addr       = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 4)
-  hub1_nva_untrust_addr     = cidrhost(local.hub1_subnets["UntrustSubnet"].address_prefixes[0], 4)
+  hub1_default_gw_main = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 1)
+  hub1_default_gw_nva  = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 1)
+  hub1_vm_addr         = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 5)
+  # hub1_nva_trust_addr       = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 4)
+  # hub1_nva_untrust_addr     = cidrhost(local.hub1_subnets["UntrustSubnet"].address_prefixes[0], 4)
   hub1_nva_ilb_trust_addr   = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 99)
   hub1_nva_ilb_untrust_addr = cidrhost(local.hub1_subnets["UntrustSubnet"].address_prefixes[0], 99)
   hub1_appgw_addr           = cidrhost(local.hub1_subnets["AppGatewaySubnet"].address_prefixes[0], 99)

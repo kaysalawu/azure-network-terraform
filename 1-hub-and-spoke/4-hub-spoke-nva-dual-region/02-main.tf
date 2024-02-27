@@ -4,7 +4,7 @@
 
 locals {
   prefix                      = "Hs14"
-  enable_diagnostics          = false
+  enable_diagnostics          = true
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke6_storage_account_name = lower(replace("${local.spoke6_prefix}sa${random_id.random.hex}", "-", ""))
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
@@ -196,7 +196,7 @@ locals {
       scenario_option = "TwoNics"
       opn_type        = "TwoNics"
       custom_data     = base64encode(local.hub1_linux_nva_init)
-      ilb_untrust_ip  = local.hub1_nva_ilb_trust_addr
+      ilb_untrust_ip  = local.hub1_nva_ilb_untrust_addr
       ilb_trust_ip    = local.hub1_nva_ilb_trust_addr
     }
   }
@@ -287,7 +287,7 @@ locals {
       scenario_option = "TwoNics"
       opn_type        = "TwoNics"
       custom_data     = base64encode(local.hub2_linux_nva_init)
-      ilb_untrust_ip  = local.hub2_nva_ilb_trust_addr
+      ilb_untrust_ip  = local.hub2_nva_ilb_untrust_addr
       ilb_trust_ip    = local.hub2_nva_ilb_trust_addr
     }
   }

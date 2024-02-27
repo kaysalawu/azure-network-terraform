@@ -169,7 +169,7 @@ locals {
       scenario_option = "TwoNics"
       opn_type        = "TwoNics"
       custom_data     = base64encode(local.hub1_linux_nva_init)
-      ilb_untrust_ip  = local.hub1_nva_ilb_trust_addr
+      ilb_untrust_ip  = local.hub1_nva_ilb_untrust_addr
       ilb_trust_ip    = local.hub1_nva_ilb_trust_addr
     }
   }
@@ -381,8 +381,8 @@ locals {
     LOOPBACKS = {
       Loopback1 = local.hub1_nva_ilb_trust_addr
     }
-    CRYPTO_ADDR = local.hub1_nva_trust_addr
-    VPN_PSK     = local.psk
+    #CRYPTO_ADDR = local.hub1_nva_trust_addr
+    VPN_PSK = local.psk
   }
   hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
     TARGETS           = local.vm_script_targets
