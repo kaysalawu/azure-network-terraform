@@ -1,5 +1,12 @@
 #!/bin/sh
 
+apt-get -y update
+apt-get -y install sipcalc
+
+#########################################################
+# ip forwarding
+#########################################################
+
 # Enable IPv4 and IPv6 forwarding
 sysctl -w net.ipv4.ip_forward=1
 sysctl -w net.ipv6.conf.all.forwarding=1
@@ -22,6 +29,29 @@ echo "net.ipv4.conf.eth0.accept_redirects=0" >> /etc/sysctl.conf
 echo "net.ipv6.conf.eth0.accept_redirects=0" >> /etc/sysctl.conf
 sysctl -p
 
+#########################################################
+# route table for eth1 (trust interface)
+#########################################################
+
+ETH1_DGW=$(sipcalc eth1 | awk '/Usable range/ {print $4}')
+ETH1_MASK=$(ip addr show eth1 | awk '/inet / {print $2}' | cut -d'/' -f2)
+
+# eth1 routing
+echo "2 rt1" | sudo tee -a /etc/iproute2/rt_tables
+
+# all traffic from/to eth1 should use rt1 for lookup
+# subnet mask is used to expand entire range to include ilb vip
+ip rule add from $ETH1_DGW/$ETH1_MASK table rt1
+ip rule add to $ETH1_DGW/$ETH1_MASK table rt1
+
+# send return azure platform traffic via eth1
+ip route add 168.63.129.16/32 via $ETH1_DGW dev eth1 table rt1
+ip route add 169.254.169.254/32 via $ETH1_DGW dev eth1 table rt1
+
+#########################################################
+# packages
+#########################################################
+
 apt-get -y update
 
 ## Install the Quagga routing daemon
@@ -30,6 +60,10 @@ apt-get -y install quagga
 ##  run the updates and ensure the packages are up to date and there is no new version available for the packages
 apt-get -y update --fix-missing
 apt-get -y install tcpdump dnsutils traceroute tcptraceroute net-tools
+
+#########################################################
+# iptables
+#########################################################
 
 echo iptables-persistent iptables-persistent/autosave_v4 boolean false | debconf-set-selections
 echo iptables-persistent iptables-persistent/autosave_v6 boolean false | debconf-set-selections
@@ -51,6 +85,10 @@ ${rule}
 
 # Save to IPTables file for persistence on reboot
 iptables-save > /etc/iptables/rules.v4
+
+#########################################################
+# quagga and zebra config
+#########################################################
 
 ## Stopping Quagga (required for script re-runs)
 systemctl stop zebra
@@ -117,8 +155,9 @@ systemctl restart bgpd
 systemctl start zebra
 systemctl start bgpd
 
+#########################################################
 # endpoint test scripts
-#-----------------------------------
+#########################################################
 
 # ping-ip
 

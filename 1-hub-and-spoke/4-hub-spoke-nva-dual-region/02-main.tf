@@ -213,6 +213,7 @@ locals {
           domain = local.onprem_domain
           target_dns_servers = [
             { ip_address = local.branch3_dns_addr, port = 53 },
+            { ip_address = local.branch1_dns_addr, port = 53 },
           ]
         }
         "${local.region1_code}" = {
@@ -545,7 +546,6 @@ locals {
     LOOPBACKS = {
       Loopback1 = local.hub1_nva_ilb_trust_addr
     }
-    #CRYPTO_ADDR = local.hub1_nva_trust_addr
     VPN_PSK = local.psk
   }
   hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
@@ -569,7 +569,6 @@ locals {
     LOOPBACKS = {
       Loopback1 = local.hub2_nva_ilb_trust_addr
     }
-    #CRYPTO_ADDR = local.hub2_nva_trust_addr
     VPN_PSK = local.psk
   }
   hub2_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub2_nva_vars, {

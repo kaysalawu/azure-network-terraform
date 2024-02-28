@@ -104,7 +104,7 @@ module "ilb_untrust" {
       backend_port                   = "0"
       frontend_ip_configuration_name = "nva"
       backend_address_pool_name      = ["nva", ]
-      probe_name                     = "ssh"
+      probe_name                     = var.health_probes[0].name
     },
   ]
 }
@@ -154,7 +154,7 @@ module "ilb_trust" {
       backend_port                   = "0"
       frontend_ip_configuration_name = "nva"
       backend_address_pool_name      = ["nva", ]
-      probe_name                     = "ssh"
+      probe_name                     = var.health_probes[0].name
     },
   ]
 }

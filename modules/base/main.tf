@@ -394,7 +394,7 @@ module "nva" {
 
   custom_data = var.config_nva.type == "opnsense" ? null : var.config_nva.custom_data
   health_probes = (var.config_nva.type == "opnsense" ?
-    [{ name = "ssh", protocol = "Tcp", port = "443", request_path = "" }, ] :
+    [{ name = "https", protocol = "Tcp", port = "443", request_path = "" }, ] :
     [{ name = "ssh", protocol = "Tcp", port = "22", request_path = "" }, ]
   )
 
@@ -405,7 +405,7 @@ module "nva" {
   source_image_version   = "latest"
 
   use_vm_extension      = var.config_nva.type == "opnsense" ? true : false
-  vm_extension_settings = var.config_nva.type == "opnsense" ? local.settings_opnsense : ""
+  vm_extension_settings = var.config_nva.type == "opnsense" ? local.settings_opnsense : null
 
   subnet_id_untrust = azurerm_subnet.this["UntrustSubnet"].id
   subnet_id_trust   = azurerm_subnet.this["TrustSubnet"].id

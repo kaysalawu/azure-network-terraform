@@ -149,7 +149,7 @@ locals {
     ROUTE_MAPS = [
       "route-map ${local.branch1_nva_route_map_onprem} permit 100",
       "match ip address prefix-list all",
-      "set as-path prepend ${local.branch1_nva_asn} ${local.branch1_nva_asn} ${local.branch1_nva_asn}",
+      #"set as-path prepend ${local.branch1_nva_asn} ${local.branch1_nva_asn} ${local.branch1_nva_asn}",
 
       "route-map ${local.branch1_nva_route_map_azure} permit 110",
       "match ip address prefix-list all",
