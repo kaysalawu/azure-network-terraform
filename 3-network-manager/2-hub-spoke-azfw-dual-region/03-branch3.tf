@@ -77,7 +77,7 @@ locals {
 module "branch3_unbound_init" {
   source   = "../../modules/cloud-config-gen"
   packages = ["docker.io", "docker-compose", "dnsutils", "net-tools", ]
-  files    = local.branch1_unbound_files
+  files    = local.branch3_unbound_files
   run_commands = [
     "systemctl stop systemd-resolved",
     "systemctl disable systemd-resolved",
