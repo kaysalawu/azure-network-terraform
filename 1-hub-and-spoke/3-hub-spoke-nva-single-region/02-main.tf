@@ -4,7 +4,7 @@
 
 locals {
   prefix                      = "Hs13"
-  enable_diagnostics          = true
+  enable_diagnostics          = false
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
   spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
@@ -381,7 +381,6 @@ locals {
     LOOPBACKS = {
       Loopback1 = local.hub1_nva_ilb_trust_addr
     }
-    #CRYPTO_ADDR = local.hub1_nva_trust_addr
     VPN_PSK = local.psk
   }
   hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {

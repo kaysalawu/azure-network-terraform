@@ -260,8 +260,8 @@ module "branch1_nva" {
   tags            = local.branch1_tags
 
   source_image_publisher = "cisco"
-  source_image_offer     = "cisco-c8000v"
-  source_image_sku       = "17_11_01a-byol"
+  source_image_offer     = "cisco-csr-1000v"
+  source_image_sku       = "17_3_4a-byol"
   source_image_version   = "latest"
   enable_plan            = true
 

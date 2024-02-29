@@ -191,10 +191,13 @@ locals {
     }
 
     config_nva = {
-      enable           = false
-      type             = null
-      internal_lb_addr = null
-      custom_data      = null
+      enable          = false
+      type            = null
+      scenario_option = null
+      opn_type        = null
+      custom_data     = null
+      ilb_untrust_ip  = null
+      ilb_trust_ip    = null
     }
   }
 
@@ -265,6 +268,7 @@ locals {
           # { name = "client4" },
         ]
       }
+      custom_route_address_prefixes = ["8.8.8.8/32"]
     }
 
     config_ergw = {
@@ -279,10 +283,13 @@ locals {
     }
 
     config_nva = {
-      enable           = false
-      type             = null
-      internal_lb_addr = null
-      custom_data      = null
+      enable          = false
+      type            = null
+      scenario_option = null
+      opn_type        = null
+      custom_data     = null
+      ilb_untrust_ip  = null
+      ilb_trust_ip    = null
     }
   }
 }

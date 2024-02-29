@@ -164,10 +164,13 @@ locals {
     }
 
     config_nva = {
-      enable           = false
-      type             = null
-      internal_lb_addr = null
-      custom_data      = null
+      enable          = false
+      type            = null
+      scenario_option = null
+      opn_type        = null
+      custom_data     = null
+      ilb_untrust_ip  = null
+      ilb_trust_ip    = null
     }
   }
 }
