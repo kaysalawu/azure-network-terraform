@@ -123,7 +123,7 @@ resource "azurerm_virtual_network_gateway" "this" {
 ####################################################
 
 module "client_certificates" {
-  for_each = { for i in var.vpn_client_configuration["clients"] : i.name => i }
+  for_each = { for i in var.vpn_client_configuration.clients : i.name => i }
   source   = "../../modules/cert-self-signed"
   name     = "${var.prefix}vpngw-${each.value.name}"
   rsa_bits = 2048

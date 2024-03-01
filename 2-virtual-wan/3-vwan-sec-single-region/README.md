@@ -73,6 +73,7 @@ The table below shows the auto-generated output files from the lab. They are loc
 | IP ranges and DNS | IP ranges and DNS hostname values | [output/values.md](./output/values.md) |
 | Branch1 DNS | Authoritative DNS and forwarding | [output/branch1Dns.sh](./output/branch1Dns.sh) |
 | Branch1 NVA | Cisco IOS configuration | [output/branch1Nva.sh](./output/branch1Nva.sh) |
+| Hub 1 NVA | Linux NVA configuration | [output/hub1-linux-nva.sh](./output/hub1-linux-nva.sh) |
 | Web server | Python Flask web server, test scripts | [output/server.sh](./output/server.sh) |
 ||||
 

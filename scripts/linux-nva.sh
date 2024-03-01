@@ -39,14 +39,41 @@ ETH1_MASK=$(ip addr show eth1 | awk '/inet / {print $2}' | cut -d'/' -f2)
 # eth1 routing
 echo "2 rt1" | sudo tee -a /etc/iproute2/rt_tables
 
-# all traffic from/to eth1 should use rt1 for lookup
-# subnet mask is used to expand entire range to include ilb vip
+# ip rules
+#-----------------------------------------------------
+# ip rules tell the kernel which routing table to use.
+# all traffic from/to eth1 subnet should use rt1 for lookup;
+# an example is traffic to/from eth1 floating IP (load balcner VIP)
+# the subnet mask expands the default GW IP to the entire subnet
 ip rule add from $ETH1_DGW/$ETH1_MASK table rt1
 ip rule add to $ETH1_DGW/$ETH1_MASK table rt1
 
-# send return azure platform traffic via eth1
+# the azure user-defined routes will direct all vnet inbound traffic to eth1 (trust)
+# if destination is internal (RFC1918 and RFC6598), ip rule directs kernel to use rt1 for lookup; and then use the ip routes in rt1
+# if destination is internet (not RFC1918 and RFC6598), use the main routing table for lookup and exit via eth0 default gateway
+ip rule add to 10.0.0.0/8 table rt1
+ip rule add to 172.16.0.0/12 table rt1
+ip rule add to 192.168.0.0/16 table rt1
+ip rule add to 100.64.0.0/10 table rt1
+
+# ip routes
+#--------------------------------------------------
+# kernel is directed to rt1 for RFC1918 and RFC6598 destinations
+# the following default route is used for traffic forwarding via eth1
+ip route add 10.0.0.0/8 via $ETH1_DGW dev eth1 table rt1
+ip route add 172.16.0.0/12 via $ETH1_DGW dev eth1 table rt1
+ip route add 192.168.0.0/16 via $ETH1_DGW dev eth1 table rt1
+ip route add 100.64.0.0/10 via $ETH1_DGW dev eth1 table rt1
+
+# for traffic originating from azure platform to eth1 ...
+# rule "ip rule add to $ETH1_DGW/$ETH1_MASK table rt1" is used
+# this rule directs that rt1 should be used for lookup
+# the return traffic will use the following rt1 routes
 ip route add 168.63.129.16/32 via $ETH1_DGW dev eth1 table rt1
 ip route add 169.254.169.254/32 via $ETH1_DGW dev eth1 table rt1
+
+# alternatively, all the static routes can be replaced by a single default route
+# ip route add default via $ETH1_DGW dev eth1 table rt1
 
 #########################################################
 # packages

@@ -15,8 +15,8 @@ Contents
   - [2. Ping DNS](#2-ping-dns)
   - [3. Curl DNS](#3-curl-dns)
   - [4. Private Link Service](#4-private-link-service)
-  - [5. Private Link (App Service) Access from Public Client](#5-private-link-app-service-access-from-public-client)
-  - [6. Private Link (App Service) Access from On-premises](#6-private-link-app-service-access-from-on-premises)
+  - [5. Private Link (Storage Account) Access from Public Client](#5-private-link-storage-account-access-from-public-client)
+  - [6. Private Link (Storage Account) Access from On-premises](#6-private-link-storage-account-access-from-on-premises)
   - [7. Network Virtual Appliance (NVA)](#7-network-virtual-appliance-nva)
   - [8. On-premises Routes](#8-on-premises-routes)
 - [Cleanup](#cleanup)
@@ -25,7 +25,7 @@ Contents
 
 Deploy a dual-region Hub and Spoke Vnet topology using Virtual Network Appliances (NVA) for traffic inspection. Learn about multi-region traffic routing patterns, [hybrid DNS](https://learn.microsoft.com/en-us/azure/dns/private-resolver-hybrid-dns) resolution, NVA deployment, and [PrivateLink Services](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) access to IaaS, [PrivateLink](https://learn.microsoft.com/en-us/azure/private-link/private-link-overview) access to PaaS services.
 
-![Hub and Spoke (Dual region)](../../images/scenarios/1-4-hub-spoke-nva-dual-region.png)
+<img src="../../images/scenarios/1-4-hub-spoke-nva-dual-region.png" alt="Hub and Spoke (Dual region)" width="900">
 
 ***Hub1*** is a Vnet hub that has a Virtual Network Appliance (NVA) used for inspection of traffic between an on-premises branch and Vnet spokes. User-Defined Routes (UDR) are used to influence the hub Vnet data plane to route traffic between the branch and spokes via the NVA. An isolated spoke ***spoke3*** does not have Vnet peering to ***hub1***, but is reachable from the hub via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview).
 
@@ -76,17 +76,20 @@ The table below shows the auto-generated output files from the lab. They are loc
 | Item    | Description  | Location |
 |--------|--------|--------|
 | IP ranges and DNS | IP ranges and DNS hostname values | [output/values.md](./output/values.md) |
-| Branch DNS Server | Unbound DNS server configuration showing on-premises authoritative zones and conditional forwarding to hub private DNS resolver endpoint | [output/branch-unbound.sh](./output/branch-unbound.sh) |
-| Branch1 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch1Nva.sh](./output/branch1Nva.sh) |
-| Branch3 NVA | Cisco IOS commands for IPsec VPN, BGP, route maps etc. | [output/branch3Nva.sh](./output/branch3Nva.sh) |
-| (Optional) Hub1 NVA | Linux NVA configuration | [output/hub1-linux-nva.sh](./output/hub1-linux-nva.sh) |
-| (Optional) Hub2 NVA | Linux NVA configuration | [output/hub2-linux-nva.sh](./output/hub2-linux-nva.sh) |
-| Web server for workload VMs | Python Flask web server and various test and debug scripts | [output/server.sh](./output/server.sh) |
+| Branch1 DNS | Authoritative DNS and forwarding | [output/branch1Dns.sh](./output/branch1Dns.sh) |
+| Branch3 DNS | Authoritative DNS and forwarding | [output/branch3Dns.sh](./output/branch3Dns.sh) |
+| Branch1 NVA | Cisco IOS configuration | [output/branch1Nva.sh](./output/branch1Nva.sh) |
+| Branch3 NVA | Cisco IOS configuration | [output/branch3Nva.sh](./output/branch3Nva.sh) |
+| (Optional) Hub1 Linux NVA | Linux NVA configuration | [output/hub1-linux-nva.sh](./output/hub1-linux-nva.sh) |
+| (Optional) Hub2 Linux NVA | Linux NVA configuration | [output/hub2-linux-nva.sh](./output/hub2-linux-nva.sh) |
+| Web server | Python Flask web server, test scripts | [output/server.sh](./output/server.sh) |
 ||||
 
 ## Dashboards (Optional)
 
-This lab contains a number of pre-configured dashboards for monitoring and troubleshooting network gateways, VPN gateways, and Azure Firewall. If you have set `enable_diagnostics = true` in the `main.tf` file, then the dashboards will be created.
+This lab contains a number of pre-configured dashboards for monitoring gateways, VPN gateways, and Azure Firewall.
+
+To view dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment.
 
 To view the dashboards, follow the steps below:
 
@@ -96,19 +99,19 @@ To view the dashboards, follow the steps below:
 
 3. Select the dashboard you want to view.
 
-   ![Shared dashboards](../../images/demos/hub-and-spoke/hs14-shared-dashboards.png)
+   <img src="../../images/demos/hub-and-spoke/hs14-shared-dashboards.png" alt="Shared dashboards" width="900">
 
 4. Click on a dashboard under **Go to dashboard** column.
 
    Sample dashboard for VPN gateway in ***hub1***.
 
-    ![Go to dashboard](../../images/demos/hub-and-spoke/hs14-hub1-vpngw-db.png)
+    <img src="../../images/demos/hub-and-spoke/hs14-hub1-vpngw-db.png" alt="Go to dashboard" width="900">
 
 ## Testing
 
-Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of network reachability tests. Serial console access has been configured for all virtual machines. You can [access the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal) of a virtual machine from the Azure portal.
+Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of network reachability tests. Serial console access has been configured for all virtual machines.
 
-Login to virtual machine `Hs14-spoke1Vm` via the serial console:
+Login to virtual machine `Vwan24-spoke1Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
 
 - On Azure portal select *Virtual machines*
 - Select the virtual machine `Hs14-spoke1Vm`
@@ -133,19 +136,7 @@ ping-ip
 Sample output
 
 ```sh
-azureuser@Hs14-spoke1Vm:~$ ping-ip
 
- ping ip ...
-
-branch1 - 10.10.0.5 -OK 9.470 ms
-hub1    - 10.11.0.5 -OK 3.564 ms
-spoke1  - 10.1.0.5 -OK 0.033 ms
-spoke2  - 10.2.0.5 -OK 4.756 ms
-branch3 - 10.30.0.5 -OK 24.244 ms
-hub2    - 10.22.0.5 -OK 20.842 ms
-spoke4  - 10.4.0.5 -OK 22.122 ms
-spoke5  - 10.5.0.5 -OK 20.468 ms
-internet - icanhazip.com -OK 5.333 ms
 ```
 
 ### 2. Ping DNS
@@ -161,19 +152,7 @@ ping-dns
 Sample output
 
 ```sh
-azureuser@Hs14-spoke1Vm:~$ ping-dns
 
- ping dns ...
-
-vm.branch1.corp - 10.10.0.5 -OK 8.657 ms
-vm.hub1.we.az.corp - 10.11.0.5 -OK 3.567 ms
-vm.spoke1.we.az.corp - 10.1.0.5 -OK 0.031 ms
-vm.spoke2.we.az.corp - 10.2.0.5 -OK 5.761 ms
-vm.branch3.corp - 10.30.0.5 -OK 24.832 ms
-vm.hub2.ne.az.corp - 10.22.0.5 -OK 20.770 ms
-vm.spoke4.ne.az.corp - 10.4.0.5 -OK 24.512 ms
-vm.spoke5.ne.az.corp - 10.5.0.5 -OK 21.137 ms
-icanhazip.com - 104.18.114.97 -OK 4.711 ms
 ```
 
 ### 3. Curl DNS
@@ -189,28 +168,8 @@ curl-dns
 Sample output
 
 ```sh
-azureuser@Hs14-spoke1Vm:~$ curl-dns
 
- curl dns ...
-
-200 (0.048563s) - 10.10.0.5 - vm.branch1.corp
-200 (0.027247s) - 10.11.0.5 - vm.hub1.we.az.corp
-200 (0.024343s) - 10.11.7.4 - spoke3pls.eu.az.corp
-200 (0.012318s) - 10.1.0.5 - vm.spoke1.we.az.corp
-200 (0.038658s) - 10.2.0.5 - vm.spoke2.we.az.corp
-000 (2.001238s) -  - vm.spoke3.we.az.corp
-200 (0.090154s) - 10.30.0.5 - vm.branch3.corp
-200 (0.082816s) - 10.22.0.5 - vm.hub2.ne.az.corp
-200 (0.084757s) - 10.22.7.4 - spoke6pls.us.az.corp
-200 (0.085554s) - 10.4.0.5 - vm.spoke4.ne.az.corp
-200 (0.083624s) - 10.5.0.5 - vm.spoke5.ne.az.corp
-000 (2.000216s) -  - vm.spoke6.ne.az.corp
-200 (0.016200s) - 104.18.115.97 - icanhazip.com
-200 (0.040601s) - 10.11.7.5 - hs14-spoke3-575a.azurewebsites.net
-200 (0.073502s) - 10.22.7.5 - hs14-spoke6-575a.azurewebsites.net
 ```
-
-We can see that curl test to spoke3 virtual machine `vm.spoke3.we.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3pls.eu.az.corp`. The same explanation applies to ***spoke6*** virtual machine `vm.spoke6.ne.az.corp`
 
 ### 4. Private Link Service
 
@@ -223,17 +182,7 @@ curl spoke3pls.eu.az.corp
 Sample output
 
 ```sh
-azureuser@Hs14-spoke1Vm:~$ curl spoke3pls.eu.az.corp
-{
-  "Headers": {
-    "Accept": "*/*",
-    "Host": "spoke3pls.eu.az.corp",
-    "User-Agent": "curl/7.68.0"
-  },
-  "Hostname": "Hs14-spoke3-vm",
-  "Local-IP": "10.3.0.5",
-  "Remote-IP": "10.3.6.4"
-}
+
 ```
 
 **4.2.** Test access to ***spoke6*** web application using the private endpoint in ***hub2***.
@@ -245,188 +194,133 @@ curl spoke6pls.us.az.corp
 Sample output
 
 ```sh
-azureuser@Hs14-spoke1Vm:~$ curl spoke6pls.us.az.corp
-{
-  "Headers": {
-    "Accept": "*/*",
-    "Host": "spoke6pls.us.az.corp",
-    "User-Agent": "curl/7.68.0"
-  },
-  "Hostname": "Hs14-spoke6-vm",
-  "Local-IP": "10.6.0.5",
-  "Remote-IP": "10.6.6.4"
-}
+
 ```
 
 The `Hostname` and `Local-IP` fields identifies the actual web servers - in this case ***spoke3*** and ***spoke6*** virtual machines. The `Remote-IP` fields (as seen by the web servers) are IP addresses in the Private Link Service NAT subnets in ***spoke3*** and ***spoke6*** respectively.
 
-### 5. Private Link (App Service) Access from Public Client
+### 5. Private Link (Storage Account) Access from Public Client
 
-App service instances are deployed for ***spoke3*** and ***spoke6***. The app service instance is a fully managed PaaS service. In this lab, the services are linked to ***spoke3*** and ***spoke6***. By using [Virtual Network integration](https://learn.microsoft.com/en-us/azure/app-service/overview-vnet-integration#regional-virtual-network-integration), the app services are deployed in dedicated ***AppServiceSubnet*** subnets in ***spoke3*** and ***spoke6***. This allows each app service to access private resources through their linked spoke Vnet.
+A storage account with a container blob deployed and accessible via private endpoints in ***hub1***. The storage accounts have the following naming convention:
 
-The app services are accessible via the private endpoints in ***hub1*** and ***hub2*** respectively. The app services are also accessible via their public endpoints. The app service application is a simple [python Flask web application](https://hub.docker.com/r/ksalawu/web) that returns the HTTP headers, hostname and IP addresses of the server running the application.
+* hs14spoke3sa\<AAAA\>.blob.core.windows.net
+* hs14spoke6sa\<BBBB\>.blob.core.windows.net
 
-The app services have the following naming convention:
+Where ***\<AAAA\>*** and ***\<BBBB\>*** are randomly generated two-byte strings.
 
-- hs14-spoke3-AAAA.azurewebsites.net
-- hs14-spoke6-BBBB.azurewebsites.net
-
-Where ***AAAA*** and ***BBBB*** are randomly generated two-byte strings.
-
-**5.1.** On your local machine, get the hostname of the app service linked to ***spoke3***
+**5.1.** On your local machine, get the storage account hostname and blob URL.
 
 ```sh
-spoke3_apps_url=$(az webapp list --resource-group Hs14RG --query "[?contains(name, 'hs14-spoke3')].defaultHostName" -o tsv)
-```
+spoke3_storage_account=$(az storage account list -g Hs14RG --query "[?contains(name, 'hs14spoke3sa')].name" -o tsv)
 
-**5.2.** Display the hostname
+spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
+spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
 
-```sh
-echo $spoke3_apps_url
+echo -e "\n$spoke3_sgtacct_host\n" && echo
 ```
 
 Sample output (yours will be different)
 
 ```sh
-hs14-spoke3-575a.azurewebsites.net
+hs14spoke3sae71e.blob.core.windows.net
 ```
 
-**5.3.** Resolve the hostname
+**5.2.** Resolve the hostname
 
 ```sh
-nslookup $spoke3_apps_url
+nslookup $spoke3_sgtacct_host
 ```
 
 Sample output (yours will be different)
 
 ```sh
-4-hub-spoke-nva-dual-region$ nslookup $spoke3_apps_url
-Server:         172.24.64.1
-Address:        172.24.64.1#53
 
-Non-authoritative answer:
-hs14-spoke3-575a.azurewebsites.net  canonical name = hs14-spoke3-575a-app.privatelink.azurewebsites.net.
-hs14-spoke3-575a-app.privatelink.azurewebsites.net      canonical name = waws-prod-am2-733.sip.azurewebsites.windows.net.
-waws-prod-am2-733.sip.azurewebsites.windows.net canonical name = waws-prod-am2-733-a958.westeurope.cloudapp.azure.com.
-Name:   waws-prod-am2-733-a958.westeurope.cloudapp.azure.com
-Address: 20.105.232.44
 ```
 
-We can see that the endpoint is a public IP address, ***20.105.232.44***. We can see the CNAME `hs14-spoke3-575a-app.privatelink.azurewebsites.net` created for the app service which recursively resolves to the public IP address.
+We can see that the endpoint is a public IP address, ***20.60.204.97***. We can see the CNAME `hs14spoke3sae71e.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
 
-**5.4.** Test access to the ***spoke3*** app service via the public endpoint.
+**5.3.** Test access to the storage account blob.
 
 ```sh
-curl $spoke3_apps_url
+curl $spoke3_blob_url && echo
 ```
 
 Sample output
 
 ```sh
-4-hub-spoke-nva-dual-region$ curl $spoke3_apps_url
-{
-  "Headers": {
-    "Accept": "*/*",
-    "Client-Ip": "140.228.48.45:31938",
-    "Disguised-Host": "hs14-spoke3-575a.azurewebsites.net",
-    "Host": "hs14-spoke3-575a.azurewebsites.net",
-    "Max-Forwards": "10",
-    "User-Agent": "curl/7.74.0",
-    "Was-Default-Hostname": "hs14-spoke3-575a.azurewebsites.net",
-    "X-Arr-Log-Id": "1471ad3f-f8c6-4d9e-b36e-ada61942c284",
-    "X-Client-Ip": "140.228.48.45",
-    "X-Client-Port": "31938",
-    "X-Forwarded-For": "140.228.48.45:31938",
-    "X-Original-Url": "/",
-    "X-Site-Deployment-Id": "hs14-spoke3-575a-app",
-    "X-Waws-Unencoded-Url": "/"
-  },
-  "Hostname": "d28353f8c1ab",
-  "Local-IP": "169.254.129.3",
-  "Remote-IP": "169.254.129.1"
-}
+Hello, World!
 ```
 
-Observe that we are connecting from our local client's public IP address (140.228.48.45) specified in the `X-Client-Ip`.
+### 6. Private Link (Storage Account) Access from On-premises
 
-**(Optional)** Repeat *Step 5.1* through *Step 5.4* for the app service linked to ***spoke6***.
+**6.1** Login to on-premises virtual machine `Hs14-branch1Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
+  - username = ***azureuser***
+  - password = ***Password123***
 
-### 6. Private Link (App Service) Access from On-premises
+ We will test access from `Hs14-branch1Vm` to the storage account for ***spoke3*** via the private endpoint in ***hub1***.
 
-**6.1** Recall the hostname of the app service in ***spoke3*** as done in *Step 5.2*. In this lab deployment, the hostname is `hs14-spoke3-575a.azurewebsites.net`.
-
-**6.2.** Connect to the on-premises server `Hs14-branch1Vm` [using the serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal). We will test access from `Hs14-branch1Vm` to the app service for ***spoke3*** via the private endpoint in ***hub1***.
-
-**6.3.** Resolve the hostname DNS - which is `hs14-spoke3-575a.azurewebsites.net` in this example. Use your actual hostname from *Step 6.1*.
+**6.2.** Use the following script to run `az login` with a user assigned identity.
 
 ```sh
-nslookup hs14-spoke3-<AAAA>.azurewebsites.net
+/usr/local/bin/az-login
+```
+
+**6.3.** Get the storage account hostname and blob URL.
+
+```sh
+spoke3_storage_account=$(az storage account list -g Hs14RG --query "[?contains(name, 'hs14spoke3sa')].name" -o tsv)
+
+spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
+spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
+
+echo -e "\n$spoke3_sgtacct_host\n" && echo
+```
+
+Sample output (yours will be different)
+
+```sh
+hs14spoke3sae71e.blob.core.windows.net
+```
+
+**6.4.** Resolve the storage account DNS name
+
+```sh
+nslookup $spoke3_sgtacct_host
 ```
 
 Sample output
 
 ```sh
-azureuser@Hs14-branch1Vm:~$ nslookup hs14-spoke3-575a.azurewebsites.net
-Server:         127.0.0.53
-Address:        127.0.0.53#53
 
-Non-authoritative answer:
-hs14-spoke3-575a.azurewebsites.net  canonical name = hs14-spoke3-575a-app.privatelink.azurewebsites.net.
-Name:   hs14-spoke3-575a-app.privatelink.azurewebsites.net
-Address: 10.11.7.5
 ```
 
-We can see that the app service hostname resolves to the private endpoint ***10.11.7.5*** in ***hub1***. The following is a summary of the DNS resolution from `Hs14-branch1Vm`:
+We can see that the storage account hostname resolves to the private endpoint ***10.11.7.99*** in ***hub1***. The following is a summary of the DNS resolution from `Hs14-branch1Vm`:
 
-- On-premises server `Hs14-branch1Vm` makes a DNS request for `hs14-spoke3-575a.azurewebsites.net`
+- On-premises server `Hs14-branch1Vm` makes a DNS request for `hs14spoke3sae71e.blob.core.windows.net`
 - The request is received by on-premises DNS server `Hs14-branch1-dns`
-- The DNS server resolves `hs14-spoke3-575a.azurewebsites.net` to the CNAME `hs14-spoke3-575a-app.privatelink.azurewebsites.net`
-- The DNS server has a conditional DNS forwarding defined in the [unbound DNS configuration file](./output/branch-unbound.sh).
+- The DNS server resolves `hs14spoke3sae71e.blob.core.windows.net` to the CNAME `hs14spoke3sae71e.privatelink.blob.core.windows.net`
+- The DNS server has a conditional DNS forwarding defined in the branch1 unbound DNS configuration file, [output/branch1Dns.sh](./output/branch1Dns.sh).
 
   ```sh
   forward-zone:
-          name: "privatelink.azurewebsites.net."
+          name: "privatelink.blob.core.windows.net."
           forward-addr: 10.11.8.4
-          forward-addr: 10.22.8.4
   ```
 
-  DNS Requests matching `privatelink.azurewebsites.net` will be forwarded to the private DNS resolver inbound endpoint in ***hub1*** (10.11.8.4). The DNS resolver inbound endpoint for ***hub2*** (10.22.8.4) is also included for redundancy.
-- The DNS server forwards the DNS request to the private DNS resolver inbound endpoint in ***hub1*** - which returns the IP address of the app service private endpoint in ***hub1*** (10.11.7.5)
+  DNS Requests matching `privatelink.blob.core.windows.net` will be forwarded to the private DNS resolver inbound endpoint in ***hub1*** (10.11.8.4).
+- The DNS server forwards the DNS request to the private DNS resolver inbound endpoint in ***hub1*** - which returns the IP address of the storage account private endpoint in ***hub1*** (10.11.7.99)
 
-**6.4.** From `Hs14-branch1Vm`, test access to the ***spoke3*** app service via the private endpoint. Use your actual hostname.
+**6.5.** Test access to the storage account blob.
 
 ```sh
-curl hs14-spoke3-<AAAA>.azurewebsites.net
+curl $spoke3_blob_url && echo
 ```
 
 Sample output
 
 ```sh
-azureuser@Hs14-branch1Vm:~$ curl hs14-spoke3-575a.azurewebsites.net
-{
-  "Headers": {
-    "Accept": "*/*",
-    "Client-Ip": "[fd40:517:12:875d:7912:f00:a0a:5]:37972",
-    "Disguised-Host": "hs14-spoke3-575a.azurewebsites.net",
-    "Host": "hs14-spoke3-575a.azurewebsites.net",
-    "Max-Forwards": "10",
-    "User-Agent": "curl/7.68.0",
-    "Was-Default-Hostname": "hs14-spoke3-575a.azurewebsites.net",
-    "X-Arr-Log-Id": "c96941b6-6419-43ce-832d-18978ab68d72",
-    "X-Client-Ip": "10.10.0.5",
-    "X-Client-Port": "0",
-    "X-Forwarded-For": "10.10.0.5",
-    "X-Original-Url": "/",
-    "X-Site-Deployment-Id": "hs14-spoke3-575a-app",
-    "X-Waws-Unencoded-Url": "/"
-  },
-  "Hostname": "d28353f8c1ab",
-  "Local-IP": "169.254.129.3",
-  "Remote-IP": "169.254.129.1"
-}
+Hello, World!
 ```
-
-Observe that we are connecting from the private IP address of `Hs14-branch1Vm` (10.10.0.5) specified in the `X-Client-Ip`.
 
 ### 7. Network Virtual Appliance (NVA)
 
@@ -435,116 +329,25 @@ Whilst still logged into the on-premises server `Hs14-branch1Vm` via the serial 
 **7.1.** Run the `trace-ip` script
 
 ```sh
-azureuser@Hs14-branch1Vm:~$ trace-ip
 
- trace ip ...
-
-
-branch1
--------------------------------------
- 1:  Hs14-branch1Vm                                       0.076ms reached
-     Resume: pmtu 65535 hops 1 back 1
-
-hub1
--------------------------------------
- 1?: [LOCALHOST]                      pmtu 1500
- 1:  10.10.3.9                                             1.071ms
- 1:  10.10.3.9                                             6.093ms
- 2:  10.10.3.9                                             9.006ms pmtu 1438
- 2:  10.11.1.4                                             5.308ms
- 3:  10.11.0.5                                             6.554ms reached
-     Resume: pmtu 1438 hops 3 back 3
-
-spoke1
--------------------------------------
- 1?: [LOCALHOST]                      pmtu 1500
- 1:  10.10.3.9                                             2.345ms
- 1:  10.10.3.9                                             2.652ms
- 2:  10.10.3.9                                             1.152ms pmtu 1438
- 2:  10.11.1.4                                             5.894ms
- 3:  10.1.0.5                                              7.419ms reached
-     Resume: pmtu 1438 hops 3 back 3
-
-spoke2
--------------------------------------
- 1?: [LOCALHOST]                      pmtu 1500
- 1:  10.10.3.9                                             2.496ms
- 1:  10.10.3.9                                             1.520ms
- 2:  10.10.3.9                                             1.327ms pmtu 1438
- 2:  10.11.1.4                                             5.527ms
- 3:  10.2.0.5                                              7.771ms reached
-     Resume: pmtu 1438 hops 3 back 3
-
-branch3
--------------------------------------
- 1?: [LOCALHOST]                      pmtu 1500
- 1:  10.30.0.5                                            16.522ms reached
- 1:  10.30.0.5                                            16.293ms reached
-     Resume: pmtu 1500 hops 1 back 1
-
-hub2
--------------------------------------
- 1?: [LOCALHOST]                      pmtu 1500
- 1:  10.10.3.9                                             5.347ms
- 1:  10.10.3.9                                             0.855ms
- 2:  10.10.3.9                                             1.348ms pmtu 1446
- 2:  10.30.30.9                                           18.339ms
- 3:  10.30.30.9                                           28.940ms pmtu 1438
- 3:  10.22.1.4                                            25.142ms
- 4:  10.22.0.5                                            20.850ms reached
-     Resume: pmtu 1438 hops 4 back 4
-
-spoke4
--------------------------------------
- 1?: [LOCALHOST]                      pmtu 1500
- 1:  10.10.3.9                                             1.703ms
- 1:  10.10.3.9                                             1.402ms
- 2:  10.10.3.9                                             2.887ms pmtu 1446
- 2:  10.30.30.9                                           17.337ms
- 3:  10.30.30.9                                           18.058ms pmtu 1438
- 3:  10.22.1.4                                            19.370ms
- 4:  10.4.0.5                                             21.252ms reached
-     Resume: pmtu 1438 hops 4 back 4
-
-spoke5
--------------------------------------
- 1?: [LOCALHOST]                      pmtu 1500
- 1:  10.10.3.9                                             2.804ms
- 1:  10.10.3.9                                             0.974ms
- 2:  10.10.3.9                                             1.307ms pmtu 1446
- 2:  10.30.30.9                                           18.127ms
- 3:  10.30.30.9                                           17.671ms pmtu 1438
- 3:  10.22.1.4                                            19.177ms
- 4:  10.5.0.5                                             19.881ms reached
-     Resume: pmtu 1438 hops 4 back 4
-
-internet
--------------------------------------
- 1?: [LOCALHOST]                      pmtu 1500
- 1:  no reply
- 2:  no reply
 ```
 
-We can observe that traffic to ***spoke1***, ***spoke2*** and ***hub1*** flow symmetrically via the NVA in ***hub1*** (10.11.2.4). However, traffic to ***spoke4***, ***spoke5*** and ***hub2*** flow asymmetrically via the NVA in ***hub2*** (10.22.1.4).
+We can observe that traffic to ***spoke1***, ***spoke2*** and ***hub1*** flow symmetrically via the NVA in ***hub1*** (10.11.2.4).
+Similarly, traffic to ***spoke4***, ***spoke5*** and ***hub2*** flow symmetrically via the NVA in ***hub2*** (10.22.2.4).
 
 ### 8. On-premises Routes
 
-Login to the onprem router `Hs14-branch1Nva` in order to observe its dynamic routes.
+**8.1** Login to on-premises virtual machine `Hs14-branch1Nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
+  - username = ***azureuser***
+  - password = ***Password123***
 
-**8.1.** Login to virtual machine `Hs14-branch1Nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal).
-
-**8.2.** Enter username and password
-
-   - username = ***azureuser***
-   - password = ***Password123***
-
-**8.3.** Enter the Cisco enable mode
+**8.2.** Enter the Cisco ***enable*** mode
 
 ```sh
 enable
 ```
 
-**8.4.** Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
+**8.3.** Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
 
 ```sh
 show ip route
@@ -553,47 +356,14 @@ show ip route
 Sample output
 
 ```sh
-Hs14-branch1Nva#show ip route
+branch1Nva# show ip route
 ...
-[Truncated for brevity]
-...
-Gateway of last resort is 10.10.1.1 to network 0.0.0.0
 
-S*    0.0.0.0/0 [1/0] via 10.10.1.1
-      10.0.0.0/8 is variably subnetted, 20 subnets, 4 masks
-B        10.1.0.0/16 [20/0] via 10.11.10.4, 01:50:17
-B        10.2.0.0/16 [20/0] via 10.11.10.4, 01:50:17
-B        10.4.0.0/16 [20/0] via 192.168.30.30, 01:50:17
-B        10.5.0.0/16 [20/0] via 192.168.30.30, 01:50:17
-S        10.10.0.0/24 [1/0] via 10.10.3.1
-C        10.10.1.0/24 is directly connected, GigabitEthernet1
-L        10.10.1.9/32 is directly connected, GigabitEthernet1
-C        10.10.3.0/24 is directly connected, GigabitEthernet2
-L        10.10.3.9/32 is directly connected, GigabitEthernet2
-C        10.10.10.0/30 is directly connected, Tunnel0
-L        10.10.10.1/32 is directly connected, Tunnel0
-C        10.10.10.4/30 is directly connected, Tunnel1
-L        10.10.10.5/32 is directly connected, Tunnel1
-C        10.10.10.8/30 is directly connected, Tunnel2
-L        10.10.10.9/32 is directly connected, Tunnel2
-B        10.11.0.0/16 [20/0] via 10.11.10.4, 01:50:17
-S        10.11.10.4/32 is directly connected, Tunnel1
-S        10.11.10.5/32 is directly connected, Tunnel0
-B        10.22.0.0/16 [20/0] via 192.168.30.30, 01:50:17
-B        10.30.0.0/24 [20/0] via 192.168.30.30, 01:50:17
-      168.63.0.0/32 is subnetted, 1 subnets
-S        168.63.129.16 [254/0] via 10.10.1.1
-      169.254.0.0/32 is subnetted, 1 subnets
-S        169.254.169.254 [254/0] via 10.10.1.1
-      192.168.10.0/32 is subnetted, 1 subnets
-C        192.168.10.10 is directly connected, Loopback0
-      192.168.30.0/32 is subnetted, 1 subnets
-S        192.168.30.30 is directly connected, Tunnel2
 ```
 
-We can see the hub and spoke Vnet ranges are learned dynamically via BGP.
+We can see the Vnet ranges learned dynamically via BGP.
 
-**8.5.** Display BGP information by typing `show ip bgp`.
+**8.4.** Display BGP information by typing `show ip bgp` and pressing the space bar to show the complete output.
 
 ```sh
 show ip bgp
@@ -602,27 +372,7 @@ show ip bgp
 Sample output
 
 ```sh
-Hs14-branch1Nva#show ip bgp
-BGP table version is 9, local router ID is 192.168.10.10
-Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
-              r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
-              x best-external, a additional-path, c RIB-compressed,
-              t secondary path, L long-lived-stale,
-Origin codes: i - IGP, e - EGP, ? - incomplete
-RPKI validation codes: V valid, I invalid, N Not found
 
-     Network          Next Hop            Metric LocPrf Weight Path
- *    10.1.0.0/16      10.11.10.5                             0 65515 i
- *>                    10.11.10.4                             0 65515 i
- *    10.2.0.0/16      10.11.10.5                             0 65515 i
- *>                    10.11.10.4                             0 65515 i
- *>   10.4.0.0/16      192.168.30.30                          0 65003 65003 65003 65003 65515 i
- *>   10.5.0.0/16      192.168.30.30                          0 65003 65003 65003 65003 65515 i
- *>   10.10.0.0/24     10.10.3.1                0         32768 i
- *    10.11.0.0/16     10.11.10.5                             0 65515 i
- *>                    10.11.10.4                             0 65515 i
- *>   10.22.0.0/16     192.168.30.30                          0 65003 65003 65003 65003 65515 i
- *>   10.30.0.0/24     192.168.30.30            0             0 65003 65003 65003 65003 i
 ```
 
 We can see the hub and spoke Vnet ranges being learned dynamically in the BGP table.
@@ -635,7 +385,7 @@ We can see the hub and spoke Vnet ranges being learned dynamically in the BGP ta
    cd azure-network-terraform/1-hub-and-spoke/4-hub-spoke-nva-dual-region
    ```
 
-2. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
+2. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
    ```sh
    bash ../../scripts/_cleanup.sh Hs14

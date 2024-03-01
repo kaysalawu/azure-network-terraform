@@ -50,7 +50,7 @@ module "spoke4_udr_main" {
   location                      = local.spoke4_location
   subnet_id                     = module.spoke4.subnets["MainSubnet"].id
   next_hop_type                 = "VirtualAppliance"
-  next_hop_in_ip_address        = local.hub2_nva_ilb_addr
+  next_hop_in_ip_address        = local.hub2_nva_ilb_trust_addr
   disable_bgp_route_propagation = true
 
   destinations = merge(
@@ -117,7 +117,7 @@ module "spoke5_udr_main" {
   location                      = local.spoke5_location
   subnet_id                     = module.spoke5.subnets["MainSubnet"].id
   next_hop_type                 = "VirtualAppliance"
-  next_hop_in_ip_address        = local.hub2_nva_ilb_addr
+  next_hop_in_ip_address        = local.hub2_nva_ilb_trust_addr
   disable_bgp_route_propagation = true
 
   destinations = merge(
@@ -145,7 +145,7 @@ module "hub2_gateway_udr" {
   location               = local.hub2_location
   subnet_id              = module.hub2.subnets["GatewaySubnet"].id
   next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub2_nva_ilb_addr
+  next_hop_in_ip_address = local.hub2_nva_ilb_trust_addr
   destinations           = local.hub2_gateway_udr_destinations
   depends_on = [
     module.hub2,
@@ -161,7 +161,7 @@ module "hub2_udr_main" {
   location                      = local.hub2_location
   subnet_id                     = module.hub2.subnets["MainSubnet"].id
   next_hop_type                 = "VirtualAppliance"
-  next_hop_in_ip_address        = local.hub2_nva_ilb_addr
+  next_hop_in_ip_address        = local.hub2_nva_ilb_trust_addr
   disable_bgp_route_propagation = true
 
   destinations = merge(

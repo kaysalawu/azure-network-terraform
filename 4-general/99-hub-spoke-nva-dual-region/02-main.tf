@@ -208,7 +208,7 @@ locals {
     config_nva = {
       enable           = true
       type             = "linux"
-      internal_lb_addr = local.hub2_nva_ilb_addr
+      internal_lb_addr = local.hub2_nva_ilb_trust_addr
       custom_data      = base64encode(local.hub2_linux_nva_init)
     }
   }
@@ -499,7 +499,7 @@ locals {
     LOCAL_ASN = local.hub2_nva_asn
     LOOPBACK0 = local.hub2_nva_loopback0
     LOOPBACKS = {
-      Loopback1 = local.hub2_nva_ilb_addr
+      Loopback1 = local.hub2_nva_ilb_trust_addr
     }
     CRYPTO_ADDR = local.hub2_nva_trust_addr
     VPN_PSK     = local.psk

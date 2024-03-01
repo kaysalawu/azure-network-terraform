@@ -53,7 +53,7 @@ module "hub1_appliance_udr" {
   location               = local.hub1_location
   subnet_id              = module.hub1.subnets["TrustSubnet"].id
   next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = local.hub2_nva_ilb_addr
+  next_hop_in_ip_address = local.hub2_nva_ilb_trust_addr
   destinations           = local.hub1_appliance_udr_destinations
   depends_on             = [module.hub1, ]
 }

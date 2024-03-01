@@ -66,6 +66,27 @@ module "ergw" {
 }
 
 ####################################################
+# point-to-site gateway
+####################################################
+
+module "p2sgw" {
+  count          = var.p2s_vpn_gateway.enable ? 1 : 0
+  source         = "../../modules/point-to-site-gateway"
+  resource_group = var.resource_group
+  prefix         = local.prefix
+  location       = var.location
+  virtual_hub_id = azurerm_virtual_hub.this.id
+
+  custom_route_address_prefixes = try(var.p2s_vpn_gateway.custom_route_address_prefixes, [])
+
+  vpn_client_configuration = {
+    address_space = try(var.p2s_vpn_gateway.vpn_client_configuration.address_space, ["172.16.0.0/24"])
+    clients       = try(var.p2s_vpn_gateway.vpn_client_configuration.clients, [])
+  }
+  log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
+}
+
+####################################################
 # firewall
 ####################################################
 

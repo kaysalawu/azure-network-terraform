@@ -79,10 +79,27 @@ variable "s2s_vpn_gateway" {
 
 variable "p2s_vpn_gateway" {
   type = object({
-    enable = optional(bool, false)
-    sku    = optional(string, "VpnGw1AZ")
+    enable        = optional(bool, false)
+    sku           = optional(string, "VpnGw1AZ")
+    active_active = optional(bool, false)
+
+    custom_route_address_prefixes = optional(list(string), [])
+
+    vpn_client_configuration = optional(object({
+      address_space = list(string)
+      clients = list(object({
+        name = string
+      }))
+    }))
   })
-  default = {}
+
+  default = {
+    enable = false
+    sku    = "VpnGw1AZ"
+    ip_configuration = [
+      { name = "ip-config", public_ip_address_name = null },
+    ]
+  }
 }
 
 variable "hub_routing_preference" {

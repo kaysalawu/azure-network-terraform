@@ -1,22 +1,31 @@
 #!/bin/bash
 
-if [ "$1" == "-h" ] || [ "$1" == "--helper" ]; then
+if [ "$#" -ne 2 ] || [ "$1" == "-h" ] || [ "$1" == "--helper" ]; then
     echo "Usage: $0 RESOURCE_GROUP_NAME VPN_GATEWAY_NAME"
-    exit 0
+    return 0
 fi
 
-if [ $# -eq 3 ]; then
-    RESOURCE_GROUP_NAME=$1
-    VPN_GATEWAY_NAME=$2
-    VPN_GATEWAY_IP=$3
-else
-    source .env
-fi
+RESOURCE_GROUP_NAME=$1
+VPN_GATEWAY_NAME=$2
 
+echo -e "\nchecking vnet gateway...\n"
 curl $(az network vnet-gateway vpn-client generate \
 --resource-group $RESOURCE_GROUP_NAME \
 --name $VPN_GATEWAY_NAME \
 --authentication-method EAPTLS | tr -d '"') --output ./vpnClient.zip
+
+if [ $? -ne 0 ]; then
+    echo -e "\nchecking vwan p2s gateway...\n"
+    curl $(az network p2s-vpn-gateway vpn-client generate \
+    --resource-group $RESOURCE_GROUP_NAME \
+    --name $VPN_GATEWAY_NAME \
+    --authentication-method EAPTLS 2>/dev/null | jq -r '.profileUrl') --output ./vpnClient.zip
+fi
+
+if [ $? -ne 0 ]; then
+    return 1
+fi
+
 unzip vpnClient.zip -d vpnClient
 rm vpnClient.zip
 

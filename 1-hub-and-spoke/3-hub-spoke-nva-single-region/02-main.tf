@@ -377,11 +377,6 @@ locals {
   hub1_router_route_map_name_nh = "NEXT-HOP"
   hub1_nva_vars = {
     LOCAL_ASN = local.hub1_nva_asn
-    LOOPBACK0 = local.hub1_nva_loopback0
-    LOOPBACKS = {
-      Loopback1 = local.hub1_nva_ilb_trust_addr
-    }
-    VPN_PSK = local.psk
   }
   hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
     TARGETS           = local.vm_script_targets
@@ -400,7 +395,8 @@ locals {
 
 locals {
   main_files = {
-    "output/server.sh" = local.vm_startup
+    "output/server.sh"         = local.vm_startup
+    "output/hub1-linux-nva.sh" = local.hub1_linux_nva_init
   }
 }
 

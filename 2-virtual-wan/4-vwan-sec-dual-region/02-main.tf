@@ -4,7 +4,7 @@
 
 locals {
   prefix                      = "Vwan24"
-  enable_diagnostics          = false
+  enable_diagnostics          = true
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke6_storage_account_name = lower(replace("${local.spoke6_prefix}sa${random_id.random.hex}", "-", ""))
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
@@ -290,8 +290,16 @@ locals {
     }
 
     p2s_vpn_gateway = {
-      enable = false
+      enable = true
       sku    = "VpnGw1AZ"
+      vpn_client_configuration = {
+        address_space = ["192.168.0.0/24"]
+        clients = [
+          { name = "client1" },
+          { name = "client2" },
+        ]
+      }
+      custom_route_address_prefixes = ["8.8.8.8/32"]
     }
 
     config_security = {
