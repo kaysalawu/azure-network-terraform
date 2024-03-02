@@ -132,15 +132,7 @@ ping-ip
 Sample output
 
 ```sh
-azureuser@spoke1Vm:~$ ping-ip
 
- ping ip ...
-
-branch1 - 10.10.0.5 -OK 5.053 ms
-hub1    - 10.11.0.5 -OK 4.164 ms
-spoke1  - 10.1.0.5 -OK 0.025 ms
-spoke2  - 10.2.0.5 -OK 5.551 ms
-internet - icanhazip.com -NA
 ```
 
 ### 2. Ping DNS
@@ -156,15 +148,7 @@ ping-dns
 Sample output
 
 ```sh
-azureuser@spoke1Vm:~$ ping-dns
 
- ping dns ...
-
-branch1Vm.corp - 10.10.0.5 -OK 9.789 ms
-hub1Vm.eu.az.corp - 10.11.0.5 -OK 5.508 ms
-spoke1Vm.eu.az.corp - 10.1.0.5 -OK 0.040 ms
-spoke2Vm.eu.az.corp - 10.2.0.5 -OK 5.495 ms
-icanhazip.com - 104.18.115.97 -NA
 ```
 
 ### 3. Curl DNS
@@ -180,20 +164,9 @@ curl-dns
 Sample output
 
 ```sh
-azureuser@spoke1Vm:~$ curl-dns
 
- curl dns ...
-
-200 (0.150258s) - 10.10.0.5 - branch1Vm.corp
-200 (0.020925s) - 10.11.0.5 - hub1Vm.eu.az.corp
-200 (0.023387s) - 10.11.7.88 - spoke3pls.eu.az.corp
-200 (0.009487s) - 10.1.0.5 - spoke1Vm.eu.az.corp
-200 (0.023614s) - 10.2.0.5 - spoke2Vm.eu.az.corp
-200 (0.026005s) - 104.18.114.97 - icanhazip.com
-200 (0.045423s) - 10.11.7.99 - https://vwan23spoke3sa124b.blob.core.windows.net/spoke3/spoke3.txt
 ```
 
-We can see that curl test to spoke3 virtual machine `vm.spoke3.we.az.corp` returns a ***000*** HTTP response code. This is expected since there is no Vnet peering from ***spoke3*** to ***hub1***. However, ***spoke3*** web application is reachable via Private Link Service private endpoint in ***hub1*** `spoke3pls.eu.az.corp`.
 
 ### 4. Private Link Service
 
@@ -225,11 +198,11 @@ The `Hostname` and `Local-IP` fields identify the target web server - in this ca
 
 A storage account with a container blob deployed and accessible via private endpoints in ***hub1***. The storage accounts have the following naming convention:
 
-* vwan23spoke3sa\<AAAA\>.blob.core.windows.net
+* vwan24spoke3sa\<AAAA\>.blob.core.windows.net
 
 Where ***\<AAAA\>*** is a randomly generated two-byte string.
 
-**5.1.** On your local machine, get the hostname of the app service linked to ***spoke3***
+**5.1.** On your local machine, get the storage account hostname and blob URL.
 
 ```sh
 spoke3_storage_account=$(az storage account list -g Vwan23RG --query "[?contains(name, 'vwan23spoke3sa')].name" -o tsv)
