@@ -84,7 +84,7 @@ systemctl start flaskapp.service
 
 # az login
 
-cat <<EOF > /usr/local/bin/az-login
+cat <<EOF > bash /usr/local/bin/az-login
 az login --identity -u /subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/G10RG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/G10-user
 EOF
 

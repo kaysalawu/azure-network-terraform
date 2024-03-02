@@ -238,10 +238,10 @@ Hello, World!
 
  We will test access from `Hs11-branch1Vm` to the storage account for ***spoke3*** via the private endpoint in ***hub1***.
 
-**6.2.** Use the following script to run `az login` with a user assigned identity.
+**6.2.** Run the following script to configure `az login` with the created user assigned identity.
 
 ```sh
-/usr/local/bin/az-login
+bash /usr/local/bin/az-login
 ```
 
 **6.3.** Get the storage account hostname and blob URL.

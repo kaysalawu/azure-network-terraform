@@ -84,10 +84,10 @@ systemctl start flaskapp.service
 
 # az login
 
-cat <<EOF > /usr/local/bin/az-login
+cat <<EOF > bash /usr/local/bin/az-login
 az login --identity -u /subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Hs14RG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/Hs14-user
 EOF
-chmod a+x /usr/local/bin/az-login
+chmod a+x bash /usr/local/bin/az-login
 
 # test scripts
 #-----------------------------------

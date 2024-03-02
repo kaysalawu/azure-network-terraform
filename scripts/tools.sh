@@ -5,10 +5,10 @@
 
 # az login
 
-cat <<EOF > /usr/local/bin/az-login
+cat <<EOF > bash /usr/local/bin/az-login
 az login --identity -u ${USER_ASSIGNED_ID}
 EOF
-chmod a+x /usr/local/bin/az-login
+chmod a+x bash /usr/local/bin/az-login
 
 # test scripts
 #-----------------------------------
@@ -20,7 +20,7 @@ echo -e "\n ping ip ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.ping, true) ~}
 %{~ if try(target.ip, "") != "" ~}
-echo "${target.name} - ${target.ip} -\$(timeout 3 ping -qc2 -W1 ${target.ip} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "${target.name} - ${target.ip} -\$(timeout 5 ping -qc2 -W1 ${target.ip} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 %{ endif ~}
 %{ endif ~}
 %{ endfor ~}
@@ -34,7 +34,7 @@ echo -e "\n ping dns ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.ping, true) ~}
 %{~ if try(target.ip, "") != "" ~}
-echo "${target.dns} - \$(timeout 3 dig +short ${target.dns} | tail -n1) -\$(timeout 3 ping -qc2 -W1 ${target.dns} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "${target.dns} - \$(timeout 5 dig +short ${target.dns} | tail -n1) -\$(timeout 5 ping -qc2 -W1 ${target.dns} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 %{ endif ~}
 %{ endif ~}
 %{ endfor ~}
@@ -48,7 +48,7 @@ echo -e "\n curl ip ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.curl, true) ~}
 %{~ if try(target.ip, "") != "" ~}
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.ip}) - ${target.name} (${target.ip})"
+echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.ip}) - ${target.name} (${target.ip})"
 %{ endif ~}
 %{ endif ~}
 %{ endfor ~}
@@ -61,7 +61,7 @@ cat <<EOF > /usr/local/bin/curl-dns
 echo -e "\n curl dns ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.curl, true) ~}
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.dns}) - ${target.dns}"
+echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.dns}) - ${target.dns}"
 %{ endif ~}
 %{ endfor ~}
 EOF
@@ -90,7 +90,7 @@ chmod a+x /usr/local/bin/trace-ip
 cat <<EOF > /usr/local/bin/light-traffic
 %{ for target in TARGETS_LIGHT_TRAFFIC_GEN ~}
 %{~ if try(target.probe, false) ~}
-nping -c ${try(target.count, "3")} --${try(target.protocol, "tcp")} -p ${try(target.port, "80")} ${target.dns} > /dev/null 2>&1
+nping -c ${try(target.count, "10")} --${try(target.protocol, "tcp")} -p ${try(target.port, "80")} ${try(target.dns, target.ip)} > /dev/null 2>&1
 %{ endif ~}
 %{ endfor ~}
 EOF
@@ -103,12 +103,12 @@ chmod a+x /usr/local/bin/light-traffic
 cat <<EOF > /usr/local/bin/heavy-traffic
 #! /bin/bash
 i=0
-while [ \$i -lt 4 ]; do
+while [ \$i -lt 8 ]; do
   %{ for target in TARGETS_HEAVY_TRAFFIC_GEN ~}
   ab -n \$1 -c \$2 ${target} > /dev/null 2>&1
   %{ endfor ~}
   let i=i+1
-  sleep 2
+  sleep 5
 done
 EOF
 chmod a+x /usr/local/bin/heavy-traffic
