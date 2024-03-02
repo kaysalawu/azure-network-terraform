@@ -21,8 +21,6 @@ resource "random_id" "random" {
   byte_length = 2
 }
 
-data "azurerm_subscription" "current" {}
-
 ####################################################
 # providers
 ####################################################
@@ -54,16 +52,16 @@ terraform {
 # user assigned identity
 ####################################################
 
+locals {
+  machine_roles_read = [
+    "Microsoft.Storage/storageAccounts/read"
+  ]
+}
+
 resource "azurerm_user_assigned_identity" "machine" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = local.default_region
   name                = "${local.prefix}-user"
-}
-
-resource "azurerm_role_assignment" "machine" {
-  role_definition_name = "Contributor"
-  principal_id         = azurerm_user_assigned_identity.machine.principal_id
-  scope                = data.azurerm_subscription.current.id
 }
 
 ####################################################
@@ -155,10 +153,13 @@ locals {
     }
 
     config_nva = {
-      enable           = true
-      type             = "linux"
-      internal_lb_addr = local.hub1_nva_ilb_trust_addr
-      custom_data      = base64encode(local.hub1_linux_nva_init)
+      enable          = true
+      type            = "linux"
+      scenario_option = "TwoNics"
+      opn_type        = "TwoNics"
+      custom_data     = base64encode(local.hub1_linux_nva_init)
+      ilb_untrust_ip  = local.hub1_nva_ilb_untrust_addr
+      ilb_trust_ip    = local.hub1_nva_ilb_trust_addr
     }
   }
 

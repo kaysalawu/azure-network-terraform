@@ -143,6 +143,24 @@ resource "azurerm_storage_blob" "spoke3" {
   source_content         = "Hello, World!"
 }
 
+# role assignment (system-assigned identity)
+
+locals {
+  spoke3_storage_account_role_assignment = [
+    {
+      role_definition_name = "Reader"
+      principal_id         = module.branch1_vm.vm.identity[0].principal_id
+    },
+  ]
+}
+
+resource "azurerm_role_assignment" "spoke3" {
+  for_each             = { for x in local.spoke3_storage_account_role_assignment : x.principal_id => x }
+  scope                = azurerm_storage_account.spoke3.id
+  role_definition_name = each.value.role_definition_name
+  principal_id         = each.value.principal_id
+}
+
 # private endpoint
 
 resource "azurerm_private_endpoint" "hub1_spoke3_blob_pep" {
