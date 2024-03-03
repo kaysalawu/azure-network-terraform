@@ -177,6 +177,14 @@ locals {
     p2s_vpn_gateway = {
       enable = false
       sku    = "VpnGw1AZ"
+      vpn_client_configuration = {
+        address_space = ["192.168.0.0/24"]
+        clients = [
+          { name = "client1" },
+          { name = "client2" },
+        ]
+      }
+      custom_route_address_prefixes = ["8.8.8.8/32"]
     }
 
     config_security = {
@@ -249,11 +257,6 @@ locals {
   hub1_vpngw_asn = "65011"
   hub1_ergw_asn  = "65012"
   hub1_ars_asn   = "65515"
-
-  hub2_nva_asn   = "65020"
-  hub2_vpngw_asn = "65021"
-  hub2_ergw_asn  = "65022"
-  hub2_ars_asn   = "65515"
 
   vm_script_targets_region1 = [
     { name = "branch1", dns = lower(local.branch1_vm_fqdn), ip = local.branch1_vm_addr, probe = true },

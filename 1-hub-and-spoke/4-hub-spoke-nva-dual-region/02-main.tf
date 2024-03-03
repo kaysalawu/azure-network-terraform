@@ -29,8 +29,6 @@ resource "random_id" "random" {
   byte_length = 2
 }
 
-data "azurerm_subscription" "current" {}
-
 ####################################################
 # providers
 ####################################################
@@ -66,12 +64,6 @@ resource "azurerm_user_assigned_identity" "machine" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = local.default_region
   name                = "${local.prefix}-user"
-}
-
-resource "azurerm_role_assignment" "machine" {
-  role_definition_name = "Contributor"
-  principal_id         = azurerm_user_assigned_identity.machine.principal_id
-  scope                = data.azurerm_subscription.current.id
 }
 
 ####################################################
@@ -578,9 +570,9 @@ locals {
 
 locals {
   main_files = {
-    "output/server.sh"         = local.vm_startup
     "output/hub1-linux-nva.sh" = local.hub1_linux_nva_init
     "output/hub2-linux-nva.sh" = local.hub2_linux_nva_init
+    "output/server.sh"         = local.vm_startup
   }
 }
 
