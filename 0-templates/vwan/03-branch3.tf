@@ -204,7 +204,7 @@ locals {
       {
         network  = local.branch3_network
         mask     = local.branch3_mask
-        next_hop = local.branch3_trust_default_gw
+        next_hop = local.branch3_untrust_default_gw
       },
     ]
 
@@ -332,7 +332,7 @@ locals {
       name                   = "private"
       address_prefix         = local.private_prefixes
       next_hop_type          = "VirtualAppliance"
-      next_hop_in_ip_address = local.branch3_nva_trust_addr
+      next_hop_in_ip_address = local.branch3_nva_untrust_addr
     },
   ]
 }
