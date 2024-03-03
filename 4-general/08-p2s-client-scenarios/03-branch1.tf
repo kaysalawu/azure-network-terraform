@@ -114,14 +114,14 @@ module "branch1_vm_p2s_init" {
 }
 
 module "client1" {
-  source          = "../../modules/virtual-machine-linux"
-  resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.branch1_prefix}client1"
-  location        = local.branch1_location
-  storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(module.branch1_vm_p2s_init.cloud_config)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
-  tags            = local.branch1_tags
+  source            = "../../modules/virtual-machine-linux"
+  resource_group    = azurerm_resource_group.rg.name
+  name              = "${local.branch1_prefix}client1"
+  location          = local.branch1_location
+  storage_account   = module.common.storage_accounts["region1"]
+  custom_data       = base64encode(module.branch1_vm_p2s_init.cloud_config)
+  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
+  tags              = local.branch1_tags
 
   enable_ip_forwarding = true
 
@@ -144,16 +144,16 @@ module "client1" {
 ####################################################
 
 module "branch1_vm" {
-  source          = "../../modules/virtual-machine-linux"
-  resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.branch1_prefix}vm"
-  computer_name   = "vm"
-  location        = local.branch1_location
-  storage_account = module.common.storage_accounts["region1"]
-  dns_servers     = [local.branch1_dns_addr, ]
-  custom_data     = base64encode(local.branch1_vm_init)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
-  tags            = local.branch1_tags
+  source            = "../../modules/virtual-machine-linux"
+  resource_group    = azurerm_resource_group.rg.name
+  name              = "${local.branch1_prefix}vm"
+  computer_name     = "vm"
+  location          = local.branch1_location
+  storage_account   = module.common.storage_accounts["region1"]
+  dns_servers       = [local.branch1_dns_addr, ]
+  custom_data       = base64encode(local.branch1_vm_init)
+  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
+  tags              = local.branch1_tags
 
   interfaces = [
     {

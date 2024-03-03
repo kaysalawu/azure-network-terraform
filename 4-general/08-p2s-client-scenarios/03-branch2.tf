@@ -137,14 +137,14 @@ module "client2_init" {
 
 
 module "client2" {
-  source          = "../../modules/virtual-machine-linux"
-  resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.branch2_prefix}client2"
-  location        = local.branch2_location
-  storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(module.client2_init.cloud_config)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
-  tags            = local.branch2_tags
+  source            = "../../modules/virtual-machine-linux"
+  resource_group    = azurerm_resource_group.rg.name
+  name              = "${local.branch2_prefix}client2"
+  location          = local.branch2_location
+  storage_account   = module.common.storage_accounts["region1"]
+  custom_data       = base64encode(module.client2_init.cloud_config)
+  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
+  tags              = local.branch2_tags
 
   enable_ip_forwarding = true
 
@@ -184,14 +184,14 @@ module "client3_init" {
 }
 
 module "client3" {
-  source          = "../../modules/virtual-machine-linux"
-  resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.branch2_prefix}client3"
-  location        = local.branch2_location
-  storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(module.client3_init.cloud_config)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
-  tags            = local.branch2_tags
+  source            = "../../modules/virtual-machine-linux"
+  resource_group    = azurerm_resource_group.rg.name
+  name              = "${local.branch2_prefix}client3"
+  location          = local.branch2_location
+  storage_account   = module.common.storage_accounts["region1"]
+  custom_data       = base64encode(module.client3_init.cloud_config)
+  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
+  tags              = local.branch2_tags
 
   enable_ip_forwarding = true
 
@@ -214,16 +214,16 @@ module "client3" {
 ####################################################
 
 module "branch2_vm" {
-  source          = "../../modules/virtual-machine-linux"
-  resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.branch2_prefix}vm"
-  computer_name   = "vm"
-  location        = local.branch2_location
-  storage_account = module.common.storage_accounts["region1"]
-  dns_servers     = [local.branch2_dns_addr, ]
-  custom_data     = base64encode(local.branch2_vm_init)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
-  tags            = local.branch2_tags
+  source            = "../../modules/virtual-machine-linux"
+  resource_group    = azurerm_resource_group.rg.name
+  name              = "${local.branch2_prefix}vm"
+  computer_name     = "vm"
+  location          = local.branch2_location
+  storage_account   = module.common.storage_accounts["region1"]
+  dns_servers       = [local.branch2_dns_addr, ]
+  custom_data       = base64encode(local.branch2_vm_init)
+  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
+  tags              = local.branch2_tags
 
   interfaces = [
     {

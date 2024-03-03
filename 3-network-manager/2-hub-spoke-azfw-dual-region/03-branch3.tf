@@ -96,7 +96,6 @@ module "branch3_dns" {
   location        = local.branch3_location
   storage_account = module.common.storage_accounts["region2"]
   custom_data     = base64encode(local.branch3_unbound_startup)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
   tags            = local.branch3_tags
 
   interfaces = [
@@ -256,7 +255,6 @@ module "branch3_nva" {
   location        = local.branch3_location
   storage_account = module.common.storage_accounts["region2"]
   custom_data     = base64encode(local.branch3_nva_init)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
   tags            = local.branch3_tags
 
   source_image_publisher = "cisco"
@@ -305,7 +303,6 @@ module "branch3_vm" {
   storage_account = module.common.storage_accounts["region2"]
   dns_servers     = [local.branch3_dns_addr, ]
   custom_data     = base64encode(local.branch3_vm_init)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
   tags            = local.branch3_tags
 
   interfaces = [

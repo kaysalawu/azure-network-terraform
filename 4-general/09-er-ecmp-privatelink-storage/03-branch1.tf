@@ -54,14 +54,14 @@ module "branch1" {
 ####################################################
 
 module "branch1_dns" {
-  source          = "../../modules/virtual-machine-linux"
-  resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.branch1_prefix}dns"
-  location        = local.branch1_location
-  storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(local.branch_unbound_startup)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
-  tags            = local.branch1_tags
+  source            = "../../modules/virtual-machine-linux"
+  resource_group    = azurerm_resource_group.rg.name
+  name              = "${local.branch1_prefix}dns"
+  location          = local.branch1_location
+  storage_account   = module.common.storage_accounts["region1"]
+  custom_data       = base64encode(local.branch_unbound_startup)
+  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
+  tags              = local.branch1_tags
 
   interfaces = [
     {
@@ -79,16 +79,16 @@ module "branch1_dns" {
 ####################################################
 
 module "branch1_vm" {
-  source          = "../../modules/virtual-machine-linux"
-  resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.branch1_prefix}vm"
-  computer_name   = "vm"
-  location        = local.branch1_location
-  storage_account = module.common.storage_accounts["region1"]
-  dns_servers     = [local.branch1_dns_addr, ]
-  custom_data     = base64encode(local.branch1_vm_init)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
-  tags            = local.branch1_tags
+  source            = "../../modules/virtual-machine-linux"
+  resource_group    = azurerm_resource_group.rg.name
+  name              = "${local.branch1_prefix}vm"
+  computer_name     = "vm"
+  location          = local.branch1_location
+  storage_account   = module.common.storage_accounts["region1"]
+  dns_servers       = [local.branch1_dns_addr, ]
+  custom_data       = base64encode(local.branch1_vm_init)
+  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
+  tags              = local.branch1_tags
 
   interfaces = [
     {

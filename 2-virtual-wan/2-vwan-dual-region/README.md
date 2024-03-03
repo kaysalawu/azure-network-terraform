@@ -83,7 +83,7 @@ The table below shows the auto-generated output files from the lab. They are loc
 
 This lab contains a number of pre-configured dashboards for monitoring gateways, VPN gateways, and Azure Firewall.
 
-To view dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment.
+To configure dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment.
 
 To view the dashboards, follow the steps below:
 
@@ -91,9 +91,11 @@ To view the dashboards, follow the steps below:
 
 2. Under **Browse**, select **Shared dashboards**.
 
+3. Select the dashboard you want to view.
+
    <img src="../../images/demos/virtual-wan/vwan22-shared-dashboards.png" alt="Shared dashboards" width="900">
 
-3. Click on a dashboard under **Go to dashboard** column.
+4. Click on a dashboard under **Go to dashboard** column.
 
    Sample dashboard for VPN gateway in ***hub1***.
 
@@ -128,19 +130,7 @@ ping-ip
 Sample output
 
 ```sh
-azureuser@spoke1Vm:~$ ping-ip
 
- ping ip ...
-
-branch1 - 10.10.0.5 -OK 168.035 ms
-hub1    - 10.11.0.5 -OK 3.493 ms
-spoke1  - 10.1.0.5 -OK 0.025 ms
-spoke2  - 10.2.0.5 -OK 5.220 ms
-branch3 - 10.30.0.5 -OK 71.751 ms
-hub2    - 10.22.0.5 -OK 72.401 ms
-spoke4  - 10.4.0.5 -OK 71.363 ms
-spoke5  - 10.5.0.5 -OK 73.565 ms
-internet - icanhazip.com -NA
 ```
 
 ### 2. Ping DNS
@@ -156,19 +146,7 @@ ping-dns
 Sample output
 
 ```sh
-azureuser@spoke1Vm:~$ ping-dns
 
- ping dns ...
-
-branch1Vm.corp - 10.10.0.5 -OK 125.373 ms
-hub1Vm.eu.az.corp - 10.11.0.5 -OK 4.204 ms
-spoke1Vm.eu.az.corp - 10.1.0.5 -OK 0.038 ms
-spoke2Vm.eu.az.corp - 10.2.0.5 -OK 4.895 ms
-branch3Vm.corp - 10.30.0.5 -OK 233.370 ms
-hub2Vm.us.az.corp - 10.22.0.5 -OK 72.582 ms
-spoke4Vm.us.az.corp - 10.4.0.5 -OK 73.349 ms
-spoke5Vm.us.az.corp - 10.5.0.5 -OK 73.290 ms
-icanhazip.com - 104.18.115.97 -NA
 ```
 
 ### 3. Curl DNS
@@ -184,23 +162,7 @@ curl-dns
 Sample output
 
 ```sh
-azureuser@spoke1Vm:~$ curl-dns
 
- curl dns ...
-
-200 (0.600958s) - 10.10.0.5 - branch1Vm.corp
-200 (0.019073s) - 10.11.0.5 - hub1Vm.eu.az.corp
-200 (0.018330s) - 10.11.7.88 - spoke3pls.eu.az.corp
-200 (0.009043s) - 10.1.0.5 - spoke1Vm.eu.az.corp
-200 (0.018790s) - 10.2.0.5 - spoke2Vm.eu.az.corp
-200 (0.570640s) - 10.30.0.5 - branch3Vm.corp
-200 (0.171760s) - 10.22.0.5 - hub2Vm.us.az.corp
-200 (0.176879s) - 10.22.7.88 - spoke6pls.us.az.corp
-200 (0.167926s) - 10.4.0.5 - spoke4Vm.us.az.corp
-200 (0.172643s) - 10.5.0.5 - spoke5Vm.us.az.corp
-200 (0.012871s) - 104.18.115.97 - icanhazip.com
-200 (0.048498s) - 10.11.7.99 - https://vwan22spoke3sa97e7.blob.core.windows.net/spoke3/spoke3.txt
-200 (0.322608s) - 10.22.7.99 - https://vwan22spoke6sa97e7.blob.core.windows.net/spoke6/spoke6.txt
 ```
 
 ### 4. Private Link Service
@@ -260,7 +222,7 @@ Storage accounts with container blobs are deployed and accessible via private en
 
 Where ***\<AAAA\>*** and ***\<BBBB\>*** are randomly generated two-byte strings.
 
-**5.1.** On your local machine, get the storage account hostname and blob URL.
+**5.1.** On your Cloudshell (or local machine), get the storage account hostname and blob URL.
 
 ```sh
 spoke3_storage_account=$(az storage account list -g Vwan22RG --query "[?contains(name, 'vwan22spoke3sa')].name" -o tsv)
@@ -286,15 +248,7 @@ nslookup $spoke3_sgtacct_host
 Sample output (yours will be different)
 
 ```sh
-2-vwan-dual-region$ nslookup $spoke3_sgtacct_host
-Server:         8.8.8.8
-Address:        8.8.8.8#53
 
-Non-authoritative answer:
-vwan22spoke3sa97e7.blob.core.windows.net        canonical name = vwan22spoke3sa97e7.privatelink.blob.core.windows.net.
-vwan22spoke3sa97e7.privatelink.blob.core.windows.net    canonical name = blob.db3prdstr19a.store.core.windows.net.
-Name:   blob.db3prdstr19a.store.core.windows.net
-Address: 20.150.75.36
 ```
 
 We can see that the endpoint is a public IP address, ***20.150.75.36***. We can see the CNAME `vwan22spoke3sa97e7.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
@@ -319,10 +273,10 @@ Hello, World!
 
  We will test access from `Vwan22-branch1Vm` to the storage account for ***spoke3*** via the private endpoint in ***hub1***.
 
-**6.2.** Run the following script to configure `az login` with the created user assigned identity.
+**6.2.** Run `az login` using the VM's system-assigned managed identity.
 
 ```sh
-bash /usr/local/bin/az-login
+az login --identity
 ```
 
 **6.3.** Get the storage account hostname and blob URL.
@@ -351,14 +305,7 @@ nslookup $spoke3_sgtacct_host
 Sample output
 
 ```sh
-azureuser@branch1Vm:~$ nslookup $spoke3_sgtacct_host
-Server:         127.0.0.53
-Address:        127.0.0.53#53
 
-Non-authoritative answer:
-vwan22spoke3sa15e5.blob.core.windows.net        canonical name = vwan22spoke3sa15e5.privatelink.blob.core.windows.net.
-Name:   vwan22spoke3sa15e5.privatelink.blob.core.windows.net
-Address: 10.11.7.99
 ```
 
 We can see that the storage account hostname resolves to the private endpoint ***10.11.7.99*** in ***hub1***. The following is a summary of the DNS resolution from `Vwan22-branch1Vm`:
@@ -402,44 +349,7 @@ bash ../../scripts/_routes_vwan.sh Vwan22RG
 Sample output
 
 ```sh
-2-vwan-dual-region$ bash ../../scripts/_routes_vwan.sh Vwan22RG
 
-Resource group: Vwan22RG
-
-vHub:       Vwan22-vhub2-hub
-RouteTable: defaultRouteTable
--------------------------------------------------------
-
-AddressPrefixes    AsPath             NextHopType
------------------  -----------------  --------------------------
-10.10.0.0/24       65520-65520-65001  Remote Hub
-10.1.0.0/20        65520-65520        Remote Hub
-10.2.0.0/20        65520-65520-65010  Remote Hub
-10.11.0.0/20       65520-65520        Remote Hub
-10.11.16.0/20      65520-65520        Remote Hub
-10.4.0.0/20                           Virtual Network Connection
-10.22.0.0/20                          Virtual Network Connection
-10.22.16.0/20                         Virtual Network Connection
-10.30.0.0/24       65003              VPN_S2S_Gateway
-10.5.0.0/20        65020              HubBgpConnection
-
-
-vHub:       Vwan22-vhub1-hub
-RouteTable: defaultRouteTable
--------------------------------------------------------
-
-AddressPrefixes    AsPath             NextHopType
------------------  -----------------  --------------------------
-10.10.0.0/24       65001              VPN_S2S_Gateway
-10.11.0.0/20                          Virtual Network Connection
-10.11.16.0/20                         Virtual Network Connection
-10.1.0.0/20                           Virtual Network Connection
-10.2.0.0/20        65010              HubBgpConnection
-10.4.0.0/20        65520-65520        Remote Hub
-10.5.0.0/20        65520-65520-65020  Remote Hub
-10.30.0.0/24       65520-65520-65003  Remote Hub
-10.22.0.0/20       65520-65520        Remote Hub
-10.22.16.0/20      65520-65520        Remote Hub
 ```
 
 ### 8. On-premises Routes
@@ -454,7 +364,7 @@ AddressPrefixes    AsPath             NextHopType
 enable
 ```
 
-**8.4.** Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
+**8.3.** Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
 
 ```sh
 show ip route
@@ -463,47 +373,12 @@ show ip route
 Sample output
 
 ```sh
-Vwan22-branch1Nva# show ip route
-...
-[Truncated for brevity]
-...
-Gateway of last resort is 10.10.1.1 to network 0.0.0.0
 
-S*    0.0.0.0/0 [1/0] via 10.10.1.1
-      10.0.0.0/8 is variably subnetted, 18 subnets, 4 masks
-B        10.1.0.0/20 [20/0] via 192.168.11.12, 01:51:26
-B        10.2.0.0/20 [20/0] via 192.168.11.12, 01:46:08
-B        10.4.0.0/20 [20/0] via 192.168.11.12, 00:48:34
-B        10.5.0.0/20 [20/0] via 192.168.11.13, 00:37:45
-S        10.10.0.0/24 [1/0] via 10.10.2.1
-C        10.10.1.0/24 is directly connected, GigabitEthernet1
-L        10.10.1.9/32 is directly connected, GigabitEthernet1
-C        10.10.2.0/24 is directly connected, GigabitEthernet2
-L        10.10.2.9/32 is directly connected, GigabitEthernet2
-C        10.10.10.0/30 is directly connected, Tunnel0
-L        10.10.10.1/32 is directly connected, Tunnel0
-C        10.10.10.4/30 is directly connected, Tunnel1
-L        10.10.10.5/32 is directly connected, Tunnel1
-B        10.11.0.0/20 [20/0] via 192.168.11.12, 01:47:59
-B        10.11.16.0/20 [20/0] via 192.168.11.12, 01:47:59
-B        10.22.0.0/20 [20/0] via 192.168.11.12, 00:51:23
-B        10.22.16.0/20 [20/0] via 192.168.11.12, 00:51:23
-B        10.30.0.0/24 [20/0] via 192.168.11.12, 00:45:16
-      168.63.0.0/32 is subnetted, 1 subnets
-S        168.63.129.16 [254/0] via 10.10.1.1
-      169.254.0.0/32 is subnetted, 1 subnets
-S        169.254.169.254 [254/0] via 10.10.1.1
-      192.168.10.0/32 is subnetted, 1 subnets
-C        192.168.10.10 is directly connected, Loopback0
-      192.168.11.0/24 is variably subnetted, 3 subnets, 2 masks
-B        192.168.11.0/24 [20/0] via 192.168.11.12, 02:08:40
-S        192.168.11.12/32 is directly connected, Tunnel1
-S        192.168.11.13/32 is directly connected, Tunnel0
 ```
 
 We can see the Vnet ranges learned dynamically via BGP.
 
-**8.5.** Display BGP information by typing `show ip bgp`.
+**8.4.** Display BGP information by typing `show ip bgp`.
 
 ```sh
 show ip bgp
@@ -512,38 +387,7 @@ show ip bgp
 Sample output
 
 ```sh
-Vwan22-branch1Nva# show ip bgp
-BGP table version is 12, local router ID is 192.168.10.10
-Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
-              r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
-              x best-external, a additional-path, c RIB-compressed,
-              t secondary path, L long-lived-stale,
-Origin codes: i - IGP, e - EGP, ? - incomplete
-RPKI validation codes: V valid, I invalid, N Not found
 
-     Network          Next Hop            Metric LocPrf Weight Path
- *    10.1.0.0/20      192.168.11.13                          0 65515 i
- *>                    192.168.11.12                          0 65515 i
- *    10.2.0.0/20      192.168.11.13            0             0 65515 65010 i
- *>                    192.168.11.12            0             0 65515 65010 i
- *    10.4.0.0/20      192.168.11.13                          0 65515 65520 65520 e
- *>                    192.168.11.12                          0 65515 65520 65520 e
- *    10.5.0.0/20      192.168.11.12                          0 65515 65520 65520 65020 e
- *>                    192.168.11.13                          0 65515 65520 65520 65020 e
- *>   10.10.0.0/24     10.10.2.1                0         32768 i
-     Network          Next Hop            Metric LocPrf Weight Path
- *    10.11.0.0/20     192.168.11.13                          0 65515 i
- *>                    192.168.11.12                          0 65515 i
- *    10.11.16.0/20    192.168.11.13                          0 65515 i
- *>                    192.168.11.12                          0 65515 i
- *    10.22.0.0/20     192.168.11.13                          0 65515 65520 65520 e
- *>                    192.168.11.12                          0 65515 65520 65520 e
- *    10.22.16.0/20    192.168.11.13                          0 65515 65520 65520 e
- *>                    192.168.11.12                          0 65515 65520 65520 e
- *    10.30.0.0/24     192.168.11.13                          0 65515 65520 65520 65003 e
- *>                    192.168.11.12                          0 65515 65520 65520 65003 e
- *    192.168.11.0     192.168.11.13                          0 65515 i
- *>                    192.168.11.12                          0 65515 i
 ```
 
 We can see the hub and spoke Vnet ranges being learned dynamically in the BGP table.

@@ -75,15 +75,15 @@ module "hub2" {
 ####################################################
 
 module "hub2_vm" {
-  source          = "../../modules/virtual-machine-linux"
-  resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.hub2_prefix}vm"
-  computer_name   = "vm"
-  location        = local.hub2_location
-  storage_account = module.common.storage_accounts["region2"]
-  custom_data     = base64encode(local.vm_startup)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
-  tags            = local.hub2_tags
+  source            = "../../modules/virtual-machine-linux"
+  resource_group    = azurerm_resource_group.rg.name
+  name              = "${local.hub2_prefix}vm"
+  computer_name     = "vm"
+  location          = local.hub2_location
+  storage_account   = module.common.storage_accounts["region2"]
+  custom_data       = base64encode(local.vm_startup)
+  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
+  tags              = local.hub2_tags
 
   enable_ip_forwarding = true
   interfaces = [

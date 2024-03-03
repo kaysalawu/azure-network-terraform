@@ -89,7 +89,7 @@ The table below shows the auto-generated output files from the lab. They are loc
 
 This lab contains a number of pre-configured dashboards for monitoring gateways, VPN gateways, and Azure Firewall.
 
-To view dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment.
+To configure dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment.
 
 To view the dashboards, follow the steps below:
 
@@ -208,7 +208,7 @@ A storage account with a container blob deployed and accessible via private endp
 
 Where ***\<AAAA\>*** and ***\<BBBB\>*** are randomly generated two-byte strings.
 
-**5.1.** On your local machine, get the storage account hostname and blob URL.
+**5.1.** On your Cloudshell (or local machine), get the storage account hostname and blob URL.
 
 ```sh
 spoke3_storage_account=$(az storage account list -g Hs14RG --query "[?contains(name, 'hs14spoke3sa')].name" -o tsv)
@@ -259,10 +259,10 @@ Hello, World!
 
  We will test access from `Hs14-branch1Vm` to the storage account for ***spoke3*** via the private endpoint in ***hub1***.
 
-**6.2.** Run the following script to configure `az login` with the created user assigned identity.
+**6.2.** Run `az login` using the VM's system-assigned managed identity.
 
 ```sh
-bash /usr/local/bin/az-login
+az login --identity
 ```
 
 **6.3.** Get the storage account hostname and blob URL.

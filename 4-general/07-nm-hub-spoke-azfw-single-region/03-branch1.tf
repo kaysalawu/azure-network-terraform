@@ -202,15 +202,15 @@ locals {
 }
 
 module "branch1_nva" {
-  source          = "../../modules/virtual-machine-linux"
-  resource_group  = azurerm_resource_group.rg.name
-  prefix          = trimsuffix(local.branch1_prefix, "-")
-  name            = "nva"
-  location        = local.branch1_location
-  storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(local.branch1_nva_init)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
-  source_image    = "cisco-csr-1000v"
+  source            = "../../modules/virtual-machine-linux"
+  resource_group    = azurerm_resource_group.rg.name
+  prefix            = trimsuffix(local.branch1_prefix, "-")
+  name              = "nva"
+  location          = local.branch1_location
+  storage_account   = module.common.storage_accounts["region1"]
+  custom_data       = base64encode(local.branch1_nva_init)
+  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
+  source_image      = "cisco-csr-1000v"
 
   enable_ip_forwarding = true
 

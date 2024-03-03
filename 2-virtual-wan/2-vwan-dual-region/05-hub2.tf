@@ -84,7 +84,6 @@ module "hub2_vm" {
   location        = local.hub2_location
   storage_account = module.common.storage_accounts["region2"]
   custom_data     = base64encode(local.vm_startup)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
   tags            = local.hub2_tags
 
   enable_ip_forwarding = true

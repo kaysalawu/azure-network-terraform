@@ -68,12 +68,6 @@ resource "azurerm_user_assigned_identity" "machine" {
   name                = "${local.prefix}-user"
 }
 
-resource "azurerm_role_assignment" "machine" {
-  role_definition_name = "Contributor"
-  principal_id         = azurerm_user_assigned_identity.machine.principal_id
-  scope                = data.azurerm_subscription.current.id
-}
-
 ####################################################
 # network features
 ####################################################

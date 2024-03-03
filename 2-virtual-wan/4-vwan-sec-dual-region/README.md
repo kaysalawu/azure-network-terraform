@@ -30,7 +30,7 @@ Deploy a dual-region Secured Virtual WAN (Vwan) topology to observe traffic rout
 
 Standard Virtual Network (Vnet) hubs (***hub1*** and ***hub2***) connect to Vwan hubs (***vHub1*** and ***vHub2*** respectively). Direct spokes (***spoke1*** and ***spoke4***) are connected directly to the Vwan hubs. ***Spoke2*** and ***spoke5*** are indirect spokes from a Vwan perspective; and are connected to standard Vnet hubs - ***hub1*** and ***hub2*** respectively. ***Spoke2*** and ***spoke5*** use the Network Virtual Appliance (NVA) in the Vnet hubs as the next hop for traffic to all destinations.
 
-The isolated spokes (***spoke3*** and ***spoke6***) do not have Vnet peering to their respective Vnet hubs, but are reachable via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) endpoints in the hubs.
+The isolated spokes (***spoke3*** and ***spoke6***) do not have Vnet peering to the Vnet hubs, but are reachable via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) endpoints in the hubs.
 
 ***Branch1*** and ***branch3*** are on-premises networks simulated using Vnets. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the hubs using IPsec VPN connections with dynamic (BGP) routing. Branches, ***branch1*** and ***branch3*** connect to each other via the Virtual WAN.
 
@@ -84,7 +84,7 @@ The table below shows the auto-generated output files from the lab. They are loc
 
 This lab contains a number of pre-configured dashboards for monitoring gateways, VPN gateways, and Azure Firewall.
 
-To view dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment.
+To configure dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment.
 
 To view the dashboards, follow the steps below:
 
@@ -260,14 +260,14 @@ The `Hostname` and `Local-IP` fields identifies the actual web servers - in this
 
 ### 5. Private Link (Storage Account) Access from Public Client
 
-A storage account with a container blob deployed and accessible via private endpoints in ***hub1***. The storage accounts have the following naming convention:
+Storage accounts with container blobs are deployed and accessible via private endpoints in ***hub1*** and ***hub2*** respectively. The storage accounts have the following naming convention:
 
 * vwan24spoke3sa\<AAAA\>.blob.core.windows.net
 * vwan24spoke6sa\<BBBB\>.blob.core.windows.net
 
 Where ***\<AAAA\>*** and ***\<BBBB\>*** are randomly generated two-byte strings.
 
-**5.1.** On your local machine, get the storage account hostname and blob URL.
+**5.1.** On your Cloudshell (or local machine), get the storage account hostname and blob URL.
 
 ```sh
 spoke3_storage_account=$(az storage account list -g Vwan24RG --query "[?contains(name, 'vwan24spoke3sa')].name" -o tsv)
@@ -326,10 +326,10 @@ Hello, World!
 
  We will test access from `Vwan24-branch1Vm` to the storage account for ***spoke3*** via the private endpoint in ***hub1***.
 
-**6.2.** Run the following script to configure `az login` with the created user assigned identity.
+**6.2.** Run `az login` using the VM's system-assigned managed identity.
 
 ```sh
-bash /usr/local/bin/az-login
+az login --identity
 ```
 
 **6.3.** Get the storage account hostname and blob URL.

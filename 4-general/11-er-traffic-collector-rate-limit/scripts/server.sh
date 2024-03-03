@@ -84,7 +84,7 @@ systemctl start flaskapp.service
 
 # az login
 
-cat <<EOF > bash /usr/local/bin/az-login
+cat <<EOF > /usr/local/bin/az-login
 az login --identity -u ${USER_ASSIGNED_ID}
 EOF
 

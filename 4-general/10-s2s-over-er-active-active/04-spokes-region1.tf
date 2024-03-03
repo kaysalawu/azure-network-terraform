@@ -71,15 +71,15 @@ locals {
 }
 
 module "spoke1_vm" {
-  source          = "../../modules/virtual-machine-linux"
-  resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.spoke1_prefix}vm"
-  computer_name   = "vm"
-  location        = local.spoke1_location
-  storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(local.spoke1_vm_init)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
-  tags            = local.spoke1_tags
+  source            = "../../modules/virtual-machine-linux"
+  resource_group    = azurerm_resource_group.rg.name
+  name              = "${local.spoke1_prefix}vm"
+  computer_name     = "vm"
+  location          = local.spoke1_location
+  storage_account   = module.common.storage_accounts["region1"]
+  custom_data       = base64encode(local.spoke1_vm_init)
+  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
+  tags              = local.spoke1_tags
 
   interfaces = [
     {
@@ -145,15 +145,15 @@ module "spoke2" {
 # workload
 
 module "spoke2_vm" {
-  source          = "../../modules/virtual-machine-linux"
-  resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.spoke2_prefix}vm"
-  computer_name   = "vm"
-  location        = local.spoke2_location
-  storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(local.vm_startup)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
-  tags            = local.spoke2_tags
+  source            = "../../modules/virtual-machine-linux"
+  resource_group    = azurerm_resource_group.rg.name
+  name              = "${local.spoke2_prefix}vm"
+  computer_name     = "vm"
+  location          = local.spoke2_location
+  storage_account   = module.common.storage_accounts["region1"]
+  custom_data       = base64encode(local.vm_startup)
+  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
+  tags              = local.spoke2_tags
 
   interfaces = [
     {
@@ -219,15 +219,15 @@ module "spoke3" {
 # workload
 
 module "spoke3_vm" {
-  source          = "../../modules/virtual-machine-linux"
-  resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.spoke3_prefix}vm"
-  computer_name   = "vm"
-  location        = local.spoke3_location
-  storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(local.vm_startup)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
-  tags            = local.spoke3_tags
+  source            = "../../modules/virtual-machine-linux"
+  resource_group    = azurerm_resource_group.rg.name
+  name              = "${local.spoke3_prefix}vm"
+  computer_name     = "vm"
+  location          = local.spoke3_location
+  storage_account   = module.common.storage_accounts["region1"]
+  custom_data       = base64encode(local.vm_startup)
+  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
+  tags              = local.spoke3_tags
 
   interfaces = [
     {

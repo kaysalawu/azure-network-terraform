@@ -52,12 +52,6 @@ terraform {
 # user assigned identity
 ####################################################
 
-locals {
-  machine_roles_read = [
-    "Microsoft.Storage/storageAccounts/read"
-  ]
-}
-
 resource "azurerm_user_assigned_identity" "machine" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = local.default_region

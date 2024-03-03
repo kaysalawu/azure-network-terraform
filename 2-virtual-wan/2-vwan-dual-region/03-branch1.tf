@@ -96,7 +96,6 @@ module "branch1_dns" {
   location        = local.branch1_location
   storage_account = module.common.storage_accounts["region1"]
   custom_data     = base64encode(local.branch1_unbound_startup)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
   tags            = local.branch1_tags
 
   interfaces = [
@@ -202,11 +201,11 @@ locals {
       { network = module.vhub1.vpngw_bgp_ip0, mask = "255.255.255.255", next_hop = "Tunnel0" },
       { network = module.vhub1.vpngw_bgp_ip1, mask = "255.255.255.255", next_hop = "Tunnel1" },
       { network = local.branch3_nva_loopback0, mask = "255.255.255.255", next_hop = "Tunnel2" },
-      {
-        network  = local.branch1_network
-        mask     = local.branch1_mask
-        next_hop = local.branch1_trust_default_gw
-      },
+      # {
+      #   network  = local.branch1_network
+      #   mask     = local.branch1_mask
+      #   next_hop = local.branch1_trust_default_gw
+      # },
     ]
 
     BGP_SESSIONS = [
@@ -256,7 +255,6 @@ module "branch1_nva" {
   location        = local.branch1_location
   storage_account = module.common.storage_accounts["region1"]
   custom_data     = base64encode(local.branch1_nva_init)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
   tags            = local.branch1_tags
 
   source_image_publisher = "cisco"
@@ -305,7 +303,6 @@ module "branch1_vm" {
   storage_account = module.common.storage_accounts["region1"]
   dns_servers     = [local.branch1_dns_addr, ]
   custom_data     = base64encode(local.branch1_vm_init)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
   tags            = local.branch1_tags
 
   interfaces = [
@@ -335,7 +332,7 @@ locals {
       name                   = "private"
       address_prefix         = local.private_prefixes
       next_hop_type          = "VirtualAppliance"
-      next_hop_in_ip_address = local.branch1_nva_trust_addr
+      next_hop_in_ip_address = local.branch1_nva_untrust_addr
     },
   ]
 }
