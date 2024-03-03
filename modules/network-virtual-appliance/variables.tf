@@ -26,10 +26,10 @@ variable "nva_type" {
   default     = "opnsense"
 }
 
-variable "identity_ids" {
+variable "user_assigned_ids" {
   description = "list of identity ids"
   type        = list(any)
-  default     = null
+  default     = []
 }
 
 variable "tags" {

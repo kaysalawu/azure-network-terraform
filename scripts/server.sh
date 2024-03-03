@@ -7,7 +7,8 @@ apt install -y openvpn network-manager-openvpn
 sudo service network-manager restart
 
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-az login --identity -u ${USER_ASSIGNED_ID}
+# Run `az login` using the VM's system-assigned managed identity.
+az login --identity || true
 
 # web server #
 pip3 install Flask requests
@@ -78,16 +79,6 @@ EOF
 systemctl daemon-reload
 systemctl enable flaskapp.service
 systemctl start flaskapp.service
-
-# general scripts
-#-----------------------------------
-
-# az login
-
-cat <<EOF > bash /usr/local/bin/az-login
-az login --identity -u ${USER_ASSIGNED_ID}
-EOF
-chmod a+x bash /usr/local/bin/az-login
 
 # test scripts
 #-----------------------------------

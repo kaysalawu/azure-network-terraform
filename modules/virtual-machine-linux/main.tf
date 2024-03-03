@@ -106,10 +106,17 @@ resource "azurerm_linux_virtual_machine" "this" {
   disable_password_authentication = false
 
   dynamic "identity" {
-    for_each = var.identity_ids != null ? [1] : []
+    for_each = length(var.user_assigned_ids) > 0 ? [1] : []
     content {
       type         = "UserAssigned"
-      identity_ids = var.identity_ids
+      identity_ids = var.user_assigned_ids
+    }
+  }
+
+  dynamic "identity" {
+    for_each = length(var.user_assigned_ids) == 0 ? [1] : []
+    content {
+      type = "SystemAssigned"
     }
   }
 
@@ -124,6 +131,21 @@ resource "azurerm_linux_virtual_machine" "this" {
     create = "60m"
   }
 }
+
+# resource "azurerm_role_assignment" "system_assigned" {
+#   count                = length(var.user_assigned_ids) == 0 ? length(var.assigned_roles) : 0
+#   scope                = var.assigned_roles[count.index].scope
+#   role_definition_name = var.assigned_roles[count.index].role
+#   principal_id         = azurerm_linux_virtual_machine.this.identity[0].principal_id
+# }
+
+# resource "azurerm_role_assignment" "user_assigned" {
+#   count                = length(azurerm_linux_virtual_machine.this.identity[0].identity_ids) > 0 ? 1 : 0
+#   for_each             = { for id in azurerm_linux_virtual_machine.this.identity[0].identity_ids : id => id }
+#   scope                = azurerm_linux_virtual_machine.this.id
+#   role_definition_name = "Contributor"
+#   principal_id         = var.user_assigned_ids[0]
+# }
 
 ####################################################
 # virtual machine extension

@@ -26,10 +26,20 @@ variable "location" {
   type        = string
 }
 
-variable "identity_ids" {
+variable "user_assigned_ids" {
   description = "list of identity ids"
   type        = list(any)
-  default     = null
+  default     = []
+}
+
+variable "assigned_roles" {
+  description = "list of assigned roles"
+  type = list(object({
+    role  = string
+    scope = string
+  }))
+  default = []
+
 }
 
 variable "tags" {

@@ -33,7 +33,7 @@ module "nva" {
   computer_name        = "${local.prefix}-${count.index}"
   location             = var.location
   storage_account      = var.storage_account
-  identity_ids         = var.identity_ids
+  user_assigned_ids    = var.user_assigned_ids
   enable_ip_forwarding = true
 
   source_image_publisher = var.source_image_publisher
