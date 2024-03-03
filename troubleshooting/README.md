@@ -1,7 +1,7 @@
 
 # Troubleshooting <!-- omit from toc -->
 
-Errors
+Error Messages
 
 - [1. Diagnostic Setting - "Already Exists"](#1-diagnostic-setting---already-exists)
 - [2. Azure Policy Assignment - "Already Exists"](#2-azure-policy-assignment---already-exists)
