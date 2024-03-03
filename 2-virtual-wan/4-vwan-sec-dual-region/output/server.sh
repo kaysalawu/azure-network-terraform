@@ -7,7 +7,8 @@ apt install -y openvpn network-manager-openvpn
 sudo service network-manager restart
 
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-az login --identity -u /subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan24RG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/Vwan24-user
+# Run `az login` using the VM's system-assigned managed identity.
+az login --identity || true
 
 # web server #
 pip3 install Flask requests
@@ -79,16 +80,6 @@ systemctl daemon-reload
 systemctl enable flaskapp.service
 systemctl start flaskapp.service
 
-# general scripts
-#-----------------------------------
-
-# az login
-
-cat <<EOF > /usr/local/bin/az-login
-az login --identity -u /subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan24RG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/Vwan24-user
-EOF
-chmod a+x az login --identity
-
 # test scripts
 #-----------------------------------
 
@@ -155,8 +146,8 @@ echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{h
 echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke4vm.us.az.corp) - spoke4vm.us.az.corp"
 echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke5vm.us.az.corp) - spoke5vm.us.az.corp"
 echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke3sa1e87.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan24spoke3sa1e87.blob.core.windows.net/spoke3/spoke3.txt"
-echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke6sa1e87.blob.core.windows.net/spoke6/spoke6.txt) - https://vwan24spoke6sa1e87.blob.core.windows.net/spoke6/spoke6.txt"
+echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke3saafcc.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan24spoke3saafcc.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke6saafcc.blob.core.windows.net/spoke6/spoke6.txt) - https://vwan24spoke6saafcc.blob.core.windows.net/spoke6/spoke6.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 

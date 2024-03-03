@@ -127,8 +127,6 @@ locals {
       enable = false
       sku    = "VpnGw1AZ"
       ip_configuration = [
-        #{ name = "ipconf0", public_ip_address_name = azurerm_public_ip.hub1_s2s_vpngw_pip0.name, apipa_addresses = ["169.254.21.1"] },
-        #{ name = "ipconf1", public_ip_address_name = azurerm_public_ip.hub1_s2s_vpngw_pip1.name, apipa_addresses = ["169.254.21.5"] }
       ]
       bgp_settings = {
         asn = local.hub1_vpngw_asn
@@ -139,13 +137,10 @@ locals {
       enable = false
       sku    = "VpnGw1AZ"
       ip_configuration = [
-        #{ name = "ipconf", public_ip_address_name = azurerm_public_ip.hub1_p2s_vpngw_pip.name }
       ]
       vpn_client_configuration = {
         address_space = ["192.168.0.0/24"]
         clients = [
-          # { name = "client1" },
-          # { name = "client2" },
         ]
       }
       custom_route_address_prefixes = ["8.8.8.8/32"]
@@ -219,8 +214,6 @@ locals {
       enable = false
       sku    = "VpnGw1AZ"
       ip_configuration = [
-        #{ name = "ipconf0", public_ip_address_name = azurerm_public_ip.hub2_s2s_vpngw_pip0.name, apipa_addresses = ["169.254.21.1"] },
-        #{ name = "ipconf1", public_ip_address_name = azurerm_public_ip.hub2_s2s_vpngw_pip1.name, apipa_addresses = ["169.254.21.5"] }
       ]
       bgp_settings = {
         asn = local.hub2_vpngw_asn
@@ -231,13 +224,10 @@ locals {
       enable = false
       sku    = "VpnGw1AZ"
       ip_configuration = [
-        #{ name = "ipconf", public_ip_address_name = azurerm_public_ip.hub2_p2s_vpngw_pip.name },
       ]
       vpn_client_configuration = {
         address_space = ["192.168.1.0/24"]
         clients = [
-          # { name = "client3" },
-          # { name = "client4" },
         ]
       }
     }
@@ -284,6 +274,14 @@ locals {
     p2s_vpn_gateway = {
       enable = false
       sku    = "VpnGw1AZ"
+      vpn_client_configuration = {
+        address_space = ["192.168.0.0/24"]
+        clients = [
+          { name = "client1" },
+          { name = "client2" },
+        ]
+      }
+      custom_route_address_prefixes = ["8.8.8.8/32"]
     }
 
     config_security = {
@@ -316,6 +314,14 @@ locals {
     p2s_vpn_gateway = {
       enable = false
       sku    = "VpnGw1AZ"
+      vpn_client_configuration = {
+        address_space = ["192.168.0.0/24"]
+        clients = [
+          { name = "client1" },
+          { name = "client2" },
+        ]
+      }
+      custom_route_address_prefixes = ["8.8.8.8/32"]
     }
 
     config_security = {

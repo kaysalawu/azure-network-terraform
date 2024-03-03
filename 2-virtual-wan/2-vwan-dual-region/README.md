@@ -74,8 +74,8 @@ The table below shows the auto-generated output files from the lab. They are loc
 | Branch3 DNS | Authoritative DNS and forwarding | [output/branch3Dns.sh](./output/branch3Dns.sh) |
 | Branch1 NVA | Cisco IOS configuration | [output/branch1Nva.sh](./output/branch1Nva.sh) |
 | Branch3 NVA | Cisco IOS configuration | [output/branch3Nva.sh](./output/branch3Nva.sh) |
-| Hub 1 NVA | Linux NVA configuration | [output/hub1-linux-nva.sh](./output/hub1-linux-nva.sh) |
-| Hub 2 NVA | Linux NVA configuration | [output/hub2-linux-nva.sh](./output/hub2-linux-nva.sh) |
+| Hub1 NVA | Linux NVA configuration | [output/hub1-linux-nva.sh](./output/hub1-linux-nva.sh) |
+| Hub2 NVA | Linux NVA configuration | [output/hub2-linux-nva.sh](./output/hub2-linux-nva.sh) |
 | Web server | Python Flask web server, test scripts | [output/server.sh](./output/server.sh) |
 ||||
 
@@ -83,7 +83,7 @@ The table below shows the auto-generated output files from the lab. They are loc
 
 This lab contains a number of pre-configured dashboards for monitoring gateways, VPN gateways, and Azure Firewall.
 
-To configure dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment.
+To deploy the dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment.
 
 To view the dashboards, follow the steps below:
 
@@ -503,7 +503,7 @@ S        192.168.11.13/32 is directly connected, Tunnel0
 
 We can see the Vnet ranges learned dynamically via BGP.
 
-**8.4.** Display BGP information by typing `show ip bgp`.
+**8.4.** Display BGP information by typing `show ip bgp` and pressing the space bar to show the complete output.
 
 ```sh
 show ip bgp

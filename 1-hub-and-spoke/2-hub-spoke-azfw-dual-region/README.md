@@ -87,7 +87,7 @@ The table below shows the auto-generated output files from the lab. They are loc
 
 This lab contains a number of pre-configured dashboards for monitoring gateways, VPN gateways, and Azure Firewall.
 
-To configure dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment.
+To deploy the dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment.
 
 To view the dashboards, follow the steps below:
 
