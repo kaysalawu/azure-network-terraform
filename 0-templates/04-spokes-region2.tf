@@ -76,7 +76,6 @@ module "spoke4_vm" {
   location        = local.spoke4_location
   storage_account = module.common.storage_accounts["region2"]
   custom_data     = base64encode(local.spoke4_vm_init)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
   tags            = local.spoke4_tags
 
   interfaces = [
@@ -149,7 +148,6 @@ module "spoke5_vm" {
   location        = local.spoke5_location
   storage_account = module.common.storage_accounts["region2"]
   custom_data     = base64encode(local.vm_startup)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
   tags            = local.spoke5_tags
 
   interfaces = [
@@ -228,7 +226,6 @@ module "spoke6_vm" {
   location        = local.spoke6_location
   storage_account = module.common.storage_accounts["region2"]
   custom_data     = base64encode(local.vm_startup)
-  identity_ids    = [azurerm_user_assigned_identity.machine.id, ]
   tags            = local.spoke6_tags
 
   interfaces = [

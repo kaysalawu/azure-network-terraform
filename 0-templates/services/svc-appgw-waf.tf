@@ -92,7 +92,7 @@ module "hub1_appgw" {
   ]
 
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
-  identity_ids                 = ["${azurerm_user_assigned_identity.hub1_appgw_http.id}"]
+  user_assigned_ids            = ["${azurerm_user_assigned_identity.hub1_appgw_http.id}"]
 
   depends_on = [
     module.hub1,
