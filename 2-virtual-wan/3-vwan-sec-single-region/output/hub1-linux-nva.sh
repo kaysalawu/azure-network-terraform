@@ -1,5 +1,12 @@
 #!/bin/sh
 
+apt-get -y update
+apt-get -y install sipcalc
+
+#########################################################
+# ip forwarding
+#########################################################
+
 # Enable IPv4 and IPv6 forwarding
 sysctl -w net.ipv4.ip_forward=1
 sysctl -w net.ipv6.conf.all.forwarding=1
@@ -22,6 +29,56 @@ echo "net.ipv4.conf.eth0.accept_redirects=0" >> /etc/sysctl.conf
 echo "net.ipv6.conf.eth0.accept_redirects=0" >> /etc/sysctl.conf
 sysctl -p
 
+#########################################################
+# route table for eth1 (trust interface)
+#########################################################
+
+ETH1_DGW=$(sipcalc eth1 | awk '/Usable range/ {print $4}')
+ETH1_MASK=$(ip addr show eth1 | awk '/inet / {print $2}' | cut -d'/' -f2)
+
+# eth1 routing
+echo "2 rt1" | sudo tee -a /etc/iproute2/rt_tables
+
+# ip rules
+#-----------------------------------------------------
+# ip rules tell the kernel which routing table to use.
+# all traffic from/to eth1 subnet should use rt1 for lookup;
+# an example is traffic to/from eth1 floating IP (load balcner VIP)
+# the subnet mask expands the default GW IP to the entire subnet
+ip rule add from $ETH1_DGW/$ETH1_MASK table rt1
+ip rule add to $ETH1_DGW/$ETH1_MASK table rt1
+
+# the azure user-defined routes will direct all vnet inbound traffic to eth1 (trust)
+# if destination is internal (RFC1918 and RFC6598), ip rule directs kernel to use rt1 for lookup; and then use the ip routes in rt1
+# if destination is internet (not RFC1918 and RFC6598), use the main routing table for lookup and exit via eth0 default gateway
+ip rule add to 10.0.0.0/8 table rt1
+ip rule add to 172.16.0.0/12 table rt1
+ip rule add to 192.168.0.0/16 table rt1
+ip rule add to 100.64.0.0/10 table rt1
+
+# ip routes
+#--------------------------------------------------
+# kernel is directed to rt1 for RFC1918 and RFC6598 destinations
+# the following default route is used for traffic forwarding via eth1
+ip route add 10.0.0.0/8 via $ETH1_DGW dev eth1 table rt1
+ip route add 172.16.0.0/12 via $ETH1_DGW dev eth1 table rt1
+ip route add 192.168.0.0/16 via $ETH1_DGW dev eth1 table rt1
+ip route add 100.64.0.0/10 via $ETH1_DGW dev eth1 table rt1
+
+# for traffic originating from azure platform to eth1 ...
+# rule "ip rule add to $ETH1_DGW/$ETH1_MASK table rt1" is used
+# this rule directs that rt1 should be used for lookup
+# the return traffic will use the following rt1 routes
+ip route add 168.63.129.16/32 via $ETH1_DGW dev eth1 table rt1
+ip route add 169.254.169.254/32 via $ETH1_DGW dev eth1 table rt1
+
+# alternatively, all the static routes can be replaced by a single default route
+# ip route add default via $ETH1_DGW dev eth1 table rt1
+
+#########################################################
+# packages
+#########################################################
+
 apt-get -y update
 
 ## Install the Quagga routing daemon
@@ -30,6 +87,10 @@ apt-get -y install quagga
 ##  run the updates and ensure the packages are up to date and there is no new version available for the packages
 apt-get -y update --fix-missing
 apt-get -y install tcpdump dnsutils traceroute tcptraceroute net-tools
+
+#########################################################
+# iptables
+#########################################################
 
 echo iptables-persistent iptables-persistent/autosave_v4 boolean false | debconf-set-selections
 echo iptables-persistent iptables-persistent/autosave_v6 boolean false | debconf-set-selections
@@ -48,6 +109,10 @@ iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 
 # Save to IPTables file for persistence on reboot
 iptables-save > /etc/iptables/rules.v4
+
+#########################################################
+# quagga and zebra config
+#########################################################
 
 ## Stopping Quagga (required for script re-runs)
 systemctl stop zebra
@@ -120,7 +185,6 @@ cat <<EOF > /etc/quagga/bgpd.conf
 log file /var/log/quagga/bgpd.log informational
 !
 router bgp 65010
-  bgp router-id 10.11.2.4
   neighbor 192.168.11.68 remote-as 65515
   neighbor 192.168.11.68 ebgp-multihop 255
   neighbor 192.168.11.68 soft-reconfiguration inbound
@@ -149,8 +213,9 @@ systemctl restart bgpd
 systemctl start zebra
 systemctl start bgpd
 
+#########################################################
 # endpoint test scripts
-#-----------------------------------
+#########################################################
 
 # ping-ip
 
@@ -168,10 +233,10 @@ chmod a+x /usr/local/bin/ping-ip
 
 cat <<EOF > /usr/local/bin/ping-dns
 echo -e "\n ping dns ...\n"
-echo "branch1Vm.corp - \$(dig +short branch1Vm.corp | tail -n1) -\$(ping -qc2 -W1 branch1Vm.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "hub1Vm.eu.az.corp - \$(dig +short hub1Vm.eu.az.corp | tail -n1) -\$(ping -qc2 -W1 hub1Vm.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke1Vm.eu.az.corp - \$(dig +short spoke1Vm.eu.az.corp | tail -n1) -\$(ping -qc2 -W1 spoke1Vm.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke2Vm.eu.az.corp - \$(dig +short spoke2Vm.eu.az.corp | tail -n1) -\$(ping -qc2 -W1 spoke2Vm.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "branch1vm.corp - \$(dig +short branch1vm.corp | tail -n1) -\$(ping -qc2 -W1 branch1vm.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "hub1vm.eu.az.corp - \$(dig +short hub1vm.eu.az.corp | tail -n1) -\$(ping -qc2 -W1 hub1vm.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "spoke1vm.eu.az.corp - \$(dig +short spoke1vm.eu.az.corp | tail -n1) -\$(ping -qc2 -W1 spoke1vm.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "spoke2vm.eu.az.corp - \$(dig +short spoke2vm.eu.az.corp | tail -n1) -\$(ping -qc2 -W1 spoke2vm.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "icanhazip.com - \$(dig +short icanhazip.com | tail -n1) -\$(ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 EOF
 chmod a+x /usr/local/bin/ping-dns
@@ -192,13 +257,13 @@ chmod a+x /usr/local/bin/curl-ip
 
 cat <<EOF > /usr/local/bin/curl-dns
 echo -e "\n curl dns ...\n"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null branch1Vm.corp) - branch1Vm.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null hub1Vm.eu.az.corp) - hub1Vm.eu.az.corp"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null branch1vm.corp) - branch1vm.corp"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null hub1vm.eu.az.corp) - hub1vm.eu.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke3pls.eu.az.corp) - spoke3pls.eu.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1Vm.eu.az.corp) - spoke1Vm.eu.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke2Vm.eu.az.corp) - spoke2Vm.eu.az.corp"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1vm.eu.az.corp) - spoke1vm.eu.az.corp"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke2vm.eu.az.corp) - spoke2vm.eu.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan23spoke3sa124b.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan23spoke3sa124b.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan23spoke3sa9b96.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan23spoke3sa9b96.blob.core.windows.net/spoke3/spoke3.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 

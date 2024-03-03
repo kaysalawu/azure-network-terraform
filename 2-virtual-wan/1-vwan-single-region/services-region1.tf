@@ -147,18 +147,15 @@ resource "azurerm_storage_blob" "spoke3" {
 
 locals {
   spoke3_storage_account_role_assignment = [
-    {
-      role_definition_name = "Reader"
-      principal_id         = module.branch1_vm.vm.identity[0].principal_id
-    },
+    { role = "Reader", principal_id = module.branch1_vm.vm.identity[0].principal_id },
   ]
 }
 
 resource "azurerm_role_assignment" "spoke3" {
-  for_each             = { for x in local.spoke3_storage_account_role_assignment : x.principal_id => x }
+  count                = length(local.spoke3_storage_account_role_assignment)
   scope                = azurerm_storage_account.spoke3.id
-  role_definition_name = each.value.role_definition_name
-  principal_id         = each.value.principal_id
+  role_definition_name = local.spoke3_storage_account_role_assignment[count.index].role
+  principal_id         = local.spoke3_storage_account_role_assignment[count.index].principal_id
 }
 
 # private endpoint
