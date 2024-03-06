@@ -118,63 +118,50 @@ config setup
     charondebug="ike 2, knl 2, cfg 2, net 2, esp 2, dmn 2,  mgr 2"
 
 conn %default
+    type=tunnel
     ikelifetime=60m
     keylife=20m
     rekeymargin=3m
     keyingtries=1
     authby=secret
     keyexchange=ikev2
+    installpolicy=yes
+    compress=no
     mobike=no
+    left=%defaultroute
+    leftsubnet=0.0.0.0/0
+    rightsubnet=0.0.0.0/0
+    ike=aes256-sha1-modp1024!
+    esp=aes256-sha1!
 
 conn Tunnel0
-    left=%defaultroute
-    leftid=10.10.1.9
     right=4.208.97.160
-    rightid=4.208.97.160
-    type=tunnel
     auto=start
-    leftsubnet=0.0.0.0/0
-    rightsubnet=0.0.0.0/0
-    mark=5/0xffffffff
-    leftupdown="/etc/ipsec.d/vti-up-down.sh"
-    ike=aes256-sha1-modp1024!
-    esp=aes256-sha1!
+    mark=100
+    leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
-    left=%defaultroute
-    leftid=10.10.1.9
     right=4.208.97.155
-    rightid=4.208.97.155
-    type=tunnel
     auto=start
-    leftsubnet=0.0.0.0/0
-    rightsubnet=0.0.0.0/0
-    mark=5/0xffffffff
-    leftupdown="/etc/ipsec.d/vti-up-down.sh"
-    ike=aes256-sha1-modp1024!
-    esp=aes256-sha1!
+    mark=200
+    leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
-    left=%defaultroute
-    leftid=10.10.1.9
     right=10.30.1.9
-    rightid=10.30.1.9
-    type=tunnel
     auto=start
-    leftsubnet=0.0.0.0/0
-    rightsubnet=0.0.0.0/0
-    mark=5/0xffffffff
-    leftupdown="/etc/ipsec.d/vti-up-down.sh"
-    ike=aes256-sha1-modp1024!
-    esp=aes256-sha1!
+    mark=300
+    leftupdown="/etc/ipsec.d/ipsec-vti.sh"
+# github source used
+# https://gist.github.com/heri16/2f59d22d1d5980796bfb
+
 EOF
 
 tee /etc/ipsec.secrets <<EOF
 10.10.1.9 4.208.97.160 : PSK "changeme"10.10.1.9 4.208.97.155 : PSK "changeme"10.10.1.9 10.30.1.9 : PSK "changeme"
 EOF
 
-sudo tee /etc/ipsec.d/vti-up-down.sh <<'EOF'
+sudo tee /etc/ipsec.d/ipsec-vti.sh <<'EOF'
 #!/bin/bash
 
-LOG_FILE="/var/log/vti-up-down.log"
+LOG_FILE="/var/log/ipsec-vti.log"
 
 IP=$(which ip)
 IPTABLES=$(which iptables)
@@ -221,10 +208,13 @@ case "$PLUTO_VERB" in
     ;;
 esac
 
-EOF
-chmod a+x /etc/ipsec.d/vti-up-down.sh
+# github source used
+# https://gist.github.com/heri16/2f59d22d1d5980796bfb
 
-touch /var/log/vti-up-down.log
+EOF
+chmod a+x /etc/ipsec.d/ipsec-vti.sh
+
+touch /var/log/ipsec-vti.log
 systemctl restart ipsec.service
 
 # #########################################################
@@ -382,8 +372,8 @@ echo -e "\n ============ ipsec statusall ============ \n"
 ipsec statusall
 echo -e "\n ============ ipsec status ============ \n"
 ipsec status
-echo -e "\n ============ vti-up-down.log ============ \n"
-cat /var/log/vti-up-down.log
+echo -e "\n ============ ipsec-vti.log ============ \n"
+cat /var/log/ipsec-vti.log
 echo -e "\n ============ link vti ============ \n"
 sudo ip link show type vti
 echo

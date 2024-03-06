@@ -164,9 +164,7 @@ locals {
         vti_local_addr  = cidrhost(local.branch1_nva_tun_range0, 1)
         vti_remote_addr = module.hub1.s2s_vpngw_bgp_default_ip0
         local_ip        = local.branch1_nva_untrust_addr
-        local_id        = local.branch1_nva_untrust_addr
         remote_ip       = module.hub1.s2s_vpngw_public_ip0
-        remote_id       = module.hub1.s2s_vpngw_public_ip0
         psk             = local.psk
         unique_id       = 100
       },
@@ -176,9 +174,7 @@ locals {
         vti_local_addr  = cidrhost(local.branch1_nva_tun_range1, 1)
         vti_remote_addr = module.hub1.s2s_vpngw_bgp_default_ip1
         local_ip        = local.branch1_nva_untrust_addr
-        local_id        = local.branch1_nva_untrust_addr
         remote_ip       = module.hub1.s2s_vpngw_public_ip1
-        remote_id       = module.hub1.s2s_vpngw_public_ip1
         psk             = local.psk
         unique_id       = 200
       },
@@ -188,9 +184,7 @@ locals {
         vti_local_addr  = cidrhost(local.branch1_nva_tun_range2, 1)
         vti_remote_addr = cidrhost(local.branch1_nva_tun_range2, 2)
         local_ip        = local.branch1_nva_untrust_addr
-        local_id        = local.branch1_nva_untrust_addr
         remote_ip       = local.branch3_nva_untrust_addr
-        remote_id       = local.branch3_nva_untrust_addr
         psk             = local.psk
         unique_id       = 300
       }
@@ -232,7 +226,7 @@ locals {
     ROUTE_MAPS               = []
     TUNNELS                  = []
     FRR_CONF                 = templatefile("../../scripts/frr/frr.conf", merge(local.branch1_nva_vars, {}))
-    STRONGSWAN_VTI_SCRIPT    = templatefile("../../scripts/strongswan/vti-up-down.sh", local.branch1_nva_vars)
+    STRONGSWAN_VTI_SCRIPT    = templatefile("../../scripts/strongswan/ipsec-vti.sh", local.branch1_nva_vars)
     STRONGSWAN_IPSEC_SECRETS = templatefile("../../scripts/strongswan/ipsec.secrets", local.branch1_nva_vars)
     STRONGSWAN_IPSEC_CONF    = templatefile("../../scripts/strongswan/ipsec.conf", local.branch1_nva_vars)
   }))

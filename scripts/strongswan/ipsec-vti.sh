@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOG_FILE="/var/log/vti-up-down.log"
+LOG_FILE="/var/log/ipsec-vti.log"
 
 IP=$(which ip)
 IPTABLES=$(which iptables)
@@ -38,3 +38,6 @@ case "$PLUTO_VERB" in
     $IPTABLES -t mangle -D INPUT -p esp -s $${PLUTO_PEER} -d $${PLUTO_ME} -j MARK --set-xmark $${PLUTO_MARK_IN}
     ;;
 esac
+
+# github source used
+# https://gist.github.com/heri16/2f59d22d1d5980796bfb

@@ -124,12 +124,12 @@ tee /etc/ipsec.secrets <<EOF
 ${STRONGSWAN_IPSEC_SECRETS}
 EOF
 
-sudo tee /etc/ipsec.d/vti-up-down.sh <<'EOF'
+sudo tee /etc/ipsec.d/ipsec-vti.sh <<'EOF'
 ${STRONGSWAN_VTI_SCRIPT}
 EOF
-chmod a+x /etc/ipsec.d/vti-up-down.sh
+chmod a+x /etc/ipsec.d/ipsec-vti.sh
 
-touch /var/log/vti-up-down.log
+touch /var/log/ipsec-vti.log
 systemctl restart ipsec.service
 
 # #########################################################
@@ -227,8 +227,8 @@ echo -e "\n ============ ipsec statusall ============ \n"
 ipsec statusall
 echo -e "\n ============ ipsec status ============ \n"
 ipsec status
-echo -e "\n ============ vti-up-down.log ============ \n"
-cat /var/log/vti-up-down.log
+echo -e "\n ============ ipsec-vti.log ============ \n"
+cat /var/log/ipsec-vti.log
 echo -e "\n ============ link vti ============ \n"
 sudo ip link show type vti
 echo
