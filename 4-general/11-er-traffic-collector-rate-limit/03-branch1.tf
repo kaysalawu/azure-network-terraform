@@ -1,27 +1,4 @@
 
-locals {
-  branch1_vm_init = templatefile("../../scripts/server.sh", {
-    USER_ASSIGNED_ID = azurerm_user_assigned_identity.machine.id
-    TARGETS          = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = [
-      { count = 10, protocol = "tcp", port = 80, ip = local.hub1_vm_addr, probe = true },
-      { count = 10, protocol = "tcp", port = 8080, ip = local.hub1_vm_addr, probe = true },
-      { count = 10, protocol = "tcp", port = 8000, ip = local.hub1_vm_addr, probe = true },
-      { count = 10, protocol = "tcp", port = 9000, ip = local.hub1_vm_addr, probe = true },
-
-      { count = 10, protocol = "udp", port = 3000, ip = local.hub1_vm_addr, probe = true },
-      { count = 10, protocol = "udp", port = 3001, ip = local.hub1_vm_addr, probe = true },
-      { count = 10, protocol = "udp", port = 3002, ip = local.hub1_vm_addr, probe = true },
-      { count = 10, protocol = "udp", port = 3003, ip = local.hub1_vm_addr, probe = true },
-    ]
-    TARGETS_HEAVY_TRAFFIC_GEN = [local.hub1_vm_fqdn, ]
-    ENABLE_TRAFFIC_GEN        = true
-    ENABLE_IPERF3_SERVER      = false
-    ENABLE_IPERF3_CLIENT      = true
-    IPERF3_SERVER_IP          = local.hub1_vm_addr
-  })
-}
-
 ####################################################
 # vnet
 ####################################################
@@ -30,12 +7,15 @@ locals {
 #----------------------------
 
 module "branch1" {
-  source          = "../../modules/base"
-  resource_group  = azurerm_resource_group.rg.name
-  prefix          = trimsuffix(local.branch1_prefix, "-")
-  location        = local.branch1_location
-  storage_account = module.common.storage_accounts["region1"]
-  tags            = local.branch1_tags
+  source            = "../../modules/base"
+  resource_group    = azurerm_resource_group.rg.name
+  prefix            = trimsuffix(local.branch1_prefix, "-")
+  location          = local.branch1_location
+  storage_account   = module.common.storage_accounts["region1"]
+  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
+  tags              = local.branch1_tags
+
+  enable_diagnostics = local.enable_diagnostics
 
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region1"].id
@@ -63,15 +43,60 @@ module "branch1" {
 # dns
 ####################################################
 
+locals {
+  branch1_unbound_startup = templatefile("../../scripts/unbound/unbound.sh", local.branch1_dns_vars)
+  branch1_dns_vars = {
+    ONPREM_LOCAL_RECORDS = local.onprem_local_records
+    REDIRECTED_HOSTS     = local.onprem_redirected_hosts
+    FORWARD_ZONES        = local.branch1_forward_zones
+    TARGETS              = local.vm_script_targets
+    ACCESS_CONTROL_PREFIXES = concat(
+      local.private_prefixes,
+      ["127.0.0.0/8", "35.199.192.0/19", ]
+    )
+  }
+  branch1_unbound_files = {
+    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/Dockerfile", {}) }
+    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
+    "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.conf", local.branch1_dns_vars) }
+    "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.log", local.branch1_dns_vars) }
+  }
+  branch1_forward_zones = [
+    { zone = "${local.region1_dns_zone}.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "${local.region2_dns_zone}.", targets = [local.hub2_dns_in_addr, ] },
+    { zone = "privatelink.blob.core.windows.net.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "privatelink.azurewebsites.net.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "privatelink.database.windows.net.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "privatelink.table.cosmos.azure.com.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "privatelink.queue.core.windows.net.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "privatelink.file.core.windows.net.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = ".", targets = [local.azuredns, ] },
+  ]
+}
+
+module "branch1_unbound_init" {
+  source   = "../../modules/cloud-config-gen"
+  packages = ["docker.io", "docker-compose", "dnsutils", "net-tools", ]
+  files    = local.branch1_unbound_files
+  run_commands = [
+    "systemctl stop systemd-resolved",
+    "systemctl disable systemd-resolved",
+    "echo \"nameserver 8.8.8.8\" > /etc/resolv.conf",
+    "systemctl restart unbound",
+    "systemctl enable unbound",
+    "docker-compose -f ${local.branch_dns_init_dir}/docker-compose.yml up -d",
+  ]
+}
+
 module "branch1_dns" {
-  source            = "../../modules/virtual-machine-linux"
-  resource_group    = azurerm_resource_group.rg.name
-  name              = "${local.branch1_prefix}dns"
-  location          = local.branch1_location
-  storage_account   = module.common.storage_accounts["region1"]
-  custom_data       = base64encode(local.branch_unbound_startup)
-  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
-  tags              = local.branch1_tags
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  name            = "${local.prefix}-${local.branch1_dns_hostname}"
+  computer_name   = local.branch1_dns_hostname
+  location        = local.branch1_location
+  storage_account = module.common.storage_accounts["region1"]
+  custom_data     = base64encode(local.branch1_unbound_startup)
+  tags            = local.branch1_tags
 
   interfaces = [
     {
@@ -88,17 +113,39 @@ module "branch1_dns" {
 # workload
 ####################################################
 
+locals {
+  branch1_vm_init = templatefile("../../scripts/server.sh", {
+    USER_ASSIGNED_ID = azurerm_user_assigned_identity.machine.id
+    TARGETS          = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = [
+      { count = 10, protocol = "tcp", port = 80, ip = local.hub1_vm_addr, probe = true },
+      { count = 10, protocol = "tcp", port = 8080, ip = local.hub1_vm_addr, probe = true },
+      { count = 10, protocol = "tcp", port = 8000, ip = local.hub1_vm_addr, probe = true },
+      { count = 10, protocol = "tcp", port = 9000, ip = local.hub1_vm_addr, probe = true },
+
+      { count = 10, protocol = "udp", port = 3000, ip = local.hub1_vm_addr, probe = true },
+      { count = 10, protocol = "udp", port = 3001, ip = local.hub1_vm_addr, probe = true },
+      { count = 10, protocol = "udp", port = 3002, ip = local.hub1_vm_addr, probe = true },
+      { count = 10, protocol = "udp", port = 3003, ip = local.hub1_vm_addr, probe = true },
+    ]
+    TARGETS_HEAVY_TRAFFIC_GEN = [local.hub1_vm_fqdn, ]
+    ENABLE_TRAFFIC_GEN        = true
+    ENABLE_IPERF3_SERVER      = false
+    ENABLE_IPERF3_CLIENT      = true
+    IPERF3_SERVER_IP          = local.hub1_vm_addr
+  })
+}
+
 module "branch1_vm" {
-  source            = "../../modules/virtual-machine-linux"
-  resource_group    = azurerm_resource_group.rg.name
-  name              = "${local.branch1_prefix}vm"
-  computer_name     = "vm"
-  location          = local.branch1_location
-  storage_account   = module.common.storage_accounts["region1"]
-  dns_servers       = [local.branch1_dns_addr, ]
-  custom_data       = base64encode(local.branch1_vm_init)
-  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
-  tags              = local.branch1_tags
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  name            = "${local.prefix}-${local.branch1_vm_hostname}"
+  computer_name   = local.branch1_vm_hostname
+  location        = local.branch1_location
+  storage_account = module.common.storage_accounts["region1"]
+  dns_servers     = [local.branch1_dns_addr, ]
+  custom_data     = base64encode(local.branch1_vm_init)
+  tags            = local.branch1_tags
 
   interfaces = [
     {
@@ -109,7 +156,8 @@ module "branch1_vm" {
     },
   ]
   depends_on = [
-    module.branch1
+    module.branch1,
+    module.branch1_dns,
   ]
 }
 
@@ -119,7 +167,8 @@ module "branch1_vm" {
 
 locals {
   branch1_files = {
-    "output/branch1Vm.sh" = local.branch1_vm_init
+    "output/branch1Dns.sh" = local.branch1_unbound_startup
+    "output/branch1Vm.sh"  = local.branch1_vm_init
   }
 }
 

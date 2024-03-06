@@ -47,6 +47,7 @@ module "megaport" {
   circuits = [
     {
       name                          = "er1"
+      target                        = "vnet"
       location                      = local.region1
       peering_location              = local.express_route_location
       bandwidth_in_mbps             = local.bandwidth_in_mbps
@@ -59,6 +60,7 @@ module "megaport" {
     },
     {
       name                          = "op1"
+      target                        = "vnet"
       location                      = local.region1
       peering_location              = local.express_route_location
       bandwidth_in_mbps             = local.bandwidth_in_mbps
@@ -71,7 +73,8 @@ module "megaport" {
     },
   ]
   depends_on = [
-    module.hub1.ergw,
+    module.common,
+    module.hub1,
     module.branch1,
   ]
 }

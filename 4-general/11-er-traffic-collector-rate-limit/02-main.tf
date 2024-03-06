@@ -3,23 +3,23 @@
 ####################################################
 
 locals {
-  prefix             = "G10"
-  enable_diagnostics = true
-  spoke3_apps_fqdn   = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
+  prefix                      = "G10"
+  enable_diagnostics          = true
+  spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
+  spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
+  spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
 
-  hub1_tags    = { "lab" = "Hs13", "nodeType" = "hub" }
-  branch1_tags = { "lab" = "Hs13", "nodeType" = "branch" }
-  branch2_tags = { "lab" = "Hs13", "nodeType" = "branch" }
-  spoke1_tags  = { "lab" = "Hs13", "nodeType" = "spoke" }
-  spoke2_tags  = { "lab" = "Hs13", "nodeType" = "spoke" }
-  spoke3_tags  = { "lab" = "Hs13", "nodeType" = "float" }
+  hub1_tags    = { "lab" = local.prefix, "nodeType" = "hub" }
+  branch1_tags = { "lab" = local.prefix, "nodeType" = "branch" }
+  branch2_tags = { "lab" = local.prefix, "nodeType" = "branch" }
+  spoke1_tags  = { "lab" = local.prefix, "nodeType" = "spoke" }
+  spoke2_tags  = { "lab" = local.prefix, "nodeType" = "spoke" }
+  spoke3_tags  = { "lab" = local.prefix, "nodeType" = "float" }
 }
 
 resource "random_id" "random" {
   byte_length = 2
 }
-
-data "azurerm_subscription" "current" {}
 
 ####################################################
 # providers
@@ -58,19 +58,13 @@ resource "azurerm_user_assigned_identity" "machine" {
   name                = "${local.prefix}-user"
 }
 
-resource "azurerm_role_assignment" "machine" {
-  role_definition_name = "Contributor"
-  principal_id         = azurerm_user_assigned_identity.machine.principal_id
-  scope                = data.azurerm_subscription.current.id
-}
-
 ####################################################
 # network features
 ####################################################
 
 locals {
   regions = {
-    region1 = local.region1
+    "region1" = { name = local.region1, dns_zone = local.region1_dns_zone }
   }
   default_udr_destinations = [
     { name = "default", address_prefix = ["0.0.0.0/0"] }
@@ -92,7 +86,7 @@ locals {
           ]
         }
         "${local.region1_code}" = {
-          domain = "${local.region1_code}.${local.cloud_domain}"
+          domain = local.region1_dns_zone
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
@@ -103,12 +97,20 @@ locals {
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
         }
+        "blob" = {
+          domain = "privatelink.blob.core.windows.net"
+          target_dns_servers = [
+            { ip_address = local.hub1_dns_in_addr, port = 53 },
+          ]
+        }
       }
     }
 
     config_s2s_vpngw = {
       enable = false
       sku    = "VpnGw1AZ"
+      ip_configuration = [
+      ]
       bgp_settings = {
         asn = local.hub1_vpngw_asn
       }
@@ -118,14 +120,13 @@ locals {
       enable = false
       sku    = "VpnGw1AZ"
       ip_configuration = [
-        #{ name = "ip-config", public_ip_address_name = azurerm_public_ip.hub1_p2s_vpngw_pip.name },
+        #{ name = "ipconf", public_ip_address_name = azurerm_public_ip.hub1_p2s_vpngw_pip.name }
       ]
       vpn_client_configuration = {
-        address_space = []
+        address_space = ["192.168.0.0/24"]
         clients = [
           # { name = "client1" },
           # { name = "client2" },
-          # { name = "client3" },
         ]
       }
       custom_route_address_prefixes = ["8.8.8.8/32"]
@@ -143,10 +144,13 @@ locals {
     }
 
     config_nva = {
-      enable           = false
-      type             = null
-      internal_lb_addr = null
-      custom_data      = null
+      enable          = false
+      type            = null
+      scenario_option = null
+      opn_type        = null
+      custom_data     = null
+      ilb_untrust_ip  = null
+      ilb_trust_ip    = null
     }
   }
 }
@@ -233,57 +237,13 @@ locals {
     TARGETS_HEAVY_TRAFFIC_GEN = []
     ENABLE_TRAFFIC_GEN        = false
   })
-  branch_dns_vars = {
-    ONPREM_LOCAL_RECORDS = local.onprem_local_records
-    REDIRECTED_HOSTS     = local.onprem_redirected_hosts
-    FORWARD_ZONES        = local.onprem_forward_zones
-    TARGETS              = local.vm_script_targets
-    ACCESS_CONTROL_PREFIXES = concat(
-      local.private_prefixes,
-      [
-        "127.0.0.0/8",
-        "35.199.192.0/19",
-      ]
-    )
-  }
-  branch_unbound_startup = templatefile("../../scripts/unbound/unbound.sh", local.branch_dns_vars)
-  branch_dns_init_dir    = "/var/lib/labs"
-  branch_unbound_init = {
-    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/Dockerfile", {}) }
-    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
-    "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.conf", local.branch_dns_vars) }
-    "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.log", local.branch_dns_vars) }
-  }
   onprem_local_records = [
-    { name = (local.branch1_vm_fqdn), record = local.branch1_vm_addr },
-    { name = (local.branch2_vm_fqdn), record = local.branch2_vm_addr },
-  ]
-  onprem_forward_zones = [
-    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, ], },
-    { zone = "${local.cloud_domain}.", targets = [local.hub1_dns_in_addr, ], },
-    { zone = "privatelink.blob.core.windows.net.", targets = [local.hub1_dns_in_addr, ], },
-    { zone = "privatelink.azurewebsites.net.", targets = [local.hub1_dns_in_addr, ], },
-    { zone = "privatelink.database.windows.net.", targets = [local.hub1_dns_in_addr, ], },
-    { zone = "privatelink.table.cosmos.azure.com.", targets = [local.hub1_dns_in_addr, ], },
-    { zone = "privatelink.queue.core.windows.net.", targets = [local.hub1_dns_in_addr, ], },
-    { zone = "privatelink.file.core.windows.net.", targets = [local.hub1_dns_in_addr, ], },
-    { zone = ".", targets = [local.azuredns, ] },
+    { name = lower(local.branch1_vm_fqdn), record = local.branch1_vm_addr },
+    { name = lower(local.branch2_vm_fqdn), record = local.branch2_vm_addr },
+    { name = lower(local.branch3_vm_fqdn), record = local.branch3_vm_addr },
   ]
   onprem_redirected_hosts = []
-}
-
-module "branch_unbound_init" {
-  source   = "../../modules/cloud-config-gen"
-  packages = ["docker.io", "docker-compose", "dnsutils", "net-tools", ]
-  files    = local.branch_unbound_init
-  run_commands = [
-    "systemctl stop systemd-resolved",
-    "systemctl disable systemd-resolved",
-    "echo \"nameserver 8.8.8.8\" > /etc/resolv.conf",
-    "systemctl restart unbound",
-    "systemctl enable unbound",
-    "docker-compose -f ${local.branch_dns_init_dir}/docker-compose.yml up -d",
-  ]
+  branch_dns_init_dir     = "/var/lib/labs"
 }
 
 ####################################################
@@ -317,7 +277,7 @@ resource "azurerm_firewall_policy" "firewall_policy" {
   for_each                 = local.regions
   resource_group_name      = azurerm_resource_group.rg.name
   name                     = "${local.prefix}-fw-policy-${each.key}"
-  location                 = each.value
+  location                 = each.value.name
   threat_intelligence_mode = "Alert"
   sku                      = local.firewall_sku
 
@@ -367,8 +327,7 @@ module "fw_policy_rule_collection_group" {
 
 locals {
   main_files = {
-    "output/branch-unbound.sh" = local.branch_unbound_startup
-    "output/server.sh"         = local.vm_startup
+    "output/server.sh" = local.vm_startup
   }
 }
 

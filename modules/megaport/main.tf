@@ -1,4 +1,9 @@
 
+locals {
+  vnet_circuits = [for c in var.circuits : c if c.target == "vnet"]
+  vwan_circuits = [for c in var.circuits : c if c.target == "vwan"]
+}
+
 # locations
 #----------------------------
 
@@ -115,14 +120,14 @@ resource "megaport_azure_connection" "this" {
 # virtual network
 
 resource "azurerm_virtual_network_gateway_connection" "this" {
-  for_each                   = { for c in var.circuits : c.name => c if c.virtual_network_gateway_id != null }
+  count                      = length(local.vnet_circuits)
   resource_group_name        = var.resource_group
-  name                       = each.value.name
-  location                   = each.value.location
+  name                       = var.circuits[count.index].name
+  location                   = var.circuits[count.index].location
   type                       = "ExpressRoute"
-  virtual_network_gateway_id = each.value.virtual_network_gateway_id
-  authorization_key          = azurerm_express_route_circuit_authorization.this[each.value.name].authorization_key
-  express_route_circuit_id   = azurerm_express_route_circuit.this[each.value.name].id
+  virtual_network_gateway_id = var.circuits[count.index].virtual_network_gateway_id
+  authorization_key          = azurerm_express_route_circuit_authorization.this[var.circuits[count.index].name].authorization_key
+  express_route_circuit_id   = azurerm_express_route_circuit.this[var.circuits[count.index].name].id
   depends_on = [
     azurerm_express_route_circuit.this,
     azurerm_express_route_circuit_authorization.this,
@@ -131,13 +136,13 @@ resource "azurerm_virtual_network_gateway_connection" "this" {
   ]
 }
 
-# virtual wan
+# vwan
 
 resource "azurerm_express_route_connection" "this" {
-  for_each                         = { for c in var.circuits : c.name => c if c.express_route_gateway_id != null }
-  name                             = each.value.name
-  express_route_gateway_id         = each.value.express_route_gateway_id
-  express_route_circuit_peering_id = azurerm_express_route_circuit_peering.private[each.value.name].id
+  count                            = length(local.vwan_circuits)
+  name                             = var.circuits[count.index].name
+  express_route_gateway_id         = var.circuits[count.index].express_route_gateway_id
+  express_route_circuit_peering_id = azurerm_express_route_circuit_peering.private[var.circuits[count.index].name].id
   depends_on = [
     azurerm_express_route_circuit.this,
     azurerm_express_route_circuit_authorization.this,
