@@ -11,6 +11,7 @@ Error Messages
 - [6. Network Security Group - "Already Exists"](#6-network-security-group---already-exists)
 - [7. Subnet - "Already Exists"](#7-subnet---already-exists)
 - [8. Virtual Machine Extension - "Already Exists"](#8-virtual-machine-extension---already-exists)
+- [9. Virtual Machine - "Already Exists"](#9-virtual-machine---already-exists)
 
 Terraform serializes some resource creation which creates situations where some resources wait for a long time for dependent resources to be created. There are scenarios where you might encounter errors after running terraform to deploy any of the labs. This could be as a result of occasional race conditions that come up because some terraform resources are dependent on Azure resources that take a long time to deploy - such as virtual network gateways.
 
@@ -24,7 +25,7 @@ This error occurs when terraform is trying to create a diagnostic setting that a
 **Example:**
 
 ```sh
-│ Error: A resource with the ID "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan24RG/providers/Microsoft.Network/azureFirewalls/Vwan24-vhub2-azfw|Vwan24-vhub2-azfw-diag" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_monitor_diagnostic_setting" for more information.
+│ Error: A resource with the ID "/subscriptions/b120edde-2b3e-1234-fake-55d2918f337f/resourceGroups/Vwan24RG/providers/Microsoft.Network/azureFirewalls/Vwan24-vhub2-azfw|Vwan24-vhub2-azfw-diag" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_monitor_diagnostic_setting" for more information.
 │
 │   with module.vhub2.azurerm_monitor_diagnostic_setting.this[0],
 │   on ../../modules/virtual-hub/main.tf line 74, in resource "azurerm_monitor_diagnostic_setting" "this":
@@ -67,7 +68,7 @@ terraform apply
 **Solution (Option 2):**
 
  1. Identify the terraform resource that is causing the error. In the example above, the resource is `azurerm_monitor_diagnostic_setting.this[0]`
- 2. Identify the resource ID in the error message. In the example above, the resource ID is `/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan24RG/providers/Microsoft.Network/azureFirewalls/Vwan24-vhub2-azfw|Vwan24-vhub2-azfw-diag`
+ 2. Identify the resource ID in the error message. In the example above, the resource ID is `/subscriptions/b120edde-2b3e-1234-fake-55d2918f337f/resourceGroups/Vwan24RG/providers/Microsoft.Network/azureFirewalls/Vwan24-vhub2-azfw|Vwan24-vhub2-azfw-diag`
  3. Import the resource into the terraform state. Substitute the resource ID in the command below with the resource ID from the error message above.
 
 ```sh
@@ -76,7 +77,7 @@ import <Resource_Name> "<Resource_ID>"
 In this example, the command will be:
 
  ```sh
-terraform import module.vhub2.azurerm_monitor_diagnostic_setting.this[0] "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan24RG/providers/Microsoft.Network/azureFirewalls/Vwan24-vhub2-azfw|Vwan24-vhub2-azfw-diag"
+terraform import module.vhub2.azurerm_monitor_diagnostic_setting.this[0] "/subscriptions/b120edde-2b3e-1234-fake-55d2918f337f/resourceGroups/Vwan24RG/providers/Microsoft.Network/azureFirewalls/Vwan24-vhub2-azfw|Vwan24-vhub2-azfw-diag"
 ```
 4. Re-apply terraform
 ```sh
@@ -91,7 +92,7 @@ This error occurs when terraform is trying to create an Azure policy assignment 
 **Example:**
 
 ```sh
-Error: A resource with the ID "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/providers/Microsoft.Authorization/policyAssignments/Ne31-ng-spokes-prod-region1" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_subscription_policy_assignment" for more information.
+Error: A resource with the ID "/subscriptions/b120edde-2b3e-1234-fake-55d2918f337f/providers/Microsoft.Authorization/policyAssignments/Ne31-ng-spokes-prod-region1" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_subscription_policy_assignment" for more information.
 │
 │   with azurerm_subscription_policy_assignment.ng_spokes_prod_region1,
 │   on svc-nm-common.tf line 57, in resource "azurerm_subscription_policy_assignment" "ng_spokes_prod_region1":
@@ -142,7 +143,7 @@ terraform apply
   **Example:**
 
 ```sh
-Error: waiting for Virtual Network Peering: (Name "Vwan22-hub2-to-spoke5-peering" / Virtual Network Name "Vwan22-hub2-vnet" / Resource Group "Vwan22RG") to be created: network.VirtualNetworkPeeringsClient#CreateOrUpdate: Failure sending request: StatusCode=400 -- Original Error: Code="ReferencedResourceNotProvisioned" Message="Cannot proceed with operation because resource /subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan22RG/providers/Microsoft.Network/virtualNetworks/Vwan22-hub2-vnet used by resource /subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Vwan22RG/providers/Microsoft.Network/virtualNetworks/Vwan22-hub2-vnet/virtualNetworkPeerings/Vwan22-hub2-to-spoke5-peering is not in Succeeded state. Resource is in Updating state and the last operation that updated/is updating the resource is PutSubnetOperation." Details=[]
+Error: waiting for Virtual Network Peering: (Name "Vwan22-hub2-to-spoke5-peering" / Virtual Network Name "Vwan22-hub2-vnet" / Resource Group "Vwan22RG") to be created: network.VirtualNetworkPeeringsClient#CreateOrUpdate: Failure sending request: StatusCode=400 -- Original Error: Code="ReferencedResourceNotProvisioned" Message="Cannot proceed with operation because resource /subscriptions/b120edde-2b3e-1234-fake-55d2918f337f/resourceGroups/Vwan22RG/providers/Microsoft.Network/virtualNetworks/Vwan22-hub2-vnet used by resource /subscriptions/b120edde-2b3e-1234-fake-55d2918f337f/resourceGroups/Vwan22RG/providers/Microsoft.Network/virtualNetworks/Vwan22-hub2-vnet/virtualNetworkPeerings/Vwan22-hub2-to-spoke5-peering is not in Succeeded state. Resource is in Updating state and the last operation that updated/is updating the resource is PutSubnetOperation." Details=[]
 │
 │   with azurerm_virtual_network_peering.hub2_to_spoke5_peering,
 │   on 08-conn-hub2.tf line 23, in resource "azurerm_virtual_network_peering" "hub2_to_spoke5_peering":
@@ -164,7 +165,7 @@ This error could occur when terraform is trying to update the backend address po
 **Example:**
 
 ```sh
-│ Error: updating Backend Address Pool Address: (Address Name "Vwan23-hub1-nva-beap-addr" / Backend Address Pool Name "Vwan23-hub1-nva-beap" / Load Balancer Name "Vwan23-hub1-nva-lb" / Resource Group "Vwan23RG"): network.LoadBalancerBackendAddressPoolsClient#CreateOrUpdate: Failure sending request: StatusCode=409 -- Original Error: Code="AnotherOperationInProgress" Message="Another operation on this or dependent resource is in progress. To retrieve status of the operation use uri: https://management.azure.com/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/providers/Microsoft.Network/locations/westeurope/operations/5d66a0e0-e08b-4ecf-aee5-0ff5a461962b?api-version=2022-07-01." Details=[]
+│ Error: updating Backend Address Pool Address: (Address Name "Vwan23-hub1-nva-beap-addr" / Backend Address Pool Name "Vwan23-hub1-nva-beap" / Load Balancer Name "Vwan23-hub1-nva-lb" / Resource Group "Vwan23RG"): network.LoadBalancerBackendAddressPoolsClient#CreateOrUpdate: Failure sending request: StatusCode=409 -- Original Error: Code="AnotherOperationInProgress" Message="Another operation on this or dependent resource is in progress. To retrieve status of the operation use uri: https://management.azure.com/subscriptions/b120edde-2b3e-1234-fake-55d2918f337f/providers/Microsoft.Network/locations/westeurope/operations/5d66a0e0-e08b-4ecf-aee5-0ff5a461962b?api-version=2022-07-01." Details=[]
 │
 │   with azurerm_lb_backend_address_pool_address.hub1_nva,
 │   on 08-conn-hub1.tf line 208, in resource "azurerm_lb_backend_address_pool_address" "hub1_nva":
@@ -173,7 +174,7 @@ This error could occur when terraform is trying to update the backend address po
 │ updating Backend Address Pool Address: (Address Name "Vwan23-hub1-nva-beap-addr" / Backend Address Pool Name "Vwan23-hub1-nva-beap" / Load Balancer Name "Vwan23-hub1-nva-lb" / Resource Group "Vwan23RG"):
 │ network.LoadBalancerBackendAddressPoolsClient#CreateOrUpdate: Failure sending request: StatusCode=409 -- Original Error: Code="AnotherOperationInProgress" Message="Another operation on this or dependent resource is in
 │ progress. To retrieve status of the operation use uri:
-│ https://management.azure.com/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/providers/Microsoft.Network/locations/westeurope/operations/5d66a0e0-e08b-4ecf-aee5-0ff5a461962b?api-version=2022-07-01." Details=[]
+│ https://management.azure.com/subscriptions/b120edde-2b3e-1234-fake-55d2918f337f/providers/Microsoft.Network/locations/westeurope/operations/5d66a0e0-e08b-4ecf-aee5-0ff5a461962b?api-version=2022-07-01." Details=[]
  ```
 
  **Solution:**
@@ -281,7 +282,7 @@ This error could occur when terraform is trying to create a virtual machine exte
 **Example:**
 
 ```sh
-│ Error: A resource with the ID "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Hs14RG/providers/Microsoft.Compute/virtualMachines/Hs14-branch1-dns/extensions/Hs14-branch1-dns" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_virtual_machine_extension" for more information.
+│ Error: A resource with the ID "/subscriptions/b120edde-2b3e-1234-fake-55d2918f337f/resourceGroups/Hs14RG/providers/Microsoft.Compute/virtualMachines/Hs14-branch1-dns/extensions/Hs14-branch1-dns" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_virtual_machine_extension" for more information.
 │
 │   with module.branch1.module.vm["dns"].azurerm_virtual_machine_extension.this[0],
 │   on ../../modules/linux/main.tf line 93, in resource "azurerm_virtual_machine_extension" "this":
@@ -306,3 +307,46 @@ This error could occur when terraform is trying to create a virtual machine exte
   ```
 
   Repeat the above steps for all similar errors.
+
+## 9. Virtual Machine - "Already Exists"
+
+This occurs when terraform is attempting to create a subnet which already exists from a previous terraform run.
+
+**Example:**
+
+```sh
+│ Error: A resource with the ID "/subscriptions/b120edde-2b3e-1234-fake-55d2918f337f/resourceGroups/Hs11RG/providers/Microsoft.Compute/virtualMachines/Hs11-hub1Vm" already exists - to be managed via Terraform this resource needs to be imported into the State. Please see the resource documentation for "azurerm_linux_virtual_machine" for more information.
+│
+│   with module.hub1_vm.azurerm_linux_virtual_machine.this,
+│   on ../../modules/virtual-machine-linux/main.tf line 68, in resource "azurerm_linux_virtual_machine" "this":
+│   68: resource "azurerm_linux_virtual_machine" "this" {
+```
+
+**Solution (Option 1):**
+
+1. Delete the virtual machine from the portal or CLI
+2. Re-apply terraform
+```sh
+terraform plan
+terraform apply
+```
+
+**Solution (Option 2):**
+
+ 1. Identify the terraform resource that is causing the error. In the example above, the resource is `module.hub1_vm.azurerm_linux_virtual_machine.this`
+ 2. Identify the resource ID in the error message. In the example above, the resource ID is `"/subscriptions/b120edde-2b3e-1234-fake-55d2918f337f/resourceGroups/Hs11RG/providers/Microsoft.Compute/virtualMachines/Hs11-hub1Vm"`
+ 3. Import the resource into the terraform state. Substitute the resource ID in the command below with the resource ID from the error message above.
+
+```sh
+import <Resource_Name> "<Resource_ID>"
+```
+In this example, the command will be:
+
+ ```sh
+terraform import module.hub1_vm.azurerm_linux_virtual_machine.this "/subscriptions/b120edde-2b3e-1234-fake-55d2918f337f/resourceGroups/Hs11RG/providers/Microsoft.Compute/virtualMachines/Hs11-hub1Vm"
+```
+4. Re-apply terraform
+```sh
+terraform plan
+terraform apply
+```

@@ -3,7 +3,7 @@
 ####################################################
 
 locals {
-  prefix                      = "G10"
+  prefix                      = "G11"
   enable_diagnostics          = true
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"

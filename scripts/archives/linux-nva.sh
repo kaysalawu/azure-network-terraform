@@ -51,19 +51,19 @@ ip rule add to $ETH1_DGW/$ETH1_MASK table rt1
 # the azure user-defined routes will direct all vnet inbound traffic to eth1 (trust)
 # if destination is internal (RFC1918 and RFC6598), ip rule directs kernel to use rt1 for lookup; and then use the ip routes in rt1
 # if destination is internet (not RFC1918 and RFC6598), use the main routing table for lookup and exit via eth0 default gateway
-# ip rule add to 10.0.0.0/8 table rt1
-# ip rule add to 172.16.0.0/12 table rt1
-# ip rule add to 192.168.0.0/16 table rt1
-# ip rule add to 100.64.0.0/10 table rt1
+ip rule add to 10.0.0.0/8 table rt1
+ip rule add to 172.16.0.0/12 table rt1
+ip rule add to 192.168.0.0/16 table rt1
+ip rule add to 100.64.0.0/10 table rt1
 
 # ip routes
 #--------------------------------------------------
 # kernel is directed to rt1 for RFC1918 and RFC6598 destinations
 # the following default route is used for traffic forwarding via eth1
-# ip route add 10.0.0.0/8 via $ETH1_DGW dev eth1 table rt1
-# ip route add 172.16.0.0/12 via $ETH1_DGW dev eth1 table rt1
-# ip route add 192.168.0.0/16 via $ETH1_DGW dev eth1 table rt1
-# ip route add 100.64.0.0/10 via $ETH1_DGW dev eth1 table rt1
+ip route add 10.0.0.0/8 via $ETH1_DGW dev eth1 table rt1
+ip route add 172.16.0.0/12 via $ETH1_DGW dev eth1 table rt1
+ip route add 192.168.0.0/16 via $ETH1_DGW dev eth1 table rt1
+ip route add 100.64.0.0/10 via $ETH1_DGW dev eth1 table rt1
 
 # for traffic originating from azure platform to eth1 ...
 # rule "ip rule add to $ETH1_DGW/$ETH1_MASK table rt1" is used
@@ -74,6 +74,19 @@ ip route add 169.254.169.254/32 via $ETH1_DGW dev eth1 table rt1
 
 # alternatively, all the static routes can be replaced by a single default route
 # ip route add default via $ETH1_DGW dev eth1 table rt1
+
+#########################################################
+# packages
+#########################################################
+
+apt-get -y update
+
+## Install the Quagga routing daemon
+apt-get -y install quagga
+
+##  run the updates and ensure the packages are up to date and there is no new version available for the packages
+apt-get -y update --fix-missing
+apt-get -y install tcpdump dnsutils traceroute tcptraceroute net-tools
 
 #########################################################
 # iptables
@@ -101,49 +114,73 @@ ${rule}
 iptables-save > /etc/iptables/rules.v4
 
 #########################################################
-# packages
+# quagga and zebra config
 #########################################################
 
-sudo apt-get update
-sudo apt-get install -y strongswan frr
+## Stopping Quagga (required for script re-runs)
+systemctl stop zebra
+systemctl stop bgpd
 
-##  run the updates and ensure the packages are up to date and there is no new version available for the packages
-#apt-get -y update --fix-missing
-apt-get -y install tcpdump dnsutils traceroute tcptraceroute net-tools
+## Create a folder for the quagga logs
+echo "creating folder for quagga logs"
+sudo mkdir -p /var/log/quagga && sudo chown quagga:quagga /var/log/quagga
+sudo touch /var/log/zebra.log
+sudo chown quagga:quagga /var/log/zebra.log
 
-sed -i 's/bgpd=no/bgpd=yes/' /etc/frr/daemons
-sudo systemctl restart frr
+## Create the configuration files for Quagga daemon
+echo "creating empty quagga config files"
+sudo touch /etc/quagga/babeld.conf
+sudo touch /etc/quagga/bgpd.conf
+sudo touch /etc/quagga/isisd.conf
+sudo touch /etc/quagga/ospf6d.conf
+sudo touch /etc/quagga/ospfd.conf
+sudo touch /etc/quagga/ripd.conf
+sudo touch /etc/quagga/ripngd.conf
+sudo touch /etc/quagga/vtysh.conf
+sudo touch /etc/quagga/zebra.conf
 
-#########################################################
-# strongswan config
-#########################################################
+## Change the ownership and permission for configuration files, under /etc/quagga folder
+echo "assign to quagga user the ownership of config files"
+sudo chown quagga:quagga /etc/quagga/babeld.conf && sudo chmod 640 /etc/quagga/babeld.conf
+sudo chown quagga:quagga /etc/quagga/bgpd.conf && sudo chmod 640 /etc/quagga/bgpd.conf
+sudo chown quagga:quagga /etc/quagga/isisd.conf && sudo chmod 640 /etc/quagga/isisd.conf
+sudo chown quagga:quagga /etc/quagga/ospf6d.conf && sudo chmod 640 /etc/quagga/ospf6d.conf
+sudo chown quagga:quagga /etc/quagga/ospfd.conf && sudo chmod 640 /etc/quagga/ospfd.conf
+sudo chown quagga:quagga /etc/quagga/ripd.conf && sudo chmod 640 /etc/quagga/ripd.conf
+sudo chown quagga:quagga /etc/quagga/ripngd.conf && sudo chmod 640 /etc/quagga/ripngd.conf
+sudo chown quagga:quaggavty /etc/quagga/vtysh.conf && sudo chmod 660 /etc/quagga/vtysh.conf
+sudo chown quagga:quagga /etc/quagga/zebra.conf && sudo chmod 640 /etc/quagga/zebra.conf
 
-tee /etc/ipsec.conf <<EOF
-${STRONGSWAN_IPSEC_CONF}
+## initial startup configuration for Quagga daemons are required
+echo "Setting up daemon startup config"
+echo 'zebra=yes' > /etc/quagga/daemons
+echo 'bgpd=yes' >> /etc/quagga/daemons
+echo 'ospfd=no' >> /etc/quagga/daemons
+echo 'ospf6d=no' >> /etc/quagga/daemons
+echo 'ripd=no' >> /etc/quagga/daemons
+echo 'ripngd=no' >> /etc/quagga/daemons
+echo 'isisd=no' >> /etc/quagga/daemons
+echo 'babeld=no' >> /etc/quagga/daemons
+
+echo "add zebra config"
+cat <<EOF > /etc/quagga/zebra.conf
+${QUAGGA_ZEBRA_CONF}
 EOF
 
-tee /etc/ipsec.secrets <<EOF
-${STRONGSWAN_IPSEC_SECRETS}
+echo "add quagga config"
+cat <<EOF > /etc/quagga/bgpd.conf
+${QUAGGA_BGPD_CONF}
 EOF
 
-sudo tee /etc/ipsec.d/vti-up-down.sh <<'EOF'
-${STRONGSWAN_VTI_SCRIPT}
-EOF
-chmod a+x /etc/ipsec.d/vti-up-down.sh
+## to start daemons at system startup
+systemctl enable zebra.service
+systemctl enable bgpd.service
 
-touch /var/log/vti-up-down.log
-systemctl restart ipsec.service
-
-# #########################################################
-# # frr  config
-# #########################################################
-
-sudo tee /etc/frr/frr.conf <<EOF
-# ${FRR_CONF}
-EOF
-
-sudo systemctl enable frr
-sudo systemctl restart frr
+## run the daemons
+systemctl restart zebra
+systemctl restart bgpd
+systemctl start zebra
+systemctl start bgpd
 
 #########################################################
 # test scripts
@@ -222,64 +259,3 @@ resolvectl status
 EOF
 chmod a+x /usr/local/bin/dns-info
 
-# ipsec debug
-
-cat <<EOF > /usr/local/bin/ipsec-debug
-echo -e "\n ============ ipsec statusall ============ \n"
-ipsec statusall
-echo -e "\n ============ ipsec status ============ \n"
-ipsec status
-echo -e "\n ============ vti-up-down.log ============ \n"
-cat /var/log/vti-up-down.log
-echo -e "\n ============ link vti ============ \n"
-sudo ip link show type vti
-echo
-EOF
-chmod a+x /usr/local/bin/ipsec-debug
-
-%{~ if try(ENABLE_TRAFFIC_GEN, false) ~}
-# light-traffic generator
-
-%{ if TARGETS_LIGHT_TRAFFIC_GEN != [] ~}
-cat <<EOF > /usr/local/bin/light-traffic
-%{ for target in TARGETS_LIGHT_TRAFFIC_GEN ~}
-%{~ if try(target.probe, false) ~}
-nping -c ${try(target.count, "10")} --${try(target.protocol, "tcp")} -p ${try(target.port, "80")} ${try(target.dns, target.ip)} > /dev/null 2>&1
-%{ endif ~}
-%{ endfor ~}
-EOF
-chmod a+x /usr/local/bin/light-traffic
-%{ endif ~}
-
-# heavy-traffic generator
-
-%{ if TARGETS_HEAVY_TRAFFIC_GEN != [] ~}
-cat <<EOF > /usr/local/bin/heavy-traffic
-#! /bin/bash
-i=0
-while [ \$i -lt 8 ]; do
-  %{ for target in TARGETS_HEAVY_TRAFFIC_GEN ~}
-  ab -n \$1 -c \$2 ${target} > /dev/null 2>&1
-  %{ endfor ~}
-  let i=i+1
-  sleep 5
-done
-EOF
-chmod a+x /usr/local/bin/heavy-traffic
-%{ endif ~}
-
-# crontab for traffic generators
-
-cat <<EOF > /tmp/crontab.txt
-%{ if TARGETS_LIGHT_TRAFFIC_GEN != [] ~}
-*/1 * * * * /usr/local/bin/light-traffic 2>&1 > /dev/null
-%{ endif ~}
-%{ if TARGETS_HEAVY_TRAFFIC_GEN != [] ~}
-*/1 * * * * /usr/local/bin/heavy-traffic 50 1 2>&1 > /dev/null
-*/2 * * * * /usr/local/bin/heavy-traffic 8 2 2>&1 > /dev/null
-*/3 * * * * /usr/local/bin/heavy-traffic 20 4 2>&1 > /dev/null
-*/5 * * * * /usr/local/bin/heavy-traffic 15 2 2>&1 > /dev/null
-%{ endif ~}
-EOF
-crontab /tmp/crontab.txt
-%{ endif ~}

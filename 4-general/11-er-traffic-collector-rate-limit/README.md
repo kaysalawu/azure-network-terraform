@@ -1,12 +1,9 @@
 # Megaport ExpressRoute Circuit <!-- omit from toc -->
 
-## Lab: G10 <!-- omit from toc -->
+## Lab: G11 <!-- omit from toc -->
 
 - [Test the Lab](#test-the-lab)
   - [Troubleshooting](#troubleshooting)
-  - [Single Iperf Connection](#single-iperf-connection)
-  - [Two Iperf Connections](#two-iperf-connections)
-  - [Six Iperf Connections](#six-iperf-connections)
   - [Cleanup](#cleanup)
 
 ## Overview
@@ -51,73 +48,23 @@ You also need to have an active megaport account. You will need to supply the me
 
 # Test the Lab
 
-1. Login to the virtual machine `G10-hub1-vm` and `G10-branch1Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
+1. Login to the virtual machine `G11-hub1-vm` and `G11-branch1Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
 
    - On Azure portal select *Virtual machines*
-   - Select each virtual machine `G10-hub1-vm`
+   - Select each virtual machine `G11-hub1-vm`
    - Under ***Help*** section, select ***Serial console*** and wait for a login prompt
    - Enter the login credentials
      - username = ***azureuser***
      - password = ***Password123***
    - You should now be in a shell session `azureuser@vm:~$`
 
-2. Run `G10-hub1-vm` as iperf server listening on port 8080
+2. Run ping tests from `G11-hub1-vm` to `G11-branch1Vm` and vice versa.
 
-      ```sh
-      iperf3 -s -p 8080 -i 60
-      ```
-
-3. Login to virtual machine  `G10-branch1Vm` using same steps as described in step 1.
-
-4. Run `G10-branch1Vm` as iperf client connecting to the iperf server `G10-hub1-vm` on a single thread
-
-      ```sh
-      iperf3 -c 10.11.0.5 -t 900 -P 2 -l 8192 -p 8080
-      ```
-
-5. Repeat step 3 using different number of threads (1, 2, 6) and observe the results on the dashboard.
-
-   * `iperf3 -c 10.11.0.5 -t 900 -P 2 -l 8192 -p 8080`
-   * `iperf3 -c 10.11.0.5 -t 900 -P 6 -l 8192 -p 8080`
-
-
-6. Observe the dashboard `G10-hub1-er-db` to see the results of the iperf tests.
-
-
-   To view the dashboards, follow the steps below:
-
-   1. From the Azure portal menu, select **Dashboard hub**.
-
-   2. Under **Browse**, select **Shared dashboards**.
-
-   3. Click the **Go to dashboard** link for dashboard `G10-hub1-er-db`.
-
-   <img src="../../images/general/11/00-dashboard.png" alt="er-ecmp-1-thread" width="1000">
-
-   The sample dashboard shows the results obtained when using various iperf settings. In the lab we are using ExpressRoute gateway ErGw1AZ which works in active/passive mode. We can see from the dashboard that only the primary circuits is used for traffic. The secondary circuit is only used when the primary circuit is unavailable.
 
 
 ## Troubleshooting
 
 See the [troubleshooting](../../troubleshooting/README.md) section for tips on how to resolve common issues that may occur during the deployment of the lab.
-
-## Single Iperf Connection
-
-With a single connection on iperf, the traffic will only use one ExpressRoute Circuit. Bandwidth is capped at 50Mbps which is the ExpressRoute Standard bandwidth.
-
-<img src="../../images/general/11/03-1-thread.png" alt="er-ecmp-1-thread" width="1000">
-
-## Two Iperf Connections
-
-With two connections on iperf, the traffic will use both ExpressRoute Circuits. Bandwidth is capped at 50Mbps which is the ExpressRoute Standard bandwidth.
-
-<img src="../../images/general/11/02-2-threads.png" alt="er-ecmp-1-thread" width="1000">
-
-## Six Iperf Connections
-
-With six connections on iperf, the traffic will be distributed across both ExpressRoute Circuits. Bandwidth is capped at 50Mbps which is the ExpressRoute Standard bandwidth.
-
-<img src="../../images/general/11/04-6-threads.png" alt="er-ecmp-1-thread" width="1000">
 
 ## Cleanup
 
@@ -130,13 +77,13 @@ With six connections on iperf, the traffic will be distributed across both Expre
 2. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
 
    ```sh
-   bash ../../scripts/_cleanup.sh G10
+   bash ../../scripts/_cleanup.sh G11
    ```
 
 3. Delete the resource group to remove all resources installed.
 
    ```sh
-   az group delete -g G10RG --no-wait
+   az group delete -g G11RG --no-wait
    ```
 
 4. Delete terraform state files and other generated files.
