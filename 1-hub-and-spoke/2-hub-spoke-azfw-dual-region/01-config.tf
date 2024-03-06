@@ -33,6 +33,11 @@ locals {
   csp_range7 = "172.16.0.24/30"
   csp_range8 = "172.16.0.28/30"
 
+  vti_range0 = "10.10.10.0/30"
+  vti_range1 = "10.10.10.4/30"
+  vti_range2 = "10.10.10.8/30"
+  vti_range3 = "10.10.10.12/30"
+
   default_region = "westeurope"
 
   onprem_domain  = "corp"
@@ -200,10 +205,6 @@ locals {
   branch1_vm_addr            = cidrhost(local.branch1_subnets["MainSubnet"].address_prefixes[0], 5)
   branch1_dns_addr           = cidrhost(local.branch1_subnets["MainSubnet"].address_prefixes[0], 6)
   branch1_nva_loopback0      = "192.168.10.10"
-  branch1_nva_tun_range0     = "10.10.10.0/30"
-  branch1_nva_tun_range1     = "10.10.10.4/30"
-  branch1_nva_tun_range2     = "10.10.10.8/30"
-  branch1_nva_tun_range3     = "10.10.10.12/30"
   branch1_bgp_apipa_0        = cidrhost(local.bgp_apipa_range3, 2)
   branch1_bgp_apipa_1        = cidrhost(local.bgp_apipa_range4, 2)
   branch1_vm_hostname        = "branch1Vm"
@@ -270,10 +271,6 @@ locals {
   branch3_vm_addr            = cidrhost(local.branch3_subnets["MainSubnet"].address_prefixes[0], 5)
   branch3_dns_addr           = cidrhost(local.branch3_subnets["MainSubnet"].address_prefixes[0], 6)
   branch3_nva_loopback0      = "192.168.30.30"
-  branch3_nva_tun_range0     = "10.30.30.0/30"
-  branch3_nva_tun_range1     = "10.30.30.4/30"
-  branch3_nva_tun_range2     = "10.30.30.8/30"
-  branch3_nva_tun_range3     = "10.30.30.12/30"
   branch3_bgp_apipa_0        = cidrhost(local.bgp_apipa_range7, 2)
   branch3_bgp_apipa_1        = cidrhost(local.bgp_apipa_range8, 2)
   branch3_vm_hostname        = "branch3Vm"

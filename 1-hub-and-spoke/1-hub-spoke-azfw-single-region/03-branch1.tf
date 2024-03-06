@@ -119,11 +119,6 @@ locals {
   branch1_inverse_mask  = join(".", local.branch1_inverse_mask_)
 }
 
-resource "local_file" "branch1_nva_init" {
-  content  = local.branch1_nva_init
-  filename = "output/branch1Nva.sh"
-}
-
 locals {
   branch1_nva_route_map_onprem      = "ONPREM"
   branch1_nva_route_map_azure       = "AZURE"
@@ -161,32 +156,32 @@ locals {
       {
         name            = "Tunnel0"
         vti_name        = "vti0"
-        vti_local_addr  = cidrhost(local.branch1_nva_tun_range0, 1)
+        unique_id       = 100
+        vti_local_addr  = cidrhost(local.vti_range0, 1)
         vti_remote_addr = module.hub1.s2s_vpngw_bgp_default_ip0
         local_ip        = local.branch1_nva_untrust_addr
         remote_ip       = module.hub1.s2s_vpngw_public_ip0
         psk             = local.psk
-        unique_id       = 100
       },
       {
         name            = "Tunnel1"
         vti_name        = "vti1"
-        vti_local_addr  = cidrhost(local.branch1_nva_tun_range1, 1)
+        unique_id       = 200
+        vti_local_addr  = cidrhost(local.vti_range1, 1)
         vti_remote_addr = module.hub1.s2s_vpngw_bgp_default_ip1
         local_ip        = local.branch1_nva_untrust_addr
         remote_ip       = module.hub1.s2s_vpngw_public_ip1
         psk             = local.psk
-        unique_id       = 200
       },
       {
         name            = "Tunnel2"
         vti_name        = "vti2"
-        vti_local_addr  = cidrhost(local.branch1_nva_tun_range2, 1)
-        vti_remote_addr = cidrhost(local.branch1_nva_tun_range2, 2)
+        unique_id       = 300
+        vti_local_addr  = cidrhost(local.vti_range2, 1)
+        vti_remote_addr = cidrhost(local.vti_range2, 2)
         local_ip        = local.branch1_nva_untrust_addr
         remote_ip       = local.branch3_nva_untrust_addr
         psk             = local.psk
-        unique_id       = 300
       }
     ]
     BGP_SESSIONS = [

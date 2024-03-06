@@ -251,7 +251,7 @@ ip route 10.10.0.0/24 10.10.1.1
 ! BGP
 !-----------------------------------------
 router bgp 65001
-!bgp router-id 192.168.10.10
+bgp router-id 192.168.10.10
 !
 neighbor 10.11.16.5 remote-as 65515
 neighbor 10.11.16.5 ebgp-multihop 255

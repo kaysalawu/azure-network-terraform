@@ -119,132 +119,112 @@ locals {
   branch3_inverse_mask  = join(".", local.branch3_inverse_mask_)
 }
 
-# nva
-#----------------------------
-
 locals {
   branch3_nva_route_map_onprem      = "ONPREM"
   branch3_nva_route_map_azure       = "AZURE"
   branch3_nva_route_map_block_azure = "BLOCK_HUB_GW_SUBNET"
-  branch3_nva_init = templatefile("../../scripts/cisco-csr-1000v.sh", {
-    LOCAL_ASN   = local.branch3_nva_asn
-    LOOPBACK0   = local.branch3_nva_loopback0
-    LOOPBACKS   = {}
-    CRYPTO_ADDR = local.branch3_nva_untrust_addr
-    VPN_PSK     = local.psk
+  branch3_nva_vars = {
+    LOCAL_ASN = local.branch3_nva_asn
+    LOOPBACK0 = local.branch3_nva_loopback0
+    LOOPBACKS = []
+    PUBLIC_IP = azurerm_public_ip.branch3_nva_pip.ip_address
 
     PREFIX_LISTS = [
-      "ip prefix-list ${local.branch3_nva_route_map_block_azure} deny ${local.hub2_subnets["GatewaySubnet"].address_prefixes[0]}",
-      "ip prefix-list ${local.branch3_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
-    ]
-
-    NAT_ACL = [
-      #"permit ip ${local.branch3_network} ${local.branch3_mask} any",
-      # "permit ip 10.0.0.0 0.255.255.255 any",
-      # "permit ip 172.16.0.0 0.15.255.255 any",
-      # "permit ip 192.168.0.0 0.0.255.255 any"
+      # "ip prefix-list ${local.branch3_nva_route_map_block_azure} deny ${local.hub2_subnets["GatewaySubnet"].address_prefixes[0]}",
+      # "ip prefix-list ${local.branch3_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
     ]
 
     ROUTE_MAPS = [
-      "route-map ${local.branch3_nva_route_map_onprem} permit 100",
-      "match ip address prefix-list all",
-      "set as-path prepend ${local.branch3_nva_asn} ${local.branch3_nva_asn} ${local.branch3_nva_asn}",
+      # "route-map ${local.branch3_nva_route_map_onprem} permit 100",
+      # "match ip address prefix-list all",
+      # "set as-path prepend ${local.branch3_nva_asn} ${local.branch3_nva_asn} ${local.branch3_nva_asn}",
 
-      "route-map ${local.branch3_nva_route_map_azure} permit 110",
-      "match ip address prefix-list all",
+      # "route-map ${local.branch3_nva_route_map_azure} permit 110",
+      # "match ip address prefix-list all",
     ]
-
+    STATIC_ROUTES = [
+      { prefix = "0.0.0.0", mask = "0.0.0.0", next_hop = local.branch3_untrust_default_gw },
+      { prefix = "${module.hub2.s2s_vpngw_bgp_default_ip0}/32", next_hop = "vti0" },
+      { prefix = "${module.hub2.s2s_vpngw_bgp_default_ip1}/32", next_hop = "vti1" },
+      { prefix = "${local.branch1_nva_loopback0}/32", next_hop = "vti2" },
+      {
+        prefix   = local.branch3_subnets["MainSubnet"].address_prefixes[0]
+        next_hop = local.branch3_untrust_default_gw
+      },
+    ]
     TUNNELS = [
       {
-        ike = {
-          name    = "Tunnel0"
-          address = cidrhost(local.branch3_nva_tun_range0, 1)
-          mask    = cidrnetmask(local.branch3_nva_tun_range0)
-          source  = local.branch3_nva_untrust_addr
-          dest    = module.hub2.s2s_vpngw_public_ip0
-        },
-        ipsec = {
-          peer_ip = module.hub2.s2s_vpngw_public_ip0
-          psk     = local.psk
-        }
+        name            = "Tunnel0"
+        vti_name        = "vti0"
+        unique_id       = 100
+        vti_local_addr  = cidrhost(local.vti_range0, 1)
+        vti_remote_addr = module.hub2.s2s_vpngw_bgp_default_ip0
+        local_ip        = local.branch3_nva_untrust_addr
+        remote_ip       = module.hub2.s2s_vpngw_public_ip0
+        psk             = local.psk
       },
       {
-        ike = {
-          name    = "Tunnel1"
-          address = cidrhost(local.branch3_nva_tun_range1, 1)
-          mask    = cidrnetmask(local.branch3_nva_tun_range1)
-          source  = local.branch3_nva_untrust_addr
-          dest    = module.hub2.s2s_vpngw_public_ip1
-        },
-        ipsec = {
-          peer_ip = module.hub2.s2s_vpngw_public_ip1
-          psk     = local.psk
-        }
+        name            = "Tunnel1"
+        vti_name        = "vti1"
+        unique_id       = 200
+        vti_local_addr  = cidrhost(local.vti_range1, 1)
+        vti_remote_addr = module.hub2.s2s_vpngw_bgp_default_ip1
+        local_ip        = local.branch3_nva_untrust_addr
+        remote_ip       = module.hub2.s2s_vpngw_public_ip1
+        psk             = local.psk
       },
       {
-        ike = {
-          name    = "Tunnel2"
-          address = cidrhost(local.branch3_nva_tun_range2, 1)
-          mask    = cidrnetmask(local.branch3_nva_tun_range2)
-          source  = local.branch3_nva_untrust_addr
-          dest    = local.branch1_nva_untrust_addr
-        },
-        ipsec = {
-          peer_ip = local.branch1_nva_untrust_addr
-          psk     = local.psk
-        }
-      },
+        name            = "Tunnel2"
+        vti_name        = "vti2"
+        unique_id       = 300
+        vti_local_addr  = cidrhost(local.vti_range2, 2)
+        vti_remote_addr = cidrhost(local.vti_range2, 1)
+        local_ip        = local.branch3_nva_untrust_addr
+        remote_ip       = local.branch1_nva_untrust_addr
+        psk             = local.psk
+      }
     ]
-
-    STATIC_ROUTES = [
-      { network = "0.0.0.0", mask = "0.0.0.0", next_hop = local.branch3_untrust_default_gw },
-      { network = module.hub2.s2s_vpngw_bgp_default_ip0, mask = "255.255.255.255", next_hop = "Tunnel0" },
-      { network = module.hub2.s2s_vpngw_bgp_default_ip1, mask = "255.255.255.255", next_hop = "Tunnel1" },
-      { network = local.branch1_nva_loopback0, mask = "255.255.255.255", next_hop = "Tunnel2" },
-      {
-        network  = local.branch3_network
-        mask     = local.branch3_mask
-        next_hop = local.branch3_trust_default_gw
-      },
-    ]
-
     BGP_SESSIONS = [
       {
-        peer_asn        = module.hub2.s2s_vpngw_bgp_asn,
-        peer_ip         = module.hub2.s2s_vpngw_bgp_default_ip0,
-        source_loopback = true
+        peer_asn        = module.hub2.s2s_vpngw_bgp_asn
+        peer_ip         = module.hub2.s2s_vpngw_bgp_default_ip0
         ebgp_multihop   = true
-        route_maps = [
-          { direction = "out", name = local.branch3_nva_route_map_azure },
-        ]
+        source_loopback = true
+        route_maps      = []
       },
       {
         peer_asn        = module.hub2.s2s_vpngw_bgp_asn
         peer_ip         = module.hub2.s2s_vpngw_bgp_default_ip1
-        source_loopback = true
         ebgp_multihop   = true
-        route_maps = [
-          { direction = "out", name = local.branch3_nva_route_map_azure },
-        ]
+        source_loopback = true
+        route_maps      = []
       },
       {
         peer_asn        = local.branch1_nva_asn
         peer_ip         = local.branch1_nva_loopback0
-        source_loopback = true
         ebgp_multihop   = true
-        route_maps = [
-          { direction = "out", name = local.branch3_nva_route_map_onprem }
-        ]
+        source_loopback = true
+        route_maps      = []
       },
     ]
+    BGP_ADVERTISED_PREFIXES = [
+      local.branch3_subnets["MainSubnet"].address_prefixes[0],
+    ]
+  }
+  branch3_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.branch3_nva_vars, {
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = []
+    TARGETS_HEAVY_TRAFFIC_GEN = []
+    ENABLE_TRAFFIC_GEN        = false
 
-    BGP_ADVERTISED_NETWORKS = [
-      {
-        network = cidrhost(local.branch3_subnets["MainSubnet"].address_prefixes[0], 0)
-        mask    = cidrnetmask(local.branch3_subnets["MainSubnet"].address_prefixes[0])
-      },
-    ]
-  })
+    IPTABLES_RULES           = []
+    ROUTE_MAPS               = []
+    TUNNELS                  = []
+    FRR_CONF                 = templatefile("../../scripts/frr/frr.conf", merge(local.branch3_nva_vars, {}))
+    STRONGSWAN_VTI_SCRIPT    = templatefile("../../scripts/strongswan/ipsec-vti.sh", local.branch3_nva_vars)
+    STRONGSWAN_IPSEC_SECRETS = templatefile("../../scripts/strongswan/ipsec.secrets", local.branch3_nva_vars)
+    STRONGSWAN_IPSEC_CONF    = templatefile("../../scripts/strongswan/ipsec.conf", local.branch3_nva_vars)
+  }))
 }
 
 module "branch3_nva" {
@@ -257,11 +237,10 @@ module "branch3_nva" {
   custom_data     = base64encode(local.branch3_nva_init)
   tags            = local.branch3_tags
 
-  source_image_publisher = "cisco"
-  source_image_offer     = "cisco-csr-1000v"
-  source_image_sku       = "17_3_4a-byol"
+  source_image_publisher = "Canonical"
+  source_image_offer     = "0001-com-ubuntu-server-focal"
+  source_image_sku       = "20_04-lts"
   source_image_version   = "latest"
-  enable_plan            = true
 
   enable_ip_forwarding = true
   interfaces = [
@@ -287,9 +266,9 @@ module "branch3_nva" {
 locals {
   branch3_vm_init = templatefile("../../scripts/server.sh", {
     USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
-    TARGETS                   = [] #local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = [] #local.vm_script_targets
-    TARGETS_HEAVY_TRAFFIC_GEN = [] #[for target in local.vm_script_targets : target.dns if try(target.probe, false)]
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
+    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
     ENABLE_TRAFFIC_GEN        = true
   })
 }
@@ -332,7 +311,7 @@ locals {
       name                   = "private"
       address_prefix         = local.private_prefixes
       next_hop_type          = "VirtualAppliance"
-      next_hop_in_ip_address = local.branch3_nva_trust_addr
+      next_hop_in_ip_address = local.branch3_nva_untrust_addr
     },
   ]
 }
