@@ -7,27 +7,25 @@ apt-get -y install sipcalc
 # ip forwarding
 #########################################################
 
-# Enable IPv4 and IPv6 forwarding
+# Enable IPv4 forwarding
 sysctl -w net.ipv4.ip_forward=1
-sysctl -w net.ipv6.conf.all.forwarding=1
+sysctl -w net.ipv4.conf.eth0.disable_xfrm=1
+sysctl -w net.ipv4.conf.eth0.disable_policy=1
+sysctl -w net.ipv4.conf.eth1.disable_xfrm=1
+sysctl -w net.ipv4.conf.eth1.disable_policy=1
 echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
-echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 sysctl -p
 
 # Disable ICMP redirects
-sysctl -w net.ipv4.conf.all.send_redirects=0
-sysctl -w net.ipv4.conf.all.accept_redirects=0
-sysctl -w net.ipv6.conf.all.accept_redirects=0
-sysctl -w net.ipv4.conf.eth0.send_redirects=0
-sysctl -w net.ipv4.conf.eth0.accept_redirects=0
-sysctl -w net.ipv6.conf.eth0.accept_redirects=0
-echo "net.ipv4.conf.all.send_redirects=0" >> /etc/sysctl.conf
-echo "net.ipv4.conf.all.accept_redirects=0" >> /etc/sysctl.conf
-echo "net.ipv6.conf.all.accept_redirects=0" >> /etc/sysctl.conf
-echo "net.ipv4.conf.eth0.send_redirects=0" >> /etc/sysctl.conf
-echo "net.ipv4.conf.eth0.accept_redirects=0" >> /etc/sysctl.conf
-echo "net.ipv6.conf.eth0.accept_redirects=0" >> /etc/sysctl.conf
-sysctl -p
+# sysctl -w net.ipv4.conf.all.send_redirects=0
+# sysctl -w net.ipv4.conf.all.accept_redirects=0
+# sysctl -w net.ipv4.conf.eth0.send_redirects=0
+# sysctl -w net.ipv4.conf.eth0.accept_redirects=0
+# echo "net.ipv4.conf.all.send_redirects=0" >> /etc/sysctl.conf
+# echo "net.ipv4.conf.all.accept_redirects=0" >> /etc/sysctl.conf
+# echo "net.ipv4.conf.eth0.send_redirects=0" >> /etc/sysctl.conf
+# echo "net.ipv4.conf.eth0.accept_redirects=0" >> /etc/sysctl.conf
+# sysctl -p
 
 #########################################################
 # route table for eth1 (trust interface)

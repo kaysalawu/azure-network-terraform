@@ -204,7 +204,7 @@ locals {
       {
         network  = local.branch3_network
         mask     = local.branch3_mask
-        next_hop = local.branch3_untrust_default_gw
+        next_hop = local.branch3_trust_default_gw
       },
     ]
 
@@ -287,9 +287,9 @@ module "branch3_nva" {
 locals {
   branch3_vm_init = templatefile("../../scripts/server.sh", {
     USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
-    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
+    TARGETS                   = [] #local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = [] #local.vm_script_targets
+    TARGETS_HEAVY_TRAFFIC_GEN = [] #[for target in local.vm_script_targets : target.dns if try(target.probe, false)]
     ENABLE_TRAFFIC_GEN        = true
   })
 }
@@ -332,7 +332,7 @@ locals {
       name                   = "private"
       address_prefix         = local.private_prefixes
       next_hop_type          = "VirtualAppliance"
-      next_hop_in_ip_address = local.branch3_nva_untrust_addr
+      next_hop_in_ip_address = local.branch3_nva_trust_addr
     },
   ]
 }

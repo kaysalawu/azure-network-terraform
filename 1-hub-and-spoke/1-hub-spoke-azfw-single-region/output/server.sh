@@ -129,7 +129,7 @@ echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{h
 echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1vm.eu.az.corp) - spoke1vm.eu.az.corp"
 echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke2vm.eu.az.corp) - spoke2vm.eu.az.corp"
 echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs13spoke3sa209b.blob.core.windows.net/spoke3/spoke3.txt) - https://hs13spoke3sa209b.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs11spoke3saf358.blob.core.windows.net/spoke3/spoke3.txt) - https://hs11spoke3saf358.blob.core.windows.net/spoke3/spoke3.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 
@@ -154,3 +154,11 @@ echo -e "-------------------------------------"
 timeout 9 tracepath icanhazip.com
 EOF
 chmod a+x /usr/local/bin/trace-ip
+
+# dns-info
+
+cat <<EOF > /usr/local/bin/dns-info
+echo -e "\n resolvectl ...\n"
+resolvectl status
+EOF
+chmod a+x /usr/local/bin/dns-info

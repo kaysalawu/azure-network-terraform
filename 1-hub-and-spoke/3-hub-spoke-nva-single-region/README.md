@@ -25,7 +25,7 @@ Contents
 
 Deploy a single-region Hub and Spoke Vnet topology using Virtual Network Appliances (NVA) for traffic inspection. The lab demonstrates traffic routing patterns, [hybrid DNS](https://learn.microsoft.com/en-us/azure/dns/private-resolver-hybrid-dns) resolution, NVA deployment, and [PrivateLink Services](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) access to IaaS, [PrivateLink](https://learn.microsoft.com/en-us/azure/private-link/private-link-overview) access to PaaS services.
 
-<img src="../../images/scenarios/1-3-hub-spoke-nva-single-region.png" alt="Hub and Spoke (Single region)" width="550">
+<img src="../../images/scenarios/1-3-hub-spoke-nva-single-region.png" alt="Hub and Spoke (Single region)" width="500">
 
 ***Hub1*** is a Vnet hub that has an NVA used for inspection of traffic between an on-premises branch and Vnet spokes. User-Defined Routes (UDR) are used to influence the hub Vnet data plane to route traffic between the branch and spokes via the NVA. An isolated spoke ***spoke3*** does not have Vnet peering to ***hub1***, but is reachable from the hub via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview).
 
@@ -125,7 +125,15 @@ ping-ip
 Sample output
 
 ```sh
+azureuser@spoke1Vm:~$ ping-ip
 
+ ping ip ...
+
+branch1 - 10.10.0.5 -OK 5.719 ms
+hub1    - 10.11.0.5 -OK 2.935 ms
+spoke1  - 10.1.0.5 -OK 0.047 ms
+spoke2  - 10.2.0.5 -OK 3.030 ms
+internet - icanhazip.com -OK 12.748 ms
 ```
 
 ### 2. Ping DNS
@@ -141,7 +149,15 @@ ping-dns
 Sample output
 
 ```sh
+azureuser@spoke1Vm:~$ ping-dns
 
+ ping dns ...
+
+branch1vm.corp - 10.10.0.5 -OK 4.380 ms
+hub1vm.eu.az.corp - 10.11.0.5 -OK 2.714 ms
+spoke1vm.eu.az.corp - 10.1.0.5 -OK 0.110 ms
+spoke2vm.eu.az.corp - 10.2.0.5 -OK 3.849 ms
+icanhazip.com - 104.18.114.97 -OK 13.063 ms
 ```
 
 ### 3. Curl DNS
@@ -157,7 +173,17 @@ curl-dns
 Sample output
 
 ```sh
+azureuser@spoke1Vm:~$ curl-dns
 
+ curl dns ...
+
+200 (0.366977s) - 10.10.0.5 - branch1vm.corp
+200 (0.020287s) - 10.11.0.5 - hub1vm.eu.az.corp
+200 (0.014749s) - 10.11.7.88 - spoke3pls.eu.az.corp
+200 (0.011121s) - 10.1.0.5 - spoke1vm.eu.az.corp
+200 (0.021110s) - 10.2.0.5 - spoke2vm.eu.az.corp
+200 (0.049824s) - 104.18.115.97 - icanhazip.com
+200 (0.061014s) - 10.11.7.99 - https://hs13spoke3sa209b.blob.core.windows.net/spoke3/spoke3.txt
 ```
 
 ### 4. Private Link Service
@@ -171,7 +197,17 @@ curl spoke3pls.eu.az.corp
 Sample output
 
 ```sh
-
+azureuser@spoke1Vm:~$ curl spoke3pls.eu.az.corp
+{
+  "Headers": {
+    "Accept": "*/*",
+    "Host": "spoke3pls.eu.az.corp",
+    "User-Agent": "curl/7.68.0"
+  },
+  "Hostname": "spoke3Vm",
+  "Local-IP": "10.3.0.5",
+  "Remote-IP": "10.3.6.4"
+}
 ```
 
 The `Hostname` and `Local-IP` fields identify the target web server - in this case ***spoke3*** virtual machine. The `Remote-IP` field (as seen by the web server) is an IP address in the Private Link Service NAT subnet in ***spoke3***.
@@ -198,7 +234,7 @@ echo -e "\n$spoke3_sgtacct_host\n" && echo
 Sample output (yours will be different)
 
 ```sh
-hs13spoke3sae71e.blob.core.windows.net
+hs13spoke3sa209b.blob.core.windows.net
 ```
 
 **5.2.** Resolve the hostname
@@ -210,10 +246,18 @@ nslookup $spoke3_sgtacct_host
 Sample output (yours will be different)
 
 ```sh
+3-hub-spoke-nva-single-region$ nslookup $spoke3_sgtacct_host
+Server:         8.8.8.8
+Address:        8.8.8.8#53
 
+Non-authoritative answer:
+hs13spoke3sa209b.blob.core.windows.net  canonical name = hs13spoke3sa209b.privatelink.blob.core.windows.net.
+hs13spoke3sa209b.privatelink.blob.core.windows.net      canonical name = blob.db4prdstr10a.store.core.windows.net.
+Name:   blob.db4prdstr10a.store.core.windows.net
+Address: 20.60.145.4
 ```
 
-We can see that the endpoint is a public IP address, ***20.60.204.97***. We can see the CNAME `hs13spoke3sae71e.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
+We can see that the endpoint is a public IP address, ***20.60.145.4***. We can see the CNAME `hs13spoke3sa209b.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
 
 **5.3.** Test access to the storage account blob.
 
@@ -255,7 +299,7 @@ echo -e "\n$spoke3_sgtacct_host\n" && echo
 Sample output (yours will be different)
 
 ```sh
-hs13spoke3sae71e.blob.core.windows.net
+hs13spoke3sa209b.blob.core.windows.net
 ```
 
 **6.4.** Resolve the storage account DNS name
@@ -267,14 +311,21 @@ nslookup $spoke3_sgtacct_host
 Sample output
 
 ```sh
+azureuser@branch1Vm:~$ nslookup $spoke3_sgtacct_host
+Server:         127.0.0.53
+Address:        127.0.0.53#53
 
+Non-authoritative answer:
+hs13spoke3sa209b.blob.core.windows.net  canonical name = hs13spoke3sa209b.privatelink.blob.core.windows.net.
+Name:   hs13spoke3sa209b.privatelink.blob.core.windows.net
+Address: 10.11.7.99
 ```
 
 We can see that the storage account hostname resolves to the private endpoint ***10.11.7.99*** in ***hub1***. The following is a summary of the DNS resolution from `Hs13-branch1Vm`:
 
-- On-premises server `Hs13-branch1Vm` makes a DNS request for `hs13spoke3sae71e.blob.core.windows.net`
+- On-premises server `Hs13-branch1Vm` makes a DNS request for `hs13spoke3sa209b.blob.core.windows.net`
 - The request is received by on-premises DNS server `Hs13-branch1-dns`
-- The DNS server resolves `hs13spoke3sae71e.blob.core.windows.net` to the CNAME `hs13spoke3sae71e.privatelink.blob.core.windows.net`
+- The DNS server resolves `hs13spoke3sa209b.blob.core.windows.net` to the CNAME `hs13spoke3sa209b.privatelink.blob.core.windows.net`
 - The DNS server has a conditional DNS forwarding defined in the branch1 unbound DNS configuration file, [output/branch1Dns.sh](./output/branch1Dns.sh).
 
   ```sh
@@ -305,7 +356,57 @@ Whilst still logged into the on-premises server `Hs13-branch1Vm` via the serial 
 **7.1.** Run the `trace-ip` script
 
 ```sh
+trace-ip
+```
 
+Sample output
+
+```sh
+azureuser@branch1Vm:~$ trace-ip
+
+ trace ip ...
+
+
+branch1
+-------------------------------------
+ 1:  branch1Vm                                             0.087ms reached
+     Resume: pmtu 65535 hops 1 back 1
+
+hub1
+-------------------------------------
+ 1?: [LOCALHOST]                      pmtu 1500
+ 1:  10.10.1.9                                            51.923ms
+ 1:  10.10.1.9                                             0.981ms
+ 2:  10.10.1.9                                            10.970ms pmtu 1438
+ 2:  10.11.2.4                                             2.909ms
+ 3:  10.11.0.5                                             7.530ms reached
+     Resume: pmtu 1438 hops 3 back 3
+
+spoke1
+-------------------------------------
+ 1?: [LOCALHOST]                      pmtu 1500
+ 1:  10.10.1.9                                             1.379ms
+ 1:  10.10.1.9                                             1.041ms
+ 2:  10.10.1.9                                             3.144ms pmtu 1438
+ 2:  10.11.2.4                                             5.192ms
+ 3:  10.1.0.5                                              4.436ms reached
+     Resume: pmtu 1438 hops 3 back 3
+
+spoke2
+-------------------------------------
+ 1?: [LOCALHOST]                      pmtu 1500
+ 1:  10.10.1.9                                             1.207ms
+ 1:  10.10.1.9                                             1.386ms
+ 2:  10.10.1.9                                             1.584ms pmtu 1438
+ 2:  10.11.2.4                                             3.187ms
+ 3:  10.2.0.5                                             19.480ms reached
+     Resume: pmtu 1438 hops 3 back 3
+
+internet
+-------------------------------------
+ 1?: [LOCALHOST]                      pmtu 1500
+ 1:  no reply
+ 2:  no reply
 ```
 
 We can observe that traffic to ***spoke1***, ***spoke2*** and ***hub1*** flow symmetrically via the NVA in ***hub1*** (10.11.2.4).
@@ -333,7 +434,31 @@ Sample output
 ```sh
 branch1Nva# show ip route
 ...
+Gateway of last resort is 10.10.1.1 to network 0.0.0.0
 
+S*    0.0.0.0/0 [1/0] via 10.10.1.1
+      10.0.0.0/8 is variably subnetted, 15 subnets, 4 masks
+B        10.1.0.0/20 [20/0] via 10.11.16.4, 01:17:53
+B        10.2.0.0/20 [20/0] via 10.11.16.4, 01:17:53
+S        10.10.0.0/24 [1/0] via 10.10.1.1
+C        10.10.1.0/24 is directly connected, GigabitEthernet1
+L        10.10.1.9/32 is directly connected, GigabitEthernet1
+C        10.10.2.0/24 is directly connected, GigabitEthernet2
+L        10.10.2.9/32 is directly connected, GigabitEthernet2
+C        10.10.10.0/30 is directly connected, Tunnel0
+L        10.10.10.1/32 is directly connected, Tunnel0
+C        10.10.10.4/30 is directly connected, Tunnel1
+L        10.10.10.5/32 is directly connected, Tunnel1
+B        10.11.0.0/20 [20/0] via 10.11.16.4, 01:17:53
+B        10.11.16.0/20 [20/0] via 10.11.16.4, 01:17:53
+S        10.11.16.4/32 is directly connected, Tunnel0
+S        10.11.16.5/32 is directly connected, Tunnel1
+      168.63.0.0/32 is subnetted, 1 subnets
+S        168.63.129.16 [254/0] via 10.10.1.1
+      169.254.0.0/32 is subnetted, 1 subnets
+S        169.254.169.254 [254/0] via 10.10.1.1
+      192.168.10.0/32 is subnetted, 1 subnets
+C        192.168.10.10 is directly connected, Loopback0
 ```
 
 We can see the Vnet ranges learned dynamically via BGP.
@@ -347,7 +472,25 @@ show ip bgp
 Sample output
 
 ```sh
+branch1Nva# show ip bgp
+BGP table version is 6, local router ID is 192.168.10.10
+Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
+              r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
+              x best-external, a additional-path, c RIB-compressed,
+              t secondary path, L long-lived-stale,
+Origin codes: i - IGP, e - EGP, ? - incomplete
+RPKI validation codes: V valid, I invalid, N Not found
 
+     Network          Next Hop            Metric LocPrf Weight Path
+ *    10.1.0.0/20      10.11.16.5                             0 65515 i
+ *>                    10.11.16.4                             0 65515 i
+ *    10.2.0.0/20      10.11.16.5                             0 65515 i
+ *>                    10.11.16.4                             0 65515 i
+ *>   10.10.0.0/24     10.10.1.1                0         32768 i
+ *    10.11.0.0/20     10.11.16.5                             0 65515 i
+ *>                    10.11.16.4                             0 65515 i
+ *    10.11.16.0/20    10.11.16.5                             0 65515 i
+ *>                    10.11.16.4                             0 65515 i
 ```
 
 We can see the hub and spoke Vnet ranges being learned dynamically in the BGP table.

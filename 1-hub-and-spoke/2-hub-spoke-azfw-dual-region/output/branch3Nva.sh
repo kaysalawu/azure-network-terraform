@@ -2,7 +2,7 @@ Section: IOS configuration
 !-----------------------------------------
 ! Prefix Lists
 !-----------------------------------------
-ip prefix-list BLOCK_HUB_GW_SUBNET deny 10.11.16.0/24
+ip prefix-list BLOCK_HUB_GW_SUBNET deny 10.22.16.0/24
 ip prefix-list BLOCK_HUB_GW_SUBNET permit 0.0.0.0/0 le 32
 !
 !-----------------------------------------
@@ -15,24 +15,24 @@ group 2
 !
 crypto ikev2 policy AZURE-IKE-PROFILE
 proposal AZURE-IKE-PROPOSAL
-match address local 10.10.1.9
+match address local 10.30.1.9
 !
 crypto ikev2 keyring AZURE-KEYRING
-peer 20.13.193.1
-address 20.13.193.1
+peer 4.255.82.78
+address 4.255.82.78
 pre-shared-key changeme
-peer 20.13.196.221
-address 20.13.196.221
+peer 4.255.82.104
+address 4.255.82.104
 pre-shared-key changeme
-peer 10.30.1.9
-address 10.30.1.9
+peer 10.10.1.9
+address 10.10.1.9
 pre-shared-key changeme
 !
 crypto ikev2 profile AZURE-IKE-PROPOSAL
-match address local 10.10.1.9
-match identity remote address 20.13.193.1 255.255.255.255
-match identity remote address 20.13.196.221 255.255.255.255
-match identity remote address 10.30.1.9 255.255.255.255
+match address local 10.30.1.9
+match identity remote address 4.255.82.78 255.255.255.255
+match identity remote address 4.255.82.104 255.255.255.255
+match identity remote address 10.10.1.9 255.255.255.255
 authentication remote pre-share
 authentication local pre-share
 keyring local AZURE-KEYRING
@@ -48,27 +48,27 @@ set ikev2-profile AZURE-IKE-PROPOSAL
 set security-association lifetime seconds 3600
 !
 interface Tunnel0
-ip address 10.10.10.1 255.255.255.252
+ip address 10.30.30.1 255.255.255.252
 tunnel mode ipsec ipv4
 ip tcp adjust-mss 1350
-tunnel source 10.10.1.9
-tunnel destination 20.13.193.1
+tunnel source 10.30.1.9
+tunnel destination 4.255.82.78
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
 interface Tunnel1
-ip address 10.10.10.5 255.255.255.252
+ip address 10.30.30.5 255.255.255.252
 tunnel mode ipsec ipv4
 ip tcp adjust-mss 1350
-tunnel source 10.10.1.9
-tunnel destination 20.13.196.221
+tunnel source 10.30.1.9
+tunnel destination 4.255.82.104
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
 interface Tunnel2
-ip address 10.10.10.9 255.255.255.252
+ip address 10.30.30.9 255.255.255.252
 tunnel mode ipsec ipv4
 ip tcp adjust-mss 1350
-tunnel source 10.10.1.9
-tunnel destination 10.30.1.9
+tunnel source 10.30.1.9
+tunnel destination 10.10.1.9
 tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 !
 !
@@ -76,7 +76,7 @@ tunnel protection ipsec profile AZURE-IPSEC-PROFILE
 ! Interface
 !-----------------------------------------
 interface Loopback0
-ip address 192.168.10.10 255.255.255.255
+ip address 192.168.30.30 255.255.255.255
 !
 !-----------------------------------------
 ! NAT
@@ -85,39 +85,39 @@ ip address 192.168.10.10 255.255.255.255
 !-----------------------------------------
 ! Static Routes
 !-----------------------------------------
-ip route 0.0.0.0 0.0.0.0 10.10.1.1
-ip route 10.11.16.4 255.255.255.255 Tunnel0
-ip route 10.11.16.5 255.255.255.255 Tunnel1
-ip route 192.168.30.30 255.255.255.255 Tunnel2
-ip route 10.10.0.0 255.255.255.0 10.10.1.1
+ip route 0.0.0.0 0.0.0.0 10.30.1.1
+ip route 10.22.16.4 255.255.255.255 Tunnel0
+ip route 10.22.16.5 255.255.255.255 Tunnel1
+ip route 192.168.10.10 255.255.255.255 Tunnel2
+ip route 10.30.0.0 255.255.255.0 10.30.2.1
 !
 !-----------------------------------------
 ! Route Maps
 !-----------------------------------------
 route-map ONPREM permit 100
 match ip address prefix-list all
-set as-path prepend 65001 65001 65001
+set as-path prepend 65003 65003 65003
 route-map AZURE permit 110
 match ip address prefix-list all
 !
 !-----------------------------------------
 ! BGP
 !-----------------------------------------
-router bgp 65001
-bgp router-id 192.168.10.10
-neighbor 10.11.16.4 remote-as 65515
-neighbor 10.11.16.4 ebgp-multihop 255
-neighbor 10.11.16.4 soft-reconfiguration inbound
-neighbor 10.11.16.4 update-source Loopback0
-neighbor 10.11.16.4 route-map AZURE out
-neighbor 10.11.16.5 remote-as 65515
-neighbor 10.11.16.5 ebgp-multihop 255
-neighbor 10.11.16.5 soft-reconfiguration inbound
-neighbor 10.11.16.5 update-source Loopback0
-neighbor 10.11.16.5 route-map AZURE out
-neighbor 192.168.30.30 remote-as 65003
-neighbor 192.168.30.30 ebgp-multihop 255
-neighbor 192.168.30.30 soft-reconfiguration inbound
-neighbor 192.168.30.30 update-source Loopback0
-neighbor 192.168.30.30 route-map ONPREM out
-network 10.10.0.0 mask 255.255.255.0
+router bgp 65003
+bgp router-id 192.168.30.30
+neighbor 10.22.16.4 remote-as 65515
+neighbor 10.22.16.4 ebgp-multihop 255
+neighbor 10.22.16.4 soft-reconfiguration inbound
+neighbor 10.22.16.4 update-source Loopback0
+neighbor 10.22.16.4 route-map AZURE out
+neighbor 10.22.16.5 remote-as 65515
+neighbor 10.22.16.5 ebgp-multihop 255
+neighbor 10.22.16.5 soft-reconfiguration inbound
+neighbor 10.22.16.5 update-source Loopback0
+neighbor 10.22.16.5 route-map AZURE out
+neighbor 192.168.10.10 remote-as 65001
+neighbor 192.168.10.10 ebgp-multihop 255
+neighbor 192.168.10.10 soft-reconfiguration inbound
+neighbor 192.168.10.10 update-source Loopback0
+neighbor 192.168.10.10 route-map ONPREM out
+network 10.30.0.0 mask 255.255.255.0
