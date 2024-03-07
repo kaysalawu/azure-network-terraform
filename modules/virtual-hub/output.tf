@@ -2,6 +2,10 @@
 # virtual hub
 #----------------------------------------------------
 
+output "router_bgp_ip0" {
+  value = azurerm_virtual_hub.this.virtual_router_ips[1]
+}
+
 output "router_bgp_ip1" {
   value = azurerm_virtual_hub.this.virtual_router_ips[0]
 }
@@ -57,9 +61,5 @@ output "vpngw_bgp_ip1" {
 
 output "ergw" {
   value = try(module.ergw[0].gateway, {})
-}
-
-output "router_bgp_ip0" {
-  value = azurerm_virtual_hub.this.virtual_router_ips[1]
 }
 

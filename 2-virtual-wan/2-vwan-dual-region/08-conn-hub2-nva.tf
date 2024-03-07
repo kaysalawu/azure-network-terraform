@@ -291,7 +291,7 @@ resource "azurerm_virtual_hub_bgp_connection" "vhub2_hub2_bgp_conn" {
   name           = "${local.vhub2_prefix}hub2-bgp-conn"
   virtual_hub_id = module.vhub2.virtual_hub.id
   peer_asn       = local.hub2_nva_asn
-  peer_ip        = local.hub2_nva_trust_addr
+  peer_ip        = local.hub2_nva_untrust_addr
 
   virtual_network_connection_id = azurerm_virtual_hub_connection.hub2_vnet_conn.id
 }
