@@ -31,7 +31,7 @@ Standard Virtual Network (Vnet) hubs (***hub1*** and ***hub2***) connect to Vwan
 
 The isolated spokes (***spoke3*** and ***spoke6***) do not have Vnet peering to the Vnet hubs, but are reachable via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) endpoints in the hubs.
 
-***Branch1*** and ***branch3*** are on-premises networks simulated using Vnets. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the hubs using IPsec VPN connections with dynamic (BGP) routing. Branches, ***branch1*** and ***branch3*** connect to each other via the Virtual WAN.
+***Branch1*** and ***branch3*** are on-premises networks simulated using Vnets. Multi-NIC Linux NVA appliances connect to the hubs using IPsec VPN connections with dynamic (BGP) routing. Branches, ***branch1*** and ***branch3*** connect to each other via the Virtual WAN.
 
 ## Prerequisites
 
@@ -273,7 +273,7 @@ spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
 echo -e "\n$spoke3_sgtacct_host\n" && echo
 ```
 
-Sample output (yours will be different)
+Sample output (your result will be different)
 
 ```sh
 vwan22spoke3saaed3.blob.core.windows.net
@@ -285,7 +285,7 @@ vwan22spoke3saaed3.blob.core.windows.net
 nslookup $spoke3_sgtacct_host
 ```
 
-Sample output (yours will be different)
+Sample output (your result will be different)
 
 ```sh
 2-vwan-dual-region$ nslookup $spoke3_sgtacct_host
@@ -338,7 +338,7 @@ spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
 echo -e "\n$spoke3_sgtacct_host\n" && echo
 ```
 
-Sample output (yours will be different)
+Sample output (your result will be different)
 
 ```sh
 vwan22spoke3saaed3.blob.core.windows.net

@@ -638,7 +638,7 @@ locals {
       { prefix = "0.0.0.0/0", next_hop = local.hub2_default_gw_nva },
       { prefix = "${module.vhub2.router_bgp_ip0}/32", next_hop = local.hub2_default_gw_nva },
       { prefix = "${module.vhub2.router_bgp_ip1}/32", next_hop = local.hub2_default_gw_nva },
-      { prefix = local.spoke4_address_space[0], next_hop = local.hub2_default_gw_nva },
+      { prefix = local.spoke5_address_space[0], next_hop = local.hub2_default_gw_nva },
     ]
     TUNNELS = []
     BGP_SESSIONS = [
@@ -659,7 +659,7 @@ locals {
     ]
     BGP_ADVERTISED_PREFIXES = [
       local.hub2_subnets["MainSubnet"].address_prefixes[0],
-      local.spoke4_address_space[0],
+      local.spoke5_address_space[0],
     ]
   }
   hub2_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub2_nva_vars, {
@@ -677,7 +677,6 @@ locals {
     STRONGSWAN_IPSEC_CONF    = ""
   }))
 }
-
 
 ####################################################
 # output files

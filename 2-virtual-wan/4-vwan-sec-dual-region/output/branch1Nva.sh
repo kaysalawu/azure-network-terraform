@@ -259,7 +259,8 @@ neighbor 192.168.11.13 ebgp-multihop 255
 neighbor 192.168.11.13 update-source lo
 address-family ipv4 unicast
 neighbor 192.168.11.13 soft-reconfiguration inbound
-network 10.10.0.0/24
+network 10.10.0.0/20
+network 10.10.16.0/20
 exit-address-family
 !
 neighbor 192.168.11.12 remote-as 65515
@@ -267,7 +268,8 @@ neighbor 192.168.11.12 ebgp-multihop 255
 neighbor 192.168.11.12 update-source lo
 address-family ipv4 unicast
 neighbor 192.168.11.12 soft-reconfiguration inbound
-network 10.10.0.0/24
+network 10.10.0.0/20
+network 10.10.16.0/20
 exit-address-family
 !
 neighbor 192.168.30.30 remote-as 65003
@@ -275,7 +277,8 @@ neighbor 192.168.30.30 ebgp-multihop 255
 neighbor 192.168.30.30 update-source lo
 address-family ipv4 unicast
 neighbor 192.168.30.30 soft-reconfiguration inbound
-network 10.10.0.0/24
+network 10.10.0.0/20
+network 10.10.16.0/20
 exit-address-family
 !
 !

@@ -215,7 +215,7 @@ spoke3_apps_url=$(az webapp list --resource-group Ge411RG --query "[?contains(na
 echo $spoke3_apps_url
 ```
 
-Sample output (yours will be different)
+Sample output (your result will be different)
 
 ```sh
 ge411-spoke3-0383.azurewebsites.net
@@ -227,7 +227,7 @@ ge411-spoke3-0383.azurewebsites.net
 nslookup $spoke3_apps_url
 ```
 
-Sample output (yours will be different)
+Sample output (your result will be different)
 
 ```sh
 1-hub-spoke-azfw-single-region$ nslookup $spoke3_apps_url
@@ -285,7 +285,7 @@ Let's confirm the public IP address of our local machine
 curl -4 icanhazip.com
 ```
 
-Sample output (yours will be different)
+Sample output (your result will be different)
 
 ```sh
 $ curl -4 icanhazip.com

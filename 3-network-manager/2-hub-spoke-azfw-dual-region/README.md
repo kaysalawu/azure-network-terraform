@@ -33,7 +33,7 @@ Similarly, ***hub2*** has an Azure firewall used for inspection of traffic betwe
 
 The hubs are connected together via Vnet peering to allow inter-hub network reachability.
 
-***Branch1*** and ***branch3*** are on-premises networks simulated using Vnets. Multi-NIC Cisco-CSR-1000V NVA appliances connect to the hubs using IPsec VPN connections with dynamic (BGP) routing. A simulated on-premises Wide Area Network (WAN) is created using Vnet peering between ***branch1*** and ***branch3*** as the underlay connectivity, and IPsec with BGP as the overlay connection.
+***Branch1*** and ***branch3*** are on-premises networks simulated using Vnets. Multi-NIC Linux NVA appliances connect to the hubs using IPsec VPN connections with dynamic (BGP) routing. A simulated on-premises Wide Area Network (WAN) is created using Vnet peering between ***branch1*** and ***branch3*** as the underlay connectivity, and IPsec with BGP as the overlay connection.
 
 Each branch connects to Vnet spokes in their local regions through the directly connected hub. However, each branch connects to spokes in the remote region via the on-premises WAN network. For example, ***branch1*** only receives dynamic routes for ***spoke1***, ***spoke2*** and ***hub1*** through the VPN to ***hub1***. ***Branch1*** uses the simulated on-premises network via ***branch3*** to reach ***spoke4***, ***spoke5*** and ***hub2*** through the VPN from ***branch3*** to ***hub2***.
 
@@ -286,7 +286,7 @@ spoke3_apps_url=$(az webapp list --resource-group Ne32RG --query "[?contains(nam
 echo $spoke3_apps_url
 ```
 
-Sample output (yours will be different)
+Sample output (your result will be different)
 
 ```sh
 ne32-spoke3-12bd.azurewebsites.net
@@ -298,7 +298,7 @@ ne32-spoke3-12bd.azurewebsites.net
 nslookup $spoke3_apps_url
 ```
 
-Sample output (yours will be different)
+Sample output (your result will be different)
 
 ```sh
 2-hub-spoke-azfw-dual-region$ nslookup $spoke3_apps_url

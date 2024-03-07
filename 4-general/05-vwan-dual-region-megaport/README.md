@@ -239,7 +239,7 @@ spoke3_apps_url=$(az webapp list --resource-group G05RG --query "[?contains(name
 echo $spoke3_apps_url
 ```
 
-Sample output (yours will be different)
+Sample output (your result will be different)
 
 ```sh
 vwan21-spoke3-b6a0.azurewebsites.net
@@ -251,7 +251,7 @@ vwan21-spoke3-b6a0.azurewebsites.net
 nslookup $spoke3_apps_url
 ```
 
-Sample output (yours will be different)
+Sample output (your result will be different)
 
 ```sh
 1-vwan-single-region$ nslookup $spoke3_apps_url

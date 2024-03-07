@@ -241,7 +241,7 @@ spoke3_apps_url=$(az webapp list --resource-group Ne31RG --query "[?contains(nam
 echo $spoke3_apps_url
 ```
 
-Sample output (yours will be different)
+Sample output (your result will be different)
 
 ```sh
 ne31-spoke3-4f00.azurewebsites.net
@@ -253,7 +253,7 @@ ne31-spoke3-4f00.azurewebsites.net
 nslookup $spoke3_apps_url
 ```
 
-Sample output (yours will be different)
+Sample output (your result will be different)
 
 ```sh
 1-hub-spoke-azfw-single-region$ nslookup $spoke3_apps_url

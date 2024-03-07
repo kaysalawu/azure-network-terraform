@@ -135,12 +135,12 @@ conn %default
     esp=aes256-sha1!
 
 conn Tunnel0
-    right=192.168.22.4
+    right=172.210.120.232
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
-    right=192.168.22.5
+    right=172.210.120.190
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -156,7 +156,7 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<EOF
-10.30.1.9 192.168.22.4 : PSK "changeme"10.30.1.9 192.168.22.5 : PSK "changeme"10.30.1.9 10.10.1.9 : PSK "changeme"
+10.30.1.9 172.210.120.232 : PSK "changeme"10.30.1.9 172.210.120.190 : PSK "changeme"10.30.1.9 10.10.1.9 : PSK "changeme"
 EOF
 
 sudo tee /etc/ipsec.d/ipsec-vti.sh <<'EOF'
@@ -259,7 +259,8 @@ neighbor 192.168.22.12 ebgp-multihop 255
 neighbor 192.168.22.12 update-source lo
 address-family ipv4 unicast
 neighbor 192.168.22.12 soft-reconfiguration inbound
-network 10.30.0.0/24
+network 10.30.0.0/20
+network 10.30.16.0/20
 exit-address-family
 !
 neighbor 192.168.22.13 remote-as 65515
@@ -267,7 +268,8 @@ neighbor 192.168.22.13 ebgp-multihop 255
 neighbor 192.168.22.13 update-source lo
 address-family ipv4 unicast
 neighbor 192.168.22.13 soft-reconfiguration inbound
-network 10.30.0.0/24
+network 10.30.0.0/20
+network 10.30.16.0/20
 exit-address-family
 !
 neighbor 192.168.10.10 remote-as 65001
@@ -275,7 +277,8 @@ neighbor 192.168.10.10 ebgp-multihop 255
 neighbor 192.168.10.10 update-source lo
 address-family ipv4 unicast
 neighbor 192.168.10.10 soft-reconfiguration inbound
-network 10.30.0.0/24
+network 10.30.0.0/20
+network 10.30.16.0/20
 exit-address-family
 !
 !

@@ -208,7 +208,7 @@ locals {
       },
     ]
     BGP_ADVERTISED_PREFIXES = [
-      local.branch3_subnets["MainSubnet"].address_prefixes[0],
+      for prefix in local.branch3_address_space : prefix
     ]
   }
   branch3_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.branch3_nva_vars, {

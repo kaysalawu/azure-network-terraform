@@ -234,7 +234,7 @@ spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
 echo -e "\n$spoke3_sgtacct_host\n" && echo
 ```
 
-Sample output (yours will be different)
+Sample output (your result will be different)
 
 ```sh
 hs11spoke3sa16e3.blob.core.windows.net
@@ -246,7 +246,7 @@ hs11spoke3sa16e3.blob.core.windows.net
 nslookup $spoke3_sgtacct_host
 ```
 
-Sample output (yours will be different)
+Sample output (your result will be different)
 
 ```sh
 1-hub-spoke-azfw-single-region$ nslookup $spoke3_sgtacct_host
@@ -299,7 +299,7 @@ spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
 echo -e "\n$spoke3_sgtacct_host\n" && echo
 ```
 
-Sample output (yours will be different)
+Sample output (your result will be different)
 
 ```sh
 hs11spoke3sa16e3.blob.core.windows.net

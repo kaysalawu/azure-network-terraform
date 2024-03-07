@@ -238,7 +238,7 @@ spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
 echo -e "\n$spoke3_sgtacct_host\n" && echo
 ```
 
-Sample output (yours will be different)
+Sample output (your result will be different)
 
 ```sh
 vwan23spoke3sa9b96.blob.core.windows.net
@@ -250,7 +250,7 @@ vwan23spoke3sa9b96.blob.core.windows.net
 nslookup $spoke3_sgtacct_host
 ```
 
-Sample output (yours will be different)
+Sample output (your result will be different)
 
 ```sh
 3-vwan-sec-single-region$ nslookup $spoke3_sgtacct_host
@@ -303,7 +303,7 @@ spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
 echo -e "\n$spoke3_sgtacct_host\n" && echo
 ```
 
-Sample output (yours will be different)
+Sample output (your result will be different)
 
 ```sh
 vwan23spoke3sa9b96.blob.core.windows.net
