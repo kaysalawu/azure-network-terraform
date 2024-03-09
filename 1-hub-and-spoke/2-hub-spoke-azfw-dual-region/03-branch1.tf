@@ -146,7 +146,6 @@ locals {
       { prefix = "${module.hub1.s2s_vpngw_bgp_default_ip0}/32", next_hop = "vti0" },
       { prefix = "${module.hub1.s2s_vpngw_bgp_default_ip1}/32", next_hop = "vti1" },
       { prefix = "${local.branch3_nva_loopback0}/32", next_hop = "vti2" },
-      { prefix = "${local.branch3_nva_untrust_addr}/32", next_hop = local.branch1_untrust_default_gw },
       { prefix = local.branch1_subnets["MainSubnet"].address_prefixes[0], next_hop = local.branch1_untrust_default_gw },
     ]
     TUNNELS = [
@@ -181,9 +180,9 @@ locals {
         vti_local_addr  = cidrhost(local.vti_range2, 1)
         vti_remote_addr = cidrhost(local.vti_range2, 2)
         local_ip        = local.branch1_nva_untrust_addr
-        local_id        = local.branch1_nva_untrust_addr
-        remote_ip       = local.branch3_nva_untrust_addr
-        remote_id       = local.branch3_nva_untrust_addr
+        local_id        = azurerm_public_ip.branch1_nva_pip.ip_address
+        remote_ip       = local.enable_onprem_wan_link ? try(azurerm_public_ip.branch3_nva_pip[0].ip_address, "1.1.1.1") : "1.1.1.1"
+        remote_id       = local.enable_onprem_wan_link ? try(azurerm_public_ip.branch3_nva_pip[0].ip_address, "1.1.1.1") : "1.1.1.1"
         psk             = local.psk
       }
     ]

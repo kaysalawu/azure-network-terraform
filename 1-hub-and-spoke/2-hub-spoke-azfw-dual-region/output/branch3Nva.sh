@@ -150,9 +150,9 @@ conn Tunnel1
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.30.1.9
-    leftid=10.30.1.9
-    right=10.10.1.9
-    rightid=10.10.1.9
+    leftid=40.121.246.124
+    right=52.236.36.201
+    rightid=52.236.36.201
     auto=start
     mark=300
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -165,7 +165,7 @@ EOF
 tee /etc/ipsec.secrets <<EOF
 10.30.1.9 57.151.17.253 : PSK "changeme"
 10.30.1.9 57.151.17.222 : PSK "changeme"
-10.30.1.9 10.10.1.9 : PSK "changeme"
+10.30.1.9 52.236.36.201 : PSK "changeme"
 
 EOF
 
@@ -256,7 +256,6 @@ ip route 0.0.0.0 10.30.1.1
 ip route 10.22.16.5/32 vti0
 ip route 10.22.16.4/32 vti1
 ip route 192.168.10.10/32 vti2
-ip route 10.10.1.9/32 10.30.1.1
 ip route 10.30.0.0/24 10.30.1.1
 !
 !-----------------------------------------
