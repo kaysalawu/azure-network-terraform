@@ -30,7 +30,7 @@ all_dirs=(
 
 function showUsage() {
   echo -e "\nUsage: $0\n\
-  --diff, -d     : Run diff between local and template blueprints\n\
+  --diff, -f     : Run diff between local and template blueprints\n\
   --copy, -c     : Copy templates files to local\n\
   --delete, -x   : Delete local files specified in templates\n\
   --plan, -p     : Run terraform plan on all target directories\n\
