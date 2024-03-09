@@ -4,7 +4,7 @@
 
 locals {
   prefix                      = "Hs12"
-  enable_diagnostics          = true
+  enable_diagnostics          = false
   enable_onprem_wan_link      = true
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke6_storage_account_name = lower(replace("${local.spoke6_prefix}sa${random_id.random.hex}", "-", ""))
