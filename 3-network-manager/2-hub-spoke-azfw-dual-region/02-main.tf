@@ -419,6 +419,7 @@ resource "azurerm_public_ip" "branch1_nva_pip" {
 # branch3
 
 resource "azurerm_public_ip" "branch3_nva_pip" {
+  count               = length(local.regions) > 1 ? 1 : 0
   resource_group_name = azurerm_resource_group.rg.name
   name                = "${local.branch3_prefix}nva-pip"
   location            = local.branch3_location

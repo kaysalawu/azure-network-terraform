@@ -11,8 +11,6 @@ apt-get -y install sipcalc
 sysctl -w net.ipv4.ip_forward=1
 sysctl -w net.ipv4.conf.eth0.disable_xfrm=1
 sysctl -w net.ipv4.conf.eth0.disable_policy=1
-sysctl -w net.ipv4.conf.eth1.disable_xfrm=1
-sysctl -w net.ipv4.conf.eth1.disable_policy=1
 echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 sysctl -p
 
@@ -68,7 +66,7 @@ ip rule add to $ETH1_DGW/$ETH1_MASK table rt1
 # this rule directs that rt1 should be used for lookup
 # the return traffic will use the following rt1 routes
 ip route add 168.63.129.16/32 via $ETH1_DGW dev eth1 table rt1
-ip route add 169.254.169.254/32 via $ETH1_DGW dev eth1 table rt1
+# ip route add 169.254.169.254/32 via $ETH1_DGW dev eth1 table rt1
 
 # alternatively, all the static routes can be replaced by a single default route
 # ip route add default via $ETH1_DGW dev eth1 table rt1

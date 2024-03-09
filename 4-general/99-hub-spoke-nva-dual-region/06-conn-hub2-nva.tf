@@ -189,7 +189,7 @@ resource "azurerm_local_network_gateway" "hub2_branch3_lng" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = "${local.hub2_prefix}branch3-lng"
   location            = local.hub2_location
-  gateway_address     = azurerm_public_ip.branch3_nva_pip.ip_address
+  gateway_address     = azurerm_public_ip.branch3_nva_pip[0].ip_address
   address_space       = ["${local.branch3_nva_loopback0}/32", ]
   bgp_settings {
     asn                 = local.branch3_nva_asn

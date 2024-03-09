@@ -11,8 +11,6 @@ apt-get -y install sipcalc
 sysctl -w net.ipv4.ip_forward=1
 sysctl -w net.ipv4.conf.eth0.disable_xfrm=1
 sysctl -w net.ipv4.conf.eth0.disable_policy=1
-sysctl -w net.ipv4.conf.eth1.disable_xfrm=1
-sysctl -w net.ipv4.conf.eth1.disable_policy=1
 echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 sysctl -p
 
@@ -68,7 +66,7 @@ ip rule add to $ETH1_DGW/$ETH1_MASK table rt1
 # this rule directs that rt1 should be used for lookup
 # the return traffic will use the following rt1 routes
 ip route add 168.63.129.16/32 via $ETH1_DGW dev eth1 table rt1
-ip route add 169.254.169.254/32 via $ETH1_DGW dev eth1 table rt1
+# ip route add 169.254.169.254/32 via $ETH1_DGW dev eth1 table rt1
 
 # alternatively, all the static routes can be replaced by a single default route
 # ip route add default via $ETH1_DGW dev eth1 table rt1
@@ -128,34 +126,47 @@ conn %default
     installpolicy=yes
     compress=no
     mobike=no
-    left=%defaultroute
+    #left=%defaultroute
     leftsubnet=0.0.0.0/0
     rightsubnet=0.0.0.0/0
     ike=aes256-sha1-modp1024!
     esp=aes256-sha1!
 
 conn Tunnel0
-    right=4.209.244.108
+    left=10.10.1.9
+    leftid=52.236.36.201
+    right=4.209.32.220
+    rightid=4.209.32.220
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
-    right=4.209.244.96
+    left=10.10.1.9
+    leftid=52.236.36.201
+    right=4.209.32.223
+    rightid=4.209.32.223
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
-    right=10.30.1.9
+    left=10.10.1.9
+    leftid=52.236.36.201
+    right=40.121.246.124
+    rightid=40.121.246.124
     auto=start
     mark=300
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
+
 # github source used
 # https://gist.github.com/heri16/2f59d22d1d5980796bfb
 
 EOF
 
 tee /etc/ipsec.secrets <<EOF
-10.10.1.9 4.209.244.108 : PSK "changeme"10.10.1.9 4.209.244.96 : PSK "changeme"10.10.1.9 10.30.1.9 : PSK "changeme"
+10.10.1.9 4.209.32.220 : PSK "changeme"
+10.10.1.9 4.209.32.223 : PSK "changeme"
+10.10.1.9 40.121.246.124 : PSK "changeme"
+
 EOF
 
 sudo tee /etc/ipsec.d/ipsec-vti.sh <<'EOF'
@@ -173,12 +184,12 @@ case "$PLUTO_CONNECTION" in
   Tunnel0)
     VTI_INTERFACE=vti0
     VTI_LOCALADDR=10.10.10.1
-    VTI_REMOTEADDR=10.11.16.5
+    VTI_REMOTEADDR=10.11.16.4
     ;;
   Tunnel1)
     VTI_INTERFACE=vti1
     VTI_LOCALADDR=10.10.10.5
-    VTI_REMOTEADDR=10.11.16.4
+    VTI_REMOTEADDR=10.11.16.5
     ;;
   Tunnel2)
     VTI_INTERFACE=vti2
@@ -236,14 +247,14 @@ service integrated-vtysh-config
 ! Interface
 !-----------------------------------------
 interface lo
-ip address 192.168.10.10/32
+  ip address 192.168.10.10/32
 !
 !-----------------------------------------
 ! Static Routes
 !-----------------------------------------
 ip route 0.0.0.0 10.10.1.1
-ip route 10.11.16.5/32 vti0
-ip route 10.11.16.4/32 vti1
+ip route 10.11.16.4/32 vti0
+ip route 10.11.16.5/32 vti1
 ip route 192.168.30.30/32 vti2
 ip route 10.10.0.0/24 10.10.1.1
 !
@@ -252,31 +263,22 @@ ip route 10.10.0.0/24 10.10.1.1
 !-----------------------------------------
 router bgp 65001
 bgp router-id 192.168.10.10
-!
-neighbor 10.11.16.5 remote-as 65515
-neighbor 10.11.16.5 ebgp-multihop 255
-neighbor 10.11.16.5 update-source lo
-address-family ipv4 unicast
-neighbor 10.11.16.5 soft-reconfiguration inbound
-network 10.10.0.0/24
-exit-address-family
-!
 neighbor 10.11.16.4 remote-as 65515
 neighbor 10.11.16.4 ebgp-multihop 255
 neighbor 10.11.16.4 update-source lo
-address-family ipv4 unicast
-neighbor 10.11.16.4 soft-reconfiguration inbound
-network 10.10.0.0/24
-exit-address-family
-!
+neighbor 10.11.16.5 remote-as 65515
+neighbor 10.11.16.5 ebgp-multihop 255
+neighbor 10.11.16.5 update-source lo
 neighbor 192.168.30.30 remote-as 65003
 neighbor 192.168.30.30 ebgp-multihop 255
 neighbor 192.168.30.30 update-source lo
-address-family ipv4 unicast
-neighbor 192.168.30.30 soft-reconfiguration inbound
-network 10.10.0.0/24
-exit-address-family
 !
+address-family ipv4 unicast
+  network 10.10.0.0/24
+  neighbor 10.11.16.4 soft-reconfiguration inbound
+  neighbor 10.11.16.5 soft-reconfiguration inbound
+  neighbor 192.168.30.30 soft-reconfiguration inbound
+exit-address-family
 !
 line vty
 !
@@ -353,8 +355,8 @@ echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} 
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke4vm.us.az.corp) - spoke4vm.us.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke5vm.us.az.corp) - spoke5vm.us.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs12spoke3sa583e.blob.core.windows.net/spoke3/spoke3.txt) - https://hs12spoke3sa583e.blob.core.windows.net/spoke3/spoke3.txt"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs12spoke6sa583e.blob.core.windows.net/spoke6/spoke6.txt) - https://hs12spoke6sa583e.blob.core.windows.net/spoke6/spoke6.txt"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs12spoke3saebbb.blob.core.windows.net/spoke3/spoke3.txt) - https://hs12spoke3saebbb.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs12spoke6saebbb.blob.core.windows.net/spoke6/spoke6.txt) - https://hs12spoke6saebbb.blob.core.windows.net/spoke6/spoke6.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 

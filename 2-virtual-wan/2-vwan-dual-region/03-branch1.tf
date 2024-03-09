@@ -127,7 +127,6 @@ locals {
     LOCAL_ASN = local.branch1_nva_asn
     LOOPBACK0 = local.branch1_nva_loopback0
     LOOPBACKS = []
-    PUBLIC_IP = azurerm_public_ip.branch1_nva_pip.ip_address
 
     PREFIX_LISTS = [
       # "ip prefix-list ${local.branch1_nva_route_map_block_azure} deny ${local.hub1_subnets["GatewaySubnet"].address_prefixes[0]}",
@@ -147,10 +146,8 @@ locals {
       { prefix = "${module.vhub1.vpngw_bgp_ip0}/32", next_hop = "vti0" },
       { prefix = "${module.vhub1.vpngw_bgp_ip1}/32", next_hop = "vti1" },
       { prefix = "${local.branch3_nva_loopback0}/32", next_hop = "vti2" },
-      {
-        prefix   = local.branch1_subnets["MainSubnet"].address_prefixes[0]
-        next_hop = local.branch1_untrust_default_gw
-      },
+      { prefix = local.branch1_address_space[0], next_hop = local.branch1_untrust_default_gw },
+      { prefix = local.branch1_address_space[1], next_hop = local.branch1_untrust_default_gw },
     ]
     TUNNELS = [
       {
@@ -160,7 +157,9 @@ locals {
         vti_local_addr  = cidrhost(local.vti_range0, 1)
         vti_remote_addr = module.vhub1.vpngw_bgp_ip0
         local_ip        = local.branch1_nva_untrust_addr
+        local_id        = azurerm_public_ip.branch1_nva_pip.ip_address
         remote_ip       = module.vhub1.vpngw_public_ip0
+        remote_id       = module.vhub1.vpngw_public_ip0
         psk             = local.psk
       },
       {
@@ -170,7 +169,9 @@ locals {
         vti_local_addr  = cidrhost(local.vti_range1, 1)
         vti_remote_addr = module.vhub1.vpngw_bgp_ip1
         local_ip        = local.branch1_nva_untrust_addr
+        local_id        = azurerm_public_ip.branch1_nva_pip.ip_address
         remote_ip       = module.vhub1.vpngw_public_ip1
+        remote_id       = module.vhub1.vpngw_public_ip1
         psk             = local.psk
       },
       {
@@ -180,7 +181,9 @@ locals {
         vti_local_addr  = cidrhost(local.vti_range2, 1)
         vti_remote_addr = cidrhost(local.vti_range2, 2)
         local_ip        = local.branch1_nva_untrust_addr
-        remote_ip       = local.branch3_nva_untrust_addr
+        local_id        = azurerm_public_ip.branch1_nva_pip.ip_address
+        remote_ip       = local.enable_onprem_wan_link ? try(azurerm_public_ip.branch3_nva_pip[0].ip_address, "1.1.1.1") : "1.1.1.1"
+        remote_id       = local.enable_onprem_wan_link ? try(azurerm_public_ip.branch3_nva_pip[0].ip_address, "1.1.1.1") : "1.1.1.1"
         psk             = local.psk
       }
     ]
@@ -208,7 +211,8 @@ locals {
       },
     ]
     BGP_ADVERTISED_PREFIXES = [
-      for prefix in local.branch1_address_space : prefix
+      local.branch1_address_space[0],
+      local.branch1_address_space[1],
     ]
   }
   branch1_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.branch1_nva_vars, {

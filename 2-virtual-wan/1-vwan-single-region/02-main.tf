@@ -5,6 +5,7 @@
 locals {
   prefix                      = "Vwan21"
   enable_diagnostics          = false
+  enable_onprem_wan_link      = false
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
   spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
@@ -314,6 +315,16 @@ resource "azurerm_public_ip" "branch1_nva_pip" {
   tags                = local.branch1_tags
 }
 
+# branch3
+
+resource "azurerm_public_ip" "branch3_nva_pip" {
+  count               = length(local.regions) > 1 ? 1 : 0
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.branch3_prefix}nva-pip"
+  location            = local.branch3_location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+}
 ####################################################
 # firewall policy
 ####################################################

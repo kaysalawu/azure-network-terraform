@@ -202,7 +202,7 @@ module "branch3_nva" {
   subnet_int           = module.branch3.subnets["TrustSubnet"].id
   private_ip_ext       = local.branch3_nva_untrust_addr
   private_ip_int       = local.branch3_nva_trust_addr
-  public_ip            = azurerm_public_ip.branch3_nva_pip.id
+  public_ip            = azurerm_public_ip.branch3_nva_pip[0].id
   storage_account      = module.common.storage_accounts["region2"]
   admin_username       = local.username
   admin_password       = local.password

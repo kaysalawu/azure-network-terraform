@@ -229,7 +229,7 @@ module "branch3_nva" {
       name                 = "${local.branch3_prefix}nva-untrust-nic"
       subnet_id            = module.branch3.subnets["UntrustSubnet"].id
       private_ip_address   = local.branch3_nva_untrust_addr
-      public_ip_address_id = azurerm_public_ip.branch3_nva_pip.id
+      public_ip_address_id = azurerm_public_ip.branch3_nva_pip[0].id
     },
     {
       name               = "${local.branch3_prefix}nva-trust-nic"

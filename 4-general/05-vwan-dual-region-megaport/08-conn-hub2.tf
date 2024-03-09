@@ -126,7 +126,7 @@ resource "azurerm_vpn_site" "vhub2_site_branch3" {
   link {
     name          = "${local.vhub2_prefix}site-branch3-link-0"
     provider_name = "Microsoft"
-    ip_address    = azurerm_public_ip.branch3_nva_pip.ip_address
+    ip_address    = azurerm_public_ip.branch3_nva_pip[0].ip_address
     speed_in_mbps = 50
     bgp {
       asn             = local.branch3_nva_asn

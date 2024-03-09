@@ -11,8 +11,6 @@ apt-get -y install sipcalc
 sysctl -w net.ipv4.ip_forward=1
 sysctl -w net.ipv4.conf.eth0.disable_xfrm=1
 sysctl -w net.ipv4.conf.eth0.disable_policy=1
-sysctl -w net.ipv4.conf.eth1.disable_xfrm=1
-sysctl -w net.ipv4.conf.eth1.disable_policy=1
 echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 sysctl -p
 
@@ -68,7 +66,7 @@ ip rule add to $ETH1_DGW/$ETH1_MASK table rt1
 # this rule directs that rt1 should be used for lookup
 # the return traffic will use the following rt1 routes
 ip route add 168.63.129.16/32 via $ETH1_DGW dev eth1 table rt1
-ip route add 169.254.169.254/32 via $ETH1_DGW dev eth1 table rt1
+# ip route add 169.254.169.254/32 via $ETH1_DGW dev eth1 table rt1
 
 # alternatively, all the static routes can be replaced by a single default route
 # ip route add default via $ETH1_DGW dev eth1 table rt1
@@ -135,12 +133,12 @@ conn %default
     esp=aes256-sha1!
 
 conn Tunnel0
-    right=52.236.27.15
+    right=52.156.250.36
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
-    right=52.236.27.132
+    right=52.156.250.49
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -156,7 +154,10 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<EOF
-10.10.1.9 52.236.27.15 : PSK "changeme"10.10.1.9 52.236.27.132 : PSK "changeme"10.10.1.9 10.30.1.9 : PSK "changeme"
+10.10.1.9 52.156.250.36 : PSK "changeme"
+10.10.1.9 52.156.250.49 : PSK "changeme"
+10.10.1.9 10.30.1.9 : PSK "changeme"
+
 EOF
 
 sudo tee /etc/ipsec.d/ipsec-vti.sh <<'EOF'
@@ -174,12 +175,12 @@ case "$PLUTO_CONNECTION" in
   Tunnel0)
     VTI_INTERFACE=vti0
     VTI_LOCALADDR=10.10.10.1
-    VTI_REMOTEADDR=192.168.11.13
+    VTI_REMOTEADDR=192.168.11.12
     ;;
   Tunnel1)
     VTI_INTERFACE=vti1
     VTI_LOCALADDR=10.10.10.5
-    VTI_REMOTEADDR=192.168.11.12
+    VTI_REMOTEADDR=192.168.11.13
     ;;
   Tunnel2)
     VTI_INTERFACE=vti2
@@ -237,14 +238,14 @@ service integrated-vtysh-config
 ! Interface
 !-----------------------------------------
 interface lo
-ip address 192.168.10.10/32
+  ip address 192.168.10.10/32
 !
 !-----------------------------------------
 ! Static Routes
 !-----------------------------------------
 ip route 0.0.0.0 10.10.1.1
-ip route 192.168.11.13/32 vti0
-ip route 192.168.11.12/32 vti1
+ip route 192.168.11.12/32 vti0
+ip route 192.168.11.13/32 vti1
 ip route 192.168.30.30/32 vti2
 ip route 10.10.0.0/24 10.10.1.1
 !
@@ -253,34 +254,23 @@ ip route 10.10.0.0/24 10.10.1.1
 !-----------------------------------------
 router bgp 65001
 bgp router-id 192.168.10.10
-!
-neighbor 192.168.11.13 remote-as 65515
-neighbor 192.168.11.13 ebgp-multihop 255
-neighbor 192.168.11.13 update-source lo
-address-family ipv4 unicast
-neighbor 192.168.11.13 soft-reconfiguration inbound
-network 10.10.0.0/20
-network 10.10.16.0/20
-exit-address-family
-!
 neighbor 192.168.11.12 remote-as 65515
 neighbor 192.168.11.12 ebgp-multihop 255
 neighbor 192.168.11.12 update-source lo
-address-family ipv4 unicast
-neighbor 192.168.11.12 soft-reconfiguration inbound
-network 10.10.0.0/20
-network 10.10.16.0/20
-exit-address-family
-!
+neighbor 192.168.11.13 remote-as 65515
+neighbor 192.168.11.13 ebgp-multihop 255
+neighbor 192.168.11.13 update-source lo
 neighbor 192.168.30.30 remote-as 65003
 neighbor 192.168.30.30 ebgp-multihop 255
 neighbor 192.168.30.30 update-source lo
-address-family ipv4 unicast
-neighbor 192.168.30.30 soft-reconfiguration inbound
-network 10.10.0.0/20
-network 10.10.16.0/20
-exit-address-family
 !
+address-family ipv4 unicast
+  network 10.10.0.0/20
+  network 10.10.16.0/20
+  neighbor 192.168.11.12 soft-reconfiguration inbound
+  neighbor 192.168.11.13 soft-reconfiguration inbound
+  neighbor 192.168.30.30 soft-reconfiguration inbound
+exit-address-family
 !
 line vty
 !
@@ -357,8 +347,8 @@ echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} 
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke4vm.us.az.corp) - spoke4vm.us.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke5vm.us.az.corp) - spoke5vm.us.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke3saed30.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan24spoke3saed30.blob.core.windows.net/spoke3/spoke3.txt"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke6saed30.blob.core.windows.net/spoke6/spoke6.txt) - https://vwan24spoke6saed30.blob.core.windows.net/spoke6/spoke6.txt"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke3sa917c.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan24spoke3sa917c.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke6sa917c.blob.core.windows.net/spoke6/spoke6.txt) - https://vwan24spoke6sa917c.blob.core.windows.net/spoke6/spoke6.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 
