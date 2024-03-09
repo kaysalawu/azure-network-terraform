@@ -446,11 +446,6 @@ nslookup $spoke3_sgtacct_host
 <summary>Sample output</summary>
 
 ```sh
-azureuser@branch1Vm:~$ echo -e "\n$spoke3_sgtacct_host\n" && echo
-
-hs12spoke3saebbb.blob.core.windows.net
-
-
 azureuser@branch1Vm:~$ nslookup $spoke3_sgtacct_host
 Server:         127.0.0.53
 Address:        127.0.0.53#53

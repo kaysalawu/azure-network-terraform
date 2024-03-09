@@ -544,6 +544,7 @@ locals {
     PREFIX_LISTS            = []
     ROUTE_MAPS              = []
     STATIC_ROUTES           = []
+    TUNNELS                 = []
     BGP_SESSIONS            = []
     BGP_ADVERTISED_PREFIXES = []
   }
@@ -552,14 +553,11 @@ locals {
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
     ENABLE_TRAFFIC_GEN        = false
-
-    IPTABLES_RULES           = []
-    ROUTE_MAPS               = []
-    TUNNELS                  = []
-    FRR_CONF                 = ""
-    STRONGSWAN_VTI_SCRIPT    = ""
-    STRONGSWAN_IPSEC_SECRETS = ""
-    STRONGSWAN_IPSEC_CONF    = ""
+    IPTABLES_RULES            = []
+    FRR_CONF                  = ""
+    STRONGSWAN_VTI_SCRIPT     = ""
+    STRONGSWAN_IPSEC_SECRETS  = ""
+    STRONGSWAN_IPSEC_CONF     = ""
   }))
 }
 
@@ -577,6 +575,7 @@ locals {
     PREFIX_LISTS            = []
     ROUTE_MAPS              = []
     STATIC_ROUTES           = []
+    TUNNELS                 = []
     BGP_SESSIONS            = []
     BGP_ADVERTISED_PREFIXES = []
   }
@@ -585,14 +584,11 @@ locals {
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
     ENABLE_TRAFFIC_GEN        = false
-
-    IPTABLES_RULES           = []
-    ROUTE_MAPS               = []
-    TUNNELS                  = []
-    FRR_CONF                 = ""
-    STRONGSWAN_VTI_SCRIPT    = ""
-    STRONGSWAN_IPSEC_SECRETS = ""
-    STRONGSWAN_IPSEC_CONF    = ""
+    IPTABLES_RULES            = []
+    FRR_CONF                  = ""
+    STRONGSWAN_VTI_SCRIPT     = ""
+    STRONGSWAN_IPSEC_SECRETS  = ""
+    STRONGSWAN_IPSEC_CONF     = ""
   }))
 }
 

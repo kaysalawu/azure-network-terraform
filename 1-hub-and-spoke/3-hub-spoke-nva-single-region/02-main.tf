@@ -378,19 +378,32 @@ module "fw_policy_rule_collection_group" {
 # hub1
 
 locals {
-  hub1_router_route_map_name_nh = "NEXT-HOP"
+  hub1_nva_route_map_onprem      = "ONPREM"
+  hub1_nva_route_map_azure       = "AZURE"
+  hub1_nva_route_map_block_azure = "BLOCK_HUB_GW_SUBNET"
   hub1_nva_vars = {
     LOCAL_ASN = local.hub1_nva_asn
+    LOOPBACK0 = local.hub1_nva_loopback0
+    LOOPBACKS = []
+
+    PREFIX_LISTS            = []
+    ROUTE_MAPS              = []
+    STATIC_ROUTES           = []
+    TUNNELS                 = []
+    BGP_SESSIONS            = []
+    BGP_ADVERTISED_PREFIXES = []
   }
   hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
-    TARGETS           = local.vm_script_targets
-    IPTABLES_RULES    = []
-    ROUTE_MAPS        = []
-    TUNNELS           = []
-    QUAGGA_ZEBRA_CONF = ""
-    QUAGGA_BGPD_CONF  = ""
-    }
-  ))
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = []
+    TARGETS_HEAVY_TRAFFIC_GEN = []
+    ENABLE_TRAFFIC_GEN        = false
+    IPTABLES_RULES            = []
+    FRR_CONF                  = ""
+    STRONGSWAN_VTI_SCRIPT     = ""
+    STRONGSWAN_IPSEC_SECRETS  = ""
+    STRONGSWAN_IPSEC_CONF     = ""
+  }))
 }
 
 ####################################################

@@ -15,9 +15,9 @@ Contents
   - [2. Ping DNS](#2-ping-dns)
   - [3. Curl DNS](#3-curl-dns)
   - [4. Private Link Service](#4-private-link-service)
-  - [5. Private Link (Storage Account) Access from Public Client](#5-private-link-storage-account-access-from-public-client)
-  - [6. Private Link (Storage Account) Access from On-premises](#6-private-link-storage-account-access-from-on-premises)
-  - [8. Azure Firewall](#8-azure-firewall)
+  - [5. Private Link Access to Storage Account](#5-private-link-access-to-storage-account)
+  - [6. Private Link Access to Storage Account from On-premises](#6-private-link-access-to-storage-account-from-on-premises)
+  - [8. Azure Firewall (Optional)](#8-azure-firewall-optional)
   - [8. On-premises Routes](#8-on-premises-routes)
 - [Cleanup](#cleanup)
 
@@ -75,9 +75,11 @@ The table below shows the auto-generated output files from the lab. They are loc
 
 ## Dashboards (Optional)
 
-This lab contains a number of pre-configured dashboards for monitoring gateways, VPN gateways, and Azure Firewall.
+This lab contains a number of pre-configured dashboards for monitoring gateways, VPN gateways, and Azure Firewall. To deploy the dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf) file. Then run `terraform apply` to update the deployment.
 
-To deploy the dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment.
+<details>
+
+<summary>Sample Dashboards</summary>
 
 To view the dashboards, follow the steps below:
 
@@ -98,6 +100,9 @@ To view the dashboards, follow the steps below:
     Sample dashboard for Azure Firewall in ***hub1***.
 
    ![Go to dashboard](../../images/demos/hub-and-spoke/hs11-hub1-azfw-db.png)
+
+</details>
+<p>
 
 ## Testing
 
@@ -125,19 +130,24 @@ This script pings the IP addresses of some test virtual machines and reports rea
 ping-ip
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 azureuser@spoke1Vm:~$ ping-ip
 
  ping ip ...
 
-branch1 - 10.10.0.5 -OK 5.312 ms
-hub1    - 10.11.0.5 -OK 2.525 ms
-spoke1  - 10.1.0.5 -OK 0.065 ms
-spoke2  - 10.2.0.5 -OK 3.837 ms
+branch1 - 10.10.0.5 -OK 4.260 ms
+hub1    - 10.11.0.5 -OK 2.523 ms
+spoke1  - 10.1.0.5 -OK 0.032 ms
+spoke2  - 10.2.0.5 -OK 2.730 ms
 internet - icanhazip.com -NA
 ```
+
+</details>
+<p>
 
 ### 2. Ping DNS
 
@@ -149,19 +159,24 @@ This script pings the DNS name of some test virtual machines and reports reachab
 ping-dns
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 azureuser@spoke1Vm:~$ ping-dns
 
  ping dns ...
 
-branch1vm.corp - 10.10.0.5 -OK 3.951 ms
-hub1vm.eu.az.corp - 10.11.0.5 -OK 4.113 ms
-spoke1vm.eu.az.corp - 10.1.0.5 -OK 0.041 ms
-spoke2vm.eu.az.corp - 10.2.0.5 -OK 3.040 ms
-icanhazip.com - 104.18.115.97 -NA
+branch1vm.corp - 10.10.0.5 -OK 9.347 ms
+hub1vm.eu.az.corp - 10.11.0.5 -OK 3.250 ms
+spoke1vm.eu.az.corp - 10.1.0.5 -OK 0.025 ms
+spoke2vm.eu.az.corp - 10.2.0.5 -OK 2.389 ms
+icanhazip.com - 104.16.185.241 -NA
 ```
+
+</details>
+<p>
 
 ### 3. Curl DNS
 
@@ -173,21 +188,26 @@ This script uses curl to check reachability of web server (python Flask) on the 
 curl-dns
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 azureuser@spoke1Vm:~$ curl-dns
 
  curl dns ...
 
-200 (0.147146s) - 10.10.0.5 - branch1vm.corp
-200 (0.019098s) - 10.11.0.5 - hub1vm.eu.az.corp
-200 (0.017197s) - 10.11.7.88 - spoke3pls.eu.az.corp
-200 (0.012906s) - 10.1.0.5 - spoke1vm.eu.az.corp
-200 (0.016783s) - 10.2.0.5 - spoke2vm.eu.az.corp
-200 (0.032593s) - 104.18.114.97 - icanhazip.com
-200 (0.055190s) - 10.11.7.99 - https://hs11spoke3sa16e3.blob.core.windows.net/spoke3/spoke3.txt
+200 (0.041092s) - 10.10.0.5 - branch1vm.corp
+200 (0.019036s) - 10.11.0.5 - hub1vm.eu.az.corp
+200 (0.028015s) - 10.11.7.88 - spoke3pls.eu.az.corp
+200 (0.008495s) - 10.1.0.5 - spoke1vm.eu.az.corp
+200 (0.021749s) - 10.2.0.5 - spoke2vm.eu.az.corp
+200 (0.015688s) - 104.16.184.241 - icanhazip.com
+200 (0.023444s) - 10.11.7.99 - https://hs11spoke3sa4dd5.blob.core.windows.net/spoke3/spoke3.txt
 ```
+
+</details>
+<p>
 
 ### 4. Private Link Service
 
@@ -197,7 +217,9 @@ azureuser@spoke1Vm:~$ curl-dns
 curl spoke3pls.eu.az.corp
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 azureuser@spoke1Vm:~$ curl spoke3pls.eu.az.corp
@@ -213,9 +235,12 @@ azureuser@spoke1Vm:~$ curl spoke3pls.eu.az.corp
 }
 ```
 
+</details>
+<p>
+
 The `Hostname` and `Local-IP` fields identify the target web server - in this case ***spoke3*** virtual machine. The `Remote-IP` field (as seen by the web server) is an IP address in the Private Link Service NAT subnet in ***spoke3***.
 
-### 5. Private Link (Storage Account) Access from Public Client
+### 5. Private Link Access to Storage Account
 
 A storage account with a container blob deployed and accessible via private endpoints in ***hub1***. The storage accounts have the following naming convention:
 
@@ -234,11 +259,16 @@ spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
 echo -e "\n$spoke3_sgtacct_host\n" && echo
 ```
 
-Sample output (your result will be different)
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
-hs11spoke3sa16e3.blob.core.windows.net
+hs11spoke3sa4dd5.blob.core.windows.net
 ```
+
+</details>
+<p>
 
 **5.2.** Resolve the hostname
 
@@ -246,7 +276,9 @@ hs11spoke3sa16e3.blob.core.windows.net
 nslookup $spoke3_sgtacct_host
 ```
 
-Sample output (your result will be different)
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 1-hub-spoke-azfw-single-region$ nslookup $spoke3_sgtacct_host
@@ -254,13 +286,16 @@ Server:         8.8.8.8
 Address:        8.8.8.8#53
 
 Non-authoritative answer:
-hs11spoke3sa16e3.blob.core.windows.net  canonical name = hs11spoke3sa16e3.privatelink.blob.core.windows.net.
-hs11spoke3sa16e3.privatelink.blob.core.windows.net      canonical name = blob.db4prdstr16a.store.core.windows.net.
-Name:   blob.db4prdstr16a.store.core.windows.net
-Address: 20.60.204.65
+hs11spoke3sa4dd5.blob.core.windows.net  canonical name = hs11spoke3sa4dd5.privatelink.blob.core.windows.net.
+hs11spoke3sa4dd5.privatelink.blob.core.windows.net      canonical name = blob.db3prdstr20a.store.core.windows.net.
+Name:   blob.db3prdstr20a.store.core.windows.net
+Address: 20.150.84.164
 ```
 
-We can see that the endpoint is a public IP address, ***20.60.204.65***. We can see the CNAME `hs11spoke3sa16e3.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
+</details>
+<p>
+
+We can see that the endpoint is a public IP address, ***20.150.84.164***. We can see the CNAME `hs11spoke3sa4dd5.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
 
 **5.3.** Test access to the storage account blob.
 
@@ -268,13 +303,18 @@ We can see that the endpoint is a public IP address, ***20.60.204.65***. We can 
 curl $spoke3_blob_url && echo
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 Hello, World!
 ```
 
-### 6. Private Link (Storage Account) Access from On-premises
+</details>
+<p>
+
+### 6. Private Link Access to Storage Account from On-premises
 
 **6.1** Login to on-premises virtual machine `Hs11-branch1Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
   - username = ***azureuser***
@@ -288,6 +328,38 @@ Hello, World!
 az login --identity
 ```
 
+<details>
+
+<summary>Sample output</summary>
+
+```json
+azureuser@branch1Vm:~$ az login --identity
+[
+  {
+    "environmentName": "AzureCloud",
+    "homeTenantId": "aaa-bbb-ccc-ddd-eee",
+    "id": "xxx-yyy-1234-1234-1234",
+    "isDefault": true,
+    "managedByTenants": [
+      {
+        "tenantId": "your-tenet-id"
+      }
+    ],
+    "name": "some-random-name",
+    "state": "Enabled",
+    "tenantId": "your-tenet-id",
+    "user": {
+      "assignedIdentityInfo": "MSI",
+      "name": "systemAssignedIdentity",
+      "type": "servicePrincipal"
+    }
+  }
+]
+```
+
+</details>
+<p>
+
 **6.3.** Get the storage account hostname and blob URL.
 
 ```sh
@@ -299,11 +371,16 @@ spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
 echo -e "\n$spoke3_sgtacct_host\n" && echo
 ```
 
-Sample output (your result will be different)
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
-hs11spoke3sa16e3.blob.core.windows.net
+hs11spoke3sa4dd5.blob.core.windows.net
 ```
+
+</details>
+<p>
 
 **6.4.** Resolve the storage account DNS name
 
@@ -311,7 +388,9 @@ hs11spoke3sa16e3.blob.core.windows.net
 nslookup $spoke3_sgtacct_host
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 azureuser@branch1Vm:~$ nslookup $spoke3_sgtacct_host
@@ -319,16 +398,19 @@ Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-hs11spoke3sa16e3.blob.core.windows.net  canonical name = hs11spoke3sa16e3.privatelink.blob.core.windows.net.
-Name:   hs11spoke3sa16e3.privatelink.blob.core.windows.net
+hs11spoke3sa4dd5.blob.core.windows.net  canonical name = hs11spoke3sa4dd5.privatelink.blob.core.windows.net.
+Name:   hs11spoke3sa4dd5.privatelink.blob.core.windows.net
 Address: 10.11.7.99
 ```
 
+</details>
+<p>
+
 We can see that the storage account hostname resolves to the private endpoint ***10.11.7.99*** in ***hub1***. The following is a summary of the DNS resolution from `Hs11-branch1Vm`:
 
-- On-premises server `Hs11-branch1Vm` makes a DNS request for `hs11spoke3sa16e3.blob.core.windows.net`
+- On-premises server `Hs11-branch1Vm` makes a DNS request for `hs11spoke3sa4dd5.blob.core.windows.net`
 - The request is received by on-premises DNS server `Hs11-branch1-dns`
-- The DNS server resolves `hs11spoke3sa16e3.blob.core.windows.net` to the CNAME `hs11spoke3sa16e3.privatelink.blob.core.windows.net`
+- The DNS server resolves `hs11spoke3sa4dd5.blob.core.windows.net` to the CNAME `hs11spoke3sa4dd5.privatelink.blob.core.windows.net`
 - The DNS server has a conditional DNS forwarding defined in the branch1 unbound DNS configuration file, [output/branch1Dns.sh](./output/branch1Dns.sh).
 
   ```sh
@@ -346,13 +428,24 @@ We can see that the storage account hostname resolves to the private endpoint **
 curl $spoke3_blob_url && echo
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 Hello, World!
 ```
 
-### 8. Azure Firewall
+</details>
+<p>
+
+### 8. Azure Firewall (Optional)
+
+To view firewall logs, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment. Wait for about 15 minutes to get some logs.
+
+<details>
+
+<summary>Sample Azure Firewall logs</summary>
 
 **8.1.** Check the Azure Firewall logs to observe the traffic flow.
 
@@ -367,17 +460,34 @@ Observe the firewall logs based on traffic flows generated from our tests.
 
 ![Hs11-hub1-azfw-network-rule-log-data](../../images/demos/hub-and-spoke/hs11-hub1-net-rule-log-detail.png)
 
+</details>
+<p>
+
 ### 8. On-premises Routes
 
 **8.1** Login to on-premises virtual machine `Hs11-branch1Nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
   - username = ***azureuser***
   - password = ***Password123***
 
-**8.2.** Enter the Cisco ***enable*** mode
+**8.2.** Enter the VTY shell for the FRRouting daemon.
 
 ```sh
-enable
+sudo vtysh
 ```
+
+<details>
+
+<summary>Sample output</summary>
+
+```sh
+azureuser@branch1Nva:~$ sudo vtysh
+
+Hello, this is FRRouting (version 7.2.1).
+Copyright 1996-2005 Kunihiro Ishiguro, et al.
+```
+
+</details>
+<p>
 
 **8.3.** Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
 
@@ -385,39 +495,43 @@ enable
 show ip route
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 branch1Nva# show ip route
-...
-Gateway of last resort is 10.10.1.1 to network 0.0.0.0
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, D - SHARP,
+       F - PBR, f - OpenFabric,
+       > - selected route, * - FIB route, q - queued route, r - rejected route
 
-S*    0.0.0.0/0 [1/0] via 10.10.1.1
-      10.0.0.0/8 is variably subnetted, 15 subnets, 4 masks
-B        10.1.0.0/20 [20/0] via 10.11.16.4, 01:05:43
-B        10.2.0.0/20 [20/0] via 10.11.16.4, 01:05:43
-S        10.10.0.0/24 [1/0] via 10.10.1.1
-C        10.10.1.0/24 is directly connected, GigabitEthernet1
-L        10.10.1.9/32 is directly connected, GigabitEthernet1
-C        10.10.2.0/24 is directly connected, GigabitEthernet2
-L        10.10.2.9/32 is directly connected, GigabitEthernet2
-C        10.10.10.0/30 is directly connected, Tunnel0
-L        10.10.10.1/32 is directly connected, Tunnel0
-C        10.10.10.4/30 is directly connected, Tunnel1
-L        10.10.10.5/32 is directly connected, Tunnel1
-B        10.11.0.0/20 [20/0] via 10.11.16.4, 01:05:43
-B        10.11.16.0/20 [20/0] via 10.11.16.4, 01:05:43
-S        10.11.16.4/32 is directly connected, Tunnel1
-S        10.11.16.5/32 is directly connected, Tunnel0
-      168.63.0.0/32 is subnetted, 1 subnets
-S        168.63.129.16 [254/0] via 10.10.1.1
-      169.254.0.0/32 is subnetted, 1 subnets
-S        169.254.169.254 [254/0] via 10.10.1.1
-      192.168.10.0/32 is subnetted, 1 subnets
-C        192.168.10.10 is directly connected, Loopback0
+K>* 0.0.0.0/0 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 01:25:15
+B>* 10.1.0.0/20 [20/0] via 10.11.16.4, vti0, 00:28:23
+  *                    via 10.11.16.5, vti1, 00:28:23
+B>* 10.2.0.0/20 [20/0] via 10.11.16.4, vti0, 00:28:23
+  *                    via 10.11.16.5, vti1, 00:28:23
+S>* 10.10.0.0/24 [1/0] via 10.10.1.1, eth0, 01:25:14
+C>* 10.10.1.0/24 is directly connected, eth0, 01:25:15
+C>* 10.10.2.0/24 is directly connected, eth1, 01:25:15
+B>* 10.11.0.0/20 [20/0] via 10.11.16.4, vti0, 00:28:23
+  *                     via 10.11.16.5, vti1, 00:28:23
+B>* 10.11.16.0/20 [20/0] via 10.11.16.4, vti0, 00:28:23
+  *                      via 10.11.16.5, vti1, 00:28:23
+S   10.11.16.4/32 [1/0] is directly connected, vti0, 00:28:25
+C>* 10.11.16.4/32 is directly connected, vti0, 00:28:25
+S   10.11.16.5/32 [1/0] is directly connected, vti1, 00:28:23
+C>* 10.11.16.5/32 is directly connected, vti1, 00:28:23
+K>* 168.63.129.16/32 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 01:25:15
+K>* 169.254.169.254/32 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 01:25:15
+C>* 192.168.10.10/32 is directly connected, lo, 01:25:15
 ```
 
 We can see the Vnet ranges learned dynamically via BGP.
+
+</details>
+<p>
 
 **8.4.** Display BGP information by typing `show ip bgp` and pressing the space bar to show the complete output.
 
@@ -425,74 +539,85 @@ We can see the Vnet ranges learned dynamically via BGP.
 show ip bgp
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 branch1Nva# show ip bgp
-BGP table version is 6, local router ID is 192.168.10.10
-Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
-              r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
-              x best-external, a additional-path, c RIB-compressed,
-              t secondary path, L long-lived-stale,
-Origin codes: i - IGP, e - EGP, ? - incomplete
-RPKI validation codes: V valid, I invalid, N Not found
+BGP table version is 9, local router ID is 192.168.10.10, vrf id 0
+Default local pref 100, local AS 65001
+Status codes:  s suppressed, d damped, h history, * valid, > best, = multipath,
+               i internal, r RIB-failure, S Stale, R Removed
+Nexthop codes: @NNN nexthop's vrf id, < announce-nh-self
+Origin codes:  i - IGP, e - EGP, ? - incomplete
 
-     Network          Next Hop            Metric LocPrf Weight Path
- *    10.1.0.0/20      10.11.16.5                             0 65515 i
- *>                    10.11.16.4                             0 65515 i
- *    10.2.0.0/20      10.11.16.5                             0 65515 i
- *>                    10.11.16.4                             0 65515 i
- *>   10.10.0.0/24     10.10.1.1                0         32768 i
- *    10.11.0.0/20     10.11.16.5                             0 65515 i
- *>                    10.11.16.4                             0 65515 i
- *    10.11.16.0/20    10.11.16.5                             0 65515 i
- *>                    10.11.16.4                             0 65515 i
+   Network          Next Hop            Metric LocPrf Weight Path
+*= 10.1.0.0/20      10.11.16.5                             0 65515 i
+*>                  10.11.16.4                             0 65515 i
+*= 10.2.0.0/20      10.11.16.4                             0 65515 i
+*>                  10.11.16.5                             0 65515 i
+*> 10.10.0.0/24     0.0.0.0                  0         32768 i
+*= 10.11.0.0/20     10.11.16.5                             0 65515 i
+*>                  10.11.16.4                             0 65515 i
+*= 10.11.16.0/20    10.11.16.5                             0 65515 i
+*>                  10.11.16.4                             0 65515 i
+
+Displayed  5 routes and 9 total paths
 ```
 
 We can see the hub and spoke Vnet ranges being learned dynamically in the BGP table.
 
+</details>
+<p>
+
 ## Cleanup
 
-1. (Optional) Navigate back to the lab directory (if you are not already there)
+1\. (Optional) Navigate back to the lab directory (if you are not already there)
 
-   ```sh
-   cd azure-network-terraform/1-hub-and-spoke/1-hub-spoke-azfw-single-region
-   ```
+```sh
+cd azure-network-terraform/1-hub-and-spoke/1-hub-spoke-azfw-single-region
+```
 
-2. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
+2\. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
-   ```sh
-   bash ../../scripts/_cleanup.sh Hs11
-   ```
+```sh
+bash ../../scripts/_cleanup.sh Hs11
+```
 
-   Sample output
+<details>
 
-   ```sh
-   1-hub-spoke-azfw-single-region$    bash ../../scripts/_cleanup.sh Hs11
+<summary>Sample output</summary>
 
-   Resource group: Hs11RG
+```sh
+1-hub-spoke-azfw-single-region$    bash ../../scripts/_cleanup.sh Hs11
 
-   ⏳ Checking for diagnostic settings on resources in Hs11RG ...
-   ➜  Checking firewall ...
-        ❌ Deleting: diag setting [Hs11-hub1-azfw-diag] for firewall [Hs11-hub1-azfw] ...
-   ➜  Checking vnet gateway ...
-        ❌ Deleting: diag setting [Hs11-hub1-vpngw-diag] for vnet gateway [Hs11-hub1-vpngw] ...
-   ➜  Checking vpn gateway ...
-   ➜  Checking er gateway ...
-   ➜  Checking app gateway ...
-   ⏳ Checking for azure policies in Vwan24RG ...
-   Done!
-   ```
+Resource group: Hs11RG
 
-3. Delete the resource group to remove all resources installed.
+⏳ Checking for diagnostic settings on resources in Hs11RG ...
+➜  Checking firewall ...
+    ❌ Deleting: diag setting [Hs11-hub1-azfw-diag] for firewall [Hs11-hub1-azfw] ...
+➜  Checking vnet gateway ...
+    ❌ Deleting: diag setting [Hs11-hub1-vpngw-diag] for vnet gateway [Hs11-hub1-vpngw] ...
+➜  Checking vpn gateway ...
+➜  Checking er gateway ...
+➜  Checking app gateway ...
+⏳ Checking for azure policies in Vwan24RG ...
+Done!
+```
 
-   ```sh
-   az group delete -g Hs11RG --no-wait
-   ```
+</details>
+<p>
 
-4. Delete terraform state files and other generated files.
+3\. Delete the resource group to remove all resources installed.
 
-   ```sh
-   rm -rf .terraform*
-   rm terraform.tfstate*
-   ```
+```sh
+az group delete -g Hs11RG --no-wait
+```
+
+4\. Delete terraform state files and other generated files.
+
+```sh
+rm -rf .terraform*
+rm terraform.tfstate*
+```

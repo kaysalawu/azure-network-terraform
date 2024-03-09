@@ -146,8 +146,7 @@ locals {
       { prefix = "${module.vhub2.vpngw_bgp_ip0}/32", next_hop = "vti0" },
       { prefix = "${module.vhub2.vpngw_bgp_ip1}/32", next_hop = "vti1" },
       { prefix = "${local.branch1_nva_loopback0}/32", next_hop = "vti2" },
-      { prefix = local.branch3_address_space[0], next_hop = local.branch3_untrust_default_gw },
-      { prefix = local.branch3_address_space[1], next_hop = local.branch3_untrust_default_gw },
+      { prefix = local.branch3_subnets["MainSubnet"].address_prefixes[0], next_hop = local.branch3_untrust_default_gw },
     ]
     TUNNELS = [
       {
@@ -211,8 +210,7 @@ locals {
       },
     ]
     BGP_ADVERTISED_PREFIXES = [
-      local.branch3_address_space[0],
-      local.branch3_address_space[1],
+      local.branch3_subnets["MainSubnet"].address_prefixes[0],
     ]
   }
   branch3_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.branch3_nva_vars, {
