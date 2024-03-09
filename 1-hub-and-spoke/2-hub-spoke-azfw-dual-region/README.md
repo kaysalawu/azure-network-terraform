@@ -141,7 +141,9 @@ This script pings the IP addresses of some test virtual machines and reports rea
 ping-ip
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 azureuser@spoke1Vm:~$ ping-ip
@@ -159,6 +161,9 @@ spoke5  - 10.5.0.5 -OK 69.903 ms
 internet - icanhazip.com -NA
 ```
 
+</details>
+<p>
+
 ### 2. Ping DNS
 
 This script pings the DNS name of some test virtual machines and reports reachability and round trip time. This tests hybrid DNS resolution between on-premises and Azure.
@@ -169,7 +174,9 @@ This script pings the DNS name of some test virtual machines and reports reachab
 ping-dns
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 azureuser@spoke1Vm:~$ ping-dns
@@ -187,6 +194,9 @@ spoke5vm.us.az.corp - 10.5.0.5 -OK 71.173 ms
 icanhazip.com - 104.16.184.241 -NA
 ```
 
+</details>
+<p>
+
 ### 3. Curl DNS
 
 This script uses curl to check reachability of web server (python Flask) on the test virtual machines. It reports HTTP response message, round trip time and IP address.
@@ -197,7 +207,9 @@ This script uses curl to check reachability of web server (python Flask) on the 
 curl-dns
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 azureuser@spoke1Vm:~$ curl-dns
@@ -219,6 +231,9 @@ azureuser@spoke1Vm:~$ curl-dns
 200 (0.297084s) - 10.22.7.99 - https://hs12spoke6saebbb.blob.core.windows.net/spoke6/spoke6.txt
 ```
 
+</details>
+<p>
+
 ### 4. Private Link Service
 
 **4.1.** Test access to ***spoke3*** web application using the private endpoint in ***hub1***.
@@ -227,7 +242,9 @@ azureuser@spoke1Vm:~$ curl-dns
 curl spoke3pls.eu.az.corp
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 azureuser@spoke1Vm:~$ curl spoke3pls.eu.az.corp
@@ -243,13 +260,18 @@ azureuser@spoke1Vm:~$ curl spoke3pls.eu.az.corp
 }
 ```
 
+</details>
+<p>
+
 **4.2.** Test access to ***spoke6*** web application using the private endpoint in ***hub2***.
 
 ```sh
 curl spoke6pls.us.az.corp
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 azureuser@spoke1Vm:~$ curl spoke6pls.us.az.corp
@@ -264,6 +286,9 @@ azureuser@spoke1Vm:~$ curl spoke6pls.us.az.corp
   "Remote-IP": "10.6.6.4"
 }
 ```
+
+</details>
+<p>
 
 The `Hostname` and `Local-IP` fields identify the backend web servers - in this case `spoke3Vm` and `spoke6Vm` virtual machines. The `Remote-IP` fields (as seen by the web servers) are IP addresses in the Private Link Service NAT subnets in ***spoke3*** and ***spoke6*** Vnets respectively.
 
@@ -289,7 +314,7 @@ echo -e "\n$spoke3_sgtacct_host\n" && echo
 
 <details>
 
-<summary>Sample ouput</summary>
+<summary>Sample output</summary>
 
 ```sh
 hs12spoke3saebbb.blob.core.windows.net
@@ -306,7 +331,7 @@ nslookup $spoke3_sgtacct_host
 
 <details>
 
-<summary>Sample ouput</summary>
+<summary>Sample output</summary>
 
 ```sh
 2-hub-spoke-azfw-dual-region$ nslookup $spoke3_sgtacct_host
@@ -331,11 +356,16 @@ We can see that the endpoint is a public IP address, **20.60.145.164**. We can s
 curl $spoke3_blob_url && echo
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 Hello, World!
 ```
+
+</details>
+<p>
 
 ### 6. Private Link Access to Storage Account from On-premises
 
@@ -353,7 +383,7 @@ az login --identity
 
 <details>
 
-<summary>Sample ouput</summary>
+<summary>Sample output</summary>
 
 ```json
 azureuser@branch1Vm:~$ az login --identity
@@ -394,11 +424,16 @@ spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
 echo -e "\n$spoke3_sgtacct_host\n" && echo
 ```
 
-Sample output (your result will be different)
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 hs12spoke3saebbb.blob.core.windows.net
 ```
+
+</details>
+<p>
 
 **6.4.** Resolve the storage account DNS name
 
@@ -406,7 +441,9 @@ hs12spoke3saebbb.blob.core.windows.net
 nslookup $spoke3_sgtacct_host
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 azureuser@branch1Vm:~$ echo -e "\n$spoke3_sgtacct_host\n" && echo
@@ -423,6 +460,9 @@ hs12spoke3saebbb.blob.core.windows.net  canonical name = hs12spoke3saebbb.privat
 Name:   hs12spoke3saebbb.privatelink.blob.core.windows.net
 Address: 10.11.7.99
 ```
+
+</details>
+<p>
 
 We can see that the storage account hostname resolves to the private endpoint ***10.11.7.99*** in ***hub1***. The following is a summary of the DNS resolution from `Hs12-branch1Vm`:
 
@@ -446,11 +486,16 @@ We can see that the storage account hostname resolves to the private endpoint **
 curl $spoke3_blob_url && echo
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 Hello, World!
 ```
+
+</details>
+<p>
 
 ### 7. Azure Firewall (Optional)
 
@@ -488,7 +533,9 @@ Observe the firewall logs based on traffic flows generated from our tests.
 sudo vtysh
 ```
 
-sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 azureuser@branch1Nva:~$ sudo vtysh
@@ -496,6 +543,9 @@ azureuser@branch1Nva:~$ sudo vtysh
 Hello, this is FRRouting (version 7.2.1).
 Copyright 1996-2005 Kunihiro Ishiguro, et al.
 ```
+
+</details>
+<p>
 
 **8.3.** Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
 
@@ -505,16 +555,9 @@ show ip route
 
 <details>
 
-<summary>Sample ouput</summary>
+<summary>Sample output</summary>
 
 ```sh
-branch1Nva# show ip route
-...
-azureuser@branch1Nva:~$ sudo vtysh
-
-Hello, this is FRRouting (version 7.2.1).
-Copyright 1996-2005 Kunihiro Ishiguro, et al.
-
 branch1Nva# show ip route
 Codes: K - kernel route, C - connected, S - static, R - RIP,
        O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
@@ -568,7 +611,7 @@ show ip bgp
 
 <details>
 
-<summary>Sample ouput</summary>
+<summary>Sample output</summary>
 
 ```sh
 branch1Nva# show ip bgp
@@ -619,7 +662,7 @@ bash ../../scripts/_cleanup.sh Hs12
 
 <details>
 
-<summary>Sample ouput</summary>
+<summary>Sample output</summary>
 
 ```sh
 2-hub-spoke-azfw-dual-region$    bash ../../scripts/_cleanup.sh Hs12

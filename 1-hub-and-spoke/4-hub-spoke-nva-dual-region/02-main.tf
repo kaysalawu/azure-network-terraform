@@ -5,7 +5,7 @@
 locals {
   prefix                      = "Hs14"
   enable_diagnostics          = false
-  create_onprem_branch_links  = true
+  enable_onprem_wan_link      = true
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke6_storage_account_name = lower(replace("${local.spoke6_prefix}sa${random_id.random.hex}", "-", ""))
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
@@ -533,37 +533,67 @@ module "fw_policy_rule_collection_group" {
 # hub1
 
 locals {
-  hub1_router_route_map_name_nh = "NEXT-HOP"
+  hub1_nva_route_map_onprem      = "ONPREM"
+  hub1_nva_route_map_azure       = "AZURE"
+  hub1_nva_route_map_block_azure = "BLOCK_HUB_GW_SUBNET"
   hub1_nva_vars = {
     LOCAL_ASN = local.hub1_nva_asn
+    LOOPBACK0 = local.hub1_nva_loopback0
+    LOOPBACKS = []
+
+    PREFIX_LISTS            = []
+    ROUTE_MAPS              = []
+    STATIC_ROUTES           = []
+    BGP_SESSIONS            = []
+    BGP_ADVERTISED_PREFIXES = []
   }
   hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
-    TARGETS           = local.vm_script_targets
-    IPTABLES_RULES    = []
-    ROUTE_MAPS        = []
-    TUNNELS           = []
-    QUAGGA_ZEBRA_CONF = ""
-    QUAGGA_BGPD_CONF  = ""
-    }
-  ))
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = []
+    TARGETS_HEAVY_TRAFFIC_GEN = []
+    ENABLE_TRAFFIC_GEN        = false
+
+    IPTABLES_RULES           = []
+    ROUTE_MAPS               = []
+    TUNNELS                  = []
+    FRR_CONF                 = ""
+    STRONGSWAN_VTI_SCRIPT    = ""
+    STRONGSWAN_IPSEC_SECRETS = ""
+    STRONGSWAN_IPSEC_CONF    = ""
+  }))
 }
 
 # hub2
 
 locals {
-  hub2_router_route_map_name_nh = "NEXT-HOP"
+  hub2_nva_route_map_onprem      = "ONPREM"
+  hub2_nva_route_map_azure       = "AZURE"
+  hub2_nva_route_map_block_azure = "BLOCK_HUB_GW_SUBNET"
   hub2_nva_vars = {
     LOCAL_ASN = local.hub2_nva_asn
+    LOOPBACK0 = local.hub2_nva_loopback0
+    LOOPBACKS = []
+
+    PREFIX_LISTS            = []
+    ROUTE_MAPS              = []
+    STATIC_ROUTES           = []
+    BGP_SESSIONS            = []
+    BGP_ADVERTISED_PREFIXES = []
   }
   hub2_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub2_nva_vars, {
-    TARGETS           = local.vm_script_targets
-    IPTABLES_RULES    = []
-    ROUTE_MAPS        = []
-    TUNNELS           = []
-    QUAGGA_ZEBRA_CONF = ""
-    QUAGGA_BGPD_CONF  = ""
-    }
-  ))
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = []
+    TARGETS_HEAVY_TRAFFIC_GEN = []
+    ENABLE_TRAFFIC_GEN        = false
+
+    IPTABLES_RULES           = []
+    ROUTE_MAPS               = []
+    TUNNELS                  = []
+    FRR_CONF                 = ""
+    STRONGSWAN_VTI_SCRIPT    = ""
+    STRONGSWAN_IPSEC_SECRETS = ""
+    STRONGSWAN_IPSEC_CONF    = ""
+  }))
 }
 
 ####################################################
@@ -572,9 +602,9 @@ locals {
 
 locals {
   main_files = {
+    "output/server.sh"         = local.vm_startup
     "output/hub1-linux-nva.sh" = local.hub1_linux_nva_init
     "output/hub2-linux-nva.sh" = local.hub2_linux_nva_init
-    "output/server.sh"         = local.vm_startup
   }
 }
 
