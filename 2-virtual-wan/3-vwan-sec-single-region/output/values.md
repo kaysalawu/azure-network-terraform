@@ -26,7 +26,7 @@
 | PRIVATELINK_SERVICE_ENDPOINT_DNS   | spoke3pls.hub1.az.corp   |
 | PRIVATELINK_SERVICE_ENDPOINT_IP   | 10.11.7.88   |
 | PRIVATE_DNS_INBOUND_IP   | 10.11.8.4   |
-| SPOKE3_BLOB_URL (Sample)   | https://vwan23spoke3sa9b96.blob.core.windows.net/spoke3/spoke3.txt   |
+| SPOKE3_BLOB_URL (Sample)   | https://vwan23spoke3sa2bc7.blob.core.windows.net/spoke3/spoke3.txt   |
 | *Subnets*|        |
 | AppGatewaySubnet   | 10.11.4.0/24   |
 | AppServiceSubnet   | 10.11.13.0/24   |

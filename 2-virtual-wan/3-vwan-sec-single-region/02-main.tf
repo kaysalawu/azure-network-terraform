@@ -390,73 +390,62 @@ module "fw_policy_rule_collection_group" {
 # hub1
 
 locals {
-  hub1_router_route_map_name_nh = "NEXT-HOP"
+  hub1_nva_route_map_onprem      = "ONPREM"
+  hub1_nva_route_map_azure       = "AZURE"
+  hub1_nva_route_map_block_azure = "BLOCK_HUB_GW_SUBNET"
   hub1_nva_vars = {
     LOCAL_ASN = local.hub1_nva_asn
-  }
-  hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
-    TARGETS        = local.vm_script_targets
-    IPTABLES_RULES = []
+    LOOPBACK0 = local.hub1_nva_loopback0
+    LOOPBACKS = []
+
+    PREFIX_LISTS = [
+      # "ip prefix-list ${local.hub1_nva_route_map_block_azure} deny ${local.hub1_subnets["GatewaySubnet"].address_prefixes[0]}",
+      # "ip prefix-list ${local.hub1_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
+    ]
+
     ROUTE_MAPS = [
-      {
-        name   = local.hub1_router_route_map_name_nh
-        action = "permit"
-        rule   = 100
-        commands = [
-          # "match ip address prefix-list all",
-          # "set ip next-hop ${local.hub1_nva_ilb_trust_addr}"
-        ]
-      }
+      # "match ip address prefix-list all",
+      # "set ip next-hop ${local.hub1_nva_ilb_trust_addr}"
+    ]
+    STATIC_ROUTES = [
+      { prefix = "0.0.0.0/0", next_hop = local.hub1_default_gw_nva },
+      { prefix = "${module.vhub1.router_bgp_ip0}/32", next_hop = local.hub1_default_gw_nva },
+      { prefix = "${module.vhub1.router_bgp_ip1}/32", next_hop = local.hub1_default_gw_nva },
+      { prefix = local.spoke2_address_space[0], next_hop = local.hub1_default_gw_nva },
     ]
     TUNNELS = []
-    QUAGGA_ZEBRA_CONF = templatefile("../../scripts/quagga/zebra.conf", merge(
-      local.hub1_nva_vars,
+    BGP_SESSIONS = [
       {
-        INTERFACE = "eth0"
-        STATIC_ROUTES = [
-          { prefix = "0.0.0.0/0", next_hop = local.hub1_default_gw_nva },
-          { prefix = "${module.vhub1.router_bgp_ip0}/32", next_hop = local.hub1_default_gw_nva },
-          { prefix = "${module.vhub1.router_bgp_ip1}/32", next_hop = local.hub1_default_gw_nva },
-          { prefix = local.spoke2_address_space[0], next_hop = local.hub1_default_gw_nva },
-        ]
-      }
-    ))
-    QUAGGA_BGPD_CONF = templatefile("../../scripts/quagga/bgpd.conf", merge(
-      local.hub1_nva_vars,
+        peer_asn        = module.vhub1.bgp_asn
+        peer_ip         = module.vhub1.router_bgp_ip0
+        ebgp_multihop   = true
+        source_loopback = true
+        route_maps      = []
+      },
       {
-        BGP_SESSIONS = [
-          {
-            peer_asn      = local.vhub1_bgp_asn
-            peer_ip       = module.vhub1.router_bgp_ip0
-            ebgp_multihop = true
-            route_maps = [
-              # {
-              #   name      = local.hub1_router_route_map_name_nh
-              #   direction = "out"
-              # }
-            ]
-          },
-          {
-            peer_asn      = local.vhub1_bgp_asn
-            peer_ip       = module.vhub1.router_bgp_ip1
-            ebgp_multihop = true
-            route_maps = [
-              # {
-              #   name      = local.hub1_router_route_map_name_nh
-              #   direction = "out"
-              # }
-            ]
-          },
-        ]
-        BGP_ADVERTISED_PREFIXES = [
-          local.hub1_subnets["MainSubnet"].address_prefixes[0],
-          local.spoke2_address_space[0],
-          #"${local.spoke6_vm_public_ip}/32"
-        ]
-      }
-    ))
-    }
-  ))
+        peer_asn        = module.vhub1.bgp_asn
+        peer_ip         = module.vhub1.router_bgp_ip1
+        ebgp_multihop   = true
+        source_loopback = true
+        route_maps      = []
+      },
+    ]
+    BGP_ADVERTISED_PREFIXES = [
+      local.hub1_subnets["MainSubnet"].address_prefixes[0],
+      local.spoke2_address_space[0],
+    ]
+  }
+  hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = []
+    TARGETS_HEAVY_TRAFFIC_GEN = []
+    ENABLE_TRAFFIC_GEN        = false
+    IPTABLES_RULES            = []
+    FRR_CONF                  = templatefile("../../scripts/frr/frr.conf", merge(local.hub1_nva_vars, {}))
+    STRONGSWAN_VTI_SCRIPT     = ""
+    STRONGSWAN_IPSEC_SECRETS  = ""
+    STRONGSWAN_IPSEC_CONF     = ""
+  }))
 }
 
 ####################################################
@@ -465,8 +454,8 @@ locals {
 
 locals {
   main_files = {
-    "output/hub1-linux-nva.sh" = local.hub1_linux_nva_init
     "output/server.sh"         = local.vm_startup
+    "output/hub1-linux-nva.sh" = local.hub1_linux_nva_init
   }
 }
 

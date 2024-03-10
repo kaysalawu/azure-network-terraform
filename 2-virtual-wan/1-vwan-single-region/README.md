@@ -15,8 +15,8 @@ Contents
   - [2. Ping DNS](#2-ping-dns)
   - [3. Curl DNS](#3-curl-dns)
   - [4. Private Link Service](#4-private-link-service)
-  - [5. Private Link (Storage Account) Access from Public Client](#5-private-link-storage-account-access-from-public-client)
-  - [6. Private Link (Storage Account) Access from On-premises](#6-private-link-storage-account-access-from-on-premises)
+  - [5. Private Link Access to Storage Account](#5-private-link-access-to-storage-account)
+  - [6. Private Link Access to Storage Account from On-premises](#6-private-link-access-to-storage-account-from-on-premises)
   - [7. Virtual WAN Routes](#7-virtual-wan-routes)
   - [8. On-premises Routes](#8-on-premises-routes)
 - [Cleanup](#cleanup)
@@ -27,11 +27,11 @@ This lab deploys a single-region Virtual WAN (Vwan) topology. The lab demonstrat
 
 <img src="../../images/scenarios/2-1-vwan-single-region.png" alt="Virtual WAN - Single Region" width="500">
 
-Standard Virtual Network (Vnet) hub, ***hub1*** connects to Vwan hub ***vHub1***. ***Spoke1*** is connected directly to the Vwan hub. ***Spoke2*** is an indirect spoke from a Vwan perspective; and is connected to the standard Vnet hub. ***Spoke2*** uses the Network Virtual Appliance (NVA) in the Vnet hub as the next hop for traffic to all destinations.
+Standard Virtual Network (Vnet) hub, ***hub1*** connects to Vwan hub ***vHub1***. ***Spoke1*** is connected directly to the Vwan hub. ***Spoke2*** is an indirect spoke from a Vwan perspective; and is connected to the standard Vnet hub. ***Spoke2*** uses the Network Virtual Appliance (NVA) in ***hub1*** as the next hop to all destinations.
 
-The isolated spoke (***spoke3***) does not have Vnet peering to the Vnet hub, but is reachable via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) endpoints in the hub.
+The isolated spoke (***spoke3***) does not have Vnet peering to ***hub1***, but is reachable via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) endpoints in the hub.
 
-***Branch1*** is an on-premises network simulated in a Vnet. A Multi-NIC Cisco-CSR-1000V Network Virtual Appliance (NVA) connects to the ***hub1*** using an IPsec VPN with dynamic (BGP) routing.
+***Branch1*** is our on-premises network simulated in a Vnet. A Multi-NIC Cisco-CSR-1000V Network Virtual Appliance (NVA) connects to the ***hub1*** using an IPsec VPN connection with dynamic (BGP) routing.
 
 ## Prerequisites
 
@@ -78,9 +78,11 @@ The table below shows the auto-generated output files from the lab. They are loc
 
 ## Dashboards (Optional)
 
-This lab contains a number of pre-configured dashboards for monitoring gateways, VPN gateways, and Azure Firewall.
+This lab contains a number of pre-configured dashboards for monitoring gateways, VPN gateways, and Azure Firewall. To deploy the dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf) file. Then run `terraform apply` to update the deployment.
 
-To deploy the dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment.
+<details>
+
+<summary>Sample Dashboards</summary>
 
 To view the dashboards, follow the steps below:
 
@@ -97,6 +99,9 @@ To view the dashboards, follow the steps below:
    Sample dashboard for VPN gateway in ***hub1***.
 
     <img src="../../images/demos/virtual-wan/vwan21-vhub1-vpngw-db.png" alt="Go to dashboard" width="900">
+
+</details>
+<p>
 
 ## Testing
 
@@ -124,19 +129,24 @@ This script pings the IP addresses of some test virtual machines and reports rea
 ping-ip
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 azureuser@spoke1Vm:~$ ping-ip
 
  ping ip ...
 
-branch1 - 10.10.0.5 -OK 44.384 ms
-hub1    - 10.11.0.5 -OK 3.693 ms
-spoke1  - 10.1.0.5 -OK 0.027 ms
-spoke2  - 10.2.0.5 -OK 4.098 ms
+branch1 - 10.10.0.5 -OK 4.463 ms
+hub1    - 10.11.0.5 -OK 4.270 ms
+spoke1  - 10.1.0.5 -OK 0.028 ms
+spoke2  - 10.2.0.5 -OK 6.140 ms
 internet - icanhazip.com -NA
 ```
+
+</details>
+<p>
 
 ### 2. Ping DNS
 
@@ -148,19 +158,24 @@ This script pings the DNS name of some test virtual machines and reports reachab
 ping-dns
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 azureuser@spoke1Vm:~$ ping-dns
 
  ping dns ...
 
-branch1vm.corp - 10.10.0.5 -OK 49.738 ms
-hub1vm.eu.az.corp - 10.11.0.5 -OK 6.099 ms
-spoke1vm.eu.az.corp - 10.1.0.5 -OK 0.040 ms
-spoke2vm.eu.az.corp - 10.2.0.5 -OK 4.518 ms
-icanhazip.com - 104.18.115.97 -NA
+branch1vm.corp - 10.10.0.5 -OK 3.810 ms
+hub1vm.eu.az.corp - 10.11.0.5 -OK 3.629 ms
+spoke1vm.eu.az.corp - 10.1.0.5 -OK 0.034 ms
+spoke2vm.eu.az.corp - 10.2.0.5 -OK 4.046 ms
+icanhazip.com - 104.16.185.241 -NA
 ```
+
+</details>
+<p>
 
 ### 3. Curl DNS
 
@@ -172,21 +187,26 @@ This script uses curl to check reachability of web server (python Flask) on the 
 curl-dns
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 azureuser@spoke1Vm:~$ curl-dns
 
  curl dns ...
 
-200 (0.021143s) - 10.10.0.5 - branch1vm.corp
-200 (0.022688s) - 10.11.0.5 - hub1vm.eu.az.corp
-200 (0.016064s) - 10.11.7.88 - spoke3pls.eu.az.corp
-200 (0.007853s) - 10.1.0.5 - spoke1vm.eu.az.corp
-200 (0.018926s) - 10.2.0.5 - spoke2vm.eu.az.corp
-200 (0.042289s) - 104.18.115.97 - icanhazip.com
-200 (0.031905s) - 10.11.7.99 - https://vwan21spoke3sa754d.blob.core.windows.net/spoke3/spoke3.txt
+200 (0.034730s) - 10.10.0.5 - branch1vm.corp
+200 (0.021355s) - 10.11.0.5 - hub1vm.eu.az.corp
+200 (0.027289s) - 10.11.7.88 - spoke3pls.eu.az.corp
+200 (0.011870s) - 10.1.0.5 - spoke1vm.eu.az.corp
+200 (0.020289s) - 10.2.0.5 - spoke2vm.eu.az.corp
+200 (0.015515s) - 104.16.184.241 - icanhazip.com
+200 (0.033726s) - 10.11.7.99 - https://vwan21spoke3sa56e2.blob.core.windows.net/spoke3/spoke3.txt
 ```
+
+</details>
+<p>
 
 ### 4. Private Link Service
 
@@ -196,9 +216,11 @@ azureuser@spoke1Vm:~$ curl-dns
 curl spoke3pls.eu.az.corp
 ```
 
-Sample output
+<details>
 
-```sh
+<summary>Sample output</summary>
+
+```json
 azureuser@spoke1Vm:~$ curl spoke3pls.eu.az.corp
 {
   "Headers": {
@@ -212,9 +234,12 @@ azureuser@spoke1Vm:~$ curl spoke3pls.eu.az.corp
 }
 ```
 
+</details>
+<p>
+
 The `Hostname` and `Local-IP` fields identify the target web server - in this case ***spoke3*** virtual machine. The `Remote-IP` field (as seen by the web server) is an IP address in the Private Link Service NAT subnet in ***spoke3***.
 
-### 5. Private Link (Storage Account) Access from Public Client
+### 5. Private Link Access to Storage Account
 
 A storage account with a container blob deployed and accessible via private endpoints in ***hub1***. The storage accounts have the following naming convention:
 
@@ -233,11 +258,16 @@ spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
 echo -e "\n$spoke3_sgtacct_host\n" && echo
 ```
 
-Sample output (your result will be different)
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
-vwan21spoke3sa754d.blob.core.windows.net
+vwan21spoke3sa56e2.blob.core.windows.net
 ```
+
+</details>
+<p>
 
 **5.2.** Resolve the hostname
 
@@ -245,21 +275,26 @@ vwan21spoke3sa754d.blob.core.windows.net
 nslookup $spoke3_sgtacct_host
 ```
 
-Sample output (your result will be different)
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
-3-vwan-sec-single-region$ nslookup $spoke3_sgtacct_host
+1-vwan-single-region$ nslookup $spoke3_sgtacct_host
 Server:         8.8.8.8
 Address:        8.8.8.8#53
 
 Non-authoritative answer:
-vwan21spoke3sa754d.blob.core.windows.net        canonical name = vwan21spoke3sa754d.privatelink.blob.core.windows.net.
-vwan21spoke3sa754d.privatelink.blob.core.windows.net    canonical name = blob.db3prdstr16a.store.core.windows.net.
-Name:   blob.db3prdstr16a.store.core.windows.net
-Address: 20.150.47.132
+vwan21spoke3sa56e2.blob.core.windows.net        canonical name = vwan21spoke3sa56e2.privatelink.blob.core.windows.net.
+vwan21spoke3sa56e2.privatelink.blob.core.windows.net    canonical name = blob.db4prdstr23a.store.core.windows.net.
+Name:   blob.db4prdstr23a.store.core.windows.net
+Address: 20.60.204.1
 ```
 
-We can see that the endpoint is a public IP address, ***20.150.47.132***. We can see the CNAME `vwan21spoke3sa754d.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
+</details>
+<p>
+
+We can see that the endpoint is a public IP address, ***20.60.204.1***. We can see the CNAME `vwan21spoke3sa56e2.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
 
 **5.3.** Test access to the storage account blob.
 
@@ -267,13 +302,18 @@ We can see that the endpoint is a public IP address, ***20.150.47.132***. We can
 curl $spoke3_blob_url && echo
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 Hello, World!
 ```
 
-### 6. Private Link (Storage Account) Access from On-premises
+</details>
+<p>
+
+### 6. Private Link Access to Storage Account from On-premises
 
 **6.1** Login to on-premises virtual machine `Vwan21-branch1Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
   - username = ***azureuser***
@@ -287,6 +327,38 @@ Hello, World!
 az login --identity
 ```
 
+<details>
+
+<summary>Sample output</summary>
+
+```json
+azureuser@branch1Vm:~$ az login --identity
+[
+  {
+    "environmentName": "AzureCloud",
+    "homeTenantId": "aaa-bbb-ccc-ddd-eee",
+    "id": "xxx-yyy-1234-1234-1234",
+    "isDefault": true,
+    "managedByTenants": [
+      {
+        "tenantId": "your-tenet-id"
+      }
+    ],
+    "name": "some-random-name",
+    "state": "Enabled",
+    "tenantId": "your-tenet-id",
+    "user": {
+      "assignedIdentityInfo": "MSI",
+      "name": "systemAssignedIdentity",
+      "type": "servicePrincipal"
+    }
+  }
+]
+```
+
+</details>
+<p>
+
 **6.3.** Get the storage account hostname and blob URL.
 
 ```sh
@@ -298,11 +370,16 @@ spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
 echo -e "\n$spoke3_sgtacct_host\n" && echo
 ```
 
-Sample output (your result will be different)
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
-vwan21spoke3sa754d.blob.core.windows.net
+vwan21spoke3sa56e2.blob.core.windows.net
 ```
+
+</details>
+<p>
 
 **6.4.** Resolve the storage account DNS name
 
@@ -310,7 +387,9 @@ vwan21spoke3sa754d.blob.core.windows.net
 nslookup $spoke3_sgtacct_host
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 azureuser@branch1Vm:~$ nslookup $spoke3_sgtacct_host
@@ -318,16 +397,19 @@ Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-vwan21spoke3sa754d.blob.core.windows.net        canonical name = vwan21spoke3sa754d.privatelink.blob.core.windows.net.
-Name:   vwan21spoke3sa754d.privatelink.blob.core.windows.net
+vwan21spoke3sa56e2.blob.core.windows.net        canonical name = vwan21spoke3sa56e2.privatelink.blob.core.windows.net.
+Name:   vwan21spoke3sa56e2.privatelink.blob.core.windows.net
 Address: 10.11.7.99
 ```
 
+</details>
+<p>
+
 We can see that the storage account hostname resolves to the private endpoint ***10.11.7.99*** in ***hub1***. The following is a summary of the DNS resolution from `Vwan21-branch1Vm`:
 
-- On-premises server `Vwan21-branch1Vm` makes a DNS request for `vwan21spoke3sa754d.blob.core.windows.net`
+- On-premises server `Vwan21-branch1Vm` makes a DNS request for `vwan21spoke3sa56e2.blob.core.windows.net`
 - The request is received by on-premises DNS server `Vwan21-branch1-dns`
-- The DNS server resolves `vwan21spoke3sa754d.blob.core.windows.net` to the CNAME `vwan21spoke3sa754d.privatelink.blob.core.windows.net`
+- The DNS server resolves `vwan21spoke3sa56e2.blob.core.windows.net` to the CNAME `vwan21spoke3sa56e2.privatelink.blob.core.windows.net`
 - The DNS server has a conditional DNS forwarding defined in the branch1 unbound DNS configuration file, [output/branch1Dns.sh](./output/branch1Dns.sh).
 
   ```sh
@@ -345,25 +427,38 @@ We can see that the storage account hostname resolves to the private endpoint **
 curl $spoke3_blob_url && echo
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 Hello, World!
 ```
 
+</details>
+<p>
+
 ### 7. Virtual WAN Routes
 
 **7.1.** Switch back to the lab directory `azure-network-terraform/2-virtual-wan/1-vwan-single-region`
 
-**7.2.** Display the virtual WAN routing table(s)
+**7.2.** Display the virtual WAN routing tables
 
 ```sh
 bash ../../scripts/_routes_vwan.sh Vwan21RG
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
+1-vwan-single-region$ bash ../../scripts/_routes_vwan.sh Vwan21RG^C
+1-vwan-single-region$
+1-vwan-single-region$
+1-vwan-single-region$
+1-vwan-single-region$
+1-vwan-single-region$
 1-vwan-single-region$ bash ../../scripts/_routes_vwan.sh Vwan21RG
 
 Resource group: Vwan21RG
@@ -372,14 +467,17 @@ vHub:       Vwan21-vhub1-hub
 RouteTable: defaultRouteTable
 -------------------------------------------------------
 
-AddressPrefixes    NextHopType                 AsPath
------------------  --------------------------  --------
-10.1.0.0/20        Virtual Network Connection
-10.11.0.0/20       Virtual Network Connection
-10.11.16.0/20      Virtual Network Connection
-10.2.0.0/20        HubBgpConnection            65010
-10.10.0.0/24       VPN_S2S_Gateway             65001
+AddressPrefixes    AsPath    NextHopType
+-----------------  --------  --------------------------
+10.10.0.0/24       65001     VPN_S2S_Gateway
+10.11.0.0/20                 Virtual Network Connection
+10.11.16.0/20                Virtual Network Connection
+10.1.0.0/20                  Virtual Network Connection
+10.2.0.0/20        65010     HubBgpConnection
 ```
+
+</details>
+<p>
 
 ### 8. On-premises Routes
 
@@ -387,129 +485,160 @@ AddressPrefixes    NextHopType                 AsPath
   - username = ***azureuser***
   - password = ***Password123***
 
-**8.2.** Enter the Cisco ***enable*** mode
+**8.2.** Enter the VTY shell for the FRRouting daemon.
 
 ```sh
-enable
+sudo vtysh
 ```
 
-**8.4.** Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
+<details>
+
+<summary>Sample output</summary>
+
+```sh
+azureuser@branch1Nva:~$ sudo vtysh
+
+Hello, this is FRRouting (version 7.2.1).
+Copyright 1996-2005 Kunihiro Ishiguro, et al.
+```
+
+</details>
+<p>
+
+**8.3.** Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
 
 ```sh
 show ip route
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
 branch1Nva# show ip route
-...
-Gateway of last resort is 10.10.1.1 to network 0.0.0.0
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, D - SHARP,
+       F - PBR, f - OpenFabric,
+       > - selected route, * - FIB route, q - queued route, r - rejected route
 
-S*    0.0.0.0/0 [1/0] via 10.10.1.1
-      10.0.0.0/8 is variably subnetted, 13 subnets, 4 masks
-B        10.1.0.0/20 [20/0] via 192.168.11.12, 07:55:54
-B        10.2.0.0/20 [20/0] via 192.168.11.12, 07:55:54
-S        10.10.0.0/24 [1/0] via 10.10.2.1
-C        10.10.1.0/24 is directly connected, GigabitEthernet1
-L        10.10.1.9/32 is directly connected, GigabitEthernet1
-C        10.10.2.0/24 is directly connected, GigabitEthernet2
-L        10.10.2.9/32 is directly connected, GigabitEthernet2
-C        10.10.10.0/30 is directly connected, Tunnel0
-L        10.10.10.1/32 is directly connected, Tunnel0
-C        10.10.10.4/30 is directly connected, Tunnel1
-L        10.10.10.5/32 is directly connected, Tunnel1
-B        10.11.0.0/20 [20/0] via 192.168.11.12, 07:55:54
-B        10.11.16.0/20 [20/0] via 192.168.11.12, 07:55:54
-      168.63.0.0/32 is subnetted, 1 subnets
-S        168.63.129.16 [254/0] via 10.10.1.1
-      169.254.0.0/32 is subnetted, 1 subnets
-S        169.254.169.254 [254/0] via 10.10.1.1
-      192.168.10.0/32 is subnetted, 1 subnets
-C        192.168.10.10 is directly connected, Loopback0
-      192.168.11.0/24 is variably subnetted, 3 subnets, 2 masks
-B        192.168.11.0/24 [20/0] via 192.168.11.12, 07:55:54
-S        192.168.11.12/32 is directly connected, Tunnel0
-S        192.168.11.13/32 is directly connected, Tunnel1
+K>* 0.0.0.0/0 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 00:20:23
+B>  10.1.0.0/20 [20/0] via 192.168.11.12 (recursive), 00:18:57
+                         via 192.168.11.12, 00:18:57
+  *                      via 192.168.11.13, vti1, 00:18:57
+                       via 192.168.11.13, vti1, 00:18:57
+B>  10.2.0.0/20 [20/0] via 192.168.11.12 (recursive), 00:16:56
+                         via 192.168.11.12, 00:16:56
+  *                      via 192.168.11.13, vti1, 00:16:56
+                       via 192.168.11.13, vti1, 00:16:56
+S>* 10.10.0.0/24 [1/0] via 10.10.1.1, eth0, 00:20:23
+C>* 10.10.1.0/24 is directly connected, eth0, 00:20:23
+C>* 10.10.2.0/24 is directly connected, eth1, 00:20:23
+B>* 10.11.0.0/20 [20/0] via 192.168.11.12 inactive, 00:20:14
+  *                     via 192.168.11.13, vti1, 00:20:14
+B>* 10.11.16.0/20 [20/0] via 192.168.11.12 inactive, 00:20:14
+  *                      via 192.168.11.13, vti1, 00:20:14
+K>* 168.63.129.16/32 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 00:20:23
+K>* 169.254.169.254/32 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 00:20:23
+C>* 192.168.10.10/32 is directly connected, lo, 00:20:23
+B>* 192.168.11.0/24 [20/0] via 192.168.11.12 inactive, 00:20:14
+  *                        via 192.168.11.13, vti1, 00:20:14
+S   192.168.11.13/32 [1/0] is directly connected, vti1, 00:20:23
+C>* 192.168.11.13/32 is directly connected, vti1, 00:20:23
 ```
 
 We can see the Vnet ranges learned dynamically via BGP.
 
-**8.5.** Display BGP information by typing `show ip bgp` and pressing the space bar to show the complete output.
+</details>
+<p>
+
+**8.4.** Display BGP information by typing `show ip bgp` and pressing the space bar to show the complete output.
 
 ```sh
 show ip bgp
 ```
 
-Sample output
+<details>
+
+<summary>Sample output</summary>
 
 ```sh
-branch1Nva#show ip bgp
-BGP table version is 7, local router ID is 192.168.10.10
-Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
-              r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
-              x best-external, a additional-path, c RIB-compressed,
-              t secondary path, L long-lived-stale,
-Origin codes: i - IGP, e - EGP, ? - incomplete
-RPKI validation codes: V valid, I invalid, N Not found
+branch1Nva# show ip bgp
+BGP table version is 11, local router ID is 192.168.10.10, vrf id 0
+Default local pref 100, local AS 65001
+Status codes:  s suppressed, d damped, h history, * valid, > best, = multipath,
+               i internal, r RIB-failure, S Stale, R Removed
+Nexthop codes: @NNN nexthop's vrf id, < announce-nh-self
+Origin codes:  i - IGP, e - EGP, ? - incomplete
 
-     Network          Next Hop            Metric LocPrf Weight Path
- *>   10.1.0.0/20      192.168.11.12                          0 65515 i
- *                     192.168.11.13                          0 65515 i
- *>   10.2.0.0/20      192.168.11.12            0             0 65515 65010 i
- *                     192.168.11.13            0             0 65515 65010 i
- *>   10.10.0.0/24     10.10.2.1                0         32768 i
- *>   10.11.0.0/20     192.168.11.12                          0 65515 i
- *                     192.168.11.13                          0 65515 i
- *>   10.11.16.0/20    192.168.11.12                          0 65515 i
- *                     192.168.11.13                          0 65515 i
- *>   192.168.11.0     192.168.11.12                          0 65515 i
- *                     192.168.11.13                          0 65515 i
+   Network          Next Hop            Metric LocPrf Weight Path
+*= 10.1.0.0/20      192.168.11.12                          0 65515 i
+*>                  192.168.11.13                          0 65515 i
+*= 10.2.0.0/20      192.168.11.12            0             0 65515 65010 i
+*>                  192.168.11.13            0             0 65515 65010 i
+*> 10.10.0.0/24     0.0.0.0                  0         32768 i
+*> 10.11.0.0/20     192.168.11.12                          0 65515 i
+*=                  192.168.11.13                          0 65515 i
+*> 10.11.16.0/20    192.168.11.12                          0 65515 i
+*=                  192.168.11.13                          0 65515 i
+*> 192.168.11.0/24  192.168.11.12                          0 65515 i
+*=                  192.168.11.13                          0 65515 i
+
+Displayed  6 routes and 11 total paths
 ```
 
 We can see the hub and spoke Vnet ranges being learned dynamically in the BGP table.
 
+</details>
+<p>
+
 ## Cleanup
 
-1. (Optional) Navigate back to the lab directory (if you are not already there)
+1\. (Optional) Navigate back to the lab directory (if you are not already there)
 
-   ```sh
-   cd azure-network-terraform/2-virtual-wan/1-vwan-single-region
-   ```
+```sh
+cd azure-network-terraform/2-virtual-wan/1-vwan-single-region
+```
 
-2. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
+2\. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
-   ```sh
-   bash ../../scripts/_cleanup.sh Vwan21
-   ```
+```sh
+bash ../../scripts/_cleanup.sh Vwan21
+```
 
-   Sample output
+<details>
 
-   ```sh
-   1-vwan-single-region$ bash ../../scripts/_cleanup.sh Vwan21
+<summary>Sample output</summary>
 
-   Resource group: Vwan21RG
+```sh
+1-vwan-single-region$ bash ../../scripts/_cleanup.sh Vwan21
 
-   ⏳ Checking for diagnostic settings on resources in Vwan21RG ...
-   ➜  Checking firewall ...
-   ➜  Checking vnet gateway ...
-   ➜  Checking vpn gateway ...
-       ❌ Deleting: diag setting [Vwan21-vhub1-vpngw-diag] for vpn gateway [Vwan21-vhub1-vpngw] ...
-   ➜  Checking er gateway ...
-   ➜  Checking app gateway ...
-   ⏳ Checking for azure policies in Vwan21RG ...
-   Done!
-   ```
+Resource group: Vwan21RG
 
-3. Delete the resource group to remove all resources installed.
+⏳ Checking for diagnostic settings on resources in Vwan21RG ...
+➜  Checking firewall ...
+➜  Checking vnet gateway ...
+➜  Checking vpn gateway ...
+    ❌ Deleting: diag setting [Vwan21-vhub1-vpngw-diag] for vpn gateway [Vwan21-vhub1-vpngw] ...
+➜  Checking er gateway ...
+➜  Checking app gateway ...
+⏳ Checking for azure policies in Vwan21RG ...
+Done!
+```
 
-   ```sh
-   az group delete -g Vwan21RG --no-wait
-   ```
+</details>
+<p>
 
-4. Delete terraform state files and other generated files.
+3\. Delete the resource group to remove all resources installed.
 
-   ```sh
-   rm -rf .terraform*
-   rm terraform.tfstate*
-   ```
+```sh
+az group delete -g Vwan21RG --no-wait
+```
+
+4\. Delete terraform state files and other generated files.
+
+```sh
+rm -rf .terraform*
+rm terraform.tfstate*
+```
