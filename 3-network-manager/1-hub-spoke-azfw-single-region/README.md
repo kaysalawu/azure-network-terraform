@@ -25,9 +25,14 @@ Contents
 
 This lab deploys a single-region Hub and Spoke Secured Virtual Network (Vnet) topology using the [Azure Virtual Network Manager](https://learn.microsoft.com/en-us/azure/virtual-network-manager/concept-connectivity-configuration#hub-and-spoke-topology) (AVNM) service. Learn about traffic routing patterns, [hybrid DNS](https://learn.microsoft.com/en-us/azure/dns/private-resolver-hybrid-dns) resolution, firewall security policies, and [PrivateLink Services](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) access to IaaS, [PrivateLink](https://learn.microsoft.com/en-us/azure/private-link/private-link-overview) access to PaaS services.
 
-<img src="../../images/scenarios/3-1-hub-spoke-nm-azfw-single-region.png" alt="Secured Hub and Spoke (Single region)" width="600">
+<img src="../../images/scenarios/3-1-hub-spoke-nm-azfw-single-region.png" alt="Secured Hub and Spoke (Single region)" width="650">
 
-***Hub1*** is a Vnet hub that has an Azure firewall used for inspection of traffic between an on-premises branch and Vnet spokes. User-Defined Routes (UDR) are used to influence the hub Vnet data plane to route traffic between the branch and spokes via the firewall. An isolated spoke ***spoke3*** does not have Vnet peering to ***hub1***, but is reachable from the hub via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview). AVNM is used to create a hub and spoke topology that connects ***spoke1*** and ***spoke2*** to ***hub1***. The spokes are not directly connected to each other but use the hub Azure firewall for inter-spoke traffic.
+***Hub1*** is a Vnet hub that has an Azure firewall used for inspection of traffic between an on-premises branches and Vnets. [User-Defined Routes](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview#user-defined) (UDR) are used to influence the hub Vnet data plane to route traffic between the branches and spokes via the firewalls. An isolated spoke ***spoke3*** does not have Vnet peering to ***hub1***, but is reachable from the hub via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview).
+
+AVNM creates the hub and spoke topology using the following configuration flags:
+* **topology**: `HubAndSpoke`
+* **isGlobal**: `False` - this disables global mesh
+* **useHubGateway**: `True` - this enables Gateway transit via the hub
 
 ***Branch1*** is our on-premises network simulated in a Vnet. A Multi-NIC Linux Network Virtual Appliance (NVA) connects to the ***hub1*** using an IPsec VPN connection with dynamic (BGP) routing.
 
@@ -71,7 +76,6 @@ The table below shows the auto-generated output files from the lab. They are loc
 | Branch1 DNS | Authoritative DNS and forwarding | [output/branch1Dns.sh](./output/branch1Dns.sh) |
 | Branch1 NVA | Linux Strongswan + FRR configuration | [output/branch1Nva.sh](./output/branch1Nva.sh) |
 | Web server | Python Flask web server, test scripts | [output/server.sh](./output/server.sh) |
-| Azure policies | Virtual Network Manager network groups | [output/policies.json](./output/policies/pol-ng-spokes.json) |
 ||||
 
 ## Dashboards (Optional)
@@ -136,7 +140,15 @@ ping-ip
 <summary>Sample output</summary>
 
 ```sh
+azureuser@spoke1Vm:~$ ping-ip
 
+ ping ip ...
+
+branch1 - 10.10.0.5 -OK 4.234 ms
+hub1    - 10.11.0.5 -OK 3.709 ms
+spoke1  - 10.1.0.5 -OK 0.044 ms
+spoke2  - 10.2.0.5 -OK 3.414 ms
+internet - icanhazip.com -NA
 ```
 
 </details>
@@ -157,7 +169,15 @@ ping-dns
 <summary>Sample output</summary>
 
 ```sh
+azureuser@spoke1Vm:~$ ping-dns
 
+ ping dns ...
+
+branch1vm.corp - 10.10.0.5 -OK 6.052 ms
+hub1vm.eu.az.corp - 10.11.0.5 -OK 2.639 ms
+spoke1vm.eu.az.corp - 10.1.0.5 -OK 0.043 ms
+spoke2vm.eu.az.corp - 10.2.0.5 -OK 2.296 ms
+icanhazip.com - 104.16.185.241 -NA
 ```
 
 </details>
@@ -178,7 +198,17 @@ curl-dns
 <summary>Sample output</summary>
 
 ```sh
+azureuser@spoke1Vm:~$ curl-dns
 
+ curl dns ...
+
+200 (0.027626s) - 10.10.0.5 - branch1vm.corp
+200 (0.021978s) - 10.11.0.5 - hub1vm.eu.az.corp
+200 (0.026834s) - 10.11.7.88 - spoke3pls.eu.az.corp
+200 (0.013104s) - 10.1.0.5 - spoke1vm.eu.az.corp
+200 (0.023407s) - 10.2.0.5 - spoke2vm.eu.az.corp
+200 (0.013755s) - 104.16.184.241 - icanhazip.com
+200 (0.031215s) - 10.11.7.99 - https://ne31spoke3sa1830.blob.core.windows.net/spoke3/spoke3.txt
 ```
 
 </details>
@@ -197,7 +227,17 @@ curl spoke3pls.eu.az.corp
 <summary>Sample output</summary>
 
 ```json
-
+azureuser@spoke1Vm:~$ curl spoke3pls.eu.az.corp
+{
+  "Headers": {
+    "Accept": "*/*",
+    "Host": "spoke3pls.eu.az.corp",
+    "User-Agent": "curl/7.68.0"
+  },
+  "Hostname": "spoke3Vm",
+  "Local-IP": "10.3.0.5",
+  "Remote-IP": "10.3.6.4"
+}
 ```
 
 </details>
@@ -229,7 +269,7 @@ echo -e "\n$spoke3_sgtacct_host\n" && echo
 <summary>Sample output</summary>
 
 ```sh
-ne31spoke3sa4dd5.blob.core.windows.net
+ne31spoke3sa1830.blob.core.windows.net
 ```
 
 </details>
@@ -246,13 +286,21 @@ nslookup $spoke3_sgtacct_host
 <summary>Sample output</summary>
 
 ```sh
+1-hub-spoke-azfw-single-region$ nslookup $spoke3_sgtacct_host
+Server:         8.8.8.8
+Address:        8.8.8.8#53
 
+Non-authoritative answer:
+ne31spoke3sa1830.blob.core.windows.net  canonical name = ne31spoke3sa1830.privatelink.blob.core.windows.net.
+ne31spoke3sa1830.privatelink.blob.core.windows.net      canonical name = blob.db4prdstr10a.store.core.windows.net.
+Name:   blob.db4prdstr10a.store.core.windows.net
+Address: 20.60.145.4
 ```
 
 </details>
 <p>
 
-We can see that the endpoint is a public IP address, ***20.150.84.164***. We can see the CNAME `ne31spoke3sa4dd5.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
+We can see that the endpoint is a public IP address, ***20.60.145.4***. We can see the CNAME `ne31spoke3sa1830.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
 
 **5.3.** Test access to the storage account blob.
 
@@ -333,7 +381,7 @@ echo -e "\n$spoke3_sgtacct_host\n" && echo
 <summary>Sample output</summary>
 
 ```sh
-ne31spoke3sa4dd5.blob.core.windows.net
+ne31spoke3sa1830.blob.core.windows.net
 ```
 
 </details>
@@ -350,7 +398,14 @@ nslookup $spoke3_sgtacct_host
 <summary>Sample output</summary>
 
 ```sh
+azureuser@branch1Vm:~$ nslookup $spoke3_sgtacct_host
+Server:         127.0.0.53
+Address:        127.0.0.53#53
 
+Non-authoritative answer:
+ne31spoke3sa1830.blob.core.windows.net  canonical name = ne31spoke3sa1830.privatelink.blob.core.windows.net.
+Name:   ne31spoke3sa1830.privatelink.blob.core.windows.net
+Address: 10.11.7.99
 ```
 
 </details>
@@ -358,9 +413,9 @@ nslookup $spoke3_sgtacct_host
 
 We can see that the storage account hostname resolves to the private endpoint ***10.11.7.99*** in ***hub1***. The following is a summary of the DNS resolution from `Ne31-branch1Vm`:
 
-- On-premises server `Ne31-branch1Vm` makes a DNS request for `ne31spoke3sa4dd5.blob.core.windows.net`
+- On-premises server `Ne31-branch1Vm` makes a DNS request for `ne31spoke3sa1830.blob.core.windows.net`
 - The request is received by on-premises DNS server `Ne31-branch1-dns`
-- The DNS server resolves `ne31spoke3sa4dd5.blob.core.windows.net` to the CNAME `ne31spoke3sa4dd5.privatelink.blob.core.windows.net`
+- The DNS server resolves `ne31spoke3sa1830.blob.core.windows.net` to the CNAME `ne31spoke3sa1830.privatelink.blob.core.windows.net`
 - The DNS server has a conditional DNS forwarding defined in the branch1 unbound DNS configuration file, [output/branch1Dns.sh](./output/branch1Dns.sh).
 
   ```sh
@@ -404,11 +459,11 @@ To view firewall logs, set `enable_diagnostics = true` in the [`main.tf`](./02-m
 - Click on **Firewall Logs (Resource Specific Tables)**.
 - Click on **Run** in the log category *Network rule logs*.
 
-![Ne31-hub1-azfw-network-rule-log](../../images/demos/hub-and-spoke/ne31-hub1-net-rule-log.png)
+![Ne31-hub1-azfw-network-rule-log](../../images/demos/network-manager/ne31-hub1-net-rule-log.png)
 
 Observe the firewall logs based on traffic flows generated from our tests.
 
-![Ne31-hub1-azfw-network-rule-log-data](../../images/demos/hub-and-spoke/ne31-hub1-net-rule-log-detail.png)
+![Ne31-hub1-azfw-network-rule-log-data](../../images/demos/network-manager/ne31-hub1-net-rule-log-detail.png)
 
 </details>
 <p>
@@ -430,7 +485,10 @@ sudo vtysh
 <summary>Sample output</summary>
 
 ```sh
+azureuser@branch1Nva:~$ sudo vtysh
 
+Hello, this is FRRouting (version 7.2.1).
+Copyright 1996-2005 Kunihiro Ishiguro, et al.
 ```
 
 </details>
@@ -447,7 +505,32 @@ show ip route
 <summary>Sample output</summary>
 
 ```sh
+branch1Nva# show ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, D - SHARP,
+       F - PBR, f - OpenFabric,
+       > - selected route, * - FIB route, q - queued route, r - rejected route
 
+K>* 0.0.0.0/0 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 01:17:25
+B>* 10.1.0.0/20 [20/0] via 10.11.16.4, vti0, 00:12:03
+  *                    via 10.11.16.5, vti1, 00:12:03
+B>* 10.2.0.0/20 [20/0] via 10.11.16.4, vti0, 00:12:03
+  *                    via 10.11.16.5, vti1, 00:12:03
+S>* 10.10.0.0/24 [1/0] via 10.10.1.1, eth0, 01:17:25
+C>* 10.10.1.0/24 is directly connected, eth0, 01:17:25
+C>* 10.10.2.0/24 is directly connected, eth1, 01:17:25
+B>* 10.11.0.0/20 [20/0] via 10.11.16.4, vti0, 00:20:38
+  *                     via 10.11.16.5, vti1, 00:20:38
+B>* 10.11.16.0/20 [20/0] via 10.11.16.4, vti0, 00:20:38
+  *                      via 10.11.16.5, vti1, 00:20:38
+S   10.11.16.4/32 [1/0] is directly connected, vti0, 00:23:04
+C>* 10.11.16.4/32 is directly connected, vti0, 00:23:04
+S   10.11.16.5/32 [1/0] is directly connected, vti1, 00:20:38
+C>* 10.11.16.5/32 is directly connected, vti1, 00:20:38
+K>* 168.63.129.16/32 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 01:17:25
+K>* 169.254.169.254/32 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 01:17:25
+C>* 192.168.10.10/32 is directly connected, lo, 01:17:25
 ```
 
 We can see the Vnet ranges learned dynamically via BGP.
@@ -466,7 +549,26 @@ show ip bgp
 <summary>Sample output</summary>
 
 ```sh
+branch1Nva# show ip bgp
+BGP table version is 9, local router ID is 192.168.10.10, vrf id 0
+Default local pref 100, local AS 65001
+Status codes:  s suppressed, d damped, h history, * valid, > best, = multipath,
+               i internal, r RIB-failure, S Stale, R Removed
+Nexthop codes: @NNN nexthop's vrf id, < announce-nh-self
+Origin codes:  i - IGP, e - EGP, ? - incomplete
 
+   Network          Next Hop            Metric LocPrf Weight Path
+*= 10.1.0.0/20      10.11.16.4                             0 65515 i
+*>                  10.11.16.5                             0 65515 i
+*= 10.2.0.0/20      10.11.16.4                             0 65515 i
+*>                  10.11.16.5                             0 65515 i
+*> 10.10.0.0/24     0.0.0.0                  0         32768 i
+*= 10.11.0.0/20     10.11.16.4                             0 65515 i
+*>                  10.11.16.5                             0 65515 i
+*= 10.11.16.0/20    10.11.16.4                             0 65515 i
+*>                  10.11.16.5                             0 65515 i
+
+Displayed  5 routes and 9 total paths
 ```
 
 We can see the hub and spoke Vnet ranges being learned dynamically in the BGP table.
@@ -506,8 +608,6 @@ Resource group: Ne31RG
 ➜  Checking er gateway ...
 ➜  Checking app gateway ...
 ⏳ Checking for azure policies in Ne31RG ...
-    ❌ Deleting: policy assignment [Ne31-ng-spokes-prod-region1] ...
-    ❌ Deleting: policy definition [Ne31-ng-spokes-prod-region1] ...
 Done!
 ```
 

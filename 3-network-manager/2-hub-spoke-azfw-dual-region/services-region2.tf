@@ -53,6 +53,9 @@ module "spoke6_lb" {
       probe_name                     = "http"
     },
   ]
+  depends_on = [
+    module.spoke6,
+  ]
 }
 
 # service
@@ -78,6 +81,9 @@ resource "azurerm_private_link_service" "spoke6" {
       nat_ip_configuration
     ]
   }
+  depends_on = [
+    module.spoke6,
+  ]
 }
 
 # endpoint
@@ -98,6 +104,9 @@ resource "azurerm_private_endpoint" "hub2_spoke6_pls_pep" {
     name               = "pep-ip-config"
     private_ip_address = local.hub2_spoke6_pls_pep_ip
   }
+  depends_on = [
+    module.spoke6,
+  ]
 }
 
 resource "azurerm_private_dns_a_record" "hub2_spoke6_pls_pep" {
@@ -186,6 +195,9 @@ resource "azurerm_private_endpoint" "hub2_spoke6_blob_pep" {
       azurerm_private_dns_zone.privatelink_blob.id
     ]
   }
+  depends_on = [
+    module.spoke6,
+  ]
 }
 
 ####################################################
@@ -224,5 +236,8 @@ resource "azurerm_private_endpoint" "hub2_spoke6_blob_pep" {
 #     name                 = "${local.hub2_prefix}spoke6-apps-zg"
 #     private_dns_zone_ids = [azurerm_private_dns_zone.privatelink_appservice.id]
 #   }
+#   depends_on = [
+#     module.spoke6,
+#   ]
 # }
 

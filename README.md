@@ -83,7 +83,7 @@ This lab deploys a dual-region Secured Virtual WAN (Vwan) topology. [Routing Int
 
 Deploy a single-region Hub and Spoke Secured Virtual Network (Vnet) topology using the [Azure Virtual Network Manager](https://learn.microsoft.com/en-us/azure/virtual-network-manager/concept-connectivity-configuration#hub-and-spoke-topology) (AVNM) service. Learn about traffic routing patterns, [hybrid DNS](https://learn.microsoft.com/en-us/azure/dns/private-resolver-hybrid-dns) resolution, firewall security policies, and [PrivateLink Services](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) access to IaaS, [PrivateLink](https://learn.microsoft.com/en-us/azure/private-link/private-link-overview) access to PaaS services.
 
-<img src="./images/scenarios/3-1-hub-spoke-nm-azfw-single-region.png" alt="Secured Hub and Spoke (Single region)" width="620">
+<img src="./images/scenarios/3-1-hub-spoke-nm-azfw-single-region.png" alt="Secured Hub and Spoke (Single region)" width="650">
 
 ### 3.2. Secured Hub and Spoke - Dual Region (Virtual Network Manager)
 
@@ -91,7 +91,7 @@ Deploy a single-region Hub and Spoke Secured Virtual Network (Vnet) topology usi
 
 Deploy a dual-region Hub and Spoke Secured Virtual Network (Vnet) topology using the [Azure Virtual Network Manager](https://learn.microsoft.com/en-us/azure/virtual-network-manager/concept-connectivity-configuration#hub-and-spoke-topology) (AVNM) service. Learn about traffic routing patterns, [hybrid DNS](https://learn.microsoft.com/en-us/azure/dns/private-resolver-hybrid-dns) resolution, firewall security policies, and [PrivateLink Services](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) access to IaaS, [PrivateLink](https://learn.microsoft.com/en-us/azure/private-link/private-link-overview) access to PaaS services.
 
-<img src="./images/scenarios/3-2-hub-spoke-nm-azfw-dual-region.png" alt="Secured Hub and Spoke (Dual region)" width="900">
+<img src="./images/scenarios/3-2-hub-spoke-nm-azfw-dual-region.png" alt="Secured Hub and Spoke (Dual region)" width="1000">
 <p>
 
 ## [4. General](./4-general/)

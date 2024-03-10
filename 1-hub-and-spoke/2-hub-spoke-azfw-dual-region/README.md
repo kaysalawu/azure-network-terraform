@@ -32,7 +32,7 @@ This lab deploys a dual-region Secured Hub and Spoke Vnet topology using Azure F
 
 Similarly, ***hub2*** has an Azure firewall used for inspection of traffic between branch and spokes. ***Spoke6*** does not have Vnet peering to ***hub2***, but is reachable from the hub via Private Link Service.
 
-The hubs are connected together via Vnet peering to allow inter-hub network reachability.
+The hubs are connected together via standard Vnet peering to allow inter-hub network reachability.
 
 ***Branch1*** and ***branch3*** are on-premises networks simulated using Vnets. Multi-NIC Linux NVA appliances connect to the hubs using IPsec VPN connections with dynamic (BGP) routing. A simulated on-premises Wide Area Network (WAN) is created using Vnet peering between ***branch1*** and ***branch3*** as the underlay connectivity, and IPsec with BGP as the overlay connection.
 

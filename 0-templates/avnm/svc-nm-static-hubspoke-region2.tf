@@ -132,6 +132,10 @@ resource "azurerm_network_manager_deployment" "conn_config_hub_spoke_region2" {
   triggers = {
     connectivity_configuration_ids = azurerm_network_manager_connectivity_configuration.conn_config_hub_spoke_region2.id
   }
+  depends_on = [
+    azurerm_network_manager_network_group.ng_spokes_prod_region2,
+    azurerm_network_manager_static_member.members_region2,
+  ]
 }
 
 resource "azurerm_network_manager_deployment" "secadmin_config_region2" {
@@ -146,6 +150,8 @@ resource "azurerm_network_manager_deployment" "secadmin_config_region2" {
   }
   depends_on = [
     azurerm_network_manager_deployment.conn_config_hub_spoke_region2,
+    azurerm_network_manager_network_group.ng_spokes_prod_region2,
+    azurerm_network_manager_static_member.members_region2,
   ]
 }
 
