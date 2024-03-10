@@ -12,6 +12,8 @@ module "spoke1_ilb" {
   type                = "private"
   lb_sku              = "Standard"
 
+  log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
+
   frontend_ip_configuration = [
     {
       name                          = "feip1"
@@ -35,12 +37,12 @@ module "spoke1_ilb" {
         {
           name               = "be1"
           virtual_network_id = module.spoke1.vnet.id
-          ip_address         = module.spoke1_be1.private_ip_address
+          ip_address         = module.spoke1_be1.private_ip_addresses["${local.spoke1_prefix}vm-main-nic"]
         },
         {
           name               = "be2"
           virtual_network_id = module.spoke1.vnet.id
-          ip_address         = module.spoke1_be2.private_ip_address
+          ip_address         = module.spoke1_be2.private_ip_addresses["${local.spoke1_prefix}vm-main-nic"]
         }
       ]
     },
@@ -48,12 +50,12 @@ module "spoke1_ilb" {
       name = "app2"
       interfaces = [
         {
-          ip_configuration_name = module.spoke1_be1.interface.ip_configuration[0].name
-          network_interface_id  = module.spoke1_be1.interface.id
+          ip_configuration_name = module.spoke1_be1.interface_names["${local.spoke1_prefix}vm-main-nic"]
+          network_interface_id  = module.spoke1_be1.interface_ids["${local.spoke1_prefix}vm-main-nic"]
         },
         {
-          ip_configuration_name = module.spoke1_be2.interface.ip_configuration[0].name
-          network_interface_id  = module.spoke1_be2.interface.id
+          ip_configuration_name = module.spoke1_be2.interface_names["${local.spoke1_prefix}vm-main-nic"]
+          network_interface_id  = module.spoke1_be2.interface_ids["${local.spoke1_prefix}vm-main-nic"]
         }
       ]
     }

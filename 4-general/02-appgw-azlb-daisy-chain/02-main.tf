@@ -198,7 +198,6 @@ locals {
   hub1_ars_asn   = "65515"
 
   vm_script_targets_region1 = [
-    { name = "branch1", dns = lower(local.branch1_vm_fqdn), ip = local.branch1_vm_addr, probe = true },
     { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ip = local.hub1_vm_addr, probe = false },
     { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ip = local.spoke1_vm_addr, probe = false },
   ]
@@ -210,14 +209,13 @@ locals {
     local.vm_script_targets_misc,
   )
   vm_startup = templatefile("../../scripts/server.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
     ENABLE_TRAFFIC_GEN        = false
   })
   init_dir               = "/var/lib/azure"
-  init_local_path        = "../../scripts/docker/fastapi"
+  init_local_path        = "../../scripts/init/fastapi"
   init_port_app1         = "8080" # nginx tls
   init_port_app1_target  = "9000"
   init_port_app2_target  = "8081"
@@ -250,55 +248,28 @@ locals {
     APP_PORT = local.init_port_app2_target
   })
   vm_startup_fastapi_init = {
-    "${local.init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/docker-compose.yml", local.init_vars) }
-    "${local.init_dir}/start.sh"           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/start.sh", local.init_vars) }
-    "${local.init_dir}/stop.sh"            = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/stop.sh", local.init_vars) }
-    "${local.init_dir}/service.sh"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/service.sh", local.init_vars) }
+    "${local.init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/docker-compose.yml", local.init_vars) }
+    "${local.init_dir}/start.sh"           = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/start.sh", local.init_vars) }
+    "${local.init_dir}/stop.sh"            = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/stop.sh", local.init_vars) }
+    "${local.init_dir}/service.sh"         = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/service.sh", local.init_vars) }
     "/etc/ssl/app/cert.pem"                = { owner = "root", permissions = "0400", content = join("\n", [module.server_cert.cert_pem, tls_self_signed_cert.root_ca.cert_pem]) }
     "/etc/ssl/app/key.pem"                 = { owner = "root", permissions = "0400", content = module.server_cert.private_key_pem }
 
-    "${local.init_dir}/nginx/Dockerfile" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/nginx/Dockerfile", local.init_vars) }
-    "/etc/nginx/nginx.conf"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/docker/fastapi/nginx/nginx.conf", local.init_vars) }
+    "${local.init_dir}/nginx/Dockerfile" = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/nginx/Dockerfile", local.init_vars) }
+    "/etc/nginx/nginx.conf"              = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/nginx/nginx.conf", local.init_vars) }
 
-    "${local.init_dir}/${local.init_name_app1}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/Dockerfile", local.init_vars_app1) }
-    "${local.init_dir}/${local.init_name_app1}/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/.dockerignore", local.init_vars_app1) }
-    "${local.init_dir}/${local.init_name_app1}/main.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/main.py", local.init_vars_app1) }
-    "${local.init_dir}/${local.init_name_app1}/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/_app.py", local.init_vars_app1) }
-    "${local.init_dir}/${local.init_name_app1}/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/requirements.txt", local.init_vars) }
+    "${local.init_dir}/${local.init_name_app1}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/Dockerfile", local.init_vars_app1) }
+    "${local.init_dir}/${local.init_name_app1}/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/.dockerignore", local.init_vars_app1) }
+    "${local.init_dir}/${local.init_name_app1}/main.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/main.py", local.init_vars_app1) }
+    "${local.init_dir}/${local.init_name_app1}/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/_app.py", local.init_vars_app1) }
+    "${local.init_dir}/${local.init_name_app1}/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/requirements.txt", local.init_vars) }
 
-    "${local.init_dir}/${local.init_name_app2}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/Dockerfile", local.init_vars_app2) }
-    "${local.init_dir}/${local.init_name_app2}/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/.dockerignore", local.init_vars_app2) }
-    "${local.init_dir}/${local.init_name_app2}/main.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/main.py", local.init_vars_app2) }
-    "${local.init_dir}/${local.init_name_app2}/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/_app.py", local.init_vars_app2) }
-    "${local.init_dir}/${local.init_name_app2}/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/requirements.txt", local.init_vars_app2) }
+    "${local.init_dir}/${local.init_name_app2}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/Dockerfile", local.init_vars_app2) }
+    "${local.init_dir}/${local.init_name_app2}/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/.dockerignore", local.init_vars_app2) }
+    "${local.init_dir}/${local.init_name_app2}/main.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/main.py", local.init_vars_app2) }
+    "${local.init_dir}/${local.init_name_app2}/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/_app.py", local.init_vars_app2) }
+    "${local.init_dir}/${local.init_name_app2}/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/requirements.txt", local.init_vars_app2) }
   }
-
-  onprem_dns_vars = {
-    ONPREM_LOCAL_RECORDS = local.onprem_local_records
-    REDIRECTED_HOSTS     = local.onprem_redirected_hosts
-    FORWARD_ZONES        = local.onprem_forward_zones
-    TARGETS              = local.vm_script_targets
-    ACCESS_CONTROL_PREFIXES = concat(
-      local.private_prefixes,
-      [
-        "127.0.0.0/8",
-        "35.199.192.0/19",
-      ]
-    )
-  }
-  branch_unbound_startup = templatefile("../../scripts/unbound/unbound.sh", local.branch_dns_vars)
-  branch_dns_init_dir    = "/var/lib/labs"
-  branch_unbound_init = {
-    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/Dockerfile", {}) }
-    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
-    "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.conf", local.branch_dns_vars) }
-    "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.log", local.branch_dns_vars) }
-  }
-  onprem_local_records = [
-    { name = (local.branch1_vm_fqdn), record = local.branch1_vm_addr },
-    { name = (local.branch2_vm_fqdn), record = local.branch2_vm_addr },
-  ]
-  onprem_redirected_hosts = []
 }
 
 module "web_http_backend_init" {
@@ -403,6 +374,39 @@ locals {
 }
 
 ####################################################
+# root ca
+####################################################
+
+# private key
+
+resource "tls_private_key" "root_ca" {
+  algorithm = "RSA"
+  rsa_bits  = 2048
+}
+
+# root ca cert
+
+resource "tls_self_signed_cert" "root_ca" {
+  private_key_pem = tls_private_key.root_ca.private_key_pem
+  subject {
+    common_name         = local.server_host_wildcard
+    organization        = "demo"
+    organizational_unit = "cloud network team"
+    street_address      = ["mpls chicken road"]
+    locality            = "London"
+    province            = "England"
+    country             = "UK"
+  }
+  is_ca_certificate     = true
+  validity_period_hours = 8760
+  allowed_uses = [
+    "key_encipherment",
+    "digital_signature",
+    "cert_signing",
+  ]
+}
+
+####################################################
 # client cert
 ####################################################
 
@@ -432,9 +436,8 @@ module "server_cert" {
 
 locals {
   main_files = {
-    "output/server.sh"         = local.vm_startup
-    "output/branch-unbound.sh" = local.branch_unbound_startup
-    "output/cloud-init"        = module.web_http_backend_init.cloud_config
+    "output/server.sh"  = local.vm_startup
+    "output/cloud-init" = module.web_http_backend_init.cloud_config
   }
 }
 
