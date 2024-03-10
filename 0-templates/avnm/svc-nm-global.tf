@@ -10,7 +10,9 @@ resource "azurerm_network_manager" "avnm" {
   scope_accesses      = ["Connectivity", "SecurityAdmin"]
   description         = "global"
   scope {
-    subscription_ids = [data.azurerm_subscription.current.id]
+    subscription_ids = [
+      azurerm_resource_group.rg.id
+    ]
   }
 }
 
