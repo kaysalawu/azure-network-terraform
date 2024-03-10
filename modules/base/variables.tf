@@ -173,10 +173,10 @@ variable "config_p2s_vpngw" {
     custom_route_address_prefixes = optional(list(string), [])
 
     vpn_client_configuration = optional(object({
-      address_space = list(string)
-      clients = list(object({
+      address_space = optional(list(string))
+      clients = optional(list(object({
         name = string
-      }))
+      })))
     }))
 
     ip_configuration = optional(list(object({

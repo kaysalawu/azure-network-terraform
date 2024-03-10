@@ -232,10 +232,10 @@ resource "azurerm_application_gateway" "main" {
   # A list with a single user managed identity id to be assigned
   #---------------------------------------------------------------
   dynamic "identity" {
-    for_each = var.user_assigned_ids != null ? [1] : []
+    for_each = var.identity_ids != null ? [1] : []
     content {
       type         = "UserAssigned"
-      identity_ids = var.user_assigned_ids
+      identity_ids = var.identity_ids
     }
   }
 

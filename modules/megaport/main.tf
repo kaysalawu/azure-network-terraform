@@ -1,7 +1,7 @@
 
 locals {
-  vnet_circuits = [for c in var.circuits : c if c.target == "vnet"]
-  vwan_circuits = [for c in var.circuits : c if c.target == "vwan"]
+  vnet_connections = [for c in var.circuits : c if c.connection_target == "vnet"]
+  vwan_connections = [for c in var.circuits : c if c.connection_target == "vwan"]
 }
 
 # locations
@@ -120,14 +120,14 @@ resource "megaport_azure_connection" "this" {
 # virtual network
 
 resource "azurerm_virtual_network_gateway_connection" "this" {
-  count                      = length(local.vnet_circuits)
+  count                      = length(local.vnet_connections)
   resource_group_name        = var.resource_group
-  name                       = var.circuits[count.index].name
-  location                   = var.circuits[count.index].location
+  name                       = local.vnet_connections[count.index].name
+  location                   = local.vnet_connections[count.index].location
   type                       = "ExpressRoute"
-  virtual_network_gateway_id = var.circuits[count.index].virtual_network_gateway_id
-  authorization_key          = azurerm_express_route_circuit_authorization.this[var.circuits[count.index].name].authorization_key
-  express_route_circuit_id   = azurerm_express_route_circuit.this[var.circuits[count.index].name].id
+  virtual_network_gateway_id = local.vnet_connections[count.index].virtual_network_gateway_id
+  authorization_key          = azurerm_express_route_circuit_authorization.this[local.vnet_connections[count.index].name].authorization_key
+  express_route_circuit_id   = azurerm_express_route_circuit.this[local.vnet_connections[count.index].name].id
   depends_on = [
     azurerm_express_route_circuit.this,
     azurerm_express_route_circuit_authorization.this,
@@ -139,10 +139,10 @@ resource "azurerm_virtual_network_gateway_connection" "this" {
 # vwan
 
 resource "azurerm_express_route_connection" "this" {
-  count                            = length(local.vwan_circuits)
-  name                             = var.circuits[count.index].name
-  express_route_gateway_id         = var.circuits[count.index].express_route_gateway_id
-  express_route_circuit_peering_id = azurerm_express_route_circuit_peering.private[var.circuits[count.index].name].id
+  count                            = length(local.vwan_connections)
+  name                             = local.vwan_connections[count.index].name
+  express_route_gateway_id         = local.vwan_connections[count.index].express_route_gateway_id
+  express_route_circuit_peering_id = azurerm_express_route_circuit_peering.private[local.vwan_connections[count.index].name].id
   depends_on = [
     azurerm_express_route_circuit.this,
     azurerm_express_route_circuit_authorization.this,

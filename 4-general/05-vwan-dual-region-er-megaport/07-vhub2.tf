@@ -16,6 +16,13 @@ module "vhub2" {
   p2s_vpn_gateway       = local.vhub2_features.p2s_vpn_gateway
 
   config_security = local.vhub2_features.config_security
+
+  enable_diagnostics           = local.enable_diagnostics
+  log_analytics_workspace_name = module.common.log_analytics_workspaces["region2"].name
+
+  depends_on = [
+    module.common
+  ]
 }
 
 data "azurerm_virtual_hub_route_table" "vhub2_default" {

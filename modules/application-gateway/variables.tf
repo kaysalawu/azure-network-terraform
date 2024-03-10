@@ -34,7 +34,8 @@ variable "app_gateway_name" {
 }
 
 variable "log_analytics_workspace_name" {
-  description = "The name of log analytics workspace name"
+  description = "log analytics workspace name"
+  type        = string
   default     = null
 }
 
@@ -307,12 +308,6 @@ variable "tags" {
 
 variable "public_ip_address_name" {
   description = "Public IP address name of application gateway"
-  type        = string
-  default     = null
-}
-
-variable "log_analytics_workspace_name" {
-  description = "log analytics workspace name"
   type        = string
   default     = null
 }

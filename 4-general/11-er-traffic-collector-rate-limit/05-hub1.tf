@@ -117,7 +117,7 @@ locals {
 }
 
 resource "local_file" "hub1_files" {
-  for_each = local.branch1_files
+  for_each = local.hub1_files
   filename = each.key
   content  = each.value
 }

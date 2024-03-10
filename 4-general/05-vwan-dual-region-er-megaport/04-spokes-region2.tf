@@ -15,22 +15,21 @@ NSGs are assigned to selected subnets.
 # base
 
 module "spoke4" {
-  source          = "../../modules/base"
-  resource_group  = azurerm_resource_group.rg.name
-  prefix          = trimsuffix(local.spoke4_prefix, "-")
-  env             = "prod"
-  location        = local.spoke4_location
-  storage_account = module.common.storage_accounts["region2"]
-  tags            = local.spoke4_tags
+  source            = "../../modules/base"
+  resource_group    = azurerm_resource_group.rg.name
+  prefix            = trimsuffix(local.spoke4_prefix, "-")
+  env               = "prod"
+  location          = local.spoke4_location
+  storage_account   = module.common.storage_accounts["region2"]
+  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
+  tags              = local.spoke4_tags
 
   enable_diagnostics           = local.enable_diagnostics
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region2"].name
 
-  create_private_dns_zone = true
-  private_dns_zone_name   = local.spoke4_dns_zone
-  private_dns_zone_linked_external_vnets = {
-    "hub2" = module.hub2.vnet.id
-  }
+  dns_zones_linked_to_vnet = [
+    { name = module.common.private_dns_zones[local.region2_dns_zone].name, registration_enabled = true },
+  ]
 
   nsg_subnet_map = {
     "MainSubnet"               = module.common.nsg_main["region2"].id
@@ -70,15 +69,14 @@ locals {
 }
 
 module "spoke4_vm" {
-  source            = "../../modules/virtual-machine-linux"
-  resource_group    = azurerm_resource_group.rg.name
-  name              = "${local.spoke4_prefix}vm"
-  computer_name     = "vm"
-  location          = local.spoke4_location
-  storage_account   = module.common.storage_accounts["region2"]
-  custom_data       = base64encode(local.spoke4_vm_init)
-  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
-  tags              = local.spoke4_tags
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  name            = "${local.prefix}-${local.spoke4_vm_hostname}"
+  computer_name   = local.spoke4_vm_hostname
+  location        = local.spoke4_location
+  storage_account = module.common.storage_accounts["region2"]
+  custom_data     = base64encode(local.spoke4_vm_init)
+  tags            = local.spoke4_tags
 
   interfaces = [
     {
@@ -99,22 +97,21 @@ module "spoke4_vm" {
 # base
 
 module "spoke5" {
-  source          = "../../modules/base"
-  resource_group  = azurerm_resource_group.rg.name
-  prefix          = trimsuffix(local.spoke5_prefix, "-")
-  env             = "prod"
-  location        = local.spoke5_location
-  storage_account = module.common.storage_accounts["region2"]
-  tags            = local.spoke5_tags
+  source            = "../../modules/base"
+  resource_group    = azurerm_resource_group.rg.name
+  prefix            = trimsuffix(local.spoke5_prefix, "-")
+  env               = "prod"
+  location          = local.spoke5_location
+  storage_account   = module.common.storage_accounts["region2"]
+  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
+  tags              = local.spoke5_tags
 
   enable_diagnostics           = local.enable_diagnostics
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region2"].name
 
-  create_private_dns_zone = true
-  private_dns_zone_name   = local.spoke5_dns_zone
-  private_dns_zone_linked_external_vnets = {
-    "hub2" = module.hub2.vnet.id
-  }
+  dns_zones_linked_to_vnet = [
+    { name = module.common.private_dns_zones[local.region2_dns_zone].name, registration_enabled = true },
+  ]
 
   nsg_subnet_map = {
     "MainSubnet"               = module.common.nsg_main["region2"].id
@@ -144,15 +141,14 @@ module "spoke5" {
 # workload
 
 module "spoke5_vm" {
-  source            = "../../modules/virtual-machine-linux"
-  resource_group    = azurerm_resource_group.rg.name
-  name              = "${local.spoke5_prefix}vm"
-  computer_name     = "vm"
-  location          = local.spoke5_location
-  storage_account   = module.common.storage_accounts["region2"]
-  custom_data       = base64encode(local.vm_startup)
-  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
-  tags              = local.spoke5_tags
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  name            = "${local.prefix}-${local.spoke5_vm_hostname}"
+  computer_name   = local.spoke5_vm_hostname
+  location        = local.spoke5_location
+  storage_account = module.common.storage_accounts["region2"]
+  custom_data     = base64encode(local.vm_startup)
+  tags            = local.spoke5_tags
 
   interfaces = [
     {
@@ -173,22 +169,27 @@ module "spoke5_vm" {
 # base
 
 module "spoke6" {
-  source          = "../../modules/base"
-  resource_group  = azurerm_resource_group.rg.name
-  prefix          = trimsuffix(local.spoke6_prefix, "-")
-  env             = "prod"
-  location        = local.spoke6_location
-  storage_account = module.common.storage_accounts["region2"]
-  tags            = local.spoke6_tags
+  source            = "../../modules/base"
+  resource_group    = azurerm_resource_group.rg.name
+  prefix            = trimsuffix(local.spoke6_prefix, "-")
+  env               = "prod"
+  location          = local.spoke6_location
+  storage_account   = module.common.storage_accounts["region2"]
+  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
+  tags              = local.spoke6_tags
 
   enable_diagnostics           = local.enable_diagnostics
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region2"].name
 
-  create_private_dns_zone = true
-  private_dns_zone_name   = local.spoke6_dns_zone
-  private_dns_zone_linked_external_vnets = {
-    "hub2" = module.hub2.vnet.id
-  }
+  # create_private_dns_zone = false
+  # private_dns_zone_name = local.spoke6_dns_zone
+  # private_dns_zone_linked_external_vnets = {
+  #   "hub2" = module.hub2.vnet.id
+  # }
+
+  dns_zones_linked_to_vnet = [
+    { name = module.common.private_dns_zones[local.region2_dns_zone].name, registration_enabled = true },
+  ]
 
   nsg_subnet_map = {
     "MainSubnet"               = module.common.nsg_main["region2"].id
@@ -218,15 +219,14 @@ module "spoke6" {
 # workload
 
 module "spoke6_vm" {
-  source            = "../../modules/virtual-machine-linux"
-  resource_group    = azurerm_resource_group.rg.name
-  name              = "${local.spoke6_prefix}vm"
-  computer_name     = "vm"
-  location          = local.spoke6_location
-  storage_account   = module.common.storage_accounts["region2"]
-  custom_data       = base64encode(local.vm_startup)
-  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
-  tags              = local.spoke6_tags
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  name            = "${local.prefix}-${local.spoke6_vm_hostname}"
+  computer_name   = local.spoke6_vm_hostname
+  location        = local.spoke6_location
+  storage_account = module.common.storage_accounts["region2"]
+  custom_data     = base64encode(local.vm_startup)
+  tags            = local.spoke6_tags
 
   interfaces = [
     {

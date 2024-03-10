@@ -14,14 +14,14 @@ resource "azurerm_user_assigned_identity" "hub1_appgw_http" {
 ####################################################
 
 module "hub1_appgw" {
-  source               = "../../modules/application-gateway"
-  resource_group_name  = azurerm_resource_group.rg.name
-  location             = local.hub1_location
-  app_gateway_name     = "${local.hub1_prefix}appgw"
-  virtual_network_name = module.hub1.vnet.name
-  subnet_name          = module.hub1.subnets["AppGatewaySubnet"].name
-  private_ip_address   = local.hub1_appgw_addr
-  public_ip_address_id = azurerm_public_ip.hub1_appgw_pip.id
+  source                 = "../../modules/application-gateway"
+  resource_group_name    = azurerm_resource_group.rg.name
+  location               = local.hub1_location
+  app_gateway_name       = "${local.hub1_prefix}appgw"
+  virtual_network_name   = module.hub1.vnet.name
+  subnet_name            = module.hub1.subnets["AppGatewaySubnet"].name
+  private_ip_address     = local.hub1_appgw_addr
+  public_ip_address_name = azurerm_public_ip.hub1_appgw_pip.name
 
   sku = {
     name     = "Standard_v2"
@@ -30,27 +30,15 @@ module "hub1_appgw" {
   }
 
   backend_address_pools = [
-    {
-      name         = "server-beap"
-      ip_addresses = [module.websocket_server_vm.private_ip_address, ]
-    },
+    { name = "server-beap", ip_addresses = [module.websocket_server_vm.private_ip_addresses["${local.spoke1_prefix}vm-main-nic"], ] },
   ]
 
   backend_http_settings = [
-    {
-      name       = "server-bhs",
-      port       = 8080, path = "/",
-      probe_name = "server-hp"
-    },
+    { name = "server-bhs", port = 8080, path = "/", probe_name = "server-hp" },
   ]
 
   health_probes = [
-    {
-      name     = "server-hp",
-      host     = local.hub1_host_server,
-      protocol = "Http", port = 80,
-      path     = "/"
-    },
+    { name = "server-hp", host = local.hub1_host_server, protocol = "Http", port = 80, path = "/" },
   ]
 
   http_listeners = [

@@ -4,27 +4,45 @@
 ####################################################
 
 module "good_juice_vm" {
-  source          = "../../modules/linux"
+  source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  prefix          = local.hub1_prefix
-  name            = "good-juice"
+  name            = "${local.prefix}-goodJuice"
+  computer_name   = "goodJuice"
   location        = local.hub1_location
-  subnet          = module.hub1.subnets["MainSubnet"].id
-  custom_data     = base64encode(local.vm_startup_juice)
   storage_account = module.common.storage_accounts["region1"]
+  custom_data     = base64encode(local.vm_startup_juice)
   tags            = local.hub1_tags
-  depends_on      = [module.hub1]
+
+  interfaces = [
+    {
+      name               = "${local.spoke1_prefix}vm-main-nic"
+      subnet_id          = module.hub1.subnets["MainSubnet"].id
+      private_ip_address = local.spoke1_vm_addr
+    },
+  ]
+  depends_on = [
+    module.hub1
+  ]
 }
 
 module "bad_juice_vm" {
-  source          = "../../modules/linux"
+  source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  prefix          = local.hub1_prefix
-  name            = "bad-juice"
+  name            = "${local.prefix}-badJuice"
+  computer_name   = "badJuice"
   location        = local.hub1_location
-  subnet          = module.hub1.subnets["MainSubnet"].id
-  custom_data     = base64encode(local.vm_startup_juice)
   storage_account = module.common.storage_accounts["region1"]
+  custom_data     = base64encode(local.vm_startup_juice)
   tags            = local.hub1_tags
-  depends_on      = [module.hub1]
+
+  interfaces = [
+    {
+      name               = "${local.spoke1_prefix}vm-main-nic"
+      subnet_id          = module.hub1.subnets["MainSubnet"].id
+      private_ip_address = local.spoke1_vm_addr
+    },
+  ]
+  depends_on = [
+    module.hub1
+  ]
 }

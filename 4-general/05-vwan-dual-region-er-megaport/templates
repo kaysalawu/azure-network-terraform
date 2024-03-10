@@ -9,9 +9,9 @@
 ../../0-templates/vwan/06-vwan.tf
 ../../0-templates/vwan/07-vhub1.tf
 ../../0-templates/vwan/07-vhub2.tf
+../../0-templates/vwan/07-conn-interhub.tf
 ../../0-templates/vwan/08-conn-hub1-nva.tf
 ../../0-templates/vwan/08-conn-hub2-nva.tf
-../../0-templates/vwan/07-conn-interhub.tf
-../../0-templates/services/svc-region1.tf
-../../0-templates/services/svc-region2.tf
+../../0-templates/services/services-region1.tf
+../../0-templates/services/services-region2.tf
 ../../0-templates/outputs/outputs-dual-region.tf

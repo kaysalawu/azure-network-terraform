@@ -33,7 +33,7 @@ variable "circuits" {
   description = "megaport circuits"
   type = list(object({
     name                       = string
-    target                     = string
+    connection_target          = string
     location                   = string
     peering_location           = string
     peering_type               = optional(string, "AzurePrivatePeering")

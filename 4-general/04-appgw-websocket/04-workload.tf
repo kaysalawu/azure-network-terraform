@@ -4,27 +4,46 @@
 ####################################################
 
 module "websocket_client_vm" {
-  source          = "../../modules/linux"
+  source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  prefix          = local.hub1_prefix
-  name            = "client"
+  name            = "${local.prefix}-WebSocClient"
+  computer_name   = "WebSocClient"
   location        = local.hub1_location
-  subnet          = module.hub1.subnets["MainSubnet"].id
-  custom_data     = base64encode(module.vm_websocket_client_init.cloud_config)
   storage_account = module.common.storage_accounts["region1"]
+  custom_data     = base64encode(module.vm_websocket_client_init.cloud_config)
   tags            = local.hub1_tags
-  depends_on      = [module.hub1]
+
+  interfaces = [
+    {
+      name               = "${local.spoke1_prefix}vm-main-nic"
+      subnet_id          = module.hub1.subnets["MainSubnet"].id
+      private_ip_address = local.spoke1_vm_addr
+    },
+  ]
+  depends_on = [
+    module.hub1
+  ]
 }
 
 module "websocket_server_vm" {
-  source          = "../../modules/linux"
+  source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  prefix          = local.hub1_prefix
-  name            = "server"
+  name            = "${local.prefix}-WebSocServer"
+  computer_name   = "WebSocServer"
   location        = local.hub1_location
-  subnet          = module.hub1.subnets["MainSubnet"].id
-  custom_data     = base64encode(module.vm_websocket_server_init.cloud_config)
   storage_account = module.common.storage_accounts["region1"]
+  custom_data     = base64encode(module.vm_websocket_server_init.cloud_config)
   tags            = local.hub1_tags
-  depends_on      = [module.hub1]
+
+  interfaces = [
+    {
+      name               = "${local.spoke1_prefix}vm-main-nic"
+      subnet_id          = module.hub1.subnets["MainSubnet"].id
+      private_ip_address = local.spoke1_vm_addr
+    },
+  ]
+  depends_on = [
+    module.hub1
+  ]
 }
+

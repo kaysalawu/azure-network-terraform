@@ -3,14 +3,13 @@
 ####################################################
 
 locals {
-  prefix  = "mh_AppGw_Waf"
-  region1 = "eastus"
-  regions = {
-    region1 = local.region1
-  }
-  hub1_appgw_pip       = azurerm_public_ip.hub1_appgw_pip.ip_address
-  hub1_host_good_juice = "good-juice-${local.hub1_appgw_pip}.nip.io"
-  hub1_host_bad_juice  = "bad-juice-${local.hub1_appgw_pip}.nip.io"
+  prefix                 = "G02AppgwWaf"
+  enable_diagnostics     = false
+  enable_onprem_wan_link = false
+  hub1_tags              = { "lab" = local.prefix, "nodeType" = "hub" }
+  hub1_appgw_pip         = azurerm_public_ip.hub1_appgw_pip.ip_address
+  hub1_host_good_juice   = "good-juice-${local.hub1_appgw_pip}.nip.io"
+  hub1_host_bad_juice    = "bad-juice-${local.hub1_appgw_pip}.nip.io"
 }
 
 ####################################################
@@ -27,6 +26,59 @@ terraform {
     azurerm = {
       source  = "hashicorp/azurerm"
       version = ">= 3.78.0"
+    }
+    azapi = {
+      source = "azure/azapi"
+    }
+  }
+}
+
+####################################################
+# user assigned identity
+####################################################
+
+resource "azurerm_user_assigned_identity" "machine" {
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = local.default_region
+  name                = "${local.prefix}-user"
+}
+
+####################################################
+# network features
+####################################################
+
+locals {
+  regions = {
+    "region1" = { name = local.region1, dns_zone = local.region1_dns_zone }
+  }
+
+  hub1_features = {
+    config_vnet = {
+      address_space = local.hub1_address_space
+      subnets       = local.hub1_subnets
+    }
+
+    config_s2s_vpngw = {
+      enable = false
+    }
+
+    config_p2s_vpngw = {
+      enable                   = false
+      ip_configuration         = []
+      vpn_client_configuration = {}
+    }
+
+    config_ergw = {
+      enable = false
+    }
+
+    config_firewall = {
+      enable = false
+    }
+
+    config_nva = {
+      enable = false
+      type   = null
     }
   }
 }
