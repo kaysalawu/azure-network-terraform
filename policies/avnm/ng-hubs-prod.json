@@ -6,6 +6,10 @@
         "equals": "Microsoft.Network/virtualNetworks"
       },
       {
+        "field": "Microsoft.Resources/subscriptions/resourceGroups/name",
+        "equals": "${RESOURCE_GROUP_NAME}"
+      },
+      {
         "allOf": [
           {
             "field": "tags['lab']",
