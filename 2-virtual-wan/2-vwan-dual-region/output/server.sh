@@ -146,8 +146,8 @@ echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{h
 echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke4vm.us.az.corp) - spoke4vm.us.az.corp"
 echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke5vm.us.az.corp) - spoke5vm.us.az.corp"
 echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan22spoke3saaed3.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan22spoke3saaed3.blob.core.windows.net/spoke3/spoke3.txt"
-echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan22spoke6saaed3.blob.core.windows.net/spoke6/spoke6.txt) - https://vwan22spoke6saaed3.blob.core.windows.net/spoke6/spoke6.txt"
+echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan22spoke3sa8897.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan22spoke3sa8897.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(timeout 5 curl -kL --max-time 5.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan22spoke6sa8897.blob.core.windows.net/spoke6/spoke6.txt) - https://vwan22spoke6sa8897.blob.core.windows.net/spoke6/spoke6.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 
@@ -184,3 +184,11 @@ echo -e "-------------------------------------"
 timeout 9 tracepath icanhazip.com
 EOF
 chmod a+x /usr/local/bin/trace-ip
+
+# dns-info
+
+cat <<EOF > /usr/local/bin/dns-info
+echo -e "\n resolvectl ...\n"
+resolvectl status
+EOF
+chmod a+x /usr/local/bin/dns-info
