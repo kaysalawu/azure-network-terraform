@@ -1,16 +1,4 @@
 
-locals {
-  policy_ng_spokes_prod_region2 = templatefile("../../policies/avnm/ng-spokes-prod-region.json", {
-    NETWORK_GROUP_ID = azurerm_network_manager_network_group.ng_spokes_prod_region2.id
-    LOCATION         = local.region2
-    LAB_ID           = local.prefix
-  })
-  policy_cleanup_commands_region2 = [
-    "az policy assignment delete -n ${local.prefix}-ng-spokes-prod-region2",
-    "az policy definition delete -n ${local.prefix}-ng-spokes-prod-region2",
-  ]
-}
-
 ####################################################
 # network groups
 ####################################################
@@ -18,29 +6,6 @@ locals {
 resource "azurerm_network_manager_network_group" "ng_spokes_prod_region2" {
   name               = "${local.prefix}-ng-spokes-prod-region2"
   network_manager_id = azurerm_network_manager.avnm.id
-}
-
-####################################################
-# policy definitions
-####################################################
-
-resource "azurerm_policy_definition" "ng_spokes_prod_region2" {
-  name         = "${local.prefix}-ng-spokes-prod-region2"
-  policy_type  = "Custom"
-  mode         = "Microsoft.Network.Data"
-  display_name = "All spokes in prod region2"
-  metadata     = templatefile("../../policies/avnm/metadata.json", {})
-  policy_rule  = local.policy_ng_spokes_prod_region2
-}
-
-####################################################
-# policy assignments
-####################################################
-
-resource "azurerm_subscription_policy_assignment" "ng_spokes_prod_region2" {
-  name                 = "${local.prefix}-ng-spokes-prod-region2"
-  policy_definition_id = azurerm_policy_definition.ng_spokes_prod_region2.id
-  subscription_id      = data.azurerm_subscription.current.id
 }
 
 ####################################################
@@ -134,6 +99,24 @@ resource "azurerm_network_manager_admin_rule" "secadmin_rules_region2" {
 }
 
 ####################################################
+# membership
+####################################################
+
+locals {
+  members_region2 = [
+    module.spoke4.vnet.id,
+    module.spoke5.vnet.id
+  ]
+}
+
+resource "azurerm_network_manager_static_member" "members_region2" {
+  count                     = length(local.members_region2)
+  name                      = "${local.prefix}-members-region2-${count.index}"
+  network_group_id          = azurerm_network_manager_network_group.ng_spokes_prod_region2.id
+  target_virtual_network_id = local.members_region2[count.index]
+}
+
+####################################################
 # deployment
 ####################################################
 
@@ -167,36 +150,11 @@ resource "azurerm_network_manager_deployment" "secadmin_config_region2" {
 }
 
 ####################################################
-# cleanup
-####################################################
-
-resource "null_resource" "policy_cleanup_region2" {
-  count = length(local.policy_cleanup_commands_region2)
-  triggers = {
-    create = ":"
-    delete = local.policy_cleanup_commands_region2[count.index]
-  }
-  provisioner "local-exec" {
-    command = self.triggers.create
-  }
-  provisioner "local-exec" {
-    when    = destroy
-    command = self.triggers.delete
-  }
-  depends_on = [
-    azurerm_policy_definition.ng_spokes_prod_region2,
-    azurerm_subscription_policy_assignment.ng_spokes_prod_region2,
-  ]
-}
-
-####################################################
 # output files
 ####################################################
 
 locals {
-  avnm_files_region2 = {
-    "output/policies/pol-ng-spokes.json" = local.policy_ng_spokes_prod_region2
-  }
+  avnm_files_region2 = {}
 }
 
 resource "local_file" "avnm_files_region2" {

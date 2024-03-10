@@ -11,7 +11,7 @@ resource "azurerm_network_manager" "avnm" {
   description         = "global"
   scope {
     subscription_ids = [
-      azurerm_resource_group.rg.id
+      data.azurerm_subscription.current.id,
     ]
   }
 }
