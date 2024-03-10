@@ -126,24 +126,33 @@ conn %default
     installpolicy=yes
     compress=no
     mobike=no
-    left=%defaultroute
+    #left=%defaultroute
     leftsubnet=0.0.0.0/0
     rightsubnet=0.0.0.0/0
     ike=aes256-sha1-modp1024!
     esp=aes256-sha1!
 
 conn Tunnel0
-    right=172.212.70.235
+    left=10.30.1.9
+    leftid=52.224.7.115
+    right=4.156.100.35
+    rightid=4.156.100.35
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
-    right=172.212.70.218
+    left=10.30.1.9
+    leftid=52.224.7.115
+    right=4.156.100.22
+    rightid=4.156.100.22
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
-    right=10.10.1.9
+    left=10.30.1.9
+    leftid=52.224.7.115
+    right=52.178.152.52
+    rightid=52.178.152.52
     auto=start
     mark=300
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -154,9 +163,9 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<EOF
-10.30.1.9 172.212.70.235 : PSK "changeme"
-10.30.1.9 172.212.70.218 : PSK "changeme"
-10.30.1.9 10.10.1.9 : PSK "changeme"
+10.30.1.9 4.156.100.35 : PSK "changeme"
+10.30.1.9 4.156.100.22 : PSK "changeme"
+10.30.1.9 52.178.152.52 : PSK "changeme"
 
 EOF
 
@@ -265,8 +274,7 @@ neighbor 192.168.10.10 ebgp-multihop 255
 neighbor 192.168.10.10 update-source lo
 !
 address-family ipv4 unicast
-  network 10.30.0.0/20
-  network 10.30.16.0/20
+  network 10.30.0.0/24
   neighbor 192.168.22.13 soft-reconfiguration inbound
   neighbor 192.168.22.12 soft-reconfiguration inbound
   neighbor 192.168.10.10 soft-reconfiguration inbound
@@ -347,8 +355,8 @@ echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} 
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke4vm.us.az.corp) - spoke4vm.us.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke5vm.us.az.corp) - spoke5vm.us.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke3sa917c.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan24spoke3sa917c.blob.core.windows.net/spoke3/spoke3.txt"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke6sa917c.blob.core.windows.net/spoke6/spoke6.txt) - https://vwan24spoke6sa917c.blob.core.windows.net/spoke6/spoke6.txt"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke3sa87b5.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan24spoke3sa87b5.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke6sa87b5.blob.core.windows.net/spoke6/spoke6.txt) - https://vwan24spoke6sa87b5.blob.core.windows.net/spoke6/spoke6.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 

@@ -605,14 +605,11 @@ locals {
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
     ENABLE_TRAFFIC_GEN        = false
-
-    IPTABLES_RULES           = []
-    ROUTE_MAPS               = []
-    TUNNELS                  = []
-    FRR_CONF                 = templatefile("../../scripts/frr/frr.conf", merge(local.hub1_nva_vars, {}))
-    STRONGSWAN_VTI_SCRIPT    = ""
-    STRONGSWAN_IPSEC_SECRETS = ""
-    STRONGSWAN_IPSEC_CONF    = ""
+    IPTABLES_RULES            = []
+    FRR_CONF                  = templatefile("../../scripts/frr/frr.conf", merge(local.hub1_nva_vars, {}))
+    STRONGSWAN_VTI_SCRIPT     = ""
+    STRONGSWAN_IPSEC_SECRETS  = ""
+    STRONGSWAN_IPSEC_CONF     = ""
   }))
 }
 
@@ -669,14 +666,11 @@ locals {
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
     ENABLE_TRAFFIC_GEN        = false
-
-    IPTABLES_RULES           = []
-    ROUTE_MAPS               = []
-    TUNNELS                  = []
-    FRR_CONF                 = templatefile("../../scripts/frr/frr.conf", merge(local.hub2_nva_vars, {}))
-    STRONGSWAN_VTI_SCRIPT    = ""
-    STRONGSWAN_IPSEC_SECRETS = ""
-    STRONGSWAN_IPSEC_CONF    = ""
+    IPTABLES_RULES            = []
+    FRR_CONF                  = templatefile("../../scripts/frr/frr.conf", merge(local.hub2_nva_vars, {}))
+    STRONGSWAN_VTI_SCRIPT     = ""
+    STRONGSWAN_IPSEC_SECRETS  = ""
+    STRONGSWAN_IPSEC_CONF     = ""
   }))
 }
 
@@ -686,9 +680,9 @@ locals {
 
 locals {
   main_files = {
+    "output/server.sh"         = local.vm_startup
     "output/hub1-linux-nva.sh" = local.hub1_linux_nva_init
     "output/hub2-linux-nva.sh" = local.hub2_linux_nva_init
-    "output/server.sh"         = local.vm_startup
   }
 }
 
