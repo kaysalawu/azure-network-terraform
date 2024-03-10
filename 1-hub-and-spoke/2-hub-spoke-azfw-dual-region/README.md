@@ -246,7 +246,7 @@ curl spoke3pls.eu.az.corp
 
 <summary>Sample output</summary>
 
-```sh
+```json
 azureuser@spoke1Vm:~$ curl spoke3pls.eu.az.corp
 {
   "Headers": {
@@ -273,7 +273,7 @@ curl spoke6pls.us.az.corp
 
 <summary>Sample output</summary>
 
-```sh
+```json
 azureuser@spoke1Vm:~$ curl spoke6pls.us.az.corp
 {
   "Headers": {

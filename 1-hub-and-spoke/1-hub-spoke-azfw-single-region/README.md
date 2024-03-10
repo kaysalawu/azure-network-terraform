@@ -17,7 +17,7 @@ Contents
   - [4. Private Link Service](#4-private-link-service)
   - [5. Private Link Access to Storage Account](#5-private-link-access-to-storage-account)
   - [6. Private Link Access to Storage Account from On-premises](#6-private-link-access-to-storage-account-from-on-premises)
-  - [8. Azure Firewall (Optional)](#8-azure-firewall-optional)
+  - [7. Azure Firewall (Optional)](#7-azure-firewall-optional)
   - [8. On-premises Routes](#8-on-premises-routes)
 - [Cleanup](#cleanup)
 
@@ -221,7 +221,7 @@ curl spoke3pls.eu.az.corp
 
 <summary>Sample output</summary>
 
-```sh
+```json
 azureuser@spoke1Vm:~$ curl spoke3pls.eu.az.corp
 {
   "Headers": {
@@ -439,7 +439,7 @@ Hello, World!
 </details>
 <p>
 
-### 8. Azure Firewall (Optional)
+### 7. Azure Firewall (Optional)
 
 To view firewall logs, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment. Wait for about 15 minutes to get some logs.
 
@@ -447,7 +447,7 @@ To view firewall logs, set `enable_diagnostics = true` in the [`main.tf`](./02-m
 
 <summary>Sample Azure Firewall logs</summary>
 
-**8.1.** Check the Azure Firewall logs to observe the traffic flow.
+**7.1.** Check the Azure Firewall logs to observe the traffic flow.
 
 - Select the Azure Firewall resource `Hs11-hub1-azfw` in the Azure portal.
 - Click on **Logs** in the left navigation pane.
