@@ -6,4 +6,4 @@
 ../../0-templates/services/services-region1.tf
 ../../0-templates/outputs/outputs-single-region.tf
 ../../0-templates/avnm/svc-nm-global.tf
-../../0-templates/avnm/svc-nm-hubspoke-region1.tf
+../../0-templates/avnm/svc-nm-static-hubspoke-region1.tf

@@ -146,6 +146,7 @@ locals {
       { prefix = "${module.hub1.s2s_vpngw_bgp_default_ip0}/32", next_hop = "vti0" },
       { prefix = "${module.hub1.s2s_vpngw_bgp_default_ip1}/32", next_hop = "vti1" },
       { prefix = "${local.branch3_nva_loopback0}/32", next_hop = "vti2" },
+      { prefix = local.branch3_nva_untrust_addr, next_hop = local.branch1_untrust_default_gw },
       { prefix = local.branch1_subnets["MainSubnet"].address_prefixes[0], next_hop = local.branch1_untrust_default_gw },
     ]
     TUNNELS = [
