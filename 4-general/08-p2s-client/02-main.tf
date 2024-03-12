@@ -3,19 +3,13 @@
 ####################################################
 
 locals {
-  prefix                      = "G08"
-  enable_diagnostics          = false
-  enable_onprem_wan_link      = false
-  spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
-  spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
-  spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
+  prefix                 = "G08"
+  enable_diagnostics     = false
+  enable_onprem_wan_link = false
 
   hub1_tags    = { "lab" = local.prefix, "nodeType" = "hub" }
   branch1_tags = { "lab" = local.prefix, "nodeType" = "branch" }
   branch2_tags = { "lab" = local.prefix, "nodeType" = "branch" }
-  spoke1_tags  = { "lab" = local.prefix, "nodeType" = "spoke" }
-  spoke2_tags  = { "lab" = local.prefix, "nodeType" = "spoke" }
-  spoke3_tags  = { "lab" = local.prefix, "nodeType" = "float" }
 }
 
 resource "random_id" "random" {
@@ -71,13 +65,9 @@ locals {
     { name = "default", address_prefix = ["0.0.0.0/0"] }
   ]
   hub1_appliance_udr_destinations = [
-    { name = "spoke4", address_prefix = local.spoke4_address_space },
-    { name = "spoke5", address_prefix = local.spoke5_address_space },
     { name = "hub2", address_prefix = local.hub2_address_space },
   ]
   hub1_gateway_udr_destinations = [
-    { name = "spoke1", address_prefix = local.spoke1_address_space },
-    { name = "spoke2", address_prefix = local.spoke2_address_space },
     { name = "hub1", address_prefix = local.hub1_address_space },
   ]
   firewall_sku = "Basic"
@@ -216,26 +206,15 @@ locals {
   vm_script_targets_region1 = [
     { name = "branch1", dns = lower(local.branch1_vm_fqdn), ip = local.branch1_vm_addr, probe = true },
     { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ip = local.hub1_vm_addr, probe = false },
-    { name = "hub1-spoke3-pep", dns = lower(local.hub1_spoke3_pep_fqdn), ping = false, probe = true },
-    { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ip = local.spoke1_vm_addr, probe = true },
-    { name = "spoke2 ", dns = lower(local.spoke2_vm_fqdn), ip = local.spoke2_vm_addr, probe = true },
   ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ip = "icanhazip.com" },
-    { name = "hub1-spoke3-blob", dns = local.spoke3_blob_url, ping = false, probe = true },
   ]
   vm_script_targets = concat(
     local.vm_script_targets_region1,
     local.vm_script_targets_misc,
   )
   vm_startup = templatefile("../../scripts/server.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = []
-    TARGETS_HEAVY_TRAFFIC_GEN = []
-    ENABLE_TRAFFIC_GEN        = false
-  })
-  tools = templatefile("../../scripts/tools.sh", {
     USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []

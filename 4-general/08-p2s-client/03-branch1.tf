@@ -121,7 +121,6 @@ locals {
   branch1_init_vars = {
     INIT_DIR            = local.branch1_init_dir
     APP_NAME            = local.branch1_app_name
-    USER_ASSIGNED_ID    = azurerm_user_assigned_identity.machine.id
     RESOURCE_GROUP_NAME = azurerm_resource_group.rg.name
     VPN_GATEWAY_NAME    = module.hub1.p2s_vpngw.name
   }
@@ -130,7 +129,7 @@ locals {
     "${local.branch1_init_dir}/start.sh"           = { owner = "root", permissions = "0744", content = templatefile("${local.branch1_init_dir_local}/start.sh", local.branch1_init_vars) }
     "${local.branch1_init_dir}/stop.sh"            = { owner = "root", permissions = "0744", content = templatefile("${local.branch1_init_dir_local}/stop.sh", local.branch1_init_vars) }
     "${local.branch1_init_dir}/service.sh"         = { owner = "root", permissions = "0744", content = templatefile("${local.branch1_init_dir_local}/service.sh", local.branch1_init_vars) }
-    "${local.branch1_init_dir}/tools.sh"           = { owner = "root", permissions = "0744", content = local.tools }
+    "${local.branch1_init_dir}/server.sh"          = { owner = "root", permissions = "0744", content = local.vm_startup }
     "${local.branch1_init_dir}/client-config.sh"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/p2s/client-config.sh", local.branch1_init_vars) }
     "${local.branch1_init_dir}/client1_cert.pem"   = { owner = "root", permissions = "0400", content = trimspace(module.hub1.p2s_client_certificates_cert_pem["client1"]) }
     "${local.branch1_init_dir}/client1_key.pem"    = { owner = "root", permissions = "0400", content = trimspace(module.hub1.p2s_client_certificates_private_key_pem["client1"]) }
@@ -152,8 +151,8 @@ module "branch1_vm_p2s_init" {
   ]
   files = local.client1_init_files
   run_commands = [
-    ". ${local.branch1_init_dir}/service.sh",
-    ". ${local.branch1_init_dir}/tools.sh",
+    "bash ${local.branch1_init_dir}/server.sh",
+    "bash ${local.branch1_init_dir}/service.sh",
     "echo 'RESOURCE_GROUP_NAME=${azurerm_resource_group.rg.name}' >> ${local.branch1_init_dir}/.env",
     "echo 'VPN_GATEWAY_NAME=${module.hub1.p2s_vpngw.name}' >> ${local.branch1_init_dir}/.env",
   ]
@@ -166,6 +165,7 @@ module "client1" {
   computer_name   = "client1"
   location        = local.branch1_location
   storage_account = module.common.storage_accounts["region1"]
+  dns_servers     = [local.branch1_dns_addr, ]
   custom_data     = base64encode(module.branch1_vm_p2s_init.cloud_config)
   tags            = local.branch1_tags
 
@@ -260,6 +260,7 @@ module "branch1_udr_main" {
 locals {
   branch1_files = {
     "output/branch1-p2s-client.sh" = module.branch1_vm_p2s_init.cloud_config
+    "output/branch1Dns.sh"         = local.branch1_unbound_startup
     "output/branch1Vm.sh"          = local.branch1_vm_init
   }
 }
