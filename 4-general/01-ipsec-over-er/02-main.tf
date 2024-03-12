@@ -3,18 +3,19 @@
 ####################################################
 
 locals {
-  prefix                 = "G02_AppGwAzLb"
-  enable_diagnostics     = false
-  enable_onprem_wan_link = false
+  prefix                      = "G01-IpsecEr"
+  enable_diagnostics          = false
+  enable_onprem_wan_link      = false
+  spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
+  spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
+  spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
 
-  hub1_tags   = { "lab" = "Hs13", "nodeType" = "hub" }
-  spoke1_tags = { "lab" = "Hs13", "nodeType" = "spoke" }
-
-  server_cert_name_app1 = "cert"
-  server_common_name    = "healthz.az.corp"
-  server_host_app1      = "app1.we.az.corp"
-  server_host_app2      = "app2.we.az.corp"
-  server_host_wildcard  = "*.az.corp"
+  hub1_tags    = { "lab" = local.prefix, "nodeType" = "hub" }
+  branch1_tags = { "lab" = local.prefix, "nodeType" = "branch" }
+  branch2_tags = { "lab" = local.prefix, "nodeType" = "branch" }
+  spoke1_tags  = { "lab" = local.prefix, "nodeType" = "spoke" }
+  spoke2_tags  = { "lab" = local.prefix, "nodeType" = "spoke" }
+  spoke3_tags  = { "lab" = local.prefix, "nodeType" = "float" }
 }
 
 resource "random_id" "random" {
@@ -85,16 +86,43 @@ locals {
     config_vnet = {
       address_space               = local.hub1_address_space
       subnets                     = local.hub1_subnets
-      enable_private_dns_resolver = false
+      enable_private_dns_resolver = true
       enable_ars                  = false
 
-      ruleset_dns_forwarding_rules = {}
+      ruleset_dns_forwarding_rules = {
+        "onprem" = {
+          domain = local.onprem_domain
+          target_dns_servers = [
+            { ip_address = local.branch1_dns_addr, port = 53 },
+          ]
+        }
+        "${local.region1_code}" = {
+          domain = local.region1_dns_zone
+          target_dns_servers = [
+            { ip_address = local.hub1_dns_in_addr, port = 53 },
+          ]
+        }
+        "azurewebsites" = {
+          domain = "privatelink.azurewebsites.net"
+          target_dns_servers = [
+            { ip_address = local.hub1_dns_in_addr, port = 53 },
+          ]
+        }
+        "blob" = {
+          domain = "privatelink.blob.core.windows.net"
+          target_dns_servers = [
+            { ip_address = local.hub1_dns_in_addr, port = 53 },
+          ]
+        }
+      }
     }
 
     config_s2s_vpngw = {
-      enable = false
+      enable = true
       sku    = "VpnGw1AZ"
       ip_configuration = [
+        { name = "ipconf0", public_ip_address_name = azurerm_public_ip.hub1_s2s_vpngw_pip0.name, apipa_addresses = ["169.254.21.1"] },
+        { name = "ipconf1", public_ip_address_name = azurerm_public_ip.hub1_s2s_vpngw_pip1.name, apipa_addresses = ["169.254.21.5"] }
       ]
       bgp_settings = {
         asn = local.hub1_vpngw_asn
@@ -118,7 +146,7 @@ locals {
     }
 
     config_ergw = {
-      enable = false
+      enable = true
       sku    = "ErGw1AZ"
     }
 
@@ -198,90 +226,106 @@ locals {
   hub1_ars_asn   = "65515"
 
   vm_script_targets_region1 = [
+    { name = "branch1", dns = lower(local.branch1_vm_fqdn), ip = local.branch1_vm_addr, probe = true },
     { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ip = local.hub1_vm_addr, probe = false },
-    { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ip = local.spoke1_vm_addr, probe = false },
+    { name = "hub1-spoke3-pep", dns = lower(local.hub1_spoke3_pep_fqdn), ping = false, probe = true },
+    { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ip = local.spoke1_vm_addr, probe = true },
+    { name = "spoke2 ", dns = lower(local.spoke2_vm_fqdn), ip = local.spoke2_vm_addr, probe = true },
   ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ip = "icanhazip.com" },
+    { name = "hub1-spoke3-blob", dns = local.spoke3_blob_url, ping = false, probe = true },
   ]
   vm_script_targets = concat(
     local.vm_script_targets_region1,
     local.vm_script_targets_misc,
   )
   vm_startup = templatefile("../../scripts/server.sh", {
+    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
     ENABLE_TRAFFIC_GEN        = false
   })
-  init_dir               = "/var/lib/azure"
-  init_local_path        = "../../scripts/init/fastapi"
-  init_port_app1         = "8080" # nginx tls
-  init_port_app1_target  = "9000"
-  init_port_app2_target  = "8081"
-  init_name_app1         = "app1"
-  init_name_app2         = "app2"
-  init_niginx_cert_path  = "/etc/ssl/app/cert.pem"
-  init_niginx_key_path   = "/etc/ssl/app/key.pem"
-  init_nginx_config_path = "/etc/nginx/nginx.conf"
-  init_vars = {
-    INIT_DIR = local.init_dir
-    NGINX = {
-      enable_tls  = true
-      port        = local.init_port_app1
-      cert_path   = local.init_niginx_cert_path
-      key_path    = local.init_niginx_key_path
-      config_path = local.init_nginx_config_path
-      proxy_pass  = "http://localhost:${local.init_port_app1_target}"
-    }
-    APPS = [
-      { name = local.init_name_app1, port = local.init_port_app1_target },
-      { name = local.init_name_app2, port = local.init_port_app2_target },
-    ]
-  }
-  init_vars_app1 = merge(local.init_vars, {
-    APP_NAME = local.init_name_app1
-    APP_PORT = local.init_port_app1_target
+  tools = templatefile("../../scripts/tools.sh", {
+    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = []
+    TARGETS_HEAVY_TRAFFIC_GEN = []
+    ENABLE_TRAFFIC_GEN        = false
   })
-  init_vars_app2 = merge(local.init_vars, {
-    APP_NAME = local.init_name_app2
-    APP_PORT = local.init_port_app2_target
-  })
-  vm_startup_fastapi_init = {
-    "${local.init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/docker-compose.yml", local.init_vars) }
-    "${local.init_dir}/start.sh"           = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/start.sh", local.init_vars) }
-    "${local.init_dir}/stop.sh"            = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/stop.sh", local.init_vars) }
-    "${local.init_dir}/service.sh"         = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/service.sh", local.init_vars) }
-    "/etc/ssl/app/cert.pem"                = { owner = "root", permissions = "0400", content = join("\n", [module.server_cert.cert_pem, tls_self_signed_cert.root_ca.cert_pem]) }
-    "/etc/ssl/app/key.pem"                 = { owner = "root", permissions = "0400", content = module.server_cert.private_key_pem }
-
-    "${local.init_dir}/nginx/Dockerfile" = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/nginx/Dockerfile", local.init_vars) }
-    "/etc/nginx/nginx.conf"              = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/nginx/nginx.conf", local.init_vars) }
-
-    "${local.init_dir}/${local.init_name_app1}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/Dockerfile", local.init_vars_app1) }
-    "${local.init_dir}/${local.init_name_app1}/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/.dockerignore", local.init_vars_app1) }
-    "${local.init_dir}/${local.init_name_app1}/main.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/main.py", local.init_vars_app1) }
-    "${local.init_dir}/${local.init_name_app1}/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/_app.py", local.init_vars_app1) }
-    "${local.init_dir}/${local.init_name_app1}/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/requirements.txt", local.init_vars) }
-
-    "${local.init_dir}/${local.init_name_app2}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/Dockerfile", local.init_vars_app2) }
-    "${local.init_dir}/${local.init_name_app2}/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/.dockerignore", local.init_vars_app2) }
-    "${local.init_dir}/${local.init_name_app2}/main.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/main.py", local.init_vars_app2) }
-    "${local.init_dir}/${local.init_name_app2}/_app.py"          = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/_app.py", local.init_vars_app2) }
-    "${local.init_dir}/${local.init_name_app2}/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/requirements.txt", local.init_vars_app2) }
-  }
+  onprem_local_records = [
+    { name = lower(local.branch1_vm_fqdn), record = local.branch1_vm_addr },
+    { name = lower(local.branch2_vm_fqdn), record = local.branch2_vm_addr },
+    { name = lower(local.branch3_vm_fqdn), record = local.branch3_vm_addr },
+  ]
+  onprem_redirected_hosts = []
+  branch_dns_init_dir     = "/var/lib/labs"
 }
 
-module "web_http_backend_init" {
-  source = "../../modules/cloud-config-gen"
-  packages = [
-    "docker.io", "docker-compose",
-    "tcpdump", "dnsutils", "net-tools", "nmap", "apache2-utils",
-  ]
-  files = local.vm_startup_fastapi_init
-  run_commands = [
-    ". ${local.init_dir}/service.sh",
-  ]
+####################################################
+# nsg
+####################################################
+
+# rules
+
+####################################################
+# addresses
+####################################################
+
+# branch1
+
+resource "azurerm_public_ip" "branch1_nva_pip" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.branch1_prefix}nva-pip"
+  location            = local.branch1_location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+  tags                = local.branch1_tags
+}
+
+# branch2
+
+resource "azurerm_public_ip" "branch2_nva_pip" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.branch2_prefix}nva-pip"
+  location            = local.branch2_location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+  tags                = local.branch2_tags
+}
+
+# branch3
+
+resource "azurerm_public_ip" "branch3_nva_pip" {
+  count               = length(local.regions) > 1 ? 1 : 0
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.branch3_prefix}nva-pip"
+  location            = local.branch3_location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+}
+
+# hub1
+
+resource "azurerm_public_ip" "hub1_s2s_vpngw_pip0" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.hub1_prefix}s2s-vpngw-pip0"
+  location            = local.hub1_location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+  zones               = [1, 2, 3]
+  tags                = local.hub1_tags
+}
+
+resource "azurerm_public_ip" "hub1_s2s_vpngw_pip1" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.hub1_prefix}s2s-vpngw-pip1"
+  location            = local.hub1_location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+  zones               = [1, 2, 3]
+  tags                = local.hub1_tags
 }
 
 ####################################################
@@ -374,70 +418,13 @@ locals {
 }
 
 ####################################################
-# root ca
-####################################################
-
-# private key
-
-resource "tls_private_key" "root_ca" {
-  algorithm = "RSA"
-  rsa_bits  = 2048
-}
-
-# root ca cert
-
-resource "tls_self_signed_cert" "root_ca" {
-  private_key_pem = tls_private_key.root_ca.private_key_pem
-  subject {
-    common_name         = local.server_host_wildcard
-    organization        = "demo"
-    organizational_unit = "cloud network team"
-    street_address      = ["mpls chicken road"]
-    locality            = "London"
-    province            = "England"
-    country             = "UK"
-  }
-  is_ca_certificate     = true
-  validity_period_hours = 8760
-  allowed_uses = [
-    "key_encipherment",
-    "digital_signature",
-    "cert_signing",
-  ]
-}
-
-####################################################
-# client cert
-####################################################
-
-module "server_cert" {
-  source   = "../../modules/cert-self-signed"
-  name     = local.server_cert_name_app1
-  rsa_bits = 2048
-  subject = {
-    common_name         = local.server_host_wildcard
-    organization        = "app1 demo"
-    organizational_unit = "app1 network team"
-    street_address      = "99 mpls chicken road, network avenue"
-    locality            = "London"
-    province            = "England"
-    country             = "UK"
-  }
-  dns_names = [
-    local.server_host_wildcard,
-  ]
-  ca_private_key_pem = tls_private_key.root_ca.private_key_pem
-  ca_cert_pem        = tls_self_signed_cert.root_ca.cert_pem
-}
-
-####################################################
 # output files
 ####################################################
 
 locals {
   main_files = {
-    "output/server.sh"  = local.vm_startup
-    "output/cloud-init" = module.web_http_backend_init.cloud_config
+    "output/server.sh"         = local.vm_startup
+    "output/hub1-linux-nva.sh" = local.hub1_linux_nva_init
   }
 }
 

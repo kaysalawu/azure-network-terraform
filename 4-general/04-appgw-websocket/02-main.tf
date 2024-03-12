@@ -3,7 +3,7 @@
 ####################################################
 
 locals {
-  prefix                 = "G03AppgwWebsoc"
+  prefix                 = "G04-AppgwWs"
   enable_diagnostics     = false
   enable_onprem_wan_link = false
   hub1_tags              = { "lab" = local.prefix, "nodeType" = "hub" }
