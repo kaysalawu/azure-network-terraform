@@ -46,13 +46,13 @@ module "megaport" {
       name          = "mcr2"
       port_speed    = 1000
       requested_asn = local.megaport_asn
-    },
+    }
   ]
 
   circuits = [
-    # azure (az)
     {
-      name                          = "er1"
+      name                          = "azure1"
+      connection_target             = "vnet"
       location                      = local.region1
       peering_location              = local.express_route_location
       bandwidth_in_mbps             = local.bandwidth_in_mbps
@@ -64,7 +64,8 @@ module "megaport" {
       peering_type                  = "AzurePrivatePeering"
     },
     {
-      name                          = "er2"
+      name                          = "azure2"
+      connection_target             = "vnet"
       location                      = local.region1
       peering_location              = local.express_route_location
       bandwidth_in_mbps             = local.bandwidth_in_mbps
@@ -75,9 +76,9 @@ module "megaport" {
       virtual_network_gateway_id    = module.hub1.ergw.id
       peering_type                  = "AzurePrivatePeering"
     },
-    # onprem (op)
     {
-      name                          = "op1"
+      name                          = "onprem1"
+      connection_target             = "vnet"
       location                      = local.region1
       peering_location              = local.express_route_location
       bandwidth_in_mbps             = local.bandwidth_in_mbps
@@ -89,7 +90,8 @@ module "megaport" {
       peering_type                  = "AzurePrivatePeering"
     },
     {
-      name                          = "op2"
+      name                          = "onprem2"
+      connection_target             = "vnet"
       location                      = local.region1
       peering_location              = local.express_route_location
       bandwidth_in_mbps             = local.bandwidth_in_mbps
@@ -109,10 +111,10 @@ module "megaport" {
 
 locals {
   hub1_er_dashboard_vars = {
-    ER_CIRCUIT1 = module.megaport.expressroute_circuits["er1"].id
-    ER_CIRCUIT2 = module.megaport.expressroute_circuits["er2"].id
+    ER_CIRCUIT1 = module.megaport.expressroute_circuits["azure1"].id
+    ER_CIRCUIT2 = module.megaport.expressroute_circuits["azure2"].id
   }
-  dashboard_properties = templatefile("./templates/dashboard.json", local.hub1_er_dashboard_vars)
+  dashboard_properties = templatefile("./dashboard/dashboard.json", local.hub1_er_dashboard_vars)
 }
 
 resource "azurerm_portal_dashboard" "hub1_er" {

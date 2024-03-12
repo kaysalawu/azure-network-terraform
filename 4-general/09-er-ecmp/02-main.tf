@@ -150,10 +150,13 @@ locals {
     }
 
     config_nva = {
-      enable           = false
-      type             = null
-      internal_lb_addr = null
-      custom_data      = null
+      enable          = false
+      type            = null
+      scenario_option = null
+      opn_type        = null
+      custom_data     = null
+      ilb_untrust_ip  = null
+      ilb_trust_ip    = null
     }
   }
 }
@@ -268,6 +271,28 @@ resource "azurerm_public_ip" "branch1_nva_pip" {
   sku                 = "Standard"
   allocation_method   = "Static"
   tags                = local.branch1_tags
+}
+
+# hub1
+
+resource "azurerm_public_ip" "hub1_s2s_vpngw_pip0" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.hub1_prefix}s2s-vpngw-pip0"
+  location            = local.hub1_location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+  zones               = [1, 2, 3]
+  tags                = local.hub1_tags
+}
+
+resource "azurerm_public_ip" "hub1_s2s_vpngw_pip1" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.hub1_prefix}s2s-vpngw-pip1"
+  location            = local.hub1_location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+  zones               = [1, 2, 3]
+  tags                = local.hub1_tags
 }
 
 ####################################################
