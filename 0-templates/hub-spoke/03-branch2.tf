@@ -1,14 +1,4 @@
 
-locals {
-  branch2_vm_init = templatefile("../../scripts/server.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
-    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
-    ENABLE_TRAFFIC_GEN        = true
-  })
-}
-
 ####################################################
 # vnet
 ####################################################
@@ -121,6 +111,17 @@ module "branch2_dns" {
 ####################################################
 # workload
 ####################################################
+
+
+locals {
+  branch2_vm_init = templatefile("../../scripts/server.sh", {
+    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
+    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
+    ENABLE_TRAFFIC_GEN        = true
+  })
+}
 
 module "branch2_vm" {
   source          = "../../modules/virtual-machine-linux"

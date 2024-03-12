@@ -113,13 +113,6 @@ module "branch3_dns" {
 ####################################################
 
 locals {
-  branch3_network       = cidrhost(local.branch3_subnets["MainSubnet"].address_prefixes[0], 0)
-  branch3_mask          = cidrnetmask(local.branch3_subnets["MainSubnet"].address_prefixes[0])
-  branch3_inverse_mask_ = [for octet in split(".", local.branch3_mask) : 255 - tonumber(octet)]
-  branch3_inverse_mask  = join(".", local.branch3_inverse_mask_)
-}
-
-locals {
   branch3_nva_route_map_onprem      = "ONPREM"
   branch3_nva_route_map_azure       = "AZURE"
   branch3_nva_route_map_block_azure = "BLOCK_HUB_GW_SUBNET"
