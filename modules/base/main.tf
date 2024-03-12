@@ -248,11 +248,10 @@ module "p2s_vpngw" {
     clients       = try(var.config_p2s_vpngw.vpn_client_configuration.clients, [])
   }
 
-  ip_configuration = [for c in var.config_s2s_vpngw.ip_configuration : {
-    name                          = c.name
-    subnet_id                     = azurerm_subnet.this["GatewaySubnet"].id
-    public_ip_address_name        = c.public_ip_address_name
-    private_ip_address_allocation = c.private_ip_address_allocation
+  ip_configuration = [for c in var.config_p2s_vpngw.ip_configuration : {
+    name                   = c.name
+    subnet_id              = azurerm_subnet.this["GatewaySubnet"].id
+    public_ip_address_name = c.public_ip_address_name
   }]
   log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 

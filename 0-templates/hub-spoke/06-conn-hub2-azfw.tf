@@ -233,7 +233,7 @@ resource "azurerm_virtual_network_gateway_connection" "hub2_branch3_lng" {
   enable_bgp                     = true
   virtual_network_gateway_id     = module.hub2.s2s_vpngw.id
   local_network_gateway_id       = azurerm_local_network_gateway.hub2_branch3_lng.id
-  local_azure_ip_address_enabled = false
+  local_azure_ip_address_enabled = true
   shared_key                     = local.psk
   egress_nat_rule_ids            = []
   ingress_nat_rule_ids           = []

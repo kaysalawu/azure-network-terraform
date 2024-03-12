@@ -97,7 +97,7 @@ resource "azurerm_linux_virtual_machine" "this" {
       name      = var.source_image_sku
     }
   }
-  computer_name  = var.computer_name == "" ? local.name : var.computer_name
+  computer_name  = var.computer_name == "" ? local.name : replace(var.computer_name, "_", "-")
   admin_username = var.admin_username
   admin_password = var.admin_password
   boot_diagnostics {
