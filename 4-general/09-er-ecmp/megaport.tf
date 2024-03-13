@@ -42,11 +42,11 @@ module "megaport" {
       port_speed    = 1000
       requested_asn = local.megaport_asn
     },
-    {
-      name          = "mcr2"
-      port_speed    = 1000
-      requested_asn = local.megaport_asn
-    }
+    # {
+    #   name          = "mcr2"
+    #   port_speed    = 1000
+    #   requested_asn = local.megaport_asn
+    # }
   ]
 
   circuits = [
@@ -63,19 +63,19 @@ module "megaport" {
       virtual_network_gateway_id    = module.hub1.ergw.id
       peering_type                  = "AzurePrivatePeering"
     },
-    {
-      name                          = "azure2"
-      connection_target             = "vnet"
-      location                      = local.region1
-      peering_location              = local.express_route_location
-      bandwidth_in_mbps             = local.bandwidth_in_mbps
-      requested_vlan                = local.megaport_vlan2
-      mcr_name                      = "mcr2"
-      primary_peer_address_prefix   = local.csp_range3
-      secondary_peer_address_prefix = local.csp_range4
-      virtual_network_gateway_id    = module.hub1.ergw.id
-      peering_type                  = "AzurePrivatePeering"
-    },
+    # {
+    #   name                          = "azure2"
+    #   connection_target             = "vnet"
+    #   location                      = local.region1
+    #   peering_location              = local.express_route_location
+    #   bandwidth_in_mbps             = local.bandwidth_in_mbps
+    #   requested_vlan                = local.megaport_vlan2
+    #   mcr_name                      = "mcr2"
+    #   primary_peer_address_prefix   = local.csp_range3
+    #   secondary_peer_address_prefix = local.csp_range4
+    #   virtual_network_gateway_id    = module.hub1.ergw.id
+    #   peering_type                  = "AzurePrivatePeering"
+    # },
     {
       name                          = "onprem1"
       connection_target             = "vnet"
@@ -89,19 +89,19 @@ module "megaport" {
       virtual_network_gateway_id    = module.branch1.ergw.id
       peering_type                  = "AzurePrivatePeering"
     },
-    {
-      name                          = "onprem2"
-      connection_target             = "vnet"
-      location                      = local.region1
-      peering_location              = local.express_route_location
-      bandwidth_in_mbps             = local.bandwidth_in_mbps
-      requested_vlan                = local.megaport_vlan4
-      mcr_name                      = "mcr2"
-      primary_peer_address_prefix   = local.csp_range7
-      secondary_peer_address_prefix = local.csp_range8
-      virtual_network_gateway_id    = module.branch1.ergw.id
-      perring_type                  = "AzurePrivatePeering"
-    },
+    # {
+    #   name                          = "onprem2"
+    #   connection_target             = "vnet"
+    #   location                      = local.region1
+    #   peering_location              = local.express_route_location
+    #   bandwidth_in_mbps             = local.bandwidth_in_mbps
+    #   requested_vlan                = local.megaport_vlan4
+    #   mcr_name                      = "mcr2"
+    #   primary_peer_address_prefix   = local.csp_range7
+    #   secondary_peer_address_prefix = local.csp_range8
+    #   virtual_network_gateway_id    = module.branch1.ergw.id
+    #   perring_type                  = "AzurePrivatePeering"
+    # },
   ]
 }
 
@@ -112,7 +112,7 @@ module "megaport" {
 locals {
   hub1_er_dashboard_vars = {
     ER_CIRCUIT1 = module.megaport.expressroute_circuits["azure1"].id
-    ER_CIRCUIT2 = module.megaport.expressroute_circuits["azure2"].id
+    ER_CIRCUIT2 = module.megaport.expressroute_circuits["onprem1"].id
   }
   dashboard_properties = templatefile("./dashboard/dashboard.json", local.hub1_er_dashboard_vars)
 }

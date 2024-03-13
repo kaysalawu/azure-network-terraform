@@ -4,7 +4,7 @@
 
 locals {
   prefix                 = "G09"
-  enable_diagnostics     = false
+  enable_diagnostics     = true
   enable_onprem_wan_link = false
 
   hub1_tags    = { "lab" = local.prefix, "nodeType" = "hub" }
