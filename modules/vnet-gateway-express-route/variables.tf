@@ -108,6 +108,18 @@ variable "metric_categories" {
   ]
 }
 
+variable "remote_vnet_traffic_enabled" {
+  description = "remote vnet traffic enabled"
+  type        = bool
+  default     = true
+}
+
+variable "virtual_wan_traffic_enabled" {
+  description = "virtual wan traffic enabled"
+  type        = bool
+  default     = true
+}
+
 variable "active_active" {
   description = "enable active active"
   type        = bool
