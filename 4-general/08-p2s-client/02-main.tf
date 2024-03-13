@@ -3,7 +3,8 @@
 ####################################################
 
 locals {
-  prefix                 = "G08_p2s"
+  prefix                 = "G08"
+  lab_name               = "P2sClient"
   enable_diagnostics     = false
   enable_onprem_wan_link = false
 
@@ -153,8 +154,12 @@ locals {
 # resource group
 
 resource "azurerm_resource_group" "rg" {
-  name     = "${local.prefix}RG"
+  name     = "${local.prefix}_${local.lab_name}_RG"
   location = local.default_region
+  tags = {
+    prefix   = local.prefix
+    lab_name = local.lab_name
+  }
 }
 
 module "common" {

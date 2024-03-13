@@ -1,6 +1,6 @@
 # Site-to-site VPN (Active-Active) over ExpressRoute <!-- omit from toc -->
 
-## Lab: G10 <!-- omit from toc -->
+## Lab: G01 <!-- omit from toc -->
 
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
@@ -62,7 +62,7 @@ Ensure you meet all requirements in the [prerequisites](../../prerequisites/READ
 1. Route table
 
 ```sh
-G10-branch1Nva#show ip route
+G01-branch1Nva#show ip route
 ...
 Gateway of last resort is 10.10.1.1 to network 0.0.0.0
 
@@ -93,7 +93,7 @@ C        192.168.10.10 is directly connected, Loopback0
 2. BGP table
 
 ```sh
-G10-branch1Nva#show ip bgp
+G01-branch1Nva#show ip bgp
 BGP table version is 5, local router ID is 192.168.10.10
 Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
               r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
@@ -119,7 +119,7 @@ The other hub subnets **10.11.0.0/17** are advertised because we need to reach r
 3. Interfaces
 
 ```sh
-G10-branch1Nva#show ip int br
+G01-branch1Nva#show ip int br
 Interface              IP-Address      OK? Method Status                Protocol
 GigabitEthernet1       10.10.1.9       YES DHCP   up                    up
 GigabitEthernet2       10.10.2.9       YES DHCP   up                    up
@@ -133,7 +133,7 @@ VirtualPortGroup0      192.168.35.101  YES TFTP   up                    up
 4. Advertised Routes
 
 ```sh
-G10-branch1Nva#show ip bgp neighbors 10.11.128.14 advertised-routes
+G01-branch1Nva#show ip bgp neighbors 10.11.128.14 advertised-routes
 BGP table version is 5, local router ID is 192.168.10.10
 Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
               r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter,
@@ -165,7 +165,7 @@ azureuser@vm:~$ curl-dns
 200 (0.564752s) - 10.2.0.5 - vm.spoke2.eu.az.corp
 000 (2.001149s) -  - vm.spoke3.eu.az.corp
 200 (0.039254s) - 104.18.114.97 - icanhazip.com
-200 (0.553922s) - 10.11.7.5 - g10-spoke3-d45e.azurewebsites.net
+200 (0.553922s) - 10.11.7.5 - g01-spoke3-d45e.azurewebsites.net
 ```
 
 ### Spoke1 VM
@@ -184,13 +184,13 @@ azureuser@vm:~$ curl-dns
 200 (0.023438s) - 10.2.0.5 - vm.spoke2.eu.az.corp
 000 (2.000223s) -  - vm.spoke3.eu.az.corp
 200 (0.025911s) - 104.18.114.97 - icanhazip.com
-200 (0.023887s) - 10.11.7.5 - g10-spoke3-d45e.azurewebsites.net
+200 (0.023887s) - 10.11.7.5 - g01-spoke3-d45e.azurewebsites.net
 ```
 
 2. Effective routes
 
 ```sh
-Effective routes for G10-spoke1Vm-main-nic
+Effective routes for G01-spoke1Vm-main-nic
 
 Source    Prefix          State    NextHopType        NextHopIP
 --------  --------------  -------  -----------------  -----------
@@ -210,7 +210,7 @@ Default   10.11.7.5/32    Active   InterfaceEndpoint
 1. Effective routes - Untrust
 
 ```sh
-Effective routes for G10-hub1-nva-untrust-nic
+Effective routes for G01-hub1-nva-untrust-nic
 
 Source                 Prefix          State    NextHopType            NextHopIP
 ---------------------  --------------  -------  ---------------------  ------------
@@ -233,9 +233,9 @@ Default                10.11.7.5/32    Active   InterfaceEndpoint
 1. Route tables
 
 ```sh
-10-s2s-over-er-active-active$ . ../../scripts/express-route/get_route_tables.sh G10RG
+10-s2s-over-er-active-active$ . ../../scripts/express-route/get_route_tables.sh G01RG
 
-Resource group: G10RG
+Resource group: G01RG
 
 
 ⏳ AzurePrivatePeering (Primary): branch1
@@ -284,18 +284,18 @@ LocPrf    Network       NextHop        Path    Weight
 1. BGP Peers
 
 ```sh
-10-s2s-over-er-active-active$ . ../../scripts/vnet-gateway/get_bgp_peer_status.sh g10rg
+10-s2s-over-er-active-active$ . ../../scripts/vnet-gateway/get_bgp_peer_status.sh g01rg
 
-Resource group: g10rg
+Resource group: g01rg
 
-Gateway: G10-branch1-ergw
+Gateway: G01-branch1-ergw
 Route tables:
 Neighbor    ASN    LocalAddress    RoutesReceived    State
 ----------  -----  --------------  ----------------  ---------
 10.10.5.4   12076  10.10.5.12      6                 Connected
 10.10.5.5   12076  10.10.5.12      0                 Connected
 
-Gateway: G10-hub1-ergw
+Gateway: G01-hub1-ergw
 Route tables:
 Neighbor      ASN    LocalAddress    RoutesReceived    State
 ------------  -----  --------------  ----------------  ---------
@@ -304,7 +304,7 @@ Neighbor      ASN    LocalAddress    RoutesReceived    State
 10.11.128.14  65515  10.11.128.12    1                 Connected
 10.11.128.15  65515  10.11.128.12    1                 Connected
 
-Gateway: G10-hub1-vpngw
+Gateway: G01-hub1-vpngw
 Route tables:
 Neighbor       ASN    LocalAddress    RoutesReceived    State
 -------------  -----  --------------  ----------------  ---------
@@ -323,11 +323,11 @@ Neighbor       ASN    LocalAddress    RoutesReceived    State
 2. Route Tables
 
 ```sh
-10-s2s-over-er-active-active$ . ../../scripts/vnet-gateway/get_route_tables.sh g10rg
+10-s2s-over-er-active-active$ . ../../scripts/vnet-gateway/get_route_tables.sh g01rg
 
-Resource group: g10rg
+Resource group: g01rg
 
-Gateway: G10-branch1-ergw
+Gateway: G01-branch1-ergw
 Route tables:
 Network         NextHop    Origin    SourcePeer    AsPath             Weight
 --------------  ---------  --------  ------------  -----------------  --------
@@ -339,7 +339,7 @@ Network         NextHop    Origin    SourcePeer    AsPath             Weight
 172.16.0.0/30   10.10.5.4  EBgp      10.10.5.4     12076-64512        32769
 172.16.0.8/30   10.10.5.4  EBgp      10.10.5.4     12076-64512        32769
 
-Gateway: G10-hub1-ergw
+Gateway: G01-hub1-ergw
 Route tables:
 Network         NextHop       Origin    SourcePeer    AsPath             Weight
 --------------  ------------  --------  ------------  -----------------  --------
@@ -353,7 +353,7 @@ Network         NextHop       Origin    SourcePeer    AsPath             Weight
 172.16.0.0/30   10.11.128.6   EBgp      10.11.128.6   12076-64512        32769
 172.16.0.8/30   10.11.128.6   EBgp      10.11.128.6   12076-64512        32769
 
-Gateway: G10-hub1-vpngw
+Gateway: G01-hub1-vpngw
 Route tables:
 Network           NextHop        Origin    SourcePeer     AsPath    Weight
 ----------------  -------------  --------  -------------  --------  --------
@@ -406,19 +406,19 @@ See the [troubleshooting](../../troubleshooting/README.md) section for tips on h
 2. In order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that may not be removed after the resource group is deleted.
 
    ```sh
-   bash ../../scripts/_cleanup.sh G10
+   bash ../../scripts/_cleanup.sh G01
    ```
 
 3. Run script to delete private peerings on all express route circuits.
 
    ```sh
-   bash ../../scripts/express-route/delete_private_peerings.sh G10RG
+   bash ../../scripts/express-route/delete_private_peerings.sh G01RG
    ```
 
 4. Delete the resource group to remove all resources installed.
 
    ```sh
-   az group delete -g G10RG --no-wait
+   az group delete -g G01RG --no-wait
    ```
 
 5. Delete terraform state files and other generated files.

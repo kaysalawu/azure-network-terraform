@@ -4,6 +4,7 @@
 
 locals {
   prefix                 = "G09"
+  lab_name               = "ErEcmp"
   enable_diagnostics     = true
   enable_onprem_wan_link = false
 
@@ -168,8 +169,12 @@ locals {
 # resource group
 
 resource "azurerm_resource_group" "rg" {
-  name     = "${local.prefix}RG"
+  name     = "${local.prefix}_${local.lab_name}_RG"
   location = local.default_region
+  tags = {
+    prefix   = local.prefix
+    lab_name = local.lab_name
+  }
 }
 
 module "common" {
