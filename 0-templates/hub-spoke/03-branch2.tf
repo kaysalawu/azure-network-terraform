@@ -181,7 +181,6 @@ module "branch2_udr_main" {
 locals {
   branch2_files = {
     "output/branch1Dns.sh" = local.branch2_unbound_startup
-    "output/branch2-vm.sh" = local.branch2_vm_init
     "output/branch2Vm.sh"  = local.branch2_vm_init
   }
 }
