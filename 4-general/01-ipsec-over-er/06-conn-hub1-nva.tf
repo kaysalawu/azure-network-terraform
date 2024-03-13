@@ -212,11 +212,25 @@ resource "azurerm_local_network_gateway" "hub1_branch1_lng" {
   resource_group_name = azurerm_resource_group.rg.name
   name                = "${local.hub1_prefix}branch1-lng"
   location            = local.hub1_location
-  gateway_address     = local.branch1_nva_untrust_addr
+  gateway_address     = azurerm_public_ip.branch1_nva_pip.ip_address
   address_space       = ["${local.branch1_nva_loopback0}/32", ]
   bgp_settings {
     asn                 = local.branch1_nva_asn
     bgp_peering_address = local.branch1_nva_loopback0
+  }
+}
+
+# branch2
+
+resource "azurerm_local_network_gateway" "hub1_branch2_lng" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.hub1_prefix}branch2-lng"
+  location            = local.hub1_location
+  gateway_address     = local.branch2_nva_untrust_addr
+  address_space       = ["${local.branch2_nva_loopback0}/32", ]
+  bgp_settings {
+    asn                 = local.branch2_nva_asn
+    bgp_peering_address = local.branch2_nva_loopback0
   }
 }
 
@@ -233,6 +247,22 @@ resource "azurerm_virtual_network_gateway_connection" "hub1_branch1_lng" {
   enable_bgp                     = true
   virtual_network_gateway_id     = module.hub1.s2s_vpngw.id
   local_network_gateway_id       = azurerm_local_network_gateway.hub1_branch1_lng.id
+  local_azure_ip_address_enabled = false
+  shared_key                     = local.psk
+  egress_nat_rule_ids            = []
+  ingress_nat_rule_ids           = []
+}
+
+# branch2
+
+resource "azurerm_virtual_network_gateway_connection" "hub1_branch2_lng" {
+  resource_group_name            = azurerm_resource_group.rg.name
+  name                           = "${local.hub1_prefix}branch2-lng-conn"
+  location                       = local.hub1_location
+  type                           = "IPsec"
+  enable_bgp                     = true
+  virtual_network_gateway_id     = module.hub1.s2s_vpngw.id
+  local_network_gateway_id       = azurerm_local_network_gateway.hub1_branch2_lng.id
   local_azure_ip_address_enabled = true
   shared_key                     = local.psk
   egress_nat_rule_ids            = []

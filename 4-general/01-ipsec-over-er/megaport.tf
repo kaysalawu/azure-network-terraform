@@ -46,7 +46,7 @@ module "megaport" {
 
   circuits = [
     {
-      name                          = "hub1"
+      name                          = "${local.prefix}-hub1"
       connection_target             = "vnet"
       location                      = local.region1
       peering_location              = local.express_route_location
@@ -59,7 +59,7 @@ module "megaport" {
       peering_type                  = "AzurePrivatePeering"
     },
     {
-      name                          = "branch2"
+      name                          = "${local.prefix}-branch2"
       connection_target             = "vnet"
       location                      = local.region1
       peering_location              = local.express_route_location
@@ -78,17 +78,17 @@ module "megaport" {
 # dashboard
 ####################################################
 
-locals {
-  hub1_er_dashboard_vars = {
-    ER_CIRCUIT1 = module.megaport.expressroute_circuits["hub1"].id
-  }
-  dashboard_properties = templatefile("./dashboard/dashboard.json", local.hub1_er_dashboard_vars)
-}
+# locals {
+#   hub1_er_dashboard_vars = {
+#     ER_CIRCUIT1 = module.megaport.expressroute_circuits["hub1"].id
+#   }
+#   dashboard_properties = templatefile("./dashboard/dashboard.json", local.hub1_er_dashboard_vars)
+# }
 
-resource "azurerm_portal_dashboard" "hub1_er" {
-  name                 = "${local.hub1_prefix}hub1-er-db"
-  resource_group_name  = azurerm_resource_group.rg.name
-  location             = local.hub1_location
-  tags                 = local.hub1_tags
-  dashboard_properties = local.dashboard_properties
-}
+# resource "azurerm_portal_dashboard" "hub1_er" {
+#   name                 = "${local.hub1_prefix}hub1-er-db"
+#   resource_group_name  = azurerm_resource_group.rg.name
+#   location             = local.hub1_location
+#   tags                 = local.hub1_tags
+#   dashboard_properties = local.dashboard_properties
+# }

@@ -163,25 +163,25 @@ locals {
     LOOPBACKS = []
 
     PREFIX_LISTS = [
-      # "ip prefix-list ${local.branch2_nva_route_map_block_azure} deny ${local.hub1_subnets["GatewaySubnet"].address_prefixes[0]}",
-      # "ip prefix-list ${local.branch2_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
+      "ip prefix-list ${local.branch2_nva_route_map_block_azure} deny ${local.hub1_subnets["GatewaySubnet"].address_prefixes[0]}",
+      "ip prefix-list ${local.branch2_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
     ]
     ROUTE_MAPS = [
-      # "route-map ${local.branch2_nva_route_map_onprem} permit 100",
-      # "match ip address prefix-list all",
-      # "set as-path prepend ${local.branch2_nva_asn} ${local.branch2_nva_asn} ${local.branch2_nva_asn}",
-
-      # "route-map ${local.branch2_nva_route_map_azure} permit 110",
-      # "match ip address prefix-list all",
-
-      # # block inbound gateway subnet, allow all other hub and spoke cidrs
-      # "route-map ${local.branch2_nva_route_map_block_azure} permit 120",
-      # "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
+      "route-map ${local.branch2_nva_route_map_onprem} permit 100",
+      "match ip address prefix-list all",
+      "set as-path prepend ${local.branch2_nva_asn} ${local.branch2_nva_asn} ${local.branch2_nva_asn}",
+      "route-map ${local.branch2_nva_route_map_azure} permit 110",
+      "match ip address prefix-list all",
+      # block inbound gateway subnet, allow all other hub and spoke cidrs
+      "route-map ${local.branch2_nva_route_map_block_azure} permit 120",
+      "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
     ]
     STATIC_ROUTES = [
       { prefix = "0.0.0.0", mask = "0.0.0.0", next_hop = local.branch2_untrust_default_gw },
       { prefix = "${module.hub1.s2s_vpngw_bgp_default_ip0}/32", next_hop = "vti0" },
       { prefix = "${module.hub1.s2s_vpngw_bgp_default_ip1}/32", next_hop = "vti1" },
+      { prefix = "${module.hub1.s2s_vpngw_private_ip0}/32", next_hop = local.branch2_untrust_default_gw },
+      { prefix = "${module.hub1.s2s_vpngw_private_ip1}/32", next_hop = local.branch2_untrust_default_gw },
       { prefix = local.branch2_subnets["MainSubnet"].address_prefixes[0], next_hop = local.branch2_untrust_default_gw },
     ]
     TUNNELS = [
@@ -216,14 +216,20 @@ locals {
         peer_ip         = module.hub1.s2s_vpngw_bgp_default_ip0
         ebgp_multihop   = true
         source_loopback = true
-        route_maps      = []
+        route_maps = [
+          { name = "BLOCK_HUB_GW_SUBNET", direction = "in" },
+          { name = "AZURE", direction = "out" },
+        ]
       },
       {
         peer_asn        = module.hub1.s2s_vpngw_bgp_asn
         peer_ip         = module.hub1.s2s_vpngw_bgp_default_ip1
         ebgp_multihop   = true
         source_loopback = true
-        route_maps      = []
+        route_maps = [
+          { name = "BLOCK_HUB_GW_SUBNET", direction = "in" },
+          { name = "AZURE", direction = "out" },
+        ]
       },
     ]
     BGP_ADVERTISED_PREFIXES = [
@@ -237,8 +243,6 @@ locals {
     ENABLE_TRAFFIC_GEN        = false
 
     IPTABLES_RULES           = []
-    ROUTE_MAPS               = []
-    TUNNELS                  = []
     FRR_CONF                 = templatefile("../../scripts/frr/frr.conf", merge(local.branch2_nva_vars, {}))
     STRONGSWAN_VTI_SCRIPT    = templatefile("../../scripts/strongswan/ipsec-vti.sh", local.branch2_nva_vars)
     STRONGSWAN_IPSEC_SECRETS = templatefile("../../scripts/strongswan/ipsec.secrets", local.branch2_nva_vars)
@@ -286,12 +290,6 @@ module "branch2_nva" {
 
 locals {
   branch2_routes_main = [
-    {
-      name                   = "private"
-      address_prefix         = local.private_prefixes
-      next_hop_type          = "VirtualAppliance"
-      next_hop_in_ip_address = local.branch2_nva_trust_addr
-    },
   ]
 }
 
@@ -317,8 +315,9 @@ module "branch2_udr_main" {
 
 locals {
   branch2_files = {
-    "output/branch2Nva.sh" = local.branch2_nva_init
+    "output/branch1Dns.sh" = local.branch2_unbound_startup
     "output/branch2Vm.sh"  = local.branch2_vm_init
+    "output/branch2Nva.sh" = local.branch2_nva_init
   }
 }
 

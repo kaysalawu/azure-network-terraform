@@ -112,14 +112,115 @@ sudo systemctl restart frr
 #########################################################
 
 tee /etc/ipsec.conf <<EOF
+config setup
+    charondebug="ike 2, knl 2, cfg 2, net 2, esp 2, dmn 2,  mgr 2"
+
+conn %default
+    type=tunnel
+    ikelifetime=60m
+    keylife=20m
+    rekeymargin=3m
+    keyingtries=1
+    authby=secret
+    keyexchange=ikev2
+    installpolicy=yes
+    compress=no
+    mobike=no
+    #left=%defaultroute
+    leftsubnet=0.0.0.0/0
+    rightsubnet=0.0.0.0/0
+    ike=aes256-sha1-modp1024!
+    esp=aes256-sha1!
+
+conn Tunnel0
+    left=10.10.1.9
+    leftid=40.69.33.215
+    right=4.207.24.170
+    rightid=4.207.24.170
+    auto=start
+    mark=100
+    leftupdown="/etc/ipsec.d/ipsec-vti.sh"
+conn Tunnel1
+    left=10.10.1.9
+    leftid=40.69.33.215
+    right=4.207.24.51
+    rightid=4.207.24.51
+    auto=start
+    mark=200
+    leftupdown="/etc/ipsec.d/ipsec-vti.sh"
+conn Tunnel2
+    left=10.10.1.9
+    leftid=40.69.33.215
+    right=1.1.1.1
+    rightid=1.1.1.1
+    auto=start
+    mark=300
+    leftupdown="/etc/ipsec.d/ipsec-vti.sh"
+
+# github source used
+# https://gist.github.com/heri16/2f59d22d1d5980796bfb
 
 EOF
 
 tee /etc/ipsec.secrets <<EOF
+10.10.1.9 4.207.24.170 : PSK "changeme"
+10.10.1.9 4.207.24.51 : PSK "changeme"
+10.10.1.9 1.1.1.1 : PSK "changeme"
 
 EOF
 
 sudo tee /etc/ipsec.d/ipsec-vti.sh <<'EOF'
+#!/bin/bash
+
+LOG_FILE="/var/log/ipsec-vti.log"
+
+IP=$(which ip)
+IPTABLES=$(which iptables)
+
+PLUTO_MARK_OUT_ARR=(${PLUTO_MARK_OUT//// })
+PLUTO_MARK_IN_ARR=(${PLUTO_MARK_IN//// })
+
+case "$PLUTO_CONNECTION" in
+  Tunnel0)
+    VTI_INTERFACE=vti0
+    VTI_LOCALADDR=10.10.10.1
+    VTI_REMOTEADDR=10.11.16.14
+    ;;
+  Tunnel1)
+    VTI_INTERFACE=vti1
+    VTI_LOCALADDR=10.10.10.5
+    VTI_REMOTEADDR=10.11.16.15
+    ;;
+  Tunnel2)
+    VTI_INTERFACE=vti2
+    VTI_LOCALADDR=10.10.10.9
+    VTI_REMOTEADDR=10.10.10.10
+    ;;
+esac
+
+echo "$(date): Trigger - CONN=${PLUTO_CONNECTION}, VERB=${PLUTO_VERB}, ME=${PLUTO_ME}, PEER=${PLUTO_PEER}], PEER_CLIENT=${PLUTO_PEER_CLIENT}, MARK_OUT=${PLUTO_MARK_OUT_ARR}, MARK_IN=${PLUTO_MARK_IN_ARR}" >> $LOG_FILE
+
+case "$PLUTO_VERB" in
+  up-client)
+    $IP link add ${VTI_INTERFACE} type vti local ${PLUTO_ME} remote ${PLUTO_PEER} okey ${PLUTO_MARK_OUT_ARR[0]} ikey ${PLUTO_MARK_IN_ARR[0]}
+    sysctl -w net.ipv4.conf.${VTI_INTERFACE}.disable_policy=1
+    sysctl -w net.ipv4.conf.${VTI_INTERFACE}.rp_filter=2 || sysctl -w net.ipv4.conf.${VTI_INTERFACE}.rp_filter=0
+    $IP addr add ${VTI_LOCALADDR} remote ${VTI_REMOTEADDR} dev ${VTI_INTERFACE}
+    $IP link set ${VTI_INTERFACE} up mtu 1436
+    $IPTABLES -t mangle -I FORWARD -o ${VTI_INTERFACE} -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+    $IPTABLES -t mangle -I INPUT -p esp -s ${PLUTO_PEER} -d ${PLUTO_ME} -j MARK --set-xmark ${PLUTO_MARK_IN}
+    $IP route flush table 220
+    #/etc/init.d/bgpd reload || /etc/init.d/quagga force-reload bgpd
+    ;;
+  down-client)
+    $IP link del ${VTI_INTERFACE}
+    $IPTABLES -t mangle -D FORWARD -o ${VTI_INTERFACE} -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+    $IPTABLES -t mangle -D INPUT -p esp -s ${PLUTO_PEER} -d ${PLUTO_ME} -j MARK --set-xmark ${PLUTO_MARK_IN}
+    ;;
+esac
+
+# github source used
+# https://gist.github.com/heri16/2f59d22d1d5980796bfb
 
 EOF
 chmod a+x /etc/ipsec.d/ipsec-vti.sh
@@ -132,7 +233,65 @@ systemctl restart ipsec.service
 # #########################################################
 
 sudo tee /etc/frr/frr.conf <<EOF
-# 
+# !
+!-----------------------------------------
+! Global
+!-----------------------------------------
+frr version 7.2
+frr defaults traditional
+hostname $(hostname)
+log syslog informational
+service integrated-vtysh-config
+!
+!-----------------------------------------
+! Prefix Lists
+!-----------------------------------------
+!
+!-----------------------------------------
+! Interface
+!-----------------------------------------
+interface lo
+  ip address 192.168.10.10/32
+!
+!-----------------------------------------
+! Static Routes
+!-----------------------------------------
+ip route 0.0.0.0 10.10.1.1
+ip route 10.11.16.14/32 vti0
+ip route 10.11.16.15/32 vti1
+ip route 192.168.30.30/32 vti2
+ip route 10.30.1.9 10.10.1.1
+ip route 10.10.0.0/24 10.10.1.1
+!
+!-----------------------------------------
+! Route Maps
+!-----------------------------------------
+!
+!-----------------------------------------
+! BGP
+!-----------------------------------------
+router bgp 65001
+bgp router-id 192.168.10.10
+neighbor 10.11.16.14 remote-as 65515
+neighbor 10.11.16.14 ebgp-multihop 255
+neighbor 10.11.16.14 update-source lo
+neighbor 10.11.16.15 remote-as 65515
+neighbor 10.11.16.15 ebgp-multihop 255
+neighbor 10.11.16.15 update-source lo
+neighbor 192.168.30.30 remote-as 65003
+neighbor 192.168.30.30 ebgp-multihop 255
+neighbor 192.168.30.30 update-source lo
+!
+address-family ipv4 unicast
+  network 10.10.0.0/24
+  neighbor 10.11.16.14 soft-reconfiguration inbound
+  neighbor 10.11.16.15 soft-reconfiguration inbound
+  neighbor 192.168.30.30 soft-reconfiguration inbound
+exit-address-family
+!
+line vty
+!
+
 EOF
 
 sudo systemctl enable frr

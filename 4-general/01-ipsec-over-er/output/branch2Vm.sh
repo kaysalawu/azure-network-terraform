@@ -161,3 +161,41 @@ echo -e "\n resolvectl ...\n"
 resolvectl status
 EOF
 chmod a+x /usr/local/bin/dns-info
+# light-traffic generator
+
+cat <<EOF > /usr/local/bin/light-traffic
+nping -c 10 --tcp -p 80 branch1vm.corp > /dev/null 2>&1
+nping -c 10 --tcp -p 80 spoke3pls.eu.az.corp > /dev/null 2>&1
+nping -c 10 --tcp -p 80 spoke1vm.eu.az.corp > /dev/null 2>&1
+nping -c 10 --tcp -p 80 spoke2vm.eu.az.corp > /dev/null 2>&1
+nping -c 10 --tcp -p 80 https://g01spoke3saa89f.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
+EOF
+chmod a+x /usr/local/bin/light-traffic
+
+# heavy-traffic generator
+
+cat <<EOF > /usr/local/bin/heavy-traffic
+#! /bin/bash
+i=0
+while [ \$i -lt 8 ]; do
+    ab -n \$1 -c \$2 branch1vm.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 spoke3pls.eu.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 spoke1vm.eu.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 spoke2vm.eu.az.corp > /dev/null 2>&1
+    ab -n \$1 -c \$2 https://g01spoke3saa89f.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
+    let i=i+1
+  sleep 5
+done
+EOF
+chmod a+x /usr/local/bin/heavy-traffic
+
+# crontab for traffic generators
+
+cat <<EOF > /tmp/crontab.txt
+*/1 * * * * /usr/local/bin/light-traffic 2>&1 > /dev/null
+*/1 * * * * /usr/local/bin/heavy-traffic 50 1 2>&1 > /dev/null
+*/2 * * * * /usr/local/bin/heavy-traffic 8 2 2>&1 > /dev/null
+*/3 * * * * /usr/local/bin/heavy-traffic 20 4 2>&1 > /dev/null
+*/5 * * * * /usr/local/bin/heavy-traffic 15 2 2>&1 > /dev/null
+EOF
+crontab /tmp/crontab.txt
