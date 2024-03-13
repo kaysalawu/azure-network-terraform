@@ -3,12 +3,6 @@
 # general scripts
 #-----------------------------------
 
-# az login
-
-cat <<EOF > /usr/local/bin/az-login
-az login --identity -u ${USER_ASSIGNED_ID}
-EOF
-chmod a+x az login --identity
 
 # test scripts
 #-----------------------------------
@@ -82,6 +76,14 @@ timeout 9 tracepath ${target.ip}
 %{ endfor ~}
 EOF
 chmod a+x /usr/local/bin/trace-ip
+
+# dns-info
+
+cat <<EOF > /usr/local/bin/dns-info
+echo -e "\n resolvectl ...\n"
+resolvectl status
+EOF
+chmod a+x /usr/local/bin/dns-info
 
 %{~ if try(ENABLE_TRAFFIC_GEN, false) ~}
 # light-traffic generator

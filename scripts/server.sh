@@ -1,13 +1,12 @@
 #! /bin/bash
 
 apt update
-apt install -y python3-pip python3-dev unzip tcpdump dnsutils net-tools nmap apache2-utils iperf3
+apt install -y python3-pip python3-dev unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
 
 apt install -y openvpn network-manager-openvpn
 sudo service network-manager restart
 
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-# Run `az login` using the VM's system-assigned managed identity.
 az login --identity || true
 
 # web server #

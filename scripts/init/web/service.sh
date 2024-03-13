@@ -49,7 +49,7 @@ install_packages() {
     sudo service network-manager restart
 
     curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-    az login --identity -u ${USER_ASSIGNED_ID}
+    az login --identity
 
     echo "*****************************************"
     echo " Step 2: Cleanup apt"
