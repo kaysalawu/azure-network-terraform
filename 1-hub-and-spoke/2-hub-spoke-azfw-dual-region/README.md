@@ -395,12 +395,12 @@ azureuser@branch1Vm:~$ az login --identity
     "isDefault": true,
     "managedByTenants": [
       {
-        "tenantId": "your-tenet-id"
+        "tenantId": "your-tenant-id"
       }
     ],
     "name": "some-random-name",
     "state": "Enabled",
-    "tenantId": "your-tenet-id",
+    "tenantId": "your-tenant-id",
     "user": {
       "assignedIdentityInfo": "MSI",
       "name": "systemAssignedIdentity",
