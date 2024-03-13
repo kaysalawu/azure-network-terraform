@@ -3,7 +3,7 @@
 ####################################################
 
 locals {
-  prefix                 = "G08"
+  prefix                 = "G08_p2s"
   enable_diagnostics     = false
   enable_onprem_wan_link = false
 
