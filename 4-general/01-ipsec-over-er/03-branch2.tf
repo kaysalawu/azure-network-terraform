@@ -163,7 +163,7 @@ locals {
     LOOPBACKS = []
 
     PREFIX_LISTS = [
-      "ip prefix-list ${local.branch2_nva_route_map_block_azure} deny ${local.hub1_subnets["GatewaySubnet"].address_prefixes[0]}",
+      "ip prefix-list ${local.branch2_nva_route_map_block_azure} deny ${local.hub1_address_space[1]}",
       "ip prefix-list ${local.branch2_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
     ]
     ROUTE_MAPS = [
@@ -290,6 +290,12 @@ module "branch2_nva" {
 
 locals {
   branch2_routes_main = [
+    {
+      name                   = "private"
+      address_prefix         = local.private_prefixes
+      next_hop_type          = "VirtualAppliance"
+      next_hop_in_ip_address = local.branch2_nva_untrust_addr
+    },
   ]
 }
 
