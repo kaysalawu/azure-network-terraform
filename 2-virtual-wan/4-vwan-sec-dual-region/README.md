@@ -300,7 +300,7 @@ Where ***\<AAAA\>*** and ***\<BBBB\>*** are randomly generated two-byte strings.
 **5.1.** On your Cloudshell (or local machine), get the storage account hostname and blob URL.
 
 ```sh
-spoke3_storage_account=$(az storage account list -g Vwan24RG --query "[?contains(name, 'vwan24spoke3sa')].name" -o tsv)
+spoke3_storage_account=$(az storage account list -g Vwan24_SecVwan_2Region_RG --query "[?contains(name, 'vwan24spoke3sa')].name" -o tsv)
 
 spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
 spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
@@ -412,7 +412,7 @@ azureuser@branch1Vm:~$ az login --identity
 **6.3.** Get the storage account hostname and blob URL.
 
 ```sh
-spoke3_storage_account=$(az storage account list -g Vwan24RG --query "[?contains(name, 'vwan24spoke3sa')].name" -o tsv)
+spoke3_storage_account=$(az storage account list -g Vwan24_SecVwan_2Region_RG --query "[?contains(name, 'vwan24spoke3sa')].name" -o tsv)
 
 spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
 spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
@@ -495,7 +495,7 @@ Hello, World!
 **7.2.** Display the virtual WAN routing tables
 
 ```sh
-bash ../../scripts/_routes_vwan.sh Vwan24RG
+bash ../../scripts/_routes_vwan.sh Vwan24_SecVwan_2Region_RG
 ```
 
 <details>
@@ -503,9 +503,9 @@ bash ../../scripts/_routes_vwan.sh Vwan24RG
 <summary>Sample output</summary>
 
 ```sh
-4-vwan-sec-dual-region$ bash ../../scripts/_routes_vwan.sh Vwan24RG
+4-vwan-sec-dual-region$ bash ../../scripts/_routes_vwan.sh Vwan24_SecVwan_2Region_RG
 
-Resource group: Vwan24RG
+Resource group: Vwan24_SecVwan_2Region_RG
 
 vHub:       Vwan24-vhub2-hub
 RouteTable: defaultRouteTable
@@ -745,7 +745,7 @@ cd azure-network-terraform/2-virtual-wan/4-vwan-sec-dual-region
 2\. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
 ```sh
-bash ../../scripts/_cleanup.sh Vwan24
+bash ../../scripts/_cleanup.sh Vwan24_SecVwan_2Region_RG
 ```
 
 <details>
@@ -753,11 +753,11 @@ bash ../../scripts/_cleanup.sh Vwan24
 <summary>Sample output</summary>
 
 ```sh
-4-vwan-sec-dual-region$    bash ../../scripts/_cleanup.sh Vwan24
+4-vwan-sec-dual-region$    bash ../../scripts/_cleanup.sh Vwan24_SecVwan_2Region_RG
 
-Resource group: Vwan24RG
+Resource group: Vwan24_SecVwan_2Region_RG
 
-⏳ Checking for diagnostic settings on resources in Vwan24RG ...
+⏳ Checking for diagnostic settings on resources in Vwan24_SecVwan_2Region_RG ...
 ➜  Checking firewall ...
     ❌ Deleting: diag setting [Vwan24-vhub1-azfw-diag] for firewall [Vwan24-vhub1-azfw] ...
     ❌ Deleting: diag setting [Vwan24-vhub2-azfw-diag] for firewall [Vwan24-vhub2-azfw] ...
@@ -767,7 +767,7 @@ Resource group: Vwan24RG
     ❌ Deleting: diag setting [Vwan24-vhub2-vpngw-diag] for vpn gateway [Vwan24-vhub2-vpngw] ...
 ➜  Checking er gateway ...
 ➜  Checking app gateway ...
-⏳ Checking for azure policies in Vwan24RG ...
+⏳ Checking for azure policies in Vwan24_SecVwan_2Region_RG ...
 Done!
 ```
 
@@ -777,7 +777,7 @@ Done!
 3\. Delete the resource group to remove all resources installed.
 
 ```sh
-az group delete -g Vwan24RG --no-wait
+az group delete -g Vwan24_SecVwan_2Region_RG --no-wait
 ```
 
 4\. Delete terraform state files and other generated files.

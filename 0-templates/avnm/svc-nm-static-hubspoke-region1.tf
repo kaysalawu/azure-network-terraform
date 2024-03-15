@@ -130,7 +130,8 @@ resource "azurerm_network_manager_deployment" "conn_config_hub_spoke_region1" {
     azurerm_network_manager_connectivity_configuration.conn_config_hub_spoke_region1.id,
   ]
   triggers = {
-    connectivity_configuration_ids = azurerm_network_manager_connectivity_configuration.conn_config_hub_spoke_region1.id
+    connectivity_configuration_id = azurerm_network_manager_connectivity_configuration.conn_config_hub_spoke_region1.id
+    static_members                = join(",", [for member in azurerm_network_manager_static_member.members_region1 : member.id])
   }
   depends_on = [
     azurerm_network_manager_network_group.ng_spokes_prod_region1,
@@ -147,11 +148,12 @@ resource "azurerm_network_manager_deployment" "secadmin_config_region1" {
   ]
   triggers = {
     connectivity_configuration_ids = azurerm_network_manager_security_admin_configuration.secadmin_config_region1.id
+    static_members                 = join(",", [for member in azurerm_network_manager_static_member.members_region1 : member.id])
   }
   depends_on = [
-    azurerm_network_manager_deployment.conn_config_hub_spoke_region1,
     azurerm_network_manager_network_group.ng_spokes_prod_region1,
     azurerm_network_manager_static_member.members_region1,
+    azurerm_network_manager_deployment.conn_config_hub_spoke_region1,
   ]
 }
 
