@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# exec > /var/log/linux-nva.log 2>&1
+
 apt-get -y update
 apt-get -y install sipcalc
 
@@ -33,7 +35,7 @@ ETH1_DGW=$(sipcalc eth1 | awk '/Usable range/ {print $4}')
 ETH1_MASK=$(ip addr show eth1 | awk '/inet / {print $2}' | cut -d'/' -f2)
 
 # eth1 routing
-echo "2 rt1" | sudo tee -a /etc/iproute2/rt_tables
+echo "2 rt1" | tee -a /etc/iproute2/rt_tables
 
 # ip rules
 #-----------------------------------------------------
@@ -97,42 +99,62 @@ iptables-save > /etc/iptables/rules.v4
 # packages
 #########################################################
 
-sudo apt-get update
-sudo apt-get install -y strongswan frr
+apt-get update
+apt-get install -y strongswan frr
 
 ##  run the updates and ensure the packages are up to date and there is no new version available for the packages
 #apt-get -y update --fix-missing
 apt-get -y install tcpdump dnsutils traceroute tcptraceroute net-tools
 
 sed -i 's/bgpd=no/bgpd=yes/' /etc/frr/daemons
-sudo systemctl restart frr
+systemctl restart frr
 
 #########################################################
 # strongswan config
 #########################################################
 
-tee /etc/ipsec.conf <<EOF
+tee /etc/ipsec.conf <<'EOF'
 
 EOF
 
-tee /etc/ipsec.secrets <<EOF
+tee /etc/ipsec.secrets <<'EOF'
 
 EOF
 
-sudo tee /etc/ipsec.d/ipsec-vti.sh <<'EOF'
+tee /etc/ipsec.d/ipsec-vti.sh <<'EOF'
 
 EOF
 chmod a+x /etc/ipsec.d/ipsec-vti.sh
 
+# tee /usr/local/bin/ipsec-auto-restart.sh <<'EOF'
+# #!/bin/bash
+
+# LOG_FILE="/var/log/ipsec-auto-restart.log"
+
+# connections=$(grep '^conn' /etc/ipsec.conf | grep -v '%default' | cut -d' ' -f2)
+# for conn in $connections; do
+#   if ! ipsec status | grep -q "$conn"; then
+#     echo "$(date): $conn is down. Attempting to restart..." >> "$LOG_FILE"
+#     ipsec down $conn
+#     ipsec up $conn
+#     echo "$(date): $conn restart command issued." >> "$LOG_FILE"
+#   fi
+# done
+# EOF
+# chmod a+x /usr/local/bin/ipsec-auto-restart.sh
+# /usr/local/bin/ipsec-auto-restart.sh
+# echo "*/5 * * * * /usr/local/bin/ipsec-auto-restart.sh" | tee -a /etc/cron.d/ipsec-auto-restart
+
 touch /var/log/ipsec-vti.log
-systemctl restart ipsec.service
+systemctl enable ipsec
+systemctl restart ipsec
 
-# #########################################################
-# # frr  config
-# #########################################################
+#########################################################
+# frr  config
+#########################################################
 
-sudo tee /etc/frr/frr.conf <<EOF
-# !
+tee /etc/frr/frr.conf <<'EOF'
+!
 !-----------------------------------------
 ! Global
 !-----------------------------------------
@@ -141,6 +163,10 @@ frr defaults traditional
 hostname $(hostname)
 log syslog informational
 service integrated-vtysh-config
+!
+!-----------------------------------------
+! Prefix Lists
+!-----------------------------------------
 !
 !-----------------------------------------
 ! Interface
@@ -155,6 +181,10 @@ ip route 0.0.0.0/0 10.22.2.1
 ip route 192.168.22.69/32 10.22.2.1
 ip route 192.168.22.68/32 10.22.2.1
 ip route 10.5.0.0/20 10.22.2.1
+!
+!-----------------------------------------
+! Route Maps
+!-----------------------------------------
 !
 !-----------------------------------------
 ! BGP
@@ -180,8 +210,8 @@ line vty
 
 EOF
 
-sudo systemctl enable frr
-sudo systemctl restart frr
+systemctl enable frr
+systemctl restart frr
 
 #########################################################
 # test scripts
@@ -250,8 +280,8 @@ echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} 
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke4vm.us.az.corp) - spoke4vm.us.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke5vm.us.az.corp) - spoke5vm.us.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan22spoke3sa8897.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan22spoke3sa8897.blob.core.windows.net/spoke3/spoke3.txt"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan22spoke6sa8897.blob.core.windows.net/spoke6/spoke6.txt) - https://vwan22spoke6sa8897.blob.core.windows.net/spoke6/spoke6.txt"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan22spoke3sacaf6.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan22spoke3sacaf6.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan22spoke6sacaf6.blob.core.windows.net/spoke6/spoke6.txt) - https://vwan22spoke6sacaf6.blob.core.windows.net/spoke6/spoke6.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 
@@ -298,7 +328,7 @@ ipsec status
 echo -e "\n ============ ipsec-vti.log ============ \n"
 cat /var/log/ipsec-vti.log
 echo -e "\n ============ link vti ============ \n"
-sudo ip link show type vti
+ip link show type vti
 echo
 EOF
 chmod a+x /usr/local/bin/ipsec-debug
