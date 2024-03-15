@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# exec > /var/log/linux-nva.log 2>&1
+
 apt-get -y update
 apt-get -y install sipcalc
 
@@ -33,7 +35,7 @@ ETH1_DGW=$(sipcalc eth1 | awk '/Usable range/ {print $4}')
 ETH1_MASK=$(ip addr show eth1 | awk '/inet / {print $2}' | cut -d'/' -f2)
 
 # eth1 routing
-echo "2 rt1" | sudo tee -a /etc/iproute2/rt_tables
+echo "2 rt1" | tee -a /etc/iproute2/rt_tables
 
 # ip rules
 #-----------------------------------------------------
@@ -97,21 +99,21 @@ iptables-save > /etc/iptables/rules.v4
 # packages
 #########################################################
 
-sudo apt-get update
-sudo apt-get install -y strongswan frr
+apt-get update
+apt-get install -y strongswan frr
 
 ##  run the updates and ensure the packages are up to date and there is no new version available for the packages
 #apt-get -y update --fix-missing
 apt-get -y install tcpdump dnsutils traceroute tcptraceroute net-tools
 
 sed -i 's/bgpd=no/bgpd=yes/' /etc/frr/daemons
-sudo systemctl restart frr
+systemctl restart frr
 
 #########################################################
 # strongswan config
 #########################################################
 
-tee /etc/ipsec.conf <<EOF
+tee /etc/ipsec.conf <<'EOF'
 config setup
     charondebug="ike 2, knl 2, cfg 2, net 2, esp 2, dmn 2,  mgr 2"
 
@@ -134,23 +136,23 @@ conn %default
 
 conn Tunnel0
     left=10.10.1.9
-    leftid=52.169.82.16
-    right=4.207.33.14
-    rightid=4.207.33.14
+    leftid=52.169.120.23
+    right=4.208.82.24
+    rightid=4.208.82.24
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.10.1.9
-    leftid=52.169.82.16
-    right=4.207.33.18
-    rightid=4.207.33.18
+    leftid=52.169.120.23
+    right=4.208.82.20
+    rightid=4.208.82.20
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.10.1.9
-    leftid=52.169.82.16
+    leftid=52.169.120.23
     right=1.1.1.1
     rightid=1.1.1.1
     auto=start
@@ -162,14 +164,14 @@ conn Tunnel2
 
 EOF
 
-tee /etc/ipsec.secrets <<EOF
-10.10.1.9 4.207.33.14 : PSK "changeme"
-10.10.1.9 4.207.33.18 : PSK "changeme"
+tee /etc/ipsec.secrets <<'EOF'
+10.10.1.9 4.208.82.24 : PSK "changeme"
+10.10.1.9 4.208.82.20 : PSK "changeme"
 10.10.1.9 1.1.1.1 : PSK "changeme"
 
 EOF
 
-sudo tee /etc/ipsec.d/ipsec-vti.sh <<'EOF'
+tee /etc/ipsec.d/ipsec-vti.sh <<'EOF'
 #!/bin/bash
 
 LOG_FILE="/var/log/ipsec-vti.log"
@@ -184,12 +186,12 @@ case "$PLUTO_CONNECTION" in
   Tunnel0)
     VTI_INTERFACE=vti0
     VTI_LOCALADDR=10.10.10.1
-    VTI_REMOTEADDR=10.11.16.4
+    VTI_REMOTEADDR=10.11.16.6
     ;;
   Tunnel1)
     VTI_INTERFACE=vti1
     VTI_LOCALADDR=10.10.10.5
-    VTI_REMOTEADDR=10.11.16.5
+    VTI_REMOTEADDR=10.11.16.7
     ;;
   Tunnel2)
     VTI_INTERFACE=vti2
@@ -228,12 +230,12 @@ chmod a+x /etc/ipsec.d/ipsec-vti.sh
 touch /var/log/ipsec-vti.log
 systemctl restart ipsec.service
 
-# #########################################################
-# # frr  config
-# #########################################################
+#########################################################
+# frr  config
+#########################################################
 
-sudo tee /etc/frr/frr.conf <<EOF
-# !
+tee /etc/frr/frr.conf <<'EOF'
+!
 !-----------------------------------------
 ! Global
 !-----------------------------------------
@@ -242,6 +244,10 @@ frr defaults traditional
 hostname $(hostname)
 log syslog informational
 service integrated-vtysh-config
+!
+!-----------------------------------------
+! Prefix Lists
+!-----------------------------------------
 !
 !-----------------------------------------
 ! Interface
@@ -253,30 +259,35 @@ interface lo
 ! Static Routes
 !-----------------------------------------
 ip route 0.0.0.0 10.10.1.1
-ip route 10.11.16.4/32 vti0
-ip route 10.11.16.5/32 vti1
+ip route 10.11.16.6/32 vti0
+ip route 10.11.16.7/32 vti1
 ip route 192.168.30.30/32 vti2
+ip route 10.30.1.9 10.10.1.1
 ip route 10.10.0.0/24 10.10.1.1
+!
+!-----------------------------------------
+! Route Maps
+!-----------------------------------------
 !
 !-----------------------------------------
 ! BGP
 !-----------------------------------------
 router bgp 65001
 bgp router-id 192.168.10.10
-neighbor 10.11.16.4 remote-as 65515
-neighbor 10.11.16.4 ebgp-multihop 255
-neighbor 10.11.16.4 update-source lo
-neighbor 10.11.16.5 remote-as 65515
-neighbor 10.11.16.5 ebgp-multihop 255
-neighbor 10.11.16.5 update-source lo
+neighbor 10.11.16.6 remote-as 65515
+neighbor 10.11.16.6 ebgp-multihop 255
+neighbor 10.11.16.6 update-source lo
+neighbor 10.11.16.7 remote-as 65515
+neighbor 10.11.16.7 ebgp-multihop 255
+neighbor 10.11.16.7 update-source lo
 neighbor 192.168.30.30 remote-as 65003
 neighbor 192.168.30.30 ebgp-multihop 255
 neighbor 192.168.30.30 update-source lo
 !
 address-family ipv4 unicast
   network 10.10.0.0/24
-  neighbor 10.11.16.4 soft-reconfiguration inbound
-  neighbor 10.11.16.5 soft-reconfiguration inbound
+  neighbor 10.11.16.6 soft-reconfiguration inbound
+  neighbor 10.11.16.7 soft-reconfiguration inbound
   neighbor 192.168.30.30 soft-reconfiguration inbound
 exit-address-family
 !
@@ -285,8 +296,8 @@ line vty
 
 EOF
 
-sudo systemctl enable frr
-sudo systemctl restart frr
+systemctl enable frr
+systemctl restart frr
 
 #########################################################
 # test scripts
@@ -338,7 +349,7 @@ echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} 
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1vm.eu.az.corp) - spoke1vm.eu.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke2vm.eu.az.corp) - spoke2vm.eu.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs11spoke3sa4dd5.blob.core.windows.net/spoke3/spoke3.txt) - https://hs11spoke3sa4dd5.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs11spoke3sa2338.blob.core.windows.net/spoke3/spoke3.txt) - https://hs11spoke3sa2338.blob.core.windows.net/spoke3/spoke3.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 
@@ -377,7 +388,7 @@ ipsec status
 echo -e "\n ============ ipsec-vti.log ============ \n"
 cat /var/log/ipsec-vti.log
 echo -e "\n ============ link vti ============ \n"
-sudo ip link show type vti
+ip link show type vti
 echo
 EOF
 chmod a+x /usr/local/bin/ipsec-debug

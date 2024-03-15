@@ -374,7 +374,7 @@ locals {
     OpnVersion                    = var.opn_version
     WALinuxVersion                = var.walinux_version
     OpnType                       = var.config_nva.opn_type
-    TrustedSubnetAddressPrefix    = azurerm_subnet.this["TrustSubnet"].address_prefixes[0]
+    TrustedSubnetAddressPrefix    = try(azurerm_subnet.this["TrustSubnet"].address_prefixes[0], "1.1.1.1/32")
     WindowsVmSubnetAddressPrefix  = var.deploy_windows_mgmt ? azurerm_subnet.this["ManagementSubnet"].address_prefixes[0] : "1.1.1.1/32"
     publicIPAddress               = "" #length(azurerm_public_ip.opnsense) > 0 ? azurerm_public_ip.opnsense[0].ip_address : ""
     opnSenseSecondarytrustedNicIP = var.config_nva.scenario_option == "Active-Active" ? "SOME" : ""

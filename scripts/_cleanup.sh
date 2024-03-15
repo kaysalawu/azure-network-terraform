@@ -15,8 +15,8 @@ if [ "$#" -ne 1 ]; then
     exit 1
 fi
 
-LAB_ID=$1
-RG="${LAB_ID}RG"
+RG=$1
+LAB_ID=$(echo $RG | cut -d'-' -f1)
 echo && echo "Resource group: $RG" && echo
 
 delete_diag_settings() {

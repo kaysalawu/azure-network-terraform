@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# exec > /var/log/linux-nva.log 2>&1
+
 apt-get -y update
 apt-get -y install sipcalc
 
@@ -33,7 +35,7 @@ ETH1_DGW=$(sipcalc eth1 | awk '/Usable range/ {print $4}')
 ETH1_MASK=$(ip addr show eth1 | awk '/inet / {print $2}' | cut -d'/' -f2)
 
 # eth1 routing
-echo "2 rt1" | sudo tee -a /etc/iproute2/rt_tables
+echo "2 rt1" | tee -a /etc/iproute2/rt_tables
 
 # ip rules
 #-----------------------------------------------------
@@ -100,29 +102,29 @@ iptables-save > /etc/iptables/rules.v4
 # packages
 #########################################################
 
-sudo apt-get update
-sudo apt-get install -y strongswan frr
+apt-get update
+apt-get install -y strongswan frr
 
 ##  run the updates and ensure the packages are up to date and there is no new version available for the packages
 #apt-get -y update --fix-missing
 apt-get -y install tcpdump dnsutils traceroute tcptraceroute net-tools
 
 sed -i 's/bgpd=no/bgpd=yes/' /etc/frr/daemons
-sudo systemctl restart frr
+systemctl restart frr
 
 #########################################################
 # strongswan config
 #########################################################
 
-tee /etc/ipsec.conf <<EOF
+tee /etc/ipsec.conf <<'EOF'
 ${STRONGSWAN_IPSEC_CONF}
 EOF
 
-tee /etc/ipsec.secrets <<EOF
+tee /etc/ipsec.secrets <<'EOF'
 ${STRONGSWAN_IPSEC_SECRETS}
 EOF
 
-sudo tee /etc/ipsec.d/ipsec-vti.sh <<'EOF'
+tee /etc/ipsec.d/ipsec-vti.sh <<'EOF'
 ${STRONGSWAN_VTI_SCRIPT}
 EOF
 chmod a+x /etc/ipsec.d/ipsec-vti.sh
@@ -130,16 +132,16 @@ chmod a+x /etc/ipsec.d/ipsec-vti.sh
 touch /var/log/ipsec-vti.log
 systemctl restart ipsec.service
 
-# #########################################################
-# # frr  config
-# #########################################################
+#########################################################
+# frr  config
+#########################################################
 
-sudo tee /etc/frr/frr.conf <<EOF
-# ${FRR_CONF}
+tee /etc/frr/frr.conf <<'EOF'
+${FRR_CONF}
 EOF
 
-sudo systemctl enable frr
-sudo systemctl restart frr
+systemctl enable frr
+systemctl restart frr
 
 #########################################################
 # test scripts
@@ -228,7 +230,7 @@ ipsec status
 echo -e "\n ============ ipsec-vti.log ============ \n"
 cat /var/log/ipsec-vti.log
 echo -e "\n ============ link vti ============ \n"
-sudo ip link show type vti
+ip link show type vti
 echo
 EOF
 chmod a+x /usr/local/bin/ipsec-debug

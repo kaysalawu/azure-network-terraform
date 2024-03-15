@@ -7,13 +7,12 @@
 #----------------------------
 
 module "branch3" {
-  source            = "../../modules/base"
-  resource_group    = azurerm_resource_group.rg.name
-  prefix            = trimsuffix(local.branch3_prefix, "-")
-  location          = local.branch3_location
-  storage_account   = module.common.storage_accounts["region2"]
-  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
-  tags              = local.branch3_tags
+  source          = "../../modules/base"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = trimsuffix(local.branch3_prefix, "-")
+  location        = local.branch3_location
+  storage_account = module.common.storage_accounts["region2"]
+  tags            = local.branch3_tags
 
   enable_diagnostics = local.enable_diagnostics
 
@@ -261,7 +260,6 @@ module "branch3_nva" {
 
 locals {
   branch3_vm_init = templatefile("../../scripts/server.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
     TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]

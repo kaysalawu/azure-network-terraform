@@ -17,14 +17,13 @@ NSGs are assigned to selected subnets.
 ####################################################
 
 module "hub2" {
-  source            = "../../modules/base"
-  resource_group    = azurerm_resource_group.rg.name
-  prefix            = trimsuffix(local.hub2_prefix, "-")
-  env               = "prod"
-  location          = local.hub2_location
-  storage_account   = module.common.storage_accounts["region2"]
-  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
-  tags              = local.hub2_tags
+  source          = "../../modules/base"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = trimsuffix(local.hub2_prefix, "-")
+  env             = "prod"
+  location        = local.hub2_location
+  storage_account = module.common.storage_accounts["region2"]
+  tags            = local.hub2_tags
 
   enable_diagnostics           = local.enable_diagnostics
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region2"].name

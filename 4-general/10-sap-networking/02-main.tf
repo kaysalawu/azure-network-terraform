@@ -57,7 +57,17 @@ locals {
       enable_ars                   = false
       ruleset_dns_forwarding_rules = {}
     }
-    config_s2s_vpngw = { enable = false }
+    config_s2s_vpngw = {
+      enable = true
+      sku    = "VpnGw1AZ"
+      ip_configuration = [
+        { name = "ipconf0", public_ip_address_name = azurerm_public_ip.ecs_s2s_vpngw_pip0.name, apipa_addresses = ["169.254.21.1"] },
+        { name = "ipconf1", public_ip_address_name = azurerm_public_ip.ecs_s2s_vpngw_pip1.name, apipa_addresses = ["169.254.21.5"] }
+      ]
+      bgp_settings = {
+        asn = local.ecs_vpngw_asn
+      }
+    }
     config_p2s_vpngw = { enable = false }
     config_ergw      = { enable = false }
     config_firewall  = { enable = false }
@@ -117,6 +127,44 @@ locals {
   ]
   onprem_redirected_hosts = []
   branch_dns_init_dir     = "/var/lib/labs"
+}
+
+
+####################################################
+# addresses
+####################################################
+
+# onprem
+
+resource "azurerm_public_ip" "onprem_nva_pip" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.onprem_prefix}nva-pip"
+  location            = local.onprem_location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+  tags                = local.onprem_tags
+}
+
+# ecs
+
+resource "azurerm_public_ip" "ecs_s2s_vpngw_pip0" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.ecs_prefix}s2s-vpngw-pip0"
+  location            = local.ecs_location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+  zones               = [1, 2, 3]
+  tags                = local.ecs_tags
+}
+
+resource "azurerm_public_ip" "ecs_s2s_vpngw_pip1" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.ecs_prefix}s2s-vpngw-pip1"
+  location            = local.ecs_location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+  zones               = [1, 2, 3]
+  tags                = local.ecs_tags
 }
 
 ####################################################
