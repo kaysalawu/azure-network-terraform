@@ -126,8 +126,28 @@ tee /etc/ipsec.d/ipsec-vti.sh <<'EOF'
 EOF
 chmod a+x /etc/ipsec.d/ipsec-vti.sh
 
+# tee /usr/local/bin/ipsec-auto-restart.sh <<'EOF'
+# #!/bin/bash
+
+# LOG_FILE="/var/log/ipsec-auto-restart.log"
+
+# connections=$(grep '^conn' /etc/ipsec.conf | grep -v '%default' | cut -d' ' -f2)
+# for conn in $connections; do
+#   if ! ipsec status | grep -q "$conn"; then
+#     echo "$(date): $conn is down. Attempting to restart..." >> "$LOG_FILE"
+#     ipsec down $conn
+#     ipsec up $conn
+#     echo "$(date): $conn restart command issued." >> "$LOG_FILE"
+#   fi
+# done
+# EOF
+# chmod a+x /usr/local/bin/ipsec-auto-restart.sh
+# /usr/local/bin/ipsec-auto-restart.sh
+# echo "*/5 * * * * /usr/local/bin/ipsec-auto-restart.sh" | tee -a /etc/cron.d/ipsec-auto-restart
+
 touch /var/log/ipsec-vti.log
-systemctl restart ipsec.service
+systemctl enable ipsec
+systemctl restart ipsec
 
 #########################################################
 # frr  config
@@ -190,7 +210,7 @@ echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} 
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1vm.eu.az.corp) - spoke1vm.eu.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke2vm.eu.az.corp) - spoke2vm.eu.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs13spoke3sa12b6.blob.core.windows.net/spoke3/spoke3.txt) - https://hs13spoke3sa12b6.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs13spoke3sa28e2.blob.core.windows.net/spoke3/spoke3.txt) - https://hs13spoke3sa28e2.blob.core.windows.net/spoke3/spoke3.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 

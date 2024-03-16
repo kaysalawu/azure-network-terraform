@@ -4,7 +4,7 @@
 
 locals {
   prefix                      = "Hs14"
-  lab_name                    = "HubSpoke_NvaDualRegion"
+  lab_name                    = "HubSpoke_Nva_2Region"
   enable_diagnostics          = false
   enable_onprem_wan_link      = true
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
@@ -56,16 +56,6 @@ terraform {
       source = "azure/azapi"
     }
   }
-}
-
-####################################################
-# user assigned identity
-####################################################
-
-resource "azurerm_user_assigned_identity" "machine" {
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = local.default_region
-  name                = "${local.prefix}-user"
 }
 
 ####################################################
@@ -379,14 +369,6 @@ locals {
     local.vm_script_targets_misc,
   )
   vm_startup = templatefile("../../scripts/server.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = []
-    TARGETS_HEAVY_TRAFFIC_GEN = []
-    ENABLE_TRAFFIC_GEN        = false
-  })
-  tools = templatefile("../../scripts/tools.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
