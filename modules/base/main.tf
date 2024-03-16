@@ -41,7 +41,7 @@ resource "azurerm_subnet" "this" {
       }
     }
   }
-
+  service_endpoints                             = try(each.value.service_endpoints, [])
   private_endpoint_network_policies_enabled     = try(each.value.address_prefixes.enable_private_endpoint_policies[0], false)
   private_link_service_network_policies_enabled = try(each.value.address_prefixes.enable_private_link_policies[0], false)
 }

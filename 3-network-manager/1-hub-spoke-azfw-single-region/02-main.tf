@@ -4,19 +4,19 @@
 
 locals {
   prefix                      = "Ne31"
-  lab_name                    = "Avnm_HubSpoke_SingleRegion"
+  lab_name                    = "HubSpoke_Azfw_1Region"
   enable_diagnostics          = false
   enable_onprem_wan_link      = false
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
   spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
 
-  hub1_tags    = { "lab" = local.prefix, "nodeType" = "hub" }
-  branch1_tags = { "lab" = local.prefix, "nodeType" = "branch" }
-  branch2_tags = { "lab" = local.prefix, "nodeType" = "branch" }
-  spoke1_tags  = { "lab" = local.prefix, "nodeType" = "spoke" }
-  spoke2_tags  = { "lab" = local.prefix, "nodeType" = "spoke" }
-  spoke3_tags  = { "lab" = local.prefix, "nodeType" = "float" }
+  hub1_tags    = { "lab" = local.prefix, "env" = "prod", "nodeType" = "hub" }
+  branch1_tags = { "lab" = local.prefix, "env" = "prod", "nodeType" = "branch" }
+  branch2_tags = { "lab" = local.prefix, "env" = "prod", "nodeType" = "branch" }
+  spoke1_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "spoke" }
+  spoke2_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "spoke" }
+  spoke3_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "float" }
 }
 
 resource "random_id" "random" {
@@ -50,16 +50,6 @@ terraform {
       source = "azure/azapi"
     }
   }
-}
-
-####################################################
-# user assigned identity
-####################################################
-
-resource "azurerm_user_assigned_identity" "machine" {
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = local.default_region
-  name                = "${local.prefix}-user"
 }
 
 ####################################################
@@ -248,14 +238,6 @@ locals {
     local.vm_script_targets_misc,
   )
   vm_startup = templatefile("../../scripts/server.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = []
-    TARGETS_HEAVY_TRAFFIC_GEN = []
-    ENABLE_TRAFFIC_GEN        = false
-  })
-  tools = templatefile("../../scripts/tools.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []

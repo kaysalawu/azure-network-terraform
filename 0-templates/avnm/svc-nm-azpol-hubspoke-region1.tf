@@ -37,10 +37,10 @@ resource "azurerm_policy_definition" "ng_spokes_prod_region1" {
 # policy assignments
 ####################################################
 
-resource "azurerm_subscription_policy_assignment" "ng_spokes_prod_region1" {
+resource "azurerm_resource_group_policy_assignment" "ng_spokes_prod_region1" {
   name                 = "${local.prefix}-ng-spokes-prod-region1"
   policy_definition_id = azurerm_policy_definition.ng_spokes_prod_region1.id
-  subscription_id      = data.azurerm_subscription.current.id
+  resource_group_id    = azurerm_resource_group.rg.id
 }
 
 ####################################################
@@ -147,7 +147,8 @@ resource "azurerm_network_manager_deployment" "conn_config_hub_spoke_region1" {
     azurerm_network_manager_connectivity_configuration.conn_config_hub_spoke_region1.id,
   ]
   triggers = {
-    connectivity_configuration_ids = azurerm_network_manager_connectivity_configuration.conn_config_hub_spoke_region1.id
+    connectivity_configuration_id = azurerm_network_manager_connectivity_configuration.conn_config_hub_spoke_region1.id
+    policy_json                   = local.policy_ng_spokes_prod_region1
   }
 }
 
@@ -159,7 +160,8 @@ resource "azurerm_network_manager_deployment" "secadmin_config_region1" {
     azurerm_network_manager_security_admin_configuration.secadmin_config_region1.id,
   ]
   triggers = {
-    connectivity_configuration_ids = azurerm_network_manager_security_admin_configuration.secadmin_config_region1.id
+    connectivity_configuration_id = azurerm_network_manager_security_admin_configuration.secadmin_config_region1.id
+    policy_json                   = local.policy_ng_spokes_prod_region1
   }
   depends_on = [
     azurerm_network_manager_deployment.conn_config_hub_spoke_region1
@@ -185,7 +187,7 @@ resource "null_resource" "policy_cleanup_region1" {
   }
   depends_on = [
     azurerm_policy_definition.ng_spokes_prod_region1,
-    azurerm_subscription_policy_assignment.ng_spokes_prod_region1,
+    azurerm_resource_group_policy_assignment.ng_spokes_prod_region1,
   ]
 }
 
