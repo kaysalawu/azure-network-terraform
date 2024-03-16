@@ -1,0 +1,10 @@
+version: '3.7'
+services:
+  squid:
+    image: datadog/squid:latest
+    volumes:
+      - /var/log/squid/access.log:/var/log/squid/access.log
+      - /etc/squid/squid.conf:/etc/squid/squid.conf
+      - /etc/squid/blocked_sites:/etc/squid/blocked_sites
+    ports:
+      - "3128:3128"
