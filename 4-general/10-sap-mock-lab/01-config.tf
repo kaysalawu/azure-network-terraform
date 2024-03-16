@@ -72,26 +72,40 @@ locals {
   ecs_prefix        = local.prefix == "" ? "ecs-" : join("-", [local.prefix, "ecs-"])
   ecs_location      = local.region1
   ecs_address_space = ["10.0.0.0/21"]
-  ecs_dns_zone      = local.region1_dns_zone
+  ecs_dns_zone      = "corp.sap.com"
   ecs_subnets = {
-    ("GatewaySubnet")    = { address_prefixes = ["10.0.0.0/24"], service_endpoints = local.service_endpoints }
+    ("GatewaySubnet")    = { address_prefixes = ["10.0.0.0/24"] }
     ("AppGatewaySubnet") = { address_prefixes = ["10.0.1.0/24"], service_endpoints = local.service_endpoints }
     ("PublicSubnet")     = { address_prefixes = ["10.0.2.0/24"], service_endpoints = local.service_endpoints }
     ("ProductionSubnet") = { address_prefixes = ["10.0.3.0/24"], service_endpoints = local.service_endpoints }
-    ("UntrustSubnet")    = { address_prefixes = ["10.0.4.0/24"], service_endpoints = local.service_endpoints }
+    ("UntrustSubnet")    = { address_prefixes = ["10.0.4.0/24"] }
   }
+  # untrust (management)
   ecs_default_gw_untrust    = cidrhost(local.ecs_subnets["UntrustSubnet"].address_prefixes[0], 1)
-  ecs_webd_untrust_addr     = cidrhost(local.ecs_subnets["UntrustSubnet"].address_prefixes[0], 4)
+  ecs_webd1_untrust_addr    = cidrhost(local.ecs_subnets["UntrustSubnet"].address_prefixes[0], 4)
+  ecs_webd2_untrust_addr    = cidrhost(local.ecs_subnets["UntrustSubnet"].address_prefixes[0], 5)
   ecs_webd_ilb_untrust_addr = cidrhost(local.ecs_subnets["UntrustSubnet"].address_prefixes[0], 99)
 
-  ecs_default_gw_prod     = cidrhost(local.ecs_subnets["ProductionSubnet"].address_prefixes[0], 1)
-  ecs_webd_prod_addr      = cidrhost(local.ecs_subnets["ProductionSubnet"].address_prefixes[0], 4)
-  ecs_appsrv1_addr        = cidrhost(local.ecs_subnets["ProductionSubnet"].address_prefixes[0], 5)
-  ecs_appsrv2_addr        = cidrhost(local.ecs_subnets["ProductionSubnet"].address_prefixes[0], 6)
-  ecs_webd_ilb_trust_addr = cidrhost(local.ecs_subnets["ProductionSubnet"].address_prefixes[0], 99)
-  ecs_appsrv1_hostname    = "ecs-AppSrv1"
-  ecs_appsrv2_hostname    = "ecs-AppSrv2"
-  ecs_ilb_hostname        = "ecs-ilb"
+  # production
+  ecs_default_gw_prod  = cidrhost(local.ecs_subnets["ProductionSubnet"].address_prefixes[0], 1)
+  ecs_webd1_addr       = cidrhost(local.ecs_subnets["ProductionSubnet"].address_prefixes[0], 4)
+  ecs_webd2_addr       = cidrhost(local.ecs_subnets["ProductionSubnet"].address_prefixes[0], 5)
+  ecs_appsrv1_addr     = cidrhost(local.ecs_subnets["ProductionSubnet"].address_prefixes[0], 6)
+  ecs_appsrv2_addr     = cidrhost(local.ecs_subnets["ProductionSubnet"].address_prefixes[0], 7)
+  ecs_cgs_addr         = cidrhost(local.ecs_subnets["ProductionSubnet"].address_prefixes[0], 8)
+  ecs_webd_ilb_addr    = cidrhost(local.ecs_subnets["ProductionSubnet"].address_prefixes[0], 99)
+  ecs_webd1_hostname   = "Webd1"
+  ecs_webd2_hostname   = "Webd2"
+  ecs_appsrv1_hostname = "AppSrv1"
+  ecs_appsrv2_hostname = "AppSrv2"
+  ecs_cgs_hostname     = "EcsCgs"
+  ecs_ilb_hostname     = "ilb"
+  ecs_webd1_fqdn       = "${local.ecs_webd1_hostname}.${local.ecs_dns_zone}"
+  ecs_webd2_fqdn       = "${local.ecs_webd2_hostname}.${local.ecs_dns_zone}"
+  ecs_appsrv1_fqdn     = "${local.ecs_appsrv1_hostname}.${local.ecs_dns_zone}"
+  ecs_appsrv2_fqdn     = "${local.ecs_appsrv2_hostname}.${local.ecs_dns_zone}"
+  ecs_cgs_fqdn         = "${local.ecs_cgs_hostname}.${local.ecs_dns_zone}"
+  ecs_webd_ilb_fqdn    = "${local.ecs_ilb_hostname}.${local.ecs_dns_zone}"
 }
 
 # onprem

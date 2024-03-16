@@ -7,13 +7,12 @@
 #----------------------------
 
 module "onprem" {
-  source            = "../../modules/base"
-  resource_group    = azurerm_resource_group.rg.name
-  prefix            = trimsuffix(local.onprem_prefix, "-")
-  location          = local.onprem_location
-  storage_account   = module.common.storage_accounts["region1"]
-  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
-  tags              = local.onprem_tags
+  source          = "../../modules/base"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = trimsuffix(local.onprem_prefix, "-")
+  location        = local.onprem_location
+  storage_account = module.common.storage_accounts["region1"]
+  tags            = local.onprem_tags
 
   enable_diagnostics = local.enable_diagnostics
 
@@ -56,10 +55,10 @@ locals {
     )
   }
   onprem_unbound_files = {
-    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/Dockerfile", {}) }
-    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
-    "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.conf", local.onprem_dns_vars) }
-    "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.log", local.onprem_dns_vars) }
+    "${local.branch_dns_init_dir}/unbound/Dockerfile"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/Dockerfile", {}) }
+    "${local.branch_dns_init_dir}/unbound/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
+    "/etc/unbound/unbound.conf"                               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/conf/unbound.conf", local.onprem_dns_vars) }
+    # "/etc/unbound/unbound.log"                                = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/conf/unbound.log", local.onprem_dns_vars) }
   }
   onprem_forward_zones = [
     # { zone = "${local.region1_dns_zone}.", targets = [local.ecs_dns_in_addr, ] },
@@ -81,9 +80,10 @@ module "onprem_unbound_init" {
     "systemctl stop systemd-resolved",
     "systemctl disable systemd-resolved",
     "echo \"nameserver 8.8.8.8\" > /etc/resolv.conf",
+    "touch /etc/unbound/unbound.log",
     "systemctl restart unbound",
     "systemctl enable unbound",
-    "docker-compose -f ${local.branch_dns_init_dir}/docker-compose.yml up -d",
+    "docker-compose -f ${local.branch_dns_init_dir}/unbound/docker-compose.yml up -d",
   ]
 }
 
@@ -137,8 +137,6 @@ locals {
       { prefix = "0.0.0.0", mask = "0.0.0.0", next_hop = local.onprem_untrust_default_gw },
       { prefix = "${module.ecs.s2s_vpngw_bgp_default_ip0}/32", next_hop = "vti0" },
       { prefix = "${module.ecs.s2s_vpngw_bgp_default_ip1}/32", next_hop = "vti1" },
-      { prefix = "${local.branch3_nva_loopback0}/32", next_hop = "vti2" },
-      { prefix = local.branch3_nva_untrust_addr, next_hop = local.onprem_untrust_default_gw },
       { prefix = local.onprem_subnets["MainSubnet"].address_prefixes[0], next_hop = local.onprem_untrust_default_gw },
     ]
     TUNNELS = [
@@ -165,18 +163,6 @@ locals {
         remote_ip       = module.ecs.s2s_vpngw_public_ip1
         remote_id       = module.ecs.s2s_vpngw_public_ip1
         psk             = local.psk
-      },
-      {
-        name            = "Tunnel2"
-        vti_name        = "vti2"
-        unique_id       = 300
-        vti_local_addr  = cidrhost(local.vti_range2, 1)
-        vti_remote_addr = cidrhost(local.vti_range2, 2)
-        local_ip        = local.onprem_nva_untrust_addr
-        local_id        = azurerm_public_ip.onprem_nva_pip.ip_address
-        remote_ip       = local.enable_onprem_wan_link ? try(azurerm_public_ip.branch3_nva_pip[0].ip_address, "1.1.1.1") : "1.1.1.1"
-        remote_id       = local.enable_onprem_wan_link ? try(azurerm_public_ip.branch3_nva_pip[0].ip_address, "1.1.1.1") : "1.1.1.1"
-        psk             = local.psk
       }
     ]
     BGP_SESSIONS = [
@@ -193,14 +179,7 @@ locals {
         ebgp_multihop   = true
         source_loopback = true
         route_maps      = []
-      },
-      {
-        peer_asn        = local.branch3_nva_asn
-        peer_ip         = local.branch3_nva_loopback0
-        ebgp_multihop   = true
-        source_loopback = true
-        route_maps      = []
-      },
+      }
     ]
     BGP_ADVERTISED_PREFIXES = [
       local.onprem_subnets["MainSubnet"].address_prefixes[0],
@@ -260,7 +239,6 @@ module "onprem_nva" {
 
 locals {
   onprem_vm_init = templatefile("../../scripts/server.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
     TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]

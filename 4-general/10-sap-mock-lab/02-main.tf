@@ -6,7 +6,8 @@ locals {
   prefix             = "G10"
   lab_name           = "SapNetworking"
   enable_diagnostics = false
-  ecs_tags           = { "lab" = local.prefix, "nodeType" = "sap" }
+  ecs_tags           = { "lab" = local.prefix, "nodeType" = "hub" }
+  onprem_tags        = { "lab" = local.prefix, "nodeType" = "branch" }
 }
 
 ####################################################
@@ -29,16 +30,6 @@ terraform {
       version = ">= 3.78.0"
     }
   }
-}
-
-####################################################
-# user assigned identity
-####################################################
-
-resource "azurerm_user_assigned_identity" "machine" {
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = local.default_region
-  name                = "${local.prefix}-user"
 }
 
 ####################################################
@@ -91,11 +82,10 @@ resource "azurerm_resource_group" "rg" {
 }
 
 module "common" {
-  source         = "../../modules/common"
-  resource_group = azurerm_resource_group.rg.name
-  env            = "common"
-  prefix         = local.prefix
-  # firewall_sku     = local.firewall_sku
+  source           = "../../modules/common"
+  resource_group   = azurerm_resource_group.rg.name
+  env              = "common"
+  prefix           = local.prefix
   regions          = local.regions
   private_prefixes = local.private_prefixes
   tags             = {}
@@ -105,6 +95,7 @@ module "common" {
 #----------------------------
 
 locals {
+  ecs_vpngw_asn = "65515"
   vm_script_targets_region1 = [
     { name = "onprem", dns = lower(local.onprem_vm_fqdn), ip = local.onprem_vm_addr, probe = true },
   ]
@@ -116,7 +107,6 @@ locals {
     local.vm_script_targets_misc,
   )
   vm_startup = templatefile("../../scripts/server.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
