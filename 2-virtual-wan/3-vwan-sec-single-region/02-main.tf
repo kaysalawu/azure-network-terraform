@@ -4,7 +4,7 @@
 
 locals {
   prefix                      = "Vwan23"
-  lab_name                    = "VwanSec_SingleRegion"
+  lab_name                    = "SecVwan_1Region"
   enable_diagnostics          = false
   enable_onprem_wan_link      = false
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
@@ -48,16 +48,6 @@ terraform {
       source = "azure/azapi"
     }
   }
-}
-
-####################################################
-# user assigned identity
-####################################################
-
-resource "azurerm_user_assigned_identity" "machine" {
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = local.default_region
-  name                = "${local.prefix}-user"
 }
 
 ####################################################
@@ -213,7 +203,7 @@ resource "azurerm_resource_group" "rg" {
   name     = "${local.prefix}_${local.lab_name}_RG"
   location = local.default_region
   tags = {
-    lab      = local.prefix
+    prefix   = local.prefix
     lab_name = local.lab_name
   }
 }
@@ -280,14 +270,6 @@ locals {
     local.vm_script_targets_misc,
   )
   vm_startup = templatefile("../../scripts/server.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = []
-    TARGETS_HEAVY_TRAFFIC_GEN = []
-    ENABLE_TRAFFIC_GEN        = false
-  })
-  tools = templatefile("../../scripts/tools.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
