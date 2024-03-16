@@ -304,7 +304,7 @@ Where ***\<AAAA\>*** and ***\<BBBB\>*** are randomly generated two-byte strings.
 **5.1.** On your Cloudshell (or local machine), get the storage account hostname and blob URL.
 
 ```sh
-spoke3_storage_account=$(az storage account list -g Hs12RG --query "[?contains(name, 'hs12spoke3sa')].name" -o tsv)
+spoke3_storage_account=$(az storage account list -g Hs12_HubSpoke_Azfw_2Region_RG --query "[?contains(name, 'hs12spoke3sa')].name" -o tsv)
 
 spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
 spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
@@ -416,7 +416,7 @@ azureuser@branch1Vm:~$ az login --identity
 **6.3.** Get the storage account hostname and blob URL.
 
 ```sh
-spoke3_storage_account=$(az storage account list -g Hs12RG --query "[?contains(name, 'hs12spoke3sa')].name" -o tsv)
+spoke3_storage_account=$(az storage account list -g Hs12_HubSpoke_Azfw_2Region_RG --query "[?contains(name, 'hs12spoke3sa')].name" -o tsv)
 
 spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
 spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
@@ -652,7 +652,7 @@ cd azure-network-terraform/1-hub-and-spoke/2-hub-spoke-azfw-dual-region
 2\. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
 ```sh
-bash ../../scripts/_cleanup.sh Hs12
+bash ../../scripts/_cleanup.sh Hs12_HubSpoke_Azfw_2Region_RG
 ```
 
 <details>
@@ -660,11 +660,11 @@ bash ../../scripts/_cleanup.sh Hs12
 <summary>Sample output</summary>
 
 ```sh
-2-hub-spoke-azfw-dual-region$    bash ../../scripts/_cleanup.sh Hs12
+2-hub-spoke-azfw-dual-region$    bash ../../scripts/_cleanup.sh Hs12_HubSpoke_Azfw_2Region_RG
 
-Resource group: Hs12RG
+Resource group: Hs12_HubSpoke_Azfw_2Region_RG
 
-⏳ Checking for diagnostic settings on resources in Hs12RG ...
+⏳ Checking for diagnostic settings on resources in Hs12_HubSpoke_Azfw_2Region_RG ...
 ➜  Checking firewall ...
     ❌ Deleting: diag setting [Hs12-hub1-azfw-diag] for firewall [Hs12-hub1-azfw] ...
     ❌ Deleting: diag setting [Hs12-hub2-azfw-diag] for firewall [Hs12-hub2-azfw] ...
@@ -684,7 +684,7 @@ Done!
 3\. Delete the resource group to remove all resources installed.
 
 ```sh
-az group delete -g Hs12RG --no-wait
+az group delete -g Hs12_HubSpoke_Azfw_2Region_RG --no-wait
 ```
 
 4\. Delete terraform state files and other generated files.

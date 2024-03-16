@@ -136,23 +136,23 @@ conn %default
 
 conn Tunnel0
     left=10.10.1.9
-    leftid=52.169.120.23
-    right=4.208.82.24
-    rightid=4.208.82.24
+    leftid=52.164.205.28
+    right=52.236.28.10
+    rightid=52.236.28.10
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.10.1.9
-    leftid=52.169.120.23
-    right=4.208.82.20
-    rightid=4.208.82.20
+    leftid=52.164.205.28
+    right=52.236.28.36
+    rightid=52.236.28.36
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.10.1.9
-    leftid=52.169.120.23
+    leftid=52.164.205.28
     right=1.1.1.1
     rightid=1.1.1.1
     auto=start
@@ -165,8 +165,8 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.10.1.9 4.208.82.24 : PSK "changeme"
-10.10.1.9 4.208.82.20 : PSK "changeme"
+10.10.1.9 52.236.28.10 : PSK "changeme"
+10.10.1.9 52.236.28.36 : PSK "changeme"
 10.10.1.9 1.1.1.1 : PSK "changeme"
 
 EOF
@@ -227,8 +227,28 @@ esac
 EOF
 chmod a+x /etc/ipsec.d/ipsec-vti.sh
 
+# tee /usr/local/bin/ipsec-auto-restart.sh <<'EOF'
+# #!/bin/bash
+
+# LOG_FILE="/var/log/ipsec-auto-restart.log"
+
+# connections=$(grep '^conn' /etc/ipsec.conf | grep -v '%default' | cut -d' ' -f2)
+# for conn in $connections; do
+#   if ! ipsec status | grep -q "$conn"; then
+#     echo "$(date): $conn is down. Attempting to restart..." >> "$LOG_FILE"
+#     ipsec down $conn
+#     ipsec up $conn
+#     echo "$(date): $conn restart command issued." >> "$LOG_FILE"
+#   fi
+# done
+# EOF
+# chmod a+x /usr/local/bin/ipsec-auto-restart.sh
+# /usr/local/bin/ipsec-auto-restart.sh
+# echo "*/5 * * * * /usr/local/bin/ipsec-auto-restart.sh" | tee -a /etc/cron.d/ipsec-auto-restart
+
 touch /var/log/ipsec-vti.log
-systemctl restart ipsec.service
+systemctl enable ipsec
+systemctl restart ipsec
 
 #########################################################
 # frr  config
@@ -349,7 +369,7 @@ echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} 
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1vm.eu.az.corp) - spoke1vm.eu.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke2vm.eu.az.corp) - spoke2vm.eu.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs11spoke3sa2338.blob.core.windows.net/spoke3/spoke3.txt) - https://hs11spoke3sa2338.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs11spoke3sad3d2.blob.core.windows.net/spoke3/spoke3.txt) - https://hs11spoke3sad3d2.blob.core.windows.net/spoke3/spoke3.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 

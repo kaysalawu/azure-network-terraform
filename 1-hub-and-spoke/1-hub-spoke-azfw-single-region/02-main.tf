@@ -4,7 +4,7 @@
 
 locals {
   prefix                      = "Hs11"
-  lab_name                    = "HubSpoke_AzfwSingleRegion"
+  lab_name                    = "HubSpoke_Azfw_1Region"
   enable_diagnostics          = false
   enable_onprem_wan_link      = false
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
