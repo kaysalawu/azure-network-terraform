@@ -4,7 +4,7 @@ services:
   unbound:
     container_name: unbound
     build:
-      context: ./app
+      context: .
       dockerfile: Dockerfile
     ports:
       - "53:53/tcp"

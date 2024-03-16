@@ -55,10 +55,10 @@ locals {
     )
   }
   branch2_unbound_files = {
-    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/Dockerfile", {}) }
-    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
-    "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.conf", local.branch2_dns_vars) }
-    "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.log", local.branch2_dns_vars) }
+    "${local.branch_dns_init_dir}/unbound/Dockerfile"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/Dockerfile", {}) }
+    "${local.branch_dns_init_dir}/unbound/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
+    "/etc/unbound/unbound.conf"                               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/conf/unbound.conf", local.branch2_dns_vars) }
+    "/etc/unbound/unbound.log"                                = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/conf/unbound.log", local.branch2_dns_vars) }
   }
   branch2_forward_zones = [
     { zone = "${local.region1_dns_zone}.", targets = [local.hub1_dns_in_addr, ] },
@@ -83,7 +83,7 @@ module "branch2_unbound_init" {
     "echo \"nameserver 8.8.8.8\" > /etc/resolv.conf",
     "systemctl restart unbound",
     "systemctl enable unbound",
-    "docker-compose -f ${local.branch_dns_init_dir}/docker-compose.yml up -d",
+    "docker-compose -f ${local.branch_dns_init_dir}/unbound/docker-compose.yml up -d",
   ]
 }
 
