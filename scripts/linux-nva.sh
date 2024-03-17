@@ -255,7 +255,6 @@ echo
 EOF
 chmod a+x /usr/local/bin/ipsec-debug
 
-%{~ if try(ENABLE_TRAFFIC_GEN, false) ~}
 # light-traffic generator
 
 %{ if TARGETS_LIGHT_TRAFFIC_GEN != [] ~}
@@ -300,4 +299,3 @@ cat <<EOF > /tmp/crontab.txt
 %{ endif ~}
 EOF
 crontab /tmp/crontab.txt
-%{ endif ~}
