@@ -54,12 +54,6 @@ locals {
       ["127.0.0.0/8", "35.199.192.0/19", ]
     )
   }
-  branch3_unbound_files = {
-    "${local.branch_dns_init_dir}/unbound/Dockerfile"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/Dockerfile", {}) }
-    "${local.branch_dns_init_dir}/unbound/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
-    "/etc/unbound/unbound.conf"                               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/conf/unbound.conf", local.branch3_dns_vars) }
-    "/etc/unbound/unbound.log"                                = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/conf/unbound.log", local.branch3_dns_vars) }
-  }
   branch3_forward_zones = [
     { zone = "${local.region1_dns_zone}.", targets = [local.hub1_dns_in_addr, ] },
     { zone = "${local.region2_dns_zone}.", targets = [local.hub2_dns_in_addr, ] },
@@ -70,20 +64,6 @@ locals {
     { zone = "privatelink.queue.core.windows.net.", targets = [local.hub2_dns_in_addr, ] },
     { zone = "privatelink.file.core.windows.net.", targets = [local.hub2_dns_in_addr, ] },
     { zone = ".", targets = [local.azuredns, ] },
-  ]
-}
-
-module "branch3_unbound_init" {
-  source   = "../../modules/cloud-config-gen"
-  packages = ["docker.io", "docker-compose", "dnsutils", "net-tools", ]
-  files    = local.branch3_unbound_files
-  run_commands = [
-    "systemctl stop systemd-resolved",
-    "systemctl disable systemd-resolved",
-    "echo \"nameserver 8.8.8.8\" > /etc/resolv.conf",
-    "systemctl restart unbound",
-    "systemctl enable unbound",
-    "docker-compose -f ${local.branch_dns_init_dir}/unbound/docker-compose.yml up -d",
   ]
 }
 
@@ -216,7 +196,6 @@ locals {
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
-    ENABLE_TRAFFIC_GEN        = false
 
     IPTABLES_RULES           = []
     ROUTE_MAPS               = []
@@ -269,7 +248,6 @@ locals {
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
     TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
-    ENABLE_TRAFFIC_GEN        = true
   })
 }
 
