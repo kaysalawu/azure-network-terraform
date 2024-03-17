@@ -57,8 +57,7 @@ locals {
   onprem_unbound_files = {
     "${local.branch_dns_init_dir}/unbound/Dockerfile"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/Dockerfile", {}) }
     "${local.branch_dns_init_dir}/unbound/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
-    "/etc/unbound/unbound.conf"                               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/conf/unbound.conf", local.onprem_dns_vars) }
-    # "/etc/unbound/unbound.log"                                = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/conf/unbound.log", local.onprem_dns_vars) }
+    "/etc/unbound/unbound.conf"                               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/unbound.conf", local.onprem_dns_vars) }
   }
   onprem_forward_zones = [
     # { zone = "${local.region1_dns_zone}.", targets = [local.ecs_dns_in_addr, ] },
@@ -189,7 +188,6 @@ locals {
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
-    ENABLE_TRAFFIC_GEN        = false
 
     IPTABLES_RULES           = []
     ROUTE_MAPS               = []
@@ -242,7 +240,6 @@ locals {
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
     TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
-    ENABLE_TRAFFIC_GEN        = true
   })
 }
 

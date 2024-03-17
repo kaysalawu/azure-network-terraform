@@ -372,3 +372,15 @@ ip link show type vti
 echo
 EOF
 chmod a+x /usr/local/bin/ipsec-debug
+
+# light-traffic generator
+
+
+# heavy-traffic generator
+
+
+# crontab for traffic generators
+
+cat <<EOF > /tmp/crontab.txt
+EOF
+crontab /tmp/crontab.txt

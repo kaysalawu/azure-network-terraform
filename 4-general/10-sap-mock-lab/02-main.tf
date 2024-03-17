@@ -3,12 +3,19 @@
 ####################################################
 
 locals {
-  prefix             = "G10"
-  lab_name           = "SapNetworking"
-  enable_diagnostics = false
-  ecs_tags           = { "lab" = local.prefix, "nodeType" = "hub" }
-  onprem_tags        = { "lab" = local.prefix, "nodeType" = "branch" }
+  prefix                   = "G10"
+  lab_name                 = "SapNetworking"
+  enable_diagnostics       = false
+  enable_service_endpoints = false
+  ecs_tags                 = { "lab" = local.prefix, "nodeType" = "hub" }
+  onprem_tags              = { "lab" = local.prefix, "nodeType" = "branch" }
 }
+
+resource "random_id" "random" {
+  byte_length = 2
+}
+
+data "azurerm_client_config" "current" {}
 
 ####################################################
 # providers
@@ -110,7 +117,6 @@ locals {
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
-    ENABLE_TRAFFIC_GEN        = false
   })
   onprem_local_records = [
     { name = lower(local.onprem_vm_fqdn), record = local.onprem_vm_addr },

@@ -138,3 +138,15 @@ echo -e "\n resolvectl ...\n"
 resolvectl status
 EOF
 chmod a+x /usr/local/bin/dns-info
+
+# light-traffic generator
+
+
+# heavy-traffic generator
+
+
+# crontab for traffic generators
+
+cat <<EOF > /tmp/crontab.txt
+EOF
+crontab /tmp/crontab.txt

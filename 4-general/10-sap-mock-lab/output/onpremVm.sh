@@ -138,6 +138,7 @@ echo -e "\n resolvectl ...\n"
 resolvectl status
 EOF
 chmod a+x /usr/local/bin/dns-info
+
 # light-traffic generator
 
 cat <<EOF > /usr/local/bin/light-traffic

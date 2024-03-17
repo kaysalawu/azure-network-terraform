@@ -17,13 +17,17 @@ locals {
     )
   }
   ecs_cgs_files = {
+    "${local.ecs_cgs_init_dir}/init/setup.sh" = { owner = "root", permissions = "0744", content = templatefile("./scripts/setup.sh", local.ecs_test_vars) }
+
     "${local.ecs_cgs_init_dir}/unbound/Dockerfile"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/Dockerfile", {}) }
     "${local.ecs_cgs_init_dir}/unbound/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
-    "/etc/unbound/unbound.conf"                            = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/conf/unbound.conf", local.ecs_cgs_vars) }
+    "${local.ecs_cgs_init_dir}/unbound/setup-unbound.sh"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/setup-unbound.sh", local.ecs_cgs_vars) }
+    "/etc/unbound/unbound.conf"                            = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/unbound.conf", local.ecs_cgs_vars) }
 
-    "${local.ecs_cgs_init_dir}/squid/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/docker-compose.yml", {}) }
-    "/etc/squid/blocked_sites"                           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/conf/blocked_sites", {}) }
-    "/etc/squid/squid.conf"                              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/conf/squid.conf", local.ecs_cgs_vars) }
+    "${local.ecs_cgs_init_dir}/squid/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/docker-compose.yml", local.ecs_cgs_vars) }
+    "${local.ecs_cgs_init_dir}/squid/setup-squid.sh"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/setup-squid.sh", local.ecs_cgs_vars) }
+    "/etc/squid/blocked_sites"                           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/blocked_sites", local.ecs_cgs_vars) }
+    "/etc/squid/squid.conf"                              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/squid.conf", local.ecs_cgs_vars) }
   }
   ecs_local_records = [
     { name = lower(local.ecs_webd1_fqdn), record = local.ecs_webd1_addr },
@@ -44,10 +48,9 @@ module "ecs_cgs_init" {
   packages = ["docker.io", "docker-compose", "dnsutils", "net-tools", ]
   files    = local.ecs_cgs_files
   run_commands = [
-    "systemctl stop systemd-resolved",
-    "systemctl disable systemd-resolved",
-    "echo \"nameserver 8.8.8.8\" > /etc/resolv.conf",
-    "touch /etc/unbound/unbound.log",
+    ". ${local.ecs_cgs_init_dir}/init/setup.sh",
+    ". ${local.ecs_cgs_init_dir}/unbound/setup-unbound.sh",
+    ". ${local.ecs_cgs_init_dir}/squid/setup-squid.sh",
     "docker-compose -f ${local.ecs_cgs_init_dir}/unbound/docker-compose.yml up -d",
     "docker-compose -f ${local.ecs_cgs_init_dir}/squid/docker-compose.yml up -d",
   ]
@@ -68,7 +71,6 @@ module "ecs_cgs" {
       name               = "${local.ecs_prefix}cgs-prod-nic"
       subnet_id          = module.ecs.subnets["ProductionSubnet"].id
       private_ip_address = local.ecs_cgs_addr
-      create_public_ip   = true
     },
   ]
 }

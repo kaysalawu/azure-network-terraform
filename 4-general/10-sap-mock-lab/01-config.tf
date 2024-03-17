@@ -52,7 +52,7 @@ locals {
   ]
   private_prefixes_map = { for i, prefix in local.private_prefixes : i => prefix }
 
-  service_endpoints = [
+  service_endpoints = local.enable_service_endpoints ? [
     "Microsoft.Storage",
     "Microsoft.Sql",
     "Microsoft.KeyVault",
@@ -62,7 +62,7 @@ locals {
     "Microsoft.Web",
     "Microsoft.CognitiveServices",
     "Microsoft.ContainerRegistry",
-  ]
+  ] : []
 }
 
 # ecs
@@ -100,12 +100,14 @@ locals {
   ecs_appsrv2_hostname = "AppSrv2"
   ecs_cgs_hostname     = "EcsCgs"
   ecs_ilb_hostname     = "ilb"
+  ecs_test_hostname    = "Test"
   ecs_webd1_fqdn       = "${local.ecs_webd1_hostname}.${local.ecs_dns_zone}"
   ecs_webd2_fqdn       = "${local.ecs_webd2_hostname}.${local.ecs_dns_zone}"
   ecs_appsrv1_fqdn     = "${local.ecs_appsrv1_hostname}.${local.ecs_dns_zone}"
   ecs_appsrv2_fqdn     = "${local.ecs_appsrv2_hostname}.${local.ecs_dns_zone}"
   ecs_cgs_fqdn         = "${local.ecs_cgs_hostname}.${local.ecs_dns_zone}"
   ecs_webd_ilb_fqdn    = "${local.ecs_ilb_hostname}.${local.ecs_dns_zone}"
+  ecs_test_fqdn        = "${local.ecs_test_hostname}.${local.ecs_dns_zone}"
 }
 
 # onprem
