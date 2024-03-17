@@ -4,14 +4,13 @@
 ####################################################
 
 module "hub1" {
-  source            = "../../modules/base"
-  resource_group    = azurerm_resource_group.rg.name
-  prefix            = trimsuffix(local.hub1_prefix, "-")
-  env               = "prod"
-  location          = local.hub1_location
-  storage_account   = module.common.storage_accounts["region1"]
-  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
-  tags              = local.hub1_tags
+  source          = "../../modules/base"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = trimsuffix(local.hub1_prefix, "-")
+  env             = "prod"
+  location        = local.hub1_location
+  storage_account = module.common.storage_accounts["region1"]
+  tags            = local.hub1_tags
 
   enable_diagnostics           = local.enable_diagnostics
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name

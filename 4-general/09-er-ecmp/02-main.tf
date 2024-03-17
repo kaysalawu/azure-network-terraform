@@ -44,16 +44,6 @@ terraform {
 }
 
 ####################################################
-# user assigned identity
-####################################################
-
-resource "azurerm_user_assigned_identity" "machine" {
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = local.default_region
-  name                = "${local.prefix}-user"
-}
-
-####################################################
 # network features
 ####################################################
 
@@ -65,13 +55,9 @@ locals {
     { name = "default", address_prefix = ["0.0.0.0/0"] }
   ]
   hub1_appliance_udr_destinations = [
-    { name = "spoke4", address_prefix = local.spoke4_address_space },
-    { name = "spoke5", address_prefix = local.spoke5_address_space },
     { name = "hub2", address_prefix = local.hub2_address_space },
   ]
   hub1_gateway_udr_destinations = [
-    { name = "spoke1", address_prefix = local.spoke1_address_space },
-    { name = "spoke2", address_prefix = local.spoke2_address_space },
     { name = "hub1", address_prefix = local.hub1_address_space },
   ]
   firewall_sku = "Basic"
@@ -113,30 +99,11 @@ locals {
 
     config_s2s_vpngw = {
       enable = false
-      sku    = "VpnGw1AZ"
-      ip_configuration = [
-        { name = "ipconf0", public_ip_address_name = azurerm_public_ip.hub1_s2s_vpngw_pip0.name, apipa_addresses = ["169.254.21.1"] },
-        { name = "ipconf1", public_ip_address_name = azurerm_public_ip.hub1_s2s_vpngw_pip1.name, apipa_addresses = ["169.254.21.5"] }
-      ]
-      bgp_settings = {
-        asn = local.hub1_vpngw_asn
-      }
     }
 
     config_p2s_vpngw = {
       enable = false
       sku    = "VpnGw1AZ"
-      ip_configuration = [
-        #{ name = "ipconf", public_ip_address_name = azurerm_public_ip.hub1_p2s_vpngw_pip.name }
-      ]
-      vpn_client_configuration = {
-        address_space = []
-        clients = [
-          # { name = "client1" },
-          # { name = "client2" },
-        ]
-      }
-      custom_route_address_prefixes = ["8.8.8.8/32"]
     }
 
     config_ergw = {
@@ -145,19 +112,11 @@ locals {
     }
 
     config_firewall = {
-      enable             = false
-      firewall_sku       = local.firewall_sku
-      firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
+      enable = false
     }
 
     config_nva = {
-      enable          = false
-      type            = null
-      scenario_option = null
-      opn_type        = null
-      custom_data     = null
-      ilb_untrust_ip  = null
-      ilb_trust_ip    = null
+      enable = false
     }
   }
 }
@@ -235,14 +194,6 @@ locals {
     local.vm_script_targets_misc,
   )
   vm_startup = templatefile("../../scripts/server.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = []
-    TARGETS_HEAVY_TRAFFIC_GEN = []
-    ENABLE_TRAFFIC_GEN        = false
-  })
-  tools = templatefile("../../scripts/tools.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []

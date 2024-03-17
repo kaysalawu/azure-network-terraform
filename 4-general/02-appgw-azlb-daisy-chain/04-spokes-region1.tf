@@ -6,14 +6,13 @@
 # base
 
 module "spoke1" {
-  source            = "../../modules/base"
-  resource_group    = azurerm_resource_group.rg.name
-  prefix            = trimsuffix(local.spoke1_prefix, "-")
-  env               = "prod"
-  location          = local.spoke1_location
-  storage_account   = module.common.storage_accounts["region1"]
-  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
-  tags              = local.spoke1_tags
+  source          = "../../modules/base"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = trimsuffix(local.spoke1_prefix, "-")
+  env             = "prod"
+  location        = local.spoke1_location
+  storage_account = module.common.storage_accounts["region1"]
+  tags            = local.spoke1_tags
 
   enable_diagnostics           = local.enable_diagnostics
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
@@ -51,7 +50,6 @@ module "spoke1" {
 
 locals {
   spoke1_vm_init = templatefile("../../scripts/server.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
     TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]

@@ -7,13 +7,12 @@
 #----------------------------
 
 module "branch2" {
-  source            = "../../modules/base"
-  resource_group    = azurerm_resource_group.rg.name
-  prefix            = trimsuffix(local.branch2_prefix, "-")
-  location          = local.branch2_location
-  storage_account   = module.common.storage_accounts["region1"]
-  user_assigned_ids = [azurerm_user_assigned_identity.machine.id, ]
-  tags              = local.branch2_tags
+  source          = "../../modules/base"
+  resource_group  = azurerm_resource_group.rg.name
+  prefix          = trimsuffix(local.branch2_prefix, "-")
+  location        = local.branch2_location
+  storage_account = module.common.storage_accounts["region1"]
+  tags            = local.branch2_tags
 
   enable_diagnostics = local.enable_diagnostics
 
@@ -56,10 +55,10 @@ locals {
     )
   }
   branch2_unbound_files = {
-    "${local.branch_dns_init_dir}/app/Dockerfile"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/Dockerfile", {}) }
-    "${local.branch_dns_init_dir}/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
-    "/etc/unbound/unbound.conf"                       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.conf", local.branch2_dns_vars) }
-    "/etc/unbound/unbound.log"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/app/conf/unbound.log", local.branch2_dns_vars) }
+    "${local.branch_dns_init_dir}/unbound/Dockerfile"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/Dockerfile", {}) }
+    "${local.branch_dns_init_dir}/unbound/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
+    "/etc/unbound/unbound.conf"                               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/conf/unbound.conf", local.branch2_dns_vars) }
+    "/etc/unbound/unbound.log"                                = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/conf/unbound.log", local.branch2_dns_vars) }
   }
   branch2_forward_zones = [
     { zone = "${local.region1_dns_zone}.", targets = [local.hub1_dns_in_addr, ] },
@@ -84,7 +83,7 @@ module "branch2_unbound_init" {
     "echo \"nameserver 8.8.8.8\" > /etc/resolv.conf",
     "systemctl restart unbound",
     "systemctl enable unbound",
-    "docker-compose -f ${local.branch_dns_init_dir}/docker-compose.yml up -d",
+    "docker-compose -f ${local.branch_dns_init_dir}/unbound/docker-compose.yml up -d",
   ]
 }
 
@@ -115,7 +114,6 @@ module "branch2_dns" {
 
 locals {
   branch2_vm_init = templatefile("../../scripts/server.sh", {
-    USER_ASSIGNED_ID          = azurerm_user_assigned_identity.machine.id
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
     TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
