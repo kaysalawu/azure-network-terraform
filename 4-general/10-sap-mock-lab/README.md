@@ -26,7 +26,7 @@ This lab is a mock scenario for SAP RISE ECS (Enterprise Cloud Services) deploym
 
 > Note: This lab does not include any SAP workloads, databases, or the full set of network and security components required for a real SAP deployment. The lab just emulates the infrastructure, connectivity, and network security components.
 
-<img src="./images/architecture.png" alt="Architecure" width="700">
+<img src="./images/architecture.png" alt="Architecure" width="650">
 
 These are the main components of the lab:
 - **Vnet**: The simulated virtual network for the SAP RISE ECS deployment
