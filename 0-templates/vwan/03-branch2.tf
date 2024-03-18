@@ -1,12 +1,4 @@
 
-locals {
-  branch2_vm_init = templatefile("../../scripts/server.sh", {
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
-    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
-  })
-}
-
 ####################################################
 # vnet
 ####################################################
@@ -50,6 +42,31 @@ module "branch2" {
 # dns
 ####################################################
 
+locals {
+  branch2_unbound_startup = templatefile("../../scripts/unbound/unbound.sh", local.branch2_dns_vars)
+  branch2_dns_vars = {
+    ONPREM_LOCAL_RECORDS = local.onprem_local_records
+    REDIRECTED_HOSTS     = local.onprem_redirected_hosts
+    FORWARD_ZONES        = local.branch2_forward_zones
+    TARGETS              = local.vm_script_targets
+    ACCESS_CONTROL_PREFIXES = concat(
+      local.private_prefixes,
+      ["127.0.0.0/8", "35.199.192.0/19", ]
+    )
+  }
+  branch2_forward_zones = [
+    { zone = "${local.region1_dns_zone}.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "${local.region2_dns_zone}.", targets = [local.hub2_dns_in_addr, ] },
+    { zone = "privatelink.blob.core.windows.net.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "privatelink.azurewebsites.net.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "privatelink.database.windows.net.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "privatelink.table.cosmos.azure.com.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "privatelink.queue.core.windows.net.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "privatelink.file.core.windows.net.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = ".", targets = [local.azuredns, ] },
+  ]
+}
+
 module "branch2_dns" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
@@ -57,7 +74,7 @@ module "branch2_dns" {
   computer_name   = local.branch2_dns_hostname
   location        = local.branch2_location
   storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(local.branch_unbound_startup)
+  custom_data     = base64encode(local.branch2_unbound_startup)
   tags            = local.branch2_tags
 
   interfaces = [
@@ -73,6 +90,15 @@ module "branch2_dns" {
 ####################################################
 # workload
 ####################################################
+
+
+locals {
+  branch2_vm_init = templatefile("../../scripts/server.sh", {
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
+    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
+  })
+}
 
 module "branch2_vm" {
   source          = "../../modules/virtual-machine-linux"
@@ -131,7 +157,8 @@ module "branch2_udr_main" {
 
 locals {
   branch2_files = {
-    "output/branch2-vm.sh" = local.branch2_vm_init
+    "output/branch2Dns.sh" = local.branch2_unbound_startup
+    "output/branch2Vm.sh"  = local.branch2_vm_init
   }
 }
 

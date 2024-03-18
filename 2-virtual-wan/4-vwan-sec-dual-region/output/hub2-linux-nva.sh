@@ -178,8 +178,8 @@ interface lo
 ! Static Routes
 !-----------------------------------------
 ip route 0.0.0.0/0 10.22.2.1
-ip route 192.168.22.69/32 10.22.2.1
 ip route 192.168.22.68/32 10.22.2.1
+ip route 192.168.22.69/32 10.22.2.1
 ip route 10.5.0.0/20 10.22.2.1
 !
 !-----------------------------------------
@@ -191,18 +191,18 @@ ip route 10.5.0.0/20 10.22.2.1
 !-----------------------------------------
 router bgp 65020
 bgp router-id 10.22.22.22
-neighbor 192.168.22.69 remote-as 65515
-neighbor 192.168.22.69 ebgp-multihop 255
-neighbor 192.168.22.69 update-source lo
 neighbor 192.168.22.68 remote-as 65515
 neighbor 192.168.22.68 ebgp-multihop 255
 neighbor 192.168.22.68 update-source lo
+neighbor 192.168.22.69 remote-as 65515
+neighbor 192.168.22.69 ebgp-multihop 255
+neighbor 192.168.22.69 update-source lo
 !
 address-family ipv4 unicast
   network 10.22.0.0/24
   network 10.5.0.0/20
-  neighbor 192.168.22.69 soft-reconfiguration inbound
   neighbor 192.168.22.68 soft-reconfiguration inbound
+  neighbor 192.168.22.69 soft-reconfiguration inbound
 exit-address-family
 !
 line vty
@@ -280,8 +280,8 @@ echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} 
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke4vm.us.az.corp) - spoke4vm.us.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke5vm.us.az.corp) - spoke5vm.us.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke3sac5b2.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan24spoke3sac5b2.blob.core.windows.net/spoke3/spoke3.txt"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke6sac5b2.blob.core.windows.net/spoke6/spoke6.txt) - https://vwan24spoke6sac5b2.blob.core.windows.net/spoke6/spoke6.txt"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke3saf5ed.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan24spoke3saf5ed.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke6saf5ed.blob.core.windows.net/spoke6/spoke6.txt) - https://vwan24spoke6saf5ed.blob.core.windows.net/spoke6/spoke6.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 
@@ -332,3 +332,15 @@ ip link show type vti
 echo
 EOF
 chmod a+x /usr/local/bin/ipsec-debug
+
+# light-traffic generator
+
+
+# heavy-traffic generator
+
+
+# crontab for traffic generators
+
+cat <<EOF > /tmp/crontab.txt
+EOF
+crontab /tmp/crontab.txt

@@ -92,13 +92,6 @@ module "branch3_dns" {
 ####################################################
 
 locals {
-  branch3_network       = cidrhost(local.branch3_subnets["MainSubnet"].address_prefixes[0], 0)
-  branch3_mask          = cidrnetmask(local.branch3_subnets["MainSubnet"].address_prefixes[0])
-  branch3_inverse_mask_ = [for octet in split(".", local.branch3_mask) : 255 - tonumber(octet)]
-  branch3_inverse_mask  = join(".", local.branch3_inverse_mask_)
-}
-
-locals {
   branch3_nva_route_map_onprem      = "ONPREM"
   branch3_nva_route_map_azure       = "AZURE"
   branch3_nva_route_map_block_azure = "BLOCK_HUB_GW_SUBNET"
@@ -108,23 +101,26 @@ locals {
     LOOPBACKS = []
 
     PREFIX_LISTS = [
-      # "ip prefix-list ${local.branch3_nva_route_map_block_azure} deny ${local.hub2_subnets["GatewaySubnet"].address_prefixes[0]}",
-      # "ip prefix-list ${local.branch3_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
+      "ip prefix-list ${local.branch3_nva_route_map_block_azure} deny ${local.hub2_address_space[1]}",
+      "ip prefix-list ${local.branch3_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
     ]
 
     ROUTE_MAPS = [
-      # "route-map ${local.branch3_nva_route_map_onprem} permit 100",
-      # "match ip address prefix-list all",
-      # "set as-path prepend ${local.branch3_nva_asn} ${local.branch3_nva_asn} ${local.branch3_nva_asn}",
+      # prepend as-path between branches
+      "route-map ${local.branch3_nva_route_map_onprem} permit 100",
+      "match ip address prefix-list all",
+      "set as-path prepend ${local.branch3_nva_asn} ${local.branch3_nva_asn} ${local.branch3_nva_asn}",
 
-      # "route-map ${local.branch3_nva_route_map_azure} permit 110",
-      # "match ip address prefix-list all",
+      # do nothing (placeholder for future use)
+      "route-map ${local.branch3_nva_route_map_azure} permit 110",
+      "match ip address prefix-list all",
     ]
     STATIC_ROUTES = [
-      { prefix = "0.0.0.0", mask = "0.0.0.0", next_hop = local.branch3_untrust_default_gw },
+      { prefix = "0.0.0.0/0", next_hop = local.branch3_untrust_default_gw },
       { prefix = "${module.vhub2.vpngw_bgp_ip0}/32", next_hop = "vti0" },
       { prefix = "${module.vhub2.vpngw_bgp_ip1}/32", next_hop = "vti1" },
       { prefix = "${local.branch1_nva_loopback0}/32", next_hop = "vti2" },
+      { prefix = local.branch1_nva_untrust_addr, next_hop = local.branch3_untrust_default_gw },
       { prefix = local.branch3_subnets["MainSubnet"].address_prefixes[0], next_hop = local.branch3_untrust_default_gw },
     ]
     TUNNELS = [

@@ -1,2 +1,0 @@
-g10-ecs-kvb79c.vault.azure.net
-g10ecssab79c.blob.core.windows.net

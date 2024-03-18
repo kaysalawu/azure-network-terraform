@@ -132,7 +132,7 @@ systemctl restart ipsec.service
 # #########################################################
 
 sudo tee /etc/frr/frr.conf <<EOF
-# 
+#
 EOF
 
 sudo systemctl enable frr

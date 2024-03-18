@@ -5,7 +5,4 @@ https://github.com/kumarvna/terraform-azurerm-application-gateway
 <!-- BEGIN_TF_DOCS -->
 
 
-
-
-
 <!-- END_TF_DOCS -->

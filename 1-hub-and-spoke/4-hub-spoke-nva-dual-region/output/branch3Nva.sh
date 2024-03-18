@@ -136,25 +136,25 @@ conn %default
 
 conn Tunnel0
     left=10.30.1.9
-    leftid=52.179.103.48
-    right=4.156.234.60
-    rightid=4.156.234.60
+    leftid=52.191.210.166
+    right=4.255.19.89
+    rightid=4.255.19.89
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.30.1.9
-    leftid=52.179.103.48
-    right=4.156.234.56
-    rightid=4.156.234.56
+    leftid=52.191.210.166
+    right=4.255.19.92
+    rightid=4.255.19.92
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.30.1.9
-    leftid=52.179.103.48
-    right=13.74.250.125
-    rightid=13.74.250.125
+    leftid=52.191.210.166
+    right=52.169.219.93
+    rightid=52.169.219.93
     auto=start
     mark=300
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -165,9 +165,9 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.30.1.9 4.156.234.60 : PSK "changeme"
-10.30.1.9 4.156.234.56 : PSK "changeme"
-10.30.1.9 13.74.250.125 : PSK "changeme"
+10.30.1.9 4.255.19.89 : PSK "changeme"
+10.30.1.9 4.255.19.92 : PSK "changeme"
+10.30.1.9 52.169.219.93 : PSK "changeme"
 
 EOF
 
@@ -268,6 +268,8 @@ service integrated-vtysh-config
 !-----------------------------------------
 ! Prefix Lists
 !-----------------------------------------
+ip prefix-list BLOCK_HUB_GW_SUBNET deny 10.22.16.0/20
+ip prefix-list BLOCK_HUB_GW_SUBNET permit 0.0.0.0/0 le 32
 !
 !-----------------------------------------
 ! Interface
@@ -288,6 +290,13 @@ ip route 10.30.0.0/24 10.30.1.1
 !-----------------------------------------
 ! Route Maps
 !-----------------------------------------
+  route-map ONPREM permit 100
+  match ip address prefix-list all
+  set as-path prepend 65003 65003 65003
+  route-map AZURE permit 110
+  match ip address prefix-list all
+  route-map BLOCK_HUB_GW_SUBNET permit 120
+  match ip address prefix-list BLOCK_HUB_GW_SUBNET
 !
 !-----------------------------------------
 ! BGP
@@ -386,8 +395,8 @@ echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} 
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke4vm.us.az.corp) - spoke4vm.us.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke5vm.us.az.corp) - spoke5vm.us.az.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs14spoke3saf250.blob.core.windows.net/spoke3/spoke3.txt) - https://hs14spoke3saf250.blob.core.windows.net/spoke3/spoke3.txt"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs14spoke6saf250.blob.core.windows.net/spoke6/spoke6.txt) - https://hs14spoke6saf250.blob.core.windows.net/spoke6/spoke6.txt"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs14spoke3saa275.blob.core.windows.net/spoke3/spoke3.txt) - https://hs14spoke3saa275.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs14spoke6saa275.blob.core.windows.net/spoke6/spoke6.txt) - https://hs14spoke6saa275.blob.core.windows.net/spoke6/spoke6.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 
@@ -438,3 +447,15 @@ ip link show type vti
 echo
 EOF
 chmod a+x /usr/local/bin/ipsec-debug
+
+# light-traffic generator
+
+
+# heavy-traffic generator
+
+
+# crontab for traffic generators
+
+cat <<EOF > /tmp/crontab.txt
+EOF
+crontab /tmp/crontab.txt

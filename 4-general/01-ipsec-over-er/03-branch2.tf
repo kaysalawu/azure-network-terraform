@@ -165,11 +165,15 @@ locals {
       "ip prefix-list ${local.branch2_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
     ]
     ROUTE_MAPS = [
+      # prepend as-path between branches
       "route-map ${local.branch2_nva_route_map_onprem} permit 100",
       "match ip address prefix-list all",
       "set as-path prepend ${local.branch2_nva_asn} ${local.branch2_nva_asn} ${local.branch2_nva_asn}",
+
+      # do nothing (placeholder for future use)
       "route-map ${local.branch2_nva_route_map_azure} permit 110",
       "match ip address prefix-list all",
+
       # block inbound gateway subnet, allow all other hub and spoke cidrs
       "route-map ${local.branch2_nva_route_map_block_azure} permit 120",
       "match ip address prefix-list BLOCK_HUB_GW_SUBNET",

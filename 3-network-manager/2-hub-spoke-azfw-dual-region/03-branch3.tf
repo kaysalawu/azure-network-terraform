@@ -101,20 +101,26 @@ locals {
     LOOPBACKS = []
 
     PREFIX_LISTS = [
-      # "ip prefix-list ${local.branch3_nva_route_map_block_azure} deny ${local.hub2_subnets["GatewaySubnet"].address_prefixes[0]}",
-      # "ip prefix-list ${local.branch3_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
+      "ip prefix-list ${local.branch3_nva_route_map_block_azure} deny ${local.hub2_address_space[1]}",
+      "ip prefix-list ${local.branch3_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
     ]
 
     ROUTE_MAPS = [
-      # "route-map ${local.branch3_nva_route_map_onprem} permit 100",
-      # "match ip address prefix-list all",
-      # "set as-path prepend ${local.branch3_nva_asn} ${local.branch3_nva_asn} ${local.branch3_nva_asn}",
+      # prepend as-path between branches
+      "route-map ${local.branch3_nva_route_map_onprem} permit 100",
+      "match ip address prefix-list all",
+      "set as-path prepend ${local.branch3_nva_asn} ${local.branch3_nva_asn} ${local.branch3_nva_asn}",
 
-      # "route-map ${local.branch3_nva_route_map_azure} permit 110",
-      # "match ip address prefix-list all",
+      # do nothing (placeholder for future use)
+      "route-map ${local.branch3_nva_route_map_azure} permit 110",
+      "match ip address prefix-list all",
+
+      # block inbound gateway subnet, allow all other hub and spoke cidrs
+      "route-map ${local.branch3_nva_route_map_block_azure} permit 120",
+      "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
     ]
     STATIC_ROUTES = [
-      { prefix = "0.0.0.0", mask = "0.0.0.0", next_hop = local.branch3_untrust_default_gw },
+      { prefix = "0.0.0.0/0", next_hop = local.branch3_untrust_default_gw },
       { prefix = "${module.hub2.s2s_vpngw_bgp_default_ip0}/32", next_hop = "vti0" },
       { prefix = "${module.hub2.s2s_vpngw_bgp_default_ip1}/32", next_hop = "vti1" },
       { prefix = "${local.branch1_nva_loopback0}/32", next_hop = "vti2" },

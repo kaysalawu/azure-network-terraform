@@ -1,0 +1,19 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-executables-have-shebangs
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: detect-private-key
+      - id: trailing-whitespace
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.88.2
+    hooks:
+      - id: terraform_fmt
+      - id: terraform_docs
+      # - id: infracost_breakdown
+      #   args:
+      #     - --args=--path=./env/dev
+      #     - --args=--terraform-var-file="terraform.tfvars"
+      #     - --args=--terraform-var-file="../terraform.tfvars"
