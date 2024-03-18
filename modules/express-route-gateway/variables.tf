@@ -53,14 +53,8 @@ variable "log_categories" {
   ]
 }
 
-variable "create_dashboard" {
-  description = "create dashboard"
-  type        = bool
-  default     = true
-}
-
-variable "enable_diagnostics" {
-  description = "enable diagnostics"
-  type        = bool
-  default     = false
+variable "log_analytics_workspace_name" {
+  description = "log analytics workspace name"
+  type        = string
+  default     = null
 }

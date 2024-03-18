@@ -3,13 +3,10 @@
 # log analytics workspace
 ####################################################
 
-resource "azurerm_log_analytics_workspace" "this" {
+data "azurerm_log_analytics_workspace" "this" {
+  count               = var.log_analytics_workspace_name != null ? 1 : 0
+  name                = var.log_analytics_workspace_name
   resource_group_name = var.resource_group
-  name                = replace("${var.prefix}ergw-ws", "_", "")
-  location            = var.location
-  sku                 = "PerGB2018"
-  retention_in_days   = 30
-  tags                = var.tags
 }
 
 ####################################################
@@ -33,14 +30,16 @@ resource "azurerm_public_ip" "this" {
 ####################################################
 
 resource "azurerm_virtual_network_gateway" "this" {
-  resource_group_name = var.resource_group
-  name                = "${var.prefix}ergw"
-  location            = var.location
-  type                = "ExpressRoute"
-  vpn_type            = "RouteBased"
-  sku                 = var.sku
-  enable_bgp          = true
-  active_active       = false
+  resource_group_name         = var.resource_group
+  name                        = "${var.prefix}ergw"
+  location                    = var.location
+  type                        = "ExpressRoute"
+  vpn_type                    = "RouteBased"
+  sku                         = var.sku
+  enable_bgp                  = true
+  active_active               = var.active_active
+  remote_vnet_traffic_enabled = var.remote_vnet_traffic_enabled
+  virtual_wan_traffic_enabled = var.virtual_wan_traffic_enabled
 
   ip_configuration {
     name                          = "ip-config"
@@ -71,10 +70,10 @@ data "external" "check_diag_setting" {
 
 resource "azurerm_monitor_diagnostic_setting" "this" {
   #count                      = data.external.check_diag_setting.result["exists"] == "true" ? 0 : 1
-  count                      = var.enable_diagnostics && var.create_dashboard ? 1 : 0
+  count                      = var.log_analytics_workspace_name != null ? 1 : 0
   name                       = "${var.prefix}ergw-diag"
   target_resource_id         = azurerm_virtual_network_gateway.this.id
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.this.id
+  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.this[0].id
   #log_analytics_destination_type = "Dedicated"
 
   dynamic "metric" {
@@ -110,7 +109,7 @@ locals {
 }
 
 resource "azurerm_portal_dashboard" "this" {
-  count                = var.enable_diagnostics && var.create_dashboard ? 1 : 0
+  count                = var.log_analytics_workspace_name != null ? 1 : 0
   name                 = "${var.prefix}ergw-db"
   resource_group_name  = var.resource_group
   location             = var.location

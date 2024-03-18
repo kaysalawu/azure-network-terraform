@@ -108,15 +108,26 @@ variable "metric_categories" {
   ]
 }
 
-variable "create_dashboard" {
-  description = "create dashboard"
+variable "remote_vnet_traffic_enabled" {
+  description = "remote vnet traffic enabled"
   type        = bool
   default     = true
 }
 
-variable "enable_diagnostics" {
-  description = "enable diagnostics"
+variable "virtual_wan_traffic_enabled" {
+  description = "virtual wan traffic enabled"
+  type        = bool
+  default     = true
+}
+
+variable "active_active" {
+  description = "enable active active"
   type        = bool
   default     = false
 }
 
+variable "log_analytics_workspace_name" {
+  description = "log analytics workspace name"
+  type        = string
+  default     = null
+}

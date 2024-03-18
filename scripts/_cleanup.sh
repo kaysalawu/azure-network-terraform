@@ -15,8 +15,8 @@ if [ "$#" -ne 1 ]; then
     exit 1
 fi
 
-LAB_ID=$1
-RG="${LAB_ID}RG"
+RG=$1
+LAB_ID=$(echo $RG | cut -d'_' -f1)
 echo && echo "Resource group: $RG" && echo
 
 delete_diag_settings() {
@@ -42,11 +42,16 @@ delete_azure_policies() {
     local policy_definitions=$(az policy definition list --query "[?contains(name, '$LAB_ID')].name" -o tsv)
     for policy_definition in $policy_definitions; do
         # delete all policy assignments for the policy definition
-        local policy_assignments=$(az policy assignment list --query "[?name=='$policy_definition'].name" -o tsv)
+        local policy_assignments=$(az policy assignment list -g $RG --query "[?name=='$policy_definition'].name" -o tsv)
         for policy_assignment in $policy_assignments; do
             echo -e "    $char_delete Deleting: policy assignment [$policy_assignment] ..."
-            az policy assignment delete --name "$policy_assignment"
+            az policy assignment delete -g $RG --name "$policy_assignment"
         done
+        # check if last operation was successful
+        if [ $? -ne 0 ]; then
+            echo -e "$char_exclamation Failed to delete policy assignment [$policy_assignment]! Exiting ..."
+            return 1
+        fi
         echo -e "    $char_delete Deleting: policy definition [$policy_definition] ..."
         az policy definition delete --name "$policy_definition"
     done
@@ -82,11 +87,11 @@ delete_app_gateway_diag_settings() {
 }
 
 echo -e "$char_executing Checking for diagnostic settings on resources in $RG ..."
-delete_azfw_diag_settings
-delete_vnetgw_diag_settings
-delete_vpn_gateway_diag_settings
-delete_express_route_gateway_diag_settings
-delete_app_gateway_diag_settings
+ delete_azfw_diag_settings
+ delete_vnetgw_diag_settings
+ delete_vpn_gateway_diag_settings
+ delete_express_route_gateway_diag_settings
+ delete_app_gateway_diag_settings
 
 echo -e "$char_executing Checking for azure policies in $RG ..."
 delete_azure_policies

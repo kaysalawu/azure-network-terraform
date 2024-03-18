@@ -61,26 +61,16 @@ resource "azurerm_private_dns_resolver_dns_forwarding_ruleset" "this" {
 # dns resolver links
 ####################################################
 
-# local
-
-resource "azurerm_private_dns_resolver_virtual_network_link" "this" {
-  name                      = "${var.prefix}vnet-link"
-  dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.this.id
-  virtual_network_id        = var.virtual_network_id
-}
-
-# external
-
 resource "azurerm_private_dns_resolver_virtual_network_link" "external" {
-  for_each                  = { for k, v in var.private_dns_ruleset_linked_external_vnets : k => v }
-  name                      = "${var.prefix}${each.key}-vnet-link"
+  for_each                  = { for v in var.vnets_linked_to_ruleset : v.name => v }
+  name                      = "${var.prefix}-${each.key}--link"
   dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.this.id
-  virtual_network_id        = each.value
+  virtual_network_id        = each.value.vnet_id
 }
 
 resource "azurerm_private_dns_resolver_forwarding_rule" "this" {
   for_each                  = { for k, v in var.ruleset_dns_forwarding_rules : k => v }
-  name                      = "${var.prefix}${each.key}-rule"
+  name                      = "${replace("${var.prefix}${each.key}", ".", "-")}--rule"
   dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.this.id
   domain_name               = "${each.value.domain}."
   enabled                   = true
@@ -106,7 +96,7 @@ locals {
 }
 
 resource "azurerm_portal_dashboard" "this" {
-  count                = var.enable_diagnostics && var.create_dashboard ? 1 : 0
+  count                = var.log_analytics_workspace_name != null ? 1 : 0
   name                 = "${var.prefix}private-dns-resolver"
   resource_group_name  = var.resource_group
   location             = var.location

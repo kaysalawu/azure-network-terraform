@@ -3,7 +3,7 @@
 ../../0-templates/04-spokes-region1.tf
 ../../0-templates/05-hub1.tf
 ../../0-templates/avnm/06-conn-hub1-azfw.tf
-../../0-templates/services-region1.tf
-../../0-templates/outputs-single-region.tf
-../../0-templates/svc-nm-global.tf
-../../0-templates/avnm/svc-nm-hubspoke-region1.tf
+../../0-templates/services/services-region1.tf
+../../0-templates/outputs/outputs-single-region.tf
+../../0-templates/avnm/svc-nm-global.tf
+../../0-templates/avnm/svc-nm-azpol-hubspoke-region1.tf

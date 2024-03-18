@@ -24,7 +24,7 @@ output "nat_rule_ids" {
   value       = try({ for nat_rule in azurerm_lb_nat_rule.this : nat_rule.name => nat_rule.id }, {})
 }
 
-output "public_ip_ids" {
+output "public_ip_address_ids" {
   description = "the id for the azurerm_lb_public_ip resource"
   value       = try({ for pip in azurerm_public_ip.this : pip.name => pip.id }, {})
 }

@@ -1,0 +1,15 @@
+version: '3.7'
+services:
+  squid:
+    container_name: squid
+    image: ubuntu/squid:latest
+    ports:
+      - "3128:3128"
+    network_mode: "host"
+    volumes:
+      - /etc/squid/squid.conf:/etc/squid/squid.conf
+      - /etc/squid/blocked_sites:/etc/squid/blocked_sites
+      - /var/log/squid/access.log:/var/log/squid/access.log
+      - /var/log/squid/cache.log:/var/log/squid/cache.log
+      - /var/log/squid/store.log:/var/log/squid/store.log
+    restart: always

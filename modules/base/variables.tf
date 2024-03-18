@@ -32,6 +32,36 @@ variable "storage_account" {
   default     = null
 }
 
+variable "enable_diagnostics" {
+  description = "enable diagnostics"
+  type        = bool
+  default     = false
+}
+
+variable "log_analytics_workspace_name" {
+  description = "log analytics workspace name"
+  type        = string
+  default     = null
+}
+
+variable "network_watcher_resource_group" {
+  description = "network watcher resource group"
+  type        = string
+  default     = null
+}
+
+variable "network_watcher_name" {
+  description = "network watcher name"
+  type        = string
+  default     = null
+}
+
+variable "flow_log_nsg_ids" {
+  description = "flow log nsg id"
+  type        = list(string)
+  default     = []
+}
+
 variable "admin_username" {
   description = "test username. please change for production"
   type        = string
@@ -50,28 +80,13 @@ variable "ssh_public_key" {
   default     = null
 }
 
-variable "create_private_dns_zone" {
-  description = "create private dns zone"
-  type        = bool
-  default     = false
-}
-
-variable "private_dns_zone_name" {
-  description = "private dns zone name"
-  type        = string
-  default     = null
-}
-
-variable "private_dns_zone_prefix" {
-  description = "private dns prefix"
-  type        = string
-  default     = null
-}
-
-variable "private_dns_zone_linked_external_vnets" {
-  description = "private dns zone"
-  type        = map(any)
-  default     = {}
+variable "dns_zones_linked_to_vnet" {
+  description = "dns zones linked to vnet"
+  type = list(object({
+    name                 = string
+    registration_enabled = optional(bool, false)
+  }))
+  default = []
 }
 
 variable "nsg_subnet_map" {
@@ -86,10 +101,13 @@ variable "dns_zone_linked_rulesets" {
   default     = {}
 }
 
-variable "private_dns_ruleset_linked_external_vnets" {
+variable "vnets_linked_to_ruleset" {
   description = "private dns rulesets"
-  type        = map(any)
-  default     = {}
+  type = list(object({
+    name    = string
+    vnet_id = string
+  }))
+  default = []
 }
 
 variable "config_vnet" {
@@ -113,42 +131,92 @@ variable "config_vnet" {
     vpn_gateway_ip_config0_apipa_addresses = optional(list(string), ["169.254.21.1"])
     vpn_gateway_ip_config1_apipa_addresses = optional(list(string), ["169.254.21.5"])
   })
-  #default = {}
 }
 
-variable "config_vpngw" {
+variable "config_s2s_vpngw" {
   type = object({
-    enable             = optional(bool, false)
-    sku                = optional(string, "VpnGw1AZ")
-    create_dashboard   = optional(bool, true)
-    enable_diagnostics = optional(bool, false)
+    enable        = optional(bool, false)
+    sku           = optional(string, "VpnGw1AZ")
+    active_active = optional(bool, true)
+
+    private_ip_address_enabled  = optional(bool, true)
+    remote_vnet_traffic_enabled = optional(bool, true)
+    virtual_wan_traffic_enabled = optional(bool, true)
+
+    ip_configuration = optional(list(object({
+      name                          = string
+      subnet_id                     = optional(string)
+      public_ip_address_name        = optional(string)
+      private_ip_address_allocation = optional(string)
+      apipa_addresses               = optional(list(string))
+    })))
     bgp_settings = optional(object({
-      asn = optional(string, 65515)
+      asn = optional(string)
     }))
   })
   default = {
-    enable             = false
-    sku                = "VpnGw1AZ"
-    create_dashboard   = true
-    enable_diagnostics = false
+    enable        = false
+    sku           = "VpnGw1AZ"
+    active_active = true
     bgp_settings = {
       asn = 65515
     }
   }
 }
 
-variable "config_ergw" {
+variable "config_p2s_vpngw" {
   type = object({
-    enable             = optional(bool, false)
-    sku                = optional(string, "ErGw1AZ")
-    create_dashboard   = optional(bool, true)
-    enable_diagnostics = optional(bool, false)
+    enable        = optional(bool, false)
+    sku           = optional(string, "VpnGw1AZ")
+    active_active = optional(bool, false)
+
+    custom_route_address_prefixes = optional(list(string), [])
+
+    vpn_client_configuration = optional(object({
+      address_space = optional(list(string))
+      clients = optional(list(object({
+        name = string
+      })))
+    }))
+
+    ip_configuration = optional(list(object({
+      name                   = string
+      public_ip_address_name = optional(string)
+    })))
+  })
+
+  default = {
+    enable = false
+    sku    = "VpnGw1AZ"
+    ip_configuration = [
+      { name = "ip-config", public_ip_address_name = null },
+    ]
+  }
+}
+
+variable "vpn_client_configuration" {
+  description = "vpn client configuration for vnet gateway"
+  type = object({
+    address_space = list(string)
+    clients = list(object({
+      name = string
+    }))
   })
   default = {
-    enable             = false
-    sku                = "ErGw1AZ"
-    create_dashboard   = true
-    enable_diagnostics = false
+    address_space = []
+    clients       = []
+  }
+}
+
+variable "config_ergw" {
+  type = object({
+    enable        = optional(bool, false)
+    sku           = optional(string, "ErGw1AZ")
+    active_active = optional(bool, false)
+  })
+  default = {
+    enable = false
+    sku    = "ErGw1AZ"
   }
 }
 
@@ -157,26 +225,23 @@ variable "config_firewall" {
     enable             = optional(bool, false)
     firewall_sku       = optional(string, "Basic")
     firewall_policy_id = optional(string, null)
-    create_dashboard   = optional(bool, true)
-    enable_diagnostics = optional(bool, false)
   })
   default = {
     enable             = false,
     firewall_sku       = "Basic"
     firewall_policy_id = null
-    create_dashboard   = true
-    enable_diagnostics = false
   }
 }
 
 variable "config_nva" {
   type = object({
-    enable             = optional(bool, false)
-    type               = optional(string, "cisco")
-    internal_lb_addr   = optional(string)
-    custom_data        = optional(string)
-    create_dashboard   = optional(bool, true)
-    enable_diagnostics = optional(bool, false)
+    enable          = optional(bool, false)
+    type            = optional(string, "cisco")
+    ilb_untrust_ip  = optional(string)
+    ilb_trust_ip    = optional(string)
+    custom_data     = optional(string)
+    scenario_option = optional(string, "TwoNics") # Active-Active, TwoNics
+    opn_type        = optional(string, "TwoNics") # Primary, Secondary, TwoNics
   })
   default = {
     enable           = false
@@ -214,4 +279,92 @@ variable "delegation" {
       ]
     }
   ]
+}
+
+variable "user_assigned_ids" {
+  description = "resource ids of user assigned identity"
+  type        = list(string)
+  default     = []
+}
+
+variable "nva_image" {
+  description = "source image reference"
+  type        = map(any)
+  default = {
+    "cisco" = {
+      publisher = "cisco"
+      offer     = "cisco-csr-1000v"
+      sku       = "17_3_4a-byol"
+      version   = "latest"
+    }
+    "linux" = {
+      publisher = "Canonical"
+      offer     = "0001-com-ubuntu-server-focal"
+      sku       = "20_04-lts"
+      version   = "latest"
+    }
+    "opnsense" = {
+      publisher = "thefreebsdfoundation"
+      offer     = "freebsd-13_1"
+      sku       = "13_1-release"
+      version   = "latest"
+    }
+  }
+}
+
+# parameters
+#--------------------------------------------------
+
+variable "opn_script_uri" {
+  description = "URI for Custom OPN Script and Config"
+  type        = string
+  default     = "https://raw.githubusercontent.com/kaysalawu/opnazure/master/scripts/"
+}
+
+variable "shell_script_name" {
+  description = "Shell Script to be executed"
+  type        = string
+  default     = "configureopnsense.sh"
+}
+
+variable "opn_version" {
+  description = "OPN Version"
+  type        = string
+  default     = "23.7"
+}
+
+variable "walinux_version" {
+  description = "WALinuxAgent Version"
+  type        = string
+  default     = "2.9.1.1"
+}
+
+variable "scenario_option" {
+  description = "scenario_option = Active-Active, TwoNics"
+  type        = string
+  default     = "TwoNics"
+}
+
+variable "opn_type" {
+  description = "opn type = Primary, Secondary, TwoNics"
+  type        = string
+  default     = "TwoNics"
+}
+
+variable "deploy_windows_mgmt" {
+  description = "deploy windows management vm in a management subnet"
+  type        = bool
+  default     = false
+}
+
+variable "mgmt_subnet_address_prefix" {
+  description = "management subnet address prefix"
+  type        = string
+  default     = ""
+}
+
+variable "trusted_subnet_address_prefix" {
+  description = "trusted subnet address prefix"
+  type        = string
+  default     = ""
 }

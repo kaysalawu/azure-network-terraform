@@ -1,6 +1,6 @@
 
 locals {
-  prefix    = var.prefix == "" ? "" : format("%s-", var.prefix)
+  prefix    = var.prefix == "" ? var.name : format("%s-%s-", var.prefix, var.name)
   lb_rules  = { for rule in var.lb_rules : rule.name => rule }
   nat_rules = { for rule in var.nat_rules : rule.name => rule }
   probes    = { for probe in var.probes : probe.name => probe }
@@ -45,7 +45,7 @@ resource "azurerm_public_ip" "this" {
 
 resource "azurerm_lb" "this" {
   resource_group_name = var.resource_group_name
-  name                = var.type == "public" ? "${local.prefix}${var.name}-elb" : "${local.prefix}${var.name}-ilb"
+  name                = var.type == "public" ? "${local.prefix}elb" : "${local.prefix}ilb"
   location            = var.location
   sku                 = var.lb_sku
   tags                = var.tags
@@ -154,6 +154,24 @@ resource "azurerm_lb_backend_address_pool_address" "this" {
   depends_on                          = [time_sleep.this, ]
 }
 
+####################################################
+# dashboard
+####################################################
 
+locals {
+  dashboard_properties = templatefile("${path.module}/templates/dashboard.json", local.dashboard_vars)
+  dashboard_vars = {
+    LOAD_BALANCER_ID = azurerm_lb.this.id
+  }
+}
+
+resource "azurerm_portal_dashboard" "this" {
+  count                = var.log_analytics_workspace_name != null ? 1 : 0
+  name                 = "${local.prefix}azlb-db"
+  resource_group_name  = var.resource_group_name
+  location             = var.location
+  tags                 = var.tags
+  dashboard_properties = local.dashboard_properties
+}
 
 

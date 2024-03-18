@@ -9,16 +9,39 @@ char_celebrate="\u2B50"
 char_executing="\u23F3"
 
 color_green=$(tput setaf 2)
+color_red=$(tput setaf 1)
 reset=$(tput sgr0)
 
 working_dir=$(pwd)
 while [[ $PWD != '/' && ${PWD##*/} != 'azure-network-terraform' ]]; do cd ..; done
+if [[ $PWD == '/' ]]; then
+    echo "Could not find azure-network-terraform directory"
+    exit 1
+fi
+modules_dir="$PWD/modules"
 
-dirs=(
+main_dirs=(
 1-hub-and-spoke
 2-virtual-wan
 3-network-manager
 )
+
+all_dirs=(
+1-hub-and-spoke
+2-virtual-wan
+3-network-manager
+#4-general
+)
+
+function showUsage() {
+  echo -e "\nUsage: $0\n\
+  --diff, -f     : Run diff between local and template blueprints\n\
+  --copy, -c     : Copy templates files to local\n\
+  --delete, -x   : Delete local files specified in templates\n\
+  --plan, -p     : Run terraform plan on all target directories\n\
+  --validate, -v : Run terraform validate on all target directories\n\
+  --cleanup, -u  : Delete terraform state files\n"
+}
 
 dir_diff() {
     local all_diffs_ok=true
@@ -81,7 +104,7 @@ terraform_validate(){
     echo -e "  ${char_pass} terraform init"
     echo -e "  ${char_executing} terraform validate ..."
     if ! terraform validate; then
-        echo -e "Terraform validation failed"
+        echo -e "${color_red}Terraform validation failed${reset}"
         return 1
     fi
     cd "$original_dir" || exit
@@ -94,7 +117,7 @@ terraform_plan(){
     echo -e "  ${char_pass} terraform init"
     echo -e "  ${char_executing} terraform plan ..."
     if ! terraform plan > /dev/null 2>&1; then
-        echo -e "Terraform plan failed"
+        echo -e "${color_red}Terraform plan failed${reset}"
         return 1
     fi
     echo -e "  ${color_green}${char_pass} Success!${reset}\n"
@@ -112,8 +135,16 @@ terraform_cleanup(){
     cd "$original_dir" || exit
 }
 
+terraform_docs(){
+    local original_dir=$(pwd)
+    cd "$1" || exit
+    terraform-docs markdown . > README.md
+    echo -e "  ${color_green}${char_pass} Success!${reset}\n"
+    cd "$original_dir" || exit
+}
+
 run_dir_diff() {
-    for dir in "${dirs[@]}"; do
+    for dir in "${all_dirs[@]}"; do
         if [ -d "$dir" ]; then
             echo && echo -e "$dir"
             echo "----------------------------------"
@@ -129,7 +160,7 @@ run_dir_diff() {
 }
 
 run_copy_files() {
-    for dir in "${dirs[@]}"; do
+    for dir in "${main_dirs[@]}"; do
         if [ -d "$dir" ]; then
             echo && echo -e "$dir"
             echo "----------------------------------"
@@ -147,7 +178,7 @@ run_copy_files() {
 run_delete_files() {
     read -p "Delete all template files? (y/n): " yn
     if [[ $yn == [Yy] ]]; then
-        for dir in "${dirs[@]}"; do
+        for dir in "${main_dirs[@]}"; do
             if [ -d "$dir" ]; then
                 echo && echo -e "$dir"
                 echo "----------------------------------"
@@ -169,8 +200,8 @@ run_delete_files() {
 }
 
 run_terraform_plan() {
-    clear
-    for dir in "${dirs[@]}"; do
+    echo
+    for dir in "${all_dirs[@]}"; do
         if [ -d "$dir" ]; then
             echo && echo -e "$dir"
             echo "----------------------------------"
@@ -186,8 +217,8 @@ run_terraform_plan() {
 }
 
 run_terraform_validate() {
-    clear
-    for dir in "${dirs[@]}"; do
+    echo
+    for dir in "${all_dirs[@]}"; do
         if [ -d "$dir" ]; then
             echo && echo -e "$dir"
             echo "----------------------------------"
@@ -205,8 +236,8 @@ run_terraform_validate() {
 run_terraform_cleanup() {
     read -p "Delete terraform state? (y/n): " yn
     if [[ $yn == [Yy] ]]; then
-        clear
-        for dir in "${dirs[@]}"; do
+        echo
+        for dir in "${all_dirs[@]}"; do
             if [ -d "$dir" ]; then
                 echo && echo -e "$dir"
                 echo "----------------------------------"
@@ -227,22 +258,32 @@ run_terraform_cleanup() {
     echo -e "\n${char_celebrate} done!"
 }
 
+run_terraform_docs() {
+    for dir in "$modules_dir"/*; do
+        if [ -d "$dir" ]; then
+            terraform-docs markdown table "$dir" --output-file "$dir/README.md" --output-mode inject
+        fi
+    done
+}
+
 if [[ "$1" == "--diff" || "$1" == "-f" ]]; then
-    clear && run_dir_diff
+    echo && run_dir_diff
 elif [[ "$1" == "--copy" || "$1" == "-c" ]]; then
-    clear && run_copy_files
+    echo && run_copy_files
 elif [[ "$1" == "--df" || "$1" == "-x" ]]; then
-    clear && run_delete_files
+    echo && run_delete_files
 elif [[ "$1" == "--plan" || "$1" == "-p" ]]; then
-    clear && run_terraform_plan
+    echo && run_terraform_plan
 elif [[ "$1" == "--validate" || "$1" == "-v" ]]; then
-    clear && run_terraform_validate
+    echo && run_terraform_validate
 elif [[ "$1" == "--cleanup" || "$1" == "-u" ]]; then
-    clear && run_terraform_cleanup
+    echo && run_terraform_cleanup
+elif [[ "$1" == "--docs" || "$1" == "-d" ]]; then
+    echo && run_terraform_docs
 elif [[ "$1" == "--help" || "$1" == "-h" ]]; then
-    echo -e "Usage: $0 {--diff|-f | --copy|-c | --delete-files|-x | --plan|-p | --validate|-v | --cleanup|-u}"
+    showUsage
 else
-    echo -e "Usage: $0 {--diff|-f | --copy|-c | --delete-files|-x | --plan|-p | --validate|-v | --cleanup|-u}"
+    showUsage
 fi
 
 cd "$working_dir" || exit

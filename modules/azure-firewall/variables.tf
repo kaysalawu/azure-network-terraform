@@ -81,18 +81,6 @@ variable "log_categories_firewall" {
   ]
 }
 
-variable "create_dashboard" {
-  description = "create dashboard"
-  type        = bool
-  default     = true
-}
-
-variable "enable_diagnostics" {
-  description = "enable diagnostics"
-  type        = bool
-  default     = false
-}
-
 variable "virtual_hub_id" {
   description = "virtual hub id"
   type        = string
@@ -103,4 +91,10 @@ variable "virtual_hub_public_ip_count" {
   description = "virtual hub public ip count"
   type        = number
   default     = 1
+}
+
+variable "log_analytics_workspace_name" {
+  description = "log analytics workspace name"
+  type        = string
+  default     = null
 }

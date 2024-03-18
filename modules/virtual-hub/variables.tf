@@ -42,8 +42,6 @@ variable "config_security" {
     enable_routing_intent = optional(bool, false)
     firewall_sku          = optional(string, "Basic")
     firewall_policy_id    = optional(string, null)
-    create_dashboard      = optional(bool, true)
-    enable_diagnostics    = optional(bool, false)
     routing_policies = optional(object({
       internet            = optional(bool, false)
       private_traffic     = optional(bool, false)
@@ -55,20 +53,16 @@ variable "config_security" {
 
 variable "express_route_gateway" {
   type = object({
-    enable             = optional(bool, false)
-    sku                = optional(string, "ErGw1AZ")
-    create_dashboard   = optional(bool, true)
-    enable_diagnostics = optional(bool, false)
+    enable = optional(bool, false)
+    sku    = optional(string, "ErGw1AZ")
   })
   default = {}
 }
 
 variable "s2s_vpn_gateway" {
   type = object({
-    enable             = optional(bool, false)
-    sku                = optional(string, "VpnGw1AZ")
-    create_dashboard   = optional(bool, true)
-    enable_diagnostics = optional(bool, false)
+    enable = optional(bool, false)
+    sku    = optional(string, "VpnGw1AZ")
     bgp_settings = optional(object({
       asn                                       = optional(string, "65515")
       peer_weight                               = optional(number, 0)
@@ -77,22 +71,35 @@ variable "s2s_vpn_gateway" {
     }))
   })
   default = {
-    enable             = false
-    sku                = "VpnGw1AZ"
-    create_dashboard   = true
-    enable_diagnostics = false
-    bgp_settings       = {}
+    enable       = false
+    sku          = "VpnGw1AZ"
+    bgp_settings = {}
   }
 }
 
 variable "p2s_vpn_gateway" {
   type = object({
-    enable             = optional(bool, false)
-    sku                = optional(string, "VpnGw1AZ")
-    create_dashboard   = optional(bool, true)
-    enable_diagnostics = optional(bool, false)
+    enable        = optional(bool, false)
+    sku           = optional(string, "VpnGw1AZ")
+    active_active = optional(bool, false)
+
+    custom_route_address_prefixes = optional(list(string), [])
+
+    vpn_client_configuration = optional(object({
+      address_space = list(string)
+      clients = list(object({
+        name = string
+      }))
+    }))
   })
-  default = {}
+
+  default = {
+    enable = false
+    sku    = "VpnGw1AZ"
+    ip_configuration = [
+      { name = "ip-config", public_ip_address_name = null },
+    ]
+  }
 }
 
 variable "hub_routing_preference" {
@@ -261,4 +268,16 @@ variable "log_categories_firewall" {
       }
     }
   ]
+}
+
+variable "enable_diagnostics" {
+  description = "enable diagnostics"
+  type        = bool
+  default     = false
+}
+
+variable "log_analytics_workspace_name" {
+  description = "log analytics workspace name"
+  type        = string
+  default     = null
 }

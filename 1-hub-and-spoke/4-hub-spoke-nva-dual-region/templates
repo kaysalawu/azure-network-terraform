@@ -9,6 +9,6 @@
 ../../0-templates/hub-spoke/06-conn-hub1-nva.tf
 ../../0-templates/hub-spoke/06-conn-hub2-nva.tf
 ../../0-templates/hub-spoke/06-conn-interhub-nva.tf
-../../0-templates/services-region1.tf
-../../0-templates/services-region2.tf
-../../0-templates/outputs-dual-region.tf
+../../0-templates/services/services-region1.tf
+../../0-templates/services/services-region2.tf
+../../0-templates/outputs/outputs-dual-region.tf

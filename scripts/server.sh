@@ -1,7 +1,13 @@
 #! /bin/bash
 
 apt update
-apt install -y python3-pip python3-dev tcpdump dnsutils net-tools nmap apache2-utils
+apt install -y python3-pip python3-dev unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
+
+apt install -y openvpn network-manager-openvpn
+sudo service network-manager restart
+
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+az login --identity || true
 
 # web server #
 pip3 install Flask requests
@@ -109,8 +115,10 @@ chmod a+x /usr/local/bin/ping-dns
 cat <<EOF > /usr/local/bin/curl-ip
 echo -e "\n curl ip ...\n"
 %{ for target in TARGETS ~}
+%{~ if try(target.curl, true) ~}
 %{~ if try(target.ip, "") != "" ~}
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.ip}) - ${target.name} (${target.ip})"
+echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.ip}) - ${target.name} (${target.ip})"
+%{ endif ~}
 %{ endif ~}
 %{ endfor ~}
 EOF
@@ -121,7 +129,9 @@ chmod a+x /usr/local/bin/curl-ip
 cat <<EOF > /usr/local/bin/curl-dns
 echo -e "\n curl dns ...\n"
 %{ for target in TARGETS ~}
-echo  "\$(timeout 4 curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.dns}) - ${target.dns}"
+%{~ if try(target.curl, true) ~}
+echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.dns}) - ${target.dns}"
+%{ endif ~}
 %{ endfor ~}
 EOF
 chmod a+x /usr/local/bin/curl-dns
@@ -142,14 +152,21 @@ timeout 9 tracepath ${target.ip}
 EOF
 chmod a+x /usr/local/bin/trace-ip
 
-%{~ if try(ENABLE_TRAFFIC_GEN, false) ~}
+# dns-info
+
+cat <<EOF > /usr/local/bin/dns-info
+echo -e "\n resolvectl ...\n"
+resolvectl status
+EOF
+chmod a+x /usr/local/bin/dns-info
+
 # light-traffic generator
 
 %{ if TARGETS_LIGHT_TRAFFIC_GEN != [] ~}
 cat <<EOF > /usr/local/bin/light-traffic
 %{ for target in TARGETS_LIGHT_TRAFFIC_GEN ~}
 %{~ if try(target.probe, false) ~}
-nping -c 3 --${try(target.protocol, "tcp")} -p ${try(target.port, "80")} ${target.dns} > /dev/null 2>&1
+nping -c ${try(target.count, "10")} --${try(target.protocol, "tcp")} -p ${try(target.port, "80")} ${try(target.dns, target.ip)} > /dev/null 2>&1
 %{ endif ~}
 %{ endfor ~}
 EOF
@@ -162,12 +179,12 @@ chmod a+x /usr/local/bin/light-traffic
 cat <<EOF > /usr/local/bin/heavy-traffic
 #! /bin/bash
 i=0
-while [ \$i -lt 4 ]; do
+while [ \$i -lt 8 ]; do
   %{ for target in TARGETS_HEAVY_TRAFFIC_GEN ~}
   ab -n \$1 -c \$2 ${target} > /dev/null 2>&1
   %{ endfor ~}
   let i=i+1
-  sleep 2
+  sleep 5
 done
 EOF
 chmod a+x /usr/local/bin/heavy-traffic
@@ -187,4 +204,3 @@ cat <<EOF > /tmp/crontab.txt
 %{ endif ~}
 EOF
 crontab /tmp/crontab.txt
-%{ endif ~}

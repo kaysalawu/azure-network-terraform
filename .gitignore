@@ -17,11 +17,9 @@ modulez/
 # Other files
 *rendered
 *keys/
-*test/
 *credentials/
 plugins/
 *plugins/
-*.x
 *scrap*
 *reference*
 *artifact
@@ -32,6 +30,8 @@ backend.tf
 *.crt
 *.key
 *.cer
+*.pfx
+*.log
 
 # Skaffold
 bin/

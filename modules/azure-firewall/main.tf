@@ -3,13 +3,10 @@
 # workspace
 ####################################################
 
-resource "azurerm_log_analytics_workspace" "this" {
+data "azurerm_log_analytics_workspace" "this" {
+  count               = var.log_analytics_workspace_name != null ? 1 : 0
+  name                = var.log_analytics_workspace_name
   resource_group_name = var.resource_group
-  name                = replace("${var.prefix}azfw-ws", "_", "")
-  location            = var.location
-  sku                 = "PerGB2018"
-  retention_in_days   = 30
-  tags                = var.tags
 }
 
 ####################################################
@@ -104,9 +101,10 @@ resource "azurerm_firewall" "this" {
 ####################################################
 
 resource "azurerm_monitor_diagnostic_setting" "azfw" {
+  count                          = var.log_analytics_workspace_name != null ? 1 : 0
   name                           = "${var.prefix}azfw-diag"
   target_resource_id             = azurerm_firewall.this.id
-  log_analytics_workspace_id     = azurerm_log_analytics_workspace.this.id
+  log_analytics_workspace_id     = data.azurerm_log_analytics_workspace.this[0].id
   log_analytics_destination_type = "Dedicated"
 
   metric {
@@ -141,7 +139,7 @@ locals {
 }
 
 resource "azurerm_portal_dashboard" "this" {
-  count                = var.enable_diagnostics && var.create_dashboard ? 1 : 0
+  count                = var.log_analytics_workspace_name != null ? 1 : 0
   name                 = "${var.prefix}azfw-db"
   resource_group_name  = var.resource_group
   location             = var.location

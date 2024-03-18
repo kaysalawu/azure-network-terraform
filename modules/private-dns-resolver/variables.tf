@@ -37,10 +37,13 @@ variable "dns_zone_linked_rulesets" {
   default     = {}
 }
 
-variable "private_dns_ruleset_linked_external_vnets" {
+variable "vnets_linked_to_ruleset" {
   description = "private dns rulesets"
-  type        = map(any)
-  default     = {}
+  type = list(object({
+    name    = string
+    vnet_id = string
+  }))
+  default = []
 }
 
 variable "enable_private_dns_resolver" {
@@ -65,14 +68,8 @@ variable "ruleset_dns_forwarding_rules" {
   default     = {}
 }
 
-variable "create_dashboard" {
-  description = "create dashboard"
-  type        = bool
-  default     = true
-}
-
-variable "enable_diagnostics" {
-  description = "enable diagnostics"
-  type        = bool
-  default     = false
+variable "log_analytics_workspace_name" {
+  description = "log analytics workspace name"
+  type        = string
+  default     = null
 }

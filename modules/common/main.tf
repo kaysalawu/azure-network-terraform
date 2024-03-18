@@ -15,10 +15,21 @@ data "http" "my_public_ip" {
 resource "azurerm_log_analytics_workspace" "log_analytics_workspaces" {
   for_each            = var.regions
   resource_group_name = var.resource_group
-  location            = each.value
+  location            = each.value.name
   name                = replace(replace("${local.prefix}ws${each.key}", "-", ""), "_", "")
   sku                 = "PerGB2018"
   retention_in_days   = 30
+  tags                = var.tags
+}
+
+####################################################
+# private dns zone
+####################################################
+
+resource "azurerm_private_dns_zone" "private_dns_zones" {
+  for_each            = { for k, v in var.regions : v.dns_zone => v }
+  name                = each.value.dns_zone
+  resource_group_name = var.resource_group
   tags                = var.tags
 }
 
@@ -34,7 +45,7 @@ resource "azurerm_storage_account" "storage_accounts" {
   for_each                 = var.regions
   resource_group_name      = var.resource_group
   name                     = replace(replace(lower("${var.prefix}${each.key}${random_id.storage_accounts.hex}"), "-", ""), "_", "")
-  location                 = each.value
+  location                 = each.value.name
   account_replication_type = "LRS"
   account_tier             = "Standard"
   tags                     = var.tags
@@ -50,8 +61,8 @@ resource "azurerm_storage_account" "storage_accounts" {
 resource "azurerm_network_security_group" "nsg_default" {
   for_each            = var.regions
   resource_group_name = var.resource_group
-  name                = "${local.prefix}nsg-${each.value}-default"
-  location            = each.value
+  name                = "${local.prefix}nsg-${each.value.name}-default"
+  location            = each.value.name
   tags                = var.tags
 }
 
@@ -62,7 +73,7 @@ resource "azurerm_network_security_group" "nsg_main" {
   for_each            = var.regions
   resource_group_name = var.resource_group
   name                = "${local.prefix}nsg-${each.key}-main"
-  location            = each.value
+  location            = each.value.name
   tags                = var.tags
 }
 
@@ -137,8 +148,8 @@ resource "azurerm_network_security_rule" "internet_inbound" {
 resource "azurerm_network_security_group" "nsg_open" {
   for_each            = var.regions
   resource_group_name = var.resource_group
-  name                = "${local.prefix}nsg-${each.value}-open"
-  location            = each.value
+  name                = "${local.prefix}nsg-${each.value.name}-open"
+  location            = each.value.name
   tags                = var.tags
 }
 
@@ -180,8 +191,8 @@ resource "azurerm_network_security_rule" "nsg_open_outbound" {
 resource "azurerm_network_security_group" "nsg_nva" {
   for_each            = var.regions
   resource_group_name = var.resource_group
-  name                = "${local.prefix}nsg-${each.value}-nva"
-  location            = each.value
+  name                = "${local.prefix}nsg-${each.value.name}-nva"
+  location            = each.value.name
   tags                = var.tags
 }
 
@@ -239,8 +250,8 @@ resource "azurerm_network_security_rule" "nsg_nva_outbound" {
 resource "azurerm_network_security_group" "nsg_lb" {
   for_each            = var.regions
   resource_group_name = var.resource_group
-  name                = "${local.prefix}nsg-${each.value}-appgw"
-  location            = each.value
+  name                = "${local.prefix}nsg-${each.value.name}-appgw"
+  location            = each.value.name
   tags                = var.tags
 }
 

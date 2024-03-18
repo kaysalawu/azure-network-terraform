@@ -1,4 +1,9 @@
 
+locals {
+  vnet_connections = [for c in var.circuits : c if c.connection_target == "vnet"]
+  vwan_connections = [for c in var.circuits : c if c.connection_target == "vwan"]
+}
+
 # locations
 #----------------------------
 
@@ -47,15 +52,37 @@ resource "azurerm_express_route_circuit_authorization" "this" {
 #----------------------------
 
 resource "azurerm_express_route_circuit_peering" "private" {
-  for_each                      = { for c in var.circuits : c.name => c }
+  for_each                      = { for c in var.circuits : c.name => c if c.peering_type == "AzurePrivatePeering" }
   resource_group_name           = var.resource_group
-  peering_type                  = "AzurePrivatePeering"
+  peering_type                  = each.value.peering_type
   express_route_circuit_name    = azurerm_express_route_circuit.this[each.value.name].name
-  peer_asn                      = tolist(megaport_mcr.this[each.value.mcr_name].router)[0].assigned_asn
+  peer_asn                      = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
   primary_peer_address_prefix   = each.value.primary_peer_address_prefix
   secondary_peer_address_prefix = each.value.secondary_peer_address_prefix
   vlan_id                       = each.value.requested_vlan
   ipv4_enabled                  = true
+}
+
+resource "azurerm_express_route_circuit_peering" "microsoft" {
+  for_each                      = { for c in var.circuits : c.name => c if c.peering_type == "MicrosoftPeering" }
+  resource_group_name           = var.resource_group
+  peering_type                  = each.value.peering_type
+  express_route_circuit_name    = azurerm_express_route_circuit.this[each.value.name].name
+  peer_asn                      = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
+  primary_peer_address_prefix   = each.value.primary_peer_address_prefix
+  secondary_peer_address_prefix = each.value.secondary_peer_address_prefix
+  vlan_id                       = each.value.requested_vlan
+  ipv4_enabled                  = true
+
+  dynamic "microsoft_peering_config" {
+    for_each = { for c in var.circuits : c.name => c if c.peering_type == "MicrosoftPeering" }
+    content {
+      advertised_public_prefixes = microsoft_peering_config.value.advertised_public_prefixes
+      customer_asn               = try(microsoft_peering_config.value.customer_asn, null)
+      routing_registry_name      = try(microsoft_peering_config.value.routing_registry_name, null)
+      advertised_communities     = try(microsoft_peering_config.value.advertised_communities, null)
+    }
+  }
 }
 
 # vxc
@@ -81,7 +108,9 @@ resource "megaport_azure_connection" "this" {
     ignore_changes = [a_end, csp_settings, ]
   }
   depends_on = [
-    azurerm_express_route_circuit_peering.private
+    azurerm_express_route_circuit_peering.private,
+    azurerm_express_route_circuit_peering.microsoft,
+    azurerm_express_route_circuit.this,
   ]
 }
 
@@ -91,14 +120,14 @@ resource "megaport_azure_connection" "this" {
 # virtual network
 
 resource "azurerm_virtual_network_gateway_connection" "this" {
-  for_each                   = { for c in var.circuits : c.name => c if c.virtual_network_gateway_id != null }
+  count                      = length(local.vnet_connections)
   resource_group_name        = var.resource_group
-  name                       = each.value.name
-  location                   = each.value.location
+  name                       = local.vnet_connections[count.index].name
+  location                   = local.vnet_connections[count.index].location
   type                       = "ExpressRoute"
-  virtual_network_gateway_id = each.value.virtual_network_gateway_id
-  authorization_key          = azurerm_express_route_circuit_authorization.this[each.value.name].authorization_key
-  express_route_circuit_id   = azurerm_express_route_circuit.this[each.value.name].id
+  virtual_network_gateway_id = local.vnet_connections[count.index].virtual_network_gateway_id
+  authorization_key          = azurerm_express_route_circuit_authorization.this[local.vnet_connections[count.index].name].authorization_key
+  express_route_circuit_id   = azurerm_express_route_circuit.this[local.vnet_connections[count.index].name].id
   depends_on = [
     azurerm_express_route_circuit.this,
     azurerm_express_route_circuit_authorization.this,
@@ -107,13 +136,13 @@ resource "azurerm_virtual_network_gateway_connection" "this" {
   ]
 }
 
-# virtual wan
+# vwan
 
 resource "azurerm_express_route_connection" "this" {
-  for_each                         = { for c in var.circuits : c.name => c if c.express_route_gateway_id != null }
-  name                             = each.value.name
-  express_route_gateway_id         = each.value.express_route_gateway_id
-  express_route_circuit_peering_id = azurerm_express_route_circuit_peering.private[each.value.name].id
+  count                            = length(local.vwan_connections)
+  name                             = local.vwan_connections[count.index].name
+  express_route_gateway_id         = local.vwan_connections[count.index].express_route_gateway_id
+  express_route_circuit_peering_id = azurerm_express_route_circuit_peering.private[local.vwan_connections[count.index].name].id
   depends_on = [
     azurerm_express_route_circuit.this,
     azurerm_express_route_circuit_authorization.this,

@@ -8,20 +8,27 @@
 
 # main
 
+locals {
+  spoke1_udr_main_routes = concat(local.default_udr_destinations, [
+    { name = "hub1", address_prefix = local.hub1_address_space },
+  ])
+}
+
 module "spoke1_udr_main" {
-  source                        = "../../modules/udr"
-  resource_group                = azurerm_resource_group.rg.name
-  prefix                        = "${local.spoke1_prefix}main"
-  location                      = local.spoke1_location
-  subnet_id                     = module.spoke1.subnets["MainSubnet"].id
-  next_hop_type                 = "VirtualAppliance"
-  next_hop_in_ip_address        = module.hub1.firewall_private_ip
+  source         = "../../modules/route-table"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = "${local.spoke1_prefix}main"
+  location       = local.spoke1_location
+  subnet_id      = module.spoke1.subnets["MainSubnet"].id
+  routes = [for r in local.spoke1_udr_main_routes : {
+    name                   = r.name
+    address_prefix         = r.address_prefix
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = module.hub1.firewall_private_ip
+  }]
+
   disable_bgp_route_propagation = true
 
-  destinations = merge(
-    local.default_udr_destinations,
-    { "hub1" = local.hub1_address_space[0] }
-  )
   depends_on = [
     module.hub1,
   ]
@@ -36,20 +43,27 @@ module "spoke1_udr_main" {
 
 # main
 
+locals {
+  spoke2_routes_main = concat(local.default_udr_destinations, [
+    { name = "hub1", address_prefix = local.hub1_address_space },
+  ])
+}
+
 module "spoke2_udr_main" {
-  source                        = "../../modules/udr"
-  resource_group                = azurerm_resource_group.rg.name
-  prefix                        = "${local.spoke2_prefix}main"
-  location                      = local.spoke2_location
-  subnet_id                     = module.spoke2.subnets["MainSubnet"].id
-  next_hop_type                 = "VirtualAppliance"
-  next_hop_in_ip_address        = module.hub1.firewall_private_ip
+  source         = "../../modules/route-table"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = "${local.spoke2_prefix}main"
+  location       = local.spoke2_location
+  subnet_id      = module.spoke2.subnets["MainSubnet"].id
+  routes = [for r in local.spoke2_routes_main : {
+    name                   = r.name
+    address_prefix         = r.address_prefix
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = module.hub1.firewall_private_ip
+  }]
+
   disable_bgp_route_propagation = true
 
-  destinations = merge(
-    local.default_udr_destinations,
-    { "hub1" = local.hub1_address_space[0] }
-  )
   depends_on = [
     module.hub1,
   ]
@@ -64,15 +78,19 @@ module "spoke2_udr_main" {
 
 # gateway
 
-module "hub1_udr_gateway" {
-  source                 = "../../modules/udr"
-  resource_group         = azurerm_resource_group.rg.name
-  prefix                 = "${local.hub1_prefix}gateway"
-  location               = local.hub1_location
-  subnet_id              = module.hub1.subnets["GatewaySubnet"].id
-  next_hop_type          = "VirtualAppliance"
-  next_hop_in_ip_address = module.hub1.firewall_private_ip
-  destinations           = local.hub1_gateway_udr_destinations
+module "hub1_gateway_udr" {
+  source         = "../../modules/route-table"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = "${local.hub1_prefix}gateway"
+  location       = local.hub1_location
+  subnet_id      = module.hub1.subnets["GatewaySubnet"].id
+  routes = [for r in local.hub1_gateway_udr_destinations : {
+    name                   = r.name
+    address_prefix         = r.address_prefix
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = module.hub1.firewall_private_ip
+  }]
+
   depends_on = [
     module.hub1,
   ]
@@ -80,23 +98,28 @@ module "hub1_udr_gateway" {
 
 # main
 
+locals {
+  hub1_udr_main_routes = concat(local.default_udr_destinations, [
+    { name = "spoke1", address_prefix = local.spoke1_address_space },
+    { name = "spoke2", address_prefix = local.spoke2_address_space },
+  ])
+}
+
 module "hub1_udr_main" {
-  source                        = "../../modules/udr"
-  resource_group                = azurerm_resource_group.rg.name
-  prefix                        = "${local.hub1_prefix}main"
-  location                      = local.hub1_location
-  subnet_id                     = module.hub1.subnets["MainSubnet"].id
-  next_hop_type                 = "VirtualAppliance"
-  next_hop_in_ip_address        = module.hub1.firewall_private_ip
+  source         = "../../modules/route-table"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = "${local.hub1_prefix}main"
+  location       = local.hub1_location
+  subnet_id      = module.hub1.subnets["MainSubnet"].id
+  routes = [for r in local.hub1_udr_main_routes : {
+    name                   = r.name
+    address_prefix         = r.address_prefix
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = module.hub1.firewall_private_ip
+  }]
+
   disable_bgp_route_propagation = true
 
-  destinations = merge(
-    local.default_udr_destinations,
-    {
-      "spoke1" = local.spoke1_address_space[0]
-      "spoke2" = local.spoke2_address_space[0]
-    }
-  )
   depends_on = [
     module.hub1,
   ]
@@ -129,16 +152,17 @@ resource "azurerm_local_network_gateway" "hub1_branch1_lng" {
 # branch1
 
 resource "azurerm_virtual_network_gateway_connection" "hub1_branch1_lng" {
-  resource_group_name        = azurerm_resource_group.rg.name
-  name                       = "${local.hub1_prefix}branch1-lng-conn"
-  location                   = local.hub1_location
-  type                       = "IPsec"
-  enable_bgp                 = true
-  virtual_network_gateway_id = module.hub1.vpngw.id
-  local_network_gateway_id   = azurerm_local_network_gateway.hub1_branch1_lng.id
-  shared_key                 = local.psk
-  egress_nat_rule_ids        = []
-  ingress_nat_rule_ids       = []
+  resource_group_name            = azurerm_resource_group.rg.name
+  name                           = "${local.hub1_prefix}branch1-lng-conn"
+  location                       = local.hub1_location
+  type                           = "IPsec"
+  enable_bgp                     = true
+  virtual_network_gateway_id     = module.hub1.s2s_vpngw.id
+  local_network_gateway_id       = azurerm_local_network_gateway.hub1_branch1_lng.id
+  local_azure_ip_address_enabled = false
+  shared_key                     = local.psk
+  egress_nat_rule_ids            = []
+  ingress_nat_rule_ids           = []
 }
 
 ####################################################

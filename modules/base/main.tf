@@ -41,7 +41,7 @@ resource "azurerm_subnet" "this" {
       }
     }
   }
-
+  service_endpoints                             = try(each.value.service_endpoints, [])
   private_endpoint_network_policies_enabled     = try(each.value.address_prefixes.enable_private_endpoint_policies[0], false)
   private_link_service_network_policies_enabled = try(each.value.address_prefixes.enable_private_link_policies[0], false)
 }
@@ -60,43 +60,48 @@ resource "azurerm_subnet_network_security_group_association" "this" {
 }
 
 ####################################################
-# dns
+# nsg flow logs
 ####################################################
 
-# dns zone
+resource "azurerm_network_watcher_flow_log" "this" {
+  count                = length(var.flow_log_nsg_ids)
+  resource_group_name  = var.network_watcher_resource_group
+  network_watcher_name = var.network_watcher_name
+  name                 = "${local.prefix}flowlog-${count.index}"
 
-resource "azurerm_private_dns_zone" "this" {
-  count               = var.create_private_dns_zone && var.private_dns_zone_name != null ? 1 : 0
-  resource_group_name = var.resource_group
-  name                = var.private_dns_zone_name
-  tags                = var.tags
-}
+  network_security_group_id = var.flow_log_nsg_ids[count.index]
+  storage_account_id        = var.storage_account.id
+  enabled                   = true
 
-# zone link (local vnet)
+  retention_policy {
+    enabled = true
+    days    = 7
+  }
 
-resource "azurerm_private_dns_zone_virtual_network_link" "internal" {
-  count                 = var.create_private_dns_zone && var.private_dns_zone_name != null ? 1 : 0
-  resource_group_name   = var.resource_group
-  name                  = "${local.prefix}vnet-link"
-  private_dns_zone_name = var.create_private_dns_zone ? azurerm_private_dns_zone.this[0].name : var.private_dns_zone_name
-  virtual_network_id    = azurerm_virtual_network.this.id
-  registration_enabled  = true
-  timeouts {
-    create = "60m"
+  traffic_analytics {
+    enabled               = var.enable_diagnostics != null ? true : false
+    workspace_id          = data.azurerm_log_analytics_workspace.this[0].workspace_id
+    workspace_region      = data.azurerm_log_analytics_workspace.this[0].location
+    workspace_resource_id = data.azurerm_log_analytics_workspace.this[0].id
+    interval_in_minutes   = 10
   }
 }
 
-# zone links (external vnets)
+####################################################
+# dns
+####################################################
 
-resource "azurerm_private_dns_zone_virtual_network_link" "external" {
-  for_each              = { for k, v in var.private_dns_zone_linked_external_vnets : k => v if var.create_private_dns_zone && var.private_dns_zone_name != null }
+# dns zones linked to vnet
+
+resource "azurerm_private_dns_zone_virtual_network_link" "dns" {
+  for_each              = { for v in var.dns_zones_linked_to_vnet : v.name => v }
   resource_group_name   = var.resource_group
-  name                  = "${local.prefix}${each.key}-vnet-link"
-  private_dns_zone_name = var.create_private_dns_zone ? azurerm_private_dns_zone.this[0].name : var.private_dns_zone_name
-  virtual_network_id    = each.value
-  registration_enabled  = false
+  name                  = "${azurerm_virtual_network.this.name}--link"
+  private_dns_zone_name = each.key
+  virtual_network_id    = azurerm_virtual_network.this.id
+  registration_enabled  = each.value.registration_enabled
   depends_on = [
-    azurerm_private_dns_zone_virtual_network_link.internal,
+    azurerm_virtual_network.this,
   ]
   timeouts {
     create = "60m"
@@ -117,13 +122,12 @@ module "dns_resolver" {
   virtual_network_id = azurerm_virtual_network.this.id
   tags               = var.tags
 
-  private_dns_inbound_subnet_id             = azurerm_subnet.this["DnsResolverInboundSubnet"].id
-  private_dns_outbound_subnet_id            = azurerm_subnet.this["DnsResolverOutboundSubnet"].id
-  ruleset_dns_forwarding_rules              = var.config_vnet.ruleset_dns_forwarding_rules
-  private_dns_ruleset_linked_external_vnets = var.private_dns_ruleset_linked_external_vnets
+  private_dns_inbound_subnet_id  = azurerm_subnet.this["DnsResolverInboundSubnet"].id
+  private_dns_outbound_subnet_id = azurerm_subnet.this["DnsResolverOutboundSubnet"].id
+  ruleset_dns_forwarding_rules   = var.config_vnet.ruleset_dns_forwarding_rules
+  vnets_linked_to_ruleset        = var.vnets_linked_to_ruleset
 
-  create_dashboard   = var.config_ergw.create_dashboard
-  enable_diagnostics = var.config_ergw.enable_diagnostics
+  log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 
   depends_on = [
     azurerm_subnet.this,
@@ -184,12 +188,12 @@ resource "azurerm_subnet_nat_gateway_association" "nat" {
 }
 
 ####################################################
-# vpngw
+# s2s vpngw
 ####################################################
 
-module "vpngw" {
-  count          = var.config_vpngw.enable ? 1 : 0
-  source         = "../../modules/vnet-gateway-vpn"
+module "s2s_vpngw" {
+  count          = var.config_s2s_vpngw.enable ? 1 : 0
+  source         = "../../modules/vnet-gateway-s2s"
   resource_group = var.resource_group
   prefix         = local.prefix
   env            = var.env
@@ -197,13 +201,23 @@ module "vpngw" {
   subnet_id      = azurerm_subnet.this["GatewaySubnet"].id
   tags           = var.tags
 
-  sku                = var.config_vpngw.sku
-  bgp_asn            = var.config_vpngw.bgp_settings.asn
-  create_dashboard   = var.config_vpngw.create_dashboard
-  enable_diagnostics = var.config_vpngw.enable_diagnostics
+  sku           = var.config_s2s_vpngw.sku
+  active_active = var.config_s2s_vpngw.active_active
+  bgp_asn       = var.config_s2s_vpngw.bgp_settings.asn
 
-  ip_config0_apipa_addresses = try(var.config_vpngw.ip_config0_apipa_addresses, null)
-  ip_config1_apipa_addresses = try(var.config_vpngw.ip_config1_apipa_addresses, null)
+  private_ip_address_enabled  = var.config_s2s_vpngw.private_ip_address_enabled
+  remote_vnet_traffic_enabled = var.config_s2s_vpngw.remote_vnet_traffic_enabled
+  virtual_wan_traffic_enabled = var.config_s2s_vpngw.remote_vnet_traffic_enabled
+
+  log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
+
+  ip_configuration = [for c in var.config_s2s_vpngw.ip_configuration : {
+    name                          = c.name
+    subnet_id                     = azurerm_subnet.this["GatewaySubnet"].id
+    public_ip_address_name        = c.public_ip_address_name
+    private_ip_address_allocation = c.private_ip_address_allocation
+    apipa_addresses               = c.apipa_addresses
+  }]
 
   depends_on = [
     azurerm_subnet.this,
@@ -211,8 +225,40 @@ module "vpngw" {
   ]
 }
 
-output "test" {
-  value = try(module.vpngw[0].test, null)
+####################################################
+# p2s vpngw
+####################################################
+
+module "p2s_vpngw" {
+  count          = var.config_p2s_vpngw.enable ? 1 : 0
+  source         = "../../modules/vnet-gateway-p2s"
+  resource_group = var.resource_group
+  prefix         = local.prefix
+  env            = var.env
+  location       = var.location
+  sku            = var.config_p2s_vpngw.sku
+  active_active  = false
+  subnet_id      = azurerm_subnet.this["GatewaySubnet"].id
+  tags           = var.tags
+
+  custom_route_address_prefixes = try(var.config_p2s_vpngw.custom_route_address_prefixes, [])
+
+  vpn_client_configuration = {
+    address_space = try(var.config_p2s_vpngw.vpn_client_configuration.address_space, ["172.16.0.0/24"])
+    clients       = try(var.config_p2s_vpngw.vpn_client_configuration.clients, [])
+  }
+
+  ip_configuration = [for c in var.config_p2s_vpngw.ip_configuration : {
+    name                   = c.name
+    subnet_id              = azurerm_subnet.this["GatewaySubnet"].id
+    public_ip_address_name = c.public_ip_address_name
+  }]
+  log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
+
+  depends_on = [
+    azurerm_subnet.this,
+    azurerm_subnet_network_security_group_association.this,
+  ]
 }
 
 ####################################################
@@ -229,9 +275,10 @@ module "ergw" {
   subnet_id      = azurerm_subnet.this["GatewaySubnet"].id
   tags           = var.tags
 
-  sku                = var.config_vnet.express_route_gateway_sku
-  create_dashboard   = var.config_ergw.create_dashboard
-  enable_diagnostics = var.config_ergw.enable_diagnostics
+  sku           = var.config_vnet.express_route_gateway_sku
+  active_active = var.config_ergw.active_active
+
+  log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 
   depends_on = [
     azurerm_subnet.this,
@@ -280,7 +327,8 @@ resource "azurerm_route_server" "ars" {
     create = "60m"
   }
   depends_on = [
-    module.vpngw,
+    module.s2s_vpngw,
+    module.p2s_vpngw,
     module.ergw,
   ]
 }
@@ -301,15 +349,15 @@ module "azfw" {
   sku_name       = "AZFW_VNet"
   tags           = var.tags
 
-  firewall_policy_id = var.config_firewall.firewall_policy_id
-  create_dashboard   = var.config_firewall.create_dashboard
-  enable_diagnostics = var.config_firewall.enable_diagnostics
+  firewall_policy_id           = var.config_firewall.firewall_policy_id
+  log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 
   depends_on = [
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
     azurerm_route_server.ars,
-    module.vpngw,
+    module.s2s_vpngw,
+    module.p2s_vpngw,
     module.ergw,
   ]
 }
@@ -318,116 +366,54 @@ module "azfw" {
 # nva
 ####################################################
 
-# linux
-#----------------------------
-
-# appliance
-
-module "nva_linux" {
-  count                = var.config_nva.enable && var.config_nva.type == "linux" ? 1 : 0
-  source               = "../../modules/linux"
-  resource_group       = var.resource_group
-  prefix               = local.prefix
-  name                 = "nva"
-  location             = var.location
-  subnet               = azurerm_subnet.this["TrustSubnet"].id
-  enable_ip_forwarding = true
-  enable_public_ip     = true
-  source_image         = "ubuntu-20"
-  storage_account      = var.storage_account
-  admin_username       = var.admin_username
-  admin_password       = var.admin_password
-  custom_data          = var.config_nva.custom_data
-  create_dashboard     = false #var.config_nva.create_dashboard
-  enable_diagnostics   = var.config_nva.enable_diagnostics
-
-  depends_on = [
-    azurerm_subnet.this,
-    azurerm_subnet_network_security_group_association.this,
-  ]
+locals {
+  settings_opnsense = templatefile("${path.module}/templates/settings.tpl", local.params_opnsense)
+  params_opnsense = {
+    ShellScriptName               = var.shell_script_name
+    OpnScriptURI                  = var.opn_script_uri
+    OpnVersion                    = var.opn_version
+    WALinuxVersion                = var.walinux_version
+    OpnType                       = var.config_nva.opn_type
+    TrustedSubnetAddressPrefix    = try(azurerm_subnet.this["TrustSubnet"].address_prefixes[0], "1.1.1.1/32")
+    WindowsVmSubnetAddressPrefix  = var.deploy_windows_mgmt ? azurerm_subnet.this["ManagementSubnet"].address_prefixes[0] : "1.1.1.1/32"
+    publicIPAddress               = "" #length(azurerm_public_ip.opnsense) > 0 ? azurerm_public_ip.opnsense[0].ip_address : ""
+    opnSenseSecondarytrustedNicIP = var.config_nva.scenario_option == "Active-Active" ? "SOME" : ""
+  }
 }
 
-# internal lb
-
-module "ilb_nva_linux" {
-  count               = var.config_nva.enable && var.config_nva.type == "linux" ? 1 : 0
-  source              = "../../modules/azure-load-balancer"
-  resource_group_name = var.resource_group
-  location            = var.location
-  prefix              = trimsuffix(local.prefix, "-")
-  name                = "nva"
-  type                = "private"
-  lb_sku              = "Standard"
-
-  frontend_ip_configuration = [
-    {
-      name                          = "nva"
-      zones                         = ["1", "2", "3"]
-      subnet_id                     = azurerm_subnet.this["LoadBalancerSubnet"].id
-      private_ip_address            = var.config_nva.internal_lb_addr
-      private_ip_address_allocation = "Static"
-    }
-  ]
-
-  probes = [
-    { name = "ssh", protocol = "Tcp", port = "22", request_path = "" },
-  ]
-
-  backend_pools = [
-    {
-      name = "nva"
-      addresses = [
-        {
-          name               = module.nva_linux[0].vm.name
-          virtual_network_id = azurerm_virtual_network.this.id
-          ip_address         = module.nva_linux[0].interface.ip_configuration[0].private_ip_address
-        },
-      ]
-    }
-  ]
-
-  lb_rules = [
-    {
-      name                           = "nva-ha"
-      protocol                       = "All"
-      frontend_port                  = "0"
-      backend_port                   = "0"
-      frontend_ip_configuration_name = "nva"
-      backend_address_pool_name      = ["nva", ]
-      probe_name                     = "ssh"
-    },
-  ]
-
-  depends_on = [
-    azurerm_subnet.this,
-    azurerm_subnet_network_security_group_association.this,
-    module.nva_linux,
-  ]
-}
-
-# opnsense
-#----------------------------
-
-module "opns0" {
-  count          = var.config_nva.enable && var.config_nva.type == "opnsense" ? 1 : 0
-  source         = "../../modules/opnsense"
+module "nva" {
+  count          = var.config_nva.enable ? 1 : 0
+  source         = "../../modules/network-virtual-appliance"
   resource_group = var.resource_group
   prefix         = trimsuffix(local.prefix, "-")
-  name           = "opns0"
+  name           = "nva"
   location       = var.location
 
-  untrust_subnet_id = azurerm_subnet.this["UntrustSubnet"].id
-  trust_subnet_id   = azurerm_subnet.this["TrustSubnet"].id
+  log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 
-  scenario_option               = "TwoNics"
-  opn_type                      = "TwnoNics"
-  deploy_windows_mgmt           = false
-  mgmt_subnet_address_prefix    = azurerm_subnet.this["ManagementSubnet"].address_prefixes[0]
-  trusted_subnet_address_prefix = azurerm_subnet.this["TrustSubnet"].address_prefixes[0]
+  custom_data = var.config_nva.type == "opnsense" ? null : var.config_nva.custom_data
+  health_probes = (var.config_nva.type == "opnsense" ?
+    [{ name = "https", protocol = "Tcp", port = "443", request_path = "" }, ] :
+    [{ name = "ssh", protocol = "Tcp", port = "22", request_path = "" }, ]
+  )
+
+  enable_plan            = var.config_nva.type == "opnsense" ? true : false
+  source_image_publisher = var.config_nva.type == "opnsense" ? "thefreebsdfoundation" : "Canonical"
+  source_image_offer     = var.config_nva.type == "opnsense" ? "freebsd-13_1" : "0001-com-ubuntu-server-focal"
+  source_image_sku       = var.config_nva.type == "opnsense" ? "13_1-release" : "20_04-lts"
+  source_image_version   = "latest"
+
+  use_vm_extension      = var.config_nva.type == "opnsense" ? true : false
+  vm_extension_settings = var.config_nva.type == "opnsense" ? local.settings_opnsense : null
+
+  subnet_id_untrust = azurerm_subnet.this["UntrustSubnet"].id
+  subnet_id_trust   = azurerm_subnet.this["TrustSubnet"].id
+  ilb_untrust_ip    = var.config_nva.ilb_untrust_ip
+  ilb_trust_ip      = var.config_nva.ilb_trust_ip
+  #virtual_network_id = azurerm_virtual_network.this.id
 
   depends_on = [
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
   ]
 }
-
