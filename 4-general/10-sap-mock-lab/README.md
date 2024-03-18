@@ -1,4 +1,4 @@
-# Hub and Spoke - Single Region (NVA) <!-- omit from toc -->
+# Azure Outbound Egress Demo <!-- omit from toc -->
 
 ## Lab: G10 <!-- omit from toc -->
 
