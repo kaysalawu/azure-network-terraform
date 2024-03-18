@@ -11,13 +11,13 @@ Contents
 - [Outputs](#outputs)
 - [Dashboards (Optional)](#dashboards-optional)
 - [Data Egress Tests](#data-egress-tests)
-  - [A. Egress: Default Outbound and Service Endpoints](#a-egress-default-outbound-and-service-endpoints)
-  - [B. Egress: Default Outbound and Service Tag UDR](#b-egress-default-outbound-and-service-tag-udr)
-  - [C. Egress: Default Outbound, Service Endpoints, and Service Tag UDR](#c-egress-default-outbound-service-endpoints-and-service-tag-udr)
-  - [D. Egress: Private Subnet and Service Endpoints](#d-egress-private-subnet-and-service-endpoints)
-  - [E. Egress: Private Subnet and Service Tag UDR](#e-egress-private-subnet-and-service-tag-udr)
-  - [F. Egress: Private Subnet, Service Endpoints, and Service Tag UDR](#f-egress-private-subnet-service-endpoints-and-service-tag-udr)
-  - [G. Ingress: Mixed - Default Outbound and Private Subnet](#g-ingress-mixed---default-outbound-and-private-subnet)
+  - [A. Default Outbound and Service Endpoints](#a-default-outbound-and-service-endpoints)
+  - [B. Default Outbound and Service Tag UDR](#b-default-outbound-and-service-tag-udr)
+  - [C. Default Outbound, Service Endpoints, and Service Tag UDR](#c-default-outbound-service-endpoints-and-service-tag-udr)
+  - [D. Private Subnet and Service Endpoints](#d-private-subnet-and-service-endpoints)
+  - [E. Private Subnet and Service Tag UDR](#e-private-subnet-and-service-tag-udr)
+  - [F. Private Subnet, Service Endpoints, and Service Tag UDR](#f-private-subnet-service-endpoints-and-service-tag-udr)
+  - [G. Mixed - Default Outbound and Private Subnet](#g-mixed---default-outbound-and-private-subnet)
 - [Cleanup](#cleanup)
 
 ## Overview
@@ -123,7 +123,7 @@ Login to any virtual machine via the [serial console](https://learn.microsoft.co
 
 Run the following tests from inside the serial console session.
 
-### A. Egress: Default Outbound and Service Endpoints
+### A. Default Outbound and Service Endpoints
 
 Work in progress.
 
@@ -161,7 +161,7 @@ Work in progress.
   </tr>
 </table>
 
-### B. Egress: Default Outbound and Service Tag UDR
+### B. Default Outbound and Service Tag UDR
 
 <img src="./images/egress-scenario-b.png" alt="Egress Scenario B" width="700">
 
@@ -197,7 +197,7 @@ Work in progress.
   </tr>
 </table>
 
-### C. Egress: Default Outbound, Service Endpoints, and Service Tag UDR
+### C. Default Outbound, Service Endpoints, and Service Tag UDR
 
 <img src="./images/egress-scenario-c.png" alt="Egress Scenario C" width="700">
 
@@ -233,7 +233,7 @@ Work in progress.
   </tr>
 </table>
 
-### D. Egress: Private Subnet and Service Endpoints
+### D. Private Subnet and Service Endpoints
 
 <img src="./images/egress-scenario-d.png" alt="Egress Scenario D" width="700">
 
@@ -269,7 +269,7 @@ Work in progress.
   </tr>
 </table>
 
-### E. Egress: Private Subnet and Service Tag UDR
+### E. Private Subnet and Service Tag UDR
 
 <img src="./images/egress-scenario-e.png" alt="Egress Scenario E" width="700">
 
@@ -305,7 +305,7 @@ Work in progress.
   </tr>
 </table>
 
-### F. Egress: Private Subnet, Service Endpoints, and Service Tag UDR
+### F. Private Subnet, Service Endpoints, and Service Tag UDR
 
 <img src="./images/egress-scenario-f.png" alt="Egress Scenario F" width="700">
 
@@ -341,7 +341,7 @@ Work in progress.
   </tr>
 </table>
 
-### G. Ingress: Mixed - Default Outbound and Private Subnet
+### G. Mixed - Default Outbound and Private Subnet
 
 <table>
   <tr>
