@@ -12,8 +12,3 @@ repos:
     hooks:
       - id: terraform_fmt
       - id: terraform_docs
-      # - id: infracost_breakdown
-      #   args:
-      #     - --args=--path=./env/dev
-      #     - --args=--terraform-var-file="terraform.tfvars"
-      #     - --args=--terraform-var-file="../terraform.tfvars"

@@ -14,6 +14,11 @@ reset=$(tput sgr0)
 
 working_dir=$(pwd)
 while [[ $PWD != '/' && ${PWD##*/} != 'azure-network-terraform' ]]; do cd ..; done
+if [[ $PWD == '/' ]]; then
+    echo "Could not find azure-network-terraform directory"
+    exit 1
+fi
+modules_dir="$PWD/modules"
 
 main_dirs=(
 1-hub-and-spoke
@@ -127,6 +132,14 @@ terraform_cleanup(){
     rm terraform.tfstate.backup 2> /dev/null
     rm terraform.tfstate 2> /dev/null
     echo -e "  ${color_green}${char_pass} Cleaned!${reset}"
+    cd "$original_dir" || exit
+}
+
+terraform_docs(){
+    local original_dir=$(pwd)
+    cd "$1" || exit
+    terraform-docs markdown . > README.md
+    echo -e "  ${color_green}${char_pass} Success!${reset}\n"
     cd "$original_dir" || exit
 }
 
@@ -245,6 +258,14 @@ run_terraform_cleanup() {
     echo -e "\n${char_celebrate} done!"
 }
 
+run_terraform_docs() {
+    for dir in "$modules_dir"/*; do
+        if [ -d "$dir" ]; then
+            terraform-docs markdown table "$dir" --output-file "$dir/README.md" --output-mode inject
+        fi
+    done
+}
+
 if [[ "$1" == "--diff" || "$1" == "-f" ]]; then
     echo && run_dir_diff
 elif [[ "$1" == "--copy" || "$1" == "-c" ]]; then
@@ -257,6 +278,8 @@ elif [[ "$1" == "--validate" || "$1" == "-v" ]]; then
     echo && run_terraform_validate
 elif [[ "$1" == "--cleanup" || "$1" == "-u" ]]; then
     echo && run_terraform_cleanup
+elif [[ "$1" == "--docs" || "$1" == "-d" ]]; then
+    echo && run_terraform_docs
 elif [[ "$1" == "--help" || "$1" == "-h" ]]; then
     showUsage
 else
