@@ -5,8 +5,8 @@
 locals {
   prefix                   = "G10"
   lab_name                 = "SapNetworking"
-  enable_diagnostics       = false
-  enable_service_endpoints = false
+  enable_diagnostics       = true
+  enable_service_endpoints = true
   ecs_tags                 = { "lab" = local.prefix, "nodeType" = "hub" }
   onprem_tags              = { "lab" = local.prefix, "nodeType" = "branch" }
 }

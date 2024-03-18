@@ -102,8 +102,6 @@ To view the dashboards, follow the steps below:
 
 3. Select the dashboard you want to view.
 
-   <img src="../../images/demos/hub-and-spoke/hs14-shared-dashboards.png" alt="Shared dashboards" width="900">
-
 4. Click on a dashboard under **Go to dashboard** column.
 
    Sample dashboard for VPN gateway in ***hub1***.
@@ -117,7 +115,7 @@ To view the dashboards, follow the steps below:
 
 Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of network reachability tests. Serial console access has been configured for all virtual machines.
 
-Login to virtual machine `Vwan24-spoke1Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
+Login to virtual machine `Hs14-spoke1Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
 
 - On Azure portal select *Virtual machines*
 - Select the virtual machine `Hs14-spoke1Vm`
