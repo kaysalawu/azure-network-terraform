@@ -22,15 +22,15 @@ Contents
 
 ## Overview
 
-This lab is a mock scenario for SAP RISE ECS (Enterprise Cloud Services) deployment in Azure. It aims to demonstrate the infrastructure and connectivity options available in a real SAP RISE ECS deployment.
+This lab is a mock scenario for SAP deployment in Azure. It aims to demonstrate the infrastructure and connectivity options available in a real SAP deployment.
 
 > Note: This lab does not include any SAP workloads, databases, or the full set of network and security components required for a real SAP deployment. The lab just emulates the infrastructure, connectivity, and network security components.
 
 <img src="./images/architecture.png" alt="Architecure" width="650">
 
 These are the main components of the lab:
-- **Vnet**: The simulated virtual network for the SAP RISE ECS deployment
-- **Subnets**: There are four subnets in the ECS Vnet:
+- **Vnet**: The simulated virtual network for the SAP deployment
+- **Subnets**: There are four subnets in the Vnet:
   - **GatewaySubnet**: For VPN and ExpressRoute gateways
   - **AppGatewaySubnet**: For the Azure Application Gateway
   - **PublicSubnet**: For the resources that require outbound internet access
