@@ -259,11 +259,19 @@ run_terraform_cleanup() {
 }
 
 run_terraform_docs() {
-    for dir in "$modules_dir"/*; do
-        if [ -d "$dir" ]; then
-            terraform-docs markdown table "$dir" --output-file "$dir/README.md" --output-mode inject
-        fi
-    done
+    read -p "Generate terraform docs? (y/n): " yn
+    if [[ $yn == [Yy] ]]; then
+        for dir in "$modules_dir"/*; do
+            if [ -d "$dir" ]; then
+                terraform-docs markdown table "$dir" --output-file "$dir/README.md" --output-mode inject
+            fi
+        done
+    elif [[ $yn == [Nn] ]]; then
+        return 1
+    else
+        echo -e "Invalid input. Please answer y or n."
+        return 1
+    fi
 }
 
 if [[ "$1" == "--diff" || "$1" == "-f" ]]; then
