@@ -1,0 +1,2 @@
+https://g10ecssa4237.blob.core.windows.net/storage/storage.txt
+https://g10-ecs-kv4237.vault.azure.net/secrets/message/1ff7095aee0b42978e40f81b66e41cdb

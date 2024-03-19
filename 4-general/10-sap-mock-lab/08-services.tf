@@ -23,7 +23,7 @@ resource "azurerm_storage_account" "storage" {
 resource "azurerm_storage_container" "storage" {
   name                  = "storage"
   storage_account_name  = azurerm_storage_account.storage.name
-  container_access_type = "private"
+  container_access_type = "blob"
 }
 
 # blob
@@ -47,6 +47,29 @@ resource "azurerm_key_vault" "key_vault" {
   sku_name            = "standard"
   tenant_id           = data.azurerm_client_config.current.tenant_id
   tags                = local.ecs_tags
+}
+
+resource "azurerm_key_vault_secret" "key_vault" {
+  name         = "message"
+  value        = "Hello, world!"
+  key_vault_id = azurerm_key_vault.key_vault.id
+}
+
+resource "azurerm_key_vault_access_policy" "key_vault" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = data.azurerm_client_config.current.object_id
+
+  key_permissions = [
+    "Get",
+    "List",
+  ]
+
+  secret_permissions = [
+    "Get",
+    "List",
+    "Set",
+  ]
 }
 
 ####################################################
