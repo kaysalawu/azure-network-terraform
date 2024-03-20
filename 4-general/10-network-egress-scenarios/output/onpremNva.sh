@@ -114,14 +114,101 @@ systemctl restart frr
 #########################################################
 
 tee /etc/ipsec.conf <<'EOF'
+config setup
+    charondebug="ike 2, knl 2, cfg 2, net 2, esp 2, dmn 2,  mgr 2"
+
+conn %default
+    type=tunnel
+    ikelifetime=60m
+    keylife=20m
+    rekeymargin=3m
+    keyingtries=1
+    authby=secret
+    keyexchange=ikev2
+    installpolicy=yes
+    compress=no
+    mobike=no
+    #left=%defaultroute
+    leftsubnet=0.0.0.0/0
+    rightsubnet=0.0.0.0/0
+    ike=aes256-sha1-modp1024!
+    esp=aes256-sha1!
+
+conn Tunnel0
+    left=10.10.1.9
+    leftid=40.69.0.111
+    right=4.245.161.19
+    rightid=4.245.161.19
+    auto=start
+    mark=100
+    leftupdown="/etc/ipsec.d/ipsec-vti.sh"
+conn Tunnel1
+    left=10.10.1.9
+    leftid=40.69.0.111
+    right=4.245.161.32
+    rightid=4.245.161.32
+    auto=start
+    mark=200
+    leftupdown="/etc/ipsec.d/ipsec-vti.sh"
+
+# github source used
+# https://gist.github.com/heri16/2f59d22d1d5980796bfb
 
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
+10.10.1.9 4.245.161.19 : PSK "changeme"
+10.10.1.9 4.245.161.32 : PSK "changeme"
 
 EOF
 
 tee /etc/ipsec.d/ipsec-vti.sh <<'EOF'
+#!/bin/bash
+
+LOG_FILE="/var/log/ipsec-vti.log"
+
+IP=$(which ip)
+IPTABLES=$(which iptables)
+
+PLUTO_MARK_OUT_ARR=(${PLUTO_MARK_OUT//// })
+PLUTO_MARK_IN_ARR=(${PLUTO_MARK_IN//// })
+
+case "$PLUTO_CONNECTION" in
+  Tunnel0)
+    VTI_INTERFACE=vti0
+    VTI_LOCALADDR=10.10.10.1
+    VTI_REMOTEADDR=10.0.0.6
+    ;;
+  Tunnel1)
+    VTI_INTERFACE=vti1
+    VTI_LOCALADDR=10.10.10.5
+    VTI_REMOTEADDR=10.0.0.7
+    ;;
+esac
+
+echo "$(date): Trigger - CONN=${PLUTO_CONNECTION}, VERB=${PLUTO_VERB}, ME=${PLUTO_ME}, PEER=${PLUTO_PEER}], PEER_CLIENT=${PLUTO_PEER_CLIENT}, MARK_OUT=${PLUTO_MARK_OUT_ARR}, MARK_IN=${PLUTO_MARK_IN_ARR}" >> $LOG_FILE
+
+case "$PLUTO_VERB" in
+  up-client)
+    $IP link add ${VTI_INTERFACE} type vti local ${PLUTO_ME} remote ${PLUTO_PEER} okey ${PLUTO_MARK_OUT_ARR[0]} ikey ${PLUTO_MARK_IN_ARR[0]}
+    sysctl -w net.ipv4.conf.${VTI_INTERFACE}.disable_policy=1
+    sysctl -w net.ipv4.conf.${VTI_INTERFACE}.rp_filter=2 || sysctl -w net.ipv4.conf.${VTI_INTERFACE}.rp_filter=0
+    $IP addr add ${VTI_LOCALADDR} remote ${VTI_REMOTEADDR} dev ${VTI_INTERFACE}
+    $IP link set ${VTI_INTERFACE} up mtu 1436
+    $IPTABLES -t mangle -I FORWARD -o ${VTI_INTERFACE} -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+    $IPTABLES -t mangle -I INPUT -p esp -s ${PLUTO_PEER} -d ${PLUTO_ME} -j MARK --set-xmark ${PLUTO_MARK_IN}
+    $IP route flush table 220
+    #/etc/init.d/bgpd reload || /etc/init.d/quagga force-reload bgpd
+    ;;
+  down-client)
+    $IP link del ${VTI_INTERFACE}
+    $IPTABLES -t mangle -D FORWARD -o ${VTI_INTERFACE} -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+    $IPTABLES -t mangle -D INPUT -p esp -s ${PLUTO_PEER} -d ${PLUTO_ME} -j MARK --set-xmark ${PLUTO_MARK_IN}
+    ;;
+esac
+
+# github source used
+# https://gist.github.com/heri16/2f59d22d1d5980796bfb
 
 EOF
 chmod a+x /etc/ipsec.d/ipsec-vti.sh
@@ -172,15 +259,15 @@ service integrated-vtysh-config
 ! Interface
 !-----------------------------------------
 interface lo
-  ip address 10.22.22.22/32
+  ip address 192.168.10.10/32
 !
 !-----------------------------------------
 ! Static Routes
 !-----------------------------------------
-ip route 0.0.0.0/0 10.22.2.1
-ip route 192.168.22.68/32 10.22.2.1
-ip route 192.168.22.69/32 10.22.2.1
-ip route 10.5.0.0/20 10.22.2.1
+ip route 0.0.0.0 10.10.1.1
+ip route 10.0.0.6/32 vti0
+ip route 10.0.0.7/32 vti1
+ip route 10.10.0.0/24 10.10.1.1
 !
 !-----------------------------------------
 ! Route Maps
@@ -189,20 +276,19 @@ ip route 10.5.0.0/20 10.22.2.1
 !-----------------------------------------
 ! BGP
 !-----------------------------------------
-router bgp 65020
-bgp router-id 10.22.22.22
-neighbor 192.168.22.68 remote-as 65515
-neighbor 192.168.22.68 ebgp-multihop 255
-neighbor 192.168.22.68 update-source lo
-neighbor 192.168.22.69 remote-as 65515
-neighbor 192.168.22.69 ebgp-multihop 255
-neighbor 192.168.22.69 update-source lo
+router bgp 65001
+bgp router-id 192.168.10.10
+neighbor 10.0.0.6 remote-as 65515
+neighbor 10.0.0.6 ebgp-multihop 255
+neighbor 10.0.0.6 update-source lo
+neighbor 10.0.0.7 remote-as 65515
+neighbor 10.0.0.7 ebgp-multihop 255
+neighbor 10.0.0.7 update-source lo
 !
 address-family ipv4 unicast
-  network 10.22.0.0/24
-  network 10.5.0.0/20
-  neighbor 192.168.22.68 soft-reconfiguration inbound
-  neighbor 192.168.22.69 soft-reconfiguration inbound
+  network 10.10.0.0/24
+  neighbor 10.0.0.6 soft-reconfiguration inbound
+  neighbor 10.0.0.7 soft-reconfiguration inbound
 exit-address-family
 !
 line vty
@@ -221,14 +307,7 @@ systemctl restart frr
 
 cat <<EOF > /usr/local/bin/ping-ip
 echo -e "\n ping ip ...\n"
-echo "branch1 - 10.10.0.5 -\$(ping -qc2 -W1 10.10.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "hub1    - 10.11.0.5 -\$(ping -qc2 -W1 10.11.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke1  - 10.1.0.5 -\$(ping -qc2 -W1 10.1.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke2  - 10.2.0.5 -\$(ping -qc2 -W1 10.2.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "branch3 - 10.30.0.5 -\$(ping -qc2 -W1 10.30.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "hub2    - 10.22.0.5 -\$(ping -qc2 -W1 10.22.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke4  - 10.4.0.5 -\$(ping -qc2 -W1 10.4.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke5  - 10.5.0.5 -\$(ping -qc2 -W1 10.5.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "onprem - 10.10.0.5 -\$(ping -qc2 -W1 10.10.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "internet - icanhazip.com -\$(ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 EOF
 chmod a+x /usr/local/bin/ping-ip
@@ -237,14 +316,7 @@ chmod a+x /usr/local/bin/ping-ip
 
 cat <<EOF > /usr/local/bin/ping-dns
 echo -e "\n ping dns ...\n"
-echo "branch1vm.corp - \$(dig +short branch1vm.corp | tail -n1) -\$(ping -qc2 -W1 branch1vm.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "hub1vm.eu.az.corp - \$(dig +short hub1vm.eu.az.corp | tail -n1) -\$(ping -qc2 -W1 hub1vm.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke1vm.eu.az.corp - \$(dig +short spoke1vm.eu.az.corp | tail -n1) -\$(ping -qc2 -W1 spoke1vm.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke2vm.eu.az.corp - \$(dig +short spoke2vm.eu.az.corp | tail -n1) -\$(ping -qc2 -W1 spoke2vm.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "branch3vm.corp - \$(dig +short branch3vm.corp | tail -n1) -\$(ping -qc2 -W1 branch3vm.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "hub2vm.us.az.corp - \$(dig +short hub2vm.us.az.corp | tail -n1) -\$(ping -qc2 -W1 hub2vm.us.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke4vm.us.az.corp - \$(dig +short spoke4vm.us.az.corp | tail -n1) -\$(ping -qc2 -W1 spoke4vm.us.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke5vm.us.az.corp - \$(dig +short spoke5vm.us.az.corp | tail -n1) -\$(ping -qc2 -W1 spoke5vm.us.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "onpremvm.corp - \$(dig +short onpremvm.corp | tail -n1) -\$(ping -qc2 -W1 onpremvm.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "icanhazip.com - \$(dig +short icanhazip.com | tail -n1) -\$(ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 EOF
 chmod a+x /usr/local/bin/ping-dns
@@ -253,14 +325,7 @@ chmod a+x /usr/local/bin/ping-dns
 
 cat <<EOF > /usr/local/bin/curl-ip
 echo -e "\n curl ip ...\n"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.10.0.5) - branch1 (10.10.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.11.0.5) - hub1    (10.11.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.1.0.5) - spoke1  (10.1.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.2.0.5) - spoke2  (10.2.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.30.0.5) - branch3 (10.30.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.22.0.5) - hub2    (10.22.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.4.0.5) - spoke4  (10.4.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.5.0.5) - spoke5  (10.5.0.5)"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.10.0.5) - onprem (10.10.0.5)"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - internet (icanhazip.com)"
 EOF
 chmod a+x /usr/local/bin/curl-ip
@@ -269,19 +334,8 @@ chmod a+x /usr/local/bin/curl-ip
 
 cat <<EOF > /usr/local/bin/curl-dns
 echo -e "\n curl dns ...\n"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null branch1vm.corp) - branch1vm.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null hub1vm.eu.az.corp) - hub1vm.eu.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke3pls.eu.az.corp) - spoke3pls.eu.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1vm.eu.az.corp) - spoke1vm.eu.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke2vm.eu.az.corp) - spoke2vm.eu.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null branch3vm.corp) - branch3vm.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null hub2vm.us.az.corp) - hub2vm.us.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke6pls.us.az.corp) - spoke6pls.us.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke4vm.us.az.corp) - spoke4vm.us.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke5vm.us.az.corp) - spoke5vm.us.az.corp"
+echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null onpremvm.corp) - onpremvm.corp"
 echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke3sab74a.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan24spoke3sab74a.blob.core.windows.net/spoke3/spoke3.txt"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke6sab74a.blob.core.windows.net/spoke6/spoke6.txt) - https://vwan24spoke6sab74a.blob.core.windows.net/spoke6/spoke6.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 
@@ -290,21 +344,7 @@ chmod a+x /usr/local/bin/curl-dns
 cat <<EOF > /usr/local/bin/trace-ip
 echo -e "\n trace ip ...\n"
 traceroute 10.10.0.5
-echo -e "branch1\n"
-traceroute 10.11.0.5
-echo -e "hub1   \n"
-traceroute 10.1.0.5
-echo -e "spoke1 \n"
-traceroute 10.2.0.5
-echo -e "spoke2 \n"
-traceroute 10.30.0.5
-echo -e "branch3\n"
-traceroute 10.22.0.5
-echo -e "hub2   \n"
-traceroute 10.4.0.5
-echo -e "spoke4 \n"
-traceroute 10.5.0.5
-echo -e "spoke5 \n"
+echo -e "onprem\n"
 traceroute icanhazip.com
 echo -e "internet\n"
 EOF
