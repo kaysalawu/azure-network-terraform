@@ -22,13 +22,11 @@ Contents
 
 ## Overview
 
-This lab is a mock scenario for SAP deployment in Azure. It aims to demonstrate the infrastructure and connectivity options available in a real SAP deployment.
-
-> Note: This lab does not include any SAP workloads, databases, or the full set of network and security components required for a real SAP deployment. The lab just emulates the infrastructure, connectivity, and network security components.
+This lab deploys a test environment to experiment with ingress and egress patterns in Azure virtual networks. For egress patterns, we will test access to Azure services with various combinations of service endpoints, private subnets, and service tag UDRs. For ingress patterns, we will test public and private access via Application Gateway, Azure load balancer, and VPN gateway.
 
 <img src="./images/architecture.png" alt="Architecure" width="650">
 
-These are the main components of the lab:
+The lab is designed to emulate a typical SAP deployment in Azure. The following resources are deployed:
 - **Vnet**: The simulated virtual network for the SAP deployment
 - **Subnets**: There are four subnets in the Vnet:
   - **GatewaySubnet**: For VPN and ExpressRoute gateways
@@ -39,6 +37,8 @@ These are the main components of the lab:
     - Simulated [Web dispatchers](https://help.sap.com/doc/saphelp_nw74/7.4.16/en-us/48/8fe37933114e6fe10000000a421937/frameset.htm) (HaProxy)
     - Simulated App servers (NodeJS)
     - Simulated Database servers (MongoDB)
+
+> Note: This lab does not deploy any SAP workloads, databases, or the full set of network and security components required for a real SAP deployment. The lab just emulates the infrastructure, connectivity, and network security components.
 
 ## Prerequisites
 
@@ -55,7 +55,7 @@ Ensure you meet all requirements in the [prerequisites](../../prerequisites/READ
 2. Navigate to the lab directory
 
    ```sh
-   cd azure-network-terraform/4-general/10-sap-mock-lab
+   cd azure-network-terraform/4-general/10-network-egress-scenarios
    ```
 
 3. Run the following terraform commands and type ***yes*** at the prompt:
@@ -381,13 +381,13 @@ Work in progress.
 1\. (Optional) Navigate back to the lab directory (if you are not already there)
 
 ```sh
-cd azure-network-terraform/4-general/10-sap-mock-lab
+cd azure-network-terraform/4-general/10-network-egress-scenarios
 ```
 
 2\. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
 ```sh
-bash ../../scripts/_cleanup.sh G10
+bash ../../scripts/_cleanup.sh G10_SapNetworking_RG
 ```
 
 <details>
@@ -395,11 +395,11 @@ bash ../../scripts/_cleanup.sh G10
 <summary>Sample output</summary>
 
 ```sh
-3-hub-spoke-nva-single-region$    bash ../../scripts/_cleanup.sh G10
+3-hub-spoke-nva-single-region$    bash ../../scripts/_cleanup.sh G10_SapNetworking_RG
 
 Resource group: G10RG
 
-⏳ Checking for diagnostic settings on resources in G10RG ...
+⏳ Checking for diagnostic settings on resources in G10_SapNetworking_RG ...
 ➜  Checking firewall ...
 ➜  Checking vnet gateway ...
     ❌ Deleting: diag setting [G10-ecs-vpngw-diag] for vnet gateway [G10-ecs-vpngw] ...

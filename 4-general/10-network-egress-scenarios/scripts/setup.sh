@@ -1,7 +1,10 @@
 #! /bin/bash
 
 apt update
-apt install -y unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
+apt install -y python3-pip python3-dev unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
+
+pip3 install azure-identity
+pip3 install azure-mgmt-network
 
 apt install -y openvpn network-manager-openvpn
 sudo service network-manager restart

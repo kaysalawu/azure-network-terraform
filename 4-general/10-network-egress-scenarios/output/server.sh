@@ -1,7 +1,12 @@
 #! /bin/bash
 
+exec > /var/log/azure-init.log 2>&1
+
 apt update
-apt install -y python3-pip python3-dev unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
+apt install -y python3-pip python3-dev python3-venv unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
+
+pip3 install azure-identity
+pip3 install azure-mgmt-network
 
 apt install -y openvpn network-manager-openvpn
 sudo service network-manager restart
@@ -141,31 +146,12 @@ chmod a+x /usr/local/bin/dns-info
 
 # light-traffic generator
 
-cat <<EOF > /usr/local/bin/light-traffic
-nping -c 10 --tcp -p 80 onpremvm.corp > /dev/null 2>&1
-EOF
-chmod a+x /usr/local/bin/light-traffic
 
 # heavy-traffic generator
 
-cat <<EOF > /usr/local/bin/heavy-traffic
-#! /bin/bash
-i=0
-while [ \$i -lt 8 ]; do
-    ab -n \$1 -c \$2 onpremvm.corp > /dev/null 2>&1
-    let i=i+1
-  sleep 5
-done
-EOF
-chmod a+x /usr/local/bin/heavy-traffic
 
 # crontab for traffic generators
 
 cat <<EOF > /tmp/crontab.txt
-*/1 * * * * /usr/local/bin/light-traffic 2>&1 > /dev/null
-*/1 * * * * /usr/local/bin/heavy-traffic 50 1 2>&1 > /dev/null
-*/2 * * * * /usr/local/bin/heavy-traffic 8 2 2>&1 > /dev/null
-*/3 * * * * /usr/local/bin/heavy-traffic 20 4 2>&1 > /dev/null
-*/5 * * * * /usr/local/bin/heavy-traffic 15 2 2>&1 > /dev/null
 EOF
 crontab /tmp/crontab.txt

@@ -9,7 +9,7 @@ locals {
   ]
 }
 
-resource "azurerm_role_assignment" "storage" {
+resource "azurerm_role_assignment" "roles" {
   count                = length(local.role_assignments)
   scope                = local.role_assignments[count.index].scope
   role_definition_name = local.role_assignments[count.index].role

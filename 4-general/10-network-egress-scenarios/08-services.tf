@@ -1,6 +1,13 @@
 
 locals {
   storage_storage_account_name = lower(replace("${local.ecs_prefix}sa${random_id.random.hex}", "-", ""))
+  object_ids = [
+    data.azurerm_client_config.current.object_id,
+    module.ecs_appsrv1_vm.vm.identity[0].principal_id,
+    module.ecs_test_vm.vm.identity[0].principal_id,
+    module.ecs_cgs.vm.identity[0].principal_id,
+    module.onprem_vm.vm.identity[0].principal_id,
+  ]
 }
 
 ####################################################
@@ -23,7 +30,7 @@ resource "azurerm_storage_account" "storage" {
 resource "azurerm_storage_container" "storage" {
   name                  = "storage"
   storage_account_name  = azurerm_storage_account.storage.name
-  container_access_type = "blob"
+  container_access_type = "private"
 }
 
 # blob
@@ -34,6 +41,22 @@ resource "azurerm_storage_blob" "storage" {
   storage_container_name = azurerm_storage_container.storage.name
   type                   = "Block"
   source_content         = "Hello, World!"
+}
+
+# role assignment
+
+resource "azurerm_role_assignment" "storage" {
+  count                = length(local.object_ids)
+  scope                = azurerm_storage_account.storage.id
+  role_definition_name = "Storage Account Contributor"
+  principal_id         = local.object_ids[count.index]
+}
+
+resource "azurerm_role_assignment" "blob" {
+  count                = length(local.object_ids)
+  scope                = azurerm_storage_account.storage.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = local.object_ids[count.index]
 }
 
 ####################################################
@@ -56,9 +79,10 @@ resource "azurerm_key_vault_secret" "key_vault" {
 }
 
 resource "azurerm_key_vault_access_policy" "key_vault" {
+  count        = length(local.object_ids)
   key_vault_id = azurerm_key_vault.key_vault.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = data.azurerm_client_config.current.object_id
+  object_id    = local.object_ids[count.index]
 
   key_permissions = [
     "Get",

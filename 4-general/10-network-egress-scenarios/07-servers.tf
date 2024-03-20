@@ -66,9 +66,11 @@ locals {
     TARGETS_HEAVY_TRAFFIC_GEN = []
   }
   ecs_test_files = {
-    "${local.ecs_test_init_dir}/test/server.sh"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/server.sh", local.ecs_test_vars) }
-    "${local.ecs_test_init_dir}/test/crawler.sh"  = { owner = "root", permissions = "0744", content = templatefile("./scripts/crawler.sh", local.ecs_test_vars) }
-    "${local.ecs_test_init_dir}/test/targets.txt" = { owner = "root", permissions = "0744", content = join("\n", local.crawler_targets) }
+    "${local.ecs_test_init_dir}/init/server.sh"                     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/server.sh", local.ecs_test_vars) }
+    "${local.ecs_test_init_dir}/test/crawler/app/crawler.sh"        = { owner = "root", permissions = "0744", content = templatefile("./scripts/crawler/app/crawler.sh", local.ecs_test_vars) }
+    "${local.ecs_test_init_dir}/test/crawler/app/service_tags.py"   = { owner = "root", permissions = "0744", content = templatefile("./scripts/crawler/app/service_tags.py", local.ecs_test_vars) }
+    "${local.ecs_test_init_dir}/test/crawler/app/service_access.py" = { owner = "root", permissions = "0744", content = templatefile("./scripts/crawler/app/service_access.py", local.ecs_test_vars) }
+    "${local.ecs_test_init_dir}/test/crawler/app/requirements.txt"  = { owner = "root", permissions = "0744", content = templatefile("./scripts/crawler/app/requirements.txt", local.ecs_test_vars) }
   }
 }
 
@@ -76,11 +78,12 @@ module "ecs_test_init" {
   source = "../../modules/cloud-config-gen"
   files  = local.ecs_test_files
   run_commands = [
-    ". /var/lib/labs/test/server.sh",
+    ". ${local.ecs_test_init_dir}/init/server.sh",
     "/bin/bash -c 'echo export http_proxy=http://${local.ecs_cgs_addr}:3128 >> /etc/environment'",
     "/bin/bash -c 'echo export https_proxy=http://${local.ecs_cgs_addr}:3128 >> /etc/environment'",
     "/bin/bash -c 'echo export ftp_proxy=http://${local.ecs_cgs_addr}:3128 >> /etc/environment'",
     "/bin/bash -c 'echo export no_proxy=${join(",", local.ecs_no_proxy)} >> /etc/environment'",
+    "python3 -m venv ${local.ecs_test_init_dir}/test/crawler",
   ]
 }
 

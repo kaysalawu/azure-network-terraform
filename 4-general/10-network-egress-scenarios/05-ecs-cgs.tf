@@ -17,7 +17,7 @@ locals {
     )
   }
   ecs_cgs_files = {
-    "${local.ecs_cgs_init_dir}/init/setup.sh" = { owner = "root", permissions = "0744", content = templatefile("./scripts/setup.sh", local.ecs_test_vars) }
+    "${local.ecs_cgs_init_dir}/init/server.sh" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/server.sh", local.ecs_test_vars) }
 
     "${local.ecs_cgs_init_dir}/unbound/Dockerfile"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/Dockerfile", {}) }
     "${local.ecs_cgs_init_dir}/unbound/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
@@ -48,7 +48,7 @@ module "ecs_cgs_init" {
   packages = ["docker.io", "docker-compose", "dnsutils", "net-tools", ]
   files    = local.ecs_cgs_files
   run_commands = [
-    ". ${local.ecs_cgs_init_dir}/init/setup.sh",
+    ". ${local.ecs_cgs_init_dir}/init/server.sh",
     ". ${local.ecs_cgs_init_dir}/unbound/setup-unbound.sh",
     ". ${local.ecs_cgs_init_dir}/squid/setup-squid.sh",
     "docker-compose -f ${local.ecs_cgs_init_dir}/unbound/docker-compose.yml up -d",

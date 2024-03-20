@@ -1,3 +1,0 @@
-management.azure.com
-g10-ecs-kv4237.vault.azure.net
-g10ecssa4237.blob.core.windows.net
