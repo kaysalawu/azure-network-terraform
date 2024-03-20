@@ -416,7 +416,7 @@ Done!
 3\. Delete the resource group to remove all resources installed.
 
 ```sh
-az group delete -g G10RG --no-wait
+az group delete -g G10_SapNetworking_RG --no-wait
 ```
 
 4\. Delete terraform state files and other generated files.
