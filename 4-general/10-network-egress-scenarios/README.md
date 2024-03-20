@@ -1,4 +1,4 @@
-# Azure Outbound Egress Demo <!-- omit from toc -->
+# Network Egress Patterns <!-- omit from toc -->
 
 ## Lab: G10 <!-- omit from toc -->
 
