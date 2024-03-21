@@ -11,6 +11,7 @@ Contents
 - [Outputs](#outputs)
 - [Dashboards (Optional)](#dashboards-optional)
 - [Data Egress Tests](#data-egress-tests)
+  - [Results](#results)
   - [A. Default Outbound and Service Endpoints](#a-default-outbound-and-service-endpoints)
   - [B. Default Outbound and Service Tag UDR](#b-default-outbound-and-service-tag-udr)
   - [C. Default Outbound, Service Endpoints, and Service Tag UDR](#c-default-outbound-service-endpoints-and-service-tag-udr)
@@ -102,7 +103,7 @@ To view the dashboards, follow the steps below:
 
    Sample dashboard for VPN gateway in ***ecs***.
 
-    <img src="./images/g10-ecs-vpngw-db.png" alt="Go to dashboard" width="900">
+    <img src="./images/g10-ecs-vpngw-db.png" alt="Go to dashboard" width="950">
 
     </details>
 <p>
@@ -123,47 +124,59 @@ Login to any virtual machine via the [serial console](https://learn.microsoft.co
 
 Run the following tests from inside the serial console session.
 
+### Results
+
+<table>
+  <tr>
+   <td rowspan="2" ><strong>Scenario</strong></td>
+   <td rowspan="2" ><strong>Service Endpoint</strong></td>
+   <td rowspan="2" ><strong>Private Subnet</strong></td>
+   <td rowspan="2" ><strong>Service Tag UDR</strong></td>
+   <td colspan="4" ><strong>Public IP Type</strong></td>
+   <td rowspan="2" ><strong>Azure Mgmt Access?</strong></td>
+   <td rowspan="2" ><strong>Internet Access?</strong></td>
+   <td colspan="2" ><strong>Azure Services Access?</strong></td>
+  </tr>
+  <tr>
+   <td><strong>NAT GW</td>
+   <td><strong>LB SNAT</strong></td>
+   <td><strong>Public IP</strong></td>
+   <td><strong>Default</strong></td>
+   <td><strong>Storage</strong></td>
+   <td><strong>KeyVault</strong></td>
+  </tr>
+  <tr>
+   <td>A</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+  </tr>
+  <tr>
+   <td>B</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+  </tr>
+  <tr>
+   <td>C</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+  </tr>
+  <tr>
+   <td>D</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+  </tr>
+  <tr>
+   <td>E</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+  </tr>
+  <tr>
+   <td>F</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+  </tr>
+  <tr>
+   <td>G</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+  </tr>
+</table>
+
 ### A. Default Outbound and Service Endpoints
 
 Work in progress.
 
-<img src="./images/egress-scenario-a.png" alt="Egress Scenario A" width="700">
-
-<table>
-  <tr>
-   <td rowspan="2" ><strong>Subnet</strong></td>
-   <td rowspan="2" ><strong>Service Endpoint</strong></td>
-   <td rowspan="2" ><strong>Private Subnet</strong></td>
-   <td rowspan="2" ><strong>Service Tag UDR</strong></td>
-   <td colspan="4" ><strong>Public IP Type</strong></td>
-   <td rowspan="2" ><strong>Access to Internet?</strong></td>
-   <td colspan="2" ><strong>Access to Azure Services?</strong></td>
-  </tr>
-  <tr>
-   <td><strong>NAT GW</strong></td>
-   <td><strong>LB SNAT</strong></td>
-   <td><strong>Public IP</strong></td>
-   <td><strong>Default</strong></td>
-   <td><strong>Storage</strong></td>
-   <td><strong>KeyVault</strong></td>
-  </tr>
-  <tr>
-   <td>Production</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>Public</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>Gateway</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>App Gateway</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-</table>
+<img src="./images/egress-scenario-a.png" alt="Scenario A" width="800">
 
 ### B. Default Outbound and Service Tag UDR
 
-<img src="./images/egress-scenario-b.png" alt="Egress Scenario B" width="700">
+<img src="./images/egress-scenario-b.png" alt="Scenario B" width="700">
 
 <table>
   <tr>
@@ -172,11 +185,12 @@ Work in progress.
    <td rowspan="2" ><strong>Private Subnet</strong></td>
    <td rowspan="2" ><strong>Service Tag UDR</strong></td>
    <td colspan="4" ><strong>Public IP Type</strong></td>
-   <td rowspan="2" ><strong>Access to Internet?</strong></td>
+   <td rowspan="2" ><strong>Azure Mgmt Access?</strong></td>
+   <td rowspan="2" ><strong>Internet Access?</strong></td>
    <td colspan="2" ><strong>Access to Azure Services?</strong></td>
   </tr>
   <tr>
-   <td><strong>NAT GW</strong></td>
+   <td><strong>NAT GW</td>
    <td><strong>LB SNAT</strong></td>
    <td><strong>Public IP</strong></td>
    <td><strong>Default</strong></td>
@@ -184,196 +198,44 @@ Work in progress.
    <td><strong>KeyVault</strong></td>
   </tr>
   <tr>
-   <td>Production</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
+   <td>Production</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
   </tr>
   <tr>
-   <td>Public</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
+   <td>Public</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
   </tr>
   <tr>
-   <td>Gateway</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
+   <td>Gateway</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
   </tr>
   <tr>
-   <td>App Gateway</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
+   <td>App Gateway</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
   </tr>
 </table>
 
 ### C. Default Outbound, Service Endpoints, and Service Tag UDR
 
-<img src="./images/egress-scenario-c.png" alt="Egress Scenario C" width="700">
+<img src="./images/egress-scenario-c.png" alt="Scenario C" width="700">
 
-<table>
-  <tr>
-   <td rowspan="2" ><strong>Subnet</strong></td>
-   <td rowspan="2" ><strong>Service Endpoint</strong></td>
-   <td rowspan="2" ><strong>Private Subnet</strong></td>
-   <td rowspan="2" ><strong>Service Tag UDR</strong></td>
-   <td colspan="4" ><strong>Public IP Type</strong></td>
-   <td rowspan="2" ><strong>Access to Internet?</strong></td>
-   <td colspan="2" ><strong>Access to Azure Services?</strong></td>
-  </tr>
-  <tr>
-   <td><strong>NAT GW</strong></td>
-   <td><strong>LB SNAT</strong></td>
-   <td><strong>Public IP</strong></td>
-   <td><strong>Default</strong></td>
-   <td><strong>Storage</strong></td>
-   <td><strong>KeyVault</strong></td>
-  </tr>
-  <tr>
-   <td>Production</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>Public</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>Gateway</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>App Gateway</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-</table>
 
 ### D. Private Subnet and Service Endpoints
 
-<img src="./images/egress-scenario-d.png" alt="Egress Scenario D" width="700">
+<img src="./images/egress-scenario-d.png" alt="Scenario D" width="700">
 
-<table>
-  <tr>
-   <td rowspan="2" ><strong>Subnet</strong></td>
-   <td rowspan="2" ><strong>Service Endpoint</strong></td>
-   <td rowspan="2" ><strong>Private Subnet</strong></td>
-   <td rowspan="2" ><strong>Service Tag UDR</strong></td>
-   <td colspan="4" ><strong>Public IP Type</strong></td>
-   <td rowspan="2" ><strong>Access to Internet?</strong></td>
-   <td colspan="2" ><strong>Access to Azure Services?</strong></td>
-  </tr>
-  <tr>
-   <td><strong>NAT GW</strong></td>
-   <td><strong>LB SNAT</strong></td>
-   <td><strong>Public IP</strong></td>
-   <td><strong>Default</strong></td>
-   <td><strong>Storage</strong></td>
-   <td><strong>KeyVault</strong></td>
-  </tr>
-  <tr>
-   <td>Production</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>Public</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>Gateway</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>App Gateway</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-</table>
+
 
 ### E. Private Subnet and Service Tag UDR
 
-<img src="./images/egress-scenario-e.png" alt="Egress Scenario E" width="700">
+<img src="./images/egress-scenario-e.png" alt="Scenario E" width="700">
 
-<table>
-  <tr>
-   <td rowspan="2" ><strong>Subnet</strong></td>
-   <td rowspan="2" ><strong>Service Endpoint</strong></td>
-   <td rowspan="2" ><strong>Private Subnet</strong></td>
-   <td rowspan="2" ><strong>Service Tag UDR</strong></td>
-   <td colspan="4" ><strong>Public IP Type</strong></td>
-   <td rowspan="2" ><strong>Access to Internet?</strong></td>
-   <td colspan="2" ><strong>Access to Azure Services?</strong></td>
-  </tr>
-  <tr>
-   <td><strong>NAT GW</strong></td>
-   <td><strong>LB SNAT</strong></td>
-   <td><strong>Public IP</strong></td>
-   <td><strong>Default</strong></td>
-   <td><strong>Storage</strong></td>
-   <td><strong>KeyVault</strong></td>
-  </tr>
-  <tr>
-   <td>Production</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>Public</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>Gateway</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>App Gateway</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-</table>
+
 
 ### F. Private Subnet, Service Endpoints, and Service Tag UDR
 
-<img src="./images/egress-scenario-f.png" alt="Egress Scenario F" width="700">
+<img src="./images/egress-scenario-f.png" alt="Scenario F" width="700">
 
-<table>
-  <tr>
-   <td rowspan="2" ><strong>Subnet</strong></td>
-   <td rowspan="2" ><strong>Service Endpoint</strong></td>
-   <td rowspan="2" ><strong>Private Subnet</strong></td>
-   <td rowspan="2" ><strong>Service Tag UDR</strong></td>
-   <td colspan="4" ><strong>Public IP Type</strong></td>
-   <td rowspan="2" ><strong>Access to Internet?</strong></td>
-   <td colspan="2" ><strong>Access to Azure Services?</strong></td>
-  </tr>
-  <tr>
-   <td><strong>NAT GW</strong></td>
-   <td><strong>LB SNAT</strong></td>
-   <td><strong>Public IP</strong></td>
-   <td><strong>Default</strong></td>
-   <td><strong>Storage</strong></td>
-   <td><strong>KeyVault</strong></td>
-  </tr>
-  <tr>
-   <td>Production</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>Public</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>Gateway</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>App Gateway</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-</table>
+
 
 ### G. Mixed - Default Outbound and Private Subnet
 
-<table>
-  <tr>
-   <td rowspan="2" ><strong>Subnet</strong></td>
-   <td rowspan="2" ><strong>Service Endpoint</strong></td>
-   <td rowspan="2" ><strong>Private Subnet</strong></td>
-   <td rowspan="2" ><strong>Service Tag UDR</strong></td>
-   <td colspan="4" ><strong>Public IP Type</strong></td>
-   <td rowspan="2" ><strong>Access to Internet?</strong></td>
-   <td colspan="2" ><strong>Access to Azure Services?</strong></td>
-  </tr>
-  <tr>
-   <td><strong>NAT GW</strong></td>
-   <td><strong>LB SNAT</strong></td>
-   <td><strong>Public IP</strong></td>
-   <td><strong>Default</strong></td>
-   <td><strong>Storage</strong></td>
-   <td><strong>KeyVault</strong></td>
-  </tr>
-  <tr>
-   <td>Production</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>Public</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>Gateway</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>App Gateway</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA</td>
-  </tr>
-</table>
 
 
 ## Cleanup

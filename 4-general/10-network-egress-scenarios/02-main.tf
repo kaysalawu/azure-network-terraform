@@ -56,7 +56,7 @@ locals {
       ruleset_dns_forwarding_rules = {}
     }
     config_s2s_vpngw = {
-      enable = true
+      enable = false
       sku    = "VpnGw1AZ"
       ip_configuration = [
         { name = "ipconf0", public_ip_address_name = azurerm_public_ip.ecs_s2s_vpngw_pip0.name, apipa_addresses = ["169.254.21.1"] },

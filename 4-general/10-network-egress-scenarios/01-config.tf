@@ -98,7 +98,7 @@ locals {
   ecs_webd2_hostname   = "Webd2"
   ecs_appsrv1_hostname = "AppSrv1"
   ecs_appsrv2_hostname = "AppSrv2"
-  ecs_cgs_hostname     = "EcsCgs"
+  ecs_cgs_hostname     = "Cgs"
   ecs_ilb_hostname     = "ilb"
   ecs_test_hostname    = "Test"
   ecs_webd1_fqdn       = "${local.ecs_webd1_hostname}.${local.ecs_dns_zone}"

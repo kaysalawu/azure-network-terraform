@@ -1,2 +1,2 @@
-g10-ecs-kv4237.vault.azure.net
-g10ecssa4237.blob.core.windows.net
+g10-ecs-kv38e7.vault.azure.net
+g10ecs38e7.blob.core.windows.net

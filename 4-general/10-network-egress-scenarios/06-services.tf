@@ -1,13 +1,24 @@
 
 locals {
-  storage_storage_account_name = lower(replace("${local.ecs_prefix}sa${random_id.random.hex}", "-", ""))
+  storage_storage_account_name = lower(replace("${local.ecs_prefix}${random_id.random.hex}", "-", ""))
   object_ids = [
-    data.azurerm_client_config.current.object_id,
     module.ecs_appsrv1_vm.vm.identity[0].principal_id,
     module.ecs_test_vm.vm.identity[0].principal_id,
     module.ecs_cgs.vm.identity[0].principal_id,
-    module.onprem_vm.vm.identity[0].principal_id,
+    # module.onprem_vm.vm.identity[0].principal_id,
   ]
+  role_definitions = [
+    "Network Contributor",
+  ]
+  combined       = setproduct(local.object_ids, local.role_definitions)
+  assignment_map = { for idx, pair in local.combined : "${pair[0]}-${pair[1]}" => { "principal_id" : pair[0], "role_definition" : pair[1] } }
+}
+
+resource "azurerm_role_assignment" "combined_role_assignment" {
+  count                = length(local.combined)
+  scope                = azurerm_resource_group.rg.id
+  role_definition_name = local.combined[count.index][1]
+  principal_id         = local.combined[count.index][0]
 }
 
 ####################################################
@@ -72,11 +83,20 @@ resource "azurerm_key_vault" "key_vault" {
   tags                = local.ecs_tags
 }
 
-resource "azurerm_key_vault_secret" "key_vault" {
-  name         = "message"
-  value        = "Hello, world!"
+resource "azurerm_key_vault_access_policy" "current" {
   key_vault_id = azurerm_key_vault.key_vault.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = data.azurerm_client_config.current.object_id
+
+  key_permissions = [
+    "Backup", "Delete", "Get", "List", "Purge", "Recover", "Restore",
+    "Create", "Decrypt", "Encrypt", "Import", "Update",
+  ]
+  secret_permissions = [
+    "Backup", "Delete", "Get", "List", "Purge", "Recover", "Restore", "Set"
+  ]
 }
+
 
 resource "azurerm_key_vault_access_policy" "key_vault" {
   count        = length(local.object_ids)
@@ -84,15 +104,24 @@ resource "azurerm_key_vault_access_policy" "key_vault" {
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = local.object_ids[count.index]
 
-  key_permissions = [
-    "Get",
-    "List",
-  ]
+  key_permissions    = ["Get", "List", ]
+  secret_permissions = ["Get", "List", "Set", ]
+}
 
-  secret_permissions = [
-    "Get",
-    "List",
-    "Set",
+resource "time_sleep" "key_vault" {
+  create_duration = "30s"
+  depends_on = [
+    azurerm_key_vault_access_policy.current,
+    azurerm_key_vault_access_policy.key_vault,
+  ]
+}
+
+resource "azurerm_key_vault_secret" "key_vault" {
+  name         = "message"
+  value        = "Hello, world!"
+  key_vault_id = azurerm_key_vault.key_vault.id
+  depends_on = [
+    time_sleep.key_vault,
   ]
 }
 
