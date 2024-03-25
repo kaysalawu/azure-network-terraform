@@ -15,7 +15,7 @@ def locate_IP_range(ip_address):
     for value in data['values']:
         for prefix in value['properties']['addressPrefixes']:
             if target_ip in ipaddress.ip_network(prefix):
-                matches.append(f"  - {ipaddress.ip_network(prefix)} <-- {value['id']} ({value['properties']['region']})")
+                matches.append(f"   - {ipaddress.ip_network(prefix)} <-- {value['id']} ({value['properties']['region']})")
 
     for match in matches:
         print(match)
@@ -26,7 +26,7 @@ def main():
         sys.exit(1)
 
     ip_address = sys.argv[1]
-    print(f"* Searching for service tags ({ip_address})")
+    print(f"   Searching for service tags matching {ip_address}")
     locate_IP_range(ip_address)
 
 if __name__ == "__main__":

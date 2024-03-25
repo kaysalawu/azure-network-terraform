@@ -1,9 +1,25 @@
 
 locals {
   prefix = var.prefix == "" ? "" : format("%s-", var.prefix)
-  nat_gateway_subnet_ids = {
+  _nat_gateway_subnet_ids = {
     for k, v in var.config_vnet.subnets : k => azurerm_subnet.this[k].id
-    if contains(var.config_vnet.nat_gateway_subnet_names, k)
+    if contains(var.config_vnet.nat_gateway_subnet_names, k) && !try(var.config_vnet.subnets[k].use_azapi[0], false)
+  }
+  _nat_gateway_subnet_ids_azapi = {
+    for k, v in var.config_vnet.subnets : k => azapi_resource.subnets[k].id
+    if contains(var.config_vnet.nat_gateway_subnet_names, k) && try(var.config_vnet.subnets[k].use_azapi[0], false)
+  }
+  nat_gateway_subnet_ids = merge(
+    local._nat_gateway_subnet_ids,
+    local._nat_gateway_subnet_ids_azapi
+  )
+  nsg_subnet_map = {
+    for k, v in var.nsg_subnet_map : k => v
+    if !try(var.config_vnet.subnets[k].use_azapi[0], false)
+  }
+  nsg_subnet_map_azapi = {
+    for k, v in var.nsg_subnet_map : k => v
+    if try(var.config_vnet.subnets[k].use_azapi[0], false)
   }
 }
 
@@ -18,6 +34,10 @@ resource "azurerm_virtual_network" "this" {
   location            = var.location
   dns_servers         = var.config_vnet.dns_servers
   tags                = var.tags
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 ####################################################
@@ -25,7 +45,7 @@ resource "azurerm_virtual_network" "this" {
 ####################################################s
 
 resource "azurerm_subnet" "this" {
-  for_each             = var.config_vnet.subnets
+  for_each             = { for k, v in var.config_vnet.subnets : k => v if !try(v.use_azapi[0], false) }
   resource_group_name  = var.resource_group
   virtual_network_name = azurerm_virtual_network.this.name
   name                 = each.key
@@ -46,13 +66,52 @@ resource "azurerm_subnet" "this" {
   private_link_service_network_policies_enabled = try(each.value.address_prefixes.enable_private_link_policies[0], false)
 }
 
+resource "azapi_resource" "subnets" {
+  for_each  = { for k, v in var.config_vnet.subnets : k => v if try(v.use_azapi[0], false) }
+  type      = "Microsoft.Network/virtualNetworks/subnets@2023-04-01"
+  name      = each.key
+  parent_id = azurerm_virtual_network.this.id
+
+  body = jsonencode({
+    properties = {
+      addressPrefixes       = each.value.address_prefixes
+      defaultOutboundAccess = tobool(try(each.value.default_outbound_access[0], false))
+      delegations = [for d in var.delegation : {
+        name = d.name
+        properties = {
+          serviceName = d.service_delegation[0].name
+          actions     = d.service_delegation[0].actions
+        }
+      } if contains(try(each.value.delegate, []), d.name)]
+      serviceEndpoints                  = try(each.value.service_endpoints, [])
+      privateEndpointNetworkPolicies    = try(each.value.address_prefixes.enable_private_endpoint_policies[0] ? "Enabled" : "Disabled", "Disabled")
+      privateLinkServiceNetworkPolicies = try(each.value.address_prefixes.enable_private_link_policies[0] ? "Enabled" : "Disabled", "Disabled")
+    }
+  })
+  schema_validation_enabled = false
+
+  depends_on = [
+    azurerm_subnet.this,
+    azurerm_virtual_network.this,
+  ]
+}
+
 ####################################################
 # nsg
 ####################################################
 
 resource "azurerm_subnet_network_security_group_association" "this" {
-  for_each                  = var.nsg_subnet_map
+  for_each                  = local.nsg_subnet_map
   subnet_id                 = [for k, v in azurerm_subnet.this : v.id if k == each.key][0]
+  network_security_group_id = each.value
+  timeouts {
+    create = "60m"
+  }
+}
+
+resource "azurerm_subnet_network_security_group_association" "this_azapi" {
+  for_each                  = local.nsg_subnet_map_azapi
+  subnet_id                 = [for k, v in azapi_resource.subnets : v.id if k == each.key][0]
   network_security_group_id = each.value
   timeouts {
     create = "60m"
@@ -142,7 +201,7 @@ module "dns_resolver" {
 resource "azurerm_public_ip" "nat" {
   count               = length(var.config_vnet.nat_gateway_subnet_names) > 0 ? 1 : 0
   resource_group_name = var.resource_group
-  name                = "${local.prefix}natgw"
+  name                = "${local.prefix}natgw-pip"
   location            = var.location
   allocation_method   = "Static"
   sku                 = "Standard"
@@ -417,3 +476,4 @@ module "nva" {
     azurerm_subnet_network_security_group_association.this,
   ]
 }
+

@@ -91,7 +91,6 @@ module "branch2_dns" {
 # workload
 ####################################################
 
-
 locals {
   branch2_vm_init = templatefile("../../scripts/server.sh", {
     TARGETS                   = local.vm_script_targets
@@ -144,7 +143,7 @@ module "branch2_udr_main" {
   subnet_id      = module.branch2.subnets["MainSubnet"].id
   routes         = local.branch2_routes_main
 
-  disable_bgp_route_propagation = true
+  disable_bgp_route_propagation = false
   depends_on = [
     module.branch2,
     module.branch2_dns,
@@ -157,7 +156,8 @@ module "branch2_udr_main" {
 
 locals {
   branch2_files = {
-    "output/branch2Dns.sh" = local.branch2_unbound_startup
+    "output/branch1Dns.sh" = local.branch2_unbound_startup
+    "output/branch2-vm.sh" = local.branch2_vm_init
     "output/branch2Vm.sh"  = local.branch2_vm_init
   }
 }

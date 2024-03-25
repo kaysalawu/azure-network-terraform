@@ -1,11 +1,9 @@
 
 locals {
-  storage_storage_account_name = lower(replace("${local.ecs_prefix}${random_id.random.hex}", "-", ""))
   object_ids = [
-    module.ecs_appsrv1_vm.vm.identity[0].principal_id,
-    module.ecs_test_vm.vm.identity[0].principal_id,
-    module.ecs_cgs.vm.identity[0].principal_id,
-    # module.onprem_vm.vm.identity[0].principal_id,
+    module.hub_server1_vm.vm.identity[0].principal_id,
+    module.hub_server2_vm.vm.identity[0].principal_id,
+    module.hub_proxy.vm.identity[0].principal_id,
   ]
   role_definitions = [
     "Network Contributor",
@@ -22,18 +20,18 @@ resource "azurerm_role_assignment" "combined_role_assignment" {
 }
 
 ####################################################
-# stoarge account
+# storage
 ####################################################
 
-# storage account
+# account
 
 resource "azurerm_storage_account" "storage" {
   resource_group_name      = azurerm_resource_group.rg.name
   name                     = local.storage_storage_account_name
-  location                 = local.ecs_location
+  location                 = local.hub_location
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  tags                     = local.ecs_tags
+  tags                     = local.hub_tags
 }
 
 # container
@@ -54,7 +52,7 @@ resource "azurerm_storage_blob" "storage" {
   source_content         = "Hello, World!"
 }
 
-# role assignment
+# roles
 
 resource "azurerm_role_assignment" "storage" {
   count                = length(local.object_ids)
@@ -74,14 +72,18 @@ resource "azurerm_role_assignment" "blob" {
 # key vault
 ####################################################
 
+# vault
+
 resource "azurerm_key_vault" "key_vault" {
   resource_group_name = azurerm_resource_group.rg.name
-  location            = local.ecs_location
-  name                = "${local.ecs_prefix}kv${random_id.random.hex}"
+  location            = local.hub_location
+  name                = "${local.hub_prefix}kv${random_id.random.hex}"
   sku_name            = "standard"
   tenant_id           = data.azurerm_client_config.current.tenant_id
-  tags                = local.ecs_tags
+  tags                = local.hub_tags
 }
+
+# policies
 
 resource "azurerm_key_vault_access_policy" "current" {
   key_vault_id = azurerm_key_vault.key_vault.id
@@ -96,7 +98,6 @@ resource "azurerm_key_vault_access_policy" "current" {
     "Backup", "Delete", "Get", "List", "Purge", "Recover", "Restore", "Set"
   ]
 }
-
 
 resource "azurerm_key_vault_access_policy" "key_vault" {
   count        = length(local.object_ids)
@@ -115,6 +116,8 @@ resource "time_sleep" "key_vault" {
     azurerm_key_vault_access_policy.key_vault,
   ]
 }
+
+# secret
 
 resource "azurerm_key_vault_secret" "key_vault" {
   name         = "message"

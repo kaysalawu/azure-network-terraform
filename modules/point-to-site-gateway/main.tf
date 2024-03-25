@@ -62,12 +62,6 @@ resource "azurerm_vpn_server_configuration" "this" {
   }
 }
 
-# resource "pkcs12_from_pem" "root_ca" {
-#   cert_pem        = tls_self_signed_cert.root_ca.cert_pem
-#   private_key_pem = tls_private_key.root_ca.private_key_pem
-#   password        = var.cert_password
-# }
-
 # ####################################################
 # gateway
 # ####################################################

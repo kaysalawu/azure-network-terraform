@@ -9,10 +9,9 @@ Contents
 - [Deploy the Lab](#deploy-the-lab)
 - [Troubleshooting](#troubleshooting)
 - [Outputs](#outputs)
-- [Dashboards (Optional)](#dashboards-optional)
-- [Data Egress Tests](#data-egress-tests)
-  - [Results](#results)
-  - [A. Default Outbound and Service Endpoints](#a-default-outbound-and-service-endpoints)
+- [Setup Test Environment](#setup-test-environment)
+- [Egress Test Results](#egress-test-results)
+  - [A. No Private Subnet, No Service Endpoints](#a-no-private-subnet-no-service-endpoints)
   - [B. Default Outbound and Service Tag UDR](#b-default-outbound-and-service-tag-udr)
   - [C. Default Outbound, Service Endpoints, and Service Tag UDR](#c-default-outbound-service-endpoints-and-service-tag-udr)
   - [D. Private Subnet and Service Endpoints](#d-private-subnet-and-service-endpoints)
@@ -23,23 +22,9 @@ Contents
 
 ## Overview
 
-This lab deploys a test environment to experiment with ingress and egress patterns in Azure virtual networks. For egress patterns, we will test access to Azure services with various combinations of service endpoints, private subnets, and service tag UDRs. For ingress patterns, we will test public and private access via Application Gateway, Azure load balancer, and VPN gateway.
+This lab deploys a test environment to experiment with network egress patterns in Azure virtual networks. It demonstrates outbound access to Azure services with various combinations of service endpoints, private subnets, and User Defined Routes (UDR) using service tags.
 
 <img src="./images/architecture.png" alt="Architecure" width="650">
-
-The lab is designed to emulate a typical SAP deployment in Azure. The following resources are deployed:
-- **Vnet**: The simulated virtual network for the SAP deployment
-- **Subnets**: There are four subnets in the Vnet:
-  - **GatewaySubnet**: For VPN and ExpressRoute gateways
-  - **AppGatewaySubnet**: For the Azure Application Gateway
-  - **PublicSubnet**: For the resources that require outbound internet access
-    - Customer Gateway Server (CGS): Linux VM running docker containers [unbound](https://en.wikipedia.org/wiki/Unbound_(DNS_server)) DNS, [Squid](https://en.wikipedia.org/wiki/Squid_(software)) forward proxy etc.
-  - **ProductionSubnet**: For the simulated SAP production workloads
-    - Simulated [Web dispatchers](https://help.sap.com/doc/saphelp_nw74/7.4.16/en-us/48/8fe37933114e6fe10000000a421937/frameset.htm) (HaProxy)
-    - Simulated App servers (NodeJS)
-    - Simulated Database servers (MongoDB)
-
-> Note: This lab does not deploy any SAP workloads, databases, or the full set of network and security components required for a real SAP deployment. The lab just emulates the infrastructure, connectivity, and network security components.
 
 ## Prerequisites
 
@@ -78,60 +63,69 @@ The table below shows the auto-generated output files from the lab. They are loc
 | Item    | Description  | Location |
 |--------|--------|--------|
 | IP ranges and DNS | IP ranges and DNS hostname values | [output/values.md](./output/values.md) |
-| Onprem DNS | Authoritative DNS | [output/onpremDns.sh](./output/onpremDns.sh) |
-| Onprem NVA | Linux Strongswan + FRR configuration | [output/onpremNva.sh](./output/onpremNva.sh) |
-| Web server | Python Flask web server, test scripts | [output/server.sh](./output/server.sh) |
+| Server1 | Cloud-init configuration | [output/hub-server1-init.yaml](./output/hub-server1-init.yaml) |
+| Server2 | Cloud-init configuration | [output/hub-server2-init.yaml](./output/hub-server2-init.yaml) |
+| Proxy | Cloud-init configuration | [output/hub-proxy-init.yaml](./output/hub-proxy-init.yaml) |
 ||||
 
-## Dashboards (Optional)
-
-This lab contains a number of pre-configured dashboards for monitoring gateways, VPN gateways, and Azure Firewall. To deploy the dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf) file. Then run `terraform apply` to update the deployment.
-
-<details>
-
-<summary>Sample Dashboards</summary>
-
-To view the dashboards, follow the steps below:
-
-1. From the Azure portal menu, select **Dashboard hub**.
-
-2. Under **Browse**, select **Shared dashboards**.
-
-3. Select the dashboard you want to view.
-
-4. Click on a dashboard under **Go to dashboard** column.
-
-   Sample dashboard for VPN gateway in ***ecs***.
-
-    <img src="./images/g10-ecs-vpngw-db.png" alt="Go to dashboard" width="950">
-
-    </details>
-<p>
-
-## Data Egress Tests
+## Setup Test Environment
 
 Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of network reachability tests. Serial console access has been configured for all virtual machines.
 
-Login to any virtual machine via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
+The virtual machines are also pre-configured with test scripts to check network reachability to various Azure services. The scripts are located in the [`/var/lib/azure/crawler/app/`](../../scripts/init/crawler/app) directory. The scripts can simply be run using the alias `crawlz` navigate to the directory and run the scripts.
 
-- On Azure portal select *Virtual machines*
-- Select the virtual machine
-- Under ***Help*** section, select ***Serial console*** and wait for a login prompt
+The virtual machines are configured with system-assigned managed identities that have the **Network Contributor** role scoped to the resource group.
+
+**1.** Login to virtual machine `G10-Proxy` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
 - Enter the login credentials
   - username = ***azureuser***
   - password = ***Password123***
-- You should now be in a shell session of the virtual machine.
 
-Run the following tests from inside the serial console session.
+**2.** Run `az login` to authenticate with the Azure CLI.
 
-### Results
+```sh
+az login --identity
+```
+
+<details>
+
+<summary>Sample output</summary>
+
+```json
+azureuser@branch1Vm:~$ az login --identity
+[
+  {
+    "environmentName": "AzureCloud",
+    "homeTenantId": "aaa-bbb-ccc-ddd-eee",
+    "id": "xxx-yyy-1234-1234-1234",
+    "isDefault": true,
+    "managedByTenants": [
+      {
+        "tenantId": "your-tenant-id"
+      }
+    ],
+    "name": "some-random-name",
+    "state": "Enabled",
+    "tenantId": "your-tenant-id",
+    "user": {
+      "assignedIdentityInfo": "MSI",
+      "name": "systemAssignedIdentity",
+      "type": "servicePrincipal"
+    }
+  }
+]
+```
+
+</details>
+<p>
+
+## Egress Test Results
 
 <table>
   <tr>
    <td rowspan="2" ><strong>Scenario</strong></td>
    <td rowspan="2" ><strong>Service Endpoint</strong></td>
    <td rowspan="2" ><strong>Private Subnet</strong></td>
-   <td rowspan="2" ><strong>Service Tag UDR</strong></td>
    <td colspan="4" ><strong>Public IP Type</strong></td>
    <td rowspan="2" ><strong>Azure Mgmt Access?</strong></td>
    <td rowspan="2" ><strong>Internet Access?</strong></td>
@@ -140,37 +134,134 @@ Run the following tests from inside the serial console session.
   <tr>
    <td><strong>NAT GW</td>
    <td><strong>LB SNAT</strong></td>
-   <td><strong>Public IP</strong></td>
+   <td><strong>VM Public IP</strong></td>
    <td><strong>Default</strong></td>
    <td><strong>Storage</strong></td>
    <td><strong>KeyVault</strong></td>
   </tr>
   <tr>
-   <td>A</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+   <td>A</td><td></td><td></td><td></td><td></td><td></td><td>X</td><td>Yes</td><td>Yes<td>Yes<td>Yes</td>
   </tr>
   <tr>
-   <td>B</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+   <td>B</td><td>ON</td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
   </tr>
   <tr>
-   <td>C</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+   <td>C</td><td>ON</td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
   </tr>
   <tr>
-   <td>D</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+   <td>D</td><td>ON</td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
   </tr>
   <tr>
-   <td>E</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+   <td>E</td><td>ON</td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
   </tr>
   <tr>
-   <td>F</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+   <td>F</td><td>ON</td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
   </tr>
   <tr>
-   <td>G</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+   <td>G</td><td>ON</td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
   </tr>
 </table>
 
-### A. Default Outbound and Service Endpoints
+### A. No Private Subnet, No Service Endpoints
 
-Work in progress.
+Test details:
+* Test machine: `G10-Proxy`
+* Subnet: `PublicSubnet`
+* Result: Using the default outbound, the `G10-Proxy` can access the internet, Azure services, and management services. In this scenario access to all services and Internet is sourced from the default outbound public IP address.
+
+```sh
+----------------------------------------
+Results
+----------------------------------------
+1. NAT_IP_Type:         No Explicit Outbound
+2. Service_Endpoints:   False
+3. Private_Subnet:      False
+4. Internet_Access:     Yes
+5. Management_Access:   Yes
+6. Blob_Access:         Yes
+7. KeyVault_Access:     Yes
+```
+
+<details>
+
+<summary>Detailed Result</summary>
+
+```sh
+azureuser@Proxy:~$ crawlz
+
+0. Preparing environment ...
+   Environment setup completed!
+
+1. Check Public Address Type
+   VM Name:     G10-Proxy
+   Location:    northeurope
+   Local IP:    10.0.2.4
+   Public IP:   13.74.249.251
+   NAT_IP type: No Explicit Outbound
+
+2. Check Service Endpoints
+   Subnet --> PublicSubnet
+   Service EP: False
+
+3. Check Private Subnet
+   Subnet --> PublicSubnet
+   DefaultOutbound: true
+   Private Subnet:  False
+
+4. Check Internet Access
+   Connecting to http://contoso.com ...
+   Access: Yes (200)
+
+5. Check Management Access
+   52.146.134.240 <-- management.azure.com
+   Searching for service tags matching 52.146.135.86
+   - 52.146.134.0/23 <-- AzureResourceManager ()
+   - 52.146.134.0/23 <-- AzureResourceManager.NorthEurope (northeurope)
+   - 52.146.128.0/17 <-- AzureCloud.northeurope (northeurope)
+   - 52.146.128.0/17 <-- AzureCloud ()
+   Testing access to management.azure.com
+   Access: Yes
+
+6. Check Blob Access (Data Plane)
+   url = https://g10hub123d.blob.core.windows.net/storage/storage.txt
+   host = g10hub123d.blob.core.windows.net
+   20.150.84.164 <-- g10hub123d.blob.core.windows.net
+   Searching for service tags matching 20.150.84.164
+   - 20.150.0.0/17 <-- Storage ()
+   - 20.150.84.0/24 <-- Storage.NorthEurope (northeurope)
+   - 20.150.84.0/24 <-- AzureCloud.northeurope (northeurope)
+   - 20.150.84.0/24 <-- AzureCloud ()
+   Retrieving blob content ...
+   Content: Hello, World!
+   Access: Yes
+
+7. Check KeyVault Access (Data Plane)
+   url: https://g10-hub-kv123d.vault.azure.net/secrets/message/<ID>
+   host: g10-hub-kv123d.vault.azure.net
+   52.146.137.169 <-- g10-hub-kv123d.vault.azure.net
+   Searching for service tags matching 52.146.137.169
+   - 52.146.137.168/29 <-- AzureKeyVault ()
+   - 52.146.137.168/29 <-- AzureKeyVault.NorthEurope (northeurope)
+   - 52.146.128.0/17 <-- AzureCloud.northeurope (northeurope)
+   - 52.146.128.0/17 <-- AzureCloud ()
+   Accessing secret ...
+   message: Hello, world!
+   Access: Yes
+
+----------------------------------------
+Results
+----------------------------------------
+1. NAT_IP_Type:         No Explicit Outbound
+2. Service_Endpoints:   False
+3. Private_Subnet:      False
+4. Internet_Access:     Yes
+5. Management_Access:   Yes
+6. Blob_Access:         Yes
+7. KeyVault_Access:     Yes
+```
+
+</details>
+<p>
 
 <img src="./images/egress-scenario-a.png" alt="Scenario A" width="800">
 

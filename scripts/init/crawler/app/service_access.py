@@ -2,10 +2,9 @@ import sys
 import requests
 
 def test_access(url, token):
-    url = "https://management.azure.com/subscriptions?api-version=2020-01-01"
     headers = {"Authorization": f"Bearer {token}"}
     response = requests.get(url, headers=headers)
-    print(f"  {response.status_code}: management.azure.com")
+    print(response.status_code)
 
 def main():
     if len(sys.argv) < 3:

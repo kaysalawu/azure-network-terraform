@@ -163,6 +163,13 @@ resolvectl status
 EOF
 chmod a+x /usr/local/bin/dns-info
 
+# azure service tester
+
+tee /usr/local/bin/crawlz <<'EOF'
+sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
+EOF
+chmod a+x /usr/local/bin/crawlz
+
 # light-traffic generator
 
 %{ if TARGETS_LIGHT_TRAFFIC_GEN != [] ~}

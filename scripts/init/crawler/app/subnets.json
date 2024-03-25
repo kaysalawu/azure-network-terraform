@@ -1,0 +1,110 @@
+[
+  {
+    "addressPrefix": "10.0.0.0/24",
+    "delegations": [],
+    "etag": "W/\"63fbae0d-9d9a-4fac-a1a2-fb0a314853e8\"",
+    "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/G10_SapNetworking_RG/providers/Microsoft.Network/virtualNetworks/G10-ecs-vnet/subnets/GatewaySubnet",
+    "name": "GatewaySubnet",
+    "privateEndpointNetworkPolicies": "Disabled",
+    "privateLinkServiceNetworkPolicies": "Disabled",
+    "provisioningState": "Succeeded",
+    "resourceGroup": "G10_SapNetworking_RG",
+    "serviceEndpoints": [],
+    "type": "Microsoft.Network/virtualNetworks/subnets"
+  },
+  {
+    "addressPrefix": "10.0.4.0/24",
+    "delegations": [],
+    "etag": "W/\"63fbae0d-9d9a-4fac-a1a2-fb0a314853e8\"",
+    "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/G10_SapNetworking_RG/providers/Microsoft.Network/virtualNetworks/G10-ecs-vnet/subnets/UntrustSubnet",
+    "name": "UntrustSubnet",
+    "networkSecurityGroup": {
+      "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/G10_SapNetworking_RG/providers/Microsoft.Network/networkSecurityGroups/G10-nsg-region1-main",
+      "resourceGroup": "G10_SapNetworking_RG"
+    },
+    "privateEndpointNetworkPolicies": "Disabled",
+    "privateLinkServiceNetworkPolicies": "Disabled",
+    "provisioningState": "Succeeded",
+    "resourceGroup": "G10_SapNetworking_RG",
+    "serviceEndpoints": [],
+    "type": "Microsoft.Network/virtualNetworks/subnets"
+  },
+  {
+    "addressPrefix": "10.0.5.0/24",
+    "defaultOutboundAccess": false,
+    "delegations": [],
+    "etag": "W/\"63fbae0d-9d9a-4fac-a1a2-fb0a314853e8\"",
+    "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/G10_SapNetworking_RG/providers/Microsoft.Network/virtualNetworks/G10-ecs-vnet/subnets/Tesht",
+    "name": "Tesht",
+    "privateEndpointNetworkPolicies": "Disabled",
+    "privateLinkServiceNetworkPolicies": "Enabled",
+    "provisioningState": "Succeeded",
+    "resourceGroup": "G10_SapNetworking_RG",
+    "type": "Microsoft.Network/virtualNetworks/subnets"
+  },
+  {
+    "addressPrefix": "10.0.3.0/24",
+    "delegations": [],
+    "etag": "W/\"63fbae0d-9d9a-4fac-a1a2-fb0a314853e8\"",
+    "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/G10_SapNetworking_RG/providers/Microsoft.Network/virtualNetworks/G10-ecs-vnet/subnets/ProductionSubnet",
+    "ipConfigurations": [
+      {
+        "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/G10_SAPNETWORKING_RG/providers/Microsoft.Network/networkInterfaces/G10-ECS-APPSRV1-NIC/ipConfigurations/G10-ECS-APPSRV1-NIC",
+        "resourceGroup": "G10_SAPNETWORKING_RG"
+      },
+      {
+        "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/G10_SAPNETWORKING_RG/providers/Microsoft.Network/networkInterfaces/G10-ECS-CGS-PROD-NIC/ipConfigurations/G10-ECS-CGS-PROD-NIC",
+        "resourceGroup": "G10_SAPNETWORKING_RG"
+      },
+      {
+        "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/G10_SAPNETWORKING_RG/providers/Microsoft.Network/networkInterfaces/G10-ECS-TEST-NIC/ipConfigurations/G10-ECS-TEST-NIC",
+        "resourceGroup": "G10_SAPNETWORKING_RG"
+      }
+    ],
+    "name": "ProductionSubnet",
+    "networkSecurityGroup": {
+      "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/G10_SapNetworking_RG/providers/Microsoft.Network/networkSecurityGroups/G10-nsg-region1-main",
+      "resourceGroup": "G10_SapNetworking_RG"
+    },
+    "privateEndpointNetworkPolicies": "Disabled",
+    "privateLinkServiceNetworkPolicies": "Disabled",
+    "provisioningState": "Succeeded",
+    "resourceGroup": "G10_SapNetworking_RG",
+    "serviceEndpoints": [],
+    "type": "Microsoft.Network/virtualNetworks/subnets"
+  },
+  {
+    "addressPrefix": "10.0.2.0/24",
+    "delegations": [],
+    "etag": "W/\"63fbae0d-9d9a-4fac-a1a2-fb0a314853e8\"",
+    "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/G10_SapNetworking_RG/providers/Microsoft.Network/virtualNetworks/G10-ecs-vnet/subnets/PublicSubnet",
+    "name": "PublicSubnet",
+    "networkSecurityGroup": {
+      "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/G10_SapNetworking_RG/providers/Microsoft.Network/networkSecurityGroups/G10-nsg-region1-main",
+      "resourceGroup": "G10_SapNetworking_RG"
+    },
+    "privateEndpointNetworkPolicies": "Disabled",
+    "privateLinkServiceNetworkPolicies": "Disabled",
+    "provisioningState": "Succeeded",
+    "resourceGroup": "G10_SapNetworking_RG",
+    "serviceEndpoints": [],
+    "type": "Microsoft.Network/virtualNetworks/subnets"
+  },
+  {
+    "addressPrefix": "10.0.1.0/24",
+    "delegations": [],
+    "etag": "W/\"63fbae0d-9d9a-4fac-a1a2-fb0a314853e8\"",
+    "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/G10_SapNetworking_RG/providers/Microsoft.Network/virtualNetworks/G10-ecs-vnet/subnets/AppGatewaySubnet",
+    "name": "AppGatewaySubnet",
+    "networkSecurityGroup": {
+      "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/G10_SapNetworking_RG/providers/Microsoft.Network/networkSecurityGroups/G10-nsg-northeurope-appgw",
+      "resourceGroup": "G10_SapNetworking_RG"
+    },
+    "privateEndpointNetworkPolicies": "Disabled",
+    "privateLinkServiceNetworkPolicies": "Disabled",
+    "provisioningState": "Succeeded",
+    "resourceGroup": "G10_SapNetworking_RG",
+    "serviceEndpoints": [],
+    "type": "Microsoft.Network/virtualNetworks/subnets"
+  }
+]
