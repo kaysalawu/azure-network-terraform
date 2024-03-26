@@ -33,7 +33,7 @@ export VNET_NAME=$(timeout 10 az network vnet list -g $RESOURCE_GROUP --query '[
 echo "* Extracting subnet name..."
 export SUBNET=$(timeout 15 python3 find_subnet.py "$ETH0_IP" 2>/dev/null)
 echo -e "* Downloading service tags JSON..."
-timeout 10 curl -s $SERVICE_TAGS_DOWNLOAD_LINK > service_tags.json
+curl -s $SERVICE_TAGS_DOWNLOAD_LINK > service_tags.json
 
 echo -e "\n-------------------------------------"
 echo -e "Environment"
