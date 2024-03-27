@@ -24,17 +24,17 @@ echo -e "* Extracting az token..."
 export TOKEN=$(timeout 10 az account get-access-token --query accessToken -o tsv 2>/dev/null)
 echo -e "* Downloading service tags JSON..."
 if [ ! -f service_tags.json ]; then
-  curl -o service_tags.json "${SERVICE_TAGS_DOWNLOAD_LINK}" 2>/dev/null
+  curl -o service_tags.json "https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20240318.json" 2>/dev/null
 fi
 
 echo -e "\n-------------------------------------"
 echo -e "Environment"
 echo -e "-------------------------------------"
-echo "VM Name:        ${VM_NAME}"
+echo "VM Name:        G10-Server1"
 echo "Resource Group: $RESOURCE_GROUP"
-echo "Location:       ${LOCATION}"
-echo "VNET Name:      ${VNET_NAME}"
-echo "Subnet Name:    ${SUBNET_NAME}"
+echo "Location:       northeurope"
+echo "VNET Name:      G10-hub-vnet"
+echo "Subnet Name:    ProductionSubnet"
 echo "Private IP:     $ETH0_IP"
 echo -e "-------------------------------------"
 
@@ -92,8 +92,8 @@ function check_service_endpoints() {
   #####################################################
   echo -e "\n2. Check Service Endpoints"
   #####################################################
-  echo -e "   Subnet --> ${SUBNET_NAME}"
-  service_endpoints=$(timeout 10 az network vnet subnet show -g $RESOURCE_GROUP --vnet-name ${VNET_NAME} --name "${SUBNET_NAME}" --query "serviceEndpoints[].service" -o tsv 2>/dev/null)
+  echo -e "   Subnet --> ProductionSubnet"
+  service_endpoints=$(timeout 10 az network vnet subnet show -g $RESOURCE_GROUP --vnet-name G10-hub-vnet --name "ProductionSubnet" --query "serviceEndpoints[].service" -o tsv 2>/dev/null)
   if [ -z "$service_endpoints" ]; then
     echo -e "   Service EP: False"
     SERVICE_ENDPOINTS=("False")
@@ -108,8 +108,8 @@ function check_private_subnet() {
   #####################################################
   echo -e "\n3. Check Private Subnet"
   #####################################################
-  echo -e "   Subnet --> ${SUBNET_NAME}"
-  default_outbound_access=$(timeout 10 az network vnet subnet list --resource-group $RESOURCE_GROUP --vnet-name ${VNET_NAME} --query "[?name=='${SUBNET_NAME}'].defaultOutboundAccess" -o tsv 2>/dev/null)
+  echo -e "   Subnet --> ProductionSubnet"
+  default_outbound_access=$(timeout 10 az network vnet subnet list --resource-group $RESOURCE_GROUP --vnet-name G10-hub-vnet --query "[?name=='ProductionSubnet'].defaultOutboundAccess" -o tsv 2>/dev/null)
   if [ -z "$default_outbound_access" ];
     then default_outbound_access="true"
   fi
@@ -130,7 +130,7 @@ function check_internet_access() {
   #####################################################
   url="https://ifconfig.me"
   echo "   Connecting to $url ..."
-  internet_access=$(timeout 10 curl -o /dev/null -s -w "%%{http_code}\n" $url)
+  internet_access=$(timeout 10 curl -o /dev/null -s -w "%{http_code}\n" $url)
   if [[ "$internet_access" =~ ^2 ]] || [[ "$internet_access" =~ ^3 ]]; then
     echo -e "   Access: Yes ($internet_access)"
     INTERNET_ACCESS="Yes"
@@ -161,14 +161,14 @@ function check_management_access() {
   #####################################################
   echo -e "\n5. Management (Control Plane)"
   #####################################################
-  local host=$(echo ${MANAGEMENT_URL} | awk -F/ '{print $3}')
-  echo -e "   url = ${MANAGEMENT_URL}"
+  local host=$(echo https://management.azure.com/subscriptions?api-version=2020-01-01 | awk -F/ '{print $3}')
+  echo -e "   url = https://management.azure.com/subscriptions?api-version=2020-01-01"
   echo -e "   host = $host"
   resolve_dns $host 2>/dev/null
   get_azure_service_tag_from_host $host 2>/dev/null
 
   echo -e "   Testing access to $host"
-  management_access=$(timeout 10 curl -o /dev/null -s -w "%%{http_code}\n" -H "Authorization : Bearer $TOKEN" ${MANAGEMENT_URL})
+  management_access=$(timeout 10 curl -o /dev/null -s -w "%{http_code}\n" -H "Authorization : Bearer $TOKEN" https://management.azure.com/subscriptions?api-version=2020-01-01)
   if [[ "$management_access" =~ ^2 ]] || [[ "$management_access" =~ ^3 ]]; then
     echo -e "   Access: Yes ($management_access)"
     MANAGEMENT_ACCESS="Yes"
@@ -182,15 +182,15 @@ function download_blob() {
   #####################################################
   echo -e "\n6. Blob (Data Plane)"
   #####################################################
-  local host=$(echo ${STORAGE_BLOB_URL} | awk -F/ '{print $3}')
-  echo -e "   url = ${STORAGE_BLOB_URL}"
+  local host=$(echo https://g10hub99a2.blob.core.windows.net/storage/storage.txt | awk -F/ '{print $3}')
+  echo -e "   url = https://g10hub99a2.blob.core.windows.net/storage/storage.txt"
   echo -e "   host = $host"
   resolve_dns $host 2>/dev/null
   get_azure_service_tag_from_host $host 2>/dev/null
 
   echo "   Retrieving blob content ..."
-  blob_access=$(timeout 10 az storage blob download --account-name ${STORAGE_ACCOUNT_NAME} -c ${STORAGE_CONTAINER_NAME} -n ${STORAGE_BLOB_NAME} --query content -o tsv 2>/dev/null)
-  if [ "$blob_access" = "${STORAGE_BLOB_CONTENT}" ]; then
+  blob_access=$(timeout 10 az storage blob download --account-name g10hub99a2 -c storage -n storage.txt --query content -o tsv 2>/dev/null)
+  if [ "$blob_access" = "Hello, World!" ]; then
     echo -e  "   Content: $blob_access"
     echo -e  "   Access: Yes"
     BLOB_ACCESS=Yes
@@ -205,28 +205,28 @@ function access_keyvault_secret() {
   #####################################################
   echo -e "\n7. KeyVault (Data Plane)"
   #####################################################
-  local host=$(echo ${KEY_VAULT_SECRET_URL} | awk -F/ '{print $3}')
-  echo -e "   url: ${KEY_VAULT_SECRET_URL}"
+  local host=$(echo https://g10-hub-kv99a2.vault.azure.net/secrets/message | awk -F/ '{print $3}')
+  echo -e "   url: https://g10-hub-kv99a2.vault.azure.net/secrets/message"
   echo -e "   host: $host"
   resolve_dns $host
   get_azure_service_tag_from_host $host 2>/dev/null
 
   echo "   Accessing secret ..."
-  secret_value=$(timeout 10 az keyvault secret show --vault-name ${KEY_VAULT_NAME} --name ${KEY_VAULT_SECRET_NAME} --query value -o tsv 2>/dev/null)
-  if [ "$secret_value" = "${KEY_VAULT_SECRET_VALUE}" ]; then
-    echo -e "   ${KEY_VAULT_SECRET_NAME}: $secret_value"
+  secret_value=$(timeout 10 az keyvault secret show --vault-name g10-hub-kv99a2 --name message --query value -o tsv 2>/dev/null)
+  if [ "$secret_value" = "Hello, World!" ]; then
+    echo -e "   message: $secret_value"
     echo -e "   Access: Yes"
     KEYVAULT_ACCESS=Yes
   else
-    echo -e "   ${KEY_VAULT_SECRET_NAME}: not found!"
+    echo -e "   message: not found!"
     echo -e "   Access: No"
     KEYVAULT_ACCESS=No
   fi
 }
 
 check_address_type
-check_service_endpoints "${SUBNET_NAME}"
-check_private_subnet "${SUBNET_NAME}"
+check_service_endpoints "ProductionSubnet"
+check_private_subnet "ProductionSubnet"
 check_internet_access
 check_management_access
 download_blob

@@ -1,0 +1,2 @@
+g10-hub-kv99a2.vault.azure.net
+g10hub99a2.blob.core.windows.net

@@ -230,7 +230,7 @@ Private IP:     10.0.2.4
 
 1. Check Public Address Type
    Local IP:    10.0.2.4
-   Public IP:   52.169.85.197
+   Public IP:   13.79.89.67
    NAT_IP type: None
 
 2. Check Service Endpoints
@@ -243,13 +243,13 @@ Private IP:     10.0.2.4
    Private Subnet:  False
 
 4. Check Internet Access
-   Connecting to https://contoso.com ...
-   Access: Yes (301)
+   Connecting to https://ifconfig.me ...
+   Access: Yes (200)
 
 5. Management (Control Plane)
    url = https://management.azure.com/subscriptions?api-version=2020-01-01
    host = management.azure.com
-   52.146.134.240 <-- management.azure.com
+   52.146.135.86 <-- management.azure.com
    Searching for service tags matching 52.146.134.240
    - 52.146.134.0/23 <-- AzureResourceManager ()
    - 52.146.134.0/23 <-- AzureResourceManager.NorthEurope (northeurope)
@@ -259,22 +259,22 @@ Private IP:     10.0.2.4
    Access: Yes
 
 6. Blob (Data Plane)
-   url = https://g10hub33bc.blob.core.windows.net/storage/storage.txt
-   host = g10hub33bc.blob.core.windows.net
-   20.60.145.164 <-- g10hub33bc.blob.core.windows.net
-   Searching for service tags matching 20.60.145.164
+   url = https://g10hub99a2.blob.core.windows.net/storage/storage.txt
+   host = g10hub99a2.blob.core.windows.net
+   20.60.204.97 <-- g10hub99a2.blob.core.windows.net
+   Searching for service tags matching 20.60.204.97
    - 20.60.0.0/16 <-- Storage ()
-   - 20.60.144.0/23 <-- Storage.NorthEurope (northeurope)
-   - 20.60.144.0/23 <-- AzureCloud.northeurope (northeurope)
-   - 20.60.144.0/23 <-- AzureCloud ()
+   - 20.60.204.0/23 <-- Storage.NorthEurope (northeurope)
+   - 20.60.204.0/23 <-- AzureCloud.northeurope (northeurope)
+   - 20.60.204.0/23 <-- AzureCloud ()
    Retrieving blob content ...
    Content: Hello, World!
    Access: Yes
 
 7. KeyVault (Data Plane)
-   url: https://g10-hub-kv33bc.vault.azure.net/secrets/message
-   host: g10-hub-kv33bc.vault.azure.net
-   52.146.137.169 <-- g10-hub-kv33bc.vault.azure.net
+   url: https://g10-hub-kv99a2.vault.azure.net/secrets/message
+   host: g10-hub-kv99a2.vault.azure.net
+   52.146.137.169 <-- g10-hub-kv99a2.vault.azure.net
    Searching for service tags matching 52.146.137.169
    - 52.146.137.168/29 <-- AzureKeyVault ()
    - 52.146.137.168/29 <-- AzureKeyVault.NorthEurope (northeurope)

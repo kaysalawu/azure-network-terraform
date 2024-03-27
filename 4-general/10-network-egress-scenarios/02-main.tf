@@ -122,15 +122,17 @@ locals {
     SERVICE_TAGS_DOWNLOAD_LINK = "https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20240318.json"
     RESOURCE_GROUP             = azurerm_resource_group.rg.name
     LOCATION                   = local.hub_location
-    STORAGE_ACCOUNT_NAME       = local.storage_storage_account_name
-    STORAGE_CONTAINER_NAME     = local.storage_container_name
-    STORAGE_BLOB_URL           = local.storage_blob_url
-    STORAGE_BLOB_NAME          = local.storage_blob_name
-    STORAGE_BLOB_CONTENT       = local.storage_blob_content
-    KEY_VAULT_NAME             = local.key_vault_name
-    KEY_VAULT_SECRET_NAME      = local.key_vault_secret_name
-    KEY_VAULT_SECRET_URL       = local.key_vault_secret_url
-    KEY_VAULT_SECRET_VALUE     = local.key_vault_secret_value
+
+    STORAGE_ACCOUNT_NAME   = local.storage_storage_account_name
+    STORAGE_CONTAINER_NAME = local.storage_container_name
+    STORAGE_BLOB_URL       = local.storage_blob_url
+    STORAGE_BLOB_NAME      = local.storage_blob_name
+    STORAGE_BLOB_CONTENT   = local.storage_blob_content
+
+    KEY_VAULT_NAME         = local.key_vault_name
+    KEY_VAULT_SECRET_NAME  = local.key_vault_secret_name
+    KEY_VAULT_SECRET_URL   = local.key_vault_secret_url
+    KEY_VAULT_SECRET_VALUE = local.key_vault_secret_value
   }
   hub_server_vars = {
     TARGETS                   = local.vm_script_targets
