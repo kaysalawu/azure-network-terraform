@@ -3,15 +3,25 @@
 ####################################################
 
 locals {
-  prefix                       = "G10"
-  lab_name                     = "NetworkEgress"
-  enable_diagnostics           = true
-  enable_service_endpoints     = false
-  enable_lb_snat_outbound      = false
-  enable_service_tags          = false
+  prefix                   = "G10"
+  lab_name                 = "NetworkEgress"
+  enable_diagnostics       = true
+  enable_service_endpoints = false
+  enable_lb_snat_outbound  = false
+  enable_service_tags      = false
+
   storage_storage_account_name = lower(replace("${local.hub_prefix}${random_id.random.hex}", "-", ""))
-  key_vault_name               = lower("${local.hub_prefix}kv${random_id.random.hex}")
-  hub_tags                     = { "lab" = local.prefix, "nodeType" = "hub" }
+  storage_container_name       = "storage"
+  storage_blob_name            = "storage.txt"
+  storage_blob_content         = "Hello, World!"
+  storage_blob_url             = "https://${local.storage_storage_account_name}.blob.core.windows.net/storage/storage.txt"
+
+  key_vault_secret_name  = "message"
+  key_vault_name         = lower("${local.hub_prefix}kv${random_id.random.hex}")
+  key_vault_secret_value = "Hello, World!"
+  key_vault_secret_url   = "https://${local.key_vault_name}.vault.azure.net/secrets/${local.key_vault_secret_name}"
+
+  hub_tags = { "lab" = local.prefix, "nodeType" = "hub" }
 }
 
 resource "random_id" "random" {
@@ -54,7 +64,7 @@ locals {
       enable_ars                   = false
       ruleset_dns_forwarding_rules = {}
       nat_gateway_subnet_names = [
-        "ProductionSubnet",
+        # "ProductionSubnet",
       ]
     }
     config_s2s_vpngw = { enable = false }
@@ -108,16 +118,27 @@ locals {
     TARGETS_HEAVY_TRAFFIC_GEN = []
   })
   hub_crawler_vars = {
-    STORAGE_ACCOUNT_NAME = local.storage_storage_account_name
-    KEY_VAULT_NAME       = local.key_vault_name
+    MANAGEMENT_URL             = "https://management.azure.com/subscriptions?api-version=2020-01-01"
+    SERVICE_TAGS_DOWNLOAD_LINK = "https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20240318.json"
+    RESOURCE_GROUP             = azurerm_resource_group.rg.name
+    LOCATION                   = local.hub_location
+    STORAGE_ACCOUNT_NAME       = local.storage_storage_account_name
+    STORAGE_CONTAINER_NAME     = local.storage_container_name
+    STORAGE_BLOB_URL           = local.storage_blob_url
+    STORAGE_BLOB_NAME          = local.storage_blob_name
+    STORAGE_BLOB_CONTENT       = local.storage_blob_content
+    KEY_VAULT_NAME             = local.key_vault_name
+    KEY_VAULT_SECRET_NAME      = local.key_vault_secret_name
+    KEY_VAULT_SECRET_URL       = local.key_vault_secret_url
+    KEY_VAULT_SECRET_VALUE     = local.key_vault_secret_value
   }
-  hub_crawler_files = {
-    "${local.init_dir}/crawler/app/crawler.sh"        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/crawler.sh", local.hub_crawler_vars) }
-    "${local.init_dir}/crawler/app/service_tags.py"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/service_tags.py", local.hub_crawler_vars) }
-    "${local.init_dir}/crawler/app/service_access.py" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/service_access.py", local.hub_crawler_vars) }
-    "${local.init_dir}/crawler/app/find_subnet.py"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/find_subnet.py", local.hub_crawler_vars) }
-    "${local.init_dir}/crawler/app/requirements.txt"  = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/requirements.txt", local.hub_crawler_vars) }
-  }
+  # hub_crawler_files = {
+  #   "${local.init_dir}/crawler/app/crawler.sh"        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/crawler.sh", local.hub_crawler_vars) }
+  #   "${local.init_dir}/crawler/app/service_tags.py"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/service_tags.py", local.hub_crawler_vars) }
+  #   "${local.init_dir}/crawler/app/service_access.py" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/service_access.py", local.hub_crawler_vars) }
+  #   "${local.init_dir}/crawler/app/find_subnet.py"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/find_subnet.py", local.hub_crawler_vars) }
+  #   "${local.init_dir}/crawler/app/requirements.txt"  = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/requirements.txt", local.hub_crawler_vars) }
+  # }
   hub_server_vars = {
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []

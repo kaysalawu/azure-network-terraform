@@ -8,15 +8,29 @@ locals {
   role_definitions = [
     "Network Contributor",
   ]
-  combined       = setproduct(local.object_ids, local.role_definitions)
-  assignment_map = { for idx, pair in local.combined : "${pair[0]}-${pair[1]}" => { "principal_id" : pair[0], "role_definition" : pair[1] } }
+
+  role_assignments = flatten([
+    for oid in local.object_ids : [
+      for role in local.role_definitions : {
+        id   = "${oid}-${role}"
+        oid  = oid
+        role = role
+      }
+    ]
+  ])
+
+  assignment_map = { for ra in local.role_assignments : ra.id => {
+    "principal_id" : ra.oid,
+    "role_definition" : ra.role
+  } }
 }
 
+
 resource "azurerm_role_assignment" "combined_role_assignment" {
-  count                = length(local.combined)
+  count                = length(local.role_assignments)
   scope                = azurerm_resource_group.rg.id
-  role_definition_name = local.combined[count.index][1]
-  principal_id         = local.combined[count.index][0]
+  role_definition_name = local.role_assignments[count.index].role
+  principal_id         = local.role_assignments[count.index].oid
 }
 
 ####################################################
@@ -37,7 +51,7 @@ resource "azurerm_storage_account" "storage" {
 # container
 
 resource "azurerm_storage_container" "storage" {
-  name                  = "storage"
+  name                  = local.storage_container_name
   storage_account_name  = azurerm_storage_account.storage.name
   container_access_type = "private"
 }
@@ -49,7 +63,7 @@ resource "azurerm_storage_blob" "storage" {
   storage_account_name   = azurerm_storage_account.storage.name
   storage_container_name = azurerm_storage_container.storage.name
   type                   = "Block"
-  source_content         = "Hello, World!"
+  source_content         = local.storage_blob_content
 }
 
 # roles
@@ -120,8 +134,8 @@ resource "time_sleep" "key_vault" {
 # secret
 
 resource "azurerm_key_vault_secret" "key_vault" {
-  name         = "message"
-  value        = "Hello, world!"
+  name         = local.key_vault_secret_name
+  value        = local.key_vault_secret_value
   key_vault_id = azurerm_key_vault.key_vault.id
   depends_on = [
     time_sleep.key_vault,

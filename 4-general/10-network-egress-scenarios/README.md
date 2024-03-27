@@ -9,11 +9,11 @@ Contents
 - [Deploy the Lab](#deploy-the-lab)
 - [Troubleshooting](#troubleshooting)
 - [Outputs](#outputs)
-- [Setup Test Environment](#setup-test-environment)
+- [Test Servers](#test-servers)
 - [Egress Test Results](#egress-test-results)
-  - [A. No Private Subnet, No Service Endpoints](#a-no-private-subnet-no-service-endpoints)
-  - [B. Default Outbound and Service Tag UDR](#b-default-outbound-and-service-tag-udr)
-  - [C. Default Outbound, Service Endpoints, and Service Tag UDR](#c-default-outbound-service-endpoints-and-service-tag-udr)
+  - [A. No Explicit Outbound Method, Private-Subnet = Off, Service-Endpoint = Off](#a-no-explicit-outbound-method-private-subnet--off-service-endpoint--off)
+  - [B. NAT-Gateway, Private-Subnet = On, Service-Endpoint = Off](#b-nat-gateway-private-subnet--on-service-endpoint--off)
+  - [C. Default Outbound Access, Service-Endpoint = Off](#c-default-outbound-access-service-endpoint--off)
   - [D. Private Subnet and Service Endpoints](#d-private-subnet-and-service-endpoints)
   - [E. Private Subnet and Service Tag UDR](#e-private-subnet-and-service-tag-udr)
   - [F. Private Subnet, Service Endpoints, and Service Tag UDR](#f-private-subnet-service-endpoints-and-service-tag-udr)
@@ -63,12 +63,12 @@ The table below shows the auto-generated output files from the lab. They are loc
 | Item    | Description  | Location |
 |--------|--------|--------|
 | IP ranges and DNS | IP ranges and DNS hostname values | [output/values.md](./output/values.md) |
-| Server1 | Cloud-init configuration | [output/hub-server1-init.yaml](./output/hub-server1-init.yaml) |
-| Server2 | Cloud-init configuration | [output/hub-server2-init.yaml](./output/hub-server2-init.yaml) |
-| Proxy | Cloud-init configuration | [output/hub-proxy-init.yaml](./output/hub-proxy-init.yaml) |
+| Server1 | Cloud-init configuration | [output/server1-init.yaml](./output/server1-crawler.sh) |
+| Server2 | Cloud-init configuration | [output/server2-init.yaml](./output/server2-crawler.sh) |
+| Proxy | Cloud-init configuration | [output/proxy-init.yaml](./output/proxy-crawler.sh) |
 ||||
 
-## Setup Test Environment
+## Test Servers
 
 Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of network reachability tests. Serial console access has been configured for all virtual machines.
 
@@ -119,11 +119,14 @@ azureuser@branch1Vm:~$ az login --identity
 </details>
 <p>
 
+From here, you can run the `crawlz` command to test service reachability to various Azure services as shown in the following sections.
+
 ## Egress Test Results
 
 <table>
   <tr>
    <td rowspan="2" ><strong>Scenario</strong></td>
+   <td rowspan="2" ><strong>Subnet</strong></td>
    <td rowspan="2" ><strong>Service Endpoint</strong></td>
    <td rowspan="2" ><strong>Private Subnet</strong></td>
    <td colspan="4" ><strong>Public IP Type</strong></td>
@@ -135,52 +138,72 @@ azureuser@branch1Vm:~$ az login --identity
    <td><strong>NAT GW</td>
    <td><strong>LB SNAT</strong></td>
    <td><strong>VM Public IP</strong></td>
-   <td><strong>Default</strong></td>
+   <td><strong>Default Outbound</strong></td>
    <td><strong>Storage</strong></td>
    <td><strong>KeyVault</strong></td>
   </tr>
   <tr>
-   <td>A</td><td></td><td></td><td></td><td></td><td></td><td>X</td><td>Yes</td><td>Yes<td>Yes<td>Yes</td>
+   <td>A</td><td></td><td></td><td></td><td></td><td></td><td></td><td>X</td><td>Yes</td><td>Yes<td>Yes<td>Yes</td>
   </tr>
   <tr>
-   <td>B</td><td>ON</td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+   <td>B</td><td></td><td></td><td>X</td><td>X</td><td></td><td></td><td></td><td>N</td><td>NA<td>NA<td>NA</td>
   </tr>
   <tr>
-   <td>C</td><td>ON</td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+   <td>C</td><td>Production</td><td></td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
   </tr>
   <tr>
-   <td>D</td><td>ON</td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+   <td>D</td><td>ON</td><td></td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
   </tr>
   <tr>
-   <td>E</td><td>ON</td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+   <td>E</td><td>ON</td><td></td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
   </tr>
   <tr>
-   <td>F</td><td>ON</td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+   <td>F</td><td>ON</td><td></td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
   </tr>
   <tr>
-   <td>G</td><td>ON</td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+   <td>G</td><td>ON</td><td></td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
   </tr>
 </table>
 
-### A. No Private Subnet, No Service Endpoints
+### A. No Explicit Outbound Method, Private-Subnet = Off, Service-Endpoint = Off
 
-Test details:
-* Test machine: `G10-Proxy`
-* Subnet: `PublicSubnet`
-* Result: Using the default outbound, the `G10-Proxy` can access the internet, Azure services, and management services. In this scenario access to all services and Internet is sourced from the default outbound public IP address.
+The [default outbound access](https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/default-outbound-access#how-is-default-outbound-access-provided) is used in this scenario because there is no explicit outbound method deployed (NAT gateway, load balancer SNAT, or VM public IP). Using the default outbound access, the VM `G10-Proxy` can access the internet, Azure services, and management services. Traffic to all public endpoints is sourced from the implicit public IP address provided via the default outbound access. Default outbound access is [not recommended for security reasons](https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/default-outbound-access#why-is-disabling-default-outbound-access-recommended).
+
+<img src="./images/egress-scenario-a.png" alt="Scenario A" width="650">
+<p>
+
+**Test instructions:**
+
+1\. Login to `G10-Proxy` VM as described in the [Test Servers](#test-servers) section.
+
+2\. Run the command `crawlz` to test network reachability.
+
+**Summary:**
 
 ```sh
-----------------------------------------
+-------------------------------------
+Environment
+-------------------------------------
+VM Name:        G10-Proxy
+Resource Group: G10_NetworkEgress_RG
+Location:       northeurope
+VNET Name:      G10-hub-vnet
+Subnet Name:    PublicSubnet
+Private IP:     10.0.2.4
+-------------------------------------
 Results
-----------------------------------------
-1. NAT_IP_Type:         No Explicit Outbound
+-------------------------------------
+1. NAT_IP_Type:         None
 2. Service_Endpoints:   False
 3. Private_Subnet:      False
 4. Internet_Access:     Yes
 5. Management_Access:   Yes
 6. Blob_Access:         Yes
 7. KeyVault_Access:     Yes
+-------------------------------------
 ```
+
+**Detailed Result:**
 
 <details>
 
@@ -189,15 +212,26 @@ Results
 ```sh
 azureuser@Proxy:~$ crawlz
 
-0. Preparing environment ...
-   Environment setup completed!
+ Service Crawler initiating ...
+
+* Extracting az token...
+* Downloading service tags JSON...
+
+-------------------------------------
+Environment
+-------------------------------------
+VM Name:        G10-Proxy
+Resource Group: G10_NetworkEgress_RG
+Location:       northeurope
+VNET Name:      G10-hub-vnet
+Subnet Name:    PublicSubnet
+Private IP:     10.0.2.4
+-------------------------------------
 
 1. Check Public Address Type
-   VM Name:     G10-Proxy
-   Location:    northeurope
    Local IP:    10.0.2.4
-   Public IP:   13.74.249.251
-   NAT_IP type: No Explicit Outbound
+   Public IP:   52.169.85.197
+   NAT_IP type: None
 
 2. Check Service Endpoints
    Subnet --> PublicSubnet
@@ -209,12 +243,14 @@ azureuser@Proxy:~$ crawlz
    Private Subnet:  False
 
 4. Check Internet Access
-   Connecting to http://contoso.com ...
-   Access: Yes (200)
+   Connecting to https://contoso.com ...
+   Access: Yes (301)
 
-5. Check Management Access
+5. Management (Control Plane)
+   url = https://management.azure.com/subscriptions?api-version=2020-01-01
+   host = management.azure.com
    52.146.134.240 <-- management.azure.com
-   Searching for service tags matching 52.146.135.86
+   Searching for service tags matching 52.146.134.240
    - 52.146.134.0/23 <-- AzureResourceManager ()
    - 52.146.134.0/23 <-- AzureResourceManager.NorthEurope (northeurope)
    - 52.146.128.0/17 <-- AzureCloud.northeurope (northeurope)
@@ -222,92 +258,367 @@ azureuser@Proxy:~$ crawlz
    Testing access to management.azure.com
    Access: Yes
 
-6. Check Blob Access (Data Plane)
-   url = https://g10hub123d.blob.core.windows.net/storage/storage.txt
-   host = g10hub123d.blob.core.windows.net
-   20.150.84.164 <-- g10hub123d.blob.core.windows.net
-   Searching for service tags matching 20.150.84.164
-   - 20.150.0.0/17 <-- Storage ()
-   - 20.150.84.0/24 <-- Storage.NorthEurope (northeurope)
-   - 20.150.84.0/24 <-- AzureCloud.northeurope (northeurope)
-   - 20.150.84.0/24 <-- AzureCloud ()
+6. Blob (Data Plane)
+   url = https://g10hub33bc.blob.core.windows.net/storage/storage.txt
+   host = g10hub33bc.blob.core.windows.net
+   20.60.145.164 <-- g10hub33bc.blob.core.windows.net
+   Searching for service tags matching 20.60.145.164
+   - 20.60.0.0/16 <-- Storage ()
+   - 20.60.144.0/23 <-- Storage.NorthEurope (northeurope)
+   - 20.60.144.0/23 <-- AzureCloud.northeurope (northeurope)
+   - 20.60.144.0/23 <-- AzureCloud ()
    Retrieving blob content ...
    Content: Hello, World!
    Access: Yes
 
-7. Check KeyVault Access (Data Plane)
-   url: https://g10-hub-kv123d.vault.azure.net/secrets/message/<ID>
-   host: g10-hub-kv123d.vault.azure.net
-   52.146.137.169 <-- g10-hub-kv123d.vault.azure.net
+7. KeyVault (Data Plane)
+   url: https://g10-hub-kv33bc.vault.azure.net/secrets/message
+   host: g10-hub-kv33bc.vault.azure.net
+   52.146.137.169 <-- g10-hub-kv33bc.vault.azure.net
    Searching for service tags matching 52.146.137.169
    - 52.146.137.168/29 <-- AzureKeyVault ()
    - 52.146.137.168/29 <-- AzureKeyVault.NorthEurope (northeurope)
    - 52.146.128.0/17 <-- AzureCloud.northeurope (northeurope)
    - 52.146.128.0/17 <-- AzureCloud ()
    Accessing secret ...
-   message: Hello, world!
+   message: Hello, World!
    Access: Yes
 
-----------------------------------------
+-------------------------------------
 Results
-----------------------------------------
-1. NAT_IP_Type:         No Explicit Outbound
+-------------------------------------
+1. NAT_IP_Type:         None
 2. Service_Endpoints:   False
 3. Private_Subnet:      False
 4. Internet_Access:     Yes
 5. Management_Access:   Yes
 6. Blob_Access:         Yes
 7. KeyVault_Access:     Yes
+-------------------------------------
 ```
 
 </details>
 <p>
 
-<img src="./images/egress-scenario-a.png" alt="Scenario A" width="800">
+### B. NAT-Gateway, Private-Subnet = On, Service-Endpoint = Off
 
-### B. Default Outbound and Service Tag UDR
+When private subnet is enabled on `ProductionSubnet` associated with a NAT gateway, the VM `G10-Server1` can access the internet, Azure services, and management services. Traffic to all public endpoints are sourced from the NAT gateway public IP address.
 
-<img src="./images/egress-scenario-b.png" alt="Scenario B" width="700">
+<img src="./images/egress-scenario-b.png" alt="Scenario B" width="650">
 
-<table>
-  <tr>
-   <td rowspan="2" ><strong>Subnet</strong></td>
-   <td rowspan="2" ><strong>Service Endpoint</strong></td>
-   <td rowspan="2" ><strong>Private Subnet</strong></td>
-   <td rowspan="2" ><strong>Service Tag UDR</strong></td>
-   <td colspan="4" ><strong>Public IP Type</strong></td>
-   <td rowspan="2" ><strong>Azure Mgmt Access?</strong></td>
-   <td rowspan="2" ><strong>Internet Access?</strong></td>
-   <td colspan="2" ><strong>Access to Azure Services?</strong></td>
-  </tr>
-  <tr>
-   <td><strong>NAT GW</td>
-   <td><strong>LB SNAT</strong></td>
-   <td><strong>Public IP</strong></td>
-   <td><strong>Default</strong></td>
-   <td><strong>Storage</strong></td>
-   <td><strong>KeyVault</strong></td>
-  </tr>
-  <tr>
-   <td>Production</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>Public</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>Gateway</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>App Gateway</td><td>ON</td><td>OFF</td><td>X</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
-  </tr>
-</table>
+**Test instructions:**
 
-### C. Default Outbound, Service Endpoints, and Service Tag UDR
+Private subnet is already enabled on `ProductionSubnet`. The subnet is also already associated with a NAT gateway.
+
+1\. Login to `G10-Server1` VM as described in the [Test Servers](#test-servers) section.
+
+2\. Run the command `crawlz` to test network reachability.
+
+**Summary:**
+
+```sh
+-------------------------------------
+Environment
+-------------------------------------
+VM Name:        G10-Server1
+Resource Group: G10_NetworkEgress_RG
+Location:       northeurope
+VNET Name:      G10-hub-vnet
+Subnet Name:    ProductionSubnet
+Private IP:     10.0.3.4
+-------------------------------------
+Results
+-------------------------------------
+1. NAT_IP_Type:         NatGw
+2. Service_Endpoints:   False
+3. Private_Subnet:      True
+4. Internet_Access:     Yes
+5. Management_Access:   Yes
+6. Blob_Access:         Yes
+7. KeyVault_Access:     Yes
+-------------------------------------
+```
+
+**Detailed Result:**
+
+<details>
+
+<summary>Detailed Result</summary>
+
+```sh
+azureuser@Server1:~$ crawlz
+
+ Service Crawler initiating ...
+
+* Extracting az token...
+* Downloading service tags JSON...
+
+-------------------------------------
+Environment
+-------------------------------------
+VM Name:        G10-Server1
+Resource Group: G10_NetworkEgress_RG
+Location:       northeurope
+VNET Name:      G10-hub-vnet
+Subnet Name:    ProductionSubnet
+Private IP:     10.0.3.4
+-------------------------------------
+
+1. Check Public Address Type
+   Local IP:    10.0.3.4
+   Public IP:   52.138.199.37
+   Address type: NatGw
+
+2. Check Service Endpoints
+   Subnet --> ProductionSubnet
+   Service EP: False
+
+3. Check Private Subnet
+   Subnet --> ProductionSubnet
+   DefaultOutbound: false
+   Private Subnet:  True
+
+4. Check Internet Access
+   Connecting to https://contoso.com ...
+   Access: Yes (301)
+
+5. Management (Control Plane)
+   url = https://management.azure.com/subscriptions?api-version=2020-01-01
+   host = management.azure.com
+   52.146.134.240 <-- management.azure.com
+   Searching for service tags matching 52.146.134.240
+   - 52.146.134.0/23 <-- AzureResourceManager ()
+   - 52.146.134.0/23 <-- AzureResourceManager.NorthEurope (northeurope)
+   - 52.146.128.0/17 <-- AzureCloud.northeurope (northeurope)
+   - 52.146.128.0/17 <-- AzureCloud ()
+   Testing access to management.azure.com
+   Access: Yes
+
+6. Blob (Data Plane)
+   url = https://g10hub33bc.blob.core.windows.net/storage/storage.txt
+   host = g10hub33bc.blob.core.windows.net
+   20.60.145.164 <-- g10hub33bc.blob.core.windows.net
+   Searching for service tags matching 20.60.145.164
+   - 20.60.0.0/16 <-- Storage ()
+   - 20.60.144.0/23 <-- Storage.NorthEurope (northeurope)
+   - 20.60.144.0/23 <-- AzureCloud.northeurope (northeurope)
+   - 20.60.144.0/23 <-- AzureCloud ()
+   Retrieving blob content ...
+   Content: Hello, World!
+   Access: Yes
+
+7. KeyVault (Data Plane)
+   url: https://g10-hub-kv33bc.vault.azure.net/secrets/message
+   host: g10-hub-kv33bc.vault.azure.net
+   52.146.137.169 <-- g10-hub-kv33bc.vault.azure.net
+   Searching for service tags matching 52.146.137.169
+   - 52.146.137.168/29 <-- AzureKeyVault ()
+   - 52.146.137.168/29 <-- AzureKeyVault.NorthEurope (northeurope)
+   - 52.146.128.0/17 <-- AzureCloud.northeurope (northeurope)
+   - 52.146.128.0/17 <-- AzureCloud ()
+   Accessing secret ...
+   message: Hello, World!
+   Access: Yes
+
+-------------------------------------
+Results
+-------------------------------------
+1. NAT_IP_Type:         NatGw
+2. Service_Endpoints:   False
+3. Private_Subnet:      True
+4. Internet_Access:     Yes
+5. Management_Access:   Yes
+6. Blob_Access:         Yes
+7. KeyVault_Access:     Yes
+-------------------------------------
+```
+
+</details>
+<p>
+
+### C. Default Outbound Access, Service-Endpoint = Off
+
+When private subnet is enabled on `ProductionSubnet` and there is no explicit outbound method deployed (NAT gateway, load balancer SNAT, or VM public IP), the VM `G10-Server1` cannot access the internet, Azure services, and management services. Traffic to all public endpoints are sourced from the implicit public IP address provided via the default outbound access.
 
 <img src="./images/egress-scenario-c.png" alt="Scenario C" width="700">
 
+**Test instructions:**
+
+1\. Disable NAT gateway for `ProductionSubnet` by commenting out the subnet in the appropriate line in [02-main.tf](./02-main.tf#L57) file.
+
+```sh
+  hub_features = {
+    config_vnet = {
+      ...
+      nat_gateway_subnet_names = [
+        # "ProductionSubnet",
+      ]
+    }
+    ...
+  }
+```
+
+2\. Re-apply terraform to remove the subnet association with the NAT gateway.
+
+3\. Login to `G10-Server1` VM as described in the [Test Servers](#test-servers) section.
+
+4\. Run the command `crawlz` to test network reachability.
+
+**Summary:**
+
+```sh
+-------------------------------------
+Environment
+-------------------------------------
+VM Name:        G10-Server1
+Resource Group: G10_NetworkEgress_RG
+Location:       northeurope
+VNET Name:
+Subnet Name:
+Subnet Prefix:  10.0.3.0/24
+Private IP:     10.0.3.4
+-------------------------------------
+Results
+-------------------------------------
+1. NAT_IP_Type:         None
+2. Service_Endpoints:   False
+3. Private_Subnet:      False
+4. Internet_Access:     No
+5. Management_Access:   No
+6. Blob_Access:         No
+7. KeyVault_Access:     No
+-------------------------------------
+```
+
+**Detailed Result:**
+
+<details>
+
+<summary>Detailed Result</summary>
+
+```sh
+azureuser@Server1:~$ crawlz
+
+ Service Crawler initiating ...
+
+* Extracting az token...
+* Getting storage account key...
+* Retrieving VNET name...
+* Extracting subnet name...
+* Downloading service tags JSON...
+
+-------------------------------------
+Environment
+-------------------------------------
+VM Name:        G10-Server1
+Resource Group: G10_NetworkEgress_RG
+Location:       northeurope
+VNET Name:
+Subnet Name:
+Subnet Prefix:  10.0.3.0/24
+Private IP:     10.0.3.4
+VM Name:        G10-Server1
+Resource Group: G10_NetworkEgress_RG
+Location:       northeurope
+VNET Name:      G10-hub-vnet
+Subnet Name:    ProductionSubnet
+Subnet Prefix:  10.0.3.0/24
+Private IP:     10.0.3.4
+-------------------------------------
+
+1. Check Public Address Type
+   Local IP:    10.0.3.4
+   Public IP:
+   Address type: None
+
+2. Check Service Endpoints
+   Subnet -->
+   Service EP: False
+
+3. Check Private Subnet
+   Subnet -->
+   DefaultOutbound: true
+   Private Subnet:  False
+
+4. Check Internet Access
+   Connecting to http://contoso.com ...
+   Access: No ()
+
+5. Management (Control Plane)
+   52.146.134.240 <-- management.azure.com
+   Testing access to management.azure.com
+   Access: No
+
+6. Blob (Data Plane)
+   url =
+   host =
+
+   Retrieving blob content ...
+   Blob download: failed!
+   Access: No
+
+7. KeyVault (Data Plane)
+   url: https:///secrets/message/<ID>
+   host:
+
+   Accessing secret ...
+   message: not found!
+   Access: No
+
+-------------------------------------
+Results
+-------------------------------------
+1. NAT_IP_Type:         None
+2. Service_Endpoints:   False
+3. Private_Subnet:      False
+4. Internet_Access:     No
+5. Management_Access:   No
+6. Blob_Access:         No
+7. KeyVault_Access:     No
+-------------------------------------
+```
+
+</details>
+<p>
 
 ### D. Private Subnet and Service Endpoints
+
+When private subnet is enabled on `ProductionSubnet` and there is no explicit outbound method deployed (NAT gateway, load balancer SNAT, or VM public IP), the VM `G10-Server1` cannot access public endpoints. But with [service endpoints](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview) enabled on `ProductionSubnet`, `G10-Server1` can access Azure services that are associated with the service endpoints - in this case, Azure Storage and Azure Key Vault. Service endpoints are accessed via management.azure.com for management operations on resources - listing, creating, updating, and deleting resources.
+
+<img src="./images/egress-scenario-d.png" alt="Scenario D" width="700">
+
+**Test instructions:**
+
+1\. Enable service endpoints in the appropriate line in [02-main.tf](./02-main.tf#L9) file.
+
+```sh
+enable_service_endpoints = true
+```
+
+2\. Re-apply terraform to remove the subnet association with the NAT gateway.
+
+3\. Login to `G10-Server1` VM as described in the [Test Servers](#test-servers) section.
+
+4\. Run the command `crawlz` to test network reachability.
+
+**Summary:**
+
+```sh
+
+```
+
+**Detailed Result:**
+
+<details>
+
+<summary>Detailed Result</summary>
+
+```sh
+
+```
+
+</details>
+<p>
 
 <img src="./images/egress-scenario-d.png" alt="Scenario D" width="700">
 
@@ -315,19 +626,78 @@ Results
 
 ### E. Private Subnet and Service Tag UDR
 
-<img src="./images/egress-scenario-e.png" alt="Scenario E" width="700">
+Test details:
+* Test machine: `G10-Proxy`
+* Subnet: `PublicSubnet`
+* Result:
 
+```sh
+
+```
+
+**Detailed Result:**
+
+<details>
+
+<summary>Detailed Result</summary>
+
+```sh
+
+```
+
+</details>
+<p>
+
+<img src="./images/egress-scenario-e.png" alt="Scenario E" width="700">
 
 
 ### F. Private Subnet, Service Endpoints, and Service Tag UDR
 
+Test details:
+* Test machine: `G10-Proxy`
+* Subnet: `PublicSubnet`
+* Result:
+
+```sh
+
+```
+
+**Detailed Result:**
+
+<details>
+
+<summary>Detailed Result</summary>
+
+```sh
+
+```
+
+</details>
+<p>
+
 <img src="./images/egress-scenario-f.png" alt="Scenario F" width="700">
-
-
 
 ### G. Mixed - Default Outbound and Private Subnet
 
+Test details:
+* Test machine: `G10-Proxy`
+* Subnet: `PublicSubnet`
+* Result:
 
+**Detailed Result:**
+
+<details>
+
+<summary>Detailed Result</summary>
+
+```sh
+
+```
+
+</details>
+<p>
+
+<img src="./images/egress-scenario-g.png" alt="Scenario F" width="700">
 
 ## Cleanup
 

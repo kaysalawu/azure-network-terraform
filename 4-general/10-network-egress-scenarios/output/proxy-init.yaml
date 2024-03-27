@@ -48,12 +48,9 @@ write_files:
           access-control: 172.16.0.0/12 allow
           access-control: 35.199.192.0/19 allow
       
-          local-data: "webd1.corp.sap.com 3600 IN A 10.0.3.4"
-          local-data: "webd2.corp.sap.com 3600 IN A 10.0.3.5"
-          local-data: "appsrv1.corp.sap.com 3600 IN A 10.0.3.6"
-          local-data: "appsrv2.corp.sap.com 3600 IN A 10.0.3.7"
-          local-data: "cgs.corp.sap.com 3600 IN A 10.0.3.8"
-          local-data: "ilb.corp.sap.com 3600 IN A 10.0.3.99"
+          local-data: "server1.eu.az.corp 3600 IN A 10.0.3.4"
+          local-data: "server2.eu.az.corp 3600 IN A 10.0.3.5"
+          local-data: "proxy.eu.az.corp 3600 IN A 10.0.2.4"
       
       forward-zone:
           name: "."
@@ -78,20 +75,32 @@ write_files:
       color_red=$(tput setaf 1)
       reset=$(tput sgr0)
       
+      echo -e "\n$boldAzure Service Crawler initiating ...$reset\n"
+      
       export METADATA=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2021-02-01&format=json")
-      export VM_NAME=$(echo $METADATA | jq -r '.compute.name')
       export SUBSCRIPTION_ID=$(echo $METADATA | jq -r '.compute.subscriptionId')
       export RESOURCE_GROUP=$(echo $METADATA | jq -r '.compute.resourceGroupName')
-      export LOCATION=$(echo $METADATA | jq -r '.compute.location')
       
-      echo -e "\n0. Preparing environment ..."
-      
-      export SERVICE_TAGS_DOWNLOAD_LINK="https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20240318.json"
       export ETH0_IP=$(hostname -I | awk '{print $1}')
-      export TOKEN=$(az account get-access-token --query accessToken --output tsv)
-      export STORAGE_ACCOUNT_NAME=$(az storage account list -g $RESOURCE_GROUP --query "[?contains(name, 'ecs') && location=='$LOCATION'].name" --output tsv)
-      export ACCOUNT_KEY=$(az storage account keys list -g $RESOURCE_GROUP --account-name $STORAGE_ACCOUNT_NAME --query '[0].value' --output tsv)
-      export VNET_NAME=$(az network vnet list -g $RESOURCE_GROUP --query '[0].name' --output tsv)
+      echo -e "* Extracting az token..."
+      if [ -z "$TOKEN" ]; then
+        export TOKEN=$(timeout 10 az account get-access-token --query accessToken -o tsv 2>/dev/null)
+      fi
+      echo -e "* Downloading service tags JSON..."
+      if [ ! -f service_tags.json ]; then
+        curl -o service_tags.json "https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20240318.json" 2>/dev/null
+      fi
+      
+      echo -e "\n-------------------------------------"
+      echo -e "Environment"
+      echo -e "-------------------------------------"
+      echo "VM Name:        G10-Proxy"
+      echo "Resource Group: $RESOURCE_GROUP"
+      echo "Location:       northeurope"
+      echo "VNET Name:      G10-hub-vnet"
+      echo "Subnet Name:    PublicSubnet"
+      echo "Private IP:     $ETH0_IP"
+      echo -e "-------------------------------------"
       
       declare -a PUBLIC_ADDRESS_TYPE
       declare -a SERVICE_ENDPOINTS
@@ -101,19 +110,16 @@ write_files:
       declare -a BLOB_ACCESS
       declare -a KEYVAULT_ACCESS
       
-      echo -e "   Environment setup completed!"
-      
       function check_address_type() {
         #####################################################
         echo -e "\n1. Check Public Address Type"
         #####################################################
-        local public_ip=$(curl -s ifconfig.me)
-        echo -e "   VM Name:\t$VM_NAME"
-        echo -e "   Location:\t$LOCATION"
+        local internet_url="http://ifconfig.me/ip"
+        local public_ip=$(timeout 10 curl -s $internet_url)
         echo -e "   Local IP:\t$ETH0_IP"
         echo -e "   Public IP:\t$public_ip"
       
-        ips=$(az network public-ip list -g $RESOURCE_GROUP --query "[].{ip:ipAddress, name:name, id:id}" -o tsv)
+        ips=$(timeout 10 az network public-ip list -g $RESOURCE_GROUP --query "[].{ip:ipAddress, name:name, id:id}" -o tsv 2>/dev/null)
         local found=0
         while IFS= read -r line; do
             ip=$(echo $line | awk '{print $1}')
@@ -127,9 +133,12 @@ write_files:
                 elif [[ $name == *"natgw-pip"* ]]; then
                     echo -e "   Address type: NatGw"
                     PUBLIC_ADDRESS_TYPE=("NatGw")
-                else
+                elif [[ $name == *"nic-pip"* ]]; then
                     echo -e "   Address type: VmPublicIp"
                     PUBLIC_ADDRESS_TYPE=("VmPublicIp")
+                else
+                    echo -e "   Address type: None"
+                    PUBLIC_ADDRESS_TYPE=("None")
                 fi
                 found=1
                 break
@@ -137,8 +146,8 @@ write_files:
         done <<< "$ips"
       
         if [[ $found -eq 0 ]]; then
-            PUBLIC_ADDRESS_TYPE=("DefaultOutbound")
-            echo -e "   NAT_IP type:\tDefaultOutbound"
+            PUBLIC_ADDRESS_TYPE=("None")
+            echo -e "   NAT_IP type:\tNone"
         fi
       }
       
@@ -147,8 +156,8 @@ write_files:
         #####################################################
         echo -e "\n2. Check Service Endpoints"
         #####################################################
-        echo -e "   Subnet --> $subnet"
-        service_endpoints=$(az network vnet subnet show -g $RESOURCE_GROUP --vnet-name $VNET_NAME --name $subnet --query "serviceEndpoints[].service" --output tsv &> /dev/null)
+        echo -e "   Subnet --> PublicSubnet"
+        service_endpoints=$(timeout 10 az network vnet subnet show -g $RESOURCE_GROUP --vnet-name G10-hub-vnet --name "PublicSubnet" --query "serviceEndpoints[].service" -o tsv 2>/dev/null)
         if [ -z "$service_endpoints" ]; then
           echo -e "   Service EP: False"
           SERVICE_ENDPOINTS=("False")
@@ -160,12 +169,11 @@ write_files:
       }
       
       function check_private_subnet() {
-        subnet=$1
         #####################################################
         echo -e "\n3. Check Private Subnet"
         #####################################################
-        echo -e "   Subnet --> $subnet"
-        default_outbound_access=$(az network vnet subnet list --resource-group $RESOURCE_GROUP --vnet-name $VNET_NAME --query "[?name=='$subnet'].defaultOutboundAccess" -o tsv)
+        echo -e "   Subnet --> PublicSubnet"
+        default_outbound_access=$(timeout 10 az network vnet subnet list --resource-group $RESOURCE_GROUP --vnet-name G10-hub-vnet --query "[?name=='PublicSubnet'].defaultOutboundAccess" -o tsv 2>/dev/null)
         if [ -z "$default_outbound_access" ];
           then default_outbound_access="true"
         fi
@@ -184,21 +192,21 @@ write_files:
         #####################################################
         echo -e "\n4. Check Internet Access"
         #####################################################
-        url="http://contoso.com"
+        url="https://contoso.com"
         echo "   Connecting to $url ..."
-        internet_access=$(python3 service_access.py $url "")
-        if [ "$internet_access" == "200" ]; then
-          echo -e "   $internet_access: Success"
+        internet_access=$(timeout 10 curl -o /dev/null -s -w "%{http_code}\n" $url)
+        if ! [[ "$internet_access" =~ ^4 ]]; then
+          echo -e "   Access: Yes ($internet_access)"
           INTERNET_ACCESS="Yes"
         else
-          echo -e "   $internet_access: Failed"
+          echo -e "   Access: No ($internet_access)"
           INTERNET_ACCESS="No"
         fi
       }
       
       function resolve_dns() {
         local host=$1
-        dns_result=$(host "$host" 2>&1)
+        dns_result=$(host "$host" 2>/dev/null)
         if echo "$dns_result" | grep -q "has address"; then
           ip_address=$(echo "$dns_result" | awk '/has address/ { print $4 }' | head -n 1)
           echo -e  "   $ip_address <-- $host"
@@ -209,93 +217,88 @@ write_files:
       
       function get_azure_service_tag_from_host() {
         local service=$1
-        local ip_address=$(host "$service" | awk '/has address/ { print $4 }' | head -n 1)
-        python3 service_tags.py "$ip_address" "service_tags.json"
+        local ip_address=$(host "$service" | awk '/has address/ { print $4 }' | head -n 1 2>/dev/null)
+        python3 service_tags.py "$ip_address" "service_tags.json" 2>/dev/null
       }
       
       function check_management_access() {
-        local service=$1
         #####################################################
-        echo -e "\n5. Check Management Access"
+        echo -e "\n5. Management (Control Plane)"
         #####################################################
-        resolve_dns $service
-        get_azure_service_tag_from_host $service
-        local url="https://management.azure.com/subscriptions?api-version=2020-01-01"
-        echo -e "   Testing access to $service"
-        management_access=$(python3 service_access.py $url $TOKEN)
+        host=$(echo https://management.azure.com/subscriptions?api-version=2020-01-01 | awk -F/ '{print $3}')
+        echo -e "   url = https://management.azure.com/subscriptions?api-version=2020-01-01"
+        echo -e "   host = $host"
+        resolve_dns $host 2>/dev/null
+        get_azure_service_tag_from_host $host 2>/dev/null
       
+        echo -e "   Testing access to $host"
+        management_access=$(timeout 10 curl -o /dev/null -s -w "%{http_code}\n" -H "Authorization : Bearer $TOKEN" https://management.azure.com/subscriptions?api-version=2020-01-01)
         if [ "$management_access" == "200" ]; then
           MANAGEMENT_ACCESS=Yes
-          echo -e "   Access: successful"
+          echo -e "   Access: Yes"
         else
           MANAGEMENT_ACCESS=No
-          echo -e "   Access: failed"
+          echo -e "   Access: No"
         fi
       }
       
       function download_blob() {
-        local account_name=$1
-        local container_name=$2
-        local blob_name=$3
         #####################################################
-        echo -e "\n6. Check Blob Access"
+        echo -e "\n6. Blob (Data Plane)"
         #####################################################
-        local blob_url=$(az storage blob url --account-name $account_name --container-name $container_name --name $blob_name --account-key $ACCOUNT_KEY --output tsv)
-        host=$(echo $blob_url | awk -F/ '{print $3}')
-        echo -e "   url = $blob_url"
+        host=$(echo https://g10hub33bc.blob.core.windows.net/storage/storage.txt | awk -F/ '{print $3}')
+        echo -e "   url = https://g10hub33bc.blob.core.windows.net/storage/storage.txt"
         echo -e "   host = $host"
-        resolve_dns $host
-        get_azure_service_tag_from_host $host
+        resolve_dns $host 2>/dev/null
+        get_azure_service_tag_from_host $host 2>/dev/null
       
         echo "   Retrieving blob content ..."
-        blob_access=$(az storage blob download --account-name $account_name -c $container_name -n $blob_name --account-key $ACCOUNT_KEY --query content -o tsv 2>/dev/null)
+        blob_access=$(az storage blob download --account-name g10hub33bc -c storage -n storage.txt --query content -o tsv 2>/dev/null)
         if [ "$blob_access" = "Hello, World!" ]; then
           echo -e  "   Content: $blob_access"
+          echo -e  "   Access: Yes"
           BLOB_ACCESS=Yes
         else
           echo -e  "   Blob download: failed!"
+          echo -e  "   Access: No"
           BLOB_ACCESS=No
         fi
       }
       
       function access_keyvault_secret() {
-        local keyvault_name=$1
-        local secret_name=$2
         #####################################################
-        echo -e "\n7. Check KeyVault Access"
+        echo -e "\n7. KeyVault (Data Plane)"
         #####################################################
-        local keyvault_secret_url=$(az keyvault secret show --vault-name $keyvault_name --name $secret_name --query id --output tsv)
-        host=$(echo $keyvault_secret_url | awk -F/ '{print $3}')
-        echo -e "   url: https://$host/secrets/$secret_name/<ID>"
+        host=$(echo https://g10-hub-kv33bc.vault.azure.net/secrets/message | awk -F/ '{print $3}')
+        echo -e "   url: https://g10-hub-kv33bc.vault.azure.net/secrets/message"
         echo -e "   host: $host"
         resolve_dns $host
-        get_azure_service_tag_from_host $host
+        get_azure_service_tag_from_host $host 2>/dev/null
       
         echo "   Accessing secret ..."
-        secret_value=$(az keyvault secret show --vault-name $keyvault_name --name $secret_name --query value --output tsv)
-        if [ "$secret_value" = "Hello, world!" ]; then
-          echo -e "   $2: $secret_value"
+        secret_value=$(timeout 10 az keyvault secret show --vault-name g10-hub-kv33bc --name message --query value -o tsv 2>/dev/null)
+        if [ "$secret_value" = "Hello, World!" ]; then
+          echo -e "   message: $secret_value"
+          echo -e "   Access: Yes"
           KEYVAULT_ACCESS=Yes
         else
-          echo -e "   $2: not found!"
+          echo -e "   message: not found!"
+          echo -e "   Access: No"
           KEYVAULT_ACCESS=No
         fi
       }
       
-      curl -s $SERVICE_TAGS_DOWNLOAD_LINK > service_tags.json
-      subnet=$(python3 find_subnet.py "$ETH0_IP")
       check_address_type
-      check_service_endpoints $subnet
-      check_private_subnet $subnet
+      check_service_endpoints "PublicSubnet"
+      check_private_subnet "PublicSubnet"
       check_internet_access
-      check_management_access "management.azure.com"
-      download_blob "$STORAGE_ACCOUNT_NAME" "storage" "storage.txt"
-      access_keyvault_secret "G10-ecs-kvb9c8" "message"
-      rm service_tags.json
+      check_management_access
+      download_blob
+      access_keyvault_secret
       
-      echo -e "\n----------------------------------------"
+      echo -e "\n-------------------------------------"
       echo -e "Results"
-      echo -e "----------------------------------------"
+      echo -e "-------------------------------------"
       echo -e "1. NAT_IP_Type: \t$PUBLIC_ADDRESS_TYPE"
       echo -e "2. Service_Endpoints: \t$SERVICE_ENDPOINTS"
       echo -e "3. Private_Subnet: \t$PRIVATE_SUBNET"
@@ -303,57 +306,7 @@ write_files:
       echo -e "5. Management_Access: \t$MANAGEMENT_ACCESS"
       echo -e "6. Blob_Access: \t$BLOB_ACCESS"
       echo -e "7. KeyVault_Access: \t$KEYVAULT_ACCESS"
-      
-  - path: /var/lib/azure/crawler/app/find_subnet.py
-    owner: root
-    permissions: 0744
-    content: |
-      import os
-      import ipaddress
-      import subprocess
-      import json
-      import sys
-      
-      RESOURCE_GROUP = os.getenv('RESOURCE_GROUP')
-      VNET_NAME = os.getenv('VNET_NAME')
-      
-      def get_ip_address():
-          cmd = "hostname -I | awk '{print $1}'"
-          process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-          stdout, stderr = process.communicate()
-          if process.returncode == 0:
-              return stdout.decode('utf-8').strip()
-          else:
-              raise Exception("Error getting eth0 IP address: " + stderr.decode('utf-8'))
-      
-      def get_vnet_subnets():
-          cmd = f"az network vnet subnet list --resource-group {RESOURCE_GROUP} --vnet-name {VNET_NAME} -o json"
-          process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-          stdout, stderr = process.communicate()
-          if process.returncode == 0:
-              subnets = json.loads(stdout.decode('utf-8'))
-              return [(subnet['name'], subnet['addressPrefix']) for subnet in subnets]
-          else:
-              raise Exception("Error listing VNET subnets: " + stderr.decode('utf-8'))
-      
-      def find_subnet_for_ip(ip_address):
-          subnets = get_vnet_subnets()
-          ip = ipaddress.ip_address(ip_address)
-          for name, addressPrefix in subnets:
-              if ip in ipaddress.ip_network(addressPrefix):
-                  return name, addressPrefix
-          return None, None
-      
-      def main():
-          ip_address = get_ip_address()
-          subnet_name, addressPrefix = find_subnet_for_ip(ip_address)
-          if subnet_name:
-              print(subnet_name)
-          else:
-              print(None)
-      
-      if __name__ == '__main__':
-          main()
+      echo -e "-------------------------------------\n"
       
   - path: /var/lib/azure/crawler/app/requirements.txt
     owner: root
@@ -365,30 +318,6 @@ write_files:
       requests==2.31.0
       urllib3==2.2.1
       
-  - path: /var/lib/azure/crawler/app/service_access.py
-    owner: root
-    permissions: 0744
-    content: |
-      import sys
-      import requests
-      
-      def test_access(url, token):
-          headers = {"Authorization": f"Bearer {token}"}
-          response = requests.get(url, headers=headers)
-          print(response.status_code)
-      
-      def main():
-          if len(sys.argv) < 3:
-              print("Usage: python service_access.py <url> <token>")
-              sys.exit(1)
-      
-          url = sys.argv[1]
-          token = sys.argv[2]
-          test_access(url, token)
-      
-      if __name__ == "__main__":
-          main()
-      
   - path: /var/lib/azure/crawler/app/service_tags.py
     owner: root
     permissions: 0744
@@ -397,8 +326,6 @@ write_files:
       import sys
       import json
       import ipaddress
-      
-      SUBSCRIPTION_ID = os.getenv('SUBSCRIPTION_ID')
       
       with open('service_tags.json', 'r') as file:
           data = json.load(file)
@@ -522,8 +449,7 @@ write_files:
       
       cat <<EOF > /usr/local/bin/ping-ip
       echo -e "\n ping ip ...\n"
-      echo "onprem - 10.10.0.5 -\$(timeout 3 ping -qc2 -W1 10.10.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-      echo "internet - icanhazip.com -\$(timeout 3 ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+      echo "internet - contoso.com -\$(timeout 3 ping -qc2 -W1 contoso.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
       EOF
       chmod a+x /usr/local/bin/ping-ip
       
@@ -531,8 +457,7 @@ write_files:
       
       cat <<EOF > /usr/local/bin/ping-dns
       echo -e "\n ping dns ...\n"
-      echo "onpremvm.corp - \$(timeout 3 dig +short onpremvm.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 onpremvm.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-      echo "icanhazip.com - \$(timeout 3 dig +short icanhazip.com | tail -n1) -\$(timeout 3 ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+      echo "contoso.com - \$(timeout 3 dig +short contoso.com | tail -n1) -\$(timeout 3 ping -qc2 -W1 contoso.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
       EOF
       chmod a+x /usr/local/bin/ping-dns
       
@@ -540,8 +465,7 @@ write_files:
       
       cat <<EOF > /usr/local/bin/curl-ip
       echo -e "\n curl ip ...\n"
-      echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.10.0.5) - onprem (10.10.0.5)"
-      echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - internet (icanhazip.com)"
+      echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null contoso.com) - internet (contoso.com)"
       EOF
       chmod a+x /usr/local/bin/curl-ip
       
@@ -549,8 +473,7 @@ write_files:
       
       cat <<EOF > /usr/local/bin/curl-dns
       echo -e "\n curl dns ...\n"
-      echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null onpremvm.corp) - onpremvm.corp"
-      echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
+      echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null contoso.com) - contoso.com"
       EOF
       chmod a+x /usr/local/bin/curl-dns
       
@@ -558,12 +481,9 @@ write_files:
       
       cat <<EOF > /usr/local/bin/trace-ip
       echo -e "\n trace ip ...\n"
-      echo -e "\nonprem"
-      echo -e "-------------------------------------"
-      timeout 9 tracepath 10.10.0.5
       echo -e "\ninternet"
       echo -e "-------------------------------------"
-      timeout 9 tracepath icanhazip.com
+      timeout 9 tracepath contoso.com
       EOF
       chmod a+x /usr/local/bin/trace-ip
       

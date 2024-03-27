@@ -83,7 +83,9 @@ resource "azapi_resource" "subnets" {
           actions     = d.service_delegation[0].actions
         }
       } if contains(try(each.value.delegate, []), d.name)]
-      serviceEndpoints                  = try(each.value.service_endpoints, [])
+      serviceEndpoints = [for service_endpoint in try(each.value.service_endpoints, []) : {
+        service = service_endpoint
+      }]
       privateEndpointNetworkPolicies    = try(each.value.address_prefixes.enable_private_endpoint_policies[0] ? "Enabled" : "Disabled", "Disabled")
       privateLinkServiceNetworkPolicies = try(each.value.address_prefixes.enable_private_link_policies[0] ? "Enabled" : "Disabled", "Disabled")
     }

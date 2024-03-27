@@ -53,6 +53,13 @@ resource "azurerm_network_interface" "this" {
       null
     )
   }
+
+  lifecycle {
+    ignore_changes = [
+      ip_configuration.0.subnet_id,
+    ]
+  }
+
   depends_on = [
     azurerm_public_ip.this,
   ]
@@ -121,6 +128,7 @@ resource "azurerm_linux_virtual_machine" "this" {
   }
 
   lifecycle {
+    #ignore_changes = all
     # ignore_changes = [
     #   identity,
     #   secure_boot_enabled,

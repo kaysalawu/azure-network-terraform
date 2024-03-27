@@ -15,8 +15,18 @@ locals {
       ["127.0.0.0/8", "35.199.192.0/19", ]
     )
   }
+  proxy_crawler_vars = merge(local.hub_crawler_vars, {
+    VNET_NAME   = module.hub.vnet.name
+    SUBNET_NAME = module.hub.subnets["PublicSubnet"].name
+    VM_NAME     = "${local.prefix}-${local.hub_proxy_hostname}"
+  })
+  proxy_crawler_files = {
+    "${local.init_dir}/crawler/app/crawler.sh"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/crawler.sh", local.proxy_crawler_vars) }
+    "${local.init_dir}/crawler/app/service_tags.py"  = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/service_tags.py", local.proxy_crawler_vars) }
+    "${local.init_dir}/crawler/app/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/requirements.txt", local.proxy_crawler_vars) }
+  }
   hub_proxy_files = merge(
-    local.hub_crawler_files,
+    local.proxy_crawler_files,
     local.hub_server_files,
     {
       "${local.init_dir}/unbound/Dockerfile"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/Dockerfile", {}) }
@@ -81,7 +91,8 @@ module "hub_proxy" {
 
 locals {
   hub_proxy_output_files = {
-    "output/hub-proxy-init.yaml" = module.hub_proxy_init.cloud_config
+    "output/proxy-init.yaml"  = module.hub_proxy_init.cloud_config
+    "output/proxy-crawler.sh" = templatefile("../../scripts/init/crawler/app/crawler.sh", local.proxy_crawler_vars)
   }
 }
 

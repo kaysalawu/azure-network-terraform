@@ -2,60 +2,8 @@
 
 package_update: true
 package_upgrade: true
-packages:
-  - docker.io
-  - docker-compose
-  - dnsutils
-  - net-tools
 
 write_files:
-  - path: /etc/squid/blocked_sites
-    owner: root
-    permissions: 0744
-    content: |
-      google.com
-      bbc.co.uk
-      
-  - path: /etc/squid/squid.conf
-    owner: root
-    permissions: 0744
-    content: |
-      # squid.conf
-      http_port 3128
-      
-      acl blocked_sites dstdomain "/etc/squid/blocked_sites"
-      http_access deny blocked_sites
-      
-      http_access allow all
-      
-      # Enable logging
-      access_log /var/log/squid/access.log squid
-      cache_log /var/log/squid/cache.log
-      cache_store_log /var/log/squid/store.log
-      
-  - path: /etc/unbound/unbound.conf
-    owner: root
-    permissions: 0744
-    content: |
-      
-      server:
-          interface: 0.0.0.0
-      
-          access-control: 0.0.0.0 deny
-          access-control: 127.0.0.0/8 allow
-          access-control: 10.0.0.0/8 allow
-          access-control: 192.168.0.0/16 allow
-          access-control: 172.16.0.0/12 allow
-          access-control: 35.199.192.0/19 allow
-      
-          local-data: "server1.eu.az.corp 3600 IN A 10.0.3.4"
-          local-data: "server2.eu.az.corp 3600 IN A 10.0.3.5"
-          local-data: "proxy.eu.az.corp 3600 IN A 10.0.2.4"
-      
-      forward-zone:
-          name: "."
-          forward-addr: 168.63.129.16
-      
   - path: /var/lib/azure/crawler/app/crawler.sh
     owner: root
     permissions: 0744
@@ -78,34 +26,27 @@ write_files:
       echo -e "\n$boldAzure Service Crawler initiating ...$reset\n"
       
       export METADATA=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2021-02-01&format=json")
-      export VM_NAME=$(echo $METADATA | jq -r '.compute.name')
+      export SUBSCRIPTION_ID=$(echo $METADATA | jq -r '.compute.subscriptionId')
       export RESOURCE_GROUP=$(echo $METADATA | jq -r '.compute.resourceGroupName')
-      export LOCATION=$(echo $METADATA | jq -r '.compute.location')
-      export SUBNET_NETWORK=$(echo $METADATA | jq -r '.network.interface[].ipv4.subnet[].address')
-      export SUBNET_MASK=$(echo $METADATA | jq -r '.network.interface[].ipv4.subnet[].prefix')
       
-      export SERVICE_TAGS_DOWNLOAD_LINK="https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20240318.json"
       export ETH0_IP=$(hostname -I | awk '{print $1}')
       echo -e "* Extracting az token..."
-      export TOKEN=$(timeout 10 az account get-access-token --query accessToken -o tsv 2>/dev/null)
-      echo -e "* Getting storage account key..."
-      export ACCOUNT_KEY=$(timeout 10 az storage account keys list -g $RESOURCE_GROUP --account-name g10hub33bc --query '[0].value' -o tsv 2>/dev/null)
-      echo "* Retrieving VNET name..."
-      export VNET_NAME=$(timeout 10 az network vnet list -g $RESOURCE_GROUP --query '[0].name' -o tsv 2>/dev/null)
-      echo "* Extracting subnet name..."
-      export SUBNET=$(timeout 15 python3 find_subnet.py "$ETH0_IP" 2>/dev/null)
+      if [ -z "$TOKEN" ]; then
+        export TOKEN=$(timeout 10 az account get-access-token --query accessToken -o tsv 2>/dev/null)
+      fi
       echo -e "* Downloading service tags JSON..."
-      curl -s $SERVICE_TAGS_DOWNLOAD_LINK > service_tags.json
+      if [ ! -f service_tags.json ]; then
+        curl -o service_tags.json "https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20240318.json" 2>/dev/null
+      fi
       
       echo -e "\n-------------------------------------"
       echo -e "Environment"
       echo -e "-------------------------------------"
-      echo "VM Name:        $VM_NAME"
+      echo "VM Name:        G10-Server2"
       echo "Resource Group: $RESOURCE_GROUP"
-      echo "Location:       $LOCATION"
-      echo "VNET Name:      $VNET_NAME"
-      echo "Subnet Name:    $SUBNET"
-      echo "Subnet Prefix:  $SUBNET_NETWORK/$SUBNET_MASK"
+      echo "Location:       northeurope"
+      echo "VNET Name:      G10-hub-vnet"
+      echo "Subnet Name:    ProductionSubnet"
       echo "Private IP:     $ETH0_IP"
       echo -e "-------------------------------------"
       
@@ -121,7 +62,8 @@ write_files:
         #####################################################
         echo -e "\n1. Check Public Address Type"
         #####################################################
-        local public_ip=$(timeout 10 curl -s ifconfig.me)
+        local internet_url="http://ifconfig.me/ip"
+        local public_ip=$(timeout 10 curl -s $internet_url)
         echo -e "   Local IP:\t$ETH0_IP"
         echo -e "   Public IP:\t$public_ip"
       
@@ -162,8 +104,8 @@ write_files:
         #####################################################
         echo -e "\n2. Check Service Endpoints"
         #####################################################
-        echo -e "   Subnet --> $SUBNET"
-        service_endpoints=$(az network vnet subnet show -g $RESOURCE_GROUP --vnet-name $VNET_NAME --name $SUBNET --query "serviceEndpoints[].service" -o tsv 2>/dev/null)
+        echo -e "   Subnet --> ProductionSubnet"
+        service_endpoints=$(timeout 10 az network vnet subnet show -g $RESOURCE_GROUP --vnet-name G10-hub-vnet --name "ProductionSubnet" --query "serviceEndpoints[].service" -o tsv 2>/dev/null)
         if [ -z "$service_endpoints" ]; then
           echo -e "   Service EP: False"
           SERVICE_ENDPOINTS=("False")
@@ -175,12 +117,11 @@ write_files:
       }
       
       function check_private_subnet() {
-        subnet=$1
         #####################################################
         echo -e "\n3. Check Private Subnet"
         #####################################################
-        echo -e "   Subnet --> $SUBNET"
-        default_outbound_access=$(az network vnet subnet list --resource-group $RESOURCE_GROUP --vnet-name $VNET_NAME --query "[?name=='$SUBNET'].defaultOutboundAccess" -o tsv 2>/dev/null)
+        echo -e "   Subnet --> ProductionSubnet"
+        default_outbound_access=$(timeout 10 az network vnet subnet list --resource-group $RESOURCE_GROUP --vnet-name G10-hub-vnet --query "[?name=='ProductionSubnet'].defaultOutboundAccess" -o tsv 2>/dev/null)
         if [ -z "$default_outbound_access" ];
           then default_outbound_access="true"
         fi
@@ -199,10 +140,10 @@ write_files:
         #####################################################
         echo -e "\n4. Check Internet Access"
         #####################################################
-        url="http://contoso.com"
+        url="https://contoso.com"
         echo "   Connecting to $url ..."
-        internet_access=$(timeout 10 python3 service_access.py "$url" "" 2>/dev/null)
-        if [ "$internet_access" == "200" ]; then
+        internet_access=$(timeout 10 curl -o /dev/null -s -w "%{http_code}\n" $url)
+        if ! [[ "$internet_access" =~ ^4 ]]; then
           echo -e "   Access: Yes ($internet_access)"
           INTERNET_ACCESS="Yes"
         else
@@ -229,16 +170,17 @@ write_files:
       }
       
       function check_management_access() {
-        local service=$1
         #####################################################
         echo -e "\n5. Management (Control Plane)"
         #####################################################
-        resolve_dns $service 2>/dev/null
-        get_azure_service_tag_from_host $service
-        local url="https://management.azure.com/subscriptions?api-version=2020-01-01"
-        echo -e "   Testing access to $service"
-        management_access=$(timeout 10 python3 service_access.py $url $TOKEN 2>/dev/null)
+        host=$(echo https://management.azure.com/subscriptions?api-version=2020-01-01 | awk -F/ '{print $3}')
+        echo -e "   url = https://management.azure.com/subscriptions?api-version=2020-01-01"
+        echo -e "   host = $host"
+        resolve_dns $host 2>/dev/null
+        get_azure_service_tag_from_host $host 2>/dev/null
       
+        echo -e "   Testing access to $host"
+        management_access=$(timeout 10 curl -o /dev/null -s -w "%{http_code}\n" -H "Authorization : Bearer $TOKEN" https://management.azure.com/subscriptions?api-version=2020-01-01)
         if [ "$management_access" == "200" ]; then
           MANAGEMENT_ACCESS=Yes
           echo -e "   Access: Yes"
@@ -249,21 +191,17 @@ write_files:
       }
       
       function download_blob() {
-        local account_name=$1
-        local container_name=$2
-        local blob_name=$3
         #####################################################
         echo -e "\n6. Blob (Data Plane)"
         #####################################################
-        local blob_url=$(az storage blob url --account-name $account_name --container-name $container_name --name $blob_name --account-key $ACCOUNT_KEY -o tsv 2>/dev/null)
-        host=$(echo $blob_url | awk -F/ '{print $3}')
-        echo -e "   url = $blob_url"
+        host=$(echo https://g10hub33bc.blob.core.windows.net/storage/storage.txt | awk -F/ '{print $3}')
+        echo -e "   url = https://g10hub33bc.blob.core.windows.net/storage/storage.txt"
         echo -e "   host = $host"
         resolve_dns $host 2>/dev/null
         get_azure_service_tag_from_host $host 2>/dev/null
       
         echo "   Retrieving blob content ..."
-        blob_access=$(az storage blob download --account-name $account_name -c $container_name -n $blob_name --account-key $ACCOUNT_KEY --query content -o tsv 2>/dev/null)
+        blob_access=$(az storage blob download --account-name g10hub33bc -c storage -n storage.txt --query content -o tsv 2>/dev/null)
         if [ "$blob_access" = "Hello, World!" ]; then
           echo -e  "   Content: $blob_access"
           echo -e  "   Access: Yes"
@@ -276,39 +214,35 @@ write_files:
       }
       
       function access_keyvault_secret() {
-        local keyvault_name=$1
-        local secret_name=$2
         #####################################################
         echo -e "\n7. KeyVault (Data Plane)"
         #####################################################
-        local keyvault_secret_url=$(timeout 10 az keyvault secret show --vault-name $keyvault_name --name $secret_name --query id -o tsv 2>/dev/null)
-        host=$(echo $keyvault_secret_url | awk -F/ '{print $3}')
-        echo -e "   url: https://$host/secrets/$secret_name/<ID>"
+        host=$(echo https://g10-hub-kv33bc.vault.azure.net/secrets/message | awk -F/ '{print $3}')
+        echo -e "   url: https://g10-hub-kv33bc.vault.azure.net/secrets/message"
         echo -e "   host: $host"
         resolve_dns $host
         get_azure_service_tag_from_host $host 2>/dev/null
       
         echo "   Accessing secret ..."
-        secret_value=$(timeout 10 az keyvault secret show --vault-name $keyvault_name --name $secret_name --query value -o tsv 2>/dev/null)
-        if [ "$secret_value" = "Hello, world!" ]; then
-          echo -e "   $2: $secret_value"
+        secret_value=$(timeout 10 az keyvault secret show --vault-name g10-hub-kv33bc --name message --query value -o tsv 2>/dev/null)
+        if [ "$secret_value" = "Hello, World!" ]; then
+          echo -e "   message: $secret_value"
           echo -e "   Access: Yes"
           KEYVAULT_ACCESS=Yes
         else
-          echo -e "   $2: not found!"
+          echo -e "   message: not found!"
           echo -e "   Access: No"
           KEYVAULT_ACCESS=No
         fi
       }
       
       check_address_type
-      check_service_endpoints $SUBNET
-      check_private_subnet $SUBNET
+      check_service_endpoints "ProductionSubnet"
+      check_private_subnet "ProductionSubnet"
       check_internet_access
-      check_management_access "management.azure.com"
-      download_blob "g10hub33bc" "storage" "storage.txt"
-      access_keyvault_secret "g10-hub-kv33bc" "message"
-      rm service_tags.json
+      check_management_access
+      download_blob
+      access_keyvault_secret
       
       echo -e "\n-------------------------------------"
       echo -e "Results"
@@ -322,65 +256,6 @@ write_files:
       echo -e "7. KeyVault_Access: \t$KEYVAULT_ACCESS"
       echo -e "-------------------------------------\n"
       
-  - path: /var/lib/azure/crawler/app/find_subnet.py
-    owner: root
-    permissions: 0744
-    content: |
-      import os
-      import ipaddress
-      import subprocess
-      import json
-      import sys
-      
-      RESOURCE_GROUP = os.getenv('RESOURCE_GROUP')
-      VNET_NAME = os.getenv('VNET_NAME')
-      
-      def get_ip_address():
-          cmd = "hostname -I | awk '{print $1}'"
-          process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-          stdout, stderr = process.communicate()
-          if process.returncode == 0:
-              return stdout.decode('utf-8').strip()
-          else:
-              raise Exception("Error getting IP address: " + stderr.decode('utf-8'))
-      
-      def get_vnet_subnets():
-          cmd = f"az network vnet subnet list --resource-group {RESOURCE_GROUP} --vnet-name {VNET_NAME} -o json"
-          process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-          stdout, stderr = process.communicate()
-          if process.returncode == 0:
-              subnets = json.loads(stdout.decode('utf-8'))
-              subnets_list = []
-              for subnet in subnets:
-                  if 'addressPrefix' in subnet:
-                      subnets_list.append((subnet['name'], subnet['addressPrefix']))
-                  elif 'addressPrefixes' in subnet:
-                      for prefix in subnet['addressPrefixes']:
-                          subnets_list.append((subnet['name'], prefix))
-              return subnets_list
-          else:
-              raise Exception("Error listing VNET subnets: " + stderr.decode('utf-8'))
-      
-      def find_subnet_for_ip(ip_address):
-          subnets = get_vnet_subnets()
-          ip = ipaddress.ip_address(ip_address)
-          for name, prefix in subnets:
-              network = ipaddress.ip_network(prefix, strict=False)
-              if ip in network:
-                  return name
-          return None
-      
-      def main():
-          ip_address = sys.argv[1] if len(sys.argv) > 1 else get_ip_address()
-          subnet_name = find_subnet_for_ip(ip_address)
-          if subnet_name:
-              print(subnet_name)
-          else:
-              print("None")
-      
-      if __name__ == '__main__':
-          main()
-      
   - path: /var/lib/azure/crawler/app/requirements.txt
     owner: root
     permissions: 0744
@@ -391,30 +266,6 @@ write_files:
       requests==2.31.0
       urllib3==2.2.1
       
-  - path: /var/lib/azure/crawler/app/service_access.py
-    owner: root
-    permissions: 0744
-    content: |
-      import sys
-      import requests
-      
-      def test_access(url, token):
-          headers = {"Authorization": f"Bearer {token}"}
-          response = requests.get(url, headers=headers)
-          print(response.status_code)
-      
-      def main():
-          if len(sys.argv) < 3:
-              print("Usage: python service_access.py <url> <token>")
-              sys.exit(1)
-      
-          url = sys.argv[1]
-          token = sys.argv[2]
-          test_access(url, token)
-      
-      if __name__ == "__main__":
-          main()
-      
   - path: /var/lib/azure/crawler/app/service_tags.py
     owner: root
     permissions: 0744
@@ -423,8 +274,6 @@ write_files:
       import sys
       import json
       import ipaddress
-      
-      SUBSCRIPTION_ID = os.getenv('SUBSCRIPTION_ID')
       
       with open('service_tags.json', 'r') as file:
           data = json.load(file)
@@ -613,91 +462,11 @@ write_files:
       EOF
       crontab /tmp/crontab.txt
       
-  - path: /var/lib/azure/squid/docker-compose.yml
-    owner: root
-    permissions: 0744
-    content: |
-      version: '3.7'
-      services:
-        squid:
-          container_name: squid
-          image: ubuntu/squid:latest
-          ports:
-            - "3128:3128"
-          network_mode: "host"
-          volumes:
-            - /etc/squid/squid.conf:/etc/squid/squid.conf
-            - /etc/squid/blocked_sites:/etc/squid/blocked_sites
-            - /var/log/squid/access.log:/var/log/squid/access.log
-            - /var/log/squid/cache.log:/var/log/squid/cache.log
-            - /var/log/squid/store.log:/var/log/squid/store.log
-          restart: always
-      
-  - path: /var/lib/azure/squid/setup-squid.sh
-    owner: root
-    permissions: 0744
-    content: |
-      #!/bin/bash
-      
-      mkdir -p /var/log/squid
-      touch /var/log/squid/access.log
-      touch /var/log/squid/cache.log
-      touch /var/log/squid/store.log
-      chown proxy:proxy /var/log/squid/*
-      chmod a+x /var/log/squid/*
-      
-  - path: /var/lib/azure/unbound/Dockerfile
-    owner: root
-    permissions: 0744
-    content: |
-      FROM alpine:3.19.0
-      RUN apk add --no-cache unbound
-      EXPOSE 53/tcp 53/udp
-      CMD ["unbound", "-d"]
-      
-  - path: /var/lib/azure/unbound/docker-compose.yml
-    owner: root
-    permissions: 0744
-    content: |
-      version: '3'
-      
-      services:
-        unbound:
-          container_name: unbound
-          build:
-            context: .
-            dockerfile: Dockerfile
-          ports:
-            - "53:53/tcp"
-            - "53:53/udp"
-          network_mode: "host"
-          volumes:
-            - /etc/unbound/unbound.log:/etc/unbound/unbound.log
-            - /etc/unbound/unbound.conf:/etc/unbound/unbound.conf
-          cap_add:
-            - NET_ADMIN
-          command: ["unbound", "-d"]
-          restart: always
-      
-  - path: /var/lib/azure/unbound/setup-unbound.sh
-    owner: root
-    permissions: 0744
-    content: |
-      #! /bin/bash
-      
-      systemctl stop systemd-resolved
-      systemctl disable systemd-resolved
-      echo "nameserver 8.8.8.8" > /etc/resolv.conf
-      echo "$(hostname -I | cut -d' ' -f1) $(hostname)" | tee -a /etc/hosts >/dev/null
-      mkdir -p /etc/unbound
-      touch /etc/unbound/unbound.log && chmod a+x /etc/unbound/unbound.log
-      apt-get install -y resolvconf
-      
 
 runcmd:
   - . /var/lib/azure/init/server.sh
-  - . /var/lib/azure/unbound/setup-unbound.sh
-  - . /var/lib/azure/squid/setup-squid.sh
-  - docker-compose -f /var/lib/azure/unbound/docker-compose.yml up -d
-  - docker-compose -f /var/lib/azure/squid/docker-compose.yml up -d
+  - /bin/bash -c 'echo export http_proxy=http://10.0.2.4:3128 >> /etc/environment'
+  - /bin/bash -c 'echo export https_proxy=http://10.0.2.4:3128 >> /etc/environment'
+  - /bin/bash -c 'echo export ftp_proxy=http://10.0.2.4:3128 >> /etc/environment'
+  - /bin/bash -c 'echo export no_proxy=168.63.129.16,169.254.169.254,127.0.0.1,corp >> /etc/environment'
   - python3 -m venv /var/lib/azure/crawler

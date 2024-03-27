@@ -10,7 +10,7 @@ locals {
 
   region1          = "northeurope"
   region2          = "eastus"
-  region3          = "eastus2"
+  region3          = "centralus"
   region1_code     = "eu"
   region2_code     = "us"
   region3_code     = "us2"

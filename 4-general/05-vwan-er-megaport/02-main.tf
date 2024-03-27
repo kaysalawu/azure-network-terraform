@@ -3,7 +3,7 @@
 ####################################################
 
 locals {
-  prefix                      = "G05"
+  prefix                      = "G05z"
   lab_name                    = "VwanEr"
   enable_diagnostics          = false
   enable_onprem_wan_link      = false
@@ -195,7 +195,7 @@ locals {
       create_firewall       = true
       enable_routing_intent = true
       firewall_sku          = local.firewall_sku
-      firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region1"].id
+      firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region3"].id
       routing_policies = {
         internet            = true
         private_traffic     = true
@@ -289,6 +289,7 @@ locals {
   vm_script_targets = concat(
     local.vm_script_targets_region1,
     local.vm_script_targets_region2,
+    local.vm_script_targets_region3,
     local.vm_script_targets_misc,
   )
   vm_startup = templatefile("../../scripts/server.sh", {

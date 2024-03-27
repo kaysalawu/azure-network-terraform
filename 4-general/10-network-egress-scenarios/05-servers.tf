@@ -4,9 +4,19 @@
 ####################################################
 
 locals {
+  server1_crawler_vars = merge(local.hub_crawler_vars, {
+    VNET_NAME   = module.hub.vnet.name
+    SUBNET_NAME = module.hub.subnets["ProductionSubnet"].name
+    VM_NAME     = "${local.prefix}-${local.hub_server1_hostname}"
+  })
+  server1_crawler_files = {
+    "${local.init_dir}/crawler/app/crawler.sh"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/crawler.sh", local.server1_crawler_vars) }
+    "${local.init_dir}/crawler/app/service_tags.py"  = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/service_tags.py", local.server1_crawler_vars) }
+    "${local.init_dir}/crawler/app/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/requirements.txt", local.server1_crawler_vars) }
+  }
   hub_server1_files = merge(
-    local.hub_crawler_files,
     local.hub_server_files,
+    local.server1_crawler_files,
   )
 }
 
@@ -53,9 +63,19 @@ locals {
     "127.0.0.1",
     "corp",
   ]
+  server2_crawler_vars = merge(local.hub_crawler_vars, {
+    VNET_NAME   = module.hub.vnet.name
+    SUBNET_NAME = module.hub.subnets["ProductionSubnet"].name
+    VM_NAME     = "${local.prefix}-${local.hub_server2_hostname}"
+  })
+  server2_crawler_files = {
+    "${local.init_dir}/crawler/app/crawler.sh"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/crawler.sh", local.server2_crawler_vars) }
+    "${local.init_dir}/crawler/app/service_tags.py"  = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/service_tags.py", local.server2_crawler_vars) }
+    "${local.init_dir}/crawler/app/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/requirements.txt", local.server2_crawler_vars) }
+  }
   hub_server2_files = merge(
-    local.hub_crawler_files,
     local.hub_server_files,
+    local.server2_crawler_files,
   )
 }
 
@@ -101,8 +121,10 @@ module "hub_server2_vm" {
 
 locals {
   hub_server_output_files = {
-    "output/hub-server1-init.yaml" = module.hub_server1_init.cloud_config
-    "output/hub-server2-init.yaml" = module.hub_server2_init.cloud_config
+    "output/server1-init.yaml"  = module.hub_server1_init.cloud_config
+    "output/server2-init.yaml"  = module.hub_server2_init.cloud_config
+    "output/server1-crawler.sh" = templatefile("../../scripts/init/crawler/app/crawler.sh", local.server1_crawler_vars)
+    "output/server2-crawler.sh" = templatefile("../../scripts/init/crawler/app/crawler.sh", local.server2_crawler_vars)
   }
 }
 
