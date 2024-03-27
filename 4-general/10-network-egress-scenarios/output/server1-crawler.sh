@@ -15,7 +15,7 @@ reset=$(tput sgr0)
 
 echo -e "\n$boldAzure Service Crawler initiating ...$reset\n"
 
-export METADATA=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2021-02-01&format=json")
+export METADATA=$(timeout 3 curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2021-02-01&format=json")
 export SUBSCRIPTION_ID=$(echo $METADATA | jq -r '.compute.subscriptionId')
 export RESOURCE_GROUP=$(echo $METADATA | jq -r '.compute.resourceGroupName')
 

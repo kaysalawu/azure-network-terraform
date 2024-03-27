@@ -12,7 +12,8 @@ Contents
 - [Test Servers](#test-servers)
 - [Egress Test Results](#egress-test-results)
   - [A. No Explicit Outbound Method, Private-Subnet = Off, Service-Endpoint = Off](#a-no-explicit-outbound-method-private-subnet--off-service-endpoint--off)
-  - [B. NAT-Gateway, Private-Subnet = On, Service-Endpoint = Off](#b-nat-gateway-private-subnet--on-service-endpoint--off)
+  - [B. NAT-Gateway, Private-Subnet = On, Service-Endpoint = On](#b-nat-gateway-private-subnet--on-service-endpoint--on)
+  - [BB. NAT-Gateway, Private-Subnet = On, Service-Endpoint = Off](#bb-nat-gateway-private-subnet--on-service-endpoint--off)
   - [C. Default Outbound Access, Service-Endpoint = Off](#c-default-outbound-access-service-endpoint--off)
   - [D. Private Subnet and Service Endpoints](#d-private-subnet-and-service-endpoints)
   - [E. Private Subnet and Service Tag UDR](#e-private-subnet-and-service-tag-udr)
@@ -143,10 +144,10 @@ From here, you can run the `crawlz` command to test service reachability to vari
    <td><strong>KeyVault</strong></td>
   </tr>
   <tr>
-   <td>A</td><td></td><td></td><td></td><td></td><td></td><td></td><td>X</td><td>Yes</td><td>Yes<td>Yes<td>Yes</td>
+   <td>A</td><td>PublicSubnet</td><td></td><td></td><td></td><td></td><td></td><td>X</td><td>Yes</td><td>Yes<td>Yes<td>Yes</td>
   </tr>
   <tr>
-   <td>B</td><td></td><td></td><td>X</td><td>X</td><td></td><td></td><td></td><td>N</td><td>NA<td>NA<td>NA</td>
+   <td>B</td><td>Production</td><td>X</td><td>X</td><td>X</td><td></td><td></td><td></td><td>Yes</td><td>Yes<td>Yes<td>Yes</td>
   </tr>
   <tr>
    <td>C</td><td>Production</td><td></td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
@@ -300,7 +301,153 @@ Results
 </details>
 <p>
 
-### B. NAT-Gateway, Private-Subnet = On, Service-Endpoint = Off
+### B. NAT-Gateway, Private-Subnet = On, Service-Endpoint = On
+
+When private subnet is enabled on `ProductionSubnet` associated with a NAT gateway, the VM `G10-Server1` can access the internet, Azure services, and management services. Traffic to all public endpoints are sourced from the NAT gateway public IP address. Traffic to service endpoints do not require public IP addresses.
+
+<img src="./images/egress-scenario-b.png" alt="Scenario B" width="650">
+
+**Test instructions:**
+
+Private subnet is already enabled on `ProductionSubnet`. The subnet is also already associated with a NAT gateway.
+
+1\. Login to `G10-Server1` VM as described in the [Test Servers](#test-servers) section.
+
+2\. Run the command `crawlz` to test network reachability.
+
+**Summary:**
+
+```sh
+-------------------------------------
+Environment
+-------------------------------------
+VM Name:        G10-Server1
+Resource Group: G10_NETWORKEGRESS_RG
+Location:       northeurope
+VNET Name:      G10-hub-vnet
+Subnet Name:    ProductionSubnet
+Private IP:     10.0.3.4
+-------------------------------------
+Results
+-------------------------------------
+1. NAT_IP_Type:         NatGw
+2. Service_Endpoints:   True
+3. Private_Subnet:      True
+4. Internet_Access:     Yes
+5. Management_Access:   Yes
+6. Blob_Access:         Yes
+7. KeyVault_Access:     Yes
+-------------------------------------
+```
+
+**Detailed Result:**
+
+<details>
+
+<summary>Detailed Result</summary>
+
+```sh
+azureuser@Server1:~$ crawlz
+
+ Service Crawler initiating ...
+
+* Extracting az token...
+* Downloading service tags JSON...
+
+-------------------------------------
+Environment
+-------------------------------------
+VM Name:        G10-Server1
+Resource Group: G10_NETWORKEGRESS_RG
+Location:       northeurope
+VNET Name:      G10-hub-vnet
+Subnet Name:    ProductionSubnet
+Private IP:     10.0.3.4
+-------------------------------------
+
+1. Check Public Address Type
+   Local IP:    10.0.3.4
+   Public IP:   13.74.117.25
+   Address type: NatGw
+
+2. Check Service Endpoints
+   Subnet --> ProductionSubnet
+   Service EP: True
+  - Microsoft.Storage
+  - Microsoft.KeyVault
+  - Microsoft.Sql
+  - Microsoft.ServiceBus
+  - Microsoft.EventHub
+  - Microsoft.AzureActiveDirectory
+  - Microsoft.Web
+  - Microsoft.CognitiveServices
+  - Microsoft.ContainerRegistry
+  - Microsoft.AzureCosmosDB
+
+3. Check Private Subnet
+   Subnet --> ProductionSubnet
+   DefaultOutbound: false
+   Private Subnet:  True
+
+4. Check Internet Access
+   Connecting to https://ifconfig.me ...
+   Access: Yes (200)
+
+5. Management (Control Plane)
+   url = https://management.azure.com/subscriptions?api-version=2020-01-01
+   host = management.azure.com
+   52.146.134.240 <-- management.azure.com
+   Searching for service tags matching 52.146.134.240
+   - 52.146.134.0/23 <-- AzureResourceManager ()
+   - 52.146.134.0/23 <-- AzureResourceManager.NorthEurope (northeurope)
+   - 52.146.128.0/17 <-- AzureCloud.northeurope (northeurope)
+   - 52.146.128.0/17 <-- AzureCloud ()
+   Testing access to management.azure.com
+   Access: Yes (200)
+
+6. Blob (Data Plane)
+   url = https://g10hub99a2.blob.core.windows.net/storage/storage.txt
+   host = g10hub99a2.blob.core.windows.net
+   20.60.204.97 <-- g10hub99a2.blob.core.windows.net
+   Searching for service tags matching 20.60.204.97
+   - 20.60.0.0/16 <-- Storage ()
+   - 20.60.204.0/23 <-- Storage.NorthEurope (northeurope)
+   - 20.60.204.0/23 <-- AzureCloud.northeurope (northeurope)
+   - 20.60.204.0/23 <-- AzureCloud ()
+   Retrieving blob content ...
+   Content: Hello, World!
+   Access: Yes
+
+7. KeyVault (Data Plane)
+   url: https://g10-hub-kv99a2.vault.azure.net/secrets/message
+   host: g10-hub-kv99a2.vault.azure.net
+   52.146.137.169 <-- g10-hub-kv99a2.vault.azure.net
+   Searching for service tags matching 52.146.137.169
+   - 52.146.137.168/29 <-- AzureKeyVault ()
+   - 52.146.137.168/29 <-- AzureKeyVault.NorthEurope (northeurope)
+   - 52.146.128.0/17 <-- AzureCloud.northeurope (northeurope)
+   - 52.146.128.0/17 <-- AzureCloud ()
+   Accessing secret ...
+   message: Hello, World!
+   Access: Yes
+
+-------------------------------------
+Results
+-------------------------------------
+1. NAT_IP_Type:         NatGw
+2. Service_Endpoints:   True
+3. Private_Subnet:      True
+4. Internet_Access:     Yes
+5. Management_Access:   Yes
+6. Blob_Access:         Yes
+7. KeyVault_Access:     Yes
+-------------------------------------
+```
+
+</details>
+<p>
+
+### BB. NAT-Gateway, Private-Subnet = On, Service-Endpoint = Off
 
 When private subnet is enabled on `ProductionSubnet` associated with a NAT gateway, the VM `G10-Server1` can access the internet, Azure services, and management services. Traffic to all public endpoints are sourced from the NAT gateway public IP address.
 
