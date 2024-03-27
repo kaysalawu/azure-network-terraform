@@ -1,2 +1,0 @@
-g10-hub-kv33bc.vault.azure.net
-g10hub33bc.blob.core.windows.net

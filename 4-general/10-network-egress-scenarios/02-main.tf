@@ -64,7 +64,7 @@ locals {
       enable_ars                   = false
       ruleset_dns_forwarding_rules = {}
       nat_gateway_subnet_names = [
-        # "ProductionSubnet",
+        "ProductionSubnet",
       ]
     }
     config_s2s_vpngw = { enable = false }
@@ -132,13 +132,6 @@ locals {
     KEY_VAULT_SECRET_URL       = local.key_vault_secret_url
     KEY_VAULT_SECRET_VALUE     = local.key_vault_secret_value
   }
-  # hub_crawler_files = {
-  #   "${local.init_dir}/crawler/app/crawler.sh"        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/crawler.sh", local.hub_crawler_vars) }
-  #   "${local.init_dir}/crawler/app/service_tags.py"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/service_tags.py", local.hub_crawler_vars) }
-  #   "${local.init_dir}/crawler/app/service_access.py" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/service_access.py", local.hub_crawler_vars) }
-  #   "${local.init_dir}/crawler/app/find_subnet.py"    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/find_subnet.py", local.hub_crawler_vars) }
-  #   "${local.init_dir}/crawler/app/requirements.txt"  = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/requirements.txt", local.hub_crawler_vars) }
-  # }
   hub_server_vars = {
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []
