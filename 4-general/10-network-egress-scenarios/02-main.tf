@@ -6,7 +6,7 @@ locals {
   prefix                   = "G10"
   lab_name                 = "NetworkEgress"
   enable_diagnostics       = true
-  enable_service_endpoints = false
+  enable_service_endpoints = true
   enable_lb_snat_outbound  = false
   enable_service_tags      = false
 

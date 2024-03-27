@@ -192,10 +192,10 @@ write_files:
         #####################################################
         echo -e "\n4. Check Internet Access"
         #####################################################
-        url="https://contoso.com"
+        url="https://ifconfig.me"
         echo "   Connecting to $url ..."
         internet_access=$(timeout 10 curl -o /dev/null -s -w "%{http_code}\n" $url)
-        if ! [[ "$internet_access" =~ ^4 ]]; then
+        if [[ "$internet_access" =~ ^2 ]] || [[ "$internet_access" =~ ^3 ]]; then
           echo -e "   Access: Yes ($internet_access)"
           INTERNET_ACCESS="Yes"
         else
@@ -253,7 +253,7 @@ write_files:
         get_azure_service_tag_from_host $host 2>/dev/null
       
         echo "   Retrieving blob content ..."
-        blob_access=$(az storage blob download --account-name g10hub33bc -c storage -n storage.txt --query content -o tsv 2>/dev/null)
+        blob_access=$(timeout 10 az storage blob download --account-name g10hub33bc -c storage -n storage.txt --query content -o tsv 2>/dev/null)
         if [ "$blob_access" = "Hello, World!" ]; then
           echo -e  "   Content: $blob_access"
           echo -e  "   Access: Yes"

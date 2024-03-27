@@ -130,10 +130,10 @@ function check_internet_access() {
   #####################################################
   echo -e "\n4. Check Internet Access"
   #####################################################
-  url="https://contoso.com"
+  url="https://ifconfig.me"
   echo "   Connecting to $url ..."
   internet_access=$(timeout 10 curl -o /dev/null -s -w "%%{http_code}\n" $url)
-  if ! [[ "$internet_access" =~ ^4 ]]; then
+  if [[ "$internet_access" =~ ^2 ]] || [[ "$internet_access" =~ ^3 ]]; then
     echo -e "   Access: Yes ($internet_access)"
     INTERNET_ACCESS="Yes"
   else
