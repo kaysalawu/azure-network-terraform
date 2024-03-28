@@ -122,9 +122,14 @@ From here, you can run the `crawlz` command to test service reachability to vari
 
 ## Test Results
 
+<style>
+table {
+  font-size: 90%;
+}
+</style>
 <table>
   <tr>
-   <td rowspan="2" ><strong>Scenario</strong></td>
+   <td rowspan="2" ><strong></strong></td>
    <td rowspan="2" ><strong>Test VM</strong></td>
    <td rowspan="2" ><strong>Subnet</strong></td>
    <td rowspan="2" ><strong>Service Endpoint</strong></td>
