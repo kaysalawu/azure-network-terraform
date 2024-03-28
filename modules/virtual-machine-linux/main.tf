@@ -140,21 +140,6 @@ resource "azurerm_linux_virtual_machine" "this" {
   }
 }
 
-# resource "azurerm_role_assignment" "system_assigned" {
-#   count                = length(var.user_assigned_ids) == 0 ? length(var.assigned_roles) : 0
-#   scope                = var.assigned_roles[count.index].scope
-#   role_definition_name = var.assigned_roles[count.index].role
-#   principal_id         = azurerm_linux_virtual_machine.this.identity[0].principal_id
-# }
-
-# resource "azurerm_role_assignment" "user_assigned" {
-#   count                = length(azurerm_linux_virtual_machine.this.identity[0].identity_ids) > 0 ? 1 : 0
-#   for_each             = { for id in azurerm_linux_virtual_machine.this.identity[0].identity_ids : id => id }
-#   scope                = azurerm_linux_virtual_machine.this.id
-#   role_definition_name = "Contributor"
-#   principal_id         = var.user_assigned_ids[0]
-# }
-
 ####################################################
 # virtual machine extension
 ####################################################

@@ -55,14 +55,14 @@ locals {
     )
   }
   branch2_forward_zones = [
-    { zone = "${local.region1_dns_zone}.", targets = [local.hub1_dns_in_addr, ] },
-    { zone = "${local.region2_dns_zone}.", targets = [local.hub1_dns_in_addr, ] },
-    { zone = "privatelink.blob.core.windows.net.", targets = [local.hub1_dns_in_addr, ] },
-    { zone = "privatelink.azurewebsites.net.", targets = [local.hub1_dns_in_addr, ] },
-    { zone = "privatelink.database.windows.net.", targets = [local.hub1_dns_in_addr, ] },
-    { zone = "privatelink.table.cosmos.azure.com.", targets = [local.hub1_dns_in_addr, ] },
-    { zone = "privatelink.queue.core.windows.net.", targets = [local.hub1_dns_in_addr, ] },
-    { zone = "privatelink.file.core.windows.net.", targets = [local.hub1_dns_in_addr, ] },
+    { zone = "${local.region1_dns_zone}.", targets = [local.hub2_dns_in_addr, ] },
+    { zone = "${local.region2_dns_zone}.", targets = [local.hub2_dns_in_addr, ] },
+    { zone = "privatelink.blob.core.windows.net.", targets = [local.hub2_dns_in_addr, ] },
+    { zone = "privatelink.azurewebsites.net.", targets = [local.hub2_dns_in_addr, ] },
+    { zone = "privatelink.database.windows.net.", targets = [local.hub2_dns_in_addr, ] },
+    { zone = "privatelink.table.cosmos.azure.com.", targets = [local.hub2_dns_in_addr, ] },
+    { zone = "privatelink.queue.core.windows.net.", targets = [local.hub2_dns_in_addr, ] },
+    { zone = "privatelink.file.core.windows.net.", targets = [local.hub2_dns_in_addr, ] },
     { zone = ".", targets = [local.azuredns, ] },
   ]
 }
@@ -100,17 +100,9 @@ locals {
     LOOPBACK0 = local.branch2_nva_loopback0
     LOOPBACKS = []
 
-    PREFIX_LISTS = [
-      "ip prefix-list ${local.branch2_nva_route_map_block_azure} deny ${local.hub1_address_space[1]}",
-      "ip prefix-list ${local.branch2_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
-    ]
+    PREFIX_LISTS = []
 
     ROUTE_MAPS = [
-      # prepend as-path between branches
-      "route-map ${local.branch2_nva_route_map_onprem} permit 100",
-      "match ip address prefix-list all",
-      "set as-path prepend ${local.branch2_nva_asn} ${local.branch2_nva_asn} ${local.branch2_nva_asn}",
-
       # do nothing (placeholder for future use)
       "route-map ${local.branch2_nva_route_map_azure} permit 110",
       "match ip address prefix-list all",
@@ -190,7 +182,7 @@ module "branch2_nva" {
   name            = "${local.prefix}-${local.branch2_nva_hostname}"
   computer_name   = local.branch2_nva_hostname
   location        = local.branch2_location
-  storage_account = module.common.storage_accounts["region1"]
+  storage_account = module.common.storage_accounts["region2"]
   custom_data     = base64encode(local.branch2_nva_init)
   tags            = local.branch2_tags
 

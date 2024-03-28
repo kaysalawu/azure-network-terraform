@@ -24,7 +24,6 @@ def main():
         sys.exit(1)
 
     ip_address = sys.argv[1]
-    print(f"   Searching for service tags matching {ip_address}")
     locate_IP_range(ip_address)
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ Contents
 - [Egress Test Results](#egress-test-results)
   - [A. No Explicit Outbound Method, Private-Subnet = Off, Service-Endpoint = Off](#a-no-explicit-outbound-method-private-subnet--off-service-endpoint--off)
   - [B. NAT-Gateway, Private-Subnet = On, Service-Endpoint = On](#b-nat-gateway-private-subnet--on-service-endpoint--on)
-  - [BB. NAT-Gateway, Private-Subnet = On, Service-Endpoint = Off](#bb-nat-gateway-private-subnet--on-service-endpoint--off)
+  - [C. NAT-Gateway, Private-Subnet = On, Service-Endpoint = Off](#c-nat-gateway-private-subnet--on-service-endpoint--off)
   - [C. Default Outbound Access, Service-Endpoint = Off](#c-default-outbound-access-service-endpoint--off)
   - [D. Private Subnet and Service Endpoints](#d-private-subnet-and-service-endpoints)
   - [E. Private Subnet and Service Tag UDR](#e-private-subnet-and-service-tag-udr)
@@ -447,7 +447,7 @@ Results
 </details>
 <p>
 
-### BB. NAT-Gateway, Private-Subnet = On, Service-Endpoint = Off
+### C. NAT-Gateway, Private-Subnet = On, Service-Endpoint = Off
 
 When private subnet is enabled on `ProductionSubnet` associated with a NAT gateway, the VM `G10-Server1` can access the internet, Azure services, and management services. Traffic to all public endpoints are sourced from the NAT gateway public IP address.
 

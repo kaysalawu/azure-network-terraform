@@ -92,22 +92,22 @@ locals {
   vhub3_vpngw_bgp_apipa_1 = cidrhost(local.bgp_apipa_range6, 1)
 }
 
-# hub1
+# hub2
 #----------------------------
 
 locals {
-  hub1_prefix        = local.prefix == "" ? "hub1-" : join("-", [local.prefix, "hub1-"])
-  hub1_location      = local.region1
-  hub1_address_space = ["10.11.0.0/20", "10.11.16.0/20"]
-  hub1_nat_ranges = {
+  hub2_prefix        = local.prefix == "" ? "hub2-" : join("-", [local.prefix, "hub2-"])
+  hub2_location      = local.region2
+  hub2_address_space = ["10.11.0.0/20", "10.11.16.0/20"]
+  hub2_nat_ranges = {
     "branch1" = {
       "egress-static"  = "10.11.90.0/24"
       "egress-dynamic" = "10.11.91.0/24"
       "ingress-static" = "10.11.80.0/24"
     }
   }
-  hub1_dns_zone = local.region1_dns_zone
-  hub1_subnets = {
+  hub2_dns_zone = local.region2_dns_zone
+  hub2_subnets = {
     ("MainSubnet")                    = { address_prefixes = ["10.11.0.0/24"] }
     ("UntrustSubnet")                 = { address_prefixes = ["10.11.1.0/24"] }
     ("TrustSubnet")                   = { address_prefixes = ["10.11.2.0/24"] }
@@ -124,60 +124,28 @@ locals {
     ("AppServiceSubnet")              = { address_prefixes = ["10.11.13.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")                 = { address_prefixes = ["10.11.16.0/24"] }
   }
-  hub1_default_gw_main      = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 1)
-  hub1_default_gw_nva       = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 1)
-  hub1_vm_addr              = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 5)
-  hub1_nva_trust_addr       = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 4)
-  hub1_nva_untrust_addr     = cidrhost(local.hub1_subnets["UntrustSubnet"].address_prefixes[0], 4)
-  hub1_nva_ilb_trust_addr   = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 99)
-  hub1_nva_ilb_untrust_addr = cidrhost(local.hub1_subnets["UntrustSubnet"].address_prefixes[0], 99)
-  hub1_appgw_addr           = cidrhost(local.hub1_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
-  hub1_dns_in_addr          = cidrhost(local.hub1_subnets["DnsResolverInboundSubnet"].address_prefixes[0], 4)
-  hub1_vpngw_bgp_ip         = cidrhost(local.hub1_subnets["GatewaySubnet"].address_prefixes[0], 254)
-  hub1_spoke3_pls_pep_ip    = cidrhost(local.hub1_subnets["PrivateEndpointSubnet"].address_prefixes[0], 88)
-  hub1_spoke3_blob_pep_ip   = cidrhost(local.hub1_subnets["PrivateEndpointSubnet"].address_prefixes[0], 99)
-  hub1_nva_loopback0        = "10.11.11.11"
-  hub1_nva_tun_range0       = "10.11.50.0/30"
-  hub1_nva_tun_range1       = "10.11.51.4/30"
-  hub1_vpngw_bgp_apipa_0    = cidrhost(local.bgp_apipa_range1, 1)
-  hub1_vpngw_bgp_apipa_1    = cidrhost(local.bgp_apipa_range2, 1)
-  hub1_vm_hostname          = "hub1Vm"
-  hub1_ilb_hostname         = "hub1-ilb"
-  hub1_spoke3_pep_host      = "spoke3pls"
-  hub1_vm_fqdn              = "${local.hub1_vm_hostname}.${local.hub1_dns_zone}"
-  hub1_spoke3_pep_fqdn      = "${local.hub1_spoke3_pep_host}.${local.hub1_dns_zone}"
-}
-
-# branch1
-#----------------------------
-
-locals {
-  branch1_prefix        = local.prefix == "" ? "branch1-" : join("-", [local.prefix, "branch1-"])
-  branch1_location      = local.region1
-  branch1_address_space = ["10.10.0.0/20", "10.10.16.0/20", ]
-  branch1_nva_asn       = "65001"
-  branch1_dns_zone      = local.onprem_domain
-  branch1_subnets = {
-    ("MainSubnet")       = { address_prefixes = ["10.10.0.0/24"] }
-    ("UntrustSubnet")    = { address_prefixes = ["10.10.1.0/24"] }
-    ("TrustSubnet")      = { address_prefixes = ["10.10.2.0/24"] }
-    ("ManagementSubnet") = { address_prefixes = ["10.10.3.0/24"] }
-    ("DnsServerSubnet")  = { address_prefixes = ["10.10.4.0/24"] }
-    ("GatewaySubnet")    = { address_prefixes = ["10.10.16.0/24"] }
-  }
-  branch1_untrust_default_gw = cidrhost(local.branch1_subnets["UntrustSubnet"].address_prefixes[0], 1)
-  branch1_trust_default_gw   = cidrhost(local.branch1_subnets["TrustSubnet"].address_prefixes[0], 1)
-  branch1_nva_untrust_addr   = cidrhost(local.branch1_subnets["UntrustSubnet"].address_prefixes[0], 9)
-  branch1_nva_trust_addr     = cidrhost(local.branch1_subnets["TrustSubnet"].address_prefixes[0], 9)
-  branch1_vm_addr            = cidrhost(local.branch1_subnets["MainSubnet"].address_prefixes[0], 5)
-  branch1_dns_addr           = cidrhost(local.branch1_subnets["MainSubnet"].address_prefixes[0], 6)
-  branch1_nva_loopback0      = "192.168.10.10"
-  branch1_bgp_apipa_0        = cidrhost(local.bgp_apipa_range3, 2)
-  branch1_bgp_apipa_1        = cidrhost(local.bgp_apipa_range4, 2)
-  branch1_vm_hostname        = "branch1Vm"
-  branch1_nva_hostname       = "branch1Nva"
-  branch1_dns_hostname       = "branch1Dns"
-  branch1_vm_fqdn            = "${local.branch1_vm_hostname}.${local.onprem_domain}"
+  hub2_default_gw_main      = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 1)
+  hub2_default_gw_nva       = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 1)
+  hub2_vm_addr              = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 5)
+  hub2_nva_trust_addr       = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 4)
+  hub2_nva_untrust_addr     = cidrhost(local.hub2_subnets["UntrustSubnet"].address_prefixes[0], 4)
+  hub2_nva_ilb_trust_addr   = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 99)
+  hub2_nva_ilb_untrust_addr = cidrhost(local.hub2_subnets["UntrustSubnet"].address_prefixes[0], 99)
+  hub2_appgw_addr           = cidrhost(local.hub2_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
+  hub2_dns_in_addr          = cidrhost(local.hub2_subnets["DnsResolverInboundSubnet"].address_prefixes[0], 4)
+  hub2_vpngw_bgp_ip         = cidrhost(local.hub2_subnets["GatewaySubnet"].address_prefixes[0], 254)
+  hub2_spoke3_pls_pep_ip    = cidrhost(local.hub2_subnets["PrivateEndpointSubnet"].address_prefixes[0], 88)
+  hub2_spoke3_blob_pep_ip   = cidrhost(local.hub2_subnets["PrivateEndpointSubnet"].address_prefixes[0], 99)
+  hub2_nva_loopback0        = "10.11.11.11"
+  hub2_nva_tun_range0       = "10.11.50.0/30"
+  hub2_nva_tun_range1       = "10.11.51.4/30"
+  hub2_vpngw_bgp_apipa_0    = cidrhost(local.bgp_apipa_range1, 1)
+  hub2_vpngw_bgp_apipa_1    = cidrhost(local.bgp_apipa_range2, 1)
+  hub2_vm_hostname          = "hub2Vm"
+  hub2_ilb_hostname         = "hub2-ilb"
+  hub2_spoke3_pep_host      = "spoke3pls"
+  hub2_vm_fqdn              = "${local.hub2_vm_hostname}.${local.hub2_dns_zone}"
+  hub2_spoke3_pep_fqdn      = "${local.hub2_spoke3_pep_host}.${local.hub2_dns_zone}"
 }
 
 # branch2
@@ -185,7 +153,7 @@ locals {
 
 locals {
   branch2_prefix        = local.prefix == "" ? "branch2-" : join("-", [local.prefix, "branch2-"])
-  branch2_location      = local.region1
+  branch2_location      = local.region2
   branch2_address_space = ["10.20.0.0/20", "10.20.16.0/20", ]
   branch2_nva_asn       = "65002"
   branch2_dns_zone      = local.onprem_domain
@@ -219,7 +187,7 @@ locals {
 
 locals {
   branch3_prefix        = local.prefix == "" ? "branch3-" : join("-", [local.prefix, "branch3-"])
-  branch3_location      = local.region2
+  branch3_location      = local.region3
   branch3_address_space = ["10.30.0.0/20", "10.30.16.0/20", ]
   branch3_nva_asn       = "65003"
   branch3_dns_zone      = local.onprem_domain
@@ -280,9 +248,9 @@ locals {
 
 locals {
   spoke2_prefix        = local.prefix == "" ? "spoke2-" : join("-", [local.prefix, "spoke2-"])
-  spoke2_location      = local.region1
+  spoke2_location      = local.region2
   spoke2_address_space = ["10.2.0.0/20", ]
-  spoke2_dns_zone      = local.region1_dns_zone
+  spoke2_dns_zone      = local.region2_dns_zone
   spoke2_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.2.0.0/24"] }
     ("UntrustSubnet")            = { address_prefixes = ["10.2.1.0/24"] }
@@ -309,9 +277,9 @@ locals {
 
 locals {
   spoke3_prefix        = local.prefix == "" ? "spoke3-" : join("-", [local.prefix, "spoke3-"])
-  spoke3_location      = local.region1
+  spoke3_location      = local.region3
   spoke3_address_space = ["10.3.0.0/20", ]
-  spoke3_dns_zone      = local.region1_dns_zone
+  spoke3_dns_zone      = local.region3_dns_zone
   spoke3_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.3.0.0/24"] }
     ("UntrustSubnet")            = { address_prefixes = ["10.3.1.0/24"] }
