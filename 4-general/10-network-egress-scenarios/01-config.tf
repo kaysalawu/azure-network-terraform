@@ -78,7 +78,7 @@ locals {
   hub_subnets = {
     ("GatewaySubnet")    = { address_prefixes = ["10.0.0.0/24"], default_outbound_access = [true] }
     ("AppGatewaySubnet") = { address_prefixes = ["10.0.1.0/24"], default_outbound_access = [true] }
-    ("PublicSubnet")     = { address_prefixes = ["10.0.2.0/24"], default_outbound_access = [true], service_endpoints = [], use_azapi = [true] }
+    ("PublicSubnet")     = { address_prefixes = ["10.0.2.0/24"], default_outbound_access = [true], service_endpoints = [], }
     ("ProductionSubnet") = { address_prefixes = ["10.0.3.0/24"], default_outbound_access = [false], service_endpoints = local.service_endpoints, use_azapi = [true] }
   }
   hub_proxy_addr       = cidrhost(local.hub_subnets["PublicSubnet"].address_prefixes[0], 4)

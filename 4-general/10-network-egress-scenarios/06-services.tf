@@ -141,23 +141,3 @@ resource "azurerm_key_vault_secret" "key_vault" {
     time_sleep.key_vault,
   ]
 }
-
-####################################################
-# output files
-####################################################
-
-locals {
-  crawler_targets = [
-    replace(replace(azurerm_key_vault.key_vault.vault_uri, "https://", ""), "/", ""),
-    replace(replace(azurerm_storage_account.storage.primary_blob_endpoint, "https://", ""), "/", ""),
-  ]
-  services_files = {
-    "output/crawler-targets.txt" = join("\n", local.crawler_targets)
-  }
-}
-
-resource "local_file" "services_files" {
-  for_each = local.services_files
-  filename = each.key
-  content  = each.value
-}
