@@ -9,16 +9,14 @@ Contents
 - [Deploy the Lab](#deploy-the-lab)
 - [Troubleshooting](#troubleshooting)
 - [Outputs](#outputs)
-- [Test Servers](#test-servers)
-- [Egress Test Results](#egress-test-results)
-  - [A. No Explicit Outbound Method, Private-Subnet = Off, Service-Endpoint = Off](#a-no-explicit-outbound-method-private-subnet--off-service-endpoint--off)
-  - [B. NAT-Gateway, Private-Subnet = On, Service-Endpoint = On](#b-nat-gateway-private-subnet--on-service-endpoint--on)
-  - [C. NAT-Gateway, Private-Subnet = On, Service-Endpoint = Off](#c-nat-gateway-private-subnet--on-service-endpoint--off)
-  - [C. Default Outbound Access, Service-Endpoint = Off](#c-default-outbound-access-service-endpoint--off)
-  - [D. Private Subnet and Service Endpoints](#d-private-subnet-and-service-endpoints)
-  - [E. Private Subnet and Service Tag UDR](#e-private-subnet-and-service-tag-udr)
-  - [F. Private Subnet, Service Endpoints, and Service Tag UDR](#f-private-subnet-service-endpoints-and-service-tag-udr)
-  - [G. Mixed - Default Outbound and Private Subnet](#g-mixed---default-outbound-and-private-subnet)
+- [Accessing the Test Servers](#accessing-the-test-servers)
+- [Test Results](#test-results)
+  - [A. NAT Gateway, Private-Subnet = Off, Service-Endpoint = Off](#a-nat-gateway-private-subnet--off-service-endpoint--off)
+  - [B. NAT-Gateway, Private-Subnet = On, Service-Endpoint = Off](#b-nat-gateway-private-subnet--on-service-endpoint--off)
+  - [C. NAT-Gateway, Private-Subnet = On, Service-Endpoint = On](#c-nat-gateway-private-subnet--on-service-endpoint--on)
+  - [D. No Explicit Public IP, Private-Subnet = On, Service-Endpoint = On](#d-no-explicit-public-ip-private-subnet--on-service-endpoint--on)
+  - [E. Outbound Access via Proxy](#e-outbound-access-via-proxy)
+  - [F. No Explicit Public IP, Private-Subnet = Off, Service-Endpoint = Off](#f-no-explicit-public-ip-private-subnet--off-service-endpoint--off)
 - [Cleanup](#cleanup)
 
 ## Overview
@@ -69,7 +67,7 @@ The table below shows the auto-generated output files from the lab. They are loc
 | Proxy | Cloud-init configuration | [output/proxy-init.yaml](./output/proxy-crawler.sh) |
 ||||
 
-## Test Servers
+## Accessing the Test Servers
 
 Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of network reachability tests. Serial console access has been configured for all virtual machines.
 
@@ -120,20 +118,21 @@ azureuser@branch1Vm:~$ az login --identity
 </details>
 <p>
 
-From here, you can run the `crawlz` command to test service reachability to various Azure services as shown in the following sections.
+From here, you can run the `crawlz` command to test service reachability to various Azure services as shown in the following sections. The lab is designed to be run sequentially to achieve the results described in the following sections.
 
-## Egress Test Results
+## Test Results
 
 <table>
   <tr>
    <td rowspan="2" ><strong>Scenario</strong></td>
+   <td rowspan="2" ><strong>Test VM</strong></td>
    <td rowspan="2" ><strong>Subnet</strong></td>
    <td rowspan="2" ><strong>Service Endpoint</strong></td>
    <td rowspan="2" ><strong>Private Subnet</strong></td>
    <td colspan="4" ><strong>Public IP Type</strong></td>
    <td rowspan="2" ><strong>Azure Mgmt Access?</strong></td>
    <td rowspan="2" ><strong>Internet Access?</strong></td>
-   <td colspan="2" ><strong>Azure Services Access?</strong></td>
+   <td colspan="2" ><strong>Data Plane Access?</strong></td>
   </tr>
   <tr>
    <td><strong>NAT GW</td>
@@ -144,29 +143,23 @@ From here, you can run the `crawlz` command to test service reachability to vari
    <td><strong>KeyVault</strong></td>
   </tr>
   <tr>
-   <td>A</td><td>PublicSubnet</td><td></td><td></td><td></td><td></td><td></td><td>X</td><td>Yes</td><td>Yes<td>Yes<td>Yes</td>
+   <td>A</td><td>Proxy</td><td>Public</td><td></td><td></td><td></td><td></td><td></td><td>X</td><td>Yes</td><td>Yes<td>Yes<td>Yes</td>
   </tr>
   <tr>
-   <td>B</td><td>Production</td><td>X</td><td>X</td><td>X</td><td></td><td></td><td></td><td>Yes</td><td>Yes<td>Yes<td>Yes</td>
+   <td>B</td><td>Server1</td><td>Production</td><td></td><td>X</td><td>X</td><td></td><td></td><td></td><td>Yes</td><td>Yes<td>Yes<td>Yes</td>
   </tr>
   <tr>
-   <td>C</td><td>Production</td><td></td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+   <td>C</td><td>Server1</td><td>Production</td><td>X</td><td>X</td><td>X</td><td></td><td></td><td></td><td>Yes</td><td>Yes<td>Yes<td>Yes</td>
   </tr>
   <tr>
-   <td>D</td><td>ON</td><td></td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+   <td>D</td><td>Server1</td><td>Production</td><td>X</td><td>X</td><td></td><td></td><td></td><td></td><td></td><td><td>Yes<td>Yes</td>
   </tr>
   <tr>
-   <td>E</td><td>ON</td><td></td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>F</td><td>ON</td><td></td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
-  </tr>
-  <tr>
-   <td>G</td><td>ON</td><td></td><td>OFF</td><td>Y</td><td>Z</td><td>A</td><td>Y</td><td>N</td><td>NA<td>NA<td>NA</td>
+   <td>E</td><td>Proxy</td><td>Public<td></td></td><td></td><td></td><td></td><td></td><td></td><td></td><td><td><td></td>
   </tr>
 </table>
 
-### A. No Explicit Outbound Method, Private-Subnet = Off, Service-Endpoint = Off
+### A. NAT Gateway, Private-Subnet = Off, Service-Endpoint = Off
 
 The [default outbound access](https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/default-outbound-access#how-is-default-outbound-access-provided) is used in this scenario because there is no explicit outbound method deployed (NAT gateway, load balancer SNAT, or VM public IP). Using the default outbound access, the VM `G10-Proxy` can access the internet, Azure services, and management services. Traffic to all public endpoints is sourced from the implicit public IP address provided via the default outbound access. Default outbound access is [not recommended for security reasons](https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/default-outbound-access#why-is-disabling-default-outbound-access-recommended).
 
@@ -301,7 +294,7 @@ Results
 </details>
 <p>
 
-### B. NAT-Gateway, Private-Subnet = On, Service-Endpoint = On
+### B. NAT-Gateway, Private-Subnet = On, Service-Endpoint = Off
 
 When private subnet is enabled on `ProductionSubnet` associated with a NAT gateway, the VM `G10-Server1` can access the internet, Azure services, and management services. Traffic to all public endpoints are sourced from the NAT gateway public IP address. Traffic to service endpoints do not require public IP addresses.
 
@@ -447,11 +440,11 @@ Results
 </details>
 <p>
 
-### C. NAT-Gateway, Private-Subnet = On, Service-Endpoint = Off
+### C. NAT-Gateway, Private-Subnet = On, Service-Endpoint = On
 
 When private subnet is enabled on `ProductionSubnet` associated with a NAT gateway, the VM `G10-Server1` can access the internet, Azure services, and management services. Traffic to all public endpoints are sourced from the NAT gateway public IP address.
 
-<img src="./images/egress-scenario-b.png" alt="Scenario B" width="650">
+<img src="./images/egress-scenario-c.png" alt="Scenario C" width="650">
 
 **Test instructions:**
 
@@ -583,11 +576,11 @@ Results
 </details>
 <p>
 
-### C. Default Outbound Access, Service-Endpoint = Off
+### D. No Explicit Public IP, Private-Subnet = On, Service-Endpoint = On
 
 When private subnet is enabled on `ProductionSubnet` and there is no explicit outbound method deployed (NAT gateway, load balancer SNAT, or VM public IP), the VM `G10-Server1` cannot access the internet, Azure services, and management services. Traffic to all public endpoints are sourced from the implicit public IP address provided via the default outbound access.
 
-<img src="./images/egress-scenario-c.png" alt="Scenario C" width="700">
+<img src="./images/egress-scenario-d.png" alt="Scenario D" width="700">
 
 **Test instructions:**
 
@@ -728,11 +721,11 @@ Results
 </details>
 <p>
 
-### D. Private Subnet and Service Endpoints
+### E. Outbound Access via Proxy
 
 When private subnet is enabled on `ProductionSubnet` and there is no explicit outbound method deployed (NAT gateway, load balancer SNAT, or VM public IP), the VM `G10-Server1` cannot access public endpoints. But with [service endpoints](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview) enabled on `ProductionSubnet`, `G10-Server1` can access Azure services that are associated with the service endpoints - in this case, Azure Storage and Azure Key Vault. Service endpoints are accessed via management.azure.com for management operations on resources - listing, creating, updating, and deleting resources.
 
-<img src="./images/egress-scenario-d.png" alt="Scenario D" width="700">
+<img src="./images/egress-scenario-e.png" alt="Scenario E" width="700">
 
 **Test instructions:**
 
@@ -770,66 +763,31 @@ enable_service_endpoints = true
 <img src="./images/egress-scenario-d.png" alt="Scenario D" width="700">
 
 
+### F. No Explicit Public IP, Private-Subnet = Off, Service-Endpoint = Off
 
-### E. Private Subnet and Service Tag UDR
-
-Test details:
-* Test machine: `G10-Proxy`
-* Subnet: `PublicSubnet`
-* Result:
-
-```sh
-
-```
-
-**Detailed Result:**
-
-<details>
-
-<summary>Detailed Result</summary>
-
-```sh
-
-```
-
-</details>
-<p>
-
-<img src="./images/egress-scenario-e.png" alt="Scenario E" width="700">
-
-
-### F. Private Subnet, Service Endpoints, and Service Tag UDR
-
-Test details:
-* Test machine: `G10-Proxy`
-* Subnet: `PublicSubnet`
-* Result:
-
-```sh
-
-```
-
-**Detailed Result:**
-
-<details>
-
-<summary>Detailed Result</summary>
-
-```sh
-
-```
-
-</details>
-<p>
+TBC
 
 <img src="./images/egress-scenario-f.png" alt="Scenario F" width="700">
 
-### G. Mixed - Default Outbound and Private Subnet
+**Test instructions:**
 
-Test details:
-* Test machine: `G10-Proxy`
-* Subnet: `PublicSubnet`
-* Result:
+1\. Enable service endpoints in the appropriate line in [02-main.tf](./02-main.tf#L9) file.
+
+```sh
+enable_service_endpoints = true
+```
+
+2\. Re-apply terraform to remove the subnet association with the NAT gateway.
+
+3\. Login to `G10-Server1` VM as described in the [Test Servers](#test-servers) section.
+
+4\. Run the command `crawlz` to test network reachability.
+
+**Summary:**
+
+```sh
+
+```
 
 **Detailed Result:**
 
@@ -844,7 +802,7 @@ Test details:
 </details>
 <p>
 
-<img src="./images/egress-scenario-g.png" alt="Scenario F" width="700">
+<img src="./images/egress-scenario-d.png" alt="Scenario D" width="700">
 
 ## Cleanup
 
