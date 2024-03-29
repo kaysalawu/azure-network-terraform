@@ -137,8 +137,8 @@ function check_private_subnet() {
     echo -e "   Private Subnet:  Enabled"
     PRIVATE_SUBNET=Enabled
   else
-    echo -e "   Private Subnet:  Unknown"
-    PRIVATE_SUBNET=Unknown
+    echo -e "   Private Subnet:  "
+    PRIVATE_SUBNET=
   fi
 }
 
@@ -192,19 +192,21 @@ function download_blob() {
   echo -e "   host = $host"
   resolve_dns $host 2>/dev/null
   get_azure_service_tag_from_host $host 2>/dev/null
-
+  storage_account_key=""
+  storage_access_token=""
+  blob_access=""
   echo -e "   az storage account keys list -g ${RESOURCE_GROUP} --account-name ${STORAGE_ACCOUNT_NAME}"
-  if STORAGE_ACCOUNT_KEY=$(timeout 5 az storage account keys list -g ${RESOURCE_GROUP} --account-name ${STORAGE_ACCOUNT_NAME} --query "[0].value" -o tsv 2>/dev/null); then
+  if storage_account_key=$(timeout 5 az storage account keys list -g ${RESOURCE_GROUP} --account-name ${STORAGE_ACCOUNT_NAME} --query "[0].value" -o tsv 2>/dev/null); then
     echo "   az storage blob download --account-name ${STORAGE_ACCOUNT_NAME} -c ${STORAGE_CONTAINER_NAME} -n ${STORAGE_BLOB_NAME} --account-key <KEY>"
-    blob_access=$(timeout 5 az storage blob download --account-name ${STORAGE_ACCOUNT_NAME} -c ${STORAGE_CONTAINER_NAME} -n ${STORAGE_BLOB_NAME} --account-key $STORAGE_ACCOUNT_KEY --query content -o tsv 2>/dev/null)
+    blob_access=$(timeout 5 az storage blob download --account-name ${STORAGE_ACCOUNT_NAME} -c ${STORAGE_CONTAINER_NAME} -n ${STORAGE_BLOB_NAME} --account-key $storage_account_key --query content -o tsv 2>/dev/null)
   else
     echo -e "   Storage account key: timed out!"
     echo -e "   Fallback: Get access token for storage.azure.com via metadata ..."
-    if ! STORAGE_ACCESS_TOKEN=$(timeout 5 curl -H Metadata:true "http://169.254.169.254:80/metadata/identity/oauth2/token?resource=https%3A%2F%2Fstorage.azure.com&api-version=2018-02-01" -s | jq -r .access_token); then
+    if ! storage_access_token=$(timeout 5 curl -H Metadata:true "http://169.254.169.254:80/metadata/identity/oauth2/token?resource=https%3A%2F%2Fstorage.azure.com&api-version=2018-02-01" -s | jq -r .access_token); then
       echo -e "   Storage access token: timed out!"
     else
       echo "   curl https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net/${STORAGE_CONTAINER_NAME}/${STORAGE_BLOB_NAME} ..."
-      blob_access=$(timeout 5 curl -s -H "x-ms-version: 2019-02-02" -H "Authorization: Bearer $STORAGE_ACCESS_TOKEN" "https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net/${STORAGE_CONTAINER_NAME}/${STORAGE_BLOB_NAME}")
+      blob_access=$(timeout 5 curl -s -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "x-ms-version: 2019-02-02" -H "Authorization: Bearer $storage_access_token" "https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net/${STORAGE_CONTAINER_NAME}/${STORAGE_BLOB_NAME}")
     fi
   fi
 
@@ -227,16 +229,17 @@ function access_keyvault_secret() {
   echo -e "   host: $host"
   resolve_dns $host
   get_azure_service_tag_from_host $host 2>/dev/null
-
+  secret_value=""
+  vault_access_token=""
   echo "   az keyvault secret show --vault-name ${KEY_VAULT_NAME} --name ${KEY_VAULT_SECRET_NAME}"
   if ! secret_value=$(timeout 5 az keyvault secret show --vault-name ${KEY_VAULT_NAME} --name ${KEY_VAULT_SECRET_NAME} --query value -o tsv 2>/dev/null); then
     echo -e "   ${KEY_VAULT_SECRET_NAME}: timed out!"
     echo -e "   Fallback: Get access token for vault.azure.net via metadata ..."
-    if ! VAULT_ACCESS_TOKEN=$(timeout 5 curl -H Metadata:true "http://169.254.169.254/metadata/identity/oauth2/token?resource=https%3A%2F%2Fvault.azure.net&api-version=2018-02-01" -s | jq -r .access_token); then
+    if ! vault_access_token=$(timeout 5 curl -H Metadata:true "http://169.254.169.254/metadata/identity/oauth2/token?resource=https%3A%2F%2Fvault.azure.net&api-version=2018-02-01" -s | jq -r .access_token); then
       echo -e "   Vault token: timed out!"
     else
       echo "curl https://${KEY_VAULT_NAME}.vault.azure.net/secrets/message?api-version=7.2"
-      secret_value=$(timeout 5 curl -H "Authorization : Bearer $VAULT_ACCESS_TOKEN" "https://${KEY_VAULT_NAME}.vault.azure.net/secrets/message?api-version=7.2" -o secret.txt 2>/dev/null)
+      secret_value=$(timeout 5 curl -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "Authorization : Bearer $vault_access_token" "https://${KEY_VAULT_NAME}.vault.azure.net/secrets/message?api-version=7.2" -o secret.txt 2>/dev/null)
     fi
   fi
 
