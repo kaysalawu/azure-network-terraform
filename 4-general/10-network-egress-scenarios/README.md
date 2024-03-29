@@ -16,7 +16,6 @@ Contents
   - [C. NAT-Gateway, Private-Subnet = On, Service-Endpoint = On](#c-nat-gateway-private-subnet--on-service-endpoint--on)
   - [D. No Public IP, Private-Subnet = On, Service-Endpoint = On](#d-no-public-ip-private-subnet--on-service-endpoint--on)
   - [E. Outbound Access via Proxy](#e-outbound-access-via-proxy)
-  - [F. No Explicit Public IP, Private-Subnet = Off, Service-Endpoint = Off](#f-no-explicit-public-ip-private-subnet--off-service-endpoint--off)
 - [Cleanup](#cleanup)
 
 ## Overview
@@ -90,7 +89,7 @@ From here, you can run the `crawlz` command to test service reachability to vari
    <td colspan="2" ><strong>Test Server</strong></td>
    <td colspan="3" ><strong>Configuration Setting</strong></td>
    <td rowspan="2" ><strong>Internet Access?</strong></td>
-   <td rowspan="2" ><strong>Mgmt Access?</strong></td>
+   <td rowspan="2" ><strong>Azure Mgmt Access?</strong></td>
    <td colspan="3" ><strong>Data Plane Access?</strong></td>
   </tr>
   <tr>
@@ -103,21 +102,25 @@ From here, you can run the `crawlz` command to test service reachability to vari
    <td><strong>Key Vault</strong></td>
   </tr>
   <tr>
-   <td>A</td><td>Proxy</td><td>Public</td><td></td><td></td><td></td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td>
+   <td>A</td><td>Proxy</td><td>Public</td><td></td><td></td><td></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td>
   </tr>
   <tr>
-   <td>B</td><td>Server1</td><td>Production</td><td>✔️</td><td>✔️</td><td>✔️</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td>
+   <td>B</td><td>Server1</td><td>Production</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td>
   </tr>
   <tr>
-   <td>C</td><td>Server1</td><td>Production</td><td>✔️</td><td>✔️</td><td>✔️</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td>
+   <td>C</td><td>Server1</td><td>Production</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td>
   </tr>
   <tr>
-   <td>D</td><td>Server1</td><td>Production</td><td>✔️</td><td>✔️</td><td></td><td>No</td><td>No</td><td>Yes</td><td>Yes</td>
+   <td>D</td><td>Server1</td><td>Production</td><td>✔️</td><td>✔️</td><td></td><td>❌</td><td>❌</td><td>✅</td><td>✅</td>
   </tr>
   <tr>
-   <td>E</td><td>Proxy</td><td>Public<td></td></td><td></td><td></td><td>No</td><td>No</td><td>No</td><td>No</td>
+   <td>E</td><td>Proxy</td><td>Public<td></td></td><td></td><td></td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
   </tr>
 </table>
+
+* ✔️ - Setting is configured
+* ✅ - Successful connectivity
+* ❌ - No connectivity
 
 ### A. Default Outbound, Private-Subnet = Off, Service-Endpoint = Off
 
@@ -162,11 +165,9 @@ Results
 
 <summary>Test instructions</summary>
 
-Private subnet is already enabled on `ProductionSubnet`. The subnet is also already associated with a NAT gateway.
-
 1\. Login to `G10-Proxy` VM as described in the [Test Servers](#accessing-the-test-servers) section.
 
-2\. Run the command `crawlz` to test network reachability.
+2\. Run the command `crawlz` to test service reachability.
 
 </details>
 <p>
@@ -315,7 +316,7 @@ Private subnet is already enabled on `ProductionSubnet`. The subnet is also alre
 
 1\. Login to `G10-Server1` VM as described in the [Test Servers](#accessing-the-test-servers) section.
 
-2\. Run the command `crawlz` to test network reachability.
+2\. Run the command `crawlz` to test service reachability.
 
 </details>
 <p>
@@ -626,7 +627,7 @@ az network vnet subnet update \
 
 3\. Login to `G10-Server1` VM as described in the [Test Servers](#test-servers) section.
 
-4\. Run the command `crawlz` to test network reachability.
+4\. Run the command `crawlz` to test service reachability.
 
 </details>
 <p>
@@ -729,86 +730,148 @@ Results
 
 ### E. Outbound Access via Proxy
 
-When private subnet is enabled on `ProductionSubnet` and there is no explicit outbound method deployed (NAT gateway, load balancer SNAT, or VM public IP), the VM `G10-Server1` cannot access public endpoints. But with [service endpoints](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview) enabled on `ProductionSubnet`, `G10-Server1` can access Azure services that are associated with the service endpoints - in this case, Azure Storage and Azure Key Vault. Service endpoints are accessed via management.azure.com for management operations on resources - listing, creating, updating, and deleting resources.
+In this scenario, we will use a proxy server, `G10-proxy` to route all outbound traffic from `G10-Server2` to the internet and to Azure services. The proxy server is deployed in the `PublicSubnet` and uses the default outbound access method.
 
+Access patterns for `G10-Server2`:
+- Internet access works through the proxy server
+- Azure management operations (management.azure.com) works through the proxy server
+- Data plane access to blob.core.windows.net and vault.azure.net works through the proxy server.
+
+<p>
 <img src="./images/egress-scenario-e.png" alt="Scenario E" width="700">
-
-**Test instructions:**
-
-1\. Enable service endpoints in the appropriate line in [02-main.tf](./02-main.tf#L9) file.
-
-```sh
-enable_service_endpoints = true
-```
-
-2\. Re-apply terraform to remove the subnet association with the NAT gateway.
-
-3\. Login to `G10-Server1` VM as described in the [Test Servers](#test-servers) section.
-
-4\. Run the command `crawlz` to test network reachability.
+<p>
 
 **Summary:**
 
 ```sh
-
+-------------------------------------
+Environment
+-------------------------------------
+VM Name:        G10-Server2
+Resource Group: G10_NetworkEgress_RG
+Location:       northeurope
+VNET Name:      G10-hub-vnet
+Subnet Name:    ProductionSubnet
+Private IP:     10.0.3.5
+-------------------------------------
+Results
+-------------------------------------
+1. NAT IP Type:         None
+2. Service Endpoints:   Enabled
+3. Private Subnet:      Enabled
+4. Internet Access:     Pass
+5. Management Access:   Pass
+6. Blob Dataplane:      Pass
+7. KeyVault Dataplane:  Pass
+-------------------------------------
 ```
 
-**Detailed Result:**
+<details>
+
+<summary>Test instructions</summary>
+
+1\. Login to `G10-Server2` VM as described in the [Test Servers](#accessing-the-test-servers) section.
+
+2\. Run the command `crawlz` to test service reachability.
+
+</details>
+<p>
 
 <details>
 
 <summary>Detailed Result</summary>
 
 ```sh
+azureuser@Server2:~$ crawlz
 
+Extracting az token...
+Downloading service tags JSON...
+
+-------------------------------------
+Environment
+-------------------------------------
+VM Name:        G10-Server2
+Resource Group: G10_NetworkEgress_RG
+Location:       northeurope
+VNET Name:      G10-hub-vnet
+Subnet Name:    ProductionSubnet
+Private IP:     10.0.3.5
+-------------------------------------
+
+1. Check Public Address Type
+   Local IP:    10.0.3.5
+   Public IP:   52.178.159.58
+   NAT_IP type: None
+
+2. Check Service Endpoints
+   Subnet --> ProductionSubnet
+   Service Endpoint: Enabled
+   - Microsoft.Storage
+   - Microsoft.KeyVault
+   - Microsoft.AzureActiveDirectory
+
+3. Check Private Subnet
+   Subnet --> ProductionSubnet
+   Private Subnet:  Enabled
+
+4. Check Internet Access
+   curl https://ifconfig.me
+   Internet Access: Pass (200)
+
+5. Management (Control Plane)
+   url = https://management.azure.com/subscriptions?api-version=2020-01-01
+   host = management.azure.com
+   52.146.135.86 <-- management.azure.com
+   Searching for service tags matching IP (52.146.135.86)
+   - 52.146.134.0/23 <-- AzureResourceManager ()
+   - 52.146.134.0/23 <-- AzureResourceManager.NorthEurope (northeurope)
+   - 52.146.128.0/17 <-- AzureCloud.northeurope (northeurope)
+   - 52.146.128.0/17 <-- AzureCloud ()
+   curl -H Authorization : Bearer TOKEN https://management.azure.com/subscriptions?api-version=2020-01-01
+   Management Access: Pass (200)
+
+6. Blob (Data Plane)
+   url = https://g10huba221.blob.core.windows.net/storage/storage.txt
+   host = g10huba221.blob.core.windows.net
+   20.150.84.196 <-- g10huba221.blob.core.windows.net
+   Searching for service tags matching IP (20.150.84.196)
+   - 20.150.0.0/17 <-- Storage ()
+   - 20.150.84.0/24 <-- Storage.NorthEurope (northeurope)
+   - 20.150.84.0/24 <-- AzureCloud.northeurope (northeurope)
+   - 20.150.84.0/24 <-- AzureCloud ()
+   az storage account keys list -g G10_NetworkEgress_RG --account-name g10huba221
+   az storage blob download --account-name g10huba221 -c storage -n storage.txt --account-key <KEY>
+   Content: Hello, World!
+   Blob Dataplane: Pass
+
+7. KeyVault (Data Plane)
+   url: https://g10-hub-kva221.vault.azure.net/secrets/message
+   host: g10-hub-kva221.vault.azure.net
+   52.146.137.168 <-- g10-hub-kva221.vault.azure.net
+   Searching for service tags matching IP (52.146.137.168)
+   - 52.146.137.168/29 <-- AzureKeyVault ()
+   - 52.146.137.168/29 <-- AzureKeyVault.NorthEurope (northeurope)
+   - 52.146.128.0/17 <-- AzureCloud.northeurope (northeurope)
+   - 52.146.128.0/17 <-- AzureCloud ()
+   az keyvault secret show --vault-name g10-hub-kva221 --name message
+   message: Hello, World!
+   Vault Dataplane: Pass
+
+-------------------------------------
+Results
+-------------------------------------
+1. NAT IP Type:         None
+2. Service Endpoints:   Enabled
+3. Private Subnet:      Enabled
+4. Internet Access:     Pass
+5. Management Access:   Pass
+6. Blob Dataplane:      Pass
+7. KeyVault Dataplane:  Pass
+-------------------------------------
 ```
 
 </details>
 <p>
-
-<img src="./images/egress-scenario-d.png" alt="Scenario D" width="700">
-
-
-### F. No Explicit Public IP, Private-Subnet = Off, Service-Endpoint = Off
-
-TBC
-
-<img src="./images/egress-scenario-f.png" alt="Scenario F" width="700">
-
-**Test instructions:**
-
-1\. Enable service endpoints in the appropriate line in [02-main.tf](./02-main.tf#L9) file.
-
-```sh
-enable_service_endpoints = true
-```
-
-2\. Re-apply terraform to remove the subnet association with the NAT gateway.
-
-3\. Login to `G10-Server1` VM as described in the [Test Servers](#test-servers) section.
-
-4\. Run the command `crawlz` to test network reachability.
-
-**Summary:**
-
-```sh
-
-```
-
-**Detailed Result:**
-
-<details>
-
-<summary>Detailed Result</summary>
-
-```sh
-
-```
-
-</details>
-<p>
-
-<img src="./images/egress-scenario-d.png" alt="Scenario D" width="700">
 
 ## Cleanup
 
