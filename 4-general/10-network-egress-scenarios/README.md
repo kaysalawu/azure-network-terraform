@@ -884,7 +884,7 @@ cd azure-network-terraform/4-general/10-network-egress-scenarios
 2\. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
 ```sh
-bash ../../scripts/_cleanup.sh G10_SapNetworking_RG
+bash ../../scripts/_cleanup.sh G10_NetworkEgress_RG
 ```
 
 <details>
@@ -892,11 +892,11 @@ bash ../../scripts/_cleanup.sh G10_SapNetworking_RG
 <summary>Sample output</summary>
 
 ```sh
-3-hub-spoke-nva-single-region$    bash ../../scripts/_cleanup.sh G10_SapNetworking_RG
+3-hub-spoke-nva-single-region$    bash ../../scripts/_cleanup.sh G10_NetworkEgress_RG
 
 Resource group: G10RG
 
-⏳ Checking for diagnostic settings on resources in G10_SapNetworking_RG ...
+⏳ Checking for diagnostic settings on resources in G10_NetworkEgress_RG ...
 ➜  Checking firewall ...
 ➜  Checking vnet gateway ...
     ❌ Deleting: diag setting [G10-ecs-vpngw-diag] for vnet gateway [G10-ecs-vpngw] ...
@@ -913,7 +913,7 @@ Done!
 3\. Delete the resource group to remove all resources installed.
 
 ```sh
-az group delete -g G10_SapNetworking_RG --no-wait
+az group delete -g G10_NetworkEgress_RG --no-wait
 ```
 
 4\. Delete terraform state files and other generated files.
