@@ -131,7 +131,7 @@ Access patterns for `Lab10-Proxy`:
 - Access to *blob.core.windows.net* and *vault.azure.net* is allowed through the default outbound IP.
 
 <p>
-<img src="./images/scenario-a.png" alt="Scenario A" width="800">
+<img src="./images/scenario-a.png" alt="Scenario A" width="850">
 <p>
 
 **Summary:**
@@ -277,7 +277,7 @@ Access patterns for `Lab10-Server1`:
 - Access to *blob.core.windows.net* and *vault.azure.net* is allowed through the NAT gateway.
 
 <p>
-<img src="./images/scenario-b.png" alt="Scenario B" width="800">
+<img src="./images/scenario-b.png" alt="Scenario B" width="850">
 <p>
 
 **Summary:**
@@ -417,7 +417,7 @@ Results
 In this scenario, private subnet is enabled on `ProductionSubnet` and service endpoints are not enabled. The subnet is also removed from the NAT gateway; which ensures that server `Lab10-Server1` has no public IP address. As a result, the server is expected not to have access to the internet or Azure services. It is however observed that the server has access to the storage account.
 
 <p>
-<img src="./images/scenario-c.png" alt="Scenario C" width="800">
+<img src="./images/scenario-c.png" alt="Scenario C" width="850">
 <p>
 
 **Summary:**
@@ -642,7 +642,7 @@ Access patterns for `Lab10-Server1`:
 - Access to *blob.core.windows.net* and *vault.azure.net* is allowed through the service endpoints
 
 <p>
-<img src="./images/scenario-d.png" alt="Scenario D" width="800">
+<img src="./images/scenario-d.png" alt="Scenario D" width="850">
 <p>
 
 **Summary:**
@@ -799,7 +799,7 @@ Access patterns for `Lab10-Server2`:
 - Data plane access to blob.core.windows.net and vault.azure.net works through the proxy server.
 
 <p>
-<img src="./images/scenario-e.png" alt="Scenario E" width="800">
+<img src="./images/scenario-e.png" alt="Scenario E" width="850">
 <p>
 
 **Summary:**
