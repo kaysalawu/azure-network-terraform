@@ -49,9 +49,9 @@ The table below shows the generated output files from the lab. They are located 
 
 | Item    | Description  | Location |
 |--------|--------|--------|
-| Server1 | Cloud-init configuration | [output/server1-crawler.sh](./output/server1-crawler.sh) |
-| Server2 | Cloud-init configuration | [output/server2-crawler.sh](./output/server2-crawler.sh) |
-| Proxy | Cloud-init configuration | [output/proxy-crawler.sh](./output/proxy-crawler.sh) |
+| Server1 | Service test scripts | [output/server1-crawler.sh](./output/server1-crawler.sh) |
+| Server2 | Service test scripts | [output/server2-crawler.sh](./output/server2-crawler.sh) |
+| Proxy | Service test scripts | [output/proxy-crawler.sh](./output/proxy-crawler.sh) |
 ||||
 
 ## Accessing the Test Servers
