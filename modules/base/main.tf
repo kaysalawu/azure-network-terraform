@@ -157,7 +157,7 @@ resource "azurerm_network_watcher_flow_log" "this" {
 resource "azurerm_private_dns_zone_virtual_network_link" "dns" {
   for_each              = { for v in var.dns_zones_linked_to_vnet : v.name => v }
   resource_group_name   = var.resource_group
-  name                  = "${azurerm_virtual_network.this.name}--link"
+  name                  = "${azurerm_virtual_network.this.name}--zone-link"
   private_dns_zone_name = each.key
   virtual_network_id    = azurerm_virtual_network.this.id
   registration_enabled  = each.value.registration_enabled

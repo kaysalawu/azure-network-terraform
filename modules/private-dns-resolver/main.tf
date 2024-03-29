@@ -63,7 +63,7 @@ resource "azurerm_private_dns_resolver_dns_forwarding_ruleset" "this" {
 
 resource "azurerm_private_dns_resolver_virtual_network_link" "external" {
   for_each                  = { for v in var.vnets_linked_to_ruleset : v.name => v }
-  name                      = "${var.prefix}-${each.key}--link"
+  name                      = "${var.prefix}-${each.key}--rs-link"
   dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.this.id
   virtual_network_id        = each.value.vnet_id
 }
