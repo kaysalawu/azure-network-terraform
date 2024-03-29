@@ -3,7 +3,7 @@
 ####################################################
 
 locals {
-  prefix                   = "G10"
+  prefix                   = "Lab10"
   lab_name                 = "NetworkEgress"
   enable_diagnostics       = true
   enable_service_endpoints = false

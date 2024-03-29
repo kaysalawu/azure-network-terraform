@@ -13,9 +13,9 @@ Select a Subnet:
 2) Disable private subnet
 #? 2
 Invalid option. Exiting...
-ERROR: (NotAllowedToModifyDefaultOutboundAccessPropertyOnSubnet) It is not allowed to modify DefaultOutboundAccess property on non-empty subnet. Current value False. Provided value True. Referenced resource: /subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/G10_NetworkEgress_RG/providers/Microsoft.Network/networkInterfaces/G10-hub-proxy-prod-nic/ipConfigurations/G10-hub-proxy-prod-nic.
+ERROR: (NotAllowedToModifyDefaultOutboundAccessPropertyOnSubnet) It is not allowed to modify DefaultOutboundAccess property on non-empty subnet. Current value False. Provided value True. Referenced resource: /subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Lab10_NetworkEgress_RG/providers/Microsoft.Network/networkInterfaces/Lab10-hub-proxy-prod-nic/ipConfigurations/Lab10-hub-proxy-prod-nic.
 Code: NotAllowedToModifyDefaultOutboundAccessPropertyOnSubnet
-Message: It is not allowed to modify DefaultOutboundAccess property on non-empty subnet. Current value False. Provided value True. Referenced resource: /subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/G10_NetworkEgress_RG/providers/Microsoft.Network/networkInterfaces/G10-hub-proxy-prod-nic/ipConfigurations/G10-hub-proxy-prod-nic.
+Message: It is not allowed to modify DefaultOutboundAccess property on non-empty subnet. Current value False. Provided value True. Referenced resource: /subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Lab10_NetworkEgress_RG/providers/Microsoft.Network/networkInterfaces/Lab10-hub-proxy-prod-nic/ipConfigurations/Lab10-hub-proxy-prod-nic.
 
 
 Steps
