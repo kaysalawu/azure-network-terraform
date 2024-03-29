@@ -127,8 +127,8 @@ In this scenario, the [default outbound access](https://learn.microsoft.com/en-u
 
 Access patterns for `Lab10-Proxy`:
 - Access to internet is allowed through the default outbound IP
-- Access to Azure management *(management.azure.com)* is allowed through the default outbound IP
-- Access to *blob.core.windows.net* and *vault.azure.net* is allowed through the default outbound IP.
+- Access to Azure management ***(management.azure.com)*** is allowed through the default outbound IP
+- Access to ***blob.core.windows.net*** and ***vault.azure.net*** is allowed through the default outbound IP.
 
 <p>
 <img src="./images/scenario-a.png" alt="Scenario A" width="850">
@@ -273,8 +273,8 @@ In this scenario, private subnet is enabled on `ProductionSubnet` which is assoc
 
 Access patterns for `Lab10-Server1`:
 - Access to internet is allowed through the NAT gateway
-- Access to Azure management *(management.azure.com)* is allowed through the NAT gateway
-- Access to *blob.core.windows.net* and *vault.azure.net* is allowed through the NAT gateway.
+- Access to Azure management ***(management.azure.com)*** is allowed through the NAT gateway
+- Access to ***blob.core.windows.net*** and *****vault.azure.net***** is allowed through the NAT gateway.
 
 <p>
 <img src="./images/scenario-b.png" alt="Scenario B" width="850">
@@ -639,7 +639,7 @@ In this scenario, we will enable service endpoints on `ProductionSubnet`. The se
 Access patterns for `Lab10-Server1`:
 - No access to the internet
 - No access to Azure management (management.azure.com)
-- Access to *blob.core.windows.net* and *vault.azure.net* is allowed through the service endpoints
+- Access to ***blob.core.windows.net*** and ***vault.azure.net*** is allowed through the service endpoints
 
 <p>
 <img src="./images/scenario-d.png" alt="Scenario D" width="850">
