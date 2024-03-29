@@ -22,7 +22,7 @@ Contents
 
 This lab deploys a test environment to experiment with network egress patterns in Azure virtual networks. It demonstrates outbound access to Azure services with various combinations of service endpoints, private subnets, and User Defined Routes (UDR) using service tags.
 
-<img src="./images/architecture.png" alt="Architecure" width="650">
+<img src="./images/main.png" alt="Architecure" width="650">
 
 ## Prerequisites
 
