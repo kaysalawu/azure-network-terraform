@@ -1,6 +1,4 @@
-# Network Egress Patterns <!-- omit from toc -->
-
-## Lab: Lab10 <!-- omit from toc -->
+# Lab10 - Network Egress Patterns <!-- omit from toc -->
 
 Contents
 
@@ -55,10 +53,6 @@ The table below shows the generated output files from the lab. They are located 
 
 ## Accessing the Test Servers
 
-<details>
-
-<summary>Accessing the Test Servers</summary>
-
 The virtual machines are pre-configured with test scripts to check network reachability to various Azure services. The scripts are located in the [`/var/lib/azure/crawler/app/`](../../scripts/init/crawler/app) directory. The scripts can simply be run using the alias `crawlz` navigate to the directory and run the scripts.
 
 The test VMs are configured with system-assigned managed identities that have the **Network Contributor** role scoped to the resource group. Serial console access has been configured for all VMs.
@@ -75,11 +69,6 @@ az login --identity
 ```
 
 From here, you can run the `crawlz` command to test service reachability to various Azure services as shown in the following sections. The lab is designed to be run sequentially to achieve the results described in the following sections.
-   <td rowspan="2" ><strong>Azure Mgmt Access?</strong></td>
-   <td rowspan="2" ><strong>Internet Access?</strong></td>
-   <td colspan="2" ><strong>Data Plane Access?</strong></td>
-</details>
-<p>
 
 ## Test Results
 
