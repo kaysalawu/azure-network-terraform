@@ -47,7 +47,7 @@ module "hub2" {
 
   nsg_subnet_map = {
     "MainSubnet"                = module.common.nsg_main["region2"].id
-    "UntrustSubnet"             = module.common.nsg_open["region2"].id
+    "UntrustSubnet"             = module.common.nsg_nva["region2"].id
     "TrustSubnet"               = module.common.nsg_main["region2"].id
     "ManagementSubnet"          = module.common.nsg_main["region2"].id
     "AppGatewaySubnet"          = module.common.nsg_lb["region2"].id
@@ -68,6 +68,13 @@ module "hub2" {
 
   depends_on = [
     module.common,
+  ]
+}
+
+resource "time_sleep" "hub2" {
+  create_duration = "60s"
+  depends_on = [
+    module.hub2
   ]
 }
 
@@ -95,6 +102,6 @@ module "hub2_vm" {
     },
   ]
   depends_on = [
-    module.hub2
+    time_sleep.hub2,
   ]
 }

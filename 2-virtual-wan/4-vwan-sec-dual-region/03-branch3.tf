@@ -28,7 +28,7 @@ module "branch3" {
     subnets       = local.branch3_subnets
     nat_gateway_subnet_names = [
       "MainSubnet",
-      "UntrustSubnet",
+      "TrustSubnet",
       "DnsServerSubnet",
     ]
   }
