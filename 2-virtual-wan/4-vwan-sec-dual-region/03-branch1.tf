@@ -26,6 +26,11 @@ module "branch1" {
   config_vnet = {
     address_space = local.branch1_address_space
     subnets       = local.branch1_subnets
+    nat_gateway_subnet_names = [
+      "MainSubnet",
+      "UntrustSubnet",
+      "DnsServerSubnet",
+    ]
   }
 
   config_ergw = {
@@ -35,6 +40,13 @@ module "branch1" {
 
   depends_on = [
     module.common,
+  ]
+}
+
+resource "time_sleep" "branch1" {
+  create_duration = "60s"
+  depends_on = [
+    module.branch1
   ]
 }
 
@@ -82,8 +94,10 @@ module "branch1_dns" {
       name               = "${local.branch1_prefix}dns-main"
       subnet_id          = module.branch1.subnets["MainSubnet"].id
       private_ip_address = local.branch1_dns_addr
-      create_public_ip   = true
     },
+  ]
+  depends_on = [
+    time_sleep.branch1,
   ]
 }
 
@@ -232,7 +246,6 @@ module "branch1_nva" {
       private_ip_address = local.branch1_nva_trust_addr
     },
   ]
-  depends_on = [module.branch1]
 }
 
 ####################################################
@@ -263,13 +276,12 @@ module "branch1_vm" {
       name               = "${local.branch1_prefix}vm-main-nic"
       subnet_id          = module.branch1.subnets["MainSubnet"].id
       private_ip_address = local.branch1_vm_addr
-      create_public_ip   = true
     },
   ]
   depends_on = [
-    module.branch1,
     module.branch1_dns,
     module.branch1_nva,
+    time_sleep.branch1,
   ]
 }
 
@@ -300,9 +312,9 @@ module "branch1_udr_main" {
 
   disable_bgp_route_propagation = true
   depends_on = [
-    module.branch1,
     module.branch1_dns,
     module.branch1_nva,
+    time_sleep.branch1,
   ]
 }
 

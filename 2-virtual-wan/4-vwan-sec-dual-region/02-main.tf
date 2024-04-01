@@ -296,11 +296,10 @@ locals {
       enable_routing_intent = true
       firewall_sku          = local.firewall_sku
       firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region1"].id
-      routing_policies = {
-        internet            = true
-        private_traffic     = true
-        additional_prefixes = { "private_traffic" = [local.internet_proxy, ] }
-      }
+      routing_policies = [
+        { name = "internet", destinations = ["Internet"] },
+        { name = "private_traffic", destinations = ["PrivateTraffic"] }
+      ]
     }
   }
 
@@ -339,11 +338,10 @@ locals {
       enable_routing_intent = true
       firewall_sku          = local.firewall_sku
       firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region2"].id
-      routing_policies = {
-        internet            = true
-        private_traffic     = true
-        additional_prefixes = { "private_traffic" = ["8.8.8.8/32"] }
-      }
+      routing_policies = [
+        { name = "internet", destinations = ["Internet"] },
+        { name = "private_traffic", destinations = ["PrivateTraffic"] }
+      ]
     }
   }
 }
@@ -452,12 +450,6 @@ locals {
   onprem_redirected_hosts = []
   branch_dns_init_dir     = "/var/lib/labs"
 }
-
-####################################################
-# nsg
-####################################################
-
-# rules
 
 ####################################################
 # addresses
