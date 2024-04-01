@@ -141,50 +141,6 @@ resource "azurerm_network_security_rule" "internet_inbound" {
   description                 = "Allow inbound web traffic"
 }
 
-
-# open
-#----------------------------
-
-resource "azurerm_network_security_group" "nsg_open" {
-  for_each            = var.regions
-  resource_group_name = var.resource_group
-  name                = "${local.prefix}nsg-${each.value.name}-open"
-  location            = each.value.name
-  tags                = var.tags
-}
-
-resource "azurerm_network_security_rule" "nsg_open_inbound" {
-  for_each                    = var.regions
-  resource_group_name         = var.resource_group
-  network_security_group_name = azurerm_network_security_group.nsg_open[each.key].name
-  name                        = "all-inbound"
-  direction                   = "Inbound"
-  access                      = "Allow"
-  priority                    = 100
-  source_address_prefix       = "*"
-  source_port_range           = "*"
-  destination_address_prefix  = "*"
-  destination_port_range      = "*"
-  protocol                    = "*"
-  description                 = "Allow all in inbound"
-}
-
-resource "azurerm_network_security_rule" "nsg_open_outbound" {
-  for_each                    = var.regions
-  resource_group_name         = var.resource_group
-  network_security_group_name = azurerm_network_security_group.nsg_open[each.key].name
-  name                        = "all-outbound"
-  direction                   = "Outbound"
-  access                      = "Allow"
-  priority                    = 100
-  source_address_prefix       = "*"
-  source_port_range           = "*"
-  destination_address_prefix  = "*"
-  destination_port_range      = "*"
-  protocol                    = "*"
-  description                 = "Allow all outbound"
-}
-
 # nva
 #----------------------------
 
@@ -226,6 +182,22 @@ resource "azurerm_network_security_rule" "nsg_nva_ipsec_inbound" {
   destination_port_ranges     = ["500", "4500"]
   protocol                    = "Udp"
   description                 = "Inbound Allow UDP 500, 4500"
+}
+
+resource "azurerm_network_security_rule" "nsg_nva_internet_inbound" {
+  for_each                    = var.regions
+  resource_group_name         = var.resource_group
+  network_security_group_name = azurerm_network_security_group.nsg_nva[each.key].name
+  name                        = "internet-inbound"
+  direction                   = "Inbound"
+  access                      = "Allow"
+  priority                    = 120
+  source_address_prefix       = "*"
+  source_port_range           = "*"
+  destination_address_prefix  = "*"
+  destination_port_ranges     = ["443", "50443", "50444", ]
+  protocol                    = "Tcp"
+  description                 = "Allow inbound web traffic"
 }
 
 resource "azurerm_network_security_rule" "nsg_nva_outbound" {

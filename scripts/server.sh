@@ -200,9 +200,10 @@ EOF
 chmod a+x /usr/local/bin/heavy-traffic
 %{ endif ~}
 
-# crontab for traffic generators
+# crontabs
+#-----------------------------------
 
-cat <<EOF > /tmp/crontab.txt
+cat <<EOF > /etc/cron.d/traffic-gen
 %{ if TARGETS_LIGHT_TRAFFIC_GEN != [] ~}
 */1 * * * * /usr/local/bin/light-traffic 2>&1 > /dev/null
 %{ endif ~}
@@ -213,4 +214,5 @@ cat <<EOF > /tmp/crontab.txt
 */5 * * * * /usr/local/bin/heavy-traffic 15 2 2>&1 > /dev/null
 %{ endif ~}
 EOF
-crontab /tmp/crontab.txt
+
+crontab /etc/cron.d/traffic-gen

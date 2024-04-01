@@ -38,15 +38,17 @@ variable "address_prefix" {
 
 variable "config_security" {
   type = object({
-    create_firewall       = optional(bool, false)
-    enable_routing_intent = optional(bool, false)
-    firewall_sku          = optional(string, "Basic")
-    firewall_policy_id    = optional(string, null)
-    routing_policies = optional(object({
-      internet            = optional(bool, false)
-      private_traffic     = optional(bool, false)
-      additional_prefixes = optional(map(any), {})
-    }))
+    create_firewall    = optional(bool, false)
+    firewall_sku       = optional(string, "Basic")
+    firewall_policy_id = optional(string, null)
+    routing_policies = optional(list(object({
+      name         = string
+      destinations = optional(list(string), ["Internet", "PrivateTraffic"])
+    })), [])
+    static_routes = optional(list(object({
+      name         = string
+      destinations = list(string)
+    })), [])
   })
   default = {}
 }
@@ -118,19 +120,6 @@ variable "enable_routing_intent" {
   description = "Enable routing intent"
   type        = bool
   default     = false
-}
-
-variable "routing_policies" {
-  type = object({
-    internet            = optional(bool, false)
-    private_traffic     = optional(bool, false)
-    additional_prefixes = optional(map(any), {})
-  })
-  default = {
-    internet            = false
-    private_traffic     = false
-    additional_prefixes = {}
-  }
 }
 
 variable "metric_categories_firewall" {
