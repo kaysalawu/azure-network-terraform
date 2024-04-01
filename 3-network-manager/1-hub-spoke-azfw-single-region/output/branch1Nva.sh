@@ -136,23 +136,23 @@ conn %default
 
 conn Tunnel0
     left=10.10.1.9
-    leftid=13.74.154.11
-    right=4.210.33.15
-    rightid=4.210.33.15
+    leftid=52.178.221.1
+    right=4.207.168.60
+    rightid=4.207.168.60
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.10.1.9
-    leftid=13.74.154.11
-    right=4.210.33.73
-    rightid=4.210.33.73
+    leftid=52.178.221.1
+    right=4.207.170.123
+    rightid=4.207.170.123
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.10.1.9
-    leftid=13.74.154.11
+    leftid=52.178.221.1
     right=1.1.1.1
     rightid=1.1.1.1
     auto=start
@@ -165,8 +165,8 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.10.1.9 4.210.33.15 : PSK "changeme"
-10.10.1.9 4.210.33.73 : PSK "changeme"
+10.10.1.9 4.207.168.60 : PSK "changeme"
+10.10.1.9 4.207.170.123 : PSK "changeme"
 10.10.1.9 1.1.1.1 : PSK "changeme"
 
 EOF
@@ -186,12 +186,12 @@ case "$PLUTO_CONNECTION" in
   Tunnel0)
     VTI_INTERFACE=vti0
     VTI_LOCALADDR=10.10.10.1
-    VTI_REMOTEADDR=10.11.16.7
+    VTI_REMOTEADDR=10.11.16.6
     ;;
   Tunnel1)
     VTI_INTERFACE=vti1
     VTI_LOCALADDR=10.10.10.5
-    VTI_REMOTEADDR=10.11.16.6
+    VTI_REMOTEADDR=10.11.16.7
     ;;
   Tunnel2)
     VTI_INTERFACE=vti2
@@ -227,24 +227,40 @@ esac
 EOF
 chmod a+x /etc/ipsec.d/ipsec-vti.sh
 
-# tee /usr/local/bin/ipsec-auto-restart.sh <<'EOF'
-# #!/bin/bash
+tee /usr/local/bin/ipsec-auto-restart.sh <<'EOF'
+#!/bin/bash
 
-# LOG_FILE="/var/log/ipsec-auto-restart.log"
+export SHELL=/bin/bash
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+export HOME=/root
+export LANG=C.UTF-8
+export USER=root
 
-# connections=$(grep '^conn' /etc/ipsec.conf | grep -v '%default' | cut -d' ' -f2)
-# for conn in $connections; do
-#   if ! ipsec status | grep -q "$conn"; then
-#     echo "$(date): $conn is down. Attempting to restart..." >> "$LOG_FILE"
-#     ipsec down $conn
-#     ipsec up $conn
-#     echo "$(date): $conn restart command issued." >> "$LOG_FILE"
-#   fi
-# done
-# EOF
-# chmod a+x /usr/local/bin/ipsec-auto-restart.sh
-# /usr/local/bin/ipsec-auto-restart.sh
-# echo "*/5 * * * * /usr/local/bin/ipsec-auto-restart.sh" | tee -a /etc/cron.d/ipsec-auto-restart
+LOG_FILE="/var/log/ipsec-auto-restart.log"
+connections=$(grep '^conn' /etc/ipsec.conf | grep -v '%default' | awk '{print $2}')
+all_tunnels_active=true
+
+for conn in $connections; do
+  status=$(ipsec status | grep "$conn")
+  if ! [[ "$status" =~ ESTABLISHED ]]; then
+        all_tunnels_active=false
+        echo "$(date): $conn: down or inactive." >> "$LOG_FILE"
+    ipsec down $conn
+    ipsec up $conn
+    echo "$(date): $conn: restarting." >> "$LOG_FILE"
+else
+      echo "$(date): $conn: active." >> "$LOG_FILE"
+        fi
+done
+
+if ! $all_tunnels_active; then
+  echo "$(date): Not all tunnels active, restarting ipsec service..." >> "$LOG_FILE"
+  systemctl restart ipsec
+  echo "$(date): ipsec service restarted." >> "$LOG_FILE"
+fi
+
+EOF
+chmod a+x /usr/local/bin/ipsec-auto-restart.sh
 
 touch /var/log/ipsec-vti.log
 systemctl enable ipsec
@@ -268,6 +284,8 @@ service integrated-vtysh-config
 !-----------------------------------------
 ! Prefix Lists
 !-----------------------------------------
+ip prefix-list BLOCK_HUB_GW_SUBNET deny 10.11.16.0/20
+ip prefix-list BLOCK_HUB_GW_SUBNET permit 0.0.0.0/0 le 32
 !
 !-----------------------------------------
 ! Interface
@@ -278,9 +296,9 @@ interface lo
 !-----------------------------------------
 ! Static Routes
 !-----------------------------------------
-ip route 0.0.0.0 10.10.1.1
-ip route 10.11.16.7/32 vti0
-ip route 10.11.16.6/32 vti1
+ip route 0.0.0.0/0 10.10.1.1
+ip route 10.11.16.6/32 vti0
+ip route 10.11.16.7/32 vti1
 ip route 192.168.30.30/32 vti2
 ip route 10.30.1.9 10.10.1.1
 ip route 10.10.0.0/24 10.10.1.1
@@ -288,26 +306,33 @@ ip route 10.10.0.0/24 10.10.1.1
 !-----------------------------------------
 ! Route Maps
 !-----------------------------------------
+  route-map ONPREM permit 100
+  match ip address prefix-list all
+  set as-path prepend 65001 65001 65001
+  route-map AZURE permit 110
+  match ip address prefix-list all
+  route-map BLOCK_HUB_GW_SUBNET permit 120
+  match ip address prefix-list BLOCK_HUB_GW_SUBNET
 !
 !-----------------------------------------
 ! BGP
 !-----------------------------------------
 router bgp 65001
 bgp router-id 192.168.10.10
-neighbor 10.11.16.7 remote-as 65515
-neighbor 10.11.16.7 ebgp-multihop 255
-neighbor 10.11.16.7 update-source lo
 neighbor 10.11.16.6 remote-as 65515
 neighbor 10.11.16.6 ebgp-multihop 255
 neighbor 10.11.16.6 update-source lo
+neighbor 10.11.16.7 remote-as 65515
+neighbor 10.11.16.7 ebgp-multihop 255
+neighbor 10.11.16.7 update-source lo
 neighbor 192.168.30.30 remote-as 65003
 neighbor 192.168.30.30 ebgp-multihop 255
 neighbor 192.168.30.30 update-source lo
 !
 address-family ipv4 unicast
   network 10.10.0.0/24
-  neighbor 10.11.16.7 soft-reconfiguration inbound
   neighbor 10.11.16.6 soft-reconfiguration inbound
+  neighbor 10.11.16.7 soft-reconfiguration inbound
   neighbor 192.168.30.30 soft-reconfiguration inbound
 exit-address-family
 !
@@ -323,73 +348,6 @@ systemctl restart frr
 # test scripts
 #########################################################
 
-# ping-ip
-
-cat <<EOF > /usr/local/bin/ping-ip
-echo -e "\n ping ip ...\n"
-echo "branch1 - 10.10.0.5 -\$(ping -qc2 -W1 10.10.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "hub1    - 10.11.0.5 -\$(ping -qc2 -W1 10.11.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke1  - 10.1.0.5 -\$(ping -qc2 -W1 10.1.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke2  - 10.2.0.5 -\$(ping -qc2 -W1 10.2.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "internet - icanhazip.com -\$(ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-EOF
-chmod a+x /usr/local/bin/ping-ip
-
-# ping-dns
-
-cat <<EOF > /usr/local/bin/ping-dns
-echo -e "\n ping dns ...\n"
-echo "branch1vm.corp - \$(dig +short branch1vm.corp | tail -n1) -\$(ping -qc2 -W1 branch1vm.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "hub1vm.eu.az.corp - \$(dig +short hub1vm.eu.az.corp | tail -n1) -\$(ping -qc2 -W1 hub1vm.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke1vm.eu.az.corp - \$(dig +short spoke1vm.eu.az.corp | tail -n1) -\$(ping -qc2 -W1 spoke1vm.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke2vm.eu.az.corp - \$(dig +short spoke2vm.eu.az.corp | tail -n1) -\$(ping -qc2 -W1 spoke2vm.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "icanhazip.com - \$(dig +short icanhazip.com | tail -n1) -\$(ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-EOF
-chmod a+x /usr/local/bin/ping-dns
-
-# curl-ip
-
-cat <<EOF > /usr/local/bin/curl-ip
-echo -e "\n curl ip ...\n"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.10.0.5) - branch1 (10.10.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.11.0.5) - hub1    (10.11.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.1.0.5) - spoke1  (10.1.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.2.0.5) - spoke2  (10.2.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - internet (icanhazip.com)"
-EOF
-chmod a+x /usr/local/bin/curl-ip
-
-# curl-dns
-
-cat <<EOF > /usr/local/bin/curl-dns
-echo -e "\n curl dns ...\n"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null branch1vm.corp) - branch1vm.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null hub1vm.eu.az.corp) - hub1vm.eu.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke3pls.eu.az.corp) - spoke3pls.eu.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1vm.eu.az.corp) - spoke1vm.eu.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke2vm.eu.az.corp) - spoke2vm.eu.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://ne31spoke3sacad8.blob.core.windows.net/spoke3/spoke3.txt) - https://ne31spoke3sacad8.blob.core.windows.net/spoke3/spoke3.txt"
-EOF
-chmod a+x /usr/local/bin/curl-dns
-
-# trace-ip
-
-cat <<EOF > /usr/local/bin/trace-ip
-echo -e "\n trace ip ...\n"
-traceroute 10.10.0.5
-echo -e "branch1\n"
-traceroute 10.11.0.5
-echo -e "hub1   \n"
-traceroute 10.1.0.5
-echo -e "spoke1 \n"
-traceroute 10.2.0.5
-echo -e "spoke2 \n"
-traceroute icanhazip.com
-echo -e "internet\n"
-EOF
-chmod a+x /usr/local/bin/trace-ip
-
 # dns-info
 
 cat <<EOF > /usr/local/bin/dns-info
@@ -397,6 +355,13 @@ echo -e "\n resolvectl ...\n"
 resolvectl status
 EOF
 chmod a+x /usr/local/bin/dns-info
+
+# azure service tester
+
+tee /usr/local/bin/crawlz <<'EOF'
+sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
+EOF
+chmod a+x /usr/local/bin/crawlz
 
 # ipsec debug
 
@@ -412,3 +377,12 @@ ip link show type vti
 echo
 EOF
 chmod a+x /usr/local/bin/ipsec-debug
+
+# crontabs
+#-----------------------------------
+
+cat <<EOF > /etc/cron.d/ipsec-auto-restart
+*/10 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
+EOF
+
+crontab /etc/cron.d/ipsec-auto-restart
