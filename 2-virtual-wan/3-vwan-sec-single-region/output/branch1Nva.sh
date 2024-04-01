@@ -136,23 +136,23 @@ conn %default
 
 conn Tunnel0
     left=10.10.1.9
-    leftid=13.74.127.190
-    right=4.209.25.153
-    rightid=4.209.25.153
+    leftid=52.169.205.40
+    right=4.209.42.166
+    rightid=4.209.42.166
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.10.1.9
-    leftid=13.74.127.190
-    right=4.209.25.158
-    rightid=4.209.25.158
+    leftid=52.169.205.40
+    right=4.209.42.157
+    rightid=4.209.42.157
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.10.1.9
-    leftid=13.74.127.190
+    leftid=52.169.205.40
     right=1.1.1.1
     rightid=1.1.1.1
     auto=start
@@ -165,8 +165,8 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.10.1.9 4.209.25.153 : PSK "changeme"
-10.10.1.9 4.209.25.158 : PSK "changeme"
+10.10.1.9 4.209.42.166 : PSK "changeme"
+10.10.1.9 4.209.42.157 : PSK "changeme"
 10.10.1.9 1.1.1.1 : PSK "changeme"
 
 EOF
@@ -227,24 +227,50 @@ esac
 EOF
 chmod a+x /etc/ipsec.d/ipsec-vti.sh
 
-# tee /usr/local/bin/ipsec-auto-restart.sh <<'EOF'
-# #!/bin/bash
+tee /usr/local/bin/ipsec-auto-restart.sh <<'EOF'
+#!/bin/bash
+
+# export SHELL=/bin/bash
+# export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+# export HOME=/root
+# export LANG=C.UTF-8
+# export USER=root
 
 # LOG_FILE="/var/log/ipsec-auto-restart.log"
+# connections=$(grep '^conn' /etc/ipsec.conf | grep -v '%default' | awk '{print $2}')
+# active_tunnel_found=false
 
-# connections=$(grep '^conn' /etc/ipsec.conf | grep -v '%default' | cut -d' ' -f2)
 # for conn in $connections; do
-#   if ! ipsec status | grep -q "$conn"; then
-#     echo "$(date): $conn is down. Attempting to restart..." >> "$LOG_FILE"
+#   status=$(ipsec status | grep "$conn")
+#   if [[ "$status" =~ ESTABLISHED ]]; then
+#         echo "$(date): $conn: active." >> "$LOG_FILE"
+#         active_tunnel_found=true
+#     elif ! [[ "$status" =~ CONNECTING ]]; then
+#         echo "$(date): $conn: down or inactive." >> "$LOG_FILE"
 #     ipsec down $conn
 #     ipsec up $conn
-#     echo "$(date): $conn restart command issued." >> "$LOG_FILE"
+#     echo "$(date): $conn: restarted." >> "$LOG_FILE"
+
+#     sleep 5
+#     if [[ $(ipsec status | grep "$conn") =~ ESTABLISHED ]]; then
+#       echo "$(date): $conn: active." >> "$LOG_FILE"
+#       active_tunnel_found=true
+#     else
+#       echo "$(date): $conn: down or inactive." >> "$LOG_FILE"
+#     fi
 #   fi
 # done
-# EOF
-# chmod a+x /usr/local/bin/ipsec-auto-restart.sh
-# /usr/local/bin/ipsec-auto-restart.sh
-# echo "*/5 * * * * /usr/local/bin/ipsec-auto-restart.sh" | tee -a /etc/cron.d/ipsec-auto-restart
+
+# if ! $active_tunnel_found; then
+#   echo "$(date): No active tunnels found, restarting ipsec service..." >> "$LOG_FILE"
+#   systemctl restart ipsec
+#   echo "$(date): ipsec service restarted." >> "$LOG_FILE"
+# fi
+
+systemctl restart ipsec
+
+EOF
+chmod a+x /usr/local/bin/ipsec-auto-restart.sh
 
 touch /var/log/ipsec-vti.log
 systemctl enable ipsec
@@ -330,73 +356,6 @@ systemctl restart frr
 # test scripts
 #########################################################
 
-# ping-ip
-
-cat <<EOF > /usr/local/bin/ping-ip
-echo -e "\n ping ip ...\n"
-echo "branch1 - 10.10.0.5 -\$(ping -qc2 -W1 10.10.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "hub1    - 10.11.0.5 -\$(ping -qc2 -W1 10.11.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke1  - 10.1.0.5 -\$(ping -qc2 -W1 10.1.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke2  - 10.2.0.5 -\$(ping -qc2 -W1 10.2.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "internet - icanhazip.com -\$(ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-EOF
-chmod a+x /usr/local/bin/ping-ip
-
-# ping-dns
-
-cat <<EOF > /usr/local/bin/ping-dns
-echo -e "\n ping dns ...\n"
-echo "branch1vm.corp - \$(dig +short branch1vm.corp | tail -n1) -\$(ping -qc2 -W1 branch1vm.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "hub1vm.eu.az.corp - \$(dig +short hub1vm.eu.az.corp | tail -n1) -\$(ping -qc2 -W1 hub1vm.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke1vm.eu.az.corp - \$(dig +short spoke1vm.eu.az.corp | tail -n1) -\$(ping -qc2 -W1 spoke1vm.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke2vm.eu.az.corp - \$(dig +short spoke2vm.eu.az.corp | tail -n1) -\$(ping -qc2 -W1 spoke2vm.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "icanhazip.com - \$(dig +short icanhazip.com | tail -n1) -\$(ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-EOF
-chmod a+x /usr/local/bin/ping-dns
-
-# curl-ip
-
-cat <<EOF > /usr/local/bin/curl-ip
-echo -e "\n curl ip ...\n"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.10.0.5) - branch1 (10.10.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.11.0.5) - hub1    (10.11.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.1.0.5) - spoke1  (10.1.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.2.0.5) - spoke2  (10.2.0.5)"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - internet (icanhazip.com)"
-EOF
-chmod a+x /usr/local/bin/curl-ip
-
-# curl-dns
-
-cat <<EOF > /usr/local/bin/curl-dns
-echo -e "\n curl dns ...\n"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null branch1vm.corp) - branch1vm.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null hub1vm.eu.az.corp) - hub1vm.eu.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke3pls.eu.az.corp) - spoke3pls.eu.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1vm.eu.az.corp) - spoke1vm.eu.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke2vm.eu.az.corp) - spoke2vm.eu.az.corp"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(curl -kL --max-time 2.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan23spoke3sa2e2f.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan23spoke3sa2e2f.blob.core.windows.net/spoke3/spoke3.txt"
-EOF
-chmod a+x /usr/local/bin/curl-dns
-
-# trace-ip
-
-cat <<EOF > /usr/local/bin/trace-ip
-echo -e "\n trace ip ...\n"
-traceroute 10.10.0.5
-echo -e "branch1\n"
-traceroute 10.11.0.5
-echo -e "hub1   \n"
-traceroute 10.1.0.5
-echo -e "spoke1 \n"
-traceroute 10.2.0.5
-echo -e "spoke2 \n"
-traceroute icanhazip.com
-echo -e "internet\n"
-EOF
-chmod a+x /usr/local/bin/trace-ip
-
 # dns-info
 
 cat <<EOF > /usr/local/bin/dns-info
@@ -404,6 +363,13 @@ echo -e "\n resolvectl ...\n"
 resolvectl status
 EOF
 chmod a+x /usr/local/bin/dns-info
+
+# azure service tester
+
+tee /usr/local/bin/crawlz <<'EOF'
+sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
+EOF
+chmod a+x /usr/local/bin/crawlz
 
 # ipsec debug
 
@@ -420,14 +386,11 @@ echo
 EOF
 chmod a+x /usr/local/bin/ipsec-debug
 
-# light-traffic generator
+# crontabs
+#-----------------------------------
 
-
-# heavy-traffic generator
-
-
-# crontab for traffic generators
-
-cat <<EOF > /tmp/crontab.txt
+cat <<EOF > /etc/cron.d/ipsec-auto-restart
+*/10 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
 EOF
-crontab /tmp/crontab.txt
+
+crontab /etc/cron.d/ipsec-auto-restart

@@ -1,7 +1,10 @@
 #! /bin/bash
 
 apt update
-apt install -y python3-pip python3-dev unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
+apt install -y python3-pip python3-dev python3-venv unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
+
+pip3 install azure-identity
+pip3 install azure-mgmt-network
 
 apt install -y openvpn network-manager-openvpn
 sudo service network-manager restart
@@ -128,7 +131,7 @@ echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{h
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1vm.eu.az.corp) - spoke1vm.eu.az.corp"
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke2vm.eu.az.corp) - spoke2vm.eu.az.corp"
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan21spoke3saea2c.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan21spoke3saea2c.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan21spoke3sa977d.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan21spoke3sa977d.blob.core.windows.net/spoke3/spoke3.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 
@@ -161,3 +164,24 @@ echo -e "\n resolvectl ...\n"
 resolvectl status
 EOF
 chmod a+x /usr/local/bin/dns-info
+
+# azure service tester
+
+tee /usr/local/bin/crawlz <<'EOF'
+sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
+EOF
+chmod a+x /usr/local/bin/crawlz
+
+# light-traffic generator
+
+
+# heavy-traffic generator
+
+
+# crontabs
+#-----------------------------------
+
+cat <<EOF > /etc/cron.d/traffic-gen
+EOF
+
+crontab /etc/cron.d/traffic-gen

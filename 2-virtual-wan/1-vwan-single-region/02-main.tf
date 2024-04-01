@@ -188,8 +188,10 @@ locals {
       enable_routing_intent = false
       firewall_sku          = local.firewall_sku
       firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region1"].id
-      routing_policies = {
-      }
+      routing_policies = [
+        # { name = "internet", destinations = ["Internet"] },
+        # { name = "private_traffic", destinations = ["PrivateTraffic"] }
+      ]
     }
   }
 }
@@ -284,12 +286,6 @@ locals {
   onprem_redirected_hosts = []
   branch_dns_init_dir     = "/var/lib/labs"
 }
-
-####################################################
-# nsg
-####################################################
-
-# rules
 
 ####################################################
 # addresses
@@ -433,6 +429,7 @@ locals {
     STRONGSWAN_VTI_SCRIPT     = ""
     STRONGSWAN_IPSEC_SECRETS  = ""
     STRONGSWAN_IPSEC_CONF     = ""
+    STRONGSWAN_AUTO_RESTART   = ""
   }))
 }
 
