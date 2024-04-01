@@ -26,6 +26,11 @@ module "branch3" {
   config_vnet = {
     address_space = local.branch3_address_space
     subnets       = local.branch3_subnets
+    nat_gateway_subnet_names = [
+      "MainSubnet",
+      "UntrustSubnet",
+      "DnsServerSubnet",
+    ]
   }
 
   config_ergw = {
@@ -35,6 +40,13 @@ module "branch3" {
 
   depends_on = [
     module.common,
+  ]
+}
+
+resource "time_sleep" "branch3" {
+  create_duration = "60s"
+  depends_on = [
+    module.branch3
   ]
 }
 
@@ -82,8 +94,10 @@ module "branch3_dns" {
       name               = "${local.branch3_prefix}dns-main"
       subnet_id          = module.branch3.subnets["MainSubnet"].id
       private_ip_address = local.branch3_dns_addr
-      create_public_ip   = true
     },
+  ]
+  depends_on = [
+    time_sleep.branch3,
   ]
 }
 
@@ -200,6 +214,7 @@ locals {
     STRONGSWAN_VTI_SCRIPT    = templatefile("../../scripts/strongswan/ipsec-vti.sh", local.branch3_nva_vars)
     STRONGSWAN_IPSEC_SECRETS = templatefile("../../scripts/strongswan/ipsec.secrets", local.branch3_nva_vars)
     STRONGSWAN_IPSEC_CONF    = templatefile("../../scripts/strongswan/ipsec.conf", local.branch3_nva_vars)
+    STRONGSWAN_AUTO_RESTART  = templatefile("../../scripts/strongswan/ipsec-auto-restart.sh", local.branch1_nva_vars)
   }))
 }
 
@@ -232,7 +247,6 @@ module "branch3_nva" {
       private_ip_address = local.branch3_nva_trust_addr
     },
   ]
-  depends_on = [module.branch3]
 }
 
 ####################################################
@@ -263,13 +277,12 @@ module "branch3_vm" {
       name               = "${local.branch3_prefix}vm-main-nic"
       subnet_id          = module.branch3.subnets["MainSubnet"].id
       private_ip_address = local.branch3_vm_addr
-      create_public_ip   = true
     },
   ]
   depends_on = [
-    module.branch3,
     module.branch3_dns,
     module.branch3_nva,
+    time_sleep.branch3,
   ]
 }
 
@@ -300,9 +313,9 @@ module "branch3_udr_main" {
 
   disable_bgp_route_propagation = true
   depends_on = [
-    module.branch3,
     module.branch3_dns,
     module.branch3_nva,
+    time_sleep.branch3,
   ]
 }
 
