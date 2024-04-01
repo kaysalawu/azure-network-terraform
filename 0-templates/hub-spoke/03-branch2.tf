@@ -26,6 +26,11 @@ module "branch2" {
   config_vnet = {
     address_space = local.branch2_address_space
     subnets       = local.branch2_subnets
+    nat_gateway_subnet_names = [
+      "MainSubnet",
+      "TrustSubnet",
+      "DnsServerSubnet",
+    ]
   }
 
   config_ergw = {
@@ -35,6 +40,13 @@ module "branch2" {
 
   depends_on = [
     module.common,
+  ]
+}
+
+resource "time_sleep" "branch2" {
+  create_duration = "60s"
+  depends_on = [
+    module.branch2
   ]
 }
 
@@ -82,8 +94,10 @@ module "branch2_dns" {
       name               = "${local.branch2_prefix}dns-main"
       subnet_id          = module.branch2.subnets["MainSubnet"].id
       private_ip_address = local.branch2_dns_addr
-      create_public_ip   = true
     },
+  ]
+  depends_on = [
+    time_sleep.branch2,
   ]
 }
 
@@ -115,12 +129,11 @@ module "branch2_vm" {
       name               = "${local.branch2_prefix}vm-main-nic"
       subnet_id          = module.branch2.subnets["MainSubnet"].id
       private_ip_address = local.branch2_vm_addr
-      create_public_ip   = true
     },
   ]
   depends_on = [
-    module.branch2,
     module.branch2_dns,
+    time_sleep.branch2,
   ]
 }
 
@@ -145,8 +158,8 @@ module "branch2_udr_main" {
 
   disable_bgp_route_propagation = false
   depends_on = [
-    module.branch2,
     module.branch2_dns,
+    time_sleep.branch2,
   ]
 }
 
@@ -157,7 +170,6 @@ module "branch2_udr_main" {
 locals {
   branch2_files = {
     "output/branch1Dns.sh" = local.branch2_unbound_startup
-    "output/branch2-vm.sh" = local.branch2_vm_init
     "output/branch2Vm.sh"  = local.branch2_vm_init
   }
 }
