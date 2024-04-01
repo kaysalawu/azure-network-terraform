@@ -593,6 +593,7 @@ locals {
     STRONGSWAN_VTI_SCRIPT     = ""
     STRONGSWAN_IPSEC_SECRETS  = ""
     STRONGSWAN_IPSEC_CONF     = ""
+    STRONGSWAN_AUTO_RESTART   = ""
   }))
 }
 
@@ -654,6 +655,7 @@ locals {
     STRONGSWAN_VTI_SCRIPT     = ""
     STRONGSWAN_IPSEC_SECRETS  = ""
     STRONGSWAN_IPSEC_CONF     = ""
+    STRONGSWAN_AUTO_RESTART   = ""
   }))
 }
 
