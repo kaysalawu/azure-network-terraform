@@ -62,9 +62,14 @@ resource "megaport_azure_connection" "this" {
   }
 
   csp_settings {
-    service_key                   = azurerm_express_route_circuit.this[each.value.name].service_key
-    auto_create_private_peering   = each.value.auto_create_private_peering
-    auto_create_microsoft_peering = each.value.auto_create_microsoft_peering
+    service_key                 = azurerm_express_route_circuit.this[each.value.name].service_key
+    auto_create_private_peering = each.value.auto_create_private_peering
+    private_peering {
+      peer_asn         = each.value.peer_asn
+      primary_subnet   = each.value.primary_peer_address_prefix
+      secondary_subnet = each.value.secondary_peer_address_prefix
+      requested_vlan   = each.value.requested_vlan
+    }
   }
 
   lifecycle {
@@ -76,43 +81,6 @@ resource "megaport_azure_connection" "this" {
     # azurerm_express_route_circuit.this,
   ]
 }
-
-# azure peering
-#----------------------------
-
-# resource "azurerm_express_route_circuit_peering" "private" {
-#   for_each                      = { for c in var.circuits : c.name => c if c.peering_type == "AzurePrivatePeering" }
-#   resource_group_name           = var.resource_group
-#   peering_type                  = each.value.peering_type
-#   express_route_circuit_name    = azurerm_express_route_circuit.this[each.value.name].name
-#   peer_asn                      = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
-#   primary_peer_address_prefix   = each.value.primary_peer_address_prefix
-#   secondary_peer_address_prefix = each.value.secondary_peer_address_prefix
-#   vlan_id                       = each.value.requested_vlan
-#   ipv4_enabled                  = true
-# }
-
-# resource "azurerm_express_route_circuit_peering" "microsoft" {
-#   for_each                      = { for c in var.circuits : c.name => c if c.peering_type == "MicrosoftPeering" }
-#   resource_group_name           = var.resource_group
-#   peering_type                  = each.value.peering_type
-#   express_route_circuit_name    = azurerm_express_route_circuit.this[each.value.name].name
-#   peer_asn                      = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
-#   primary_peer_address_prefix   = each.value.primary_peer_address_prefix
-#   secondary_peer_address_prefix = each.value.secondary_peer_address_prefix
-#   vlan_id                       = each.value.requested_vlan
-#   ipv4_enabled                  = true
-
-#   dynamic "microsoft_peering_config" {
-#     for_each = { for c in var.circuits : c.name => c if c.peering_type == "MicrosoftPeering" }
-#     content {
-#       advertised_public_prefixes = microsoft_peering_config.value.advertised_public_prefixes
-#       customer_asn               = try(microsoft_peering_config.value.customer_asn, null)
-#       routing_registry_name      = try(microsoft_peering_config.value.routing_registry_name, null)
-#       advertised_communities     = try(microsoft_peering_config.value.advertised_communities, null)
-#     }
-#   }
-# }
 
 # azure connection
 #----------------------------

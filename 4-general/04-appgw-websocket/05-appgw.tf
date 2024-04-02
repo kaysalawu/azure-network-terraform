@@ -30,7 +30,12 @@ module "hub1_appgw" {
   }
 
   backend_address_pools = [
-    { name = "server-beap", ip_addresses = [module.websocket_server_vm.private_ip_addresses["${local.spoke1_prefix}vm-main-nic"], ] },
+    {
+      name = "server-beap"
+      ip_addresses = [
+        module.websocket_server_vm.private_ip_addresses["${local.hub1_prefix}vm-server-nic"],
+      ]
+    },
   ]
 
   backend_http_settings = [

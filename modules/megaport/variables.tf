@@ -36,6 +36,7 @@ variable "circuits" {
     connection_target          = string
     location                   = string
     peering_location           = string
+    peer_asn                   = number
     peering_type               = optional(string, "AzurePrivatePeering")
     advertised_public_prefixes = optional(list(string))
     service_provider_name      = optional(string, "Megaport")
@@ -50,7 +51,6 @@ variable "circuits" {
     virtual_network_gateway_id    = optional(string, null)
     express_route_gateway_id      = optional(string, null)
     auto_create_private_peering   = optional(bool, true)
-    auto_create_microsoft_peering = optional(bool, true)
   }))
   default = []
 }
