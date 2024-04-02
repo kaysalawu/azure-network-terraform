@@ -75,11 +75,6 @@ resource "megaport_azure_connection" "this" {
   lifecycle {
     ignore_changes = [a_end, csp_settings, ]
   }
-  depends_on = [
-    # azurerm_express_route_circuit_peering.private,
-    # azurerm_express_route_circuit_peering.microsoft,
-    # azurerm_express_route_circuit.this,
-  ]
 }
 
 # azure connection
@@ -87,34 +82,29 @@ resource "megaport_azure_connection" "this" {
 
 # virtual network
 
-# resource "azurerm_virtual_network_gateway_connection" "this" {
-#   count                      = length(local.vnet_connections)
-#   resource_group_name        = var.resource_group
-#   name                       = local.vnet_connections[count.index].name
-#   location                   = local.vnet_connections[count.index].location
-#   type                       = "ExpressRoute"
-#   virtual_network_gateway_id = local.vnet_connections[count.index].virtual_network_gateway_id
-#   authorization_key          = azurerm_express_route_circuit_authorization.this[local.vnet_connections[count.index].name].authorization_key
-#   express_route_circuit_id   = azurerm_express_route_circuit.this[local.vnet_connections[count.index].name].id
-#   depends_on = [
-#     azurerm_express_route_circuit.this,
-#     # azurerm_express_route_circuit_authorization.this,
-#     # azurerm_express_route_circuit_peering.private,
-#     megaport_azure_connection.this,
-#   ]
-# }
+resource "azurerm_virtual_network_gateway_connection" "this" {
+  count                      = length(local.vnet_connections)
+  resource_group_name        = var.resource_group
+  name                       = local.vnet_connections[count.index].name
+  location                   = local.vnet_connections[count.index].location
+  type                       = "ExpressRoute"
+  virtual_network_gateway_id = local.vnet_connections[count.index].virtual_network_gateway_id
+  authorization_key          = azurerm_express_route_circuit_authorization.this[local.vnet_connections[count.index].name].authorization_key
+  express_route_circuit_id   = azurerm_express_route_circuit.this[local.vnet_connections[count.index].name].id
+}
 
-# # vwan
+# vwan
 
-# resource "azurerm_express_route_connection" "this" {
-#   count                            = length(local.vwan_connections)
-#   name                             = local.vwan_connections[count.index].name
-#   express_route_gateway_id         = local.vwan_connections[count.index].express_route_gateway_id
-#   express_route_circuit_peering_id = azurerm_express_route_circuit_peering.private[local.vwan_connections[count.index].name].id
-#   depends_on = [
-#     azurerm_express_route_circuit.this,
-#     # azurerm_express_route_circuit_authorization.this,
-#     # azurerm_express_route_circuit_peering.private,
-#     megaport_azure_connection.this,
-#   ]
-# }
+data "azurerm_express_route_circuit_peering" "private" {
+  count                      = length(local.vwan_connections)
+  resource_group_name        = var.resource_group
+  express_route_circuit_name = local.vwan_connections[count.index].name
+  peering_type               = local.vwan_connections[count.index].peering_type
+}
+
+resource "azurerm_express_route_connection" "this" {
+  count                            = length(local.vwan_connections)
+  name                             = local.vwan_connections[count.index].name
+  express_route_gateway_id         = local.vwan_connections[count.index].express_route_gateway_id
+  express_route_circuit_peering_id = data.azurerm_express_route_circuit_peering.private[local.vwan_connections[count.index].name].id
+}

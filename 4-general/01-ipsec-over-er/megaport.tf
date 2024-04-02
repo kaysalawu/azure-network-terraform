@@ -1,5 +1,6 @@
 
 locals {
+  azure_asn              = 12706
   megaport_asn           = 64512
   megaport_vlan1         = 100
   megaport_vlan2         = 200
@@ -57,6 +58,7 @@ module "megaport" {
       secondary_peer_address_prefix = local.csp_range2
       virtual_network_gateway_id    = module.hub1.ergw.id
       peering_type                  = "AzurePrivatePeering"
+      peer_asn                      = local.azure_asn
     },
     {
       name                          = "${local.prefix}-branch2"
@@ -70,6 +72,7 @@ module "megaport" {
       secondary_peer_address_prefix = local.csp_range4
       virtual_network_gateway_id    = module.branch2.ergw.id
       peering_type                  = "AzurePrivatePeering"
+      peer_asn                      = local.azure_asn
     },
   ]
 }

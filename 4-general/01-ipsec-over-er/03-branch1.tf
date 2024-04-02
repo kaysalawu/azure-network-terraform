@@ -19,13 +19,17 @@ module "branch1" {
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region1"].id
     "TrustSubnet"     = module.common.nsg_main["region1"].id
-    "UntrustSubnet"   = module.common.nsg_nva["region1"].id
     "DnsServerSubnet" = module.common.nsg_main["region1"].id
   }
 
   config_vnet = {
     address_space = local.branch1_address_space
     subnets       = local.branch1_subnets
+    nat_gateway_subnet_names = [
+      "MainSubnet",
+      "TrustSubnet",
+      "DnsServerSubnet",
+    ]
   }
 
   config_ergw = {
@@ -35,6 +39,13 @@ module "branch1" {
 
   depends_on = [
     module.common,
+  ]
+}
+
+resource "time_sleep" "branch1" {
+  create_duration = "60s"
+  depends_on = [
+    module.branch1
   ]
 }
 
@@ -54,12 +65,6 @@ locals {
       ["127.0.0.0/8", "35.199.192.0/19", ]
     )
   }
-  branch1_unbound_files = {
-    "${local.branch_dns_init_dir}/unbound/Dockerfile"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/Dockerfile", {}) }
-    "${local.branch_dns_init_dir}/unbound/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
-    "/etc/unbound/unbound.conf"                               = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/conf/unbound.conf", local.branch1_dns_vars) }
-    "/etc/unbound/unbound.log"                                = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/conf/unbound.log", local.branch1_dns_vars) }
-  }
   branch1_forward_zones = [
     { zone = "${local.region1_dns_zone}.", targets = [local.hub1_dns_in_addr, ] },
     { zone = "${local.region2_dns_zone}.", targets = [local.hub2_dns_in_addr, ] },
@@ -70,20 +75,6 @@ locals {
     { zone = "privatelink.queue.core.windows.net.", targets = [local.hub1_dns_in_addr, ] },
     { zone = "privatelink.file.core.windows.net.", targets = [local.hub1_dns_in_addr, ] },
     { zone = ".", targets = [local.azuredns, ] },
-  ]
-}
-
-module "branch1_unbound_init" {
-  source   = "../../modules/cloud-config-gen"
-  packages = ["docker.io", "docker-compose", "dnsutils", "net-tools", ]
-  files    = local.branch1_unbound_files
-  run_commands = [
-    "systemctl stop systemd-resolved",
-    "systemctl disable systemd-resolved",
-    "echo \"nameserver 8.8.8.8\" > /etc/resolv.conf",
-    "systemctl restart unbound",
-    "systemctl enable unbound",
-    "docker-compose -f ${local.branch_dns_init_dir}/unbound/docker-compose.yml up -d",
   ]
 }
 
@@ -102,8 +93,10 @@ module "branch1_dns" {
       name               = "${local.branch1_prefix}dns-main"
       subnet_id          = module.branch1.subnets["MainSubnet"].id
       private_ip_address = local.branch1_dns_addr
-      create_public_ip   = true
     },
+  ]
+  depends_on = [
+    time_sleep.branch1,
   ]
 }
 
@@ -121,20 +114,26 @@ locals {
     LOOPBACKS = []
 
     PREFIX_LISTS = [
-      # "ip prefix-list ${local.branch1_nva_route_map_block_azure} deny ${local.hub1_subnets["GatewaySubnet"].address_prefixes[0]}",
-      # "ip prefix-list ${local.branch1_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
+      "ip prefix-list ${local.branch1_nva_route_map_block_azure} deny ${local.hub1_address_space[1]}",
+      "ip prefix-list ${local.branch1_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
     ]
 
     ROUTE_MAPS = [
-      # "route-map ${local.branch1_nva_route_map_onprem} permit 100",
-      # "match ip address prefix-list all",
-      # "set as-path prepend ${local.branch1_nva_asn} ${local.branch1_nva_asn} ${local.branch1_nva_asn}",
+      # prepend as-path between branches
+      "route-map ${local.branch1_nva_route_map_onprem} permit 100",
+      "match ip address prefix-list all",
+      "set as-path prepend ${local.branch1_nva_asn} ${local.branch1_nva_asn} ${local.branch1_nva_asn}",
 
-      # "route-map ${local.branch1_nva_route_map_azure} permit 110",
-      # "match ip address prefix-list all",
+      # do nothing (placeholder for future use)
+      "route-map ${local.branch1_nva_route_map_azure} permit 110",
+      "match ip address prefix-list all",
+
+      # block inbound gateway subnet, allow all other hub and spoke cidrs
+      "route-map ${local.branch1_nva_route_map_block_azure} permit 120",
+      "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
     ]
     STATIC_ROUTES = [
-      { prefix = "0.0.0.0", mask = "0.0.0.0", next_hop = local.branch1_untrust_default_gw },
+      { prefix = "0.0.0.0/0", next_hop = local.branch1_untrust_default_gw },
       { prefix = "${module.hub1.s2s_vpngw_bgp_default_ip0}/32", next_hop = "vti0" },
       { prefix = "${module.hub1.s2s_vpngw_bgp_default_ip1}/32", next_hop = "vti1" },
       { prefix = "${local.branch3_nva_loopback0}/32", next_hop = "vti2" },
@@ -210,7 +209,6 @@ locals {
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
-    ENABLE_TRAFFIC_GEN        = false
 
     IPTABLES_RULES           = []
     ROUTE_MAPS               = []
@@ -219,6 +217,7 @@ locals {
     STRONGSWAN_VTI_SCRIPT    = templatefile("../../scripts/strongswan/ipsec-vti.sh", local.branch1_nva_vars)
     STRONGSWAN_IPSEC_SECRETS = templatefile("../../scripts/strongswan/ipsec.secrets", local.branch1_nva_vars)
     STRONGSWAN_IPSEC_CONF    = templatefile("../../scripts/strongswan/ipsec.conf", local.branch1_nva_vars)
+    STRONGSWAN_AUTO_RESTART  = templatefile("../../scripts/strongswan/ipsec-auto-restart.sh", local.branch1_nva_vars)
   }))
 }
 
@@ -251,7 +250,6 @@ module "branch1_nva" {
       private_ip_address = local.branch1_nva_trust_addr
     },
   ]
-  depends_on = [module.branch1]
 }
 
 ####################################################
@@ -263,7 +261,6 @@ locals {
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
     TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
-    ENABLE_TRAFFIC_GEN        = true
   })
 }
 
@@ -283,13 +280,12 @@ module "branch1_vm" {
       name               = "${local.branch1_prefix}vm-main-nic"
       subnet_id          = module.branch1.subnets["MainSubnet"].id
       private_ip_address = local.branch1_vm_addr
-      create_public_ip   = true
     },
   ]
   depends_on = [
-    module.branch1,
     module.branch1_dns,
     module.branch1_nva,
+    time_sleep.branch1,
   ]
 }
 
@@ -320,9 +316,9 @@ module "branch1_udr_main" {
 
   disable_bgp_route_propagation = true
   depends_on = [
-    module.branch1,
     module.branch1_dns,
     module.branch1_nva,
+    time_sleep.branch1,
   ]
 }
 
