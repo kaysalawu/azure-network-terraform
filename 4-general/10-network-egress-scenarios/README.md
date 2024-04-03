@@ -90,25 +90,25 @@ From here, you can run the `crawlz` command to test service reachability to vari
    <td><strong>Key Vault</strong></td>
   </tr>
   <tr>
-   <td><a href="#a-default-outbound-private-subnet--off-service-endpoint--off">A</a></td><td>Proxy</td><td>Public</td><td>Disabled</td><td></td><td></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td>
+   <td><a href="#a-default-outbound-private-subnet--off-service-endpoint--off">A</a></td><td>Proxy</td><td>Public</td><td>-</td><td>-</td><td>-</td><td>✅Yes</td><td>✅Yes</td><td>✅Yes</td><td>✅Yes</td>
   </tr>
   <tr>
-   <td><a href="#b-nat-gateway-private-subnet--on-service-endpoint--off">B</a></td><td>Server1</td><td>Production</td><td></td><td>✔️</td><td>✔️</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td>
+   <td><a href="#b-nat-gateway-private-subnet--on-service-endpoint--off">B</a></td><td>Server1</td><td>Production</td><td>-</td><td>✔️</td><td>✔️</td><td>✅Yes</td><td>✅Yes</td><td>✅Yes</td><td>✅Yes</td>
   </tr>
   <tr>
-   <td><a href="#c-no-public-ip-private-subnet--on-service-endpoint--off">C</a></td><td>Server1</td><td>Production</td><td></td><td>✔️</td><td></td><td>❌</td><td>❌</td><td>✅</td><td>❌</td>
+   <td><a href="#c-no-public-ip-private-subnet--on-service-endpoint--off">C</a></td><td>Server1</td><td>Production</td><td>-</td><td>✔️</td><td>-</td><td>❌No</td><td>❌No</td><td>✅Yes<sup>1</sup></td><td>❌No</td>
   </tr>
   <tr>
-   <td><a href="#d-no-public-ip-private-subnet--on-service-endpoint--on">D</a></td><td>Server1</td><td>Production</td><td>✔️</td><td>✔️</td><td></td><td>❌</td><td>❌</td><td>✅</td><td>✅</td>
+   <td><a href="#d-no-public-ip-private-subnet--on-service-endpoint--on">D</a></td><td>Server1</td><td>Production</td><td>✔️</td><td>✔️</td><td>-</td><td>❌No</td><td>❌No</td><td>✅Yes<sup>1</sup></td><td>✅Yes<sup>1</sup></td>
   </tr>
   <tr>
-   <td><a href="#e-outbound-access-via-proxy">E</a></td><td>Server2 (via Proxy)</td><td>Production</td><td>✔️</td><td>✔️</td><td></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td>
+   <td><a href="#e-outbound-access-via-proxy">E</a></td><td>Server2 (via Proxy)</td><td>Production</td><td>✔️</td><td>✔️</td><td>-</td><td>✅Yes</td><td>✅Yes</td><td>✅Yes</td><td>✅Yes</td>
   </tr>
 </table>
-
-* ✔️ = Enabled
-* ✅ = Successful connectivity
-* ❌ = No connectivity
+<sup>1</sup> VM metadata service was used to fetch access token <br>
+✔️ Enabled <br>
+✅ Successful connectivity <br>
+❌ No connectivity <br>
 
 ### A. Default Outbound, Private-Subnet = Off, Service-Endpoint = Off
 
