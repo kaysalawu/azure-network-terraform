@@ -96,7 +96,7 @@ locals {
     ("MainSubnet")                    = { address_prefixes = ["10.11.0.0/24"] }
     ("UntrustSubnet")                 = { address_prefixes = ["10.11.1.0/24"] }
     ("TrustSubnet")                   = { address_prefixes = ["10.11.2.0/24"] }
-    ("ManagementSubnet")              = { address_prefixes = ["10.11.3.0/24"] }
+    ("ManagementSubnet")              = { address_prefixes = ["10.11.3.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
     ("AppGatewaySubnet")              = { address_prefixes = ["10.11.4.0/24"] }
     ("LoadBalancerSubnet")            = { address_prefixes = ["10.11.5.0/24"] }
     ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.11.6.0/24"], enable_private_link_policies = [true] }

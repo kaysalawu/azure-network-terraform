@@ -47,7 +47,7 @@ module "megaport" {
 
   circuits = [
     {
-      name                          = "${local.prefix}-hub1"
+      name                          = "${local.prefix}-hub1-er"
       connection_target             = "vnet"
       location                      = local.region1
       peering_location              = local.express_route_location
@@ -58,10 +58,9 @@ module "megaport" {
       secondary_peer_address_prefix = local.csp_range2
       virtual_network_gateway_id    = module.hub1.ergw.id
       peering_type                  = "AzurePrivatePeering"
-      peer_asn                      = local.azure_asn
     },
     {
-      name                          = "${local.prefix}-branch2"
+      name                          = "${local.prefix}-branch2-er"
       connection_target             = "vnet"
       location                      = local.region1
       peering_location              = local.express_route_location
@@ -72,7 +71,6 @@ module "megaport" {
       secondary_peer_address_prefix = local.csp_range4
       virtual_network_gateway_id    = module.branch2.ergw.id
       peering_type                  = "AzurePrivatePeering"
-      peer_asn                      = local.azure_asn
     },
   ]
 }

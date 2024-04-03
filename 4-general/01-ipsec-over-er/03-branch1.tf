@@ -117,7 +117,6 @@ locals {
       "ip prefix-list ${local.branch1_nva_route_map_block_azure} deny ${local.hub1_address_space[1]}",
       "ip prefix-list ${local.branch1_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
     ]
-
     ROUTE_MAPS = [
       # prepend as-path between branches
       "route-map ${local.branch1_nva_route_map_onprem} permit 100",
@@ -165,18 +164,6 @@ locals {
         remote_id       = module.hub1.s2s_vpngw_public_ip1
         psk             = local.psk
       },
-      {
-        name            = "Tunnel2"
-        vti_name        = "vti2"
-        unique_id       = 300
-        vti_local_addr  = cidrhost(local.vti_range2, 1)
-        vti_remote_addr = cidrhost(local.vti_range2, 2)
-        local_ip        = local.branch1_nva_untrust_addr
-        local_id        = azurerm_public_ip.branch1_nva_pip.ip_address
-        remote_ip       = local.enable_onprem_wan_link ? try(azurerm_public_ip.branch3_nva_pip[0].ip_address, "1.1.1.1") : "1.1.1.1"
-        remote_id       = local.enable_onprem_wan_link ? try(azurerm_public_ip.branch3_nva_pip[0].ip_address, "1.1.1.1") : "1.1.1.1"
-        psk             = local.psk
-      }
     ]
     BGP_SESSIONS = [
       {
@@ -211,8 +198,6 @@ locals {
     TARGETS_HEAVY_TRAFFIC_GEN = []
 
     IPTABLES_RULES           = []
-    ROUTE_MAPS               = []
-    TUNNELS                  = []
     FRR_CONF                 = templatefile("../../scripts/frr/frr.conf", merge(local.branch1_nva_vars, {}))
     STRONGSWAN_VTI_SCRIPT    = templatefile("../../scripts/strongswan/ipsec-vti.sh", local.branch1_nva_vars)
     STRONGSWAN_IPSEC_SECRETS = templatefile("../../scripts/strongswan/ipsec.secrets", local.branch1_nva_vars)

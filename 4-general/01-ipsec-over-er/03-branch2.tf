@@ -164,7 +164,7 @@ locals {
       "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
     ]
     STATIC_ROUTES = [
-      { prefix = "0.0.0.0", mask = "0.0.0.0", next_hop = local.branch2_untrust_default_gw },
+      { prefix = "0.0.0.0/0", next_hop = local.branch2_untrust_default_gw },
       { prefix = "${module.hub1.s2s_vpngw_bgp_default_ip0}/32", next_hop = "vti0" },
       { prefix = "${module.hub1.s2s_vpngw_bgp_default_ip1}/32", next_hop = "vti1" },
       { prefix = "${module.hub1.s2s_vpngw_private_ip0}/32", next_hop = local.branch2_untrust_default_gw },
@@ -176,7 +176,7 @@ locals {
         name            = "Tunnel0"
         vti_name        = "vti0"
         unique_id       = 100
-        vti_local_addr  = cidrhost(local.vti_range0, 1)
+        vti_local_addr  = cidrhost(local.vti_range2, 1)
         vti_remote_addr = module.hub1.s2s_vpngw_bgp_default_ip0
         local_ip        = local.branch2_nva_untrust_addr
         local_id        = local.branch2_nva_untrust_addr
@@ -188,7 +188,7 @@ locals {
         name            = "Tunnel1"
         vti_name        = "vti1"
         unique_id       = 200
-        vti_local_addr  = cidrhost(local.vti_range1, 1)
+        vti_local_addr  = cidrhost(local.vti_range3, 1)
         vti_remote_addr = module.hub1.s2s_vpngw_bgp_default_ip1
         local_ip        = local.branch2_nva_untrust_addr
         local_id        = local.branch2_nva_untrust_addr
@@ -204,8 +204,8 @@ locals {
         ebgp_multihop   = true
         source_loopback = true
         route_maps = [
-          { name = "BLOCK_HUB_GW_SUBNET", direction = "in" },
-          { name = "AZURE", direction = "out" },
+          # { name = "BLOCK_HUB_GW_SUBNET", direction = "in" },
+          # { name = "AZURE", direction = "out" },
         ]
       },
       {
@@ -214,8 +214,8 @@ locals {
         ebgp_multihop   = true
         source_loopback = true
         route_maps = [
-          { name = "BLOCK_HUB_GW_SUBNET", direction = "in" },
-          { name = "AZURE", direction = "out" },
+          # { name = "BLOCK_HUB_GW_SUBNET", direction = "in" },
+          # { name = "AZURE", direction = "out" },
         ]
       },
     ]
@@ -227,7 +227,6 @@ locals {
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
-    ENABLE_TRAFFIC_GEN        = false
 
     IPTABLES_RULES           = []
     FRR_CONF                 = templatefile("../../scripts/frr/frr.conf", merge(local.branch2_nva_vars, {}))
@@ -267,7 +266,9 @@ module "branch2_nva" {
       private_ip_address = local.branch2_nva_trust_addr
     },
   ]
-  depends_on = [module.branch2]
+  depends_on = [
+    module.branch2
+  ]
 }
 
 ####################################################
