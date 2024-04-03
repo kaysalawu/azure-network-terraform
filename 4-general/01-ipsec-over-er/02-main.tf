@@ -3,7 +3,7 @@
 ####################################################
 
 locals {
-  prefix                      = "G01"
+  prefix                      = "Lab01"
   lab_name                    = "IPsecOverER"
   enable_diagnostics          = true
   enable_onprem_wan_link      = false
@@ -79,6 +79,10 @@ locals {
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
       enable_ars                  = false
+      nat_gateway_subnet_names = [
+        "MainSubnet",
+        "TrustSubnet",
+      ]
 
       ruleset_dns_forwarding_rules = {
         "onprem" = {
@@ -222,6 +226,7 @@ locals {
 
   vm_script_targets_region1 = [
     { name = "branch1", dns = lower(local.branch1_vm_fqdn), ip = local.branch1_vm_addr, probe = true },
+    { name = "branch2", dns = lower(local.branch2_vm_fqdn), ip = local.branch2_vm_addr, probe = true },
     { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ip = local.hub1_vm_addr, probe = false },
     { name = "hub1-spoke3-pep", dns = lower(local.hub1_spoke3_pep_fqdn), ping = false, probe = true },
     { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ip = local.spoke1_vm_addr, probe = true },
@@ -401,6 +406,7 @@ locals {
     STRONGSWAN_VTI_SCRIPT     = ""
     STRONGSWAN_IPSEC_SECRETS  = ""
     STRONGSWAN_IPSEC_CONF     = ""
+    STRONGSWAN_AUTO_RESTART   = ""
   }))
 }
 

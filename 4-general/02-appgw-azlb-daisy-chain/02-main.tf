@@ -3,7 +3,7 @@
 ####################################################
 
 locals {
-  prefix                 = "G02"
+  prefix                 = "Lab02"
   lab_name               = "AppGwAzLb"
   enable_diagnostics     = false
   enable_onprem_wan_link = false
@@ -78,6 +78,10 @@ locals {
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = false
       enable_ars                  = false
+      nat_gateway_subnet_names = [
+        "MainSubnet",
+        "TrustSubnet",
+      ]
 
       ruleset_dns_forwarding_rules = {}
     }
@@ -365,6 +369,7 @@ locals {
     STRONGSWAN_VTI_SCRIPT     = ""
     STRONGSWAN_IPSEC_SECRETS  = ""
     STRONGSWAN_IPSEC_CONF     = ""
+    STRONGSWAN_AUTO_RESTART   = ""
   }))
 }
 

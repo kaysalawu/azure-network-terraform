@@ -25,6 +25,7 @@ No modules.
 | [azurerm_lb_backend_address_pool.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/lb_backend_address_pool) | resource |
 | [azurerm_lb_backend_address_pool_address.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/lb_backend_address_pool_address) | resource |
 | [azurerm_lb_nat_rule.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/lb_nat_rule) | resource |
+| [azurerm_lb_outbound_rule.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/lb_outbound_rule) | resource |
 | [azurerm_lb_probe.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/lb_probe) | resource |
 | [azurerm_lb_rule.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/lb_rule) | resource |
 | [azurerm_network_interface_backend_address_pool_association.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_interface_backend_address_pool_association) | resource |
@@ -51,6 +52,7 @@ No modules.
 | <a name="input_log_analytics_workspace_name"></a> [log\_analytics\_workspace\_name](#input\_log\_analytics\_workspace\_name) | log analytics workspace name | `string` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | (Optional) Name of the load balancer. If it is set, the 'prefix' variable will be ignored. | `string` | `""` | no |
 | <a name="input_nat_rules"></a> [nat\_rules](#input\_nat\_rules) | (Optional) Protocols to be used for nat rules. Format as [frontend\_port, protocol, backend\_port] | <pre>list(object({<br>    name                           = string<br>    protocol                       = optional(string, "Tcp") # Tcp, Udp, All<br>    frontend_port                  = optional(string, "80")  # 0-65534<br>    backend_port                   = optional(string, "80")  # 0-65534<br>    frontend_ip_configuration_name = string<br>  }))</pre> | `[]` | no |
+| <a name="input_outbound_rules"></a> [outbound\_rules](#input\_outbound\_rules) | SNAT rules for outbound traffic. | <pre>list(object({<br>    name                           = string<br>    frontend_ip_configuration_name = string<br>    backend_address_pool_name      = optional(string, null)<br>    protocol                       = optional(string, "Tcp") # Tcp, Udp, All<br>    enable_tcp_reset               = optional(bool, false)<br>    allocated_outbound_ports       = optional(number, 1024)<br>    idle_timeout_in_minutes        = optional(number, 4)<br>  }))</pre> | `[]` | no |
 | <a name="input_pip_name"></a> [pip\_name](#input\_pip\_name) | (Optional) Name of public ip. If it is set, the 'prefix' variable will be ignored. | `string` | `""` | no |
 | <a name="input_pip_sku"></a> [pip\_sku](#input\_pip\_sku) | (Optional) The SKU of the Azure Public IP. Accepted values are Basic and Standard. | `string` | `"Standard"` | no |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | (Required) Default prefix to use with your resource names. | `string` | `"azure_lb"` | no |

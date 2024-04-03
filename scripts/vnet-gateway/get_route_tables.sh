@@ -29,6 +29,7 @@ get_route_tables(){
     echo -e "Gateway: $gw"
     echo -e "Route tables:"
     az network vnet-gateway list-learned-routes -g $rg --name $gw -o table
+    echo ""
   done
 }
 

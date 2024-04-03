@@ -39,7 +39,11 @@ data "azurerm_subscription" "current" {}
 
 provider "azurerm" {
   skip_provider_registration = true
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
 }
 
 provider "azapi" {}
@@ -101,6 +105,10 @@ locals {
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
       enable_ars                  = false
+      nat_gateway_subnet_names = [
+        "MainSubnet",
+        "TrustSubnet",
+      ]
 
       ruleset_dns_forwarding_rules = {
         "onprem" = {
@@ -193,6 +201,10 @@ locals {
       subnets                     = local.hub2_subnets
       enable_private_dns_resolver = true
       enable_ars                  = false
+      nat_gateway_subnet_names = [
+        "MainSubnet",
+        "TrustSubnet",
+      ]
 
       ruleset_dns_forwarding_rules = {
         "onprem" = {

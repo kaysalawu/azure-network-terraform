@@ -49,11 +49,11 @@ output "vpngw_public_ip1" {
 }
 
 output "vpngw_bgp_ip0" {
-  value = module.vpngw[0].bgp_default_ip0
+  value = try(module.vpngw[0].bgp_default_ip0, {})
 }
 
 output "vpngw_bgp_ip1" {
-  value = module.vpngw[0].bgp_default_ip1
+  value = try(module.vpngw[0].bgp_default_ip1, {})
 }
 
 # express route gateway

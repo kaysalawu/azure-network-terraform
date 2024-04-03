@@ -32,7 +32,7 @@ module "spoke4" {
 
   nsg_subnet_map = {
     "MainSubnet"               = module.common.nsg_main["region2"].id
-    "UntrustSubnet"            = module.common.nsg_open["region2"].id
+    "UntrustSubnet"            = module.common.nsg_nva["region2"].id
     "TrustSubnet"              = module.common.nsg_main["region2"].id
     "ManagementSubnet"         = module.common.nsg_main["region2"].id
     "AppGatewaySubnet"         = module.common.nsg_lb["region2"].id
@@ -52,6 +52,13 @@ module "spoke4" {
   }
   depends_on = [
     module.common,
+  ]
+}
+
+resource "time_sleep" "spoke4" {
+  create_duration = "60s"
+  depends_on = [
+    module.spoke4
   ]
 }
 
@@ -83,7 +90,7 @@ module "spoke4_vm" {
     },
   ]
   depends_on = [
-    module.spoke4
+    time_sleep.spoke4,
   ]
 }
 
@@ -111,7 +118,7 @@ module "spoke5" {
 
   nsg_subnet_map = {
     "MainSubnet"               = module.common.nsg_main["region2"].id
-    "UntrustSubnet"            = module.common.nsg_open["region2"].id
+    "UntrustSubnet"            = module.common.nsg_nva["region2"].id
     "TrustSubnet"              = module.common.nsg_main["region2"].id
     "ManagementSubnet"         = module.common.nsg_main["region2"].id
     "AppGatewaySubnet"         = module.common.nsg_lb["region2"].id
@@ -131,6 +138,13 @@ module "spoke5" {
   }
   depends_on = [
     module.common,
+  ]
+}
+
+resource "time_sleep" "spoke5" {
+  create_duration = "60s"
+  depends_on = [
+    module.spoke5
   ]
 }
 
@@ -154,7 +168,7 @@ module "spoke5_vm" {
     },
   ]
   depends_on = [
-    module.spoke5
+    time_sleep.spoke5,
   ]
 }
 
@@ -176,19 +190,13 @@ module "spoke6" {
   enable_diagnostics           = local.enable_diagnostics
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region2"].name
 
-  # create_private_dns_zone = false
-  # private_dns_zone_name = local.spoke6_dns_zone
-  # private_dns_zone_linked_external_vnets = {
-  #   "hub2" = module.hub2.vnet.id
-  # }
-
   dns_zones_linked_to_vnet = [
     { name = module.common.private_dns_zones[local.region2_dns_zone].name, registration_enabled = true },
   ]
 
   nsg_subnet_map = {
     "MainSubnet"               = module.common.nsg_main["region2"].id
-    "UntrustSubnet"            = module.common.nsg_open["region2"].id
+    "UntrustSubnet"            = module.common.nsg_nva["region2"].id
     "TrustSubnet"              = module.common.nsg_main["region2"].id
     "ManagementSubnet"         = module.common.nsg_main["region2"].id
     "AppGatewaySubnet"         = module.common.nsg_lb["region2"].id
@@ -208,6 +216,13 @@ module "spoke6" {
   }
   depends_on = [
     module.common,
+  ]
+}
+
+resource "time_sleep" "spoke6" {
+  create_duration = "60s"
+  depends_on = [
+    module.spoke6
   ]
 }
 
@@ -231,7 +246,7 @@ module "spoke6_vm" {
     },
   ]
   depends_on = [
-    module.spoke6
+    time_sleep.spoke6,
   ]
 }
 

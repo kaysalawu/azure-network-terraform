@@ -11,12 +11,12 @@ locals {
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
   spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
 
-  hub1_tags    = { "lab" = local.prefix, "nodeType" = "hub" }
-  branch1_tags = { "lab" = local.prefix, "nodeType" = "branch" }
-  branch2_tags = { "lab" = local.prefix, "nodeType" = "branch" }
-  spoke1_tags  = { "lab" = local.prefix, "nodeType" = "spoke" }
-  spoke2_tags  = { "lab" = local.prefix, "nodeType" = "spoke" }
-  spoke3_tags  = { "lab" = local.prefix, "nodeType" = "float" }
+  hub1_tags    = { "lab" = local.prefix, "env" = "prod", "nodeType" = "hub" }
+  branch1_tags = { "lab" = local.prefix, "env" = "prod", "nodeType" = "branch" }
+  branch2_tags = { "lab" = local.prefix, "env" = "prod", "nodeType" = "branch" }
+  spoke1_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "spoke" }
+  spoke2_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "spoke" }
+  spoke3_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "float" }
 }
 
 resource "random_id" "random" {
@@ -29,7 +29,11 @@ resource "random_id" "random" {
 
 provider "azurerm" {
   skip_provider_registration = true
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
 }
 
 provider "azapi" {}
@@ -79,6 +83,10 @@ locals {
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
       enable_ars                  = false
+      nat_gateway_subnet_names = [
+        "MainSubnet",
+        "TrustSubnet",
+      ]
 
       ruleset_dns_forwarding_rules = {
         "onprem" = {
@@ -249,12 +257,6 @@ locals {
   onprem_redirected_hosts = []
   branch_dns_init_dir     = "/var/lib/labs"
 }
-
-####################################################
-# nsg
-####################################################
-
-# rules
 
 ####################################################
 # addresses

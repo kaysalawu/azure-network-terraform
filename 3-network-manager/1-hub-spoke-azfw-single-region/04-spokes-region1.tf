@@ -33,7 +33,7 @@ module "spoke1" {
 
   nsg_subnet_map = {
     "MainSubnet"               = module.common.nsg_main["region1"].id
-    "UntrustSubnet"            = module.common.nsg_open["region1"].id
+    "UntrustSubnet"            = module.common.nsg_nva["region1"].id
     "TrustSubnet"              = module.common.nsg_main["region1"].id
     "ManagementSubnet"         = module.common.nsg_main["region1"].id
     "AppGatewaySubnet"         = module.common.nsg_lb["region1"].id
@@ -53,6 +53,13 @@ module "spoke1" {
   }
   depends_on = [
     module.common,
+  ]
+}
+
+resource "time_sleep" "spoke1" {
+  create_duration = "60s"
+  depends_on = [
+    module.spoke1
   ]
 }
 
@@ -84,7 +91,7 @@ module "spoke1_vm" {
     },
   ]
   depends_on = [
-    module.spoke1
+    time_sleep.spoke1,
   ]
 }
 
@@ -112,7 +119,7 @@ module "spoke2" {
 
   nsg_subnet_map = {
     "MainSubnet"               = module.common.nsg_main["region1"].id
-    "UntrustSubnet"            = module.common.nsg_open["region1"].id
+    "UntrustSubnet"            = module.common.nsg_nva["region1"].id
     "TrustSubnet"              = module.common.nsg_main["region1"].id
     "ManagementSubnet"         = module.common.nsg_main["region1"].id
     "AppGatewaySubnet"         = module.common.nsg_lb["region1"].id
@@ -132,6 +139,13 @@ module "spoke2" {
   }
   depends_on = [
     module.common,
+  ]
+}
+
+resource "time_sleep" "spoke2" {
+  create_duration = "60s"
+  depends_on = [
+    module.spoke2
   ]
 }
 
@@ -155,7 +169,7 @@ module "spoke2_vm" {
     },
   ]
   depends_on = [
-    module.spoke2
+    time_sleep.spoke2,
   ]
 }
 
@@ -183,7 +197,7 @@ module "spoke3" {
 
   nsg_subnet_map = {
     "MainSubnet"               = module.common.nsg_main["region1"].id
-    "UntrustSubnet"            = module.common.nsg_open["region1"].id
+    "UntrustSubnet"            = module.common.nsg_nva["region1"].id
     "TrustSubnet"              = module.common.nsg_main["region1"].id
     "ManagementSubnet"         = module.common.nsg_main["region1"].id
     "AppGatewaySubnet"         = module.common.nsg_lb["region1"].id
@@ -203,6 +217,13 @@ module "spoke3" {
   }
   depends_on = [
     module.common,
+  ]
+}
+
+resource "time_sleep" "spoke3" {
+  create_duration = "60s"
+  depends_on = [
+    module.spoke3
   ]
 }
 
@@ -226,7 +247,7 @@ module "spoke3_vm" {
     },
   ]
   depends_on = [
-    module.spoke3
+    time_sleep.spoke3,
   ]
 }
 

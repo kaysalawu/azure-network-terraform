@@ -10,7 +10,6 @@ No requirements.
 | Name | Version |
 |------|---------|
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
-| <a name="provider_time"></a> [time](#provider\_time) | n/a |
 
 ## Modules
 
@@ -26,9 +25,7 @@ No requirements.
 | Name | Type |
 |------|------|
 | [azurerm_virtual_hub.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_hub) | resource |
-| [azurerm_virtual_hub_route_table_route.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_hub_route_table_route) | resource |
 | [azurerm_virtual_hub_routing_intent.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_hub_routing_intent) | resource |
-| [time_sleep.this](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/sleep) | resource |
 | [azurerm_virtual_hub_route_table.default](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/virtual_hub_route_table) | data source |
 
 ## Inputs
@@ -36,7 +33,7 @@ No requirements.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_address_prefix"></a> [address\_prefix](#input\_address\_prefix) | Address prefix for the virtual hub | `string` | n/a | yes |
-| <a name="input_config_security"></a> [config\_security](#input\_config\_security) | n/a | <pre>object({<br>    create_firewall       = optional(bool, false)<br>    enable_routing_intent = optional(bool, false)<br>    firewall_sku          = optional(string, "Basic")<br>    firewall_policy_id    = optional(string, null)<br>    routing_policies = optional(object({<br>      internet            = optional(bool, false)<br>      private_traffic     = optional(bool, false)<br>      additional_prefixes = optional(map(any), {})<br>    }))<br>  })</pre> | `{}` | no |
+| <a name="input_config_security"></a> [config\_security](#input\_config\_security) | n/a | <pre>object({<br>    create_firewall    = optional(bool, false)<br>    firewall_sku       = optional(string, "Basic")<br>    firewall_policy_id = optional(string, null)<br>    routing_policies = optional(list(object({<br>      name         = string<br>      destinations = optional(list(string), ["Internet", "PrivateTraffic"])<br>    })), [])<br>    static_routes = optional(list(object({<br>      name         = string<br>      destinations = list(string)<br>    })), [])<br>  })</pre> | `{}` | no |
 | <a name="input_enable_diagnostics"></a> [enable\_diagnostics](#input\_enable\_diagnostics) | enable diagnostics | `bool` | `false` | no |
 | <a name="input_enable_routing_intent"></a> [enable\_routing\_intent](#input\_enable\_routing\_intent) | Enable routing intent | `bool` | `false` | no |
 | <a name="input_env"></a> [env](#input\_env) | environment name | `string` | `"dev"` | no |
@@ -49,7 +46,6 @@ No requirements.
 | <a name="input_p2s_vpn_gateway"></a> [p2s\_vpn\_gateway](#input\_p2s\_vpn\_gateway) | n/a | <pre>object({<br>    enable        = optional(bool, false)<br>    sku           = optional(string, "VpnGw1AZ")<br>    active_active = optional(bool, false)<br><br>    custom_route_address_prefixes = optional(list(string), [])<br><br>    vpn_client_configuration = optional(object({<br>      address_space = list(string)<br>      clients = list(object({<br>        name = string<br>      }))<br>    }))<br>  })</pre> | <pre>{<br>  "enable": false,<br>  "ip_configuration": [<br>    {<br>      "name": "ip-config",<br>      "public_ip_address_name": null<br>    }<br>  ],<br>  "sku": "VpnGw1AZ"<br>}</pre> | no |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | Prefix for all resources | `string` | n/a | yes |
 | <a name="input_resource_group"></a> [resource\_group](#input\_resource\_group) | Name of the resource group | `string` | n/a | yes |
-| <a name="input_routing_policies"></a> [routing\_policies](#input\_routing\_policies) | n/a | <pre>object({<br>    internet            = optional(bool, false)<br>    private_traffic     = optional(bool, false)<br>    additional_prefixes = optional(map(any), {})<br>  })</pre> | <pre>{<br>  "additional_prefixes": {},<br>  "internet": false,<br>  "private_traffic": false<br>}</pre> | no |
 | <a name="input_s2s_vpn_gateway"></a> [s2s\_vpn\_gateway](#input\_s2s\_vpn\_gateway) | n/a | <pre>object({<br>    enable = optional(bool, false)<br>    sku    = optional(string, "VpnGw1AZ")<br>    bgp_settings = optional(object({<br>      asn                                       = optional(string, "65515")<br>      peer_weight                               = optional(number, 0)<br>      instance_0_bgp_peering_address_custom_ips = optional(list(string), [])<br>      instance_1_bgp_peering_address_custom_ips = optional(list(string), [])<br>    }))<br>  })</pre> | <pre>{<br>  "bgp_settings": {},<br>  "enable": false,<br>  "sku": "VpnGw1AZ"<br>}</pre> | no |
 | <a name="input_sku"></a> [sku](#input\_sku) | SKU of the virtual hub: Basic \| Standard | `string` | `"Standard"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to apply to all resources | `map(any)` | `{}` | no |

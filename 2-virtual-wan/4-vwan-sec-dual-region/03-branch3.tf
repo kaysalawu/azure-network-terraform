@@ -18,14 +18,19 @@ module "branch3" {
 
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region2"].id
-    "TrustSubnet"     = module.common.nsg_main["region2"].id
     "UntrustSubnet"   = module.common.nsg_nva["region2"].id
+    "TrustSubnet"     = module.common.nsg_main["region2"].id
     "DnsServerSubnet" = module.common.nsg_main["region2"].id
   }
 
   config_vnet = {
     address_space = local.branch3_address_space
     subnets       = local.branch3_subnets
+    nat_gateway_subnet_names = [
+      "MainSubnet",
+      "TrustSubnet",
+      "DnsServerSubnet",
+    ]
   }
 
   config_ergw = {
@@ -35,6 +40,13 @@ module "branch3" {
 
   depends_on = [
     module.common,
+  ]
+}
+
+resource "time_sleep" "branch3" {
+  create_duration = "60s"
+  depends_on = [
+    module.branch3
   ]
 }
 
@@ -82,8 +94,10 @@ module "branch3_dns" {
       name               = "${local.branch3_prefix}dns-main"
       subnet_id          = module.branch3.subnets["MainSubnet"].id
       private_ip_address = local.branch3_dns_addr
-      create_public_ip   = true
     },
+  ]
+  depends_on = [
+    time_sleep.branch3,
   ]
 }
 
@@ -104,7 +118,6 @@ locals {
       "ip prefix-list ${local.branch3_nva_route_map_block_azure} deny ${local.hub2_address_space[1]}",
       "ip prefix-list ${local.branch3_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
     ]
-
     ROUTE_MAPS = [
       # prepend as-path between branches
       "route-map ${local.branch3_nva_route_map_onprem} permit 100",
@@ -194,12 +207,11 @@ locals {
     TARGETS_HEAVY_TRAFFIC_GEN = []
 
     IPTABLES_RULES           = []
-    ROUTE_MAPS               = []
-    TUNNELS                  = []
     FRR_CONF                 = templatefile("../../scripts/frr/frr.conf", merge(local.branch3_nva_vars, {}))
     STRONGSWAN_VTI_SCRIPT    = templatefile("../../scripts/strongswan/ipsec-vti.sh", local.branch3_nva_vars)
     STRONGSWAN_IPSEC_SECRETS = templatefile("../../scripts/strongswan/ipsec.secrets", local.branch3_nva_vars)
     STRONGSWAN_IPSEC_CONF    = templatefile("../../scripts/strongswan/ipsec.conf", local.branch3_nva_vars)
+    STRONGSWAN_AUTO_RESTART  = templatefile("../../scripts/strongswan/ipsec-auto-restart.sh", local.branch3_nva_vars)
   }))
 }
 
@@ -232,7 +244,6 @@ module "branch3_nva" {
       private_ip_address = local.branch3_nva_trust_addr
     },
   ]
-  depends_on = [module.branch3]
 }
 
 ####################################################
@@ -263,13 +274,12 @@ module "branch3_vm" {
       name               = "${local.branch3_prefix}vm-main-nic"
       subnet_id          = module.branch3.subnets["MainSubnet"].id
       private_ip_address = local.branch3_vm_addr
-      create_public_ip   = true
     },
   ]
   depends_on = [
-    module.branch3,
     module.branch3_dns,
     module.branch3_nva,
+    time_sleep.branch3,
   ]
 }
 
@@ -300,9 +310,9 @@ module "branch3_udr_main" {
 
   disable_bgp_route_propagation = true
   depends_on = [
-    module.branch3,
     module.branch3_dns,
     module.branch3_nva,
+    time_sleep.branch3,
   ]
 }
 

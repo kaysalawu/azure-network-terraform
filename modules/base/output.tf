@@ -7,7 +7,10 @@ output "vnet" {
 }
 
 output "subnets" {
-  value = azurerm_subnet.this
+  value = merge(
+    try(azurerm_subnet.this, {}),
+    try(azapi_resource.subnets, {})
+  )
 }
 
 # dns

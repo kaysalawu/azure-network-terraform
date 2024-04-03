@@ -126,6 +126,20 @@ variable "lb_rules" {
   default = []
 }
 
+variable "outbound_rules" {
+  description = "SNAT rules for outbound traffic."
+  type = list(object({
+    name                           = string
+    frontend_ip_configuration_name = string
+    backend_address_pool_name      = optional(string, null)
+    protocol                       = optional(string, "Tcp") # Tcp, Udp, All
+    enable_tcp_reset               = optional(bool, false)
+    allocated_outbound_ports       = optional(number, 1024)
+    idle_timeout_in_minutes        = optional(number, 4)
+  }))
+  default = []
+}
+
 variable "nat_rules" {
   description = "(Optional) Protocols to be used for nat rules. Format as [frontend_port, protocol, backend_port]"
   type = list(object({

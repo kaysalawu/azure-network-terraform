@@ -50,7 +50,6 @@ variable "circuits" {
     virtual_network_gateway_id    = optional(string, null)
     express_route_gateway_id      = optional(string, null)
     auto_create_private_peering   = optional(bool, true)
-    auto_create_microsoft_peering = optional(bool, true)
   }))
   default = []
 }

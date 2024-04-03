@@ -1,9 +1,10 @@
 
 locals {
-  prefix    = var.prefix == "" ? var.name : format("%s-%s-", var.prefix, var.name)
-  lb_rules  = { for rule in var.lb_rules : rule.name => rule }
-  nat_rules = { for rule in var.nat_rules : rule.name => rule }
-  probes    = { for probe in var.probes : probe.name => probe }
+  prefix         = var.prefix == "" ? var.name : format("%s-%s-", var.prefix, var.name)
+  lb_rules       = { for rule in var.lb_rules : rule.name => rule }
+  outbound_rules = { for rule in var.outbound_rules : rule.name => rule }
+  nat_rules      = { for rule in var.nat_rules : rule.name => rule }
+  probes         = { for probe in var.probes : probe.name => probe }
 
   backend_pools            = { for pool in var.backend_pools : pool.name => { interfaces = pool.interfaces, addresses = pool.addresses } }  #TODO: convert to list of objects
   backend_pools_addresses  = { for k, v in local.backend_pools : k => v.addresses if length(v.addresses) > 0 && length(v.interfaces) == 0 } #TODO: convert to list of objects
@@ -81,9 +82,9 @@ resource "azurerm_lb_probe" "this" {
   loadbalancer_id     = azurerm_lb.this.id
 }
 
-# ####################################################
-# # address pools
-# ####################################################
+####################################################
+# address pools
+####################################################
 
 resource "azurerm_lb_backend_address_pool" "this" {
   for_each        = local.backend_pools
@@ -92,9 +93,9 @@ resource "azurerm_lb_backend_address_pool" "this" {
   depends_on      = [azurerm_lb.this]
 }
 
-# ####################################################
-# # load balacing rules
-# ####################################################
+####################################################
+# load balacing rules
+####################################################
 
 resource "azurerm_lb_rule" "this" {
   for_each                       = local.lb_rules
@@ -109,6 +110,21 @@ resource "azurerm_lb_rule" "this" {
   idle_timeout_in_minutes        = each.value.idle_timeout_in_minutes
   load_distribution              = each.value.load_distribution
   backend_address_pool_ids       = [for pool in each.value.backend_address_pool_name : azurerm_lb_backend_address_pool.this[pool].id]
+}
+
+resource "azurerm_lb_outbound_rule" "this" {
+  for_each                 = local.outbound_rules
+  name                     = each.value.name
+  loadbalancer_id          = azurerm_lb.this.id
+  protocol                 = each.value.protocol
+  enable_tcp_reset         = each.value.enable_tcp_reset
+  idle_timeout_in_minutes  = each.value.idle_timeout_in_minutes
+  allocated_outbound_ports = each.value.allocated_outbound_ports
+  backend_address_pool_id  = azurerm_lb_backend_address_pool.this[each.value.backend_address_pool_name].id
+
+  frontend_ip_configuration {
+    name = each.value.frontend_ip_configuration_name
+  }
 }
 
 resource "azurerm_lb_nat_rule" "this" {

@@ -3,8 +3,8 @@
 ####################################################
 
 locals {
-  prefix                 = "G04"
-  lab_name               = "AppgwWebsocket"
+  prefix                 = "Lab04"
+  lab_name               = "AppGwWebsocket"
   enable_diagnostics     = false
   enable_onprem_wan_link = false
   hub1_tags              = { "lab" = local.prefix, "nodeType" = "hub" }
@@ -21,11 +21,16 @@ provider "azurerm" {
   features {}
 }
 
+provider "azapi" {}
+
 terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
       version = ">= 3.78.0"
+    }
+    azapi = {
+      source = "azure/azapi"
     }
   }
 }
@@ -38,11 +43,17 @@ locals {
   regions = {
     "region1" = { name = local.region1, dns_zone = local.region1_dns_zone }
   }
+  firewall_sku = "Basic"
 
   hub1_features = {
     config_vnet = {
       address_space = local.hub1_address_space
       subnets       = local.hub1_subnets
+      nsg_subnet_map = {
+        "MainSubnet"      = module.common.nsg_main["region1"].id
+        "TrustSubnet"     = module.common.nsg_main["region1"].id
+        "DnsServerSubnet" = module.common.nsg_main["region1"].id
+      }
     }
 
     config_s2s_vpngw = {
@@ -96,42 +107,6 @@ module "common" {
   tags             = {}
 }
 
-# vm startup scripts
-#----------------------------
-
-locals {
-  vm_startup_container_dir = "/var/lib/labs"
-  vm_websocket_server_init = {
-    "${local.vm_startup_container_dir}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("./scripts/websockets/server/app/Dockerfile", {}) }
-    "${local.vm_startup_container_dir}/main.py"          = { owner = "root", permissions = "0744", content = templatefile("./scripts/websockets/server/app/main.py", {}) }
-    "${local.vm_startup_container_dir}/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("./scripts/websockets/server/app/requirements.txt", {}) }
-  }
-}
-
-module "vm_websocket_client_init" {
-  source   = "../../modules/cloud-config-gen"
-  packages = ["docker.io", "docker-compose", "npm", ]
-  run_commands = [
-    "systemctl enable docker",
-    "systemctl start docker",
-    "npm install -g wscat",
-  ]
-}
-
-module "vm_websocket_server_init" {
-  source   = "../../modules/cloud-config-gen"
-  files    = local.vm_websocket_server_init
-  packages = ["docker.io", "docker-compose", "npm", ]
-  run_commands = [
-    "systemctl enable docker",
-    "systemctl start docker",
-    "npm install -g wscat",
-    "cd ${local.vm_startup_container_dir}",
-    "docker build -t server .",
-    "docker run -d -p 8080:8080 --name server server",
-    "docker run -d -p 80:80 --name nginx nginx",
-  ]
-}
 
 ####################################################
 # addresses
@@ -151,8 +126,6 @@ resource "azurerm_public_ip" "hub1_appgw_pip" {
 
 locals {
   main_files = {
-    "output/websocket-client-init.sh" = module.vm_websocket_client_init.cloud_config
-    "output/server-init.sh"           = module.vm_websocket_server_init.cloud_config
   }
 }
 

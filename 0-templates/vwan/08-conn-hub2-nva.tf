@@ -147,22 +147,6 @@ resource "azurerm_vpn_gateway_connection" "vhub2_site_branch3_conn" {
     shared_key       = local.psk
     vpn_site_link_id = azurerm_vpn_site.vhub2_site_branch3.link[0].id
   }
-
-  # disable routing when routing intent is used
-  dynamic "routing" {
-    for_each = local.vhub2_features.config_security.enable_routing_intent ? [] : [1]
-    content {
-      associated_route_table = module.vhub2.virtual_hub.default_route_table_id
-      propagated_route_table {
-        labels = [
-          "default",
-        ]
-        route_table_ids = [
-          module.vhub2.virtual_hub.default_route_table_id,
-        ]
-      }
-    }
-  }
 }
 
 ####################################################
@@ -181,26 +165,14 @@ resource "azurerm_virtual_hub_connection" "spoke4_vnet_conn" {
   remote_virtual_network_id = module.spoke4.vnet.id
   internet_security_enabled = true
 
-  # disable routing when routing intent is used
-  dynamic "routing" {
-    for_each = local.vhub2_features.config_security.enable_routing_intent ? [] : [1]
-    content {
-      associated_route_table_id = data.azurerm_virtual_hub_route_table.vhub2_default.id
-      propagated_route_table {
-        labels = [
-          "default"
-        ]
-        route_table_ids = [
-          data.azurerm_virtual_hub_route_table.vhub2_default.id
-        ]
-      }
-      dynamic "static_vnet_route" {
-        for_each = local.vhub2_spoke4_vnet_conn_routes
-        content {
-          name                = static_vnet_route.value.name
-          address_prefixes    = static_vnet_route.value.address_prefixes
-          next_hop_ip_address = static_vnet_route.value.next_hop_ip_address
-        }
+  routing {
+    associated_route_table_id = data.azurerm_virtual_hub_route_table.vhub2_default.id
+    dynamic "static_vnet_route" {
+      for_each = local.vhub2_spoke4_vnet_conn_routes
+      content {
+        name                = static_vnet_route.value.name
+        address_prefixes    = static_vnet_route.value.address_prefixes
+        next_hop_ip_address = static_vnet_route.value.next_hop_ip_address
       }
     }
   }
@@ -218,68 +190,18 @@ resource "azurerm_virtual_hub_connection" "hub2_vnet_conn" {
   remote_virtual_network_id = module.hub2.vnet.id
   internet_security_enabled = false
 
-  # disable routing when routing intent is used
-  dynamic "routing" {
-    for_each = local.vhub2_features.config_security.enable_routing_intent ? [] : [1]
-    content {
-      associated_route_table_id = data.azurerm_virtual_hub_route_table.vhub2_default.id
-      propagated_route_table {
-        labels = [
-          "default"
-        ]
-        route_table_ids = [
-          data.azurerm_virtual_hub_route_table.vhub2_default.id
-        ]
-      }
-      dynamic "static_vnet_route" {
-        for_each = local.vhub2_hub2_vnet_conn_routes
-        content {
-          name                = static_vnet_route.value.name
-          address_prefixes    = static_vnet_route.value.address_prefixes
-          next_hop_ip_address = static_vnet_route.value.next_hop_ip_address
-        }
+  routing {
+    associated_route_table_id = data.azurerm_virtual_hub_route_table.vhub2_default.id
+    dynamic "static_vnet_route" {
+      for_each = local.vhub2_hub2_vnet_conn_routes
+      content {
+        name                = static_vnet_route.value.name
+        address_prefixes    = static_vnet_route.value.address_prefixes
+        next_hop_ip_address = static_vnet_route.value.next_hop_ip_address
       }
     }
   }
 }
-
-####################################################
-# vhub static routes
-####################################################
-
-locals {
-  vhub2_default_rt_static_routes = {
-    #default = { destinations = ["0.0.0.0/0"], next_hop = module.vhub2.firewall.id }
-    #rfc1918 = { destinations = local.private_prefixes, next_hop = module.vhub2.firewall.id }
-    #zscaler = { destinations = ["${local.spoke5_vm_addr}/32"], next_hop = azurerm_virtual_hub_connection.hub2_vnet_conn.id }
-  }
-  vhub2_custom_rt_static_routes = {
-    #default = { destinations = ["0.0.0.0/0"], next_hop = module.vhub2.firewall.id }
-    #rfc1918 = { destinations = local.private_prefixes, next_hop = module.vhub2.firewall.id }
-  }
-}
-
-resource "azurerm_virtual_hub_route_table_route" "vhub2_default_rt_static_routes" {
-  for_each          = local.vhub2_features.config_security.create_firewall ? local.vhub2_default_rt_static_routes : {}
-  route_table_id    = data.azurerm_virtual_hub_route_table.vhub2_default.id
-  name              = each.key
-  destinations_type = "CIDR"
-  destinations      = each.value.destinations
-  next_hop_type     = "ResourceId"
-  next_hop          = each.value.next_hop
-  depends_on        = [module.hub2]
-}
-
-# resource "azurerm_virtual_hub_route_table_route" "vhub2_custom_rt_static_routes" {
-#   for_each          = local.vhub2_features.config_security.create_firewall ? local.vhub2_custom_rt_static_routes : {}
-#   route_table_id    = azurerm_virtual_hub_route_table.vhub2_custom[0].id
-#   name              = each.key
-#   destinations_type = "CIDR"
-#   destinations      = each.value.destinations
-#   next_hop_type     = "ResourceId"
-#   next_hop          = each.value.next_hop
-#   depends_on        = [module.hub2]
-# }
 
 ####################################################
 # bgp connections

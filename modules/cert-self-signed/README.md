@@ -3,15 +3,12 @@
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_pkcs12"></a> [pkcs12](#requirement\_pkcs12) | 0.2.5 |
+No requirements.
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_pkcs12"></a> [pkcs12](#provider\_pkcs12) | 0.2.5 |
 | <a name="provider_tls"></a> [tls](#provider\_tls) | n/a |
 
 ## Modules
@@ -22,7 +19,6 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [pkcs12_from_pem.this](https://registry.terraform.io/providers/chilicat/pkcs12/0.2.5/docs/resources/from_pem) | resource |
 | [tls_cert_request.this](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/cert_request) | resource |
 | [tls_locally_signed_cert.this](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/locally_signed_cert) | resource |
 | [tls_private_key.this](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) | resource |
@@ -46,7 +42,6 @@ No modules.
 |------|-------------|
 | <a name="output_cert_name"></a> [cert\_name](#output\_cert\_name) | n/a |
 | <a name="output_cert_pem"></a> [cert\_pem](#output\_cert\_pem) | n/a |
-| <a name="output_cert_pfx"></a> [cert\_pfx](#output\_cert\_pfx) | n/a |
 | <a name="output_cert_pfx_password"></a> [cert\_pfx\_password](#output\_cert\_pfx\_password) | n/a |
 | <a name="output_private_key_pem"></a> [private\_key\_pem](#output\_private\_key\_pem) | n/a |
 <!-- END_TF_DOCS -->

@@ -42,15 +42,3 @@ resource "tls_locally_signed_cert" "this" {
     "client_auth",
   ]
 }
-
-####################################################
-# signed cert (pkcs12)
-####################################################
-
-# signed cert (pkcs12)
-
-resource "pkcs12_from_pem" "this" {
-  cert_pem        = tls_locally_signed_cert.this.cert_pem
-  private_key_pem = tls_private_key.this.private_key_pem
-  password        = var.cert_password
-}

@@ -12,6 +12,7 @@ Error Messages
 - [7. Subnet - "Already Exists"](#7-subnet---already-exists)
 - [8. Virtual Machine Extension - "Already Exists"](#8-virtual-machine-extension---already-exists)
 - [9. Virtual Machine - "Already Exists"](#9-virtual-machine---already-exists)
+- [10. RetryableError: A retryable error occurred"](#10-retryableerror-a-retryable-error-occurred)
 
 Terraform serializes some resource creation which creates situations where some resources wait for a long time for dependent resources to be created. There are scenarios where you might encounter errors after running terraform to deploy any of the labs. This could be as a result of occasional race conditions that come up because some terraform resources are dependent on Azure resources that take a long time to deploy - such as virtual network gateways.
 
@@ -346,6 +347,31 @@ In this example, the command will be:
 terraform import module.hub1_vm.azurerm_linux_virtual_machine.this "/subscriptions/b120edde-2b3e-1234-fake-55d2918f337f/resourceGroups/Hs11RG/providers/Microsoft.Compute/virtualMachines/Hs11-hub1Vm"
 ```
 4. Re-apply terraform
+```sh
+terraform plan
+terraform apply
+```
+
+## 10. RetryableError: A retryable error occurred"
+
+This error could occur when terraform is trying to create a resource and Azure is experiencing a transient issue.
+
+**Example:**
+
+```sh
+Error: updating Load Balancing Rule (Subscription: "b120edff-2b3e-4896-adb7-55d2918f337f"
+│ Resource Group Name: "Vwan24_SecVwan_2Region_RG"
+│ Load Balancer Name: "Vwan24-spoke3-pls-ilb"
+│ Load Balancing Rule Name: "pls-80-lb-rule"): performing CreateOrUpdate: unexpected status 429 with error: RetryableError: A retryable error occurred.
+│
+│   with module.spoke3_lb.azurerm_lb_rule.this["pls-80"],
+│   on ../../modules/azure-load-balancer/main.tf line 100, in resource "azurerm_lb_rule" "this":
+│  100: resource "azurerm_lb_rule" "this" {
+```
+
+**Solution:**
+
+Re-apply terraform
 ```sh
 terraform plan
 terraform apply
