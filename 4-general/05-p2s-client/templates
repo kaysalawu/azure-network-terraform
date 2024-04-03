@@ -1,0 +1,4 @@
+../../0-templates/01-config.tf
+../../0-templates/hub-spoke/03-branch1.tf
+../../0-templates/hub-spoke/03-branch2.tf
+../../0-templates/05-hub1.tf
