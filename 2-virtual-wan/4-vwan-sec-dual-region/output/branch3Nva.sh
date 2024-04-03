@@ -136,25 +136,25 @@ conn %default
 
 conn Tunnel0
     left=10.30.1.9
-    leftid=13.82.134.102
-    right=4.255.77.31
-    rightid=4.255.77.31
+    leftid=52.234.131.115
+    right=172.210.126.51
+    rightid=172.210.126.51
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.30.1.9
-    leftid=13.82.134.102
-    right=4.255.77.18
-    rightid=4.255.77.18
+    leftid=52.234.131.115
+    right=172.210.126.45
+    rightid=172.210.126.45
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.30.1.9
-    leftid=13.82.134.102
-    right=13.74.102.64
-    rightid=13.74.102.64
+    leftid=52.234.131.115
+    right=52.178.134.117
+    rightid=52.178.134.117
     auto=start
     mark=300
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -165,9 +165,9 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.30.1.9 4.255.77.31 : PSK "changeme"
-10.30.1.9 4.255.77.18 : PSK "changeme"
-10.30.1.9 13.74.102.64 : PSK "changeme"
+10.30.1.9 172.210.126.51 : PSK "changeme"
+10.30.1.9 172.210.126.45 : PSK "changeme"
+10.30.1.9 52.178.134.117 : PSK "changeme"
 
 EOF
 
@@ -238,34 +238,27 @@ export USER=root
 
 LOG_FILE="/var/log/ipsec-auto-restart.log"
 connections=$(grep '^conn' /etc/ipsec.conf | grep -v '%default' | awk '{print $2}')
-active_tunnel_found=false
+all_tunnels_active=true
 
 for conn in $connections; do
   status=$(ipsec status | grep "$conn")
-  if [[ "$status" =~ ESTABLISHED ]]; then
-        echo "$(date): $conn - active." >> "$LOG_FILE"
-        active_tunnel_found=true
-    elif ! [[ "$status" =~ CONNECTING ]]; then
-        echo "$(date): $conn - down or inactive." >> "$LOG_FILE"
+  if ! [[ "$status" =~ ESTABLISHED ]]; then
+        all_tunnels_active=false
+        echo "$(date): $conn: down or inactive." >> "$LOG_FILE"
     ipsec down $conn
     ipsec up $conn
-    echo "$(date): $conn - restarted." >> "$LOG_FILE"
-
-    sleep 5
-    if [[ $(ipsec status | grep "$conn") =~ ESTABLISHED ]]; then
-      echo "$(date): $conn - active." >> "$LOG_FILE"
-      active_tunnel_found=true
-    else
-      echo "$(date): $conn: down or inactive." >> "$LOG_FILE"
-    fi
-  fi
+    echo "$(date): $conn: restarting." >> "$LOG_FILE"
+else
+      echo "$(date): $conn: active." >> "$LOG_FILE"
+        fi
 done
 
-if ! $active_tunnel_found; then
-  echo "$(date): No active tunnels found, restarting ipsec service..." >> "$LOG_FILE"
+if ! $all_tunnels_active; then
+  echo "$(date): Not all tunnels active, restarting ipsec service..." >> "$LOG_FILE"
   systemctl restart ipsec
   echo "$(date): ipsec service restarted." >> "$LOG_FILE"
 fi
+
 EOF
 chmod a+x /usr/local/bin/ipsec-auto-restart.sh
 
@@ -387,7 +380,7 @@ chmod a+x /usr/local/bin/ipsec-debug
 #-----------------------------------
 
 cat <<EOF > /etc/cron.d/ipsec-auto-restart
-*/2 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
+*/10 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
 EOF
 
 crontab /etc/cron.d/ipsec-auto-restart

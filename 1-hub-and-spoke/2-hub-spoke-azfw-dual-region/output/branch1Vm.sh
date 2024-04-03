@@ -148,8 +148,8 @@ echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{h
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke4vm.us.az.corp) - spoke4vm.us.az.corp"
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke5vm.us.az.corp) - spoke5vm.us.az.corp"
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs12spoke3sabfd6.blob.core.windows.net/spoke3/spoke3.txt) - https://hs12spoke3sabfd6.blob.core.windows.net/spoke3/spoke3.txt"
-echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs12spoke6sabfd6.blob.core.windows.net/spoke6/spoke6.txt) - https://hs12spoke6sabfd6.blob.core.windows.net/spoke6/spoke6.txt"
+echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs12spoke3sa6bbf.blob.core.windows.net/spoke3/spoke3.txt) - https://hs12spoke3sa6bbf.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs12spoke6sa6bbf.blob.core.windows.net/spoke6/spoke6.txt) - https://hs12spoke6sa6bbf.blob.core.windows.net/spoke6/spoke6.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 
@@ -213,8 +213,8 @@ nping -c 10 --tcp -p 80 branch3vm.corp > /dev/null 2>&1
 nping -c 10 --tcp -p 80 spoke6pls.us.az.corp > /dev/null 2>&1
 nping -c 10 --tcp -p 80 spoke4vm.us.az.corp > /dev/null 2>&1
 nping -c 10 --tcp -p 80 spoke5vm.us.az.corp > /dev/null 2>&1
-nping -c 10 --tcp -p 80 https://hs12spoke3sabfd6.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
-nping -c 10 --tcp -p 80 https://hs12spoke6sabfd6.blob.core.windows.net/spoke6/spoke6.txt > /dev/null 2>&1
+nping -c 10 --tcp -p 80 https://hs12spoke3sa6bbf.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
+nping -c 10 --tcp -p 80 https://hs12spoke6sa6bbf.blob.core.windows.net/spoke6/spoke6.txt > /dev/null 2>&1
 EOF
 chmod a+x /usr/local/bin/light-traffic
 
@@ -232,8 +232,8 @@ while [ \$i -lt 8 ]; do
     ab -n \$1 -c \$2 spoke6pls.us.az.corp > /dev/null 2>&1
     ab -n \$1 -c \$2 spoke4vm.us.az.corp > /dev/null 2>&1
     ab -n \$1 -c \$2 spoke5vm.us.az.corp > /dev/null 2>&1
-    ab -n \$1 -c \$2 https://hs12spoke3sabfd6.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
-    ab -n \$1 -c \$2 https://hs12spoke6sabfd6.blob.core.windows.net/spoke6/spoke6.txt > /dev/null 2>&1
+    ab -n \$1 -c \$2 https://hs12spoke3sa6bbf.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
+    ab -n \$1 -c \$2 https://hs12spoke6sa6bbf.blob.core.windows.net/spoke6/spoke6.txt > /dev/null 2>&1
     let i=i+1
   sleep 5
 done

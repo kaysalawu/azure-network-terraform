@@ -136,25 +136,25 @@ conn %default
 
 conn Tunnel0
     left=10.10.1.9
-    leftid=52.178.188.130
-    right=4.207.172.85
-    rightid=4.207.172.85
+    leftid=52.169.153.207
+    right=4.209.25.43
+    rightid=4.209.25.43
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.10.1.9
-    leftid=52.178.188.130
-    right=4.207.172.49
-    rightid=4.207.172.49
+    leftid=52.169.153.207
+    right=4.209.25.80
+    rightid=4.209.25.80
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.10.1.9
-    leftid=52.178.188.130
-    right=40.117.174.149
-    rightid=40.117.174.149
+    leftid=52.169.153.207
+    right=172.172.228.102
+    rightid=172.172.228.102
     auto=start
     mark=300
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -165,9 +165,9 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.10.1.9 4.207.172.85 : PSK "changeme"
-10.10.1.9 4.207.172.49 : PSK "changeme"
-10.10.1.9 40.117.174.149 : PSK "changeme"
+10.10.1.9 4.209.25.43 : PSK "changeme"
+10.10.1.9 4.209.25.80 : PSK "changeme"
+10.10.1.9 172.172.228.102 : PSK "changeme"
 
 EOF
 
@@ -186,12 +186,12 @@ case "$PLUTO_CONNECTION" in
   Tunnel0)
     VTI_INTERFACE=vti0
     VTI_LOCALADDR=10.10.10.1
-    VTI_REMOTEADDR=10.11.16.6
+    VTI_REMOTEADDR=10.11.16.7
     ;;
   Tunnel1)
     VTI_INTERFACE=vti1
     VTI_LOCALADDR=10.10.10.5
-    VTI_REMOTEADDR=10.11.16.7
+    VTI_REMOTEADDR=10.11.16.6
     ;;
   Tunnel2)
     VTI_INTERFACE=vti2
@@ -230,44 +230,34 @@ chmod a+x /etc/ipsec.d/ipsec-vti.sh
 tee /usr/local/bin/ipsec-auto-restart.sh <<'EOF'
 #!/bin/bash
 
-# export SHELL=/bin/bash
-# export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
-# export HOME=/root
-# export LANG=C.UTF-8
-# export USER=root
+export SHELL=/bin/bash
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+export HOME=/root
+export LANG=C.UTF-8
+export USER=root
 
-# LOG_FILE="/var/log/ipsec-auto-restart.log"
-# connections=$(grep '^conn' /etc/ipsec.conf | grep -v '%default' | awk '{print $2}')
-# active_tunnel_found=false
+LOG_FILE="/var/log/ipsec-auto-restart.log"
+connections=$(grep '^conn' /etc/ipsec.conf | grep -v '%default' | awk '{print $2}')
+all_tunnels_active=true
 
-# for conn in $connections; do
-#   status=$(ipsec status | grep "$conn")
-#   if [[ "$status" =~ ESTABLISHED ]]; then
-#         echo "$(date): $conn: active." >> "$LOG_FILE"
-#         active_tunnel_found=true
-#     elif ! [[ "$status" =~ CONNECTING ]]; then
-#         echo "$(date): $conn: down or inactive." >> "$LOG_FILE"
-#     ipsec down $conn
-#     ipsec up $conn
-#     echo "$(date): $conn: restarted." >> "$LOG_FILE"
+for conn in $connections; do
+  status=$(ipsec status | grep "$conn")
+  if ! [[ "$status" =~ ESTABLISHED ]]; then
+        all_tunnels_active=false
+        echo "$(date): $conn: down or inactive." >> "$LOG_FILE"
+    ipsec down $conn
+    ipsec up $conn
+    echo "$(date): $conn: restarting." >> "$LOG_FILE"
+else
+      echo "$(date): $conn: active." >> "$LOG_FILE"
+        fi
+done
 
-#     sleep 5
-#     if [[ $(ipsec status | grep "$conn") =~ ESTABLISHED ]]; then
-#       echo "$(date): $conn: active." >> "$LOG_FILE"
-#       active_tunnel_found=true
-#     else
-#       echo "$(date): $conn: down or inactive." >> "$LOG_FILE"
-#     fi
-#   fi
-# done
-
-# if ! $active_tunnel_found; then
-#   echo "$(date): No active tunnels found, restarting ipsec service..." >> "$LOG_FILE"
-#   systemctl restart ipsec
-#   echo "$(date): ipsec service restarted." >> "$LOG_FILE"
-# fi
-
-systemctl restart ipsec
+if ! $all_tunnels_active; then
+  echo "$(date): Not all tunnels active, restarting ipsec service..." >> "$LOG_FILE"
+  systemctl restart ipsec
+  echo "$(date): ipsec service restarted." >> "$LOG_FILE"
+fi
 
 EOF
 chmod a+x /usr/local/bin/ipsec-auto-restart.sh
@@ -307,8 +297,8 @@ interface lo
 ! Static Routes
 !-----------------------------------------
 ip route 0.0.0.0/0 10.10.1.1
-ip route 10.11.16.6/32 vti0
-ip route 10.11.16.7/32 vti1
+ip route 10.11.16.7/32 vti0
+ip route 10.11.16.6/32 vti1
 ip route 192.168.30.30/32 vti2
 ip route 10.30.1.9 10.10.1.1
 ip route 10.10.0.0/24 10.10.1.1
@@ -329,20 +319,20 @@ ip route 10.10.0.0/24 10.10.1.1
 !-----------------------------------------
 router bgp 65001
 bgp router-id 192.168.10.10
-neighbor 10.11.16.6 remote-as 65515
-neighbor 10.11.16.6 ebgp-multihop 255
-neighbor 10.11.16.6 update-source lo
 neighbor 10.11.16.7 remote-as 65515
 neighbor 10.11.16.7 ebgp-multihop 255
 neighbor 10.11.16.7 update-source lo
+neighbor 10.11.16.6 remote-as 65515
+neighbor 10.11.16.6 ebgp-multihop 255
+neighbor 10.11.16.6 update-source lo
 neighbor 192.168.30.30 remote-as 65003
 neighbor 192.168.30.30 ebgp-multihop 255
 neighbor 192.168.30.30 update-source lo
 !
 address-family ipv4 unicast
   network 10.10.0.0/24
-  neighbor 10.11.16.6 soft-reconfiguration inbound
   neighbor 10.11.16.7 soft-reconfiguration inbound
+  neighbor 10.11.16.6 soft-reconfiguration inbound
   neighbor 192.168.30.30 soft-reconfiguration inbound
 exit-address-family
 !
