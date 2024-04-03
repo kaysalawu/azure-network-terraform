@@ -68,6 +68,10 @@ locals {
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
       enable_ars                  = false
+      nat_gateway_subnet_names = [
+        "MainSubnet",
+        "TrustSubnet",
+      ]
 
       ruleset_dns_forwarding_rules = {
         "onprem" = {

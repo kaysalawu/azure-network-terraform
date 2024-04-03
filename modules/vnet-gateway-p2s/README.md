@@ -3,9 +3,7 @@
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_pkcs12"></a> [pkcs12](#requirement\_pkcs12) | 0.2.5 |
+No requirements.
 
 ## Providers
 
@@ -13,7 +11,6 @@
 |------|---------|
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
 | <a name="provider_local"></a> [local](#provider\_local) | n/a |
-| <a name="provider_pkcs12"></a> [pkcs12](#provider\_pkcs12) | 0.2.5 |
 | <a name="provider_tls"></a> [tls](#provider\_tls) | n/a |
 
 ## Modules
@@ -29,7 +26,6 @@
 | [azurerm_public_ip.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/public_ip) | resource |
 | [azurerm_virtual_network_gateway.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network_gateway) | resource |
 | [local_file.certificate_files](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
-| [pkcs12_from_pem.root_ca](https://registry.terraform.io/providers/chilicat/pkcs12/0.2.5/docs/resources/from_pem) | resource |
 | [tls_private_key.root_ca](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) | resource |
 | [tls_self_signed_cert.root_ca](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/self_signed_cert) | resource |
 | [azurerm_log_analytics_workspace.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/log_analytics_workspace) | data source |

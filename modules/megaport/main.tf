@@ -14,6 +14,7 @@ data "megaport_location" "this" {
 
 # express route circuits
 #----------------------------
+
 resource "azurerm_express_route_circuit" "this" {
   for_each              = { for c in var.circuits : c.name => c }
   resource_group_name   = var.resource_group
@@ -51,9 +52,11 @@ resource "megaport_mcr" "this" {
 # vxc
 #----------------------------
 
-resource "megaport_azure_connection" "this" {
+# primary
+
+resource "megaport_azure_connection" "primary" {
   for_each   = { for c in var.circuits : c.name => c }
-  vxc_name   = each.value.name
+  vxc_name   = "${each.value.name}-pri"
   rate_limit = each.value.bandwidth_in_mbps
 
   a_end {
@@ -62,10 +65,10 @@ resource "megaport_azure_connection" "this" {
   }
 
   csp_settings {
-    service_key                 = azurerm_express_route_circuit.this[each.value.name].service_key
-    auto_create_private_peering = each.value.auto_create_private_peering
+    service_key = azurerm_express_route_circuit.this[each.value.name].service_key
+    # auto_create_private_peering = true
     private_peering {
-      peer_asn         = each.value.peer_asn
+      peer_asn         = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
       primary_subnet   = each.value.primary_peer_address_prefix
       secondary_subnet = each.value.secondary_peer_address_prefix
       requested_vlan   = each.value.requested_vlan
@@ -73,9 +76,37 @@ resource "megaport_azure_connection" "this" {
   }
 
   lifecycle {
-    ignore_changes = [a_end, csp_settings, ]
+    ignore_changes = [a_end, ]
   }
 }
+
+# secondary
+
+# resource "megaport_azure_connection" "secondary" {
+#   for_each   = { for c in var.circuits : c.name => c }
+#   vxc_name   = "${each.value.name}-sec"
+#   rate_limit = each.value.bandwidth_in_mbps
+
+#   a_end {
+#     port_id        = megaport_mcr.this[each.value.mcr_name].id
+#     requested_vlan = each.value.requested_vlan
+#   }
+
+#   csp_settings {
+#     service_key                 = azurerm_express_route_circuit.this[each.value.name].service_key
+#     auto_create_private_peering = each.value.auto_create_private_peering
+#     private_peering {
+#       peer_asn         = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
+#       primary_subnet   = each.value.primary_peer_address_prefix
+#       secondary_subnet = each.value.secondary_peer_address_prefix
+#       requested_vlan   = each.value.requested_vlan
+#     }
+#   }
+
+#   lifecycle {
+#     ignore_changes = [a_end, ]
+#   }
+# }
 
 # azure connection
 #----------------------------
@@ -91,6 +122,10 @@ resource "azurerm_virtual_network_gateway_connection" "this" {
   virtual_network_gateway_id = local.vnet_connections[count.index].virtual_network_gateway_id
   authorization_key          = azurerm_express_route_circuit_authorization.this[local.vnet_connections[count.index].name].authorization_key
   express_route_circuit_id   = azurerm_express_route_circuit.this[local.vnet_connections[count.index].name].id
+  depends_on = [
+    azurerm_express_route_circuit_authorization.this,
+    megaport_azure_connection.primary,
+  ]
 }
 
 # vwan
@@ -100,6 +135,10 @@ data "azurerm_express_route_circuit_peering" "private" {
   resource_group_name        = var.resource_group
   express_route_circuit_name = local.vwan_connections[count.index].name
   peering_type               = local.vwan_connections[count.index].peering_type
+  depends_on = [
+    azurerm_express_route_circuit_authorization.this,
+    megaport_azure_connection.primary,
+  ]
 }
 
 resource "azurerm_express_route_connection" "this" {

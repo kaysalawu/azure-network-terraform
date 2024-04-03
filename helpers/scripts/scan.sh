@@ -40,7 +40,8 @@ function showUsage() {
   --delete, -x   : Delete local files specified in templates\n\
   --plan, -p     : Run terraform plan on all target directories\n\
   --validate, -v : Run terraform validate on all target directories\n\
-  --cleanup, -u  : Delete terraform state files\n"
+  --cleanup, -u  : Delete terraform state files\n\
+  --docs, -d     : Generate terraform docs"
 }
 
 dir_diff() {

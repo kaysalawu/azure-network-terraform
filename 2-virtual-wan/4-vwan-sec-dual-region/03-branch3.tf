@@ -19,7 +19,6 @@ module "branch3" {
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region2"].id
     "TrustSubnet"     = module.common.nsg_main["region2"].id
-    "UntrustSubnet"   = module.common.nsg_nva["region2"].id
     "DnsServerSubnet" = module.common.nsg_main["region2"].id
   }
 
@@ -118,7 +117,6 @@ locals {
       "ip prefix-list ${local.branch3_nva_route_map_block_azure} deny ${local.hub2_address_space[1]}",
       "ip prefix-list ${local.branch3_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
     ]
-
     ROUTE_MAPS = [
       # prepend as-path between branches
       "route-map ${local.branch3_nva_route_map_onprem} permit 100",
@@ -208,8 +206,6 @@ locals {
     TARGETS_HEAVY_TRAFFIC_GEN = []
 
     IPTABLES_RULES           = []
-    ROUTE_MAPS               = []
-    TUNNELS                  = []
     FRR_CONF                 = templatefile("../../scripts/frr/frr.conf", merge(local.branch3_nva_vars, {}))
     STRONGSWAN_VTI_SCRIPT    = templatefile("../../scripts/strongswan/ipsec-vti.sh", local.branch3_nva_vars)
     STRONGSWAN_IPSEC_SECRETS = templatefile("../../scripts/strongswan/ipsec.secrets", local.branch3_nva_vars)

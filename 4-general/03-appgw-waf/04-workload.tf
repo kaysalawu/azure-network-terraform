@@ -15,9 +15,9 @@ module "good_juice_vm" {
 
   interfaces = [
     {
-      name               = "${local.spoke1_prefix}vm-main-nic"
+      name               = "${local.hub1_prefix}vm-good-nic"
       subnet_id          = module.hub1.subnets["MainSubnet"].id
-      private_ip_address = local.spoke1_vm_addr
+      private_ip_address = local.hub1_good_addr
     },
   ]
   depends_on = [
@@ -37,9 +37,9 @@ module "bad_juice_vm" {
 
   interfaces = [
     {
-      name               = "${local.spoke1_prefix}vm-main-nic"
+      name               = "${local.hub1_prefix}vm-bad-nic"
       subnet_id          = module.hub1.subnets["MainSubnet"].id
-      private_ip_address = local.spoke1_vm_addr
+      private_ip_address = local.hub1_bad_addr
     },
   ]
   depends_on = [

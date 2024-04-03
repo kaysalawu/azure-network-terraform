@@ -36,7 +36,6 @@ variable "circuits" {
     connection_target          = string
     location                   = string
     peering_location           = string
-    peer_asn                   = number
     peering_type               = optional(string, "AzurePrivatePeering")
     advertised_public_prefixes = optional(list(string))
     service_provider_name      = optional(string, "Megaport")

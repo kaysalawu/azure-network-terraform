@@ -39,9 +39,9 @@ output "client_certificates_cert_pem" {
   value = { for client, data in module.client_certificates : client => data.cert_pem }
 }
 
-output "client_certificates_cert_pfx" {
-  value = { for client, data in module.client_certificates : client => data.cert_pfx }
-}
+# output "client_certificates_cert_pfx" {
+#   value = { for client, data in module.client_certificates : client => data.cert_pfx }
+# }
 
 output "client_certificates_cert_pfx_password" {
   value = { for client, data in module.client_certificates : client => data.cert_pfx_password }

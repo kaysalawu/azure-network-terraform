@@ -30,8 +30,8 @@ module "hub1_appgw" {
   }
 
   backend_address_pools = [
-    { name = "good-juice-beap", ip_addresses = [module.good_juice_vm.private_ip_addresses["${local.spoke1_prefix}vm-main-nic"], ] },
-    { name = "bad-juice-beap", ip_addresses = [module.bad_juice_vm.private_ip_addresses["${local.spoke1_prefix}vm-main-nic"], ] },
+    { name = "good-juice-beap", ip_addresses = [module.good_juice_vm.private_ip_addresses["${local.hub1_prefix}vm-good-nic"], ] },
+    { name = "bad-juice-beap", ip_addresses = [module.bad_juice_vm.private_ip_addresses["${local.hub1_prefix}vm-bad-nic"], ] },
   ]
 
   backend_http_settings = [

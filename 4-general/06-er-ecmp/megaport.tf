@@ -112,8 +112,8 @@ module "megaport" {
 
 locals {
   hub1_er_dashboard_vars = {
-    ER_CIRCUIT1 = module.megaport.expressroute_circuits["azure1"].id
-    ER_CIRCUIT2 = module.megaport.expressroute_circuits["onprem1"].id
+    ER_CIRCUIT1 = module.megaport.expressroute_circuits["${local.prefix}-azure1"].id
+    ER_CIRCUIT2 = module.megaport.expressroute_circuits["${local.prefix}-onprem1"].id
   }
   dashboard_properties = templatefile("./dashboard/dashboard.json", local.hub1_er_dashboard_vars)
 }
