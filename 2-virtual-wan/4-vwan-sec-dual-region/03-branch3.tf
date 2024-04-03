@@ -18,6 +18,7 @@ module "branch3" {
 
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region2"].id
+    "UntrustSubnet"   = module.common.nsg_nva["region2"].id
     "TrustSubnet"     = module.common.nsg_main["region2"].id
     "DnsServerSubnet" = module.common.nsg_main["region2"].id
   }
