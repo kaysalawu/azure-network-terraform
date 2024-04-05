@@ -1,0 +1,28 @@
+{
+    "name": "MainSubnet",
+    "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Lab07_Ipv6_RG/providers/Microsoft.Network/virtualNetworks/Lab07-spoke1-vnet/subnets/MainSubnet",
+    "etag": "W/\"f6a51666-2d86-4013-9559-46caf14155f3\"",
+    "properties": {
+        "provisioningState": "Succeeded",
+        "addressPrefix": "",
+        "networkSecurityGroup": {
+            "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Lab07_Ipv6_RG/providers/Microsoft.Network/networkSecurityGroups/Lab07-nsg-region1-main"
+        },
+        "natGateway": {
+            "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Lab07_Ipv6_RG/providers/Microsoft.Network/natGateways/Lab07-spoke1-natgw"
+        },
+        "ipConfigurations": [
+            {
+                "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/LAB07_IPV6_RG/providers/Microsoft.Network/networkInterfaces/LAB07-SPOKE1-VM-MAIN-NIC/ipConfigurations/LAB07-SPOKE1-VM-MAIN-NIC"
+            }
+        ],
+        "serviceEndpoints": [],
+        "privateEndpointNetworkPolicies": "Disabled",
+        "privateLinkServiceNetworkPolicies": "Disabled",
+        "addressPrefixes": [
+            "10.1.0.0/24",
+            "fd00:db8:1::/64"
+        ]
+    },
+    "type": "Microsoft.Network/virtualNetworks/subnets"
+}
