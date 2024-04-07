@@ -48,7 +48,7 @@ You also need to have an active megaport account. You will need to supply the me
    ```sh
    terraform init
    terraform plan
-   terraform apply -parallelism=50
+   terraform apply
    ```
 
 # Test the Lab

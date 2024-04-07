@@ -33,7 +33,23 @@ resource "azurerm_virtual_network" "this" {
   address_space       = var.config_vnet.address_space
   location            = var.location
   dns_servers         = var.config_vnet.dns_servers
+  bgp_community       = var.config_vnet.bgp_community
   tags                = var.tags
+
+  dynamic "ddos_protection_plan" {
+    for_each = var.config_vnet.ddos_protection_plan_id != null ? [1] : []
+    content {
+      id     = ddos_protection_plan.value
+      enable = true
+    }
+  }
+
+  dynamic "encryption" {
+    for_each = var.config_vnet.encryption_enabled ? [1] : []
+    content {
+      enforcement = encryption.value.encryption_enforcement
+    }
+  }
 
   lifecycle {
     ignore_changes = all
@@ -42,7 +58,7 @@ resource "azurerm_virtual_network" "this" {
 
 ####################################################
 # subnets
-####################################################s
+####################################################
 
 resource "azurerm_subnet" "this" {
   for_each             = { for k, v in var.config_vnet.subnets : k => v if !try(v.use_azapi[0], false) }
@@ -65,6 +81,8 @@ resource "azurerm_subnet" "this" {
   private_endpoint_network_policies_enabled     = try(each.value.address_prefixes.enable_private_endpoint_policies[0], false)
   private_link_service_network_policies_enabled = try(each.value.address_prefixes.enable_private_link_policies[0], false)
 }
+
+# azapi
 
 resource "azapi_resource" "subnets" {
   for_each  = { for k, v in var.config_vnet.subnets : k => v if try(v.use_azapi[0], false) }

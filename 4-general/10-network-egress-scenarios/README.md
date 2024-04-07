@@ -33,7 +33,7 @@ Ensure you meet all requirements in the [prerequisites](../../prerequisites/READ
  cd azure-network-terraform/4-general/10-network-scenarios
  terraform init
  terraform plan
- terraform apply -parallelism=50
+ terraform apply
  ```
 
 ## Troubleshooting

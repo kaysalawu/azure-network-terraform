@@ -72,7 +72,7 @@ module "hub1" {
 }
 
 resource "time_sleep" "hub1" {
-  create_duration = "60s"
+  create_duration = "90s"
   depends_on = [
     module.hub1
   ]

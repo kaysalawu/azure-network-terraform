@@ -118,7 +118,7 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke2_peering" {
 # main
 
 locals {
-  spoke2_routes_main = concat(local.default_udr_destinations, [
+  spoke2_udr_main_routes = concat(local.default_udr_destinations, [
     { name = "hub1", address_prefix = local.hub1_address_space },
   ])
 }
@@ -129,7 +129,7 @@ module "spoke2_udr_main" {
   prefix         = "${local.spoke2_prefix}main"
   location       = local.spoke2_location
   subnet_id      = module.spoke2.subnets["MainSubnet"].id
-  routes = [for r in local.spoke2_routes_main : {
+  routes = [for r in local.spoke2_udr_main_routes : {
     name                   = r.name
     address_prefix         = r.address_prefix
     next_hop_type          = "VirtualAppliance"

@@ -47,7 +47,7 @@ module "spoke4" {
     subnets       = local.spoke4_subnets
     nat_gateway_subnet_names = [
       "MainSubnet",
-      "UntrustSubnet",
+      "TrustSubnet",
     ]
   }
   depends_on = [
@@ -56,7 +56,7 @@ module "spoke4" {
 }
 
 resource "time_sleep" "spoke4" {
-  create_duration = "60s"
+  create_duration = "90s"
   depends_on = [
     module.spoke4
   ]
@@ -133,7 +133,7 @@ module "spoke5" {
     subnets       = local.spoke5_subnets
     nat_gateway_subnet_names = [
       "MainSubnet",
-      "UntrustSubnet",
+      "TrustSubnet",
     ]
   }
   depends_on = [
@@ -142,7 +142,7 @@ module "spoke5" {
 }
 
 resource "time_sleep" "spoke5" {
-  create_duration = "60s"
+  create_duration = "90s"
   depends_on = [
     module.spoke5
   ]
@@ -211,7 +211,7 @@ module "spoke6" {
     subnets       = local.spoke6_subnets
     nat_gateway_subnet_names = [
       "MainSubnet",
-      "UntrustSubnet",
+      "TrustSubnet",
     ]
   }
   depends_on = [
@@ -220,7 +220,7 @@ module "spoke6" {
 }
 
 resource "time_sleep" "spoke6" {
-  create_duration = "60s"
+  create_duration = "90s"
   depends_on = [
     module.spoke6
   ]

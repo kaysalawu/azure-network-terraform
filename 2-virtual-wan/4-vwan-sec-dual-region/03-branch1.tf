@@ -44,7 +44,7 @@ module "branch1" {
 }
 
 resource "time_sleep" "branch1" {
-  create_duration = "60s"
+  create_duration = "90s"
   depends_on = [
     module.branch1
   ]

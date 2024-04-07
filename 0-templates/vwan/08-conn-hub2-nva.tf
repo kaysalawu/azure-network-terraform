@@ -65,7 +65,7 @@ module "spoke5_udr_main" {
   disable_bgp_route_propagation = true
 
   depends_on = [
-    module.hub2,
+    time_sleep.hub2,
     module.vhub2,
   ]
 }
@@ -102,7 +102,7 @@ module "hub2_udr_main" {
   disable_bgp_route_propagation = true
 
   depends_on = [
-    module.hub2,
+    time_sleep.hub2,
     module.vhub2,
   ]
 }

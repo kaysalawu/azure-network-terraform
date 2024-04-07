@@ -109,22 +109,6 @@ resource "azurerm_network_security_rule" "nsg_main_private_outbound" {
   description                 = "Allow all outbound"
 }
 
-resource "azurerm_network_security_rule" "internet_inbound_self" {
-  for_each                    = var.regions
-  resource_group_name         = var.resource_group
-  network_security_group_name = azurerm_network_security_group.nsg_main[each.key].name
-  name                        = "internet-inbound-self"
-  direction                   = "Inbound"
-  access                      = "Allow"
-  priority                    = 110
-  source_address_prefix       = local.my_public_ip
-  source_port_range           = "*"
-  destination_address_prefix  = "*"
-  destination_port_range      = "*"
-  protocol                    = "Tcp"
-  description                 = "Allow inbound web traffic"
-}
-
 resource "azurerm_network_security_rule" "internet_inbound" {
   for_each                    = var.regions
   resource_group_name         = var.resource_group
@@ -139,6 +123,22 @@ resource "azurerm_network_security_rule" "internet_inbound" {
   destination_port_ranges     = ["80", "443", "8080", "8081", "3000", ]
   protocol                    = "Tcp"
   description                 = "Allow inbound web traffic"
+}
+
+resource "azurerm_network_security_rule" "internet_inbound_ipv6" {
+  for_each                     = var.regions
+  resource_group_name          = var.resource_group
+  network_security_group_name  = azurerm_network_security_group.nsg_main[each.key].name
+  name                         = "internet-inbound-self-ipv6"
+  direction                    = "Inbound"
+  access                       = "Allow"
+  priority                     = 130
+  source_address_prefixes      = ["::/0"]
+  source_port_ranges           = ["0-65535"]
+  destination_address_prefixes = ["::/0"]
+  destination_port_ranges      = ["80", "443", "8080", "8081", "3000"]
+  protocol                     = "Tcp"
+  description                  = "Allow inbound web traffic over IPv6"
 }
 
 # nva
@@ -251,7 +251,7 @@ resource "azurerm_network_security_rule" "nsg_lb_web_external_inbound" {
   direction                   = "Inbound"
   access                      = "Allow"
   priority                    = 210
-  source_address_prefix       = "0.0.0.0/0"
+  source_address_prefix       = "*"
   source_port_range           = "*"
   destination_address_prefix  = "VirtualNetwork"
   destination_port_ranges     = ["80", "443", "8080", "8081", "3000"]

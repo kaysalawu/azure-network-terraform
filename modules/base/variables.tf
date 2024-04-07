@@ -116,6 +116,10 @@ variable "config_vnet" {
     subnets                      = optional(map(any), {})
     nsg_id                       = optional(string)
     dns_servers                  = optional(list(string))
+    bgp_community                = optional(string, null)
+    ddos_protection_plan_id      = optional(string, null)
+    encryption_enabled           = optional(bool, false)
+    encryption_enforcement       = optional(string, "AllowUnencrypted") # DropUnencrypted, AllowUnencrypted
     enable_private_dns_resolver  = optional(bool, false)
     enable_ars                   = optional(bool, false)
     enable_express_route_gateway = optional(bool, false)

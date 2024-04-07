@@ -164,8 +164,8 @@ interface lo
 ! Static Routes
 !-----------------------------------------
 ip route 0.0.0.0/0 10.11.2.1
-ip route 192.168.11.69/32 10.11.2.1
 ip route 192.168.11.68/32 10.11.2.1
+ip route 192.168.11.69/32 10.11.2.1
 ip route 10.2.0.0/20 10.11.2.1
 !
 !-----------------------------------------
@@ -177,18 +177,18 @@ ip route 10.2.0.0/20 10.11.2.1
 !-----------------------------------------
 router bgp 65010
 bgp router-id 10.11.11.11
-neighbor 192.168.11.69 remote-as 65515
-neighbor 192.168.11.69 ebgp-multihop 255
-neighbor 192.168.11.69 update-source lo
 neighbor 192.168.11.68 remote-as 65515
 neighbor 192.168.11.68 ebgp-multihop 255
 neighbor 192.168.11.68 update-source lo
+neighbor 192.168.11.69 remote-as 65515
+neighbor 192.168.11.69 ebgp-multihop 255
+neighbor 192.168.11.69 update-source lo
 !
 address-family ipv4 unicast
   network 10.11.0.0/24
   network 10.2.0.0/20
-  neighbor 192.168.11.69 soft-reconfiguration inbound
   neighbor 192.168.11.68 soft-reconfiguration inbound
+  neighbor 192.168.11.69 soft-reconfiguration inbound
 exit-address-family
 !
 line vty
