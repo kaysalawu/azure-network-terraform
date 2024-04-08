@@ -45,7 +45,7 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke1_peering" {
 
 locals {
   spoke1_udr_main_routes = concat(local.default_udr_destinations, [
-    { name = "hub1", address_prefix = local.hub1_address_space },
+    { name = "hub1", address_prefix = [local.hub1_address_space.0] },
   ])
 }
 
@@ -119,7 +119,7 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke2_peering" {
 
 locals {
   spoke2_udr_main_routes = concat(local.default_udr_destinations, [
-    { name = "hub1", address_prefix = local.hub1_address_space },
+    { name = "hub1", address_prefix = [local.hub1_address_space.0] },
   ])
 }
 
@@ -174,8 +174,8 @@ module "hub1_gateway_udr" {
 
 locals {
   hub1_udr_main_routes = concat(local.default_udr_destinations, [
-    { name = "spoke1", address_prefix = local.spoke1_address_space },
-    { name = "spoke2", address_prefix = local.spoke2_address_space },
+    { name = "spoke1", address_prefix = [local.spoke1_address_space.0] },
+    { name = "spoke2", address_prefix = [local.spoke2_address_space.0] },
   ])
 }
 

@@ -66,14 +66,15 @@ locals {
     { name = "default", address_prefix = ["0.0.0.0/0"] }
   ]
   hub1_appliance_udr_destinations = [
-    { name = "spoke4", address_prefix = local.spoke4_address_space },
-    { name = "spoke5", address_prefix = local.spoke5_address_space },
-    { name = "hub2", address_prefix = local.hub2_address_space },
+    { name = "spoke4", address_prefix = [local.spoke4_address_space.0] },
+    { name = "spoke5", address_prefix = [local.spoke5_address_space.0] },
+    { name = "hub2", address_prefix = [local.hub2_address_space.0] },
   ]
   hub1_gateway_udr_destinations = [
-    { name = "spoke1", address_prefix = local.spoke1_address_space },
-    { name = "spoke2", address_prefix = local.spoke2_address_space },
-    { name = "hub1", address_prefix = local.hub1_address_space },
+    { name = "spoke1", address_prefix = [local.spoke1_address_space.0] },
+    { name = "spoke2", address_prefix = [local.spoke2_address_space.0] },
+    { name = "hub1", address_prefix = [local.hub1_address_space.0] },
+    # { name = "hub1-gw", address_prefix = [local.hub1_address_space.1] },
   ]
   firewall_sku = "Basic"
 

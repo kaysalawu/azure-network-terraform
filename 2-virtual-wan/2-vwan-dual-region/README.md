@@ -57,7 +57,7 @@ Ensure you meet all requirements in the [prerequisites](../../prerequisites/READ
    ```sh
    terraform init
    terraform plan
-   terraform apply
+   terraform apply -parallelism=50
    ```
 
 ## Troubleshooting

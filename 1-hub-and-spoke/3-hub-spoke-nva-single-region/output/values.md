@@ -15,7 +15,7 @@
 | VM_IP   | 10.10.0.5   |
 | VM_NAME   | Hs13-branch1Vm   |
 | VNET_NAME   | Hs13-branch1-vnet   |
-| VNET_RANGES   | 10.10.0.0/20, 10.10.16.0/20   |
+| VNET_RANGES   | 10.10.0.0/20, 10.10.16.0/20, fd00:db8:10::/48   |
 
 ## hub1
 
@@ -47,7 +47,7 @@
 | VM_IP   | 10.11.0.5   |
 | VM_NAME   | Hs13-hub1Vm   |
 | VNET_NAME   | Hs13-hub1-vnet   |
-| VNET_RANGES   | 10.11.0.0/20, 10.11.16.0/20   |
+| VNET_RANGES   | 10.11.0.0/20, 10.11.16.0/20, fd00:db8:11::/48   |
 
 ## spoke1
 
@@ -68,7 +68,7 @@
 | VM_IP   | 10.1.0.5   |
 | VM_NAME   | Hs13-spoke1Vm   |
 | VNET_NAME   | Hs13-spoke1-vnet   |
-| VNET_RANGES   | 10.1.0.0/20   |
+| VNET_RANGES   | 10.1.0.0/20, fd00:db8:1::/48   |
 
 ## spoke2
 
@@ -89,7 +89,7 @@
 | VM_IP   | 10.2.0.5   |
 | VM_NAME   | Hs13-spoke2Vm   |
 | VNET_NAME   | Hs13-spoke2-vnet   |
-| VNET_RANGES   | 10.2.0.0/20   |
+| VNET_RANGES   | 10.2.0.0/20, fd00:db8:2::/48   |
 
 ## spoke3
 
@@ -110,4 +110,4 @@
 | VM_IP   | 10.3.0.5   |
 | VM_NAME   | Hs13-spoke3Vm   |
 | VNET_NAME   | Hs13-spoke3-vnet   |
-| VNET_RANGES   | 10.3.0.0/20   |
+| VNET_RANGES   | 10.3.0.0/20, fd00:db8:3::/48   |
