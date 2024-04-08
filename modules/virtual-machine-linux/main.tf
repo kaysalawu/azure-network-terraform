@@ -18,6 +18,8 @@ resource "random_id" "this" {
 # public ip
 ####################################################
 
+# ipv4
+
 resource "azurerm_public_ip" "this" {
   for_each            = { for i in var.interfaces : i.name => i if i.create_public_ip == true }
   resource_group_name = var.resource_group
@@ -26,6 +28,19 @@ resource "azurerm_public_ip" "this" {
   sku                 = "Standard"
   allocation_method   = "Static"
   zones               = [1, 2, 3]
+  tags                = var.tags
+}
+
+# ipv6
+
+resource "azurerm_public_ip" "this_ipv6" {
+  for_each            = { for i in var.interfaces : i.name => i if i.create_public_ip == true }
+  resource_group_name = var.resource_group
+  name                = "${each.value.name}-pip6"
+  location            = var.location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+  ip_version          = "IPv6"
   tags                = var.tags
 }
 
@@ -43,15 +58,32 @@ resource "azurerm_network_interface" "this" {
   enable_ip_forwarding = var.enable_ip_forwarding
 
   ip_configuration {
+    primary                       = true
     name                          = each.value.name
     subnet_id                     = each.value.subnet_id
     private_ip_address_allocation = try(each.value.private_ip_address, null) != null ? "Static" : "Dynamic"
     private_ip_address            = try(each.value.private_ip_address, null) != null ? each.value.private_ip_address : null
+    private_ip_address_version    = "IPv4"
     public_ip_address_id = (
       try(each.value.create_public_ip, false) ? azurerm_public_ip.this[each.key].id :
       try(each.value.public_ip_address_id, null) != null ? each.value.public_ip_address_id :
       null
     )
+  }
+
+  dynamic "ip_configuration" {
+    for_each = var.dual_stack_ip ? [1] : []
+    content {
+      name                          = "${each.value.name}-ipv6"
+      subnet_id                     = each.value.subnet_id
+      private_ip_address_allocation = "Dynamic"
+      private_ip_address_version    = "IPv6"
+      public_ip_address_id = (
+        try(each.value.create_public_ip, false) ? azurerm_public_ip.this_ipv6[each.key].id :
+        try(each.value.public_ipv6_address_id, null) != null ? each.value.public_ipv6_address_id :
+        null
+      )
+    }
   }
 
   lifecycle {

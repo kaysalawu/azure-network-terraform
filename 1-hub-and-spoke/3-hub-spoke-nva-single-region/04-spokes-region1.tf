@@ -65,14 +65,6 @@ resource "time_sleep" "spoke1" {
 
 # workload
 
-locals {
-  spoke1_vm_init = templatefile("../../scripts/server.sh", {
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
-    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
-  })
-}
-
 module "spoke1_vm" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
@@ -80,7 +72,7 @@ module "spoke1_vm" {
   computer_name   = local.spoke1_vm_hostname
   location        = local.spoke1_location
   storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(local.spoke1_vm_init)
+  custom_data     = base64encode(module.vm_cloud_init.cloud_config)
   tags            = local.spoke1_tags
 
   interfaces = [
@@ -158,7 +150,7 @@ module "spoke2_vm" {
   computer_name   = local.spoke2_vm_hostname
   location        = local.spoke2_location
   storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(local.vm_startup)
+  custom_data     = base64encode(module.vm_cloud_init.cloud_config)
   tags            = local.spoke2_tags
 
   interfaces = [
@@ -229,6 +221,36 @@ resource "time_sleep" "spoke3" {
 
 # workload
 
+locals {
+  spoke1_vm_init_vars = {
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
+    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
+  }
+  spoke1_vm_init_files = {
+    "${local.init_dir}/fastapi/docker-compose-app1-80.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/docker-compose-app1-80.yml", {}) }
+    "${local.init_dir}/fastapi/app/app/Dockerfile"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/Dockerfile", {}) }
+    "${local.init_dir}/fastapi/app/app/_app.py"            = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/_app.py", {}) }
+    "${local.init_dir}/fastapi/app/app/main.py"            = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/main.py", {}) }
+    "${local.init_dir}/fastapi/app/app/requirements.txt"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/requirements.txt", {}) }
+    "${local.init_dir}/init/start.sh"                      = { owner = "root", permissions = "0744", content = templatefile("../../scripts/startup.sh", local.spoke1_vm_init_vars) }
+  }
+}
+
+module "spoke1_vm_cloud_init" {
+  source = "../../modules/cloud-config-gen"
+  files  = local.spoke1_vm_init_files
+  packages = [
+    "docker.io", "docker-compose", "npm",
+  ]
+  run_commands = [
+    "systemctl enable docker",
+    "systemctl start docker",
+    "bash ${local.init_dir}/init/start.sh",
+    "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
+  ]
+}
+
 module "spoke3_vm" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
@@ -236,7 +258,7 @@ module "spoke3_vm" {
   computer_name   = local.spoke3_vm_hostname
   location        = local.spoke3_location
   storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(local.vm_startup)
+  custom_data     = base64encode(module.spoke1_vm_cloud_init.cloud_config)
   tags            = local.spoke3_tags
 
   interfaces = [
@@ -251,3 +273,18 @@ module "spoke3_vm" {
   ]
 }
 
+####################################################
+# output files
+####################################################
+
+locals {
+  spoke1_files = {
+    "output/spoke1-cloud-config.yml" = module.spoke1_vm_cloud_init.cloud_config
+  }
+}
+
+resource "local_file" "spoke1_files" {
+  for_each = local.spoke1_files
+  filename = each.key
+  content  = each.value
+}

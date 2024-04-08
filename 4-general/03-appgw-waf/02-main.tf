@@ -91,25 +91,25 @@ locals {
 
 # resource group
 
-resource "azurerm_resource_group" "rg" {
-  name     = "${local.prefix}_${local.lab_name}_RG"
-  location = local.default_region
-  tags = {
-    prefix   = local.prefix
-    lab_name = local.lab_name
-  }
-}
+# resource "azurerm_resource_group" "rg" {
+#   name     = "${local.prefix}_${local.lab_name}_RG"
+#   location = local.default_region
+#   tags = {
+#     prefix   = local.prefix
+#     lab_name = local.lab_name
+#   }
+# }
 
-module "common" {
-  source           = "../../modules/common"
-  resource_group   = azurerm_resource_group.rg.name
-  env              = "common"
-  prefix           = local.prefix
-  firewall_sku     = local.firewall_sku
-  regions          = local.regions
-  private_prefixes = local.private_prefixes
-  tags             = {}
-}
+# module "common" {
+#   source           = "../../modules/common"
+#   resource_group   = azurerm_resource_group.rg.name
+#   env              = "common"
+#   prefix           = local.prefix
+#   firewall_sku     = local.firewall_sku
+#   regions          = local.regions
+#   private_prefixes = local.private_prefixes
+#   tags             = {}
+# }
 
 # vm startup scripts
 #----------------------------
@@ -127,11 +127,11 @@ locals {
 # addresses
 ####################################################
 
-resource "azurerm_public_ip" "hub1_appgw_pip" {
-  resource_group_name = azurerm_resource_group.rg.name
-  name                = "${local.hub1_prefix}appgw-pip"
-  location            = local.hub1_location
-  sku                 = "Standard"
-  allocation_method   = "Static"
-}
+# resource "azurerm_public_ip" "hub1_appgw_pip" {
+#   resource_group_name = azurerm_resource_group.rg.name
+#   name                = "${local.hub1_prefix}appgw-pip"
+#   location            = local.hub1_location
+#   sku                 = "Standard"
+#   allocation_method   = "Static"
+# }
 

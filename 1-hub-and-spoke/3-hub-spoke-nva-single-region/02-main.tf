@@ -228,6 +228,7 @@ locals {
   hub1_ergw_asn  = "65515"
   hub1_ars_asn   = "65515"
 
+  init_dir = "/var/lib/azure"
   vm_script_targets_region1 = [
     { name = "branch1", dns = lower(local.branch1_vm_fqdn), ip = local.branch1_vm_addr, probe = true },
     { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ip = local.hub1_vm_addr, probe = false },
@@ -249,13 +250,39 @@ locals {
     TARGETS_HEAVY_TRAFFIC_GEN = []
     ENABLE_TRAFFIC_GEN        = false
   })
+  vm_init_vars = {
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = []
+    TARGETS_HEAVY_TRAFFIC_GEN = []
+  }
+  vm_init_files = {
+    "${local.init_dir}/fastapi/docker-compose-app1-80.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/docker-compose-app1-80.yml", local.vm_init_vars) }
+    "${local.init_dir}/fastapi/app/app/Dockerfile"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/Dockerfile", local.vm_init_vars) }
+    "${local.init_dir}/fastapi/app/app/_app.py"            = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/_app.py", local.vm_init_vars) }
+    "${local.init_dir}/fastapi/app/app/main.py"            = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/main.py", local.vm_init_vars) }
+    "${local.init_dir}/fastapi/app/app/requirements.txt"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/requirements.txt", local.vm_init_vars) }
+    "${local.init_dir}/init/start.sh"                      = { owner = "root", permissions = "0744", content = templatefile("../../scripts/startup.sh", local.vm_init_vars) }
+  }
   onprem_local_records = [
     { name = lower(local.branch1_vm_fqdn), record = local.branch1_vm_addr },
     { name = lower(local.branch2_vm_fqdn), record = local.branch2_vm_addr },
     { name = lower(local.branch3_vm_fqdn), record = local.branch3_vm_addr },
   ]
   onprem_redirected_hosts = []
-  branch_dns_init_dir     = "/var/lib/labs"
+}
+
+module "vm_cloud_init" {
+  source = "../../modules/cloud-config-gen"
+  files  = local.vm_init_files
+  packages = [
+    "docker.io", "docker-compose", "npm",
+  ]
+  run_commands = [
+    "systemctl enable docker",
+    "systemctl start docker",
+    "bash ${local.init_dir}/init/start.sh",
+    "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
+  ]
 }
 
 ####################################################

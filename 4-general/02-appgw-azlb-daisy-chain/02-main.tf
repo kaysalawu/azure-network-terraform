@@ -254,8 +254,8 @@ locals {
     "/etc/ssl/app/cert.pem"                = { owner = "root", permissions = "0400", content = join("\n", [module.server_cert.cert_pem, tls_self_signed_cert.root_ca.cert_pem]) }
     "/etc/ssl/app/key.pem"                 = { owner = "root", permissions = "0400", content = module.server_cert.private_key_pem }
 
-    "${local.init_dir}/nginx/Dockerfile" = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/nginx/Dockerfile", local.init_vars) }
-    "/etc/nginx/nginx.conf"              = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/nginx/nginx.conf", local.init_vars) }
+    "${local.init_dir}/nginx/Dockerfile" = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/nginx/nginx/Dockerfile", local.init_vars) }
+    "/etc/nginx/nginx.conf"              = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/nginx/nginx/nginx.conf", local.init_vars) }
 
     "${local.init_dir}/${local.init_name_app1}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/Dockerfile", local.init_vars_app1) }
     "${local.init_dir}/${local.init_name_app1}/.dockerignore"    = { owner = "root", permissions = "0744", content = templatefile("${local.init_local_path}/app/app/.dockerignore", local.init_vars_app1) }

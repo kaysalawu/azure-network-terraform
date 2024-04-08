@@ -32,11 +32,3 @@ async def add_cors_header(request, call_next):
 
 # Include the API router
 app.include_router(app_router, tags=["Features"])
-
-if __name__ == "__main__":
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=${APP_PORT}
-    )
-

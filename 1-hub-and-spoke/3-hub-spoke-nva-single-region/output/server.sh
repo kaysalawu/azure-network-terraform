@@ -80,7 +80,7 @@ EOF
 
 systemctl daemon-reload
 systemctl enable flaskapp.service
-systemctl start flaskapp.service
+systemctl restart flaskapp.service
 
 # test scripts
 #-----------------------------------

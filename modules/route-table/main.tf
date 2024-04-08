@@ -4,7 +4,7 @@ locals {
   routes_ = { for v in var.routes : v.name => [
     for prefix in v.address_prefix : {
       name                   = v.name
-      route_name             = "${v.name}--${replace(replace(prefix, ".", "-"), "/", "_")}"
+      route_name             = "${v.name}--${replace(replace(replace(prefix, ".", "-"), "/", "_"), ":", "-")}"
       address_prefix         = prefix
       next_hop_type          = v.next_hop_type
       next_hop_in_ip_address = v.next_hop_in_ip_address

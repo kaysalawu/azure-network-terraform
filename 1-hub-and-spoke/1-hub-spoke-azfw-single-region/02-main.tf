@@ -255,7 +255,7 @@ locals {
     { name = lower(local.branch3_vm_fqdn), record = local.branch3_vm_addr },
   ]
   onprem_redirected_hosts = []
-  branch_dns_init_dir     = "/var/lib/labs"
+  branch_dns_init_dir     = "/var/lib/azure"
 }
 
 ####################################################

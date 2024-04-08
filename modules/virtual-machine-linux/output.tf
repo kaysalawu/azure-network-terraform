@@ -1,4 +1,32 @@
 
+# first interface
+
+output "interface_name" {
+  value = try(values(azurerm_network_interface.this)[0].name, null)
+}
+
+output "interface_id" {
+  value = values(azurerm_network_interface.this)[0].id
+}
+
+output "private_ip_address" {
+  value = values(azurerm_network_interface.this)[0].private_ip_address
+}
+
+output "private_ipv6_address" {
+  value = try(values(azurerm_network_interface.this)[0].private_ip_addresses[1], null)
+}
+
+output "public_ip_address" {
+  value = try(values(azurerm_public_ip.this)[0].ip_address, null)
+}
+
+output "public_ipv6_address" {
+  value = try(values(azurerm_public_ip.this_ipv6)[0].ip_address, null)
+}
+
+# other values
+
 output "vm" {
   value = azurerm_linux_virtual_machine.this
 }

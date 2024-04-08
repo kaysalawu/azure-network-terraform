@@ -40,7 +40,7 @@ module "websocket_client_vm" {
 ####################################################
 
 locals {
-  vm_startup_container_dir = "/var/lib/labs"
+  vm_startup_container_dir = "/var/lib/azure"
   vm_websocket_server_init = {
     "${local.vm_startup_container_dir}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("./scripts/websockets/server/app/Dockerfile", {}) }
     "${local.vm_startup_container_dir}/main.py"          = { owner = "root", permissions = "0744", content = templatefile("./scripts/websockets/server/app/main.py", {}) }

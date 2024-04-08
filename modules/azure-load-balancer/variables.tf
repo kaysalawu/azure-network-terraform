@@ -88,6 +88,7 @@ variable "frontend_ip_configuration" {
     zones                         = optional(list(string), ["1", "2", "3"]) # ["1", "2", "3"], "Zone-redundant"
     subnet_id                     = optional(string, null)
     private_ip_address_version    = optional(string, "IPv4")    # IPv4 or IPv6
+    public_ip_address_version     = optional(string, "IPv4")    # IPv4 or IPv6
     private_ip_address_allocation = optional(string, "Dynamic") # Static or Dynamic
     private_ip_address            = optional(string, null)
     public_ip_address_id          = optional(string, null)

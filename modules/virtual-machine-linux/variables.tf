@@ -56,11 +56,12 @@ variable "zone" {
 
 variable "interfaces" {
   type = list(object({
-    name                 = string
-    subnet_id            = string
-    private_ip_address   = optional(string, null)
-    create_public_ip     = optional(bool, false)
-    public_ip_address_id = optional(string, null)
+    name                   = string
+    subnet_id              = string
+    private_ip_address     = optional(string, null)
+    create_public_ip       = optional(bool, false)
+    public_ip_address_id   = optional(string, null)
+    public_ipv6_address_id = optional(string, null)
   }))
 }
 
@@ -267,3 +268,8 @@ variable "vm_extension_auto_upgrade_minor_version" {
   default     = true
 }
 
+variable "dual_stack_ip" {
+  description = "enable dual stack networking"
+  type        = bool
+  default     = false
+}

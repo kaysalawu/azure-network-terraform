@@ -89,7 +89,7 @@ module "hub1_vm" {
   computer_name   = local.hub1_vm_hostname
   location        = local.hub1_location
   storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(local.vm_startup)
+  custom_data     = base64encode(module.vm_cloud_init.cloud_config)
   tags            = local.hub1_tags
 
   enable_ip_forwarding = true

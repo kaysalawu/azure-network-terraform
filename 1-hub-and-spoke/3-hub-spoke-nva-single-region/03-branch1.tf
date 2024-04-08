@@ -270,7 +270,7 @@ module "branch1_vm" {
   location        = local.branch1_location
   storage_account = module.common.storage_accounts["region1"]
   dns_servers     = [local.branch1_dns_addr, ]
-  custom_data     = base64encode(local.branch1_vm_init)
+  custom_data     = base64encode(module.vm_cloud_init.cloud_config)
   tags            = local.branch1_tags
 
   interfaces = [

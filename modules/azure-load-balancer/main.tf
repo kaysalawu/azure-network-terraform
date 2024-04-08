@@ -20,6 +20,9 @@ locals {
       for interface in interface_list : merge(interface, { "pool_name" = pool_name })
     ]
   ])
+
+  frontend_ip_configuration_ipv4 = [for ip in var.frontend_ip_configuration : ip if ip.public_ip_address_version == "IPv4" && ip.private_ip_address_version == "IPv4"]
+  frontend_ip_configuration_ipv6 = [for ip in var.frontend_ip_configuration : ip if ip.public_ip_address_version == "IPv6" && ip.private_ip_address_version == "IPv6"]
 }
 
 ####################################################
@@ -27,13 +30,29 @@ locals {
 ####################################################
 
 resource "azurerm_public_ip" "this" {
-  count               = var.type == "public" ? length(var.frontend_ip_configuration) : 0
+  count               = var.type == "public" ? length(local.frontend_ip_configuration_ipv4) : 0
   resource_group_name = var.resource_group_name
-  name                = "${local.prefix}${var.frontend_ip_configuration[count.index].name}-pip"
+  name                = "${local.prefix}${local.frontend_ip_configuration_ipv4[count.index].name}-pip"
   location            = var.location
   allocation_method   = var.allocation_method
   sku                 = var.pip_sku
-  zones               = var.frontend_ip_configuration[count.index].zones
+  zones               = local.frontend_ip_configuration_ipv4[count.index].zones
+  ip_version          = local.frontend_ip_configuration_ipv4[count.index].public_ip_address_version
+  tags                = var.tags
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "azurerm_public_ip" "this_ipv6" {
+  count               = var.type == "public" ? length(local.frontend_ip_configuration_ipv6) : 0
+  resource_group_name = var.resource_group_name
+  name                = "${local.prefix}${local.frontend_ip_configuration_ipv6[count.index].name}-pip6"
+  location            = var.location
+  allocation_method   = var.allocation_method
+  sku                 = var.pip_sku
+  zones               = local.frontend_ip_configuration_ipv6[count.index].zones
+  ip_version          = local.frontend_ip_configuration_ipv6[count.index].public_ip_address_version
   tags                = var.tags
   lifecycle {
     create_before_destroy = true
@@ -52,16 +71,31 @@ resource "azurerm_lb" "this" {
   tags                = var.tags
 
   dynamic "frontend_ip_configuration" {
-    for_each = var.frontend_ip_configuration
+    for_each = local.frontend_ip_configuration_ipv4
     content {
       name                          = frontend_ip_configuration.value.name
+      subnet_id                     = var.type == "private" ? lookup(frontend_ip_configuration.value, "subnet_id", null) : null
       public_ip_address_id          = var.type == "public" ? azurerm_public_ip.this[frontend_ip_configuration.key].id : null
       zones                         = var.type == "private" ? lookup(frontend_ip_configuration.value, "zones", null) : null
       private_ip_address            = var.type == "private" ? lookup(frontend_ip_configuration.value, "private_ip_address", null) : null
-      subnet_id                     = var.type == "private" ? lookup(frontend_ip_configuration.value, "subnet_id", null) : null
       private_ip_address_allocation = var.type == "private" ? lookup(frontend_ip_configuration.value, "private_ip_address_allocation", null) : null
+      private_ip_address_version    = var.type == "private" ? lookup(frontend_ip_configuration.value, "private_ip_address_version", null) : null
     }
   }
+
+  dynamic "frontend_ip_configuration" {
+    for_each = local.frontend_ip_configuration_ipv6
+    content {
+      name                          = frontend_ip_configuration.value.name
+      subnet_id                     = var.type == "private" ? lookup(frontend_ip_configuration.value, "subnet_id", null) : null
+      public_ip_address_id          = var.type == "public" ? azurerm_public_ip.this_ipv6[frontend_ip_configuration.key].id : null
+      zones                         = var.type == "private" ? lookup(frontend_ip_configuration.value, "zones", null) : null
+      private_ip_address            = var.type == "private" ? lookup(frontend_ip_configuration.value, "private_ip_address", null) : null
+      private_ip_address_allocation = var.type == "private" ? lookup(frontend_ip_configuration.value, "private_ip_address_allocation", null) : null
+      private_ip_address_version    = var.type == "private" ? lookup(frontend_ip_configuration.value, "private_ip_address_version", null) : null
+    }
+  }
+
   depends_on = [
     azurerm_public_ip.this,
   ]
@@ -189,5 +223,4 @@ resource "azurerm_portal_dashboard" "this" {
   tags                 = var.tags
   dashboard_properties = local.dashboard_properties
 }
-
 

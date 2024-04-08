@@ -10,7 +10,7 @@ address = socket.gethostbyname(hostname)
 @router.get("/")
 async def default(request: Request):
     data_dict = {
-        'app': '${APP_NAME}-Home',
+        'app': 'HOME',
         'hostname': os.getenv('HOST_HOSTNAME', hostname),
         'local-ip': os.getenv('HOST_IP', address),
         'remote-ip': request.client.host,
@@ -21,7 +21,7 @@ async def default(request: Request):
 @router.get("/path1")
 async def path1(request: Request):
     data_dict = {
-        'app': '${APP_NAME}-Path1',
+        'app': 'PATH1',
         'hostname': os.getenv('HOST_HOSTNAME', hostname),
         'local-ip': os.getenv('HOST_IP', address),
         'remote-ip': request.client.host,
@@ -32,7 +32,7 @@ async def path1(request: Request):
 @router.get("/path2")
 async def path2(request: Request):
     data_dict = {
-        'app': '${APP_NAME}-Path2',
+        'app': 'PATH2',
         'hostname': os.getenv('HOST_HOSTNAME', hostname),
         'local-ip': os.getenv('HOST_IP', address),
         'remote-ip': request.client.host,
