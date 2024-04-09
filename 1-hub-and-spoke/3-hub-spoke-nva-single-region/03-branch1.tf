@@ -273,6 +273,7 @@ module "branch1_vm" {
   custom_data     = base64encode(module.vm_cloud_init.cloud_config)
   tags            = local.branch1_tags
 
+  enable_ipv6 = true
   interfaces = [
     {
       name               = "${local.branch1_prefix}vm-main-nic"

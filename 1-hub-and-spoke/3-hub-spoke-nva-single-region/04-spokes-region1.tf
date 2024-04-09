@@ -75,6 +75,7 @@ module "spoke1_vm" {
   custom_data     = base64encode(module.vm_cloud_init.cloud_config)
   tags            = local.spoke1_tags
 
+  enable_ipv6 = true
   interfaces = [
     {
       name               = "${local.spoke1_prefix}vm-main-nic"
@@ -153,6 +154,7 @@ module "spoke2_vm" {
   custom_data     = base64encode(module.vm_cloud_init.cloud_config)
   tags            = local.spoke2_tags
 
+  enable_ipv6 = true
   interfaces = [
     {
       name               = "${local.spoke2_prefix}vm-main-nic"
@@ -261,6 +263,7 @@ module "spoke3_vm" {
   custom_data     = base64encode(module.spoke1_vm_cloud_init.cloud_config)
   tags            = local.spoke3_tags
 
+  enable_ipv6 = true
   interfaces = [
     {
       name               = "${local.spoke3_prefix}vm-main-nic"

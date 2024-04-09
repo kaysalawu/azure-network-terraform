@@ -72,7 +72,7 @@ resource "azurerm_network_interface" "this" {
   }
 
   dynamic "ip_configuration" {
-    for_each = var.dual_stack_ip ? [1] : []
+    for_each = var.enable_ipv6 ? [1] : []
     content {
       name                          = "${each.value.name}-ipv6"
       subnet_id                     = each.value.subnet_id

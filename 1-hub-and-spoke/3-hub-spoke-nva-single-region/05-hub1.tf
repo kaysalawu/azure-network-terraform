@@ -92,7 +92,7 @@ module "hub1_vm" {
   custom_data     = base64encode(module.vm_cloud_init.cloud_config)
   tags            = local.hub1_tags
 
-  enable_ip_forwarding = true
+  enable_ipv6 = true
   interfaces = [
     {
       name               = "${local.hub1_prefix}vm-main-nic"

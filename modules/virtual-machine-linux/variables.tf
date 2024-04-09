@@ -268,7 +268,7 @@ variable "vm_extension_auto_upgrade_minor_version" {
   default     = true
 }
 
-variable "dual_stack_ip" {
+variable "enable_ipv6" {
   description = "enable dual stack networking"
   type        = bool
   default     = false
