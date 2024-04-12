@@ -15,6 +15,7 @@ module "branch1" {
   tags            = local.branch1_tags
 
   enable_diagnostics = local.enable_diagnostics
+  enable_ipv6        = local.enable_ipv6
 
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region1"].id
@@ -91,7 +92,7 @@ module "branch1_dns" {
   custom_data     = base64encode(local.branch1_unbound_startup)
   tags            = local.branch1_tags
 
-  enable_ipv6 = true
+  enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
       name               = "${local.branch1_prefix}dns-main"
@@ -234,7 +235,7 @@ module "branch1_nva" {
   source_image_version   = "latest"
 
   enable_ip_forwarding = true
-  enable_ipv6          = true
+  enable_ipv6          = local.enable_ipv6
   interfaces = [
     {
       name                 = "${local.branch1_prefix}nva-untrust-nic"
@@ -273,7 +274,7 @@ module "branch1_vm" {
   custom_data     = base64encode(module.vm_cloud_init.cloud_config)
   tags            = local.branch1_tags
 
-  enable_ipv6 = true
+  enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
       name               = "${local.branch1_prefix}vm-main-nic"

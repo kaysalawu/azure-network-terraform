@@ -171,6 +171,7 @@ locals {
       custom_data     = null
       ilb_untrust_ip  = null
       ilb_trust_ip    = null
+      enable_ipv6     = null
     }
   }
 }

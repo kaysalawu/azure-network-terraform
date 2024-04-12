@@ -494,7 +494,7 @@ module "nva" {
   use_vm_extension      = var.config_nva.type == "opnsense" ? true : false
   vm_extension_settings = var.config_nva.type == "opnsense" ? local.settings_opnsense : null
 
-  enable_ipv6       = true
+  enable_ipv6       = var.config_nva.enable_ipv6
   subnet_id_untrust = azurerm_subnet.this["UntrustSubnet"].id
   subnet_id_trust   = azurerm_subnet.this["TrustSubnet"].id
   ilb_untrust_ip    = var.config_nva.ilb_untrust_ip

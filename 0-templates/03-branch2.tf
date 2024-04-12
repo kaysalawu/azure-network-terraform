@@ -15,6 +15,7 @@ module "branch2" {
   tags            = local.branch2_tags
 
   enable_diagnostics = local.enable_diagnostics
+  enable_ipv6        = local.enable_ipv6
 
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region1"].id
@@ -91,7 +92,7 @@ module "branch2_dns" {
   custom_data     = base64encode(local.branch2_unbound_startup)
   tags            = local.branch2_tags
 
-  enable_ipv6 = true
+  enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
       name               = "${local.branch2_prefix}dns-main"
@@ -127,7 +128,7 @@ module "branch2_vm" {
   custom_data     = base64encode(local.branch2_vm_init)
   tags            = local.branch2_tags
 
-  enable_ipv6 = true
+  enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
       name               = "${local.branch2_prefix}vm-main-nic"

@@ -194,6 +194,7 @@ locals {
       custom_data     = base64encode(local.hub1_linux_nva_init)
       ilb_untrust_ip  = local.hub1_nva_ilb_untrust_addr
       ilb_trust_ip    = local.hub1_nva_ilb_trust_addr
+      enable_ipv6     = local.enable_ipv6
     }
   }
 
@@ -291,6 +292,7 @@ locals {
       custom_data     = base64encode(local.hub2_linux_nva_init)
       ilb_untrust_ip  = local.hub2_nva_ilb_untrust_addr
       ilb_trust_ip    = local.hub2_nva_ilb_trust_addr
+      enable_ipv6     = local.enable_ipv6
     }
   }
 

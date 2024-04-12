@@ -25,6 +25,7 @@ module "spoke4" {
   tags            = local.spoke4_tags
 
   enable_diagnostics           = local.enable_diagnostics
+  enable_ipv6                  = local.enable_ipv6
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region2"].name
 
   dns_zones_linked_to_vnet = [
@@ -109,7 +110,7 @@ module "spoke4_vm" {
   custom_data     = base64encode(module.spoke4_vm_cloud_init.cloud_config)
   tags            = local.spoke4_tags
 
-  enable_ipv6 = true
+  enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
       name               = "${local.spoke4_prefix}vm-main-nic"
@@ -138,6 +139,7 @@ module "spoke5" {
   tags            = local.spoke5_tags
 
   enable_diagnostics           = local.enable_diagnostics
+  enable_ipv6                  = local.enable_ipv6
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region2"].name
 
   dns_zones_linked_to_vnet = [
@@ -190,7 +192,7 @@ module "spoke5_vm" {
   custom_data     = base64encode(module.vm_cloud_init.cloud_config)
   tags            = local.spoke5_tags
 
-  enable_ipv6 = true
+  enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
       name               = "${local.spoke5_prefix}vm-main-nic"
@@ -219,6 +221,7 @@ module "spoke6" {
   tags            = local.spoke6_tags
 
   enable_diagnostics           = local.enable_diagnostics
+  enable_ipv6                  = local.enable_ipv6
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region2"].name
 
   dns_zones_linked_to_vnet = [
@@ -271,7 +274,7 @@ module "spoke6_vm" {
   custom_data     = base64encode(module.vm_cloud_init.cloud_config)
   tags            = local.spoke6_tags
 
-  enable_ipv6 = true
+  enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
       name               = "${local.spoke6_prefix}vm-main-nic"

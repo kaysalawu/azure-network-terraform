@@ -26,6 +26,7 @@ module "hub1" {
   tags            = local.hub1_tags
 
   enable_diagnostics           = local.enable_diagnostics
+  enable_ipv6                  = local.enable_ipv6
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
   # flow_log_nsg_ids = [
   #   module.common.nsg_main["region1"].id,
@@ -93,7 +94,7 @@ module "hub1_vm" {
   custom_data     = base64encode(module.vm_cloud_init.cloud_config)
   tags            = local.hub1_tags
 
-  enable_ipv6 = true
+  enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
       name               = "${local.hub1_prefix}vm-main-nic"

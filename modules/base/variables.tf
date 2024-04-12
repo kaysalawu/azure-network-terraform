@@ -246,12 +246,16 @@ variable "config_nva" {
     custom_data     = optional(string)
     scenario_option = optional(string, "TwoNics") # Active-Active, TwoNics
     opn_type        = optional(string, "TwoNics") # Primary, Secondary, TwoNics
+    enable_ipv6     = optional(bool, false)
   })
   default = {
     enable           = false
     type             = "cisco"
     internal_lb_addr = null
     custom_data      = null
+    scenario_option  = "TwoNics"
+    opn_type         = "TwoNics"
+    enable_ipv6      = false
   }
 }
 
@@ -371,4 +375,10 @@ variable "trusted_subnet_address_prefix" {
   description = "trusted subnet address prefix"
   type        = string
   default     = ""
+}
+
+variable "enable_ipv6" {
+  description = "enable ipv6"
+  type        = bool
+  default     = true
 }
