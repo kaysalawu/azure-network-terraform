@@ -6,78 +6,78 @@ apt install -y unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 az login --identity || true
 
-# test scripts
+# test scripts (ip4)
 #-----------------------------------
 
-# ping-ip
+# ping-ip4
 
-cat <<EOF > /usr/local/bin/ping-ip
-echo -e "\n ping ip ...\n"
+cat <<EOF > /usr/local/bin/ping-ip4
+echo -e "\n ping ip4 ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.ping, true) ~}
 %{~ if try(target.ip, "") != "" ~}
-echo "${target.name} - ${target.ip} -\$(timeout 3 ping -qc2 -W1 ${target.ip} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "${target.name} - ${target.ip} -\$(timeout 3 ping -4 -qc2 -W1 ${target.ip} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 %{ endif ~}
 %{ endif ~}
 %{ endfor ~}
 EOF
-chmod a+x /usr/local/bin/ping-ip
+chmod a+x /usr/local/bin/ping-ip4
 
-# ping-dns
+# ping-dns4
 
-cat <<EOF > /usr/local/bin/ping-dns
-echo -e "\n ping dns ...\n"
+cat <<EOF > /usr/local/bin/ping-dns4
+echo -e "\n ping dns ip4 ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.ping, true) ~}
 %{~ if try(target.ip, "") != "" ~}
-echo "${target.dns} - \$(timeout 3 dig +short ${target.dns} | tail -n1) -\$(timeout 3 ping -qc2 -W1 ${target.dns} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
+echo "${target.dns} - \$(timeout 3 dig +short ${target.dns} | tail -n1) -\$(timeout 3 ping -4 -qc2 -W1 ${target.dns} 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 %{ endif ~}
 %{ endif ~}
 %{ endfor ~}
 EOF
-chmod a+x /usr/local/bin/ping-dns
+chmod a+x /usr/local/bin/ping-dns4
 
-# curl-ip
+# curl-ip4
 
-cat <<EOF > /usr/local/bin/curl-ip
-echo -e "\n curl ip ...\n"
+cat <<EOF > /usr/local/bin/curl-ip4
+echo -e "\n curl ip4 ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.curl, true) ~}
 %{~ if try(target.ip, "") != "" ~}
-echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.ip}) - ${target.name} (${target.ip})"
+echo  "\$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.ip}) - ${target.name} (${target.ip})"
 %{ endif ~}
 %{ endif ~}
 %{ endfor ~}
 EOF
-chmod a+x /usr/local/bin/curl-ip
+chmod a+x /usr/local/bin/curl-ip4
 
-# curl-dns
+# curl-dns4
 
-cat <<EOF > /usr/local/bin/curl-dns
-echo -e "\n curl dns ...\n"
+cat <<EOF > /usr/local/bin/curl-dns4
+echo -e "\n curl dns ip4 ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.curl, true) ~}
-echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.dns}) - ${target.dns}"
+echo  "\$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.dns}) - ${target.dns}"
 %{ endif ~}
 %{ endfor ~}
 EOF
-chmod a+x /usr/local/bin/curl-dns
+chmod a+x /usr/local/bin/curl-dns4
 
-# trace-ip
+# trace-ip4
 
-cat <<EOF > /usr/local/bin/trace-ip
-echo -e "\n trace ip ...\n"
+cat <<EOF > /usr/local/bin/trace-ip4
+echo -e "\n trace ip4 ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.ping, true) ~}
 %{~ if try(target.ip, "") != "" ~}
 echo -e "\n${target.name}"
 echo -e "-------------------------------------"
-timeout 9 tracepath ${target.ip}
+timeout 9 tracepath -4 ${target.ip}
 %{ endif ~}
 %{ endif ~}
 %{ endfor ~}
 EOF
-chmod a+x /usr/local/bin/trace-ip
+chmod a+x /usr/local/bin/trace-ip4
 
 # dns-info
 
@@ -93,6 +93,9 @@ tee /usr/local/bin/crawlz <<'EOF'
 sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
 EOF
 chmod a+x /usr/local/bin/crawlz
+
+# traffic generators
+#-----------------------------------
 
 # light-traffic generator
 

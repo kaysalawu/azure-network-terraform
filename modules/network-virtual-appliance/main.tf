@@ -46,6 +46,7 @@ module "nva" {
   vm_extension_settings = var.vm_extension_settings
   custom_data           = var.custom_data
 
+  enable_ipv6 = var.enable_ipv6
   interfaces = [
     {
       name                 = "${local.prefix}-untrust-nic"

@@ -134,7 +134,7 @@ resource "azurerm_network_security_rule" "internet_inbound_ipv6" {
   access                       = "Allow"
   priority                     = 130
   source_address_prefixes      = ["::/0"]
-  source_port_ranges           = ["0-65535"]
+  source_port_range            = "*"
   destination_address_prefixes = ["::/0"]
   destination_port_ranges      = ["80", "443", "8080", "8081", "3000"]
   protocol                     = "Tcp"

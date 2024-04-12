@@ -21,6 +21,7 @@ module "branch3" {
     "UntrustSubnet"   = module.common.nsg_nva["region2"].id
     "TrustSubnet"     = module.common.nsg_main["region2"].id
     "DnsServerSubnet" = module.common.nsg_main["region2"].id
+    "TestSubnet"      = module.common.nsg_main["region1"].id
   }
 
   config_vnet = {
@@ -30,6 +31,7 @@ module "branch3" {
       "MainSubnet",
       "TrustSubnet",
       "DnsServerSubnet",
+      "TestSubnet",
     ]
   }
 
@@ -89,6 +91,7 @@ module "branch3_dns" {
   custom_data     = base64encode(local.branch3_unbound_startup)
   tags            = local.branch3_tags
 
+  enable_ipv6 = true
   interfaces = [
     {
       name               = "${local.branch3_prefix}dns-main"
@@ -174,7 +177,7 @@ locals {
         psk             = local.psk
       }
     ]
-    BGP_SESSIONS = [
+    BGP_SESSIONS_IPV4 = [
       {
         peer_asn        = module.vhub2.bgp_asn
         peer_ip         = module.vhub2.vpngw_bgp_ip0
@@ -197,7 +200,7 @@ locals {
         route_maps      = []
       },
     ]
-    BGP_ADVERTISED_PREFIXES = [
+    BGP_ADVERTISED_PREFIXES_IPV4 = [
       local.branch3_subnets["MainSubnet"].address_prefixes[0],
     ]
   }
@@ -231,6 +234,7 @@ module "branch3_nva" {
   source_image_version   = "latest"
 
   enable_ip_forwarding = true
+  enable_ipv6          = true
   interfaces = [
     {
       name                 = "${local.branch3_prefix}nva-untrust-nic"
@@ -269,6 +273,7 @@ module "branch3_vm" {
   custom_data     = base64encode(local.branch3_vm_init)
   tags            = local.branch3_tags
 
+  enable_ipv6 = true
   interfaces = [
     {
       name               = "${local.branch3_prefix}vm-main-nic"

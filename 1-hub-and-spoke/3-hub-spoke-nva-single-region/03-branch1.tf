@@ -21,6 +21,7 @@ module "branch1" {
     "UntrustSubnet"   = module.common.nsg_nva["region1"].id
     "TrustSubnet"     = module.common.nsg_main["region1"].id
     "DnsServerSubnet" = module.common.nsg_main["region1"].id
+    "TestSubnet"      = module.common.nsg_main["region1"].id
   }
 
   config_vnet = {
@@ -30,6 +31,7 @@ module "branch1" {
       "MainSubnet",
       "TrustSubnet",
       "DnsServerSubnet",
+      "TestSubnet",
     ]
   }
 
@@ -89,6 +91,7 @@ module "branch1_dns" {
   custom_data     = base64encode(local.branch1_unbound_startup)
   tags            = local.branch1_tags
 
+  enable_ipv6 = true
   interfaces = [
     {
       name               = "${local.branch1_prefix}dns-main"
@@ -129,8 +132,8 @@ locals {
       "match ip address prefix-list all",
 
       # block inbound gateway subnet, allow all other hub and spoke cidrs
-      "route-map ${local.branch1_nva_route_map_block_azure} permit 120",
-      "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
+      # "route-map ${local.branch1_nva_route_map_block_azure} permit 120",
+      # "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
     ]
     STATIC_ROUTES = [
       { prefix = "0.0.0.0/0", next_hop = local.branch1_untrust_default_gw },
@@ -178,7 +181,7 @@ locals {
         psk             = local.psk
       }
     ]
-    BGP_SESSIONS = [
+    BGP_SESSIONS_IPV4 = [
       {
         peer_asn        = module.hub1.s2s_vpngw_bgp_asn
         peer_ip         = module.hub1.s2s_vpngw_bgp_default_ip0
@@ -201,7 +204,7 @@ locals {
         route_maps      = []
       },
     ]
-    BGP_ADVERTISED_PREFIXES = [
+    BGP_ADVERTISED_PREFIXES_IPV4 = [
       local.branch1_subnets["MainSubnet"].address_prefixes[0],
     ]
   }
@@ -235,6 +238,7 @@ module "branch1_nva" {
   source_image_version   = "latest"
 
   enable_ip_forwarding = true
+  enable_ipv6          = true
   interfaces = [
     {
       name                 = "${local.branch1_prefix}nva-untrust-nic"

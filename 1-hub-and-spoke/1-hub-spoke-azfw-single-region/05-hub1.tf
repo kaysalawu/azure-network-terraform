@@ -57,6 +57,7 @@ module "hub1" {
     "AppServiceSubnet"          = module.common.nsg_default["region1"].id
     "DnsResolverInboundSubnet"  = module.common.nsg_default["region1"].id
     "DnsResolverOutboundSubnet" = module.common.nsg_default["region1"].id
+    "TestSubnet"                = module.common.nsg_default["region1"].id
   }
 
   config_vnet      = local.hub1_features.config_vnet
@@ -89,10 +90,10 @@ module "hub1_vm" {
   computer_name   = local.hub1_vm_hostname
   location        = local.hub1_location
   storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(local.vm_startup)
+  custom_data     = base64encode(module.vm_cloud_init.cloud_config)
   tags            = local.hub1_tags
 
-  enable_ip_forwarding = true
+  enable_ipv6 = true
   interfaces = [
     {
       name               = "${local.hub1_prefix}vm-main-nic"

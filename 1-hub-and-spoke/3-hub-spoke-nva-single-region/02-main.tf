@@ -7,6 +7,7 @@ locals {
   lab_name                    = "HubSpoke_Nva_1Region"
   enable_diagnostics          = false
   enable_onprem_wan_link      = false
+  enable_ipv6                 = true
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
   spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
@@ -63,19 +64,33 @@ locals {
     "region1" = { name = local.region1, dns_zone = local.region1_dns_zone }
   }
   default_udr_destinations = [
-    { name = "default", address_prefix = ["0.0.0.0/0"] }
+    { name = "default", address_prefix = ["0.0.0.0/0"], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "defaultv6", address_prefix = ["::/0"], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 }
   ]
-  hub1_appliance_udr_destinations = [
-    { name = "spoke4", address_prefix = [local.spoke4_address_space.0] },
-    { name = "spoke5", address_prefix = [local.spoke5_address_space.0] },
-    { name = "hub2", address_prefix = [local.hub2_address_space.0] },
-  ]
+
+  spoke1_udr_main_routes = concat(local.default_udr_destinations, [
+    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.2, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+  ])
+  spoke2_udr_main_routes = concat(local.default_udr_destinations, [
+    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.2, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+  ])
+  hub1_udr_main_routes = concat(local.default_udr_destinations, [
+    { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "spoke1v6", address_prefix = [local.spoke1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "spoke2v6", address_prefix = [local.spoke2_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+  ])
   hub1_gateway_udr_destinations = [
-    { name = "spoke1", address_prefix = [local.spoke1_address_space.0] },
-    { name = "spoke2", address_prefix = [local.spoke2_address_space.0] },
-    { name = "hub1", address_prefix = [local.hub1_address_space.0] },
-    # { name = "hub1-gw", address_prefix = [local.hub1_address_space.1] },
+    { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "spoke1v6", address_prefix = [local.spoke1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "spoke2v6", address_prefix = [local.spoke2_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.2, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
   ]
+
   firewall_sku = "Basic"
 
   hub1_features = {
@@ -87,6 +102,7 @@ locals {
       nat_gateway_subnet_names = [
         "MainSubnet",
         "TrustSubnet",
+        "TestSubnet",
       ]
 
       ruleset_dns_forwarding_rules = {
@@ -257,12 +273,13 @@ locals {
     TARGETS_HEAVY_TRAFFIC_GEN = []
   }
   vm_init_files = {
-    "${local.init_dir}/fastapi/docker-compose-app1-80.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/docker-compose-app1-80.yml", local.vm_init_vars) }
-    "${local.init_dir}/fastapi/app/app/Dockerfile"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/Dockerfile", local.vm_init_vars) }
-    "${local.init_dir}/fastapi/app/app/_app.py"            = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/_app.py", local.vm_init_vars) }
-    "${local.init_dir}/fastapi/app/app/main.py"            = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/main.py", local.vm_init_vars) }
-    "${local.init_dir}/fastapi/app/app/requirements.txt"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/requirements.txt", local.vm_init_vars) }
-    "${local.init_dir}/init/start.sh"                      = { owner = "root", permissions = "0744", content = templatefile("../../scripts/startup.sh", local.vm_init_vars) }
+    "${local.init_dir}/fastapi/docker-compose-app1-80.yml"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/docker-compose-app1-80.yml", {}) }
+    "${local.init_dir}/fastapi/docker-compose-app2-8080.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/docker-compose-app2-8080.yml", {}) }
+    "${local.init_dir}/fastapi/app/app/Dockerfile"           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/Dockerfile", {}) }
+    "${local.init_dir}/fastapi/app/app/_app.py"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/_app.py", {}) }
+    "${local.init_dir}/fastapi/app/app/main.py"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/main.py", {}) }
+    "${local.init_dir}/fastapi/app/app/requirements.txt"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/requirements.txt", {}) }
+    "${local.init_dir}/init/start.sh"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/startup.sh", local.vm_init_vars) }
   }
   onprem_local_records = [
     { name = lower(local.branch1_vm_fqdn), record = local.branch1_vm_addr },
@@ -283,6 +300,7 @@ module "vm_cloud_init" {
     "systemctl start docker",
     "bash ${local.init_dir}/init/start.sh",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
+    "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app2-8080.yml up -d",
   ]
 }
 
@@ -403,12 +421,12 @@ locals {
     LOOPBACK0 = local.hub1_nva_loopback0
     LOOPBACKS = []
 
-    PREFIX_LISTS            = []
-    ROUTE_MAPS              = []
-    STATIC_ROUTES           = []
-    TUNNELS                 = []
-    BGP_SESSIONS            = []
-    BGP_ADVERTISED_PREFIXES = []
+    PREFIX_LISTS                 = []
+    ROUTE_MAPS                   = []
+    STATIC_ROUTES                = []
+    TUNNELS                      = []
+    BGP_SESSIONS_IPV4            = []
+    BGP_ADVERTISED_PREFIXES_IPV4 = []
   }
   hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
     TARGETS                   = local.vm_script_targets

@@ -75,6 +75,12 @@ resource "azurerm_virtual_network_gateway" "this" {
   timeouts {
     create = "60m"
   }
+
+  lifecycle {
+    ignore_changes = [
+      ip_configuration,
+    ]
+  }
 }
 
 ####################################################

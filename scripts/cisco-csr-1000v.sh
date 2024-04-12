@@ -102,7 +102,7 @@ ${command}
 !-----------------------------------------
 router bgp ${LOCAL_ASN}
 bgp router-id ${LOOPBACK0}
-%{~ for s in BGP_SESSIONS }
+%{~ for s in BGP_SESSIONS_IPV4 }
 neighbor ${s.peer_ip} remote-as ${s.peer_asn}
 %{~ if try(s.ebgp_multihop, false) }
 neighbor ${s.peer_ip} ebgp-multihop 255

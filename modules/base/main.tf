@@ -305,6 +305,7 @@ module "s2s_vpngw" {
   depends_on = [
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
+    azurerm_subnet_nat_gateway_association.nat,
   ]
 }
 
@@ -341,6 +342,7 @@ module "p2s_vpngw" {
   depends_on = [
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
+    azurerm_subnet_nat_gateway_association.nat,
   ]
 }
 
@@ -366,6 +368,7 @@ module "ergw" {
   depends_on = [
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
+    azurerm_subnet_nat_gateway_association.nat,
   ]
 }
 
@@ -413,6 +416,7 @@ resource "azurerm_route_server" "ars" {
     module.s2s_vpngw,
     module.p2s_vpngw,
     module.ergw,
+    azurerm_subnet_nat_gateway_association.nat,
   ]
 }
 
@@ -438,6 +442,7 @@ module "azfw" {
   depends_on = [
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
+    azurerm_subnet_nat_gateway_association.nat,
     azurerm_route_server.ars,
     module.s2s_vpngw,
     module.p2s_vpngw,
@@ -489,6 +494,7 @@ module "nva" {
   use_vm_extension      = var.config_nva.type == "opnsense" ? true : false
   vm_extension_settings = var.config_nva.type == "opnsense" ? local.settings_opnsense : null
 
+  enable_ipv6       = true
   subnet_id_untrust = azurerm_subnet.this["UntrustSubnet"].id
   subnet_id_trust   = azurerm_subnet.this["TrustSubnet"].id
   ilb_untrust_ip    = var.config_nva.ilb_untrust_ip
@@ -498,6 +504,7 @@ module "nva" {
   depends_on = [
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
+    azurerm_subnet_nat_gateway_association.nat,
   ]
 }
 

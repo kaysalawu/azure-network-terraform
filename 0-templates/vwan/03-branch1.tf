@@ -21,6 +21,7 @@ module "branch1" {
     "UntrustSubnet"   = module.common.nsg_nva["region1"].id
     "TrustSubnet"     = module.common.nsg_main["region1"].id
     "DnsServerSubnet" = module.common.nsg_main["region1"].id
+    "TestSubnet"      = module.common.nsg_main["region1"].id
   }
 
   config_vnet = {
@@ -30,6 +31,7 @@ module "branch1" {
       "MainSubnet",
       "TrustSubnet",
       "DnsServerSubnet",
+      "TestSubnet",
     ]
   }
 
@@ -89,6 +91,7 @@ module "branch1_dns" {
   custom_data     = base64encode(local.branch1_unbound_startup)
   tags            = local.branch1_tags
 
+  enable_ipv6 = true
   interfaces = [
     {
       name               = "${local.branch1_prefix}dns-main"
@@ -174,7 +177,7 @@ locals {
         psk             = local.psk
       }
     ]
-    BGP_SESSIONS = [
+    BGP_SESSIONS_IPV4 = [
       {
         peer_asn        = module.vhub1.bgp_asn
         peer_ip         = module.vhub1.vpngw_bgp_ip0
@@ -197,7 +200,7 @@ locals {
         route_maps      = []
       },
     ]
-    BGP_ADVERTISED_PREFIXES = [
+    BGP_ADVERTISED_PREFIXES_IPV4 = [
       local.branch1_subnets["MainSubnet"].address_prefixes[0],
     ]
   }
@@ -231,6 +234,7 @@ module "branch1_nva" {
   source_image_version   = "latest"
 
   enable_ip_forwarding = true
+  enable_ipv6          = true
   interfaces = [
     {
       name                 = "${local.branch1_prefix}nva-untrust-nic"
@@ -266,9 +270,10 @@ module "branch1_vm" {
   location        = local.branch1_location
   storage_account = module.common.storage_accounts["region1"]
   dns_servers     = [local.branch1_dns_addr, ]
-  custom_data     = base64encode(local.branch1_vm_init)
+  custom_data     = base64encode(module.vm_cloud_init.cloud_config)
   tags            = local.branch1_tags
 
+  enable_ipv6 = true
   interfaces = [
     {
       name               = "${local.branch1_prefix}vm-main-nic"

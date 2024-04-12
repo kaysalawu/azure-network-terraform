@@ -6,6 +6,12 @@ variable "prefix" {
   default     = "megaport"
 }
 
+variable "tags" {
+  description = "tags for all hub resources"
+  type        = map(any)
+  default     = {}
+}
+
 variable "azure_location" {
   description = "azure region"
 }
@@ -44,12 +50,16 @@ variable "circuits" {
     mcr_name                   = string
     sku_tier                   = optional(string, "Standard")
     sku_family                 = optional(string, "MeteredData")
+    globalreach_enabled        = optional(bool, false)
+    ipv4_enabled               = optional(bool, true)
 
-    primary_peer_address_prefix   = string
-    secondary_peer_address_prefix = string
-    virtual_network_gateway_id    = optional(string, null)
-    express_route_gateway_id      = optional(string, null)
-    auto_create_private_peering   = optional(bool, true)
+    primary_peer_address_prefix        = optional(string, null)
+    secondary_peer_address_prefix      = optional(string, null)
+    primary_peer_address_prefix_ipv6   = optional(string, null)
+    secondary_peer_address_prefix_ipv6 = optional(string, null)
+    virtual_network_gateway_id         = optional(string, null)
+    express_route_gateway_id           = optional(string, null)
+    auto_create_private_peering        = optional(bool, true)
   }))
   default = []
 }
@@ -59,3 +69,4 @@ variable "log_analytics_workspace_name" {
   type        = string
   default     = null
 }
+

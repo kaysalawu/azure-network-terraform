@@ -352,12 +352,12 @@ locals {
     LOOPBACK0 = local.hub1_nva_loopback0
     LOOPBACKS = []
 
-    PREFIX_LISTS            = []
-    ROUTE_MAPS              = []
-    STATIC_ROUTES           = []
-    TUNNELS                 = []
-    BGP_SESSIONS            = []
-    BGP_ADVERTISED_PREFIXES = []
+    PREFIX_LISTS                 = []
+    ROUTE_MAPS                   = []
+    STATIC_ROUTES                = []
+    TUNNELS                      = []
+    BGP_SESSIONS_IPV4            = []
+    BGP_ADVERTISED_PREFIXES_IPV4 = []
   }
   hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
     TARGETS                   = local.vm_script_targets

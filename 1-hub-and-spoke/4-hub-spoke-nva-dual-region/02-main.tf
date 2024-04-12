@@ -7,6 +7,7 @@ locals {
   lab_name                    = "HubSpoke_Nva_2Region"
   enable_diagnostics          = false
   enable_onprem_wan_link      = true
+  enable_ipv6                 = true
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke6_storage_account_name = lower(replace("${local.spoke6_prefix}sa${random_id.random.hex}", "-", ""))
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
@@ -72,27 +73,65 @@ locals {
     "region2" = { name = local.region2, dns_zone = local.region2_dns_zone }
   }
   default_udr_destinations = [
-    { name = "default", address_prefix = ["0.0.0.0/0"] }
+    { name = "default", address_prefix = ["0.0.0.0/0"], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "defaultv6", address_prefix = ["::/0"], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 }
+  ]
+
+  spoke1_udr_main_routes = concat(local.default_udr_destinations, [
+    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.2, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+  ])
+  spoke2_udr_main_routes = concat(local.default_udr_destinations, [
+    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.2, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+  ])
+  hub1_udr_main_routes = concat(local.default_udr_destinations, [
+    { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "spoke1v6", address_prefix = [local.spoke1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "spoke2v6", address_prefix = [local.spoke2_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+  ])
+  hub1_gateway_udr_destinations = [
+    { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "spoke1v6", address_prefix = [local.spoke1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "spoke2v6", address_prefix = [local.spoke2_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.2, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
   ]
   hub1_appliance_udr_destinations = [
-    { name = "spoke4", address_prefix = local.spoke4_address_space },
-    { name = "spoke5", address_prefix = local.spoke5_address_space },
-    { name = "hub2", address_prefix = local.hub2_address_space },
+    { name = "spoke4", address_prefix = [local.spoke4_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
+    { name = "spoke5", address_prefix = [local.spoke5_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
+    { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
+  ]
+
+  spoke4_udr_main_routes = concat(local.default_udr_destinations, [
+    { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
+    { name = "hub2v6", address_prefix = [local.hub2_address_space.2], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
+  ])
+  spoke5_udr_main_routes = concat(local.default_udr_destinations, [
+    { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
+    { name = "hub2v6", address_prefix = [local.hub2_address_space.2, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
+  ])
+  hub2_udr_main_routes = concat(local.default_udr_destinations, [
+    { name = "spoke4", address_prefix = [local.spoke4_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
+    { name = "spoke5", address_prefix = [local.spoke5_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
+    { name = "spoke4v6", address_prefix = [local.spoke4_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
+    { name = "spoke5v6", address_prefix = [local.spoke5_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
+  ])
+  hub2_gateway_udr_destinations = [
+    { name = "spoke4", address_prefix = [local.spoke4_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
+    { name = "spoke5", address_prefix = [local.spoke5_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
+    { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
+    { name = "spoke4v6", address_prefix = [local.spoke4_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
+    { name = "spoke5v6", address_prefix = [local.spoke5_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
+    { name = "hub2v6", address_prefix = [local.hub2_address_space.2, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
+
   ]
   hub2_appliance_udr_destinations = [
-    { name = "spoke1", address_prefix = local.spoke1_address_space },
-    { name = "spoke2", address_prefix = local.spoke2_address_space },
-    { name = "hub1", address_prefix = local.hub1_address_space },
-  ]
-  hub1_gateway_udr_destinations = [
-    { name = "spoke1", address_prefix = local.spoke1_address_space },
-    { name = "spoke2", address_prefix = local.spoke2_address_space },
-    { name = "hub1", address_prefix = local.hub1_address_space },
-  ]
-  hub2_gateway_udr_destinations = [
-    { name = "spoke4", address_prefix = local.spoke4_address_space },
-    { name = "spoke5", address_prefix = local.spoke5_address_space },
-    { name = "hub2", address_prefix = local.hub2_address_space },
+    { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
   ]
 
   firewall_sku = "Basic"
@@ -106,6 +145,7 @@ locals {
       nat_gateway_subnet_names = [
         "MainSubnet",
         "TrustSubnet",
+        "TestSubnet",
       ]
 
       ruleset_dns_forwarding_rules = {
@@ -202,6 +242,7 @@ locals {
       nat_gateway_subnet_names = [
         "MainSubnet",
         "TrustSubnet",
+        "TestSubnet",
       ]
 
       ruleset_dns_forwarding_rules = {
@@ -356,6 +397,7 @@ locals {
   hub2_ergw_asn  = "65515"
   hub2_ars_asn   = "65515"
 
+  init_dir = "/var/lib/azure"
   vm_script_targets_region1 = [
     { name = "branch1", dns = lower(local.branch1_vm_fqdn), ip = local.branch1_vm_addr, probe = true },
     { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ip = local.hub1_vm_addr, probe = false },
@@ -386,13 +428,41 @@ locals {
     TARGETS_HEAVY_TRAFFIC_GEN = []
     ENABLE_TRAFFIC_GEN        = false
   })
+  vm_init_vars = {
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = []
+    TARGETS_HEAVY_TRAFFIC_GEN = []
+  }
+  vm_init_files = {
+    "${local.init_dir}/fastapi/docker-compose-app1-80.yml"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/docker-compose-app1-80.yml", {}) }
+    "${local.init_dir}/fastapi/docker-compose-app2-8080.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/docker-compose-app2-8080.yml", {}) }
+    "${local.init_dir}/fastapi/app/app/Dockerfile"           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/Dockerfile", {}) }
+    "${local.init_dir}/fastapi/app/app/_app.py"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/_app.py", {}) }
+    "${local.init_dir}/fastapi/app/app/main.py"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/main.py", {}) }
+    "${local.init_dir}/fastapi/app/app/requirements.txt"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/requirements.txt", {}) }
+    "${local.init_dir}/init/start.sh"                        = { owner = "root", permissions = "0744", content = templatefile("../../scripts/startup.sh", local.vm_init_vars) }
+  }
   onprem_local_records = [
     { name = lower(local.branch1_vm_fqdn), record = local.branch1_vm_addr },
     { name = lower(local.branch2_vm_fqdn), record = local.branch2_vm_addr },
     { name = lower(local.branch3_vm_fqdn), record = local.branch3_vm_addr },
   ]
   onprem_redirected_hosts = []
-  branch_dns_init_dir     = "/var/lib/azure"
+}
+
+module "vm_cloud_init" {
+  source = "../../modules/cloud-config-gen"
+  files  = local.vm_init_files
+  packages = [
+    "docker.io", "docker-compose", "npm",
+  ]
+  run_commands = [
+    "systemctl enable docker",
+    "systemctl start docker",
+    "bash ${local.init_dir}/init/start.sh",
+    "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
+    "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app2-8080.yml up -d",
+  ]
 }
 
 ####################################################
@@ -534,12 +604,12 @@ locals {
     LOOPBACK0 = local.hub1_nva_loopback0
     LOOPBACKS = []
 
-    PREFIX_LISTS            = []
-    ROUTE_MAPS              = []
-    STATIC_ROUTES           = []
-    TUNNELS                 = []
-    BGP_SESSIONS            = []
-    BGP_ADVERTISED_PREFIXES = []
+    PREFIX_LISTS                 = []
+    ROUTE_MAPS                   = []
+    STATIC_ROUTES                = []
+    TUNNELS                      = []
+    BGP_SESSIONS_IPV4            = []
+    BGP_ADVERTISED_PREFIXES_IPV4 = []
   }
   hub1_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub1_nva_vars, {
     TARGETS                   = local.vm_script_targets
@@ -566,12 +636,12 @@ locals {
     LOOPBACK0 = local.hub2_nva_loopback0
     LOOPBACKS = []
 
-    PREFIX_LISTS            = []
-    ROUTE_MAPS              = []
-    STATIC_ROUTES           = []
-    TUNNELS                 = []
-    BGP_SESSIONS            = []
-    BGP_ADVERTISED_PREFIXES = []
+    PREFIX_LISTS                 = []
+    ROUTE_MAPS                   = []
+    STATIC_ROUTES                = []
+    TUNNELS                      = []
+    BGP_SESSIONS_IPV4            = []
+    BGP_ADVERTISED_PREFIXES_IPV4 = []
   }
   hub2_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub2_nva_vars, {
     TARGETS                   = local.vm_script_targets

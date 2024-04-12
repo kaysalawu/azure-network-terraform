@@ -57,6 +57,7 @@ module "hub1" {
     "AppServiceSubnet"          = module.common.nsg_default["region1"].id
     "DnsResolverInboundSubnet"  = module.common.nsg_default["region1"].id
     "DnsResolverOutboundSubnet" = module.common.nsg_default["region1"].id
+    "TestSubnet"                = module.common.nsg_default["region1"].id
   }
 
   config_vnet      = local.hub1_features.config_vnet

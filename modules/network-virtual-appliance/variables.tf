@@ -174,6 +174,12 @@ variable "log_analytics_workspace_name" {
   default     = null
 }
 
+variable "enable_ipv6" {
+  description = "enable ipv6"
+  type        = bool
+  default     = false
+}
+
 # variable "virtual_network_id" {
 #   description = "virtual network id"
 #   type        = string

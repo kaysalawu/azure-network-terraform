@@ -165,7 +165,7 @@ locals {
         psk             = local.psk
       },
     ]
-    BGP_SESSIONS = [
+    BGP_SESSIONS_IPV4 = [
       {
         peer_asn        = module.hub1.s2s_vpngw_bgp_asn
         peer_ip         = module.hub1.s2s_vpngw_bgp_default_ip0
@@ -188,7 +188,7 @@ locals {
         route_maps      = []
       },
     ]
-    BGP_ADVERTISED_PREFIXES = [
+    BGP_ADVERTISED_PREFIXES_IPV4 = [
       local.branch1_subnets["MainSubnet"].address_prefixes[0],
     ]
   }

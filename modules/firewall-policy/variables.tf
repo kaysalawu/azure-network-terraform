@@ -47,13 +47,14 @@ variable "nat_rule_collection" {
     priority = number
     action   = string
     rule = list(object({
-      name                  = string
-      protocols             = list(string)
-      source_addresses      = list(string)
-      destination_addresses = string
-      destination_ports     = list(string)
-      translated_address    = string
-      translated_port       = string
+      name                = string
+      protocols           = list(string)
+      source_addresses    = list(string)
+      destination_address = string
+      destination_ports   = optional(list(string), null)
+      translated_address  = optional(string, null)
+      translated_port     = string
+      translated_fqdn     = optional(string, null)
     }))
   }))
   default = []

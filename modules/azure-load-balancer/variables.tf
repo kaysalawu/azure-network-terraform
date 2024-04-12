@@ -93,6 +93,7 @@ variable "frontend_ip_configuration" {
     private_ip_address            = optional(string, null)
     public_ip_address_id          = optional(string, null)
     public_ip_prefix_id           = optional(string, null)
+    domain_name_label             = optional(string, null)
   }))
   default = []
 }
@@ -100,11 +101,12 @@ variable "frontend_ip_configuration" {
 variable "probes" {
   description = "(Optional) Protocols to be used for lb health probes. Format as [protocol, port, request_path]"
   type = list(object({
-    name         = string
-    protocol     = optional(string, "Tcp")
-    port         = optional(string, "80")
-    request_path = optional(string, null)
-    interval     = optional(number, 5)
+    name             = string
+    protocol         = optional(string, "Tcp")
+    port             = optional(string, "80")
+    request_path     = optional(string, null)
+    interval         = optional(number, 5)
+    number_of_probes = optional(number, 2)
   }))
   default = []
 }
@@ -153,12 +155,6 @@ variable "nat_rules" {
   default = []
 }
 
-variable "lb_probe_unhealthy_threshold" {
-  description = "Number of times the load balancer health probe has an unsuccessful attempt before considering the endpoint unhealthy."
-  type        = number
-  default     = 1
-}
-
 variable "backend_pools" {
   type = list(object({
     name = string
@@ -192,4 +188,10 @@ variable "log_analytics_workspace_name" {
   description = "log analytics workspace name"
   type        = string
   default     = null
+}
+
+variable "enable_dual_stack" {
+  description = "Enable dual stack"
+  type        = bool
+  default     = false
 }

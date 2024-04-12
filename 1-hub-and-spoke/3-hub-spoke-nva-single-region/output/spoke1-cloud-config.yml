@@ -142,6 +142,29 @@ write_files:
           command: uvicorn main:app --host '::' --port 80
           restart: always
       
+  - path: /var/lib/azure/fastapi/docker-compose-app2-8080.yml
+    owner: root
+    permissions: 0744
+    content: |
+      version: '3'
+      services:
+        app2-8080:
+          container_name: app2-8080
+          build:
+            context: ./app/app
+            dockerfile: Dockerfile
+          network_mode: host
+          command: uvicorn main:app --host '0.0.0.0' --port 8080
+          restart: always
+        app2-ipv6-8080:
+          container_name: app2-ipv6-8080
+          build:
+            context: ./app/app
+            dockerfile: Dockerfile
+          network_mode: host
+          command: uvicorn main:app --host '::' --port 8080
+          restart: always
+      
   - path: /var/lib/azure/init/start.sh
     owner: root
     permissions: 0744
@@ -203,7 +226,7 @@ write_files:
       echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1vm.eu.az.corp) - spoke1vm.eu.az.corp"
       echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke2vm.eu.az.corp) - spoke2vm.eu.az.corp"
       echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-      echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs13spoke3sa45cb.blob.core.windows.net/spoke3/spoke3.txt) - https://hs13spoke3sa45cb.blob.core.windows.net/spoke3/spoke3.txt"
+      echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs13spoke3sa92a5.blob.core.windows.net/spoke3/spoke3.txt) - https://hs13spoke3sa92a5.blob.core.windows.net/spoke3/spoke3.txt"
       EOF
       chmod a+x /usr/local/bin/curl-dns
       
@@ -251,7 +274,7 @@ write_files:
       nping -c 10 --tcp -p 80 spoke3pls.eu.az.corp > /dev/null 2>&1
       nping -c 10 --tcp -p 80 spoke1vm.eu.az.corp > /dev/null 2>&1
       nping -c 10 --tcp -p 80 spoke2vm.eu.az.corp > /dev/null 2>&1
-      nping -c 10 --tcp -p 80 https://hs13spoke3sa45cb.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
+      nping -c 10 --tcp -p 80 https://hs13spoke3sa92a5.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
       EOF
       chmod a+x /usr/local/bin/light-traffic
       
@@ -265,7 +288,7 @@ write_files:
           ab -n \$1 -c \$2 spoke3pls.eu.az.corp > /dev/null 2>&1
           ab -n \$1 -c \$2 spoke1vm.eu.az.corp > /dev/null 2>&1
           ab -n \$1 -c \$2 spoke2vm.eu.az.corp > /dev/null 2>&1
-          ab -n \$1 -c \$2 https://hs13spoke3sa45cb.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
+          ab -n \$1 -c \$2 https://hs13spoke3sa92a5.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
           let i=i+1
         sleep 5
       done
@@ -291,3 +314,4 @@ runcmd:
   - systemctl start docker
   - bash /var/lib/azure/init/start.sh
   - docker-compose -f /var/lib/azure/fastapi/docker-compose-app1-80.yml up -d
+  - docker-compose -f /var/lib/azure/fastapi/docker-compose-app2-8080.yml up -d

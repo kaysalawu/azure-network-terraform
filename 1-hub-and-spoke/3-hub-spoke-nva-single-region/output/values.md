@@ -41,6 +41,7 @@
 | PrivateEndpointSubnet   | 10.11.7.0/24   |
 | PrivateLinkServiceSubnet   | 10.11.6.0/24   |
 | RouteServerSubnet   | 10.11.10.0/24   |
+| TestSubnet   | 10.11.14.0/24   |
 | TrustSubnet   | 10.11.2.0/24   |
 | UntrustSubnet   | 10.11.1.0/24   |
 | - | -  |
@@ -62,6 +63,7 @@
 | ManagementSubnet   | 10.1.3.0/24   |
 | PrivateEndpointSubnet   | 10.1.7.0/24   |
 | PrivateLinkServiceSubnet   | 10.1.6.0/24   |
+| TestSubnet   | 10.1.10.0/24   |
 | TrustSubnet   | 10.1.2.0/24   |
 | UntrustSubnet   | 10.1.1.0/24   |
 | - | -  |
@@ -83,6 +85,7 @@
 | ManagementSubnet   | 10.2.3.0/24   |
 | PrivateEndpointSubnet   | 10.2.7.0/24   |
 | PrivateLinkServiceSubnet   | 10.2.6.0/24   |
+| TestSubnet   | 10.2.10.0/24   |
 | TrustSubnet   | 10.2.2.0/24   |
 | UntrustSubnet   | 10.2.1.0/24   |
 | - | -  |
@@ -104,6 +107,7 @@
 | ManagementSubnet   | 10.3.3.0/24   |
 | PrivateEndpointSubnet   | 10.3.7.0/24   |
 | PrivateLinkServiceSubnet   | 10.3.6.0/24   |
+| TestSubnet   | 10.3.10.0/24   |
 | TrustSubnet   | 10.3.2.0/24   |
 | UntrustSubnet   | 10.3.1.0/24   |
 | - | -  |

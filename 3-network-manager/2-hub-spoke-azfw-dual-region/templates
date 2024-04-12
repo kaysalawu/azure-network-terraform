@@ -6,8 +6,8 @@
 ../../0-templates/04-spokes-region2.tf
 ../../0-templates/05-hub1.tf
 ../../0-templates/05-hub2.tf
-../../0-templates/avnm/06-conn-hub1-azfw.tf
-../../0-templates/avnm/06-conn-hub2-azfw.tf
+../../0-templates/avnm/06-conn-hub1.tf
+../../0-templates/avnm/06-conn-hub2.tf
 ../../0-templates/avnm/06-conn-interhub-azfw.tf
 ../../0-templates/services/services-region1.tf
 ../../0-templates/services/services-region2.tf
