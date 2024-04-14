@@ -11,7 +11,7 @@ module "azure_lb_dual_stack" {
   name                = "dualStack"
   type                = "public"
   lb_sku              = "Standard"
-  enable_dual_stack   = true
+  enable_dual_stack   = local.enable_ipv6
 
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
 

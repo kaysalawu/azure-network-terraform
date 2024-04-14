@@ -78,7 +78,7 @@ locals {
 
 module "branch1_unbound_init" {
   source   = "../../modules/cloud-config-gen"
-  packages = ["docker.io", "docker-compose", "dnsutils", "net-tools", ]
+  packages = ["docker.io", "docker-compose", #npm, "dnsutils", "net-tools", ]
   files    = local.branch1_unbound_files
   run_commands = [
     "systemctl stop systemd-resolved",
@@ -148,7 +148,7 @@ locals {
 module "branch1_vm_p2s_init" {
   source = "../../modules/cloud-config-gen"
   packages = [
-    "docker.io", "docker-compose",
+    "docker.io", "docker-compose", #npm,
   ]
   files = local.client1_init_files
   run_commands = [

@@ -58,7 +58,7 @@ module "hub1" {
     "AppServiceSubnet"          = module.common.nsg_default["region1"].id
     "DnsResolverInboundSubnet"  = module.common.nsg_default["region1"].id
     "DnsResolverOutboundSubnet" = module.common.nsg_default["region1"].id
-    "TestSubnet"                = module.common.nsg_default["region1"].id
+    "TestSubnet"                = module.common.nsg_main["region1"].id
   }
 
   config_vnet      = local.hub1_features.config_vnet
@@ -97,10 +97,11 @@ module "hub1_vm" {
   enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
-      name               = "${local.hub1_prefix}vm-main-nic"
-      subnet_id          = module.hub1.subnets["MainSubnet"].id
-      private_ip_address = local.hub1_vm_addr
-      create_public_ip   = true
+      name                 = "${local.hub1_prefix}vm-main-nic"
+      subnet_id            = module.hub1.subnets["MainSubnet"].id
+      private_ip_address   = local.hub1_vm_addr
+      private_ipv6_address = local.hub1_vm_addr_v6
+      create_public_ip     = true
     },
   ]
   depends_on = [

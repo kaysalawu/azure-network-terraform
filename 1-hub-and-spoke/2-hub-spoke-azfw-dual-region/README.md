@@ -253,7 +253,7 @@ azureuser@spoke1Vm:~$ curl spoke3pls.eu.az.corp
     "User-Agent": "curl/7.68.0"
   },
   "Hostname": "spoke3Vm",
-  "Local-IP": "10.3.0.5",
+  "server-ipv4": "10.3.0.5",
   "Remote-IP": "10.3.6.4"
 }
 ```
@@ -280,7 +280,7 @@ azureuser@spoke1Vm:~$ curl spoke6pls.us.az.corp
     "User-Agent": "curl/7.68.0"
   },
   "Hostname": "spoke6Vm",
-  "Local-IP": "10.6.0.5",
+  "server-ipv4": "10.6.0.5",
   "Remote-IP": "10.6.6.4"
 }
 ```
@@ -288,7 +288,7 @@ azureuser@spoke1Vm:~$ curl spoke6pls.us.az.corp
 </details>
 <p>
 
-The `Hostname` and `Local-IP` fields identify the backend web servers - in this case `spoke3Vm` and `spoke6Vm` virtual machines. The `Remote-IP` fields (as seen by the web servers) are IP addresses in the Private Link Service NAT subnets in ***spoke3*** and ***spoke6*** Vnets respectively.
+The `Hostname` and `server-ipv4` fields identify the backend web servers - in this case `spoke3Vm` and `spoke6Vm` virtual machines. The `remote-addr` fields (as seen by the web servers) are IP addresses in the Private Link Service NAT subnets in ***spoke3*** and ***spoke6*** Vnets respectively.
 
 ### 5. Private Link Access to Storage Account
 

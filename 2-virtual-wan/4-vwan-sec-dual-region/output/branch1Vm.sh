@@ -31,7 +31,7 @@ def default():
     address = socket.gethostbyname(hostname)
     data_dict = {}
     data_dict['Hostname'] = hostname
-    data_dict['Local-IP'] = address
+    data_dict['server-ipv4'] = address
     data_dict['Remote-IP'] = request.remote_addr
     data_dict['Headers'] = dict(request.headers)
     return data_dict
@@ -43,7 +43,7 @@ def path1():
     data_dict = {}
     data_dict['app'] = 'PATH1-APP'
     data_dict['Hostname'] = hostname
-    data_dict['Local-IP'] = address
+    data_dict['server-ipv4'] = address
     data_dict['Remote-IP'] = request.remote_addr
     data_dict['Headers'] = dict(request.headers)
     return data_dict
@@ -55,7 +55,7 @@ def path2():
     data_dict = {}
     data_dict['app'] = 'PATH2-APP'
     data_dict['Hostname'] = hostname
-    data_dict['Local-IP'] = address
+    data_dict['server-ipv4'] = address
     data_dict['Remote-IP'] = request.remote_addr
     data_dict['Headers'] = dict(request.headers)
     return data_dict

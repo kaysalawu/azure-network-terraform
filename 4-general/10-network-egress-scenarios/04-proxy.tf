@@ -53,7 +53,7 @@ locals {
 
 module "hub_proxy_init" {
   source   = "../../modules/cloud-config-gen"
-  packages = ["docker.io", "docker-compose", "dnsutils", "net-tools", ]
+  packages = ["docker.io", "docker-compose", #npm, "dnsutils", "net-tools", ]
   files    = local.hub_proxy_files
   run_commands = [
     ". ${local.init_dir}/init/server.sh",

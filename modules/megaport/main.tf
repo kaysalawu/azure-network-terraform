@@ -29,7 +29,6 @@ resource "azurerm_express_route_circuit" "this" {
   }
 }
 
-
 resource "azurerm_express_route_circuit_authorization" "this" {
   for_each                   = { for c in var.circuits : c.name => c }
   resource_group_name        = var.resource_group
@@ -50,12 +49,12 @@ resource "megaport_mcr" "this" {
   }
 }
 
-# vxc
+# vxc (layer 2)
 #----------------------------
 
 # primary
 
-resource "megaport_azure_connection" "primary" {
+resource "megaport_azure_connection" "this" {
   for_each   = { for c in var.circuits : c.name => c }
   vxc_name   = "${each.value.name}-pri"
   rate_limit = each.value.bandwidth_in_mbps
@@ -67,12 +66,6 @@ resource "megaport_azure_connection" "primary" {
 
   csp_settings {
     service_key = azurerm_express_route_circuit.this[each.value.name].service_key
-    private_peering {
-      peer_asn         = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
-      primary_subnet   = each.value.primary_peer_address_prefix
-      secondary_subnet = each.value.secondary_peer_address_prefix
-      requested_vlan   = each.value.requested_vlan
-    }
   }
 
   lifecycle {
@@ -80,7 +73,15 @@ resource "megaport_azure_connection" "primary" {
   }
 }
 
-# peering
+resource "time_sleep" "vxc_peering_wait" {
+  create_duration  = "30s"
+  destroy_duration = "60s"
+  depends_on = [
+    megaport_azure_connection.this
+  ]
+}
+
+# peering (layer 3)
 #----------------------------
 
 resource "azurerm_express_route_circuit_peering" "this" {
@@ -104,7 +105,15 @@ resource "azurerm_express_route_circuit_peering" "this" {
   }
   depends_on = [
     azurerm_express_route_circuit_authorization.this,
-    megaport_azure_connection.primary,
+    time_sleep.vxc_peering_wait,
+  ]
+}
+
+resource "time_sleep" "peering_connection_wait" {
+  create_duration  = "30s"
+  destroy_duration = "60s"
+  depends_on = [
+    azurerm_express_route_circuit_peering.this
   ]
 }
 
@@ -124,7 +133,8 @@ resource "azurerm_virtual_network_gateway_connection" "this" {
   express_route_circuit_id   = azurerm_express_route_circuit.this[local.vnet_connections[count.index].name].id
   depends_on = [
     azurerm_express_route_circuit_authorization.this,
-    megaport_azure_connection.primary,
+    megaport_azure_connection.this,
+    time_sleep.peering_connection_wait,
   ]
 }
 
@@ -137,7 +147,7 @@ data "azurerm_express_route_circuit_peering" "private" {
   peering_type               = local.vwan_connections[count.index].peering_type
   depends_on = [
     azurerm_express_route_circuit_authorization.this,
-    megaport_azure_connection.primary,
+    megaport_azure_connection.this,
   ]
 }
 
@@ -146,5 +156,9 @@ resource "azurerm_express_route_connection" "this" {
   name                             = local.vwan_connections[count.index].name
   express_route_gateway_id         = local.vwan_connections[count.index].express_route_gateway_id
   express_route_circuit_peering_id = data.azurerm_express_route_circuit_peering.private[local.vwan_connections[count.index].name].id
+  depends_on = [
+    azurerm_express_route_circuit_peering.this,
+    azurerm_express_route_circuit_authorization.this,
+    megaport_azure_connection.this,
+  ]
 }
-

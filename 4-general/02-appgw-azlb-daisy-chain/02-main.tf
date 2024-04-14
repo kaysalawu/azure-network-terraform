@@ -274,7 +274,7 @@ locals {
 module "web_http_backend_init" {
   source = "../../modules/cloud-config-gen"
   packages = [
-    "docker.io", "docker-compose",
+    "docker.io", "docker-compose", #npm,
     "tcpdump", "dnsutils", "net-tools", "nmap", "apache2-utils",
   ]
   files = local.vm_startup_fastapi_init

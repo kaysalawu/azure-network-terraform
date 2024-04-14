@@ -76,7 +76,8 @@ resource "azurerm_network_interface" "this" {
     content {
       name                          = "${each.value.name}-ipv6"
       subnet_id                     = each.value.subnet_id
-      private_ip_address_allocation = "Dynamic"
+      private_ip_address_allocation = try(each.value.private_ipv6_address, null) != null ? "Static" : "Dynamic"
+      private_ip_address            = each.value.private_ipv6_address
       private_ip_address_version    = "IPv6"
       public_ip_address_id = (
         try(each.value.create_public_ip, false) ? azurerm_public_ip.this_ipv6[each.key].id :
@@ -144,13 +145,13 @@ resource "azurerm_linux_virtual_machine" "this" {
   }
   disable_password_authentication = false
 
-  dynamic "identity" {
-    for_each = length(var.user_assigned_ids) > 0 ? [1] : []
-    content {
-      type         = "UserAssigned"
-      identity_ids = var.user_assigned_ids
-    }
-  }
+  # dynamic "identity" {
+  #   for_each = length(var.user_assigned_ids) > 0 ? [1] : []
+  #   content {
+  #     type         = "UserAssigned"
+  #     identity_ids = var.user_assigned_ids
+  #   }
+  # }
 
   dynamic "identity" {
     for_each = length(var.user_assigned_ids) == 0 ? [1] : []

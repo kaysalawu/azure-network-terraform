@@ -59,6 +59,7 @@ variable "interfaces" {
     name                   = string
     subnet_id              = string
     private_ip_address     = optional(string, null)
+    private_ipv6_address   = optional(string, null)
     create_public_ip       = optional(bool, false)
     public_ip_address_id   = optional(string, null)
     public_ipv6_address_id = optional(string, null)

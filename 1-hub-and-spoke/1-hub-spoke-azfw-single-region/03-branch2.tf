@@ -94,9 +94,10 @@ module "branch2_dns" {
   enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
-      name               = "${local.branch2_prefix}dns-main"
-      subnet_id          = module.branch2.subnets["MainSubnet"].id
-      private_ip_address = local.branch2_dns_addr
+      name                 = "${local.branch2_prefix}dns-main"
+      subnet_id            = module.branch2.subnets["MainSubnet"].id
+      private_ip_address   = local.branch2_dns_addr
+      private_ipv6_address = local.branch2_dns_addr_v6
     },
   ]
   depends_on = [
@@ -130,9 +131,10 @@ module "branch2_vm" {
   enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
-      name               = "${local.branch2_prefix}vm-main-nic"
-      subnet_id          = module.branch2.subnets["MainSubnet"].id
-      private_ip_address = local.branch2_vm_addr
+      name                 = "${local.branch2_prefix}vm-main-nic"
+      subnet_id            = module.branch2.subnets["MainSubnet"].id
+      private_ip_address   = local.branch2_vm_addr
+      private_ipv6_address = local.branch2_vm_addr_v6
     },
   ]
   depends_on = [

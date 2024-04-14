@@ -18,19 +18,22 @@ cat <<EOF > /etc/unbound/unbound.conf
 server:
         port: 53
         do-ip4: yes
+        do-ip6: yes
         do-udp: yes
         do-tcp: yes
 
         interface: 0.0.0.0
+        interface: ::0
 
         access-control: 0.0.0.0 deny
+        access-control: ::0 deny
         %{~ for prefix in ACCESS_CONTROL_PREFIXES ~}
         access-control: ${prefix} allow
         %{~ endfor ~}
 
         # local data records
         %{~ for tuple in ONPREM_LOCAL_RECORDS ~}
-        local-data: "${tuple.name} 300 IN A ${tuple.record}"
+        local-data: "${tuple.name} ${tuple.ttl} IN ${tuple.type} ${tuple.rdata}"
         %{~ endfor ~}
 
         # hosts redirected to PrivateLink

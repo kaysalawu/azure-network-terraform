@@ -124,6 +124,7 @@ variable "lb_rules" {
     probe_name                     = string
     idle_timeout_in_minutes        = optional(number, 30)
     load_distribution              = optional(string, "Default") # Default, SourceIP, SourceIPProtocol
+    disable_outbound_snat          = optional(bool, true)
 
   }))
   default = []

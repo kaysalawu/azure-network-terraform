@@ -45,21 +45,6 @@ resource "azurerm_public_ip" "this" {
   }
 }
 
-# resource "azurerm_public_ip" "this_ipv6" {
-#   count               = var.type == "public" ? length(local.frontend_ip_configuration_ipv6) : 0
-#   resource_group_name = var.resource_group_name
-#   name                = "${local.prefix}${local.frontend_ip_configuration_ipv6[count.index].name}-pip6"
-#   location            = var.location
-#   allocation_method   = var.allocation_method
-#   sku                 = var.pip_sku
-#   zones               = local.frontend_ip_configuration_ipv6[count.index].zones
-#   ip_version          = "IPv6"
-#   tags                = var.tags
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
-
 ####################################################
 # load balancer
 ####################################################
@@ -83,19 +68,6 @@ resource "azurerm_lb" "this" {
       private_ip_address_version    = var.type == "private" ? lookup(frontend_ip_configuration.value, "private_ip_address_version", null) : null
     }
   }
-
-  # dynamic "frontend_ip_configuration" {
-  #   for_each = local.frontend_ip_configuration_ipv6
-  #   content {
-  #     name                          = frontend_ip_configuration.value.name
-  #     public_ip_address_id          = var.type == "public" ? azurerm_public_ip.this_ipv6[frontend_ip_configuration.key].id : null
-  #     subnet_id                     = var.type == "private" ? lookup(frontend_ip_configuration.value, "subnet_id", null) : null
-  #     zones                         = var.type == "private" ? lookup(frontend_ip_configuration.value, "zones", null) : null
-  #     private_ip_address            = var.type == "private" ? lookup(frontend_ip_configuration.value, "private_ip_address", null) : null
-  #     private_ip_address_allocation = var.type == "private" ? lookup(frontend_ip_configuration.value, "private_ip_address_allocation", null) : null
-  #     private_ip_address_version    = var.type == "private" ? lookup(frontend_ip_configuration.value, "private_ip_address_version", null) : null
-  #   }
-  # }
 
   depends_on = [
     azurerm_public_ip.this,
@@ -144,6 +116,7 @@ resource "azurerm_lb_rule" "this" {
   enable_floating_ip             = each.value.enable_floating_ip
   idle_timeout_in_minutes        = each.value.idle_timeout_in_minutes
   load_distribution              = each.value.load_distribution
+  disable_outbound_snat          = each.value.disable_outbound_snat
   backend_address_pool_ids       = [for pool in each.value.backend_address_pool_name : azurerm_lb_backend_address_pool.this[pool].id]
 }
 

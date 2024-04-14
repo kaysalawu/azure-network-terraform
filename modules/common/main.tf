@@ -93,6 +93,22 @@ resource "azurerm_network_security_rule" "nsg_main_private_inbound" {
   description                 = "Allow all private prefixes"
 }
 
+resource "azurerm_network_security_rule" "nsg_main_private_inbound_v6" {
+  for_each                    = var.regions
+  resource_group_name         = var.resource_group
+  network_security_group_name = azurerm_network_security_group.nsg_main[each.key].name
+  name                        = "private-inbound-v6"
+  direction                   = "Inbound"
+  access                      = "Allow"
+  priority                    = 105
+  source_address_prefixes     = var.private_prefixes_v6
+  source_port_range           = "*"
+  destination_address_prefix  = "*"
+  destination_port_range      = "*"
+  protocol                    = "*"
+  description                 = "Allow all private prefixes"
+}
+
 resource "azurerm_network_security_rule" "nsg_main_private_outbound" {
   for_each                    = var.regions
   resource_group_name         = var.resource_group
@@ -161,6 +177,22 @@ resource "azurerm_network_security_rule" "nsg_nva_private_inbound" {
   access                      = "Allow"
   priority                    = 100
   source_address_prefixes     = var.private_prefixes
+  source_port_range           = "*"
+  destination_address_prefix  = "*"
+  destination_port_range      = "*"
+  protocol                    = "*"
+  description                 = "Allow all private prefixes"
+}
+
+resource "azurerm_network_security_rule" "nsg_nva_private_inbound_v6" {
+  for_each                    = var.regions
+  resource_group_name         = var.resource_group
+  network_security_group_name = azurerm_network_security_group.nsg_nva[each.key].name
+  name                        = "private-inbound-v6"
+  direction                   = "Inbound"
+  access                      = "Allow"
+  priority                    = 105
+  source_address_prefixes     = var.private_prefixes_v6
   source_port_range           = "*"
   destination_address_prefix  = "*"
   destination_port_range      = "*"

@@ -442,7 +442,7 @@ module "vm_cloud_init" {
   source = "../../modules/cloud-config-gen"
   files  = local.vm_init_files
   packages = [
-    "docker.io", "docker-compose", "npm",
+    "docker.io", "docker-compose", #npm,
   ]
   run_commands = [
     "systemctl enable docker",

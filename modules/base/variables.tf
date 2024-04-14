@@ -239,14 +239,16 @@ variable "config_firewall" {
 
 variable "config_nva" {
   type = object({
-    enable          = optional(bool, false)
-    type            = optional(string, "cisco")
-    ilb_untrust_ip  = optional(string)
-    ilb_trust_ip    = optional(string)
-    custom_data     = optional(string)
-    scenario_option = optional(string, "TwoNics") # Active-Active, TwoNics
-    opn_type        = optional(string, "TwoNics") # Primary, Secondary, TwoNics
-    enable_ipv6     = optional(bool, false)
+    enable           = optional(bool, false)
+    type             = optional(string, "cisco")
+    ilb_untrust_ip   = optional(string)
+    ilb_trust_ip     = optional(string)
+    ilb_untrust_ipv6 = optional(string)
+    ilb_trust_ipv6   = optional(string)
+    custom_data      = optional(string)
+    scenario_option  = optional(string, "TwoNics") # Active-Active, TwoNics
+    opn_type         = optional(string, "TwoNics") # Primary, Secondary, TwoNics
+    enable_ipv6      = optional(bool, false)
   })
   default = {
     enable           = false

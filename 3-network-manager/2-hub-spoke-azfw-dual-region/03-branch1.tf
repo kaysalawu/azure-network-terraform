@@ -66,7 +66,7 @@ locals {
     TARGETS              = local.vm_script_targets
     ACCESS_CONTROL_PREFIXES = concat(
       local.private_prefixes,
-      ["127.0.0.0/8", "35.199.192.0/19", ]
+      ["127.0.0.0/8", "35.199.192.0/19", "fd00::/8", ]
     )
   }
   branch1_forward_zones = [
@@ -95,9 +95,10 @@ module "branch1_dns" {
   enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
-      name               = "${local.branch1_prefix}dns-main"
-      subnet_id          = module.branch1.subnets["MainSubnet"].id
-      private_ip_address = local.branch1_dns_addr
+      name                 = "${local.branch1_prefix}dns-main"
+      subnet_id            = module.branch1.subnets["MainSubnet"].id
+      private_ip_address   = local.branch1_dns_addr
+      private_ipv6_address = local.branch1_dns_addr_v6
     },
   ]
   depends_on = [
@@ -245,12 +246,14 @@ module "branch1_nva" {
       name                 = "${local.branch1_prefix}nva-untrust-nic"
       subnet_id            = module.branch1.subnets["UntrustSubnet"].id
       private_ip_address   = local.branch1_nva_untrust_addr
+      private_ipv6_address = local.branch1_nva_untrust_addr_v6
       public_ip_address_id = azurerm_public_ip.branch1_nva_pip.id
     },
     {
-      name               = "${local.branch1_prefix}nva-trust-nic"
-      subnet_id          = module.branch1.subnets["TrustSubnet"].id
-      private_ip_address = local.branch1_nva_trust_addr
+      name                 = "${local.branch1_prefix}nva-trust-nic"
+      subnet_id            = module.branch1.subnets["TrustSubnet"].id
+      private_ip_address   = local.branch1_nva_trust_addr
+      private_ipv6_address = local.branch1_nva_trust_addr_v6
     },
   ]
 }
@@ -258,14 +261,6 @@ module "branch1_nva" {
 ####################################################
 # workload
 ####################################################
-
-locals {
-  branch1_vm_init = templatefile("../../scripts/server.sh", {
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
-    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
-  })
-}
 
 module "branch1_vm" {
   source          = "../../modules/virtual-machine-linux"
@@ -275,15 +270,16 @@ module "branch1_vm" {
   location        = local.branch1_location
   storage_account = module.common.storage_accounts["region1"]
   dns_servers     = [local.branch1_dns_addr, ]
-  custom_data     = base64encode(module.vm_cloud_init.cloud_config)
+  custom_data     = base64encode(module.probe_vm_cloud_init.cloud_config)
   tags            = local.branch1_tags
 
   enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
-      name               = "${local.branch1_prefix}vm-main-nic"
-      subnet_id          = module.branch1.subnets["MainSubnet"].id
-      private_ip_address = local.branch1_vm_addr
+      name                 = "${local.branch1_prefix}vm-main-nic"
+      subnet_id            = module.branch1.subnets["MainSubnet"].id
+      private_ip_address   = local.branch1_vm_addr
+      private_ipv6_address = local.branch1_vm_addr_v6
     },
   ]
   depends_on = [
@@ -334,7 +330,6 @@ locals {
   branch1_files = {
     "output/branch1Dns.sh" = local.branch1_unbound_startup
     "output/branch1Nva.sh" = local.branch1_nva_init
-    "output/branch1Vm.sh"  = local.branch1_vm_init
   }
 }
 

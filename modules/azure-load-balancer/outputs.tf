@@ -26,12 +26,12 @@ output "nat_rule_ids" {
 
 output "public_ip_address_ids" {
   description = "the id for the azurerm_lb_public_ip resource"
-  value       = try({ for pip in azurerm_public_ip.this : pip.name => pip.id }, {})
+  value       = try({ for x in var.frontend_ip_configuration : x.name => azurerm_public_ip.this[x.name].id }, {})
 }
 
 output "public_ip_addresses" {
   description = "the ip address for the azurerm_lb_public_ip resource"
-  value       = try({ for pip in azurerm_public_ip.this : pip.name => pip.ip_address }, {})
+  value       = try({ for x in var.frontend_ip_configuration : x.name => azurerm_public_ip.this[x.name].ip_address }, {})
 }
 
 output "backend_address_pool_ids" {

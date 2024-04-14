@@ -78,6 +78,18 @@ variable "ilb_trust_ip" {
   default     = null
 }
 
+variable "ilb_untrust_ipv6" {
+  description = "internal ipv6 load balancer untrust address"
+  type        = string
+  default     = null
+}
+
+variable "ilb_trust_ipv6" {
+  description = "internal ipv6 load balancer trust address"
+  type        = string
+  default     = null
+}
+
 variable "use_vm_extension" {
   description = "use virtual machine extension"
   type        = bool
@@ -180,10 +192,11 @@ variable "enable_ipv6" {
   default     = false
 }
 
-# variable "virtual_network_id" {
-#   description = "virtual network id"
-#   type        = string
-# }
+variable "virtual_network_id" {
+  description = "virtual network id"
+  type        = string
+  default     = null
+}
 
 # variable "private_ip_untrust" {
 #   description = "optional static private untrust ip of vm"

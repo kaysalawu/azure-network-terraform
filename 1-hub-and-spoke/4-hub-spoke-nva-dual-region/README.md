@@ -251,7 +251,7 @@ azureuser@spoke1Vm:~$ curl spoke3pls.eu.az.corp
     "User-Agent": "curl/7.68.0"
   },
   "Hostname": "spoke3Vm",
-  "Local-IP": "10.3.0.5",
+  "server-ipv4": "10.3.0.5",
   "Remote-IP": "10.3.6.4"
 }
 ```
@@ -278,7 +278,7 @@ azureuser@spoke1Vm:~$ curl spoke6pls.us.az.corp
     "User-Agent": "curl/7.68.0"
   },
   "Hostname": "spoke6Vm",
-  "Local-IP": "10.6.0.5",
+  "server-ipv4": "10.6.0.5",
   "Remote-IP": "10.6.6.4"
 }
 ```
@@ -286,7 +286,7 @@ azureuser@spoke1Vm:~$ curl spoke6pls.us.az.corp
 </details>
 <p>
 
-The `Hostname` and `Local-IP` fields identifies the actual web servers - in this case ***spoke3*** and ***spoke6*** virtual machines. The `Remote-IP` fields (as seen by the web servers) are IP addresses in the Private Link Service NAT subnets in ***spoke3*** and ***spoke6*** respectively.
+The `Hostname` and `server-ipv4` fields identifies the actual web servers - in this case ***spoke3*** and ***spoke6*** virtual machines. The `remote-addr` fields (as seen by the web servers) are IP addresses in the Private Link Service NAT subnets in ***spoke3*** and ***spoke6*** respectively.
 
 ### 5. Private Link Access to Storage Account
 
@@ -596,8 +596,8 @@ internet
 </details>
 <p>
 
-We can observe that traffic to ***spoke1***, ***spoke2*** and ***hub1*** flow symmetrically via the NVA in ***hub1*** (10.11.2.4).
-Similarly, traffic to ***spoke4***, ***spoke5*** and ***hub2*** flow symmetrically via the NVA in ***hub2*** (10.22.2.4).
+We can observe that traffic to ***spoke1***, ***spoke2*** and ***hub1*** flow symmetrically via the NVA in ***hub1*** (10.11.1.4).
+Similarly, traffic to ***spoke4***, ***spoke5*** and ***hub2*** flow symmetrically via the NVA in ***hub2*** (10.22.1.4).
 
 ### 8. On-premises Routes
 

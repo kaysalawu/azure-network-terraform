@@ -15,7 +15,6 @@ module "branch2" {
   tags            = local.branch2_tags
 
   enable_diagnostics = local.enable_diagnostics
-  enable_ipv6        = local.enable_ipv6
 
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region1"].id
@@ -95,9 +94,10 @@ module "branch2_dns" {
   enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
-      name               = "${local.branch2_prefix}dns-main"
-      subnet_id          = module.branch2.subnets["MainSubnet"].id
-      private_ip_address = local.branch2_dns_addr
+      name                 = "${local.branch2_prefix}dns-main"
+      subnet_id            = module.branch2.subnets["MainSubnet"].id
+      private_ip_address   = local.branch2_dns_addr
+      private_ipv6_address = local.branch2_dns_addr_v6
     },
   ]
   depends_on = [
@@ -109,14 +109,6 @@ module "branch2_dns" {
 # workload
 ####################################################
 
-locals {
-  branch2_vm_init = templatefile("../../scripts/server.sh", {
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
-    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
-  })
-}
-
 module "branch2_vm" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
@@ -125,15 +117,16 @@ module "branch2_vm" {
   location        = local.branch2_location
   storage_account = module.common.storage_accounts["region1"]
   dns_servers     = [local.branch2_dns_addr, ]
-  custom_data     = base64encode(local.branch2_vm_init)
+  custom_data     = base64encode(module.probe_vm_cloud_init.cloud_config)
   tags            = local.branch2_tags
 
   enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
-      name               = "${local.branch2_prefix}vm-main-nic"
-      subnet_id          = module.branch2.subnets["MainSubnet"].id
-      private_ip_address = local.branch2_vm_addr
+      name                 = "${local.branch2_prefix}vm-main-nic"
+      subnet_id            = module.branch2.subnets["MainSubnet"].id
+      private_ip_address   = local.branch2_vm_addr
+      private_ipv6_address = local.branch2_vm_addr_v6
     },
   ]
   depends_on = [
@@ -175,7 +168,6 @@ module "branch2_udr_main" {
 locals {
   branch2_files = {
     "output/branch2Dns.sh" = local.branch2_unbound_startup
-    "output/branch2Vm.sh"  = local.branch2_vm_init
   }
 }
 

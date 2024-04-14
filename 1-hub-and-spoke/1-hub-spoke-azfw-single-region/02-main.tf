@@ -153,7 +153,7 @@ locals {
     }
 
     config_ergw = {
-      enable = true
+      enable = false
       sku    = "ErGw1AZ"
     }
 
@@ -192,14 +192,15 @@ resource "azurerm_resource_group" "rg" {
 }
 
 module "common" {
-  source           = "../../modules/common"
-  resource_group   = azurerm_resource_group.rg.name
-  env              = "common"
-  prefix           = local.prefix
-  firewall_sku     = local.firewall_sku
-  regions          = local.regions
-  private_prefixes = local.private_prefixes
-  tags             = {}
+  source              = "../../modules/common"
+  resource_group      = azurerm_resource_group.rg.name
+  env                 = "common"
+  prefix              = local.prefix
+  firewall_sku        = local.firewall_sku
+  regions             = local.regions
+  private_prefixes    = local.private_prefixes
+  private_prefixes_v6 = local.private_prefixes_v6
+  tags                = {}
 }
 
 # private dns zones
@@ -239,11 +240,11 @@ locals {
 
   init_dir = "/var/lib/azure"
   vm_script_targets_region1 = [
-    { name = "branch1", dns = lower(local.branch1_vm_fqdn), ip = local.branch1_vm_addr, probe = true },
-    { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ip = local.hub1_vm_addr, probe = false },
+    { name = "branch1", dns = lower(local.branch1_vm_fqdn), ipv4 = local.branch1_vm_addr, ipv6 = local.branch1_vm_addr_v6, probe = true },
+    { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ipv4 = local.hub1_vm_addr, ipv6 = local.hub1_vm_addr_v6, probe = false },
     { name = "hub1-spoke3-pep", dns = lower(local.hub1_spoke3_pep_fqdn), ping = false, probe = true },
-    { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ip = local.spoke1_vm_addr, probe = true },
-    { name = "spoke2 ", dns = lower(local.spoke2_vm_fqdn), ip = local.spoke2_vm_addr, probe = true },
+    { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ipv4 = local.spoke1_vm_addr, ipv6 = local.spoke1_vm_addr_v6, probe = true },
+    { name = "spoke2 ", dns = lower(local.spoke2_vm_fqdn), ipv4 = local.spoke2_vm_addr, ipv6 = local.spoke2_vm_addr_v6, probe = true },
   ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ip = "icanhazip.com" },
@@ -285,7 +286,7 @@ module "vm_cloud_init" {
   source = "../../modules/cloud-config-gen"
   files  = local.vm_init_files
   packages = [
-    "docker.io", "docker-compose", "npm",
+    "docker.io", "docker-compose", #npm,
   ]
   run_commands = [
     "systemctl enable docker",
@@ -421,7 +422,8 @@ module "fw_policy_rule_collection_group" {
 
 locals {
   main_files = {
-    "output/server.sh" = local.vm_startup
+    "output/server.sh"  = local.vm_startup
+    "output/startup.sh" = templatefile("../../scripts/startup.sh", local.vm_init_vars)
   }
 }
 

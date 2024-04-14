@@ -41,3 +41,9 @@ variable "private_prefixes" {
   type        = list(string)
   default     = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "100.64.0.0/10"]
 }
+
+variable "private_prefixes_v6" {
+  description = "A list of private prefixes to allow access to"
+  type        = list(string)
+  default     = ["fd00::/8"]
+}

@@ -31,7 +31,7 @@ def default():
     address = socket.gethostbyname(hostname)
     data_dict = {}
     data_dict['Hostname'] = hostname
-    data_dict['Local-IP'] = address
+    data_dict['server-ipv4'] = address
     data_dict['Remote-IP'] = request.remote_addr
     data_dict['Headers'] = dict(request.headers)
     return data_dict
@@ -43,7 +43,7 @@ def path1():
     data_dict = {}
     data_dict['app'] = 'PATH1-APP'
     data_dict['Hostname'] = hostname
-    data_dict['Local-IP'] = address
+    data_dict['server-ipv4'] = address
     data_dict['Remote-IP'] = request.remote_addr
     data_dict['Headers'] = dict(request.headers)
     return data_dict
@@ -55,7 +55,7 @@ def path2():
     data_dict = {}
     data_dict['app'] = 'PATH2-APP'
     data_dict['Hostname'] = hostname
-    data_dict['Local-IP'] = address
+    data_dict['server-ipv4'] = address
     data_dict['Remote-IP'] = request.remote_addr
     data_dict['Headers'] = dict(request.headers)
     return data_dict
@@ -89,10 +89,6 @@ systemctl restart flaskapp.service
 
 cat <<EOF > /usr/local/bin/ping-ip
 echo -e "\n ping ip ...\n"
-echo "branch1 - 10.10.0.5 -\$(timeout 3 ping -qc2 -W1 10.10.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "hub1    - 10.11.0.5 -\$(timeout 3 ping -qc2 -W1 10.11.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke1  - 10.1.0.5 -\$(timeout 3 ping -qc2 -W1 10.1.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke2  - 10.2.0.5 -\$(timeout 3 ping -qc2 -W1 10.2.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "internet - icanhazip.com -\$(timeout 3 ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 EOF
 chmod a+x /usr/local/bin/ping-ip
@@ -101,10 +97,6 @@ chmod a+x /usr/local/bin/ping-ip
 
 cat <<EOF > /usr/local/bin/ping-dns
 echo -e "\n ping dns ...\n"
-echo "branch1vm.corp - \$(timeout 3 dig +short branch1vm.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 branch1vm.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "hub1vm.eu.az.corp - \$(timeout 3 dig +short hub1vm.eu.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 hub1vm.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke1vm.eu.az.corp - \$(timeout 3 dig +short spoke1vm.eu.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 spoke1vm.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
-echo "spoke2vm.eu.az.corp - \$(timeout 3 dig +short spoke2vm.eu.az.corp | tail -n1) -\$(timeout 3 ping -qc2 -W1 spoke2vm.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 echo "icanhazip.com - \$(timeout 3 dig +short icanhazip.com | tail -n1) -\$(timeout 3 ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 EOF
 chmod a+x /usr/local/bin/ping-dns
@@ -113,10 +105,6 @@ chmod a+x /usr/local/bin/ping-dns
 
 cat <<EOF > /usr/local/bin/curl-ip
 echo -e "\n curl ip ...\n"
-echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.10.0.5) - branch1 (10.10.0.5)"
-echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.11.0.5) - hub1    (10.11.0.5)"
-echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.1.0.5) - spoke1  (10.1.0.5)"
-echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.2.0.5) - spoke2  (10.2.0.5)"
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - internet (icanhazip.com)"
 EOF
 chmod a+x /usr/local/bin/curl-ip
@@ -139,18 +127,6 @@ chmod a+x /usr/local/bin/curl-dns
 
 cat <<EOF > /usr/local/bin/trace-ip
 echo -e "\n trace ip ...\n"
-echo -e "\nbranch1"
-echo -e "-------------------------------------"
-timeout 9 tracepath 10.10.0.5
-echo -e "\nhub1   "
-echo -e "-------------------------------------"
-timeout 9 tracepath 10.11.0.5
-echo -e "\nspoke1 "
-echo -e "-------------------------------------"
-timeout 9 tracepath 10.1.0.5
-echo -e "\nspoke2 "
-echo -e "-------------------------------------"
-timeout 9 tracepath 10.2.0.5
 echo -e "\ninternet"
 echo -e "-------------------------------------"
 timeout 9 tracepath icanhazip.com

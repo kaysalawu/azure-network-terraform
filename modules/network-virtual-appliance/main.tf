@@ -122,6 +122,7 @@ module "ilb_trust" {
   name                = "trust"
   type                = "private"
   lb_sku              = "Standard"
+  enable_dual_stack   = var.enable_ipv6
 
   log_analytics_workspace_name = var.log_analytics_workspace_name
 
@@ -132,7 +133,15 @@ module "ilb_trust" {
       subnet_id                     = var.subnet_id_trust
       private_ip_address            = var.ilb_trust_ip
       private_ip_address_allocation = "Static"
-    }
+    },
+    {
+      name                          = "nva-ipv6"
+      zones                         = ["1", "2", "3"]
+      subnet_id                     = var.subnet_id_trust
+      private_ip_address_version    = "IPv6"
+      private_ip_address            = var.ilb_trust_ipv6
+      private_ip_address_allocation = "Static"
+    },
   ]
 
   probes = var.health_probes
@@ -144,7 +153,17 @@ module "ilb_trust" {
         ip_configuration_name = nva.interfaces["${local.prefix}-trust-nic"].ip_configuration[0].name
         network_interface_id  = nva.interfaces["${local.prefix}-trust-nic"].id
       }]
-    }
+    },
+    {
+      name = "nva-ipv6"
+      addresses = [
+        {
+          name               = "nva-ipv6"
+          virtual_network_id = var.virtual_network_id
+          ip_address         = module.nva[0].private_ipv6_address
+        },
+      ]
+    },
   ]
 
   lb_rules = [
@@ -155,6 +174,15 @@ module "ilb_trust" {
       backend_port                   = "0"
       frontend_ip_configuration_name = "nva"
       backend_address_pool_name      = ["nva", ]
+      probe_name                     = var.health_probes[0].name
+    },
+    {
+      name                           = "nva-ha-ipv6"
+      protocol                       = "All"
+      frontend_port                  = "0"
+      backend_port                   = "0"
+      frontend_ip_configuration_name = "nva-ipv6"
+      backend_address_pool_name      = ["nva-ipv6", ]
       probe_name                     = var.health_probes[0].name
     },
   ]

@@ -5,7 +5,7 @@
 
 module "vm_websocket_client_init" {
   source   = "../../modules/cloud-config-gen"
-  packages = ["docker.io", "docker-compose", "npm", ]
+  packages = ["docker.io", "docker-compose", #npm, ]
   run_commands = [
     "systemctl enable docker",
     "systemctl start docker",
@@ -51,7 +51,7 @@ locals {
 module "vm_websocket_server_init" {
   source   = "../../modules/cloud-config-gen"
   files    = local.vm_websocket_server_init
-  packages = ["docker.io", "docker-compose", "npm", ]
+  packages = ["docker.io", "docker-compose", #npm, ]
   run_commands = [
     "systemctl enable docker",
     "systemctl start docker",

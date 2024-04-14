@@ -36,48 +36,47 @@ module "megaport" {
   megaport_location = local.megaport_location
 
   mcr = [
-    {
-      name          = "mcr1"
-      port_speed    = 1000
-      requested_asn = local.megaport_asn
-    },
+    # {
+    #   name          = "mcr1"
+    #   port_speed    = 1000
+    #   requested_asn = local.megaport_asn
+    # },
   ]
 
   circuits = [
-    {
-      name                               = "${local.prefix}-ipv6"
-      connection_target                  = "vnet"
-      location                           = local.region1
-      peering_location                   = local.express_route_location
-      bandwidth_in_mbps                  = local.bandwidth_in_mbps
-      requested_vlan                     = local.megaport_vlan1
-      mcr_name                           = "mcr1"
-      primary_peer_address_prefix        = local.csp_range1
-      secondary_peer_address_prefix      = local.csp_range2
-      primary_peer_address_prefix_ipv6   = "2002:db01::/126"
-      secondary_peer_address_prefix_ipv6 = "2003:db01::/126"
-      virtual_network_gateway_id         = module.hub1.ergw.id
-      peering_type                       = "AzurePrivatePeering"
-    },
+    # {
+    #   name                               = "${local.prefix}-ipv6"
+    #   connection_target                  = "vnet"
+    #   location                           = local.region1
+    #   peering_location                   = local.express_route_location
+    #   bandwidth_in_mbps                  = local.bandwidth_in_mbps
+    #   requested_vlan                     = local.megaport_vlan1
+    #   mcr_name                           = "mcr1"
+    #   primary_peer_address_prefix        = local.csp_range1
+    #   secondary_peer_address_prefix      = local.csp_range2
+    #   primary_peer_address_prefix_ipv6   = local.csp_range1_v6
+    #   secondary_peer_address_prefix_ipv6 = local.csp_range2_v6
+    #   virtual_network_gateway_id         = module.hub1.ergw.id
+    #   peering_type                       = "AzurePrivatePeering"
+    # },
   ]
 }
 
-resource "azurerm_express_route_circuit_authorization" "branch2" {
-  resource_group_name        = azurerm_resource_group.rg.name
-  name                       = "${local.prefix}-ipv6-branch2"
-  express_route_circuit_name = "${local.prefix}-ipv6"
-}
+# resource "azurerm_express_route_circuit_authorization" "branch2" {
+#   resource_group_name        = azurerm_resource_group.rg.name
+#   name                       = "${local.prefix}-ipv6-branch2"
+#   express_route_circuit_name = "${local.prefix}-ipv6"
+# }
 
-resource "azurerm_virtual_network_gateway_connection" "this" {
-  resource_group_name        = azurerm_resource_group.rg.name
-  name                       = "${local.prefix}-ipv6-branch2"
-  location                   = local.region1
-  type                       = "ExpressRoute"
-  virtual_network_gateway_id = module.branch2.ergw.id
-  authorization_key          = azurerm_express_route_circuit_authorization.branch2.authorization_key
-  express_route_circuit_id   = module.megaport.expressroute_circuits["${local.prefix}-ipv6"].id
-}
-
+# resource "azurerm_virtual_network_gateway_connection" "this" {
+#   resource_group_name        = azurerm_resource_group.rg.name
+#   name                       = "${local.prefix}-ipv6-branch2"
+#   location                   = local.region1
+#   type                       = "ExpressRoute"
+#   virtual_network_gateway_id = module.branch2.ergw.id
+#   authorization_key          = azurerm_express_route_circuit_authorization.branch2.authorization_key
+#   express_route_circuit_id   = module.megaport.expressroute_circuits["${local.prefix}-ipv6"].id
+# }
 
 ####################################################
 # dashboard
