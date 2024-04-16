@@ -215,9 +215,9 @@ module "spoke6" {
     address_space = local.spoke6_address_space
     subnets       = local.spoke6_subnets
     nat_gateway_subnet_names = [
-      "MainSubnet",
-      "TrustSubnet",
-      "TestSubnet",
+      # "MainSubnet",
+      # "TrustSubnet",
+      # "TestSubnet",
     ]
   }
   depends_on = [
@@ -251,6 +251,7 @@ module "spoke6_vm" {
       subnet_id            = module.spoke6.subnets["MainSubnet"].id
       private_ip_address   = local.spoke6_vm_addr
       private_ipv6_address = local.spoke6_vm_addr_v6
+      create_public_ip     = true
     },
   ]
   depends_on = [

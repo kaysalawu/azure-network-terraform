@@ -20,9 +20,6 @@ locals {
       for interface in interface_list : merge(interface, { "pool_name" = pool_name })
     ]
   ])
-
-  # frontend_ip_configuration_ipv4 = [for ip in var.frontend_ip_configuration : ip if ip.public_ip_address_version == "IPv4" && ip.private_ip_address_version == "IPv4"]
-  # frontend_ip_configuration_ipv6 = [for ip in var.frontend_ip_configuration : ip if ip.public_ip_address_version == "IPv6" && ip.private_ip_address_version == "IPv6"]
 }
 
 ####################################################
@@ -122,7 +119,7 @@ resource "azurerm_lb_rule" "this" {
 
 resource "azurerm_lb_outbound_rule" "this" {
   for_each                 = local.outbound_rules
-  name                     = each.value.name
+  name                     = "${each.key}-snat-rule"
   loadbalancer_id          = azurerm_lb.this.id
   protocol                 = each.value.protocol
   enable_tcp_reset         = each.value.enable_tcp_reset

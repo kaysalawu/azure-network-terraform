@@ -33,6 +33,7 @@ module "branch2" {
       "DnsServerSubnet",
       "TestSubnet",
     ]
+    enable_ars = true
   }
 
   config_ergw = {

@@ -1,21 +1,22 @@
 
 Contents
 - [Branch2 Tests](#branch2-tests)
-  - [Access to Azure over ExpressRoute](#access-to-azure-over-expressroute)
-  - [1. Ping IP](#1-ping-ip)
-  - [2. Ping DNS](#2-ping-dns)
-  - [3. Curl DNS](#3-curl-dns)
-  - [4. Private Link Service](#4-private-link-service)
-  - [5. Private Link Access to Storage Account](#5-private-link-access-to-storage-account)
-  - [6. Private Link Access to Storage Account from On-premises](#6-private-link-access-to-storage-account-from-on-premises)
-  - [7. Effective Routes](#7-effective-routes)
+- [Access to Azure over ExpressRoute](#access-to-azure-over-expressroute)
+- [1. Ping IP](#1-ping-ip)
+- [2. Ping DNS](#2-ping-dns)
+- [3. Curl DNS](#3-curl-dns)
+- [4. Private Link Service](#4-private-link-service)
+- [5. Private Link Access to Storage Account](#5-private-link-access-to-storage-account)
+- [6. Private Link Access to Storage Account from On-premises](#6-private-link-access-to-storage-account-from-on-premises)
+- [7. Effective Routes](#7-effective-routes)
+  - [8.](#8)
 
 
 ## Branch2 Tests
 
 The following tests are performed on Branch2 to verify reachability over ExpressRoute to Azure resources.
 
-### Access to Azure over ExpressRoute
+## Access to Azure over ExpressRoute
 
 Login to on-premises virtual machine `Hs13-branch2Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
   - username = ***azureuser***
@@ -23,7 +24,7 @@ Login to on-premises virtual machine `Hs13-branch2Vm` via the [serial console](h
 
 Run the following tests from inside the serial console session.
 
-### 1. Ping IP
+## 1. Ping IP
 
 This script pings the IP addresses of some test virtual machines and reports reachability and round trip time.
 
@@ -67,7 +68,7 @@ internet - icanhazip.com -OK 1.745 ms
 </details>
 <p>
 
-### 2. Ping DNS
+## 2. Ping DNS
 
 This script pings the DNS name of some test virtual machines and reports reachability and round trip time. This tests hybrid DNS resolution between on-premises and Azure.
 
@@ -111,7 +112,7 @@ icanhazip.com - 2606:4700::6810:b9f1 -OK 2.052 ms
 </details>
 <p>
 
-### 3. Curl DNS
+## 3. Curl DNS
 
 This script uses curl to check reachability of web server (python Flask) on the test virtual machines. It reports HTTP response message, round trip time and IP address.
 
@@ -159,7 +160,7 @@ azureuser@branch2Vm:~$ curl-dns6
 </details>
 <p>
 
-### 4. Private Link Service
+## 4. Private Link Service
 
 **4.1.** Test access to ***spoke3*** web application using the private endpoint in ***hub1***.
 
@@ -192,7 +193,7 @@ azureuser@branch2Vm:~$ curl -4 spoke3pls.eu.az.corp
 
 The `Hostname` and `server-ipv4` fields identify the target web server - in this case ***spoke3*** virtual machine. The `remote-addr` field (as seen by the web server) is an IP address in the Private Link Service NAT subnet in ***spoke3***.
 
-### 5. Private Link Access to Storage Account
+## 5. Private Link Access to Storage Account
 
 A storage account with a container blob deployed and accessible via private endpoints in ***hub1***. The storage accounts have the following naming convention:
 
@@ -266,7 +267,7 @@ Hello, World!
 </details>
 <p>
 
-### 6. Private Link Access to Storage Account from On-premises
+## 6. Private Link Access to Storage Account from On-premises
 
 **6.1** Login to on-premises virtual machine `Hs13-branch2Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
   - username = ***azureuser***
@@ -391,7 +392,7 @@ Hello, World!
 </details>
 <p>
 
-### 7. Effective Routes
+## 7. Effective Routes
 
 **7.1.** Run the following command and select `Hs13-branch2-vm-main-nic` when prompted.
 
@@ -512,5 +513,5 @@ User      ::/0                   Active   VirtualAppliance   fd00:db8:11:2::99
 </details>
 <p>
 
-
+### 8.
 

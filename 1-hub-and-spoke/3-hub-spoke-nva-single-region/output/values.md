@@ -9,6 +9,7 @@
 | GatewaySubnet   | 10.10.16.0/24, fd00:db8:10:aa16::/64   |
 | MainSubnet   | 10.10.0.0/24, fd00:db8:10::/64   |
 | ManagementSubnet   | 10.10.3.0/24, fd00:db8:10:3::/64   |
+| RouteServerSubnet   | 10.10.18.0/24   |
 | TestSubnet   | 10.10.17.0/24, fd00:db8:10:aa17::/64   |
 | TrustSubnet   | 10.10.2.0/24, fd00:db8:10:2::/64   |
 | UntrustSubnet   | 10.10.1.0/24, fd00:db8:10:1::/64   |
@@ -27,7 +28,8 @@
 | GatewaySubnet   | 10.20.16.0/24, fd00:db8:20:aa16::/64   |
 | MainSubnet   | 10.20.0.0/24, fd00:db8:20::/64   |
 | ManagementSubnet   | 10.20.3.0/24, fd00:db8:20:3::/64   |
-| TestSubnet   | 10.20.17.0/24, fd00:db8:20:aa17::/64   |
+| RouteServerSubnet   | 10.20.17.0/24   |
+| TestSubnet   | 10.20.18.0/24, fd00:db8:20:aa18::/64   |
 | TrustSubnet   | 10.20.2.0/24, fd00:db8:20:2::/64   |
 | UntrustSubnet   | 10.20.1.0/24, fd00:db8:20:1::/64   |
 | - | -  |

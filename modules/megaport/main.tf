@@ -52,9 +52,9 @@ resource "megaport_mcr" "this" {
 # vxc (layer 2)
 #----------------------------
 
-# primary
+# ipv4
 
-resource "megaport_azure_connection" "this" {
+resource "megaport_azure_connection" "pri" {
   for_each   = { for c in var.circuits : c.name => c }
   vxc_name   = "${each.value.name}-pri"
   rate_limit = each.value.bandwidth_in_mbps
@@ -63,21 +63,63 @@ resource "megaport_azure_connection" "this" {
     port_id        = megaport_mcr.this[each.value.mcr_name].id
     requested_vlan = each.value.requested_vlan
   }
-
   csp_settings {
     service_key = azurerm_express_route_circuit.this[each.value.name].service_key
-  }
 
+    dynamic "private_peering" {
+      for_each = each.value.primary_peer_address_prefix == null || each.value.secondary_peer_address_prefix == null ? [] : [1]
+      content {
+        peer_asn         = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
+        primary_subnet   = each.value.primary_peer_address_prefix
+        secondary_subnet = each.value.secondary_peer_address_prefix
+        requested_vlan   = each.value.requested_vlan
+      }
+    }
+  }
   lifecycle {
     ignore_changes = [a_end, ]
   }
 }
 
+# ipv6
+
+# resource "megaport_azure_connection" "sec" {
+#   for_each   = { for c in var.circuits : c.name => c }
+#   vxc_name   = "${each.value.name}-sec"
+#   rate_limit = each.value.bandwidth_in_mbps
+
+#   a_end {
+#     port_id        = megaport_mcr.this[each.value.mcr_name].id
+#     requested_vlan = each.value.requested_vlan
+#   }
+#   csp_settings {
+#     service_key = azurerm_express_route_circuit.this[each.value.name].service_key
+
+#     dynamic "private_peering" {
+#       for_each = each.value.primary_peer_address_prefix_ipv6 == null || each.value.secondary_peer_address_prefix_ipv6 == null ? [] : [1]
+#       content {
+#         peer_asn         = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
+#         primary_subnet   = each.value.primary_peer_address_prefix
+#         secondary_subnet = each.value.secondary_peer_address_prefix
+#         requested_vlan   = each.value.requested_vlan
+#       }
+#     }
+#   }
+#   lifecycle {
+#     ignore_changes = [a_end, ]
+#   }
+#   depends_on = [
+#     megaport_azure_connection.pri,
+#     megaport_azure_connection.sec,
+#   ]
+# }
+
 resource "time_sleep" "vxc_peering_wait" {
   create_duration  = "30s"
   destroy_duration = "60s"
   depends_on = [
-    megaport_azure_connection.this
+    megaport_azure_connection.this,
+    megaport_azure_connection.ipv6,
   ]
 }
 

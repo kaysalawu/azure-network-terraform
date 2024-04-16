@@ -33,6 +33,7 @@ module "branch2" {
       "DnsServerSubnet",
       "TestSubnet",
     ]
+    enable_ars = true
   }
 
   config_ergw = {
@@ -127,6 +128,7 @@ module "branch2_vm" {
       subnet_id            = module.branch2.subnets["MainSubnet"].id
       private_ip_address   = local.branch2_vm_addr
       private_ipv6_address = local.branch2_vm_addr_v6
+      create_public_ip     = true
     },
   ]
   depends_on = [

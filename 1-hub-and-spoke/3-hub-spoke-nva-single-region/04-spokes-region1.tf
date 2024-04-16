@@ -251,7 +251,7 @@ module "spoke3_vm" {
       subnet_id            = module.spoke3.subnets["MainSubnet"].id
       private_ip_address   = local.spoke3_vm_addr
       private_ipv6_address = local.spoke3_vm_addr_v6
-      # create_public_ip     = true
+      create_public_ip     = true
     },
   ]
   depends_on = [
