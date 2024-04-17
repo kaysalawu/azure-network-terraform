@@ -18,7 +18,7 @@ The following tests are performed on Branch2 to verify reachability over Express
 
 ## Access to Azure over ExpressRoute
 
-Login to on-premises virtual machine `Hs13-branch2Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
+Login to on-premises virtual machine `Lab07-branch2Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
   - username = ***azureuser***
   - password = ***Password123***
 
@@ -139,7 +139,7 @@ azureuser@branch2Vm:~$ curl-dns4
 200 (0.010773s) - 10.1.0.5 - spoke1vm.eu.az.corp
 200 (0.012362s) - 10.2.0.5 - spoke2vm.eu.az.corp
 200 (0.020949s) - 104.16.184.241 - icanhazip.com
-200 (0.036891s) - 10.11.7.99 - https://hs13spoke3sa5466.blob.core.windows.net/spoke3/spoke3.txt
+200 (0.036891s) - 10.11.7.99 - https://lab07spoke3sa5466.blob.core.windows.net/spoke3/spoke3.txt
 ```
 
 ```sh
@@ -154,7 +154,7 @@ azureuser@branch2Vm:~$ curl-dns6
 200 (0.023080s) - fd00:db8:1::5 - spoke1vm.eu.az.corp
 200 (0.023074s) - fd00:db8:2::5 - spoke2vm.eu.az.corp
 200 (0.074481s) - 2606:4700::6810:b9f1 - icanhazip.com
-000 (0.002315s) -  - https://hs13spoke3sa5466.blob.core.windows.net/spoke3/spoke3.txt
+000 (0.002315s) -  - https://lab07spoke3sa5466.blob.core.windows.net/spoke3/spoke3.txt
 ```
 
 </details>
@@ -197,14 +197,14 @@ The `Hostname` and `server-ipv4` fields identify the target web server - in this
 
 A storage account with a container blob deployed and accessible via private endpoints in ***hub1***. The storage accounts have the following naming convention:
 
-* hs13spoke3sa\<AAAA\>.blob.core.windows.net
+* lab07spoke3sa\<AAAA\>.blob.core.windows.net
 
 Where ***\<AAAA\>*** is a randomly generated two-byte string.
 
 **5.1.** On your Cloudshell (or local machine), get the storage account hostname and blob URL.
 
 ```sh
-spoke3_storage_account=$(az storage account list -g Hs13_HubSpoke_Nva_1Region_RG --query "[?contains(name, 'hs13spoke3sa')].name" -o tsv)
+spoke3_storage_account=$(az storage account list -g Lab07_HubSpoke_Nva_1Region_RG --query "[?contains(name, 'lab07spoke3sa')].name" -o tsv)
 
 spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
 spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
@@ -217,7 +217,7 @@ echo -e "\n$spoke3_sgtacct_host\n" && echo
 <summary>Sample output</summary>
 
 ```sh
-hs13spoke3sa4104.blob.core.windows.net
+lab07spoke3sa4104.blob.core.windows.net
 ```
 
 </details>
@@ -239,8 +239,8 @@ Server:         8.8.8.8
 Address:        8.8.8.8#53
 
 Non-authoritative answer:
-hs13spoke3sa4104.blob.core.windows.net  canonical name = hs13spoke3sa4104.privatelink.blob.core.windows.net.
-hs13spoke3sa4104.privatelink.blob.core.windows.net      canonical name = blob.db3prdstr19a.store.core.windows.net.
+lab07spoke3sa4104.blob.core.windows.net  canonical name = lab07spoke3sa4104.privatelink.blob.core.windows.net.
+lab07spoke3sa4104.privatelink.blob.core.windows.net      canonical name = blob.db3prdstr19a.store.core.windows.net.
 Name:   blob.db3prdstr19a.store.core.windows.net
 Address: 20.150.75.36
 ```
@@ -248,7 +248,7 @@ Address: 20.150.75.36
 </details>
 <p>
 
-We can see that the endpoint is a public IP address, ***20.150.75.36***. We can see the CNAME `hs13spoke3sa4104.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
+We can see that the endpoint is a public IP address, ***20.150.75.36***. We can see the CNAME `lab07spoke3sa4104.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
 
 **5.3.** Test access to the storage account blob.
 
@@ -269,11 +269,11 @@ Hello, World!
 
 ## 6. Private Link Access to Storage Account from On-premises
 
-**6.1** Login to on-premises virtual machine `Hs13-branch2Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
+**6.1** Login to on-premises virtual machine `Lab07-branch2Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
   - username = ***azureuser***
   - password = ***Password123***
 
- We will test access from `Hs13-branch2Vm` to the storage account for ***spoke3*** via the private endpoint in ***hub1***.
+ We will test access from `Lab07-branch2Vm` to the storage account for ***spoke3*** via the private endpoint in ***hub1***.
 
 **6.2.** Run `az login` to authenticate to Azure.
 
@@ -316,7 +316,7 @@ azureuser@branch2Vm:~$ az login --identity
 **6.3.** Get the storage account hostname and blob URL.
 
 ```sh
-spoke3_storage_account=$(az storage account list -g Hs13_HubSpoke_Nva_1Region_RG --query "[?contains(name, 'hs13spoke3sa')].name" -o tsv)
+spoke3_storage_account=$(az storage account list -g Lab07_HubSpoke_Nva_1Region_RG --query "[?contains(name, 'lab07spoke3sa')].name" -o tsv)
 
 spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
 spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
@@ -329,7 +329,7 @@ echo -e "\n$spoke3_sgtacct_host\n" && echo
 <summary>Sample output</summary>
 
 ```sh
-hs13spoke3sa4104.blob.core.windows.net
+lab07spoke3sa4104.blob.core.windows.net
 ```
 
 </details>
@@ -351,19 +351,19 @@ Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-hs13spoke3sa4104.blob.core.windows.net  canonical name = hs13spoke3sa4104.privatelink.blob.core.windows.net.
-Name:   hs13spoke3sa4104.privatelink.blob.core.windows.net
+lab07spoke3sa4104.blob.core.windows.net  canonical name = lab07spoke3sa4104.privatelink.blob.core.windows.net.
+Name:   lab07spoke3sa4104.privatelink.blob.core.windows.net
 Address: 10.11.7.99
 ```
 
 </details>
 <p>
 
-We can see that the storage account hostname resolves to the private endpoint ***10.11.7.99*** in ***hub1***. The following is a summary of the DNS resolution from `Hs13-branch2Vm`:
+We can see that the storage account hostname resolves to the private endpoint ***10.11.7.99*** in ***hub1***. The following is a summary of the DNS resolution from `Lab07-branch2Vm`:
 
-- On-premises server `Hs13-branch2Vm` makes a DNS request for `hs13spoke3sa4104.blob.core.windows.net`
-- The request is received by on-premises DNS server `Hs13-branch2-dns`
-- The DNS server resolves `hs13spoke3sa4104.blob.core.windows.net` to the CNAME `hs13spoke3sa4104.privatelink.blob.core.windows.net`
+- On-premises server `Lab07-branch2Vm` makes a DNS request for `lab07spoke3sa4104.blob.core.windows.net`
+- The request is received by on-premises DNS server `Lab07-branch2-dns`
+- The DNS server resolves `lab07spoke3sa4104.blob.core.windows.net` to the CNAME `lab07spoke3sa4104.privatelink.blob.core.windows.net`
 - The DNS server has a conditional DNS forwarding defined in the branch2 unbound DNS configuration file, [output/branch2Dns.sh](./output/branch2Dns.sh).
 
   ```sh
@@ -394,10 +394,10 @@ Hello, World!
 
 ## 7. Effective Routes
 
-**7.1.** Run the following command and select `Hs13-branch2-vm-main-nic` when prompted.
+**7.1.** Run the following command and select `Lab07-branch2-vm-main-nic` when prompted.
 
 ```sh
-bash ../../scripts/_routes_nic.sh Hs13_HubSpoke_Nva_1Region_RG
+bash ../../scripts/_routes_nic.sh Lab07_HubSpoke_Nva_1Region_RG
 ```
 
 <details>
@@ -405,7 +405,7 @@ bash ../../scripts/_routes_nic.sh Hs13_HubSpoke_Nva_1Region_RG
 <summary>Sample output</summary>
 
 ```sh
-Effective routes for Hs13-branch2-vm-main-nic
+Effective routes for Lab07-branch2-vm-main-nic
 
 Source                 Prefix                 State    NextHopType            NextHopIP
 ---------------------  ---------------------  -------  ---------------------  ------------
@@ -437,10 +437,10 @@ Default                ::/0                   Active   Internet
 <p>
 
 
-**7.2.** Run the following command and select `Hs13-hub1-nva-untrust-nic` when prompted.
+**7.2.** Run the following command and select `Lab07-hub1-nva-untrust-nic` when prompted.
 
 ```sh
-bash ../../scripts/_routes_nic.sh Hs13_HubSpoke_Nva_1Region_RG
+bash ../../scripts/_routes_nic.sh Lab07_HubSpoke_Nva_1Region_RG
 ```
 
 <details>
@@ -448,7 +448,7 @@ bash ../../scripts/_routes_nic.sh Hs13_HubSpoke_Nva_1Region_RG
 <summary>Sample output</summary>
 
 ```sh
-Effective routes for Hs13-hub1-nva-untrust-nic
+Effective routes for Lab07-hub1-nva-untrust-nic
 
 Source                 Prefix                 State    NextHopType            NextHopIP
 ---------------------  ---------------------  -------  ---------------------  ------------
@@ -479,10 +479,10 @@ Default                ::/0                   Active   Internet
 </details>
 <p>
 
-**7.3.** Run the following command and select the number for `Hs13-spoke1-vm-main-nic` when prompted.
+**7.3.** Run the following command and select the number for `Lab07-spoke1-vm-main-nic` when prompted.
 
 ```sh
-bash ../../scripts/_routes_nic.sh Hs13_HubSpoke_Nva_1Region_RG
+bash ../../scripts/_routes_nic.sh Lab07_HubSpoke_Nva_1Region_RG
 ```
 
 <details>
@@ -490,7 +490,7 @@ bash ../../scripts/_routes_nic.sh Hs13_HubSpoke_Nva_1Region_RG
 <summary>Sample output</summary>
 
 ```sh
-Effective routes for Hs13-spoke1-vm-main-nic
+Effective routes for Lab07-spoke1-vm-main-nic
 
 Source    Prefix                 State    NextHopType        NextHopIP
 --------  ---------------------  -------  -----------------  -----------------

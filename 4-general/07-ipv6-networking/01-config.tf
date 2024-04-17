@@ -216,13 +216,14 @@ locals {
   branch1_nva_asn       = "65001"
   branch1_dns_zone      = local.onprem_domain
   branch1_subnets = {
-    ("MainSubnet")       = { address_prefixes = ["10.10.0.0/24", "fd00:db8:10::/64"], }
-    ("UntrustSubnet")    = { address_prefixes = ["10.10.1.0/24", "fd00:db8:10:1::/64"], }
-    ("TrustSubnet")      = { address_prefixes = ["10.10.2.0/24", "fd00:db8:10:2::/64"], }
-    ("ManagementSubnet") = { address_prefixes = ["10.10.3.0/24", "fd00:db8:10:3::/64"], }
-    ("DnsServerSubnet")  = { address_prefixes = ["10.10.4.0/24", "fd00:db8:10:4::/64"], }
-    ("GatewaySubnet")    = { address_prefixes = ["10.10.16.0/24", "fd00:db8:10:aa16::/64"], }
-    ("TestSubnet")       = { address_prefixes = ["10.10.17.0/24", "fd00:db8:10:aa17::/64"], }
+    ("MainSubnet")        = { address_prefixes = ["10.10.0.0/24", "fd00:db8:10::/64"], }
+    ("UntrustSubnet")     = { address_prefixes = ["10.10.1.0/24", "fd00:db8:10:1::/64"], }
+    ("TrustSubnet")       = { address_prefixes = ["10.10.2.0/24", "fd00:db8:10:2::/64"], }
+    ("ManagementSubnet")  = { address_prefixes = ["10.10.3.0/24", "fd00:db8:10:3::/64"], }
+    ("DnsServerSubnet")   = { address_prefixes = ["10.10.4.0/24", "fd00:db8:10:4::/64"], }
+    ("GatewaySubnet")     = { address_prefixes = ["10.10.16.0/24", "fd00:db8:10:aa16::/64"], }
+    ("RouteServerSubnet") = { address_prefixes = ["10.10.18.0/24"], }
+    ("TestSubnet")        = { address_prefixes = ["10.10.17.0/24", "fd00:db8:10:aa17::/64"], }
   }
   branch1_untrust_default_gw  = cidrhost(local.branch1_subnets["UntrustSubnet"].address_prefixes[0], 1)
   branch1_trust_default_gw    = cidrhost(local.branch1_subnets["TrustSubnet"].address_prefixes[0], 1)
@@ -253,13 +254,14 @@ locals {
   branch2_nva_asn       = "65002"
   branch2_dns_zone      = local.onprem_domain
   branch2_subnets = {
-    ("MainSubnet")       = { address_prefixes = ["10.20.0.0/24", "fd00:db8:20::/64"], }
-    ("UntrustSubnet")    = { address_prefixes = ["10.20.1.0/24", "fd00:db8:20:1::/64"], }
-    ("TrustSubnet")      = { address_prefixes = ["10.20.2.0/24", "fd00:db8:20:2::/64"], }
-    ("ManagementSubnet") = { address_prefixes = ["10.20.3.0/24", "fd00:db8:20:3::/64"], }
-    ("DnsServerSubnet")  = { address_prefixes = ["10.20.4.0/24", "fd00:db8:20:4::/64"], }
-    ("GatewaySubnet")    = { address_prefixes = ["10.20.16.0/24", "fd00:db8:20:aa16::/64"], }
-    ("TestSubnet")       = { address_prefixes = ["10.20.17.0/24", "fd00:db8:20:aa17::/64"], }
+    ("MainSubnet")        = { address_prefixes = ["10.20.0.0/24", "fd00:db8:20::/64"], }
+    ("UntrustSubnet")     = { address_prefixes = ["10.20.1.0/24", "fd00:db8:20:1::/64"], }
+    ("TrustSubnet")       = { address_prefixes = ["10.20.2.0/24", "fd00:db8:20:2::/64"], }
+    ("ManagementSubnet")  = { address_prefixes = ["10.20.3.0/24", "fd00:db8:20:3::/64"], }
+    ("DnsServerSubnet")   = { address_prefixes = ["10.20.4.0/24", "fd00:db8:20:4::/64"], }
+    ("GatewaySubnet")     = { address_prefixes = ["10.20.16.0/24", "fd00:db8:20:aa16::/64"], }
+    ("RouteServerSubnet") = { address_prefixes = ["10.20.17.0/24", ], }
+    ("TestSubnet")        = { address_prefixes = ["10.20.18.0/24", "fd00:db8:20:aa18::/64"], }
   }
   branch2_untrust_default_gw  = cidrhost(local.branch2_subnets["UntrustSubnet"].address_prefixes[0], 1)
   branch2_trust_default_gw    = cidrhost(local.branch2_subnets["TrustSubnet"].address_prefixes[0], 1)
@@ -292,13 +294,14 @@ locals {
   branch3_nva_asn       = "65003"
   branch3_dns_zone      = local.onprem_domain
   branch3_subnets = {
-    ("MainSubnet")       = { address_prefixes = ["10.30.0.0/24", "fd00:db8:0030::/64"], }
-    ("UntrustSubnet")    = { address_prefixes = ["10.30.1.0/24", "fd00:db8:0030:1::/64"], }
-    ("TrustSubnet")      = { address_prefixes = ["10.30.2.0/24", "fd00:db8:0030:2::/64"], }
-    ("ManagementSubnet") = { address_prefixes = ["10.30.3.0/24", "fd00:db8:0030:3::/64"], }
-    ("DnsServerSubnet")  = { address_prefixes = ["10.30.4.0/24", "fd00:db8:0030:4::/64"], }
-    ("GatewaySubnet")    = { address_prefixes = ["10.30.16.0/24", "fd00:db8:0030:10:aa16::/64"], }
-    ("TestSubnet")       = { address_prefixes = ["10.30.17.0/24", "fd00:db8:0030:10:aa17::/64"], }
+    ("MainSubnet")        = { address_prefixes = ["10.30.0.0/24", "fd00:db8:30::/64"], }
+    ("UntrustSubnet")     = { address_prefixes = ["10.30.1.0/24", "fd00:db8:30:1::/64"], }
+    ("TrustSubnet")       = { address_prefixes = ["10.30.2.0/24", "fd00:db8:30:2::/64"], }
+    ("ManagementSubnet")  = { address_prefixes = ["10.30.3.0/24", "fd00:db8:30:3::/64"], }
+    ("DnsServerSubnet")   = { address_prefixes = ["10.30.4.0/24", "fd00:db8:30:4::/64"], }
+    ("GatewaySubnet")     = { address_prefixes = ["10.30.16.0/24", "fd00:db8:30:aa16::/64"], }
+    ("RouteServerSubnet") = { address_prefixes = ["10.30.17.0/24"], }
+    ("TestSubnet")        = { address_prefixes = ["10.30.18.0/24", "fd00:db8:30:aa18::/64"], }
   }
   branch3_untrust_default_gw  = cidrhost(local.branch3_subnets["UntrustSubnet"].address_prefixes[0], 1)
   branch3_trust_default_gw    = cidrhost(local.branch3_subnets["TrustSubnet"].address_prefixes[0], 1)

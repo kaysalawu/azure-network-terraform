@@ -9,6 +9,7 @@
 | GatewaySubnet   | 10.10.16.0/24, fd00:db8:10:aa16::/64   |
 | MainSubnet   | 10.10.0.0/24, fd00:db8:10::/64   |
 | ManagementSubnet   | 10.10.3.0/24, fd00:db8:10:3::/64   |
+| RouteServerSubnet   | 10.10.18.0/24   |
 | TestSubnet   | 10.10.17.0/24, fd00:db8:10:aa17::/64   |
 | TrustSubnet   | 10.10.2.0/24, fd00:db8:10:2::/64   |
 | UntrustSubnet   | 10.10.1.0/24, fd00:db8:10:1::/64   |
@@ -17,24 +18,6 @@
 | VM_NAME   | Hs13-branch1Vm   |
 | VNET_NAME   | Hs13-branch1-vnet   |
 | VNET_RANGES   | 10.10.0.0/20, 10.10.16.0/20, fd00:db8:10::/56, fd00:db8:10:aa00::/56   |
-
-## branch2
-
-| Item    | Value  |
-|--------|--------|
-| *Subnets*|        |
-| DnsServerSubnet   | 10.20.4.0/24, fd00:db8:20:4::/64   |
-| GatewaySubnet   | 10.20.16.0/24, fd00:db8:20:aa16::/64   |
-| MainSubnet   | 10.20.0.0/24, fd00:db8:20::/64   |
-| ManagementSubnet   | 10.20.3.0/24, fd00:db8:20:3::/64   |
-| TestSubnet   | 10.20.17.0/24, fd00:db8:20:aa17::/64   |
-| TrustSubnet   | 10.20.2.0/24, fd00:db8:20:2::/64   |
-| UntrustSubnet   | 10.20.1.0/24, fd00:db8:20:1::/64   |
-| - | -  |
-| VM_IP   | 10.20.0.5   |
-| VM_NAME   | Hs13-branch2Vm   |
-| VNET_NAME   | Hs13-branch2-vnet   |
-| VNET_RANGES   | 10.20.0.0/20, 10.20.16.0/20, fd00:db8:20::/56, fd00:db8:20:aa00::/56   |
 
 ## hub1
 
@@ -45,7 +28,7 @@
 | PRIVATELINK_SERVICE_ENDPOINT_DNS   | spoke3pls.hub1.az.corp   |
 | PRIVATELINK_SERVICE_ENDPOINT_IP   | 10.11.7.88   |
 | PRIVATE_DNS_INBOUND_IP   | 10.11.8.4   |
-| SPOKE3_BLOB_URL (Sample)   | https://hs13spoke3sa5466.blob.core.windows.net/spoke3/spoke3.txt   |
+| SPOKE3_BLOB_URL (Sample)   | https://hs13spoke3sa4e49.blob.core.windows.net/spoke3/spoke3.txt   |
 | *Subnets*|        |
 | AppGatewaySubnet   | 10.11.4.0/24, fd00:db8:11:4::/64   |
 | AppServiceSubnet   | 10.11.13.0/24, fd00:db8:11:13::/64   |

@@ -47,13 +47,13 @@ locals {
         VM_IP       = try(module.branch1_vm.vm.private_ip_address, "")
         SUBNETS     = try({ for k, v in module.branch1.subnets : k => join(", ", v.address_prefixes) }, "")
       }
-      branch2 = {
-        VNET_NAME   = try(module.branch2.vnet.name, "")
-        VNET_RANGES = try(join(", ", module.branch2.vnet.address_space), "")
-        VM_NAME     = try(module.branch2_vm.vm.name, "")
-        VM_IP       = try(module.branch2_vm.vm.private_ip_address, "")
-        SUBNETS     = try({ for k, v in module.branch2.subnets : k => join(", ", v.address_prefixes) }, "")
-      }
+      # branch2 = {
+      #   VNET_NAME   = try(module.branch2.vnet.name, "")
+      #   VNET_RANGES = try(join(", ", module.branch2.vnet.address_space), "")
+      #   VM_NAME     = try(module.branch2_vm.vm.name, "")
+      #   VM_IP       = try(module.branch2_vm.vm.private_ip_address, "")
+      #   SUBNETS     = try({ for k, v in module.branch2.subnets : k => join(", ", v.address_prefixes) }, "")
+      # }
     }
   })
 }
