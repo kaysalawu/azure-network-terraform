@@ -37,7 +37,7 @@ Run the following commands to ensure that your environment is ready for the lab:
    az vm image terms accept --urn thefreebsdfoundation:freebsd-13_1:13_1-release:13.1.0 -o none
    ```
 
-3. Ensure you have the Azure CLI extension for Virtual WAN:
+3. Ensure you have the required Azure CLI extensions:
    ```sh
    az extension add --name virtual-wan
    az extension add --name log-analytics
