@@ -116,12 +116,6 @@ variable "sku" {
   default     = "Standard"
 }
 
-variable "enable_routing_intent" {
-  description = "Enable routing intent"
-  type        = bool
-  default     = false
-}
-
 variable "metric_categories_firewall" {
   type = list(any)
   default = [

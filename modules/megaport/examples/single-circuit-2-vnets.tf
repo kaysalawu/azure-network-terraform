@@ -111,21 +111,3 @@ resource "azurerm_virtual_network_gateway_connection" "er1_hub1" {
     azurerm_virtual_network_gateway_connection.er1_branch2,
   ]
 }
-
-####################################################
-# dashboard
-####################################################
-
-locals {
-  dashboard_vars = {
-    "${local.prefix}-er1" = templatefile("./dashboard/dashboard.json", { ER_CIRCUIT_ID = module.megaport.express_route_circuit["${local.prefix}-er1"].id })
-  }
-}
-
-resource "azurerm_portal_dashboard" "hub2_er" {
-  for_each             = local.dashboard_vars
-  resource_group_name  = azurerm_resource_group.rg.name
-  location             = local.default_region
-  name                 = "${each.key}-db"
-  dashboard_properties = each.value
-}

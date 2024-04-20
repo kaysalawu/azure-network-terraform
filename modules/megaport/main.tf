@@ -1,9 +1,4 @@
 
-locals {
-  vnet_connections = [for c in var.circuits : c if c.connection_target == "vnet"]
-  vwan_connections = [for c in var.circuits : c if c.connection_target == "vwan"]
-}
-
 # locations
 #----------------------------
 
@@ -29,6 +24,7 @@ resource "azurerm_express_route_circuit" "this" {
   }
 }
 
+
 resource "azurerm_express_route_circuit_authorization" "this" {
   for_each                   = { for c in var.circuits : c.name => c }
   resource_group_name        = var.resource_group
@@ -49,12 +45,12 @@ resource "megaport_mcr" "this" {
   }
 }
 
-# vxc (layer 2)
+# vxc
 #----------------------------
 
-# ipv4
+# primary
 
-resource "megaport_azure_connection" "pri" {
+resource "megaport_azure_connection" "primary" {
   for_each   = { for c in var.circuits : c.name => c }
   vxc_name   = "${each.value.name}-pri"
   rate_limit = each.value.bandwidth_in_mbps
@@ -63,67 +59,35 @@ resource "megaport_azure_connection" "pri" {
     port_id        = megaport_mcr.this[each.value.mcr_name].id
     requested_vlan = each.value.requested_vlan
   }
-  csp_settings {
-    service_key = azurerm_express_route_circuit.this[each.value.name].service_key
 
-    dynamic "private_peering" {
-      for_each = each.value.primary_peer_address_prefix == null || each.value.secondary_peer_address_prefix == null ? [] : [1]
-      content {
-        peer_asn         = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
-        primary_subnet   = each.value.primary_peer_address_prefix
-        secondary_subnet = each.value.secondary_peer_address_prefix
-        requested_vlan   = each.value.requested_vlan
-      }
+  csp_settings {
+    service_key                 = azurerm_express_route_circuit.this[each.value.name].service_key
+    auto_create_private_peering = each.value.auto_create_private_peering
+
+    private_peering {
+      peer_asn         = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
+      primary_subnet   = each.value.ipv4_config.primary_peer_address_prefix
+      secondary_subnet = each.value.ipv4_config.secondary_peer_address_prefix
+      requested_vlan   = each.value.requested_vlan
     }
+
+    # dynamic "private_peering" {
+    #   for_each = each.value.ipv6_enabled ? [1] : []
+    #   content {
+    #     peer_asn         = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
+    #     primary_subnet   = each.value.primary_peer_address_prefix_ipv6
+    #     secondary_subnet = each.value.secondary_peer_address_prefix_ipv6
+    #     requested_vlan   = each.value.requested_vlan
+    #   }
+    # }
   }
+
   lifecycle {
     ignore_changes = [a_end, ]
   }
 }
 
-# ipv6
-
-# resource "megaport_azure_connection" "sec" {
-#   for_each   = { for c in var.circuits : c.name => c }
-#   vxc_name   = "${each.value.name}-sec"
-#   rate_limit = each.value.bandwidth_in_mbps
-
-#   a_end {
-#     port_id        = megaport_mcr.this[each.value.mcr_name].id
-#     requested_vlan = each.value.requested_vlan
-#   }
-#   csp_settings {
-#     service_key = azurerm_express_route_circuit.this[each.value.name].service_key
-
-#     dynamic "private_peering" {
-#       for_each = each.value.primary_peer_address_prefix_ipv6 == null || each.value.secondary_peer_address_prefix_ipv6 == null ? [] : [1]
-#       content {
-#         peer_asn         = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
-#         primary_subnet   = each.value.primary_peer_address_prefix
-#         secondary_subnet = each.value.secondary_peer_address_prefix
-#         requested_vlan   = each.value.requested_vlan
-#       }
-#     }
-#   }
-#   lifecycle {
-#     ignore_changes = [a_end, ]
-#   }
-#   depends_on = [
-#     megaport_azure_connection.pri,
-#     megaport_azure_connection.sec,
-#   ]
-# }
-
-resource "time_sleep" "vxc_peering_wait" {
-  create_duration  = "30s"
-  destroy_duration = "60s"
-  depends_on = [
-    megaport_azure_connection.this,
-    megaport_azure_connection.ipv6,
-  ]
-}
-
-# peering (layer 3)
+# peering
 #----------------------------
 
 resource "azurerm_express_route_circuit_peering" "this" {
@@ -132,75 +96,22 @@ resource "azurerm_express_route_circuit_peering" "this" {
   express_route_circuit_name    = each.value.name
   peering_type                  = each.value.peering_type
   peer_asn                      = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
-  primary_peer_address_prefix   = each.value.primary_peer_address_prefix
-  secondary_peer_address_prefix = each.value.secondary_peer_address_prefix
-  ipv4_enabled                  = each.value.ipv4_enabled
+  primary_peer_address_prefix   = each.value.ipv4_config.primary_peer_address_prefix
+  secondary_peer_address_prefix = each.value.ipv4_config.secondary_peer_address_prefix
+  ipv4_enabled                  = true
   vlan_id                       = each.value.requested_vlan
 
   dynamic "ipv6" {
-    for_each = each.value.primary_peer_address_prefix_ipv6 == null || each.value.secondary_peer_address_prefix_ipv6 == null ? [] : [1]
+    for_each = each.value.ipv6_config.enabled ? [1] : []
     content {
-      primary_peer_address_prefix   = each.value.primary_peer_address_prefix_ipv6
-      secondary_peer_address_prefix = each.value.secondary_peer_address_prefix_ipv6
+      primary_peer_address_prefix   = each.value.ipv6_config.primary_peer_address_prefix
+      secondary_peer_address_prefix = each.value.ipv6_config.secondary_peer_address_prefix
       enabled                       = true
     }
   }
   depends_on = [
     azurerm_express_route_circuit_authorization.this,
-    time_sleep.vxc_peering_wait,
+    megaport_azure_connection.primary,
   ]
 }
 
-resource "time_sleep" "peering_connection_wait" {
-  create_duration  = "30s"
-  destroy_duration = "60s"
-  depends_on = [
-    azurerm_express_route_circuit_peering.this
-  ]
-}
-
-# azure connection
-#----------------------------
-
-# virtual network
-
-resource "azurerm_virtual_network_gateway_connection" "this" {
-  count                      = length(local.vnet_connections)
-  resource_group_name        = var.resource_group
-  name                       = local.vnet_connections[count.index].name
-  location                   = local.vnet_connections[count.index].location
-  type                       = "ExpressRoute"
-  virtual_network_gateway_id = local.vnet_connections[count.index].virtual_network_gateway_id
-  authorization_key          = azurerm_express_route_circuit_authorization.this[local.vnet_connections[count.index].name].authorization_key
-  express_route_circuit_id   = azurerm_express_route_circuit.this[local.vnet_connections[count.index].name].id
-  depends_on = [
-    azurerm_express_route_circuit_authorization.this,
-    megaport_azure_connection.this,
-    time_sleep.peering_connection_wait,
-  ]
-}
-
-# vwan
-
-data "azurerm_express_route_circuit_peering" "private" {
-  count                      = length(local.vwan_connections)
-  resource_group_name        = var.resource_group
-  express_route_circuit_name = local.vwan_connections[count.index].name
-  peering_type               = local.vwan_connections[count.index].peering_type
-  depends_on = [
-    azurerm_express_route_circuit_authorization.this,
-    megaport_azure_connection.this,
-  ]
-}
-
-resource "azurerm_express_route_connection" "this" {
-  count                            = length(local.vwan_connections)
-  name                             = local.vwan_connections[count.index].name
-  express_route_gateway_id         = local.vwan_connections[count.index].express_route_gateway_id
-  express_route_circuit_peering_id = data.azurerm_express_route_circuit_peering.private[local.vwan_connections[count.index].name].id
-  depends_on = [
-    azurerm_express_route_circuit_peering.this,
-    azurerm_express_route_circuit_authorization.this,
-    megaport_azure_connection.this,
-  ]
-}

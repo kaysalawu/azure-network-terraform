@@ -114,7 +114,7 @@ module "azfw" {
 ####################################################
 
 resource "azurerm_virtual_hub_routing_intent" "this" {
-  count          = length(var.config_security.routing_policies) > 0 ? 1 : 0
+  count          = length(var.config_security.routing_policies) > 0 && var.config_security.create_firewall ? 1 : 0
   name           = "${local.prefix}hub-ri-policy"
   virtual_hub_id = azurerm_virtual_hub.this.id
 

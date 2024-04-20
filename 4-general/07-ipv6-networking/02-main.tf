@@ -3,7 +3,7 @@
 ####################################################
 
 locals {
-  prefix                      = "Hs13"
+  prefix                      = "Lab07"
   lab_name                    = "HubSpoke_Nva_1Region"
   enable_diagnostics          = false
   enable_onprem_wan_link      = false
