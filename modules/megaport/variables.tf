@@ -56,10 +56,14 @@ variable "circuits" {
       primary_peer_address_prefix   = optional(string, null)
       secondary_peer_address_prefix = optional(string, null)
     })
-    ipv6_config = object({
+    ipv6_config = optional(object({
       enabled                       = optional(bool, false)
       primary_peer_address_prefix   = optional(string, null)
       secondary_peer_address_prefix = optional(string, null)
+      }), {
+      enabled                       = false
+      primary_peer_address_prefix   = null
+      secondary_peer_address_prefix = null
     })
   }))
   default = []
