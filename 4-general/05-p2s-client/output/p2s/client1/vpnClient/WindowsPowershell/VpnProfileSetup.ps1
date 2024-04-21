@@ -48,7 +48,7 @@ $EAP = '<EapHostConfig
 					<FilteringInfo
 						xmlns="http://www.microsoft.com/provisioning/EapTlsConnectionPropertiesV3">
 						<CAHashList Enabled="true">
-							<IssuerHash>09 57 15 EC 5D 9F FC F9 88 F9 B7 79 75 4C E7 6E DA D5 6D BF </IssuerHash>
+							<IssuerHash>18 6F 8C 3F 44 E0 FD 65 44 B0 94 7C 5C 00 AF D0 17 F0 07 0D </IssuerHash>
 
 						</CAHashList>
 					</FilteringInfo>
@@ -86,9 +86,9 @@ try
 {
     if ($MachineCertAuth -eq $false)
     {
-        Add-VpnConnection -Name Lab05-hub1-vnet -ServerAddress azuregateway-1c730068-3a45-47e1-b2d6-aaabbdb1f946-521640fc41a0.vpn.azure.com -TunnelType Ikev2 -AuthenticationMethod Eap -SplitTunneling:$True -RememberCredential -EncryptionLevel Optional -EapConfigXmlStream $EAP -PassThru
+        Add-VpnConnection -Name Lab05-hub1-vnet -ServerAddress azuregateway-ec3c0068-3098-4c47-b21c-623e33b44ea6-75d615bcd8e5.vpn.azure.com -TunnelType Ikev2 -AuthenticationMethod Eap -SplitTunneling:$True -RememberCredential -EncryptionLevel Optional -EapConfigXmlStream $EAP -PassThru
     } else {
-        Add-VpnConnection -Name Lab05-hub1-vnet -ServerAddress azuregateway-1c730068-3a45-47e1-b2d6-aaabbdb1f946-521640fc41a0.vpn.azure.com -TunnelType Ikev2 -AuthenticationMethod MachineCertificate -SplitTunneling:$True -RememberCredential -EncryptionLevel Optional -PassThru
+        Add-VpnConnection -Name Lab05-hub1-vnet -ServerAddress azuregateway-ec3c0068-3098-4c47-b21c-623e33b44ea6-75d615bcd8e5.vpn.azure.com -TunnelType Ikev2 -AuthenticationMethod MachineCertificate -SplitTunneling:$True -RememberCredential -EncryptionLevel Optional -PassThru
     }
 }
 catch

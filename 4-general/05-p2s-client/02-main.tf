@@ -218,9 +218,9 @@ locals {
     ENABLE_TRAFFIC_GEN        = false
   })
   onprem_local_records = [
-    { name = lower(local.branch1_vm_fqdn), record = local.branch1_vm_addr },
-    { name = lower(local.branch2_vm_fqdn), record = local.branch2_vm_addr },
-    { name = lower(local.branch3_vm_fqdn), record = local.branch3_vm_addr },
+    { name = lower(local.branch1_vm_fqdn), rdata = local.branch1_vm_addr, ttl = "300", type = "A" },
+    { name = lower(local.branch2_vm_fqdn), rdata = local.branch2_vm_addr, ttl = "300", type = "A" },
+    { name = lower(local.branch3_vm_fqdn), rdata = local.branch3_vm_addr, ttl = "300", type = "A" },
   ]
   onprem_redirected_hosts = []
   branch_dns_init_dir     = "/var/lib/azure"

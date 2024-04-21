@@ -4,7 +4,7 @@
     <aad i:nil="true" />
     <cert>
       <hash i:nil="true" />
-      <issuer>095715ec5d9ffcf988f9b779754ce76edad56dbf</issuer>
+      <issuer>186f8c3f44e0fd6544b0947c5c00afd017f0070d</issuer>
     </cert>
     <type>cert</type>
     <usernamepass i:nil="true" />
@@ -19,7 +19,7 @@
   <serverlist>
     <ServerEntry>
       <displayname i:nil="true" />
-      <fqdn>azuregateway-1c730068-3a45-47e1-b2d6-aaabbdb1f946-521640fc41a0.vpn.azure.com</fqdn>
+      <fqdn>azuregateway-ec3c0068-3098-4c47-b21c-623e33b44ea6-75d615bcd8e5.vpn.azure.com</fqdn>
     </ServerEntry>
   </serverlist>
   <servervalidation>
@@ -27,7 +27,7 @@
       <hash>DF3C24F9BFD666761B268073FE06D1CC8D4F82A4</hash>
       <issuer i:nil="true" />
     </Cert>
-    <serversecret>38cc5ecd2ae13fb585bd26a46ffa450808d10e591ff6bfc8aa99c504b2d961c2edbe5c176017aef1551c518f57ec5758c84a00448887e6aa392c5248f2e7ec55a5d3d79ae29b7578980c909ff98d21823dbe21709b19f9ce103850d6e6bb341a68754a24d2a5a54a37eb33ca3f20777dab0f78f69767329e2cc85f5224a6500bb3cb79b1360221ad18a21f9c87a99e341c03de248b68eb102f1e1ef0349969ecec4fc617a07ddedba993b42bb6ae79bce279d648f41a14085cbc0c5a221676ba4d0f58df9c54b30e03875e34807e92922cbe54c5ac4905c0453b5d4f0b30ff39aecdf4b7816c2eb7fa6142897e76035c53238fbad957ddb4a50db5f5e7050310</serversecret>
+    <serversecret>57f465cc948c15cb7d14ddffca43d1fcf4985b7917b68c4bf67afa7bf62ffae12a016ac10cf23c747134cf8b3c1f8518d7b3639718f1061b7118322e418bf3b06d1b4d824d978897b25b43df8c2430f5f923db6dacf5c73fa7caafb98718352e818743a24c01f073fbe93885da8041035469ca9bca6e6f77dc74b52d1145f7b5db985f33def4b18d76933f3a6b4956b438dd030f4af67b6932bb3f7cec0e4515ad89a383a9a01540279757e4b212e920b8f3a8b87ca6f22e3207edf37e371f02292074cc03e7bda154e857f943b6d3402b590016e6eac9fe238c5d0e875ff8d756965b1cf4e7e25964020d2cb45968ffe603679f1f783aef87536873455bb336</serversecret>
     <type>cert</type>
   </servervalidation>
   <version>1</version>

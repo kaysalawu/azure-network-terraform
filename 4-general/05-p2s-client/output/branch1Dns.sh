@@ -18,12 +18,15 @@ cat <<EOF > /etc/unbound/unbound.conf
 server:
         port: 53
         do-ip4: yes
+        do-ip6: yes
         do-udp: yes
         do-tcp: yes
 
         interface: 0.0.0.0
+        interface: ::0
 
         access-control: 0.0.0.0 deny
+        access-control: ::0 deny
         access-control: 10.0.0.0/8 allow
         access-control: 172.16.0.0/12 allow
         access-control: 192.168.0.0/16 allow

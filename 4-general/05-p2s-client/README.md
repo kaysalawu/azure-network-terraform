@@ -6,7 +6,7 @@
 
 This lab deploys a Point-to-Site (P2S) VPN solution on Azure virtual network. The P2S VPN solution allows a client to connect to the virtual network over the internet.
 
-  <img src="./images/architecture.png" alt="er-ecmp-topology" width="450">
+  <img src="./images/architecture.png" alt="p2s" width="800">
 
 
 ## Prerequisites
@@ -62,20 +62,20 @@ cd output/p2s/client1
 2\. Create client configuration files using the script below.
 
 ```sh
-bash ../../../../../scripts/p2s/client-config.sh Lab05_P2sClient_RG Lab05-hub1-vpngw
+bash ../../../../../scripts/p2s/client-config-create.sh Lab05_P2sClient_RG Lab05-hub1-vpngw
 ```
 
 <details>
 <summary>Sample output</summary>
 
 ```sh
-client1$ bash ../../../../../scripts/p2s/client-config.sh Lab05_P2sClient_RG Lab05-hub1-vpngw
+client1$ bash ../../../../../scripts/p2s/client-config-create.sh Lab05_P2sClient_RG Lab05-hub1-vpngw
 
 checking vnet gateway...
 
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-100  298k  100  298k    0     0  1386k      0 --:--:-- --:--:-- --:--:-- 1386k
+100  298k  100  298k    0     0  1608k      0 --:--:-- --:--:-- --:--:-- 1610k
 Archive:  vpnClient.zip
 warning:  vpnClient.zip appears to use backslashes as path separators
   inflating: vpnClient/Generic/VpnSettings.xml
@@ -85,9 +85,8 @@ warning:  vpnClient.zip appears to use backslashes as path separators
   inflating: vpnClient/WindowsAmd64/VpnClientSetupAmd64.exe
   inflating: vpnClient/WindowsX86/VpnClientSetupX86.exe
   inflating: vpnClient/WindowsPowershell/VpnProfileSetup.ps1
-sudo openvpn --config ./vpnClient/OpenVPN/vpnconfig.ovpn
-[sudo] password for salawu: ps aux | grep [o]penvpn
-root      124369  0.0  0.0  10420  4936 pts/86   S+   14:31   0:00 sudo openvpn --config ./vpnClient/OpenVPN/vpnconfig.ovpn
+
+VPN client configuration file is ready at ./vpnClient/OpenVPN/vpnconfig.ovpn
 ```
 
 </details>
@@ -282,7 +281,7 @@ We see that the client is reachable from `Lab05-client1`.
 5\. Check the routing table on `Lab05-client1`.
 
 ```sh
-azureuser@client1:/var/lib/azure$ netstat -rn
+netstat -rn
 ```
 
 <details>
