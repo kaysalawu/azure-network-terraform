@@ -6,7 +6,7 @@ locals {
   prefix                      = "Hs12"
   lab_name                    = "HubSpoke_Azfw_2Region"
   enable_diagnostics          = false
-  enable_onprem_wan_link      = false
+  enable_onprem_wan_link      = true
   enable_ipv6                 = true
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke6_storage_account_name = lower(replace("${local.spoke6_prefix}sa${random_id.random.hex}", "-", ""))
@@ -31,6 +31,8 @@ locals {
 resource "random_id" "random" {
   byte_length = 2
 }
+
+data "azurerm_client_config" "current" {}
 
 ####################################################
 # providers
@@ -75,17 +77,13 @@ locals {
   region1_default_udr_destinations = [
     { name = "default-region1", address_prefix = ["0.0.0.0/0"], next_hop_ip = module.hub1.firewall_private_ip },
   ]
-  region2_default_udr_destinations = [
-    { name = "default-region2", address_prefix = ["0.0.0.0/0"], next_hop_ip = module.hub2.firewall_private_ip },
-  ]
-
-  spoke1_udr_main_routes = concat(local.default_udr_destinations, [
+  spoke1_udr_main_routes = concat(local.region1_default_udr_destinations, [
     { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
   ])
-  spoke2_udr_main_routes = concat(local.default_udr_destinations, [
+  spoke2_udr_main_routes = concat(local.region1_default_udr_destinations, [
     { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
   ])
-  hub1_udr_main_routes = concat(local.default_udr_destinations, [
+  hub1_udr_main_routes = concat(local.region1_default_udr_destinations, [
     { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
     { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
   ])
@@ -100,13 +98,16 @@ locals {
     { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = module.hub2.firewall_private_ip },
   ]
 
-  spoke4_udr_main_routes = concat(local.default_udr_destinations, [
+  region2_default_udr_destinations = [
+    { name = "default-region2", address_prefix = ["0.0.0.0/0"], next_hop_ip = module.hub2.firewall_private_ip },
+  ]
+  spoke4_udr_main_routes = concat(local.region2_default_udr_destinations, [
     { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = module.hub2.firewall_private_ip },
   ])
-  spoke5_udr_main_routes = concat(local.default_udr_destinations, [
+  spoke5_udr_main_routes = concat(local.region2_default_udr_destinations, [
     { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = module.hub2.firewall_private_ip },
   ])
-  hub2_udr_main_routes = concat(local.default_udr_destinations, [
+  hub2_udr_main_routes = concat(local.region2_default_udr_destinations, [
     { name = "spoke4", address_prefix = [local.spoke4_address_space.0, ], next_hop_ip = module.hub2.firewall_private_ip },
     { name = "spoke5", address_prefix = [local.spoke5_address_space.0, ], next_hop_ip = module.hub2.firewall_private_ip },
   ])
@@ -389,19 +390,18 @@ locals {
 
   init_dir = "/var/lib/azure"
   vm_script_targets_region1 = [
-    { name = "branch1 ", dns = lower(local.branch1_vm_fqdn), ipv4 = local.branch1_vm_addr, ipv6 = local.branch1_vm_addr_v6, probe = true },
-    { name = "branch2 ", dns = lower(local.branch2_vm_fqdn), ipv4 = local.branch2_vm_addr, ipv6 = local.branch2_vm_addr_v6, probe = true },
-    { name = "hub1 ", dns = lower(local.hub1_vm_fqdn), ipv4 = local.hub1_vm_addr, ipv6 = local.hub1_vm_addr_v6, probe = false },
+    { name = "branch1", dns = lower(local.branch1_vm_fqdn), ipv4 = local.branch1_vm_addr, ipv6 = local.branch1_vm_addr_v6, probe = true },
+    { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ipv4 = local.hub1_vm_addr, ipv6 = local.hub1_vm_addr_v6, probe = false },
     { name = "hub1-spoke3-pep", dns = lower(local.hub1_spoke3_pep_fqdn), ping = false, probe = true },
-    { name = "spoke1  ", dns = lower(local.spoke1_vm_fqdn), ipv4 = local.spoke1_vm_addr, ipv6 = local.spoke1_vm_addr_v6, probe = true },
-    { name = "spoke2  ", dns = lower(local.spoke2_vm_fqdn), ipv4 = local.spoke2_vm_addr, ipv6 = local.spoke2_vm_addr_v6, probe = true },
+    { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ipv4 = local.spoke1_vm_addr, ipv6 = local.spoke1_vm_addr_v6, probe = true },
+    { name = "spoke2 ", dns = lower(local.spoke2_vm_fqdn), ipv4 = local.spoke2_vm_addr, ipv6 = local.spoke2_vm_addr_v6, probe = true },
   ]
   vm_script_targets_region2 = [
-    { name = "branch3 ", dns = lower(local.branch3_vm_fqdn), ipv4 = local.branch3_vm_addr, ipv6 = local.branch3_vm_addr_v6, probe = true },
-    { name = "hub2 ", dns = lower(local.hub2_vm_fqdn), ipv4 = local.hub2_vm_addr, ipv6 = local.hub2_vm_addr_v6, probe = false },
+    { name = "branch3", dns = lower(local.branch3_vm_fqdn), ipv4 = local.branch3_vm_addr, ipv6 = local.branch3_vm_addr_v6, probe = true },
+    { name = "hub2   ", dns = lower(local.hub2_vm_fqdn), ipv4 = local.hub2_vm_addr, ipv6 = local.hub2_vm_addr_v6, probe = false },
     { name = "hub2-spoke6-pep", dns = lower(local.hub2_spoke6_pep_fqdn), ping = false, probe = true },
-    { name = "spoke4  ", dns = lower(local.spoke4_vm_fqdn), ipv4 = local.spoke4_vm_addr, ipv6 = local.spoke4_vm_addr_v6, probe = true },
-    { name = "spoke5  ", dns = lower(local.spoke5_vm_fqdn), ipv4 = local.spoke5_vm_addr, ipv6 = local.spoke5_vm_addr_v6, probe = true },
+    { name = "spoke4 ", dns = lower(local.spoke4_vm_fqdn), ipv4 = local.spoke4_vm_addr, ipv6 = local.spoke4_vm_addr_v6, probe = true },
+    { name = "spoke5 ", dns = lower(local.spoke5_vm_fqdn), ipv4 = local.spoke5_vm_addr, ipv6 = local.spoke5_vm_addr_v6, probe = true },
   ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ipv4 = "icanhazip.com", ipv6 = "icanhazip.com" },
@@ -436,16 +436,12 @@ locals {
     "${local.init_dir}/fastapi/app/app/_app.py"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/_app.py", {}) }
     "${local.init_dir}/fastapi/app/app/main.py"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/main.py", {}) }
     "${local.init_dir}/fastapi/app/app/requirements.txt"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/requirements.txt", {}) }
-    "${local.init_dir}/init/startup.sh"                      = { owner = "root", permissions = "0744", content = templatefile("../../scripts/startup.sh", local.vm_init_vars) }
+  }
+  vm_startup_init_files = {
+    "${local.init_dir}/init/startup.sh" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/startup.sh", local.vm_init_vars) }
   }
   probe_startup_init_files = {
-    "${local.init_dir}/fastapi/docker-compose-app1-80.yml"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/docker-compose-app1-80.yml", {}) }
-    "${local.init_dir}/fastapi/docker-compose-app2-8080.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/docker-compose-app2-8080.yml", {}) }
-    "${local.init_dir}/fastapi/app/app/Dockerfile"           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/Dockerfile", {}) }
-    "${local.init_dir}/fastapi/app/app/_app.py"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/_app.py", {}) }
-    "${local.init_dir}/fastapi/app/app/main.py"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/main.py", {}) }
-    "${local.init_dir}/fastapi/app/app/requirements.txt"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/requirements.txt", {}) }
-    "${local.init_dir}/init/startup.sh"                      = { owner = "root", permissions = "0744", content = templatefile("../../scripts/startup.sh", local.probe_init_vars) }
+    "${local.init_dir}/init/startup.sh" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/startup.sh", local.probe_init_vars) }
   }
   onprem_local_records = [
     { name = lower(local.branch1_vm_fqdn), rdata = local.branch1_vm_addr, ttl = "300", type = "A" },
@@ -460,7 +456,10 @@ locals {
 
 module "vm_cloud_init" {
   source = "../../modules/cloud-config-gen"
-  files  = local.vm_init_files
+  files = merge(
+    local.vm_init_files,
+    local.vm_startup_init_files
+  )
   packages = [
     "docker.io", "docker-compose", #npm,
   ]
@@ -475,7 +474,10 @@ module "vm_cloud_init" {
 
 module "probe_vm_cloud_init" {
   source = "../../modules/cloud-config-gen"
-  files  = local.probe_startup_init_files
+  files = merge(
+    local.vm_init_files,
+    local.probe_startup_init_files,
+  )
   packages = [
     "docker.io", "docker-compose", #npm,
   ]

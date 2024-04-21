@@ -14,6 +14,11 @@ sysctl -w net.ipv4.ip_forward=1
 sysctl -w net.ipv4.conf.eth0.disable_xfrm=1
 sysctl -w net.ipv4.conf.eth0.disable_policy=1
 echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+
+# Enable IPv6 forwarding
+sysctl -w net.ipv6.conf.all.forwarding=1
+echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+
 sysctl -p
 
 # Disable ICMP redirects
@@ -136,25 +141,25 @@ conn %default
 
 conn Tunnel0
     left=10.10.1.9
-    leftid=52.169.153.207
-    right=4.209.25.43
-    rightid=4.209.25.43
+    leftid=52.164.121.76
+    right=20.166.192.106
+    rightid=20.166.192.106
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.10.1.9
-    leftid=52.169.153.207
-    right=4.209.25.80
-    rightid=4.209.25.80
+    leftid=52.164.121.76
+    right=20.166.192.159
+    rightid=20.166.192.159
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.10.1.9
-    leftid=52.169.153.207
-    right=172.172.228.102
-    rightid=172.172.228.102
+    leftid=52.164.121.76
+    right=40.71.172.19
+    rightid=40.71.172.19
     auto=start
     mark=300
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -165,9 +170,9 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.10.1.9 4.209.25.43 : PSK "changeme"
-10.10.1.9 4.209.25.80 : PSK "changeme"
-10.10.1.9 172.172.228.102 : PSK "changeme"
+10.10.1.9 20.166.192.106 : PSK "changeme"
+10.10.1.9 20.166.192.159 : PSK "changeme"
+10.10.1.9 40.71.172.19 : PSK "changeme"
 
 EOF
 
@@ -186,12 +191,12 @@ case "$PLUTO_CONNECTION" in
   Tunnel0)
     VTI_INTERFACE=vti0
     VTI_LOCALADDR=10.10.10.1
-    VTI_REMOTEADDR=10.11.16.7
+    VTI_REMOTEADDR=10.11.16.6
     ;;
   Tunnel1)
     VTI_INTERFACE=vti1
     VTI_LOCALADDR=10.10.10.5
-    VTI_REMOTEADDR=10.11.16.6
+    VTI_REMOTEADDR=10.11.16.7
     ;;
   Tunnel2)
     VTI_INTERFACE=vti2
@@ -297,8 +302,8 @@ interface lo
 ! Static Routes
 !-----------------------------------------
 ip route 0.0.0.0/0 10.10.1.1
-ip route 10.11.16.7/32 vti0
-ip route 10.11.16.6/32 vti1
+ip route 10.11.16.6/32 vti0
+ip route 10.11.16.7/32 vti1
 ip route 192.168.30.30/32 vti2
 ip route 10.30.1.9 10.10.1.1
 ip route 10.10.0.0/24 10.10.1.1
@@ -311,28 +316,26 @@ ip route 10.10.0.0/24 10.10.1.1
   set as-path prepend 65001 65001 65001
   route-map AZURE permit 110
   match ip address prefix-list all
-  route-map BLOCK_HUB_GW_SUBNET permit 120
-  match ip address prefix-list BLOCK_HUB_GW_SUBNET
 !
 !-----------------------------------------
 ! BGP
 !-----------------------------------------
 router bgp 65001
 bgp router-id 192.168.10.10
-neighbor 10.11.16.7 remote-as 65515
-neighbor 10.11.16.7 ebgp-multihop 255
-neighbor 10.11.16.7 update-source lo
 neighbor 10.11.16.6 remote-as 65515
 neighbor 10.11.16.6 ebgp-multihop 255
 neighbor 10.11.16.6 update-source lo
+neighbor 10.11.16.7 remote-as 65515
+neighbor 10.11.16.7 ebgp-multihop 255
+neighbor 10.11.16.7 update-source lo
 neighbor 192.168.30.30 remote-as 65003
 neighbor 192.168.30.30 ebgp-multihop 255
 neighbor 192.168.30.30 update-source lo
 !
 address-family ipv4 unicast
   network 10.10.0.0/24
-  neighbor 10.11.16.7 soft-reconfiguration inbound
   neighbor 10.11.16.6 soft-reconfiguration inbound
+  neighbor 10.11.16.7 soft-reconfiguration inbound
   neighbor 192.168.30.30 soft-reconfiguration inbound
 exit-address-family
 !

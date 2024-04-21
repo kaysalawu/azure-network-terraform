@@ -106,6 +106,7 @@ resource "azurerm_private_endpoint" "hub2_spoke6_pls_pep" {
   }
   depends_on = [
     module.spoke6,
+    module.hub2,
   ]
 }
 
@@ -197,6 +198,7 @@ resource "azurerm_private_endpoint" "hub2_spoke6_blob_pep" {
   }
   depends_on = [
     module.spoke6,
+    module.hub2,
   ]
 }
 

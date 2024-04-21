@@ -96,7 +96,7 @@ To view the dashboards, follow the steps below:
 
     <img src="../../images/demos/hub-and-spoke/hs13-hub1-vpngw-db.png" alt="Go to dashboard" width="900">
 
-    </details>
+</details>
 <p>
 
 ## Testing
@@ -359,6 +359,10 @@ Hello, World!
 <p>
 
 **5.4** Check the interfaces of `Hs13-spoke1Vm` to observe the dual-stack configuration.
+
+```sh
+ip address
+```
 
 <details>
 

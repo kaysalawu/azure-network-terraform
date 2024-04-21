@@ -18,11 +18,11 @@ module "branch3" {
   enable_ipv6        = local.enable_ipv6
 
   nsg_subnet_map = {
-    "MainSubnet"      = module.common.nsg_main["region1"].id
-    "UntrustSubnet"   = module.common.nsg_nva["region1"].id
-    "TrustSubnet"     = module.common.nsg_main["region1"].id
-    "DnsServerSubnet" = module.common.nsg_main["region1"].id
-    "TestSubnet"      = module.common.nsg_main["region1"].id
+    "MainSubnet"      = module.common.nsg_main["region2"].id
+    "UntrustSubnet"   = module.common.nsg_nva["region2"].id
+    "TrustSubnet"     = module.common.nsg_main["region2"].id
+    "DnsServerSubnet" = module.common.nsg_main["region2"].id
+    "TestSubnet"      = module.common.nsg_main["region2"].id
   }
 
   config_vnet = {
@@ -66,7 +66,7 @@ locals {
     TARGETS              = local.vm_script_targets
     ACCESS_CONTROL_PREFIXES = concat(
       local.private_prefixes,
-      ["127.0.0.0/8", "35.199.192.0/19", ]
+      ["127.0.0.0/8", "35.199.192.0/19", "fd00::/8", ]
     )
   }
   branch3_forward_zones = [

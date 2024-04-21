@@ -157,7 +157,7 @@ spoke2  - fd00:db8:2::5 -NA
 internet - icanhazip.com -NA
 ```
 
-**Branch1** and **spoke2** are not reachable via IPv6 as Azure firewall currently does not support IPv6.
+From `Spoke1Vm`, we can only reach IPv6 targets that do not use Azure firewall as next hop. Azure firewall currently does not support IPv6.
 
 </details>
 <p>
@@ -201,7 +201,7 @@ spoke2vm.eu.az.corp - fd00:db8:2::5 -NA
 icanhazip.com - 2606:4700::6810:b8f1 -NA
 ```
 
-**Branch1** and **spoke2** are not reachable via IPv6 as Azure firewall currently does not support IPv6.
+From `Spoke1Vm`, we can only reach IPv6 targets that do not use Azure firewall as next hop. Azure firewall currently does not support IPv6.
 
 </details>
 <p>
@@ -248,8 +248,6 @@ azureuser@spoke1Vm:~$ curl-dns6
 000 (2.286602s) -  - icanhazip.com
 000 (0.013085s) -  - https://hs11spoke3sa20ca.blob.core.windows.net/spoke3/spoke3.txt
 ```
-
-Privatelink is not yet supported for IPv6, so **spoke3** private endpoint in **hub1** is IPv4 only.
 
 </details>
 <p>
@@ -362,6 +360,10 @@ Hello, World!
 <p>
 
 **5.4** Check the interfaces of `Hs11-spoke1Vm` to observe the dual-stack configuration.
+
+```sh
+ip address
+```
 
 <details>
 

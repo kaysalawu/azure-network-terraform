@@ -14,6 +14,11 @@ sysctl -w net.ipv4.ip_forward=1
 sysctl -w net.ipv4.conf.eth0.disable_xfrm=1
 sysctl -w net.ipv4.conf.eth0.disable_policy=1
 echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+
+# Enable IPv6 forwarding
+sysctl -w net.ipv6.conf.all.forwarding=1
+echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+
 sysctl -p
 
 # Disable ICMP redirects
@@ -136,25 +141,25 @@ conn %default
 
 conn Tunnel0
     left=10.30.1.9
-    leftid=172.172.228.102
-    right=172.212.31.69
-    rightid=172.212.31.69
+    leftid=40.71.172.19
+    right=172.171.162.79
+    rightid=172.171.162.79
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.30.1.9
-    leftid=172.172.228.102
-    right=172.212.31.46
-    rightid=172.212.31.46
+    leftid=40.71.172.19
+    right=172.171.161.233
+    rightid=172.171.161.233
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.30.1.9
-    leftid=172.172.228.102
-    right=52.169.153.207
-    rightid=52.169.153.207
+    leftid=40.71.172.19
+    right=52.164.121.76
+    rightid=52.164.121.76
     auto=start
     mark=300
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -165,9 +170,9 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.30.1.9 172.212.31.69 : PSK "changeme"
-10.30.1.9 172.212.31.46 : PSK "changeme"
-10.30.1.9 52.169.153.207 : PSK "changeme"
+10.30.1.9 172.171.162.79 : PSK "changeme"
+10.30.1.9 172.171.161.233 : PSK "changeme"
+10.30.1.9 52.164.121.76 : PSK "changeme"
 
 EOF
 

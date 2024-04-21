@@ -14,6 +14,11 @@ sysctl -w net.ipv4.ip_forward=1
 sysctl -w net.ipv4.conf.eth0.disable_xfrm=1
 sysctl -w net.ipv4.conf.eth0.disable_policy=1
 echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+
+# Enable IPv6 forwarding
+sysctl -w net.ipv6.conf.all.forwarding=1
+echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+
 sysctl -p
 
 # Disable ICMP redirects
@@ -136,25 +141,25 @@ conn %default
 
 conn Tunnel0
     left=10.30.1.9
-    leftid=52.170.152.229
-    right=172.171.154.181
-    rightid=172.171.154.181
+    leftid=40.71.19.85
+    right=57.151.12.135
+    rightid=57.151.12.135
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.30.1.9
-    leftid=52.170.152.229
-    right=172.171.154.144
-    rightid=172.171.154.144
+    leftid=40.71.19.85
+    right=57.151.9.26
+    rightid=57.151.9.26
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.30.1.9
-    leftid=52.170.152.229
-    right=52.169.119.231
-    rightid=52.169.119.231
+    leftid=40.71.19.85
+    right=52.169.28.192
+    rightid=52.169.28.192
     auto=start
     mark=300
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -165,9 +170,9 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.30.1.9 172.171.154.181 : PSK "changeme"
-10.30.1.9 172.171.154.144 : PSK "changeme"
-10.30.1.9 52.169.119.231 : PSK "changeme"
+10.30.1.9 57.151.12.135 : PSK "changeme"
+10.30.1.9 57.151.9.26 : PSK "changeme"
+10.30.1.9 52.169.28.192 : PSK "changeme"
 
 EOF
 
@@ -230,44 +235,34 @@ chmod a+x /etc/ipsec.d/ipsec-vti.sh
 tee /usr/local/bin/ipsec-auto-restart.sh <<'EOF'
 #!/bin/bash
 
-# export SHELL=/bin/bash
-# export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
-# export HOME=/root
-# export LANG=C.UTF-8
-# export USER=root
+export SHELL=/bin/bash
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+export HOME=/root
+export LANG=C.UTF-8
+export USER=root
 
-# LOG_FILE="/var/log/ipsec-auto-restart.log"
-# connections=$(grep '^conn' /etc/ipsec.conf | grep -v '%default' | awk '{print $2}')
-# active_tunnel_found=false
+LOG_FILE="/var/log/ipsec-auto-restart.log"
+connections=$(grep '^conn' /etc/ipsec.conf | grep -v '%default' | awk '{print $2}')
+all_tunnels_active=true
 
-# for conn in $connections; do
-#   status=$(ipsec status | grep "$conn")
-#   if [[ "$status" =~ ESTABLISHED ]]; then
-#         echo "$(date): $conn: active." >> "$LOG_FILE"
-#         active_tunnel_found=true
-#     elif ! [[ "$status" =~ CONNECTING ]]; then
-#         echo "$(date): $conn: down or inactive." >> "$LOG_FILE"
-#     ipsec down $conn
-#     ipsec up $conn
-#     echo "$(date): $conn: restarted." >> "$LOG_FILE"
+for conn in $connections; do
+  status=$(ipsec status | grep "$conn")
+  if ! [[ "$status" =~ ESTABLISHED ]]; then
+        all_tunnels_active=false
+        echo "$(date): $conn: down or inactive." >> "$LOG_FILE"
+    ipsec down $conn
+    ipsec up $conn
+    echo "$(date): $conn: restarting." >> "$LOG_FILE"
+else
+      echo "$(date): $conn: active." >> "$LOG_FILE"
+        fi
+done
 
-#     sleep 5
-#     if [[ $(ipsec status | grep "$conn") =~ ESTABLISHED ]]; then
-#       echo "$(date): $conn: active." >> "$LOG_FILE"
-#       active_tunnel_found=true
-#     else
-#       echo "$(date): $conn: down or inactive." >> "$LOG_FILE"
-#     fi
-#   fi
-# done
-
-# if ! $active_tunnel_found; then
-#   echo "$(date): No active tunnels found, restarting ipsec service..." >> "$LOG_FILE"
-#   systemctl restart ipsec
-#   echo "$(date): ipsec service restarted." >> "$LOG_FILE"
-# fi
-
-systemctl restart ipsec
+if ! $all_tunnels_active; then
+  echo "$(date): Not all tunnels active, restarting ipsec service..." >> "$LOG_FILE"
+  systemctl restart ipsec
+  echo "$(date): ipsec service restarted." >> "$LOG_FILE"
+fi
 
 EOF
 chmod a+x /usr/local/bin/ipsec-auto-restart.sh
