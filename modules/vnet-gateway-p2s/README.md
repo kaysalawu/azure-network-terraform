@@ -61,7 +61,6 @@ No requirements.
 | <a name="output_client_certificates"></a> [client\_certificates](#output\_client\_certificates) | n/a |
 | <a name="output_client_certificates_cert_name"></a> [client\_certificates\_cert\_name](#output\_client\_certificates\_cert\_name) | n/a |
 | <a name="output_client_certificates_cert_pem"></a> [client\_certificates\_cert\_pem](#output\_client\_certificates\_cert\_pem) | n/a |
-| <a name="output_client_certificates_cert_pfx"></a> [client\_certificates\_cert\_pfx](#output\_client\_certificates\_cert\_pfx) | n/a |
 | <a name="output_client_certificates_cert_pfx_password"></a> [client\_certificates\_cert\_pfx\_password](#output\_client\_certificates\_cert\_pfx\_password) | n/a |
 | <a name="output_client_certificates_private_key_pem"></a> [client\_certificates\_private\_key\_pem](#output\_client\_certificates\_private\_key\_pem) | n/a |
 | <a name="output_gateway"></a> [gateway](#output\_gateway) | n/a |

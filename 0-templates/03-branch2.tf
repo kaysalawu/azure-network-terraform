@@ -33,12 +33,16 @@ module "branch2" {
       "DnsServerSubnet",
       "TestSubnet",
     ]
-    enable_ars = false
   }
 
   config_ergw = {
     enable = true
     sku    = "ErGw1AZ"
+  }
+
+  config_s2s_vpngw = {
+    enable = false
+    sku    = "VpnGw1AZ"
   }
 
   depends_on = [

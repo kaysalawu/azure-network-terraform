@@ -22,8 +22,32 @@ variable "megaport_access_key" {}
 variable "megaport_secret_key" {}
 
 ####################################################
-# megaport links
+# megaport
 ####################################################
+
+locals {
+  circuits = [
+    {
+      name              = "${local.prefix}-er1"
+      mcr_name          = "mcr1"
+      location          = local.region1
+      peering_location  = local.express_route_location
+      bandwidth_in_mbps = local.bandwidth_in_mbps
+      requested_vlan    = local.megaport_vlan1
+
+      ipv4_config = {
+        primary_peer_address_prefix   = local.csp_range1
+        secondary_peer_address_prefix = local.csp_range2
+      }
+      ipv6_config = {
+        enabled                       = true
+        primary_peer_address_prefix   = local.csp_range1_v6
+        secondary_peer_address_prefix = local.csp_range2_v6
+      }
+      peering_type = "AzurePrivatePeering"
+    },
+  ]
+}
 
 module "megaport" {
   source = "../../modules/megaport"
@@ -42,40 +66,50 @@ module "megaport" {
       requested_asn = local.megaport_asn
     },
   ]
-
-  circuits = [
-    {
-      name              = "${local.prefix}-hub1"
-      connection_target = "vnet"
-      location          = local.region1
-      peering_location  = local.express_route_location
-      bandwidth_in_mbps = local.bandwidth_in_mbps
-      requested_vlan    = local.megaport_vlan1
-      mcr_name          = "mcr1"
-      # primary_peer_address_prefix        = local.csp_range1
-      # secondary_peer_address_prefix      = local.csp_range2
-      # primary_peer_address_prefix_ipv6   = local.csp_range1_v6
-      # secondary_peer_address_prefix_ipv6 = local.csp_range2_v6
-      virtual_network_gateway_id = module.hub1.ergw.id
-      peering_type               = "AzurePrivatePeering"
-    },
-  ]
+  circuits = local.circuits
 }
 
-resource "azurerm_express_route_circuit_authorization" "branch2" {
+####################################################
+# gateway connections
+####################################################
+
+# branch2
+
+resource "azurerm_express_route_circuit_authorization" "er1_branch2" {
   resource_group_name        = azurerm_resource_group.rg.name
-  name                       = "${local.prefix}-ipv6-branch2"
-  express_route_circuit_name = module.megaport.expressroute_circuits["${local.prefix}-er1"].name
+  name                       = "${local.prefix}-er1-branch2"
+  express_route_circuit_name = module.megaport.express_route_circuit["${local.prefix}-er1"].name
 }
 
-resource "azurerm_virtual_network_gateway_connection" "this" {
+resource "azurerm_virtual_network_gateway_connection" "er1_branch2" {
   resource_group_name        = azurerm_resource_group.rg.name
-  name                       = "${local.prefix}-ipv6-branch2"
+  name                       = "${local.prefix}-er1-branch2"
   location                   = local.region1
   type                       = "ExpressRoute"
   virtual_network_gateway_id = module.branch2.ergw.id
-  authorization_key          = azurerm_express_route_circuit_authorization.branch2.authorization_key
-  express_route_circuit_id   = module.megaport.expressroute_circuits["${local.prefix}-er1"].id
+  authorization_key          = azurerm_express_route_circuit_authorization.er1_branch2.authorization_key
+  express_route_circuit_id   = module.megaport.express_route_circuit["${local.prefix}-er1"].id
+}
+
+# hub1
+
+resource "azurerm_express_route_circuit_authorization" "er1_hub1" {
+  resource_group_name        = azurerm_resource_group.rg.name
+  name                       = "${local.prefix}-er1-hub1"
+  express_route_circuit_name = module.megaport.express_route_circuit["${local.prefix}-er1"].name
+}
+
+resource "azurerm_virtual_network_gateway_connection" "er1_hub1" {
+  resource_group_name        = azurerm_resource_group.rg.name
+  name                       = "${local.prefix}-er1-hub1"
+  location                   = local.region1
+  type                       = "ExpressRoute"
+  virtual_network_gateway_id = module.hub1.ergw.id
+  authorization_key          = azurerm_express_route_circuit_authorization.er1_hub1.authorization_key
+  express_route_circuit_id   = module.megaport.express_route_circuit["${local.prefix}-er1"].id
+  depends_on = [
+    azurerm_virtual_network_gateway_connection.er1_branch2,
+  ]
 }
 
 ####################################################
@@ -83,16 +117,15 @@ resource "azurerm_virtual_network_gateway_connection" "this" {
 ####################################################
 
 locals {
-  hub1_er_dashboard_vars = {
-    ER_CIRCUIT1 = module.megaport.expressroute_circuits["${local.prefix}-er1"].id
+  dashboard_vars = {
+    "${local.prefix}-er1" = templatefile("./dashboard/dashboard.json", { ER_CIRCUIT_ID = module.megaport.express_route_circuit["${local.prefix}-er1"].id })
   }
-  dashboard_properties = templatefile("./dashboard/dashboard.json", local.hub1_er_dashboard_vars)
 }
 
-resource "azurerm_portal_dashboard" "hub1_er" {
-  name                 = "${local.hub1_prefix}hub1-er-db"
+resource "azurerm_portal_dashboard" "hub2_er" {
+  for_each             = local.dashboard_vars
   resource_group_name  = azurerm_resource_group.rg.name
-  location             = local.hub1_location
-  tags                 = local.hub1_tags
-  dashboard_properties = local.dashboard_properties
+  location             = local.default_region
+  name                 = "${each.key}-db"
+  dashboard_properties = each.value
 }

@@ -27,16 +27,18 @@ No modules.
 | [azurerm_network_security_group.nsg_main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_group) | resource |
 | [azurerm_network_security_group.nsg_nva](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_group) | resource |
 | [azurerm_network_security_rule.internet_inbound](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
-| [azurerm_network_security_rule.internet_inbound_self](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
+| [azurerm_network_security_rule.internet_inbound_ipv6](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
 | [azurerm_network_security_rule.nsg_lb_appgw_v2sku_inbound](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
 | [azurerm_network_security_rule.nsg_lb_outbound](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
 | [azurerm_network_security_rule.nsg_lb_web_external_inbound](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
 | [azurerm_network_security_rule.nsg_main_private_inbound](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
+| [azurerm_network_security_rule.nsg_main_private_inbound_v6](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
 | [azurerm_network_security_rule.nsg_main_private_outbound](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
 | [azurerm_network_security_rule.nsg_nva_internet_inbound](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
 | [azurerm_network_security_rule.nsg_nva_ipsec_inbound](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
 | [azurerm_network_security_rule.nsg_nva_outbound](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
 | [azurerm_network_security_rule.nsg_nva_private_inbound](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
+| [azurerm_network_security_rule.nsg_nva_private_inbound_v6](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule) | resource |
 | [azurerm_private_dns_zone.private_dns_zones](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_dns_zone) | resource |
 | [azurerm_storage_account.storage_accounts](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account) | resource |
 | [random_id.storage_accounts](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) | resource |
@@ -50,6 +52,7 @@ No modules.
 | <a name="input_firewall_sku"></a> [firewall\_sku](#input\_firewall\_sku) | The SKU of the firewall to deploy | `string` | `"Standard"` | no |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | The prefix to use for all resources | `string` | n/a | yes |
 | <a name="input_private_prefixes"></a> [private\_prefixes](#input\_private\_prefixes) | A list of private prefixes to allow access to | `list(string)` | <pre>[<br>  "10.0.0.0/8",<br>  "172.16.0.0/12",<br>  "192.168.0.0/16",<br>  "100.64.0.0/10"<br>]</pre> | no |
+| <a name="input_private_prefixes_v6"></a> [private\_prefixes\_v6](#input\_private\_prefixes\_v6) | A list of private prefixes to allow access to | `list(string)` | <pre>[<br>  "fd00::/8"<br>]</pre> | no |
 | <a name="input_regions"></a> [regions](#input\_regions) | A map of regions to deploy resources to | <pre>map(object({<br>    name     = string<br>    dns_zone = string<br>  }))</pre> | n/a | yes |
 | <a name="input_resource_group"></a> [resource\_group](#input\_resource\_group) | The name of the resource group to deploy to | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to apply to all resources | `map(any)` | `{}` | no |

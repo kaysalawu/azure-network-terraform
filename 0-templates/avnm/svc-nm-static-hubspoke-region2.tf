@@ -51,36 +51,16 @@ resource "azurerm_network_manager_admin_rule_collection" "secadmin_rule_col_regi
   ]
 }
 
-locals {
-  secadmin_rules_region2 = [
-    {
-      description             = "rdp"
-      action                  = "Allow"
-      direction               = "Inbound"
-      priority                = 1
-      protocol                = "Tcp"
-      destination_port_ranges = ["3333"]
-      source = [
-        { address_prefix_type = "IPPrefix", address_prefix = "*" }
-      ]
-      destinations = [
-        { address_prefix_type = "IPPrefix", address_prefix = "*" }
-      ]
-    }
-  ]
-}
-
 resource "azurerm_network_manager_admin_rule" "secadmin_rules_region2" {
-  for_each                 = { for r in local.secadmin_rules_region2 : r.description => r }
-  name                     = "${local.prefix}-secadmin-rules-region2"
+  for_each                 = local.secadmin_rules_global
+  name                     = "${local.prefix}-secadmin-rules-${each.key}"
   admin_rule_collection_id = azurerm_network_manager_admin_rule_collection.secadmin_rule_col_region2.id
   description              = each.value.description
   action                   = each.value.action
   direction                = each.value.direction
   priority                 = each.value.priority
   protocol                 = each.value.protocol
-  source_port_ranges       = try(each.value.source_port_ranges, null)
-  destination_port_ranges  = each.value.destination_port_ranges
+  source_port_ranges       = each.value.destination_port_ranges
 
   dynamic "source" {
     for_each = each.value.source
@@ -89,6 +69,7 @@ resource "azurerm_network_manager_admin_rule" "secadmin_rules_region2" {
       address_prefix      = source.value.address_prefix
     }
   }
+
   dynamic "destination" {
     for_each = each.value.destinations
     content {

@@ -360,7 +360,7 @@ module "ergw" {
   subnet_id      = azurerm_subnet.this["GatewaySubnet"].id
   tags           = var.tags
 
-  sku           = var.config_vnet.express_route_gateway_sku
+  sku           = var.config_ergw.sku
   active_active = var.config_ergw.active_active
 
   log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
@@ -381,7 +381,7 @@ resource "azurerm_public_ip" "ars_pip" {
   resource_group_name = var.resource_group
   name                = "${local.prefix}ars-pip"
   location            = var.location
-  sku                 = var.config_vnet.express_route_gateway_sku
+  sku                 = var.config_ergw.sku
   allocation_method   = "Static"
   tags                = var.tags
   timeouts {

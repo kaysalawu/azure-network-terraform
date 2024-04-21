@@ -130,8 +130,6 @@ variable "config_vnet" {
     private_dns_outbound_subnet_name = optional(string, null)
     ruleset_dns_forwarding_rules     = optional(map(any), {})
 
-    express_route_gateway_sku = optional(string, "Standard")
-
     vpn_gateway_ip_config0_apipa_addresses = optional(list(string), ["169.254.21.1"])
     vpn_gateway_ip_config1_apipa_addresses = optional(list(string), ["169.254.21.5"])
   })

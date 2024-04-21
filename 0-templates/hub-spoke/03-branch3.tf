@@ -18,11 +18,11 @@ module "branch3" {
   enable_ipv6        = local.enable_ipv6
 
   nsg_subnet_map = {
-    "MainSubnet"      = module.common.nsg_main["region1"].id
-    "UntrustSubnet"   = module.common.nsg_nva["region1"].id
-    "TrustSubnet"     = module.common.nsg_main["region1"].id
-    "DnsServerSubnet" = module.common.nsg_main["region1"].id
-    "TestSubnet"      = module.common.nsg_main["region1"].id
+    "MainSubnet"      = module.common.nsg_main["region2"].id
+    "UntrustSubnet"   = module.common.nsg_nva["region2"].id
+    "TrustSubnet"     = module.common.nsg_main["region2"].id
+    "DnsServerSubnet" = module.common.nsg_main["region2"].id
+    "TestSubnet"      = module.common.nsg_main["region2"].id
   }
 
   config_vnet = {

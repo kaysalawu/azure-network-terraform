@@ -4,6 +4,8 @@ locals {
     NETWORK_GROUP_ID = azurerm_network_manager_network_group.ng_spokes_prod_region2.id
     LOCATION         = local.region2
     LAB_ID           = local.prefix
+    ENV              = "prod"
+    NODE_TYPE        = "spoke"
   })
   policy_cleanup_commands_region2 = [
     "az policy assignment delete -n ${local.prefix}-ng-spokes-prod-region2",
@@ -86,36 +88,16 @@ resource "azurerm_network_manager_admin_rule_collection" "secadmin_rule_col_regi
   ]
 }
 
-locals {
-  secadmin_rules_region2 = [
-    {
-      description             = "rdp"
-      action                  = "Allow"
-      direction               = "Inbound"
-      priority                = 1
-      protocol                = "Tcp"
-      destination_port_ranges = ["3333"]
-      source = [
-        { address_prefix_type = "IPPrefix", address_prefix = "*" }
-      ]
-      destinations = [
-        { address_prefix_type = "IPPrefix", address_prefix = "*" }
-      ]
-    }
-  ]
-}
-
 resource "azurerm_network_manager_admin_rule" "secadmin_rules_region2" {
-  for_each                 = { for r in local.secadmin_rules_region2 : r.description => r }
-  name                     = "${local.prefix}-secadmin-rules-region2"
+  for_each                 = local.secadmin_rules_global
+  name                     = "${local.prefix}-secadmin-rules-${each.key}"
   admin_rule_collection_id = azurerm_network_manager_admin_rule_collection.secadmin_rule_col_region2.id
   description              = each.value.description
   action                   = each.value.action
   direction                = each.value.direction
   priority                 = each.value.priority
   protocol                 = each.value.protocol
-  source_port_ranges       = try(each.value.source_port_ranges, null)
-  destination_port_ranges  = each.value.destination_port_ranges
+  source_port_ranges       = each.value.destination_port_ranges
 
   dynamic "source" {
     for_each = each.value.source
@@ -124,6 +106,7 @@ resource "azurerm_network_manager_admin_rule" "secadmin_rules_region2" {
       address_prefix      = source.value.address_prefix
     }
   }
+
   dynamic "destination" {
     for_each = each.value.destinations
     content {
@@ -144,11 +127,13 @@ resource "azurerm_network_manager_deployment" "conn_config_hub_spoke_region2" {
   location           = local.region2
   scope_access       = "Connectivity"
   configuration_ids = [
-    azurerm_network_manager_connectivity_configuration.conn_config_hub_spoke_region2.id
+    azurerm_network_manager_connectivity_configuration.conn_config_hub_spoke_region2.id,
+    azurerm_network_manager_connectivity_configuration.conn_config_mesh_float.id,
   ]
   triggers = {
     connectivity_configuration_id = azurerm_network_manager_connectivity_configuration.conn_config_hub_spoke_region2.id
-    policy_json                   = local.policy_ng_spokes_prod_region2
+    policy_json_region2           = local.policy_ng_spokes_prod_region2
+    policy_json_global            = local.policy_ng_spokes_prod_float
   }
 }
 
@@ -162,6 +147,10 @@ resource "azurerm_network_manager_deployment" "secadmin_config_region2" {
   triggers = {
     connectivity_configuration_id = azurerm_network_manager_security_admin_configuration.secadmin_config_region2.id
     policy_json                   = local.policy_ng_spokes_prod_region2
+    admin_rule_changes = jsonencode({
+      protocol                = [for rule in local.secadmin_rules_global : rule.protocol]
+      destination_port_ranges = [for rule in local.secadmin_rules_global : rule.destination_port_ranges]
+    })
   }
   depends_on = [
     azurerm_network_manager_deployment.conn_config_hub_spoke_region2,
@@ -197,7 +186,7 @@ resource "null_resource" "policy_cleanup_region2" {
 
 locals {
   avnm_files_region2 = {
-    "output/policies/pol-ng-spokes.json" = local.policy_ng_spokes_prod_region2
+    "output/policies/pol-ng-spokes-prod-region2.json" = local.policy_ng_spokes_prod_region2
   }
 }
 
