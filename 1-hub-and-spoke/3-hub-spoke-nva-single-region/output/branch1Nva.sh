@@ -141,23 +141,23 @@ conn %default
 
 conn Tunnel0
     left=10.10.1.9
-    leftid=52.169.118.72
-    right=4.209.240.185
-    rightid=4.209.240.185
+    leftid=52.169.234.192
+    right=4.209.162.233
+    rightid=4.209.162.233
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.10.1.9
-    leftid=52.169.118.72
-    right=4.209.240.162
-    rightid=4.209.240.162
+    leftid=52.169.234.192
+    right=4.209.162.219
+    rightid=4.209.162.219
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.10.1.9
-    leftid=52.169.118.72
+    leftid=52.169.234.192
     right=1.1.1.1
     rightid=1.1.1.1
     auto=start
@@ -170,8 +170,8 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.10.1.9 4.209.240.185 : PSK "changeme"
-10.10.1.9 4.209.240.162 : PSK "changeme"
+10.10.1.9 4.209.162.233 : PSK "changeme"
+10.10.1.9 4.209.162.219 : PSK "changeme"
 10.10.1.9 1.1.1.1 : PSK "changeme"
 
 EOF
@@ -191,12 +191,12 @@ case "$PLUTO_CONNECTION" in
   Tunnel0)
     VTI_INTERFACE=vti0
     VTI_LOCALADDR=10.10.10.1
-    VTI_REMOTEADDR=10.11.16.14
+    VTI_REMOTEADDR=10.11.16.6
     ;;
   Tunnel1)
     VTI_INTERFACE=vti1
     VTI_LOCALADDR=10.10.10.5
-    VTI_REMOTEADDR=10.11.16.15
+    VTI_REMOTEADDR=10.11.16.7
     ;;
   Tunnel2)
     VTI_INTERFACE=vti2
@@ -302,8 +302,8 @@ interface lo
 ! Static Routes
 !-----------------------------------------
 ip route 0.0.0.0/0 10.10.1.1
-ip route 10.11.16.14/32 vti0
-ip route 10.11.16.15/32 vti1
+ip route 10.11.16.6/32 vti0
+ip route 10.11.16.7/32 vti1
 ip route 192.168.30.30/32 vti2
 ip route 10.30.1.9 10.10.1.1
 ip route 10.10.0.0/24 10.10.1.1
@@ -322,20 +322,20 @@ ip route 10.10.0.0/24 10.10.1.1
 !-----------------------------------------
 router bgp 65001
 bgp router-id 192.168.10.10
-neighbor 10.11.16.14 remote-as 65515
-neighbor 10.11.16.14 ebgp-multihop 255
-neighbor 10.11.16.14 update-source lo
-neighbor 10.11.16.15 remote-as 65515
-neighbor 10.11.16.15 ebgp-multihop 255
-neighbor 10.11.16.15 update-source lo
+neighbor 10.11.16.6 remote-as 65515
+neighbor 10.11.16.6 ebgp-multihop 255
+neighbor 10.11.16.6 update-source lo
+neighbor 10.11.16.7 remote-as 65515
+neighbor 10.11.16.7 ebgp-multihop 255
+neighbor 10.11.16.7 update-source lo
 neighbor 192.168.30.30 remote-as 65003
 neighbor 192.168.30.30 ebgp-multihop 255
 neighbor 192.168.30.30 update-source lo
 !
 address-family ipv4 unicast
   network 10.10.0.0/24
-  neighbor 10.11.16.14 soft-reconfiguration inbound
-  neighbor 10.11.16.15 soft-reconfiguration inbound
+  neighbor 10.11.16.6 soft-reconfiguration inbound
+  neighbor 10.11.16.7 soft-reconfiguration inbound
   neighbor 192.168.30.30 soft-reconfiguration inbound
 exit-address-family
 !

@@ -249,7 +249,7 @@ azureuser@spoke1Vm:~$ curl-dns6
 000 (0.013085s) -  - https://hs11spoke3sa20ca.blob.core.windows.net/spoke3/spoke3.txt
 ```
 
-Privatelink is not yet supported for IPv6, so **spoke** private endpoint in **hub1** is IPv4 only.
+Privatelink is not yet supported for IPv6, so **spoke3** private endpoint in **hub1** is IPv4 only.
 
 </details>
 <p>
@@ -328,7 +328,7 @@ nslookup $spoke3_sgtacct_host
 <summary>Sample output</summary>
 
 ```sh
-azure-network-terraform$ nslookup $spoke3_sgtacct_host
+1-hub-spoke-azfw-single-region$ nslookup $spoke3_sgtacct_host
 Server:         127.0.0.53
 Address:        127.0.0.53#53
 
@@ -361,7 +361,7 @@ Hello, World!
 </details>
 <p>
 
-**5.4** Check the interfaces of `Lab07-spoke1Vm` to observe the dual-stack configuration.
+**5.4** Check the interfaces of `Hs11-spoke1Vm` to observe the dual-stack configuration.
 
 <details>
 
@@ -613,6 +613,8 @@ K>* 169.254.169.254/32 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 05:35:35
 C>* 192.168.10.10/32 is directly connected, lo, 05:35:35
 ```
 
+We can see the Vnet ranges learned dynamically via BGP.
+
 ```sh
 branch1Nva# show ipv6 route
 Codes: K - kernel route, C - connected, S - static, R - RIPng,
@@ -633,7 +635,7 @@ C * fe80::/64 is directly connected, eth1, 05:36:14
 C>* fe80::/64 is directly connected, eth0, 05:36:14
 ```
 
-We can see the Vnet ranges learned dynamically via BGP.
+IPv6 is not yet configured for BGP but we can see static and connected IPv6 routes.
 
 </details>
 <p>
