@@ -123,6 +123,45 @@ Login to virtual machine `Vwan24-spoke1Vm` via the [serial console](https://lear
   - password = ***Password123***
 - You should now be in a shell session `azureuser@Vwan24-spoke1Vm:~$`
 
+Type the following command to check the interfaces of `Vwan24-spoke1Vm` to observe the dual-stack configuration.
+
+```sh
+ip address
+```
+
+<details>
+
+<summary>Sample output</summary>
+
+```sh
+azureuser@spoke1Vm:~$ ip address
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:0d:3a:b7:4a:43 brd ff:ff:ff:ff:ff:ff
+    inet 10.1.0.5/24 brd 10.1.0.255 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fd00:db8:1::5/128 scope global dynamic noprefixroute
+       valid_lft 17274391sec preferred_lft 8634391sec
+    inet6 fe80::20d:3aff:feb7:4a43/64 scope link
+       valid_lft forever preferred_lft forever
+3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default
+    link/ether 02:42:2f:5f:fc:39 brd ff:ff:ff:ff:ff:ff
+    inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:2fff:fe5f:fc39/64 scope link
+       valid_lft forever preferred_lft forever
+```
+
+The interface ***eth0*** has both IPv4 and IPv6 addresses.
+
+</details>
+<p>
+
 Run the following tests from inside the serial console session.
 
 ### 1. Ping IP
@@ -423,46 +462,6 @@ Hello, World!
 
 </details>
 <p>
-
-**5.4** Check the interfaces of `Vwan24-spoke1Vm` to observe the dual-stack configuration.
-
-```sh
-ip address
-```
-
-<details>
-
-<summary>Sample output</summary>
-
-```sh
-azureuser@spoke1Vm:~$ ip address
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host
-       valid_lft forever preferred_lft forever
-2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
-    link/ether 00:0d:3a:b7:4a:43 brd ff:ff:ff:ff:ff:ff
-    inet 10.1.0.5/24 brd 10.1.0.255 scope global eth0
-       valid_lft forever preferred_lft forever
-    inet6 fd00:db8:1::5/128 scope global dynamic noprefixroute
-       valid_lft 17274391sec preferred_lft 8634391sec
-    inet6 fe80::20d:3aff:feb7:4a43/64 scope link
-       valid_lft forever preferred_lft forever
-3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default
-    link/ether 02:42:2f:5f:fc:39 brd ff:ff:ff:ff:ff:ff
-    inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
-       valid_lft forever preferred_lft forever
-    inet6 fe80::42:2fff:fe5f:fc39/64 scope link
-       valid_lft forever preferred_lft forever
-```
-
-The interface ***eth0*** has both IPv4 and IPv6 addresses.
-
-</details>
-<p>
-
 
 ### 6. Private Link Access to Storage Account from On-premises
 

@@ -1,7 +1,7 @@
 
 locals {
   policy_ng_spokes_prod_float = templatefile("../../policies/avnm/ng-spokes-prod-float.json", {
-    NETWORK_GROUP_ID = azurerm_network_manager_network_group.ng_spokes_prod_region2.id
+    NETWORK_GROUP_ID = azurerm_network_manager_network_group.ng_spokes_prod_float.id
     LAB_ID           = local.prefix
     ENV              = "prod"
     NODE_TYPE        = "float"
@@ -96,7 +96,7 @@ resource "azurerm_policy_definition" "ng_spokes_prod_float" {
   name         = "${local.prefix}-ng-spokes-prod-float"
   policy_type  = "Custom"
   mode         = "Microsoft.Network.Data"
-  display_name = "All spokes in prod region2"
+  display_name = "All spokes in prod"
   metadata     = templatefile("../../policies/avnm/metadata.json", {})
   policy_rule  = local.policy_ng_spokes_prod_float
 }

@@ -66,7 +66,7 @@ locals {
     TARGETS              = local.vm_script_targets
     ACCESS_CONTROL_PREFIXES = concat(
       local.private_prefixes,
-      ["127.0.0.0/8", "35.199.192.0/19", ]
+      ["127.0.0.0/8", "35.199.192.0/19", "fd00::/8", ]
     )
   }
   branch3_forward_zones = [

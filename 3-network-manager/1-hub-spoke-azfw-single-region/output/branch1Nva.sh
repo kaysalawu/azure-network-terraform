@@ -14,6 +14,11 @@ sysctl -w net.ipv4.ip_forward=1
 sysctl -w net.ipv4.conf.eth0.disable_xfrm=1
 sysctl -w net.ipv4.conf.eth0.disable_policy=1
 echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+
+# Enable IPv6 forwarding
+sysctl -w net.ipv6.conf.all.forwarding=1
+echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+
 sysctl -p
 
 # Disable ICMP redirects
@@ -136,23 +141,23 @@ conn %default
 
 conn Tunnel0
     left=10.10.1.9
-    leftid=52.178.221.1
-    right=4.207.168.60
-    rightid=4.207.168.60
+    leftid=13.79.164.251
+    right=4.209.59.49
+    rightid=4.209.59.49
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.10.1.9
-    leftid=52.178.221.1
-    right=4.207.170.123
-    rightid=4.207.170.123
+    leftid=13.79.164.251
+    right=4.209.59.14
+    rightid=4.209.59.14
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.10.1.9
-    leftid=52.178.221.1
+    leftid=13.79.164.251
     right=1.1.1.1
     rightid=1.1.1.1
     auto=start
@@ -165,8 +170,8 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.10.1.9 4.207.168.60 : PSK "changeme"
-10.10.1.9 4.207.170.123 : PSK "changeme"
+10.10.1.9 4.209.59.49 : PSK "changeme"
+10.10.1.9 4.209.59.14 : PSK "changeme"
 10.10.1.9 1.1.1.1 : PSK "changeme"
 
 EOF
@@ -311,8 +316,6 @@ ip route 10.10.0.0/24 10.10.1.1
   set as-path prepend 65001 65001 65001
   route-map AZURE permit 110
   match ip address prefix-list all
-  route-map BLOCK_HUB_GW_SUBNET permit 120
-  match ip address prefix-list BLOCK_HUB_GW_SUBNET
 !
 !-----------------------------------------
 ! BGP

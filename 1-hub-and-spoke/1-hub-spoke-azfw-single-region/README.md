@@ -116,6 +116,45 @@ Login to virtual machine `Hs11-spoke1Vm` via the [serial console](https://learn.
   - password = ***Password123***
 - You should now be in a shell session `azureuser@Hs11-spoke1Vm:~$`
 
+Type the following command to check the interfaces of `Hs11-spoke1Vm` to observe the dual-stack configuration.
+
+```sh
+ip address
+```
+
+<details>
+
+<summary>Sample output</summary>
+
+```sh
+azureuser@spoke1Vm:~$ ip address
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:22:48:a3:99:ca brd ff:ff:ff:ff:ff:ff
+    inet 10.1.0.5/24 brd 10.1.0.255 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fd00:db8:1::5/128 scope global dynamic noprefixroute
+       valid_lft 17258947sec preferred_lft 8618947sec
+    inet6 fe80::222:48ff:fea3:99ca/64 scope link
+       valid_lft forever preferred_lft forever
+3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default
+    link/ether 02:42:bd:59:44:e8 brd ff:ff:ff:ff:ff:ff
+    inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:bdff:fe59:44e8/64 scope link
+       valid_lft forever preferred_lft forever
+```
+
+The interface ***eth0*** has both IPv4 and IPv6 addresses.
+
+</details>
+<p>
+
 Run the following tests from inside the serial console session.
 
 ### 1. Ping IP
@@ -283,6 +322,7 @@ azureuser@spoke1Vm:~$ curl spoke3pls.eu.az.corp
 </details>
 <p>
 
+
 The `Hostname`, `server-ipv4` and `server-ipv6` fields identify the target web server - in this case ***spoke3*** virtual machine. The `remote-addr` field (as seen by the web server) is an IP address in the Private Link Service NAT subnet in ***spoke3***.
 
 ### 5. Private Link Access to Storage Account
@@ -355,45 +395,6 @@ curl $spoke3_blob_url && echo
 ```sh
 Hello, World!
 ```
-
-</details>
-<p>
-
-**5.4** Check the interfaces of `Hs11-spoke1Vm` to observe the dual-stack configuration.
-
-```sh
-ip address
-```
-
-<details>
-
-<summary>Sample output</summary>
-
-```sh
-azureuser@spoke1Vm:~$ ip address
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host
-       valid_lft forever preferred_lft forever
-2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
-    link/ether 00:22:48:a3:99:ca brd ff:ff:ff:ff:ff:ff
-    inet 10.1.0.5/24 brd 10.1.0.255 scope global eth0
-       valid_lft forever preferred_lft forever
-    inet6 fd00:db8:1::5/128 scope global dynamic noprefixroute
-       valid_lft 17258947sec preferred_lft 8618947sec
-    inet6 fe80::222:48ff:fea3:99ca/64 scope link
-       valid_lft forever preferred_lft forever
-3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default
-    link/ether 02:42:bd:59:44:e8 brd ff:ff:ff:ff:ff:ff
-    inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
-       valid_lft forever preferred_lft forever
-    inet6 fe80::42:bdff:fe59:44e8/64 scope link
-       valid_lft forever preferred_lft forever
-```
-
-The interface ***eth0*** has both IPv4 and IPv6 addresses.
 
 </details>
 <p>
