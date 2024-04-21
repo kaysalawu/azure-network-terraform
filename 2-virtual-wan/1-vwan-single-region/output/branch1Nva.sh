@@ -14,6 +14,11 @@ sysctl -w net.ipv4.ip_forward=1
 sysctl -w net.ipv4.conf.eth0.disable_xfrm=1
 sysctl -w net.ipv4.conf.eth0.disable_policy=1
 echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+
+# Enable IPv6 forwarding
+sysctl -w net.ipv6.conf.all.forwarding=1
+echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+
 sysctl -p
 
 # Disable ICMP redirects
@@ -136,23 +141,23 @@ conn %default
 
 conn Tunnel0
     left=10.10.1.9
-    leftid=13.74.157.173
-    right=4.209.42.173
-    rightid=4.209.42.173
+    leftid=52.178.193.153
+    right=4.209.227.210
+    rightid=4.209.227.210
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.10.1.9
-    leftid=13.74.157.173
-    right=4.209.42.172
-    rightid=4.209.42.172
+    leftid=52.178.193.153
+    right=4.209.224.195
+    rightid=4.209.224.195
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.10.1.9
-    leftid=13.74.157.173
+    leftid=52.178.193.153
     right=1.1.1.1
     rightid=1.1.1.1
     auto=start
@@ -165,8 +170,8 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.10.1.9 4.209.42.173 : PSK "changeme"
-10.10.1.9 4.209.42.172 : PSK "changeme"
+10.10.1.9 4.209.227.210 : PSK "changeme"
+10.10.1.9 4.209.224.195 : PSK "changeme"
 10.10.1.9 1.1.1.1 : PSK "changeme"
 
 EOF
@@ -186,12 +191,12 @@ case "$PLUTO_CONNECTION" in
   Tunnel0)
     VTI_INTERFACE=vti0
     VTI_LOCALADDR=10.10.10.1
-    VTI_REMOTEADDR=192.168.11.13
+    VTI_REMOTEADDR=192.168.11.12
     ;;
   Tunnel1)
     VTI_INTERFACE=vti1
     VTI_LOCALADDR=10.10.10.5
-    VTI_REMOTEADDR=192.168.11.12
+    VTI_REMOTEADDR=192.168.11.13
     ;;
   Tunnel2)
     VTI_INTERFACE=vti2
@@ -230,44 +235,34 @@ chmod a+x /etc/ipsec.d/ipsec-vti.sh
 tee /usr/local/bin/ipsec-auto-restart.sh <<'EOF'
 #!/bin/bash
 
-# export SHELL=/bin/bash
-# export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
-# export HOME=/root
-# export LANG=C.UTF-8
-# export USER=root
+export SHELL=/bin/bash
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+export HOME=/root
+export LANG=C.UTF-8
+export USER=root
 
-# LOG_FILE="/var/log/ipsec-auto-restart.log"
-# connections=$(grep '^conn' /etc/ipsec.conf | grep -v '%default' | awk '{print $2}')
-# active_tunnel_found=false
+LOG_FILE="/var/log/ipsec-auto-restart.log"
+connections=$(grep '^conn' /etc/ipsec.conf | grep -v '%default' | awk '{print $2}')
+all_tunnels_active=true
 
-# for conn in $connections; do
-#   status=$(ipsec status | grep "$conn")
-#   if [[ "$status" =~ ESTABLISHED ]]; then
-#         echo "$(date): $conn: active." >> "$LOG_FILE"
-#         active_tunnel_found=true
-#     elif ! [[ "$status" =~ CONNECTING ]]; then
-#         echo "$(date): $conn: down or inactive." >> "$LOG_FILE"
-#     ipsec down $conn
-#     ipsec up $conn
-#     echo "$(date): $conn: restarted." >> "$LOG_FILE"
+for conn in $connections; do
+  status=$(ipsec status | grep "$conn")
+  if ! [[ "$status" =~ ESTABLISHED ]]; then
+        all_tunnels_active=false
+        echo "$(date): $conn: down or inactive." >> "$LOG_FILE"
+    ipsec down $conn
+    ipsec up $conn
+    echo "$(date): $conn: restarting." >> "$LOG_FILE"
+else
+      echo "$(date): $conn: active." >> "$LOG_FILE"
+        fi
+done
 
-#     sleep 5
-#     if [[ $(ipsec status | grep "$conn") =~ ESTABLISHED ]]; then
-#       echo "$(date): $conn: active." >> "$LOG_FILE"
-#       active_tunnel_found=true
-#     else
-#       echo "$(date): $conn: down or inactive." >> "$LOG_FILE"
-#     fi
-#   fi
-# done
-
-# if ! $active_tunnel_found; then
-#   echo "$(date): No active tunnels found, restarting ipsec service..." >> "$LOG_FILE"
-#   systemctl restart ipsec
-#   echo "$(date): ipsec service restarted." >> "$LOG_FILE"
-# fi
-
-systemctl restart ipsec
+if ! $all_tunnels_active; then
+  echo "$(date): Not all tunnels active, restarting ipsec service..." >> "$LOG_FILE"
+  systemctl restart ipsec
+  echo "$(date): ipsec service restarted." >> "$LOG_FILE"
+fi
 
 EOF
 chmod a+x /usr/local/bin/ipsec-auto-restart.sh
@@ -307,8 +302,8 @@ interface lo
 ! Static Routes
 !-----------------------------------------
 ip route 0.0.0.0/0 10.10.1.1
-ip route 192.168.11.13/32 vti0
-ip route 192.168.11.12/32 vti1
+ip route 192.168.11.12/32 vti0
+ip route 192.168.11.13/32 vti1
 ip route 192.168.30.30/32 vti2
 ip route 10.30.1.9 10.10.1.1
 ip route 10.10.0.0/24 10.10.1.1
@@ -327,20 +322,20 @@ ip route 10.10.0.0/24 10.10.1.1
 !-----------------------------------------
 router bgp 65001
 bgp router-id 192.168.10.10
-neighbor 192.168.11.13 remote-as 65515
-neighbor 192.168.11.13 ebgp-multihop 255
-neighbor 192.168.11.13 update-source lo
 neighbor 192.168.11.12 remote-as 65515
 neighbor 192.168.11.12 ebgp-multihop 255
 neighbor 192.168.11.12 update-source lo
+neighbor 192.168.11.13 remote-as 65515
+neighbor 192.168.11.13 ebgp-multihop 255
+neighbor 192.168.11.13 update-source lo
 neighbor 192.168.30.30 remote-as 65003
 neighbor 192.168.30.30 ebgp-multihop 255
 neighbor 192.168.30.30 update-source lo
 !
 address-family ipv4 unicast
   network 10.10.0.0/24
-  neighbor 192.168.11.13 soft-reconfiguration inbound
   neighbor 192.168.11.12 soft-reconfiguration inbound
+  neighbor 192.168.11.13 soft-reconfiguration inbound
   neighbor 192.168.30.30 soft-reconfiguration inbound
 exit-address-family
 !

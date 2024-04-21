@@ -126,10 +126,11 @@ Run the following tests from inside the serial console session.
 
 This script pings the IP addresses of some test virtual machines and reports reachability and round trip time.
 
-**1.1.** Run the IP ping test
+**1.1.** Run the IP ping tests
 
 ```sh
-ping-ip
+ping-ipv4
+ping-ipv6
 ```
 
 <details>
@@ -137,16 +138,38 @@ ping-ip
 <summary>Sample output</summary>
 
 ```sh
-azureuser@spoke1Vm:~$ ping-ip
+azureuser@spoke1Vm:~$ ping-ipv4
 
- ping ip ...
+ ping ipv4 ...
 
-branch1 - 10.10.0.5 -OK 5.391 ms
-hub1    - 10.11.0.5 -OK 4.000 ms
-spoke1  - 10.1.0.5 -OK 0.063 ms
-spoke2  - 10.2.0.5 -OK 4.777 ms
+branch1 - 10.10.0.5 -OK 4.026 ms
+hub1    - 10.11.0.5 -OK 4.237 ms
+spoke1  - 10.1.0.5 -OK 0.029 ms
+spoke2  - 10.2.0.5 -OK 4.571 ms
+branch3 - 10.30.0.5 -OK 71.695 ms
+hub2    - 10.22.0.5 -OK 71.533 ms
+spoke4  - 10.4.0.5 -OK 70.858 ms
+spoke5  - 10.5.0.5 -OK 71.698 ms
 internet - icanhazip.com -NA
 ```
+
+```sh
+azureuser@spoke1Vm:~$ ping-ipv6
+
+ ping ipv6 ...
+
+branch1 - fd00:db8:10::5 -NA
+hub1    - fd00:db8:11::5 -NA
+spoke1  - fd00:db8:1::5 -OK 0.039 ms
+spoke2  - fd00:db8:2::5 -NA
+branch3 - fd00:db8:30::5 -NA
+hub2    - fd00:db8:22::5 -NA
+spoke4  - fd00:db8:4::5 -NA
+spoke5  - fd00:db8:5::5 -NA
+internet - icanhazip.com -NA
+```
+
+`Spoke1Vm` cannot reach any destinations via the Virtual WAN hub; which currently does not support IPv6.
 
 </details>
 <p>
@@ -155,10 +178,11 @@ internet - icanhazip.com -NA
 
 This script pings the DNS name of some test virtual machines and reports reachability and round trip time. This tests hybrid DNS resolution between on-premises and Azure.
 
-**2.1.** Run the DNS ping test
+**2.1.** Run the DNS ping tests
 
 ```sh
-ping-dns
+ping-dns4
+ping-dns6
 ```
 
 <details>
@@ -166,16 +190,38 @@ ping-dns
 <summary>Sample output</summary>
 
 ```sh
-azureuser@spoke1Vm:~$ ping-dns
+azureuser@spoke1Vm:~$ ping-dns4
 
- ping dns ...
+ ping dns ipv4 ...
 
-branch1vm.corp - 10.10.0.5 -OK 4.523 ms
-hub1vm.eu.az.corp - 10.11.0.5 -OK 4.134 ms
-spoke1vm.eu.az.corp - 10.1.0.5 -OK 0.039 ms
-spoke2vm.eu.az.corp - 10.2.0.5 -OK 3.605 ms
-icanhazip.com - 104.16.184.241 -NA
+branch1vm.corp - 10.10.0.5 -OK 4.331 ms
+hub1vm.eu.az.corp - 10.11.0.5 -OK 3.809 ms
+spoke1vm.eu.az.corp - 10.1.0.5 -OK 0.024 ms
+spoke2vm.eu.az.corp - 10.2.0.5 -OK 4.709 ms
+branch3vm.corp - 10.30.0.5 -OK 71.553 ms
+hub2vm.us.az.corp - 10.22.0.5 -OK 73.365 ms
+spoke4vm.us.az.corp - 10.4.0.5 -OK 69.804 ms
+spoke5vm.us.az.corp - 10.5.0.5 -OK 73.877 ms
+icanhazip.com - 104.16.185.241 -NA
 ```
+
+```sh
+azureuser@spoke1Vm:~$ ping-dns6
+
+ ping dns ipv6 ...
+
+branch1vm.corp - fd00:db8:10::5 -NA
+hub1vm.eu.az.corp - fd00:db8:11::5 -NA
+spoke1vm.eu.az.corp - fd00:db8:1::5 -OK 0.037 ms
+spoke2vm.eu.az.corp - fd00:db8:2::5 -NA
+branch3vm.corp - fd00:db8:30::5 -NA
+hub2vm.us.az.corp - fd00:db8:22::5 -NA
+spoke4vm.us.az.corp - fd00:db8:4::5 -NA
+spoke5vm.us.az.corp - fd00:db8:5::5 -NA
+icanhazip.com - 2606:4700::6810:b8f1 -NA
+```
+
+`Spoke1Vm` cannot reach any destinations via the Virtual WAN hub which currently does not support IPv6.
 
 </details>
 <p>
@@ -187,7 +233,8 @@ This script uses curl to check reachability of web server (python Flask) on the 
 **3.1.** Run the DNS curl test
 
 ```sh
-curl-dns
+curl-dns4
+curl-dns6
 ```
 
 <details>
@@ -195,17 +242,43 @@ curl-dns
 <summary>Sample output</summary>
 
 ```sh
-azureuser@spoke1Vm:~$ curl-dns
+azureuser@spoke1Vm:~$ curl-dns4
 
- curl dns ...
+ curl dns ipv4 ...
 
-200 (0.034219s) - 10.10.0.5 - branch1vm.corp
-200 (0.022801s) - 10.11.0.5 - hub1vm.eu.az.corp
-200 (0.016795s) - 10.11.7.88 - spoke3pls.eu.az.corp
-200 (0.010442s) - 10.1.0.5 - spoke1vm.eu.az.corp
-200 (0.024292s) - 10.2.0.5 - spoke2vm.eu.az.corp
-200 (0.013468s) - 104.16.185.241 - icanhazip.com
-200 (0.042746s) - 10.11.7.99 - https://vwan23spoke3sa2bc7.blob.core.windows.net/spoke3/spoke3.txt
+200 (0.016957s) - 10.10.0.5 - branch1vm.corp
+200 (0.013759s) - 10.11.0.5 - hub1vm.eu.az.corp
+200 (0.007106s) - 10.11.7.88 - spoke3pls.eu.az.corp
+200 (0.008978s) - 10.1.0.5 - spoke1vm.eu.az.corp
+200 (0.023323s) - 10.2.0.5 - spoke2vm.eu.az.corp
+200 (0.145826s) - 10.30.0.5 - branch3vm.corp
+200 (0.156842s) - 10.22.0.5 - hub2vm.us.az.corp
+200 (0.141793s) - 10.22.7.88 - spoke6pls.us.az.corp
+200 (0.155873s) - 10.4.0.5 - spoke4vm.us.az.corp
+200 (0.158268s) - 10.5.0.5 - spoke5vm.us.az.corp
+200 (0.022461s) - 104.16.184.241 - icanhazip.com
+200 (0.027142s) - 10.11.7.99 - https://vwan22spoke3sa94e5.blob.core.windows.net/spoke3/spoke3.txt
+200 (0.294462s) - 10.22.7.99 - https://vwan22spoke6sa94e5.blob.core.windows.net/spoke6/spoke6.txt
+```
+
+```sh
+azureuser@spoke1Vm:~$ curl-dns6
+
+ curl dns ipv6 ...
+
+ - branch1vm.corp
+ - hub1vm.eu.az.corp
+000 (0.008308s) -  - spoke3pls.eu.az.corp
+200 (0.010879s) - fd00:db8:1::5 - spoke1vm.eu.az.corp
+ - spoke2vm.eu.az.corp
+ - branch3vm.corp
+ - hub2vm.us.az.corp
+000 (0.012227s) -  - spoke6pls.us.az.corp
+ - spoke4vm.us.az.corp
+ - spoke5vm.us.az.corp
+000 (2.251180s) -  - icanhazip.com
+000 (0.002283s) -  - https://vwan22spoke3sa94e5.blob.core.windows.net/spoke3/spoke3.txt
+000 (0.017422s) -  - https://vwan22spoke6sa94e5.blob.core.windows.net/spoke6/spoke6.txt
 ```
 
 </details>
@@ -226,14 +299,16 @@ curl spoke3pls.eu.az.corp
 ```json
 azureuser@spoke1Vm:~$ curl spoke3pls.eu.az.corp
 {
-  "Headers": {
-    "Accept": "*/*",
-    "Host": "spoke3pls.eu.az.corp",
-    "User-Agent": "curl/7.68.0"
-  },
-  "Hostname": "spoke3Vm",
+  "app": "SERVER",
+  "hostname": "spoke3Vm",
   "server-ipv4": "10.3.0.5",
-  "Remote-IP": "10.3.6.4"
+  "server-ipv6": "fd00:db8:3::5",
+  "remote-addr": "10.3.6.4",
+  "headers": {
+    "host": "spoke3pls.eu.az.corp",
+    "user-agent": "curl/7.68.0",
+    "accept": "*/*"
+  }
 }
 ```
 
@@ -266,7 +341,7 @@ echo -e "\n$spoke3_sgtacct_host\n" && echo
 <summary>Sample output</summary>
 
 ```sh
-vwan23spoke3sa2bc7.blob.core.windows.net
+vwan23spoke3sa59db.blob.core.windows.net
 ```
 
 </details>
@@ -283,21 +358,20 @@ nslookup $spoke3_sgtacct_host
 <summary>Sample output</summary>
 
 ```sh
-3-vwan-sec-single-region$ nslookup $spoke3_sgtacct_host
-Server:         8.8.8.8
-Address:        8.8.8.8#53
+2-vwan-dual-region$ nslookup $spoke3_sgtacct_host
+Server:         127.0.0.53
+Address:        127.0.0.53#53
 
 Non-authoritative answer:
-vwan23spoke3sa2bc7.blob.core.windows.net        canonical name = vwan23spoke3sa2bc7.privatelink.blob.core.windows.net.
-vwan23spoke3sa2bc7.privatelink.blob.core.windows.net    canonical name = blob.db3prdstr16a.store.core.windows.net.
-Name:   blob.db3prdstr16a.store.core.windows.net
-Address: 20.150.47.132
+vwan23spoke3sa59db.blob.core.windows.net        canonical name = blob.db4prdstr12a.store.core.windows.net.
+Name:   blob.db4prdstr12a.store.core.windows.net
+Address: 20.60.145.164
 ```
 
 </details>
 <p>
 
-We can see that the endpoint is a public IP address, ***20.150.47.132***. We can see the CNAME `vwan23spoke3sa2bc7.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
+We can see that the endpoint is a public IP address, ***20.60.145.164***. We can see the CNAME `vwan23spoke3sa59db.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
 
 **5.3.** Test access to the storage account blob.
 
@@ -315,6 +389,46 @@ Hello, World!
 
 </details>
 <p>
+
+**5.4** Check the interfaces of `Vwan22-spoke1Vm` to observe the dual-stack configuration.
+
+```sh
+ip address
+```
+
+<details>
+
+<summary>Sample output</summary>
+
+```sh
+azureuser@spoke1Vm:~$ ip address
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:0d:3a:65:7e:64 brd ff:ff:ff:ff:ff:ff
+    inet 10.1.0.5/24 brd 10.1.0.255 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fd00:db8:1::5/128 scope global dynamic noprefixroute
+       valid_lft 17274578sec preferred_lft 8634578sec
+    inet6 fe80::20d:3aff:fe65:7e64/64 scope link
+       valid_lft forever preferred_lft forever
+3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default
+    link/ether 02:42:82:4b:91:32 brd ff:ff:ff:ff:ff:ff
+    inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:82ff:fe4b:9132/64 scope link
+       valid_lft forever preferred_lft forever
+```
+
+The interface ***eth0*** has both IPv4 and IPv6 addresses.
+
+</details>
+<p>
+
 
 ### 6. Private Link Access to Storage Account from On-premises
 
@@ -378,7 +492,7 @@ echo -e "\n$spoke3_sgtacct_host\n" && echo
 <summary>Sample output</summary>
 
 ```sh
-vwan23spoke3sa2bc7.blob.core.windows.net
+vwan23spoke3sa59db.blob.core.windows.net
 ```
 
 </details>
@@ -400,8 +514,8 @@ Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-vwan23spoke3sa2bc7.blob.core.windows.net        canonical name = vwan23spoke3sa2bc7.privatelink.blob.core.windows.net.
-Name:   vwan23spoke3sa2bc7.privatelink.blob.core.windows.net
+vwan23spoke3sa59db.blob.core.windows.net        canonical name = vwan23spoke3sa59db.privatelink.blob.core.windows.net.
+Name:   vwan23spoke3sa59db.privatelink.blob.core.windows.net
 Address: 10.11.7.99
 ```
 
@@ -410,9 +524,9 @@ Address: 10.11.7.99
 
 We can see that the storage account hostname resolves to the private endpoint ***10.11.7.99*** in ***hub1***. The following is a summary of the DNS resolution from `Vwan23-branch1Vm`:
 
-- On-premises server `Vwan23-branch1Vm` makes a DNS request for `vwan23spoke3sa2bc7.blob.core.windows.net`
+- On-premises server `Vwan23-branch1Vm` makes a DNS request for `vwan23spoke3sa59db.blob.core.windows.net`
 - The request is received by on-premises DNS server `Vwan23-branch1-dns`
-- The DNS server resolves `vwan23spoke3sa2bc7.blob.core.windows.net` to the CNAME `vwan23spoke3sa2bc7.privatelink.blob.core.windows.net`
+- The DNS server resolves `vwan23spoke3sa59db.blob.core.windows.net` to the CNAME `vwan23spoke3sa59db.privatelink.blob.core.windows.net`
 - The DNS server has a conditional DNS forwarding defined in the branch1 unbound DNS configuration file, [output/branch1Dns.sh](./output/branch1Dns.sh).
 
   ```sh
