@@ -4,7 +4,6 @@
 ####################################################
 
 locals {
-  hub_proxy_startup = templatefile("../../scripts/unbound/unbound.sh", local.hub_proxy_vars)
   hub_proxy_vars = {
     ONPREM_LOCAL_RECORDS = local.hub_local_records
     REDIRECTED_HOSTS     = local.hub_redirected_hosts
@@ -15,7 +14,7 @@ locals {
       ["127.0.0.0/8", "35.199.192.0/19", ]
     )
   }
-  proxy_crawler_vars = merge(local.hub_crawler_vars, {
+  proxy_crawler_vars = merge(local.base_crawler_vars, {
     VNET_NAME   = module.hub.vnet.name
     SUBNET_NAME = module.hub.subnets["PublicSubnet"].name
     VM_NAME     = "${local.prefix}-${local.hub_proxy_hostname}"
@@ -27,7 +26,7 @@ locals {
   }
   hub_proxy_files = merge(
     local.vm_init_files,
-    local.server_init_files,
+    local.vm_startup_init_files,
     local.proxy_crawler_files,
     {
       "${local.init_dir}/unbound/Dockerfile"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/Dockerfile", {}) }
@@ -55,9 +54,13 @@ locals {
 module "hub_proxy_init" {
   source   = "../../modules/cloud-config-gen"
   packages = ["docker.io", "docker-compose", ] #npm, "dnsutils", "net-tools",
-  files    = local.hub_proxy_files
+  files = merge(
+    local.vm_startup_init_files,
+    local.vm_startup_init_files,
+    local.hub_proxy_files,
+  )
   run_commands = [
-    ". ${local.init_dir}/init/server.sh",
+    ". ${local.init_dir}/init/startup.sh",
     ". ${local.init_dir}/unbound/setup-unbound.sh",
     ". ${local.init_dir}/squid/setup-squid.sh",
     "docker-compose -f ${local.init_dir}/unbound/docker-compose.yml up -d",

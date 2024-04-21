@@ -43,11 +43,16 @@ provider "azurerm" {
   }
 }
 
+provider "azapi" {}
+
 terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
       version = ">= 3.78.0"
+    }
+    azapi = {
+      source = "azure/azapi"
     }
   }
 }
@@ -120,8 +125,19 @@ locals {
     TARGETS                   = local.vm_script_targets
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
+    ENABLE_TRAFFIC_GEN        = false
   })
-  hub_crawler_vars = {
+  probe_init_vars = {
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
+    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
+  }
+  vm_init_vars = {
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = []
+    TARGETS_HEAVY_TRAFFIC_GEN = []
+  }
+  base_crawler_vars = {
     MANAGEMENT_URL             = "https://management.azure.com/subscriptions?api-version=2020-01-01"
     SERVICE_TAGS_DOWNLOAD_LINK = "https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20240318.json"
     RESOURCE_GROUP             = azurerm_resource_group.rg.name
@@ -138,14 +154,56 @@ locals {
     KEY_VAULT_SECRET_URL   = local.key_vault_secret_url
     KEY_VAULT_SECRET_VALUE = local.key_vault_secret_value
   }
-  hub_server_vars = {
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = []
-    TARGETS_HEAVY_TRAFFIC_GEN = []
+  vm_init_files = {
+    "${local.init_dir}/fastapi/docker-compose-app1-80.yml"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/docker-compose-app1-80.yml", {}) }
+    "${local.init_dir}/fastapi/docker-compose-app2-8080.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/docker-compose-app2-8080.yml", {}) }
+    "${local.init_dir}/fastapi/app/app/Dockerfile"           = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/Dockerfile", {}) }
+    "${local.init_dir}/fastapi/app/app/_app.py"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/_app.py", {}) }
+    "${local.init_dir}/fastapi/app/app/main.py"              = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/main.py", {}) }
+    "${local.init_dir}/fastapi/app/app/requirements.txt"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/app/app/requirements.txt", {}) }
   }
-  server_init_files = {
-    "${local.init_dir}/init/server.sh" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/server.sh", local.hub_server_vars) }
+  vm_startup_init_files = {
+    "${local.init_dir}/init/startup.sh" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/startup.sh", local.vm_init_vars) }
   }
+  probe_startup_init_files = {
+    "${local.init_dir}/init/startup.sh" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/startup.sh", local.probe_init_vars) }
+  }
+}
+
+module "vm_cloud_init" {
+  source = "../../modules/cloud-config-gen"
+  files = merge(
+    local.vm_init_files,
+    local.vm_startup_init_files
+  )
+  packages = [
+    "docker.io", "docker-compose", #npm,
+  ]
+  run_commands = [
+    "systemctl enable docker",
+    "systemctl start docker",
+    "bash ${local.init_dir}/init/startup.sh",
+    "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
+    "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app2-8080.yml up -d",
+  ]
+}
+
+module "probe_vm_cloud_init" {
+  source = "../../modules/cloud-config-gen"
+  files = merge(
+    local.vm_init_files,
+    local.probe_startup_init_files,
+  )
+  packages = [
+    "docker.io", "docker-compose", #npm,
+  ]
+  run_commands = [
+    "systemctl enable docker",
+    "systemctl start docker",
+    "bash ${local.init_dir}/init/startup.sh",
+    "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
+    "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app2-8080.yml up -d",
+  ]
 }
 
 ####################################################
@@ -154,7 +212,10 @@ locals {
 
 locals {
   main_files = {
-    "output/server.sh" = local.vm_startup
+    "output/server.sh"              = local.vm_startup
+    "output/startup.sh"             = templatefile("../../scripts/startup.sh", local.vm_init_vars)
+    "output/probe-cloud-config.yml" = module.probe_vm_cloud_init.cloud_config
+    "output/vm-cloud-config.yml"    = module.vm_cloud_init.cloud_config
   }
 }
 

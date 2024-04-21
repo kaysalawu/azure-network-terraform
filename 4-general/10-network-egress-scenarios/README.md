@@ -556,7 +556,7 @@ Results
 
 <summary>Debugs</summary>
 
-Detailed curl shows that a connection is made to blob host lab10hub481a.blob.core.windows.net (20.150.47.132). Request returns 200 OK. This is not the expected result as the server should not have access to storage when private subnet is enabled with service endpoints or public IP.
+Detailed curl shows that a connection is made to blob host lab10hub481a.blob.core.windows.net (20.150.47.132). Request returns 200 OK. This is expected since storage account can be accessed from a VM in the same region, regardless of the public IP configuration.
 
 ```sh
 root@Server1:/var/lib/azure/crawler/app# curl -s -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "x-ms-version: 2019-02-02" -H "Authorization: Bearer $storage_access_token" "https://lab10hub481a.blob.core.windows.net/storage/storage.txt" -v

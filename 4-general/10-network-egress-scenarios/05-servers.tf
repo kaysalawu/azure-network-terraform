@@ -4,7 +4,7 @@
 ####################################################
 
 locals {
-  server1_crawler_vars = merge(local.hub_crawler_vars, {
+  server1_crawler_vars = merge(local.base_crawler_vars, {
     VNET_NAME   = module.hub.vnet.name
     SUBNET_NAME = module.hub.subnets["ProductionSubnet"].name
     VM_NAME     = "${local.prefix}-${local.hub_server1_hostname}"
@@ -16,7 +16,7 @@ locals {
   }
   hub_server1_files = merge(
     local.vm_init_files,
-    local.server_init_files,
+    local.vm_startup_init_files,
     local.server1_crawler_files,
   )
 }
@@ -25,7 +25,7 @@ module "hub_server1_init" {
   source = "../../modules/cloud-config-gen"
   files  = local.hub_server1_files
   run_commands = [
-    ". ${local.init_dir}/init/server.sh",
+    ". ${local.init_dir}/init/startup.sh",
     "python3 -m venv ${local.init_dir}/crawler",
   ]
 }
@@ -64,7 +64,7 @@ locals {
     "127.0.0.1",
     "corp",
   ]
-  server2_crawler_vars = merge(local.hub_crawler_vars, {
+  server2_crawler_vars = merge(local.base_crawler_vars, {
     VNET_NAME   = module.hub.vnet.name
     SUBNET_NAME = module.hub.subnets["ProductionSubnet"].name
     VM_NAME     = "${local.prefix}-${local.hub_server2_hostname}"
@@ -76,7 +76,7 @@ locals {
   }
   hub_server2_files = merge(
     local.vm_init_files,
-    local.server_init_files,
+    local.vm_startup_init_files,
     local.server2_crawler_files,
   )
 }
@@ -85,7 +85,7 @@ module "hub_server2_init" {
   source = "../../modules/cloud-config-gen"
   files  = local.hub_server2_files
   run_commands = [
-    ". ${local.init_dir}/init/server.sh",
+    ". ${local.init_dir}/init/startup.sh",
     "/bin/bash -c 'echo export http_proxy=http://${local.hub_proxy_addr}:3128 >> /etc/environment'",
     "/bin/bash -c 'echo export https_proxy=http://${local.hub_proxy_addr}:3128 >> /etc/environment'",
     "/bin/bash -c 'echo export ftp_proxy=http://${local.hub_proxy_addr}:3128 >> /etc/environment'",
