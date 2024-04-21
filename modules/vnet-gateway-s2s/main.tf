@@ -22,7 +22,7 @@ data "azurerm_public_ip" "this" {
 resource "azurerm_public_ip" "this" {
   for_each            = { for i in var.ip_configuration : i.name => i if i.public_ip_address_name == null }
   resource_group_name = var.resource_group
-  name                = each.value.public_ip_address_name
+  name                = each.value.public_ip_address_name != null ? each.value.public_ip_address_name : "${var.prefix}vpngw-${each.key}-pip"
   location            = var.location
   sku                 = "Standard"
   allocation_method   = "Static"
@@ -52,11 +52,11 @@ resource "azurerm_virtual_network_gateway" "this" {
   tags                        = var.tags
 
   dynamic "ip_configuration" {
-    for_each = { for i in var.ip_configuration : i.name => i if i.public_ip_address_name != null }
+    for_each = { for i in var.ip_configuration : i.name => i }
     content {
       name                          = ip_configuration.value["name"]
       subnet_id                     = ip_configuration.value["subnet_id"]
-      public_ip_address_id          = data.azurerm_public_ip.this[ip_configuration.key].id != null ? data.azurerm_public_ip.this[ip_configuration.key].id : azurerm_public_ip.this[ip_configuration.key].id
+      public_ip_address_id          = try(data.azurerm_public_ip.this[ip_configuration.key].id, null) != null ? data.azurerm_public_ip.this[ip_configuration.key].id : azurerm_public_ip.this[ip_configuration.key].id
       private_ip_address_allocation = ip_configuration.value["private_ip_address_allocation"]
     }
   }

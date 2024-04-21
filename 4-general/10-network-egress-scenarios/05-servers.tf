@@ -15,7 +15,8 @@ locals {
     "${local.init_dir}/crawler/app/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/requirements.txt", local.server1_crawler_vars) }
   }
   hub_server1_files = merge(
-    local.hub_server_files,
+    local.vm_init_files,
+    local.server_init_files,
     local.server1_crawler_files,
   )
 }
@@ -74,7 +75,8 @@ locals {
     "${local.init_dir}/crawler/app/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/requirements.txt", local.server2_crawler_vars) }
   }
   hub_server2_files = merge(
-    local.hub_server_files,
+    local.vm_init_files,
+    local.server_init_files,
     local.server2_crawler_files,
   )
 }

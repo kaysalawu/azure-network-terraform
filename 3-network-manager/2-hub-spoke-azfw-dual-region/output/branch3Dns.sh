@@ -18,12 +18,15 @@ cat <<EOF > /etc/unbound/unbound.conf
 server:
         port: 53
         do-ip4: yes
+        do-ip6: yes
         do-udp: yes
         do-tcp: yes
 
         interface: 0.0.0.0
+        interface: ::0
 
         access-control: 0.0.0.0 deny
+        access-control: ::0 deny
         access-control: 10.0.0.0/8 allow
         access-control: 172.16.0.0/12 allow
         access-control: 192.168.0.0/16 allow
@@ -35,6 +38,9 @@ server:
         local-data: "branch1vm.corp 300 IN A 10.10.0.5"
         local-data: "branch2vm.corp 300 IN A 10.20.0.5"
         local-data: "branch3vm.corp 300 IN A 10.30.0.5"
+        local-data: "branch1vm.corp 300 IN AAAA fd00:db8:10::5"
+        local-data: "branch2vm.corp 300 IN AAAA fd00:db8:20::5"
+        local-data: "branch3vm.corp 300 IN AAAA fd00:db8:30::5"
 
         # hosts redirected to PrivateLink
 

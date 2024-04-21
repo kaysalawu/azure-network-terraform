@@ -286,7 +286,7 @@ module "s2s_vpngw" {
 
   sku           = var.config_s2s_vpngw.sku
   active_active = var.config_s2s_vpngw.active_active
-  bgp_asn       = var.config_s2s_vpngw.bgp_settings.asn
+  bgp_asn       = try(var.config_s2s_vpngw.bgp_settings.asn, 65515)
 
   private_ip_address_enabled  = var.config_s2s_vpngw.private_ip_address_enabled
   remote_vnet_traffic_enabled = var.config_s2s_vpngw.remote_vnet_traffic_enabled

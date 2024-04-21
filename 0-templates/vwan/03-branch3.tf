@@ -22,7 +22,7 @@ module "branch3" {
     "UntrustSubnet"   = module.common.nsg_nva["region2"].id
     "TrustSubnet"     = module.common.nsg_main["region2"].id
     "DnsServerSubnet" = module.common.nsg_main["region2"].id
-    "TestSubnet"      = module.common.nsg_main["region1"].id
+    "TestSubnet"      = module.common.nsg_main["region2"].id
   }
 
   config_vnet = {
@@ -95,9 +95,10 @@ module "branch3_dns" {
   enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
-      name               = "${local.branch3_prefix}dns-main"
-      subnet_id          = module.branch3.subnets["MainSubnet"].id
-      private_ip_address = local.branch3_dns_addr
+      name                 = "${local.branch3_prefix}dns-main"
+      subnet_id            = module.branch3.subnets["MainSubnet"].id
+      private_ip_address   = local.branch3_dns_addr
+      private_ipv6_address = local.branch3_dns_addr_v6
     },
   ]
   depends_on = [
@@ -241,12 +242,14 @@ module "branch3_nva" {
       name                 = "${local.branch3_prefix}nva-untrust-nic"
       subnet_id            = module.branch3.subnets["UntrustSubnet"].id
       private_ip_address   = local.branch3_nva_untrust_addr
+      private_ipv6_address = local.branch3_nva_untrust_addr_v6
       public_ip_address_id = azurerm_public_ip.branch3_nva_pip[0].id
     },
     {
-      name               = "${local.branch3_prefix}nva-trust-nic"
-      subnet_id          = module.branch3.subnets["TrustSubnet"].id
-      private_ip_address = local.branch3_nva_trust_addr
+      name                 = "${local.branch3_prefix}nva-trust-nic"
+      subnet_id            = module.branch3.subnets["TrustSubnet"].id
+      private_ip_address   = local.branch3_nva_trust_addr
+      private_ipv6_address = local.branch3_nva_trust_addr_v6
     },
   ]
 }
@@ -254,14 +257,6 @@ module "branch3_nva" {
 ####################################################
 # workload
 ####################################################
-
-locals {
-  branch3_vm_init = templatefile("../../scripts/server.sh", {
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
-    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
-  })
-}
 
 module "branch3_vm" {
   source          = "../../modules/virtual-machine-linux"
@@ -271,15 +266,16 @@ module "branch3_vm" {
   location        = local.branch3_location
   storage_account = module.common.storage_accounts["region2"]
   dns_servers     = [local.branch3_dns_addr, ]
-  custom_data     = base64encode(local.branch3_vm_init)
+  custom_data     = base64encode(module.probe_vm_cloud_init.cloud_config)
   tags            = local.branch3_tags
 
   enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
-      name               = "${local.branch3_prefix}vm-main-nic"
-      subnet_id          = module.branch3.subnets["MainSubnet"].id
-      private_ip_address = local.branch3_vm_addr
+      name                 = "${local.branch3_prefix}vm-main-nic"
+      subnet_id            = module.branch3.subnets["MainSubnet"].id
+      private_ip_address   = local.branch3_vm_addr
+      private_ipv6_address = local.branch3_vm_addr_v6
     },
   ]
   depends_on = [
@@ -330,7 +326,6 @@ locals {
   branch3_files = {
     "output/branch3Dns.sh" = local.branch3_unbound_startup
     "output/branch3Nva.sh" = local.branch3_nva_init
-    "output/branch3Vm.sh"  = local.branch3_vm_init
   }
 }
 

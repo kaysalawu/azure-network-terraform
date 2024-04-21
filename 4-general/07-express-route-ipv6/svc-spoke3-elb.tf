@@ -1,4 +1,9 @@
 
+locals {
+  frontend_ipv4 = module.azure_lb_dual_stack.public_ip_addresses["AppV4"]
+  frontend_ipv6 = module.azure_lb_dual_stack.public_ip_addresses["AppV6"]
+}
+
 ###################################################
 # external load balancer
 ###################################################
@@ -26,17 +31,6 @@ module "azure_lb_dual_stack" {
       subnet_id                 = module.spoke3.subnets["LoadBalancerSubnet"].id
       public_ip_address_version = "IPv6"
       domain_name_label         = "${lower(replace(local.spoke3_prefix, "-", ""))}appv6"
-    },
-    {
-      name              = "SnatV4"
-      subnet_id         = module.spoke3.subnets["LoadBalancerSubnet"].id
-      domain_name_label = "${lower(replace(local.spoke3_prefix, "-", ""))}snatv4"
-    },
-    {
-      name                      = "SnatV6"
-      subnet_id                 = module.spoke3.subnets["LoadBalancerSubnet"].id
-      public_ip_address_version = "IPv6"
-      domain_name_label         = "${lower(replace(local.spoke3_prefix, "-", ""))}snatv6"
     },
   ]
 
@@ -71,25 +65,6 @@ module "azure_lb_dual_stack" {
         },
       ]
     },
-    {
-      name = "SnatV4"
-      interfaces = [
-        {
-          ip_configuration_name = module.spoke3_vm.interface_name
-          network_interface_id  = module.spoke3_vm.interface_id
-        },
-      ]
-    },
-    {
-      name = "SnatV6"
-      addresses = [
-        {
-          name               = "snatv6"
-          virtual_network_id = module.spoke3.vnet.id
-          ip_address         = module.spoke3_vm.private_ipv6_address
-        },
-      ]
-    },
   ]
 
   lb_rules = [
@@ -118,17 +93,26 @@ module "azure_lb_dual_stack" {
   outbound_rules = [
     # {
     #   name                           = "SnatV4"
-    #   frontend_ip_configuration_name = "SnatV4"
-    #   backend_address_pool_name      = "SnatV4"
+    #   frontend_ip_configuration_name = "AppV4"
+    #   backend_address_pool_name      = "AppV4"
     #   protocol                       = "All"
     #   allocated_outbound_ports       = 1024
     # },
     # {
     #   name                           = "SnatV6"
-    #   frontend_ip_configuration_name = "SnatV6"
-    #   backend_address_pool_name      = "SnatV6"
+    #   frontend_ip_configuration_name = "AppV6"
+    #   backend_address_pool_name      = "AppV4"
     #   protocol                       = "All"
     #   allocated_outbound_ports       = 1024
     # },
   ]
+}
+
+output "azure_lb_dual_stack" {
+  value = {
+    frontend_ipv4      = local.frontend_ipv4
+    frontend_ipv6      = local.frontend_ipv6
+    frontend_ipv4_host = "ipv4-${local.frontend_ipv4}.nip.io"
+    frontend_ipv6_host = replace("ipv6-${local.frontend_ipv6}.sslip.io", ":", "-")
+  }
 }

@@ -33,6 +33,15 @@ locals {
   csp_range7 = "172.16.0.24/30"
   csp_range8 = "172.16.0.28/30"
 
+  csp_range1_v6 = "2001:db8:1::/126"
+  csp_range2_v6 = "2001:db8:1:1::/126"
+  csp_range3_v6 = "2001:db8:1:2::/126"
+  csp_range4_v6 = "2001:db8:1:3::/126"
+  csp_range5_v6 = "2001:db8:1:4::/126"
+  csp_range6_v6 = "2001:db8:1:5::/126"
+  csp_range7_v6 = "2001:db8:1:6::/126"
+  csp_range8_v6 = "2001:db8:1:7::/126"
+
   vti_range0 = "10.10.10.0/30"
   vti_range1 = "10.10.10.4/30"
   vti_range2 = "10.10.10.8/30"

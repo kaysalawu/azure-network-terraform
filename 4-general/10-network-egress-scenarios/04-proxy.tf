@@ -26,8 +26,9 @@ locals {
     "${local.init_dir}/crawler/app/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/requirements.txt", local.proxy_crawler_vars) }
   }
   hub_proxy_files = merge(
+    local.vm_init_files,
+    local.server_init_files,
     local.proxy_crawler_files,
-    local.hub_server_files,
     {
       "${local.init_dir}/unbound/Dockerfile"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/Dockerfile", {}) }
       "${local.init_dir}/unbound/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
@@ -53,7 +54,7 @@ locals {
 
 module "hub_proxy_init" {
   source   = "../../modules/cloud-config-gen"
-  packages = ["docker.io", "docker-compose", #npm, "dnsutils", "net-tools", ]
+  packages = ["docker.io", "docker-compose", ] #npm, "dnsutils", "net-tools",
   files    = local.hub_proxy_files
   run_commands = [
     ". ${local.init_dir}/init/server.sh",

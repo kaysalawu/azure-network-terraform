@@ -16,10 +16,6 @@
             "equals": "${ENV}"
           },
           {
-            "field": "location",
-            "equals": "${LOCATION}"
-          },
-          {
             "anyOf": [
               {
                 "field": "tags['nodeType']",

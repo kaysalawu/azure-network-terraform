@@ -1,7 +1,7 @@
 #! /bin/bash
 
 apt update
-apt install -y unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
+apt install -y python3-pip python3-dev python3-venv unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
 
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 az login --identity || true

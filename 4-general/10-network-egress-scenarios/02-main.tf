@@ -143,7 +143,7 @@ locals {
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
   }
-  hub_server_files = {
+  server_init_files = {
     "${local.init_dir}/init/server.sh" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/server.sh", local.hub_server_vars) }
   }
 }

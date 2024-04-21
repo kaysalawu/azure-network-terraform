@@ -41,6 +41,11 @@ module "branch2" {
     sku    = "ErGw1AZ"
   }
 
+  config_s2s_vpngw = {
+    enable = false
+    sku    = "VpnGw1AZ"
+  }
+
   depends_on = [
     module.common,
   ]

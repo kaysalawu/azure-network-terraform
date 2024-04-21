@@ -9,10 +9,8 @@ locals {
       hub = {
         VNET_NAME   = try(module.hub.vnet.name, "")
         VNET_RANGES = try(join(", ", module.hub.vnet.address_space), "")
-        SUBNETS = { for k, v in module.hub.subnets :
-          k => try(v.address_prefixes[0],
-          try(jsondecode(v.body).properties.addressPrefixes[0], ""))
-      } }
+        SUBNETS     = { for k, v in module.hub.subnets : k => try(v.address_prefixes[0], try(jsondecode(v.body).properties.addressPrefixes[0], "")) }
+      }
     }
   })
 }

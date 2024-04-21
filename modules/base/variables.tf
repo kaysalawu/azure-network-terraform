@@ -153,7 +153,12 @@ variable "config_s2s_vpngw" {
       public_ip_address_name        = optional(string)
       private_ip_address_allocation = optional(string)
       apipa_addresses               = optional(list(string))
-    })))
+      })),
+      [
+        { name = "ipconf0" },
+        { name = "ipconf1" }
+      ]
+    )
     bgp_settings = optional(object({
       asn = optional(string)
     }))
@@ -162,6 +167,10 @@ variable "config_s2s_vpngw" {
     enable        = false
     sku           = "VpnGw1AZ"
     active_active = true
+    ip_configuration = [
+      { name = "ip-config0" },
+      { name = "ip-config1" }
+    ]
     bgp_settings = {
       asn = 65515
     }

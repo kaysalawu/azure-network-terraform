@@ -157,6 +157,7 @@ resource "azurerm_storage_blob" "spoke3" {
 locals {
   spoke3_storage_account_role_assignment = [
     { role = "Reader", principal_id = module.branch1_vm.vm.identity[0].principal_id },
+    { role = "Reader", principal_id = module.branch2_vm.vm.identity[0].principal_id },
   ]
 }
 

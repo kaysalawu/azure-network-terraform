@@ -42,7 +42,7 @@ write_files:
               'hostname': os.getenv('HOST_HOSTNAME', hostname),
               'server-ipv4': os.getenv('HOST_IPV4', ipv4_address),
               'server-ipv6': os.getenv('HOST_IPV6', ipv6_address),
-              '`remote-addr`': request.client.host,
+              'remote-addr': request.client.host,
               'headers': dict(request.headers)
           }
       
@@ -159,14 +159,14 @@ write_files:
           command: uvicorn main:app --host '::' --port 8080
           restart: always
       
-  - path: /var/lib/azure/init/start.sh
+  - path: /var/lib/azure/init/startup.sh
     owner: root
     permissions: 0744
     content: |
       #! /bin/bash
       
       apt update
-      apt install -y unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
+      apt install -y python3-pip python3-dev python3-venv unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
       
       curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
       az login --identity || true
@@ -408,6 +408,6 @@ write_files:
 runcmd:
   - systemctl enable docker
   - systemctl start docker
-  - bash /var/lib/azure/init/start.sh
+  - bash /var/lib/azure/init/startup.sh
   - docker-compose -f /var/lib/azure/fastapi/docker-compose-app1-80.yml up -d
   - docker-compose -f /var/lib/azure/fastapi/docker-compose-app2-8080.yml up -d

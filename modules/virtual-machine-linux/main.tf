@@ -145,13 +145,13 @@ resource "azurerm_linux_virtual_machine" "this" {
   }
   disable_password_authentication = false
 
-  # dynamic "identity" {
-  #   for_each = length(var.user_assigned_ids) > 0 ? [1] : []
-  #   content {
-  #     type         = "UserAssigned"
-  #     identity_ids = var.user_assigned_ids
-  #   }
-  # }
+  dynamic "identity" {
+    for_each = length(var.user_assigned_ids) > 0 ? [1] : []
+    content {
+      type         = "UserAssigned"
+      identity_ids = var.user_assigned_ids
+    }
+  }
 
   dynamic "identity" {
     for_each = length(var.user_assigned_ids) == 0 ? [1] : []
@@ -161,12 +161,11 @@ resource "azurerm_linux_virtual_machine" "this" {
   }
 
   lifecycle {
-    #ignore_changes = all
-    # ignore_changes = [
-    #   identity,
-    #   secure_boot_enabled,
-    #   tags,
-    # ]
+    ignore_changes = [
+      identity,
+      # secure_boot_enabled,
+      # tags,
+    ]
   }
   timeouts {
     create = "60m"

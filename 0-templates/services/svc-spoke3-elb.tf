@@ -91,20 +91,20 @@ module "azure_lb_dual_stack" {
   ]
 
   outbound_rules = [
-    {
-      name                           = "SnatV4"
-      frontend_ip_configuration_name = "AppV4"
-      backend_address_pool_name      = "AppV4"
-      protocol                       = "All"
-      allocated_outbound_ports       = 1024
-    },
-    {
-      name                           = "SnatV6"
-      frontend_ip_configuration_name = "AppV6"
-      backend_address_pool_name      = "AppV4"
-      protocol                       = "All"
-      allocated_outbound_ports       = 1024
-    },
+    # {
+    #   name                           = "SnatV4"
+    #   frontend_ip_configuration_name = "AppV4"
+    #   backend_address_pool_name      = "AppV4"
+    #   protocol                       = "All"
+    #   allocated_outbound_ports       = 1024
+    # },
+    # {
+    #   name                           = "SnatV6"
+    #   frontend_ip_configuration_name = "AppV6"
+    #   backend_address_pool_name      = "AppV4"
+    #   protocol                       = "All"
+    #   allocated_outbound_ports       = 1024
+    # },
   ]
 }
 

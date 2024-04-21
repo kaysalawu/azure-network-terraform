@@ -229,7 +229,7 @@ azureuser@spoke1Vm:~$ curl spoke3pls.eu.az.corp
 </details>
 <p>
 
-The `Hostname` and `server-ipv4` fields identify the target web server - in this case ***spoke3*** virtual machine. The `remote-addr` field (as seen by the web server) is an IP address in the Private Link Service NAT subnet in ***spoke3***.
+The `Hostname`, `server-ipv4` and `server-ipv6` fields identify the target web server - in this case ***spoke3*** virtual machine. The `remote-addr` field (as seen by the web server) is an IP address in the Private Link Service NAT subnet in ***spoke3***.
 
 ### 5. Private Link Access to Storage Account
 

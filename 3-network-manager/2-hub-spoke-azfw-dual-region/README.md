@@ -293,7 +293,7 @@ azureuser@spoke1Vm:~$ curl spoke6pls.us.az.corp
 </details>
 <p>
 
-The `Hostname` and `server-ipv4` fields identify the backend web servers - in this case `spoke3Vm` and `spoke6Vm` virtual machines. The `remote-addr` fields (as seen by the web servers) are IP addresses in the Private Link Service NAT subnets in ***spoke3*** and ***spoke6*** Vnets respectively.
+The `Hostname`, `server-ipv4` and `server-ipv6` fields identify the backend web servers - in this case `spoke3Vm` and `spoke6Vm` virtual machines. The `remote-addr` fields (as seen by the web servers) are IP addresses in the Private Link Service NAT subnets in ***spoke3*** and ***spoke6*** Vnets respectively.
 
 ### 5. Private Link Access to Storage Account
 

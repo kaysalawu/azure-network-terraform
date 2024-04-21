@@ -18,7 +18,7 @@ def generate_data_dict(app_name, request):
         'hostname': os.getenv('HOST_HOSTNAME', hostname),
         'server-ipv4': os.getenv('HOST_IPV4', ipv4_address),
         'server-ipv6': os.getenv('HOST_IPV6', ipv6_address),
-        '`remote-addr`': request.client.host,
+        'remote-addr': request.client.host,
         'headers': dict(request.headers)
     }
 
