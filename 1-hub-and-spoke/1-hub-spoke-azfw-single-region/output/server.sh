@@ -89,7 +89,6 @@ systemctl restart flaskapp.service
 
 cat <<EOF > /usr/local/bin/ping-ip
 echo -e "\n ping ip ...\n"
-echo "internet - icanhazip.com -\$(timeout 3 ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 EOF
 chmod a+x /usr/local/bin/ping-ip
 
@@ -97,7 +96,6 @@ chmod a+x /usr/local/bin/ping-ip
 
 cat <<EOF > /usr/local/bin/ping-dns
 echo -e "\n ping dns ...\n"
-echo "icanhazip.com - \$(timeout 3 dig +short icanhazip.com | tail -n1) -\$(timeout 3 ping -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 EOF
 chmod a+x /usr/local/bin/ping-dns
 
@@ -105,7 +103,6 @@ chmod a+x /usr/local/bin/ping-dns
 
 cat <<EOF > /usr/local/bin/curl-ip
 echo -e "\n curl ip ...\n"
-echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - internet (icanhazip.com)"
 EOF
 chmod a+x /usr/local/bin/curl-ip
 
@@ -119,7 +116,7 @@ echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{h
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1vm.eu.az.corp) - spoke1vm.eu.az.corp"
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke2vm.eu.az.corp) - spoke2vm.eu.az.corp"
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs11spoke3sa37f9.blob.core.windows.net/spoke3/spoke3.txt) - https://hs11spoke3sa37f9.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs11spoke3sa20ca.blob.core.windows.net/spoke3/spoke3.txt) - https://hs11spoke3sa20ca.blob.core.windows.net/spoke3/spoke3.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 
@@ -127,9 +124,6 @@ chmod a+x /usr/local/bin/curl-dns
 
 cat <<EOF > /usr/local/bin/trace-ip
 echo -e "\n trace ip ...\n"
-echo -e "\ninternet"
-echo -e "-------------------------------------"
-timeout 9 tracepath icanhazip.com
 EOF
 chmod a+x /usr/local/bin/trace-ip
 
