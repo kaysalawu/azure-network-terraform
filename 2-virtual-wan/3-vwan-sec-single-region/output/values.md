@@ -9,14 +9,15 @@
 | GatewaySubnet   | 10.10.16.0/24   |
 | MainSubnet   | 10.10.0.0/24   |
 | ManagementSubnet   | 10.10.3.0/24   |
-| TestSubnet   | 10.10.5.0/24   |
+| RouteServerSubnet   | 10.10.18.0/24   |
+| TestSubnet   | 10.10.17.0/24   |
 | TrustSubnet   | 10.10.2.0/24   |
 | UntrustSubnet   | 10.10.1.0/24   |
 | - | -  |
 | VM_IP   | 10.10.0.5   |
 | VM_NAME   | Vwan23-branch1Vm   |
 | VNET_NAME   | Vwan23-branch1-vnet   |
-| VNET_RANGES   | 10.10.0.0/20, 10.10.16.0/20, fd00:db8:10::/48   |
+| VNET_RANGES   | 10.10.0.0/20, 10.10.16.0/20, fd00:db8:10::/56, fd00:db8:10:aa00::/56   |
 
 ## hub1
 
@@ -27,7 +28,7 @@
 | PRIVATELINK_SERVICE_ENDPOINT_DNS   | spoke3pls.hub1.az.corp   |
 | PRIVATELINK_SERVICE_ENDPOINT_IP   | 10.11.7.88   |
 | PRIVATE_DNS_INBOUND_IP   | 10.11.8.4   |
-| SPOKE3_BLOB_URL (Sample)   | https://vwan23spoke3sa7af4.blob.core.windows.net/spoke3/spoke3.txt   |
+| SPOKE3_BLOB_URL (Sample)   | https://vwan23spoke3sa59db.blob.core.windows.net/spoke3/spoke3.txt   |
 | *Subnets*|        |
 | AppGatewaySubnet   | 10.11.4.0/24   |
 | AppServiceSubnet   | 10.11.13.0/24   |
@@ -42,14 +43,14 @@
 | PrivateEndpointSubnet   | 10.11.7.0/24   |
 | PrivateLinkServiceSubnet   | 10.11.6.0/24   |
 | RouteServerSubnet   | 10.11.10.0/24   |
-| TestSubnet   | 10.11.14.0/24   |
+| TestSubnet   | 10.11.17.0/24   |
 | TrustSubnet   | 10.11.2.0/24   |
 | UntrustSubnet   | 10.11.1.0/24   |
 | - | -  |
 | VM_IP   | 10.11.0.5   |
 | VM_NAME   | Vwan23-hub1Vm   |
 | VNET_NAME   | Vwan23-hub1-vnet   |
-| VNET_RANGES   | 10.11.0.0/20, 10.11.16.0/20, fd00:db8:11::/48   |
+| VNET_RANGES   | 10.11.0.0/20, 10.11.16.0/20, fd00:db8:11::/56, fd00:db8:11:aa00::/56   |
 
 ## spoke1
 
@@ -71,7 +72,7 @@
 | VM_IP   | 10.1.0.5   |
 | VM_NAME   | Vwan23-spoke1Vm   |
 | VNET_NAME   | Vwan23-spoke1-vnet   |
-| VNET_RANGES   | 10.1.0.0/20, fd00:db8:1::/48   |
+| VNET_RANGES   | 10.1.0.0/20, fd00:db8:1::/56   |
 
 ## spoke2
 
@@ -93,7 +94,7 @@
 | VM_IP   | 10.2.0.5   |
 | VM_NAME   | Vwan23-spoke2Vm   |
 | VNET_NAME   | Vwan23-spoke2-vnet   |
-| VNET_RANGES   | 10.2.0.0/20, fd00:db8:2::/48   |
+| VNET_RANGES   | 10.2.0.0/20, fd00:db8:2::/56   |
 
 ## spoke3
 
@@ -115,4 +116,4 @@
 | VM_IP   | 10.3.0.5   |
 | VM_NAME   | Vwan23-spoke3Vm   |
 | VNET_NAME   | Vwan23-spoke3-vnet   |
-| VNET_RANGES   | 10.3.0.0/20, fd00:db8:3::/48   |
+| VNET_RANGES   | 10.3.0.0/20, fd00:db8:3::/56   |
