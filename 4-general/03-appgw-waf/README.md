@@ -1,6 +1,6 @@
 # Lab03 - Application Gateway - WAF <!-- omit from toc -->
 
-⚠️ Lab and document update in progress ...
+⚠️ Document update in progress ...
 
 Contents
 
