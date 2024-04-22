@@ -1,11 +1,26 @@
 
+locals {
+  vm_startup_container_dir = "/var/lib/azure"
+  vm_websocket_server_init = {
+    "${local.vm_startup_container_dir}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("./scripts/websockets/server/app/Dockerfile", {}) }
+    "${local.vm_startup_container_dir}/main.py"          = { owner = "root", permissions = "0744", content = templatefile("./scripts/websockets/server/app/main.py", {}) }
+    "${local.vm_startup_container_dir}/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("./scripts/websockets/server/app/requirements.txt", {}) }
+  }
+  vm_websocket_client_init = {
+    "${local.vm_startup_container_dir}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("./scripts/websockets/client/app/Dockerfile", {}) }
+    "${local.vm_startup_container_dir}/main.py"          = { owner = "root", permissions = "0744", content = templatefile("./scripts/websockets/client/app/main.py", {}) }
+    "${local.vm_startup_container_dir}/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("./scripts/websockets/client/app/requirements.txt", {}) }
+  }
+}
+
 ####################################################
 # client
 ####################################################
 
 module "vm_websocket_client_init" {
   source   = "../../modules/cloud-config-gen"
-  packages = ["docker.io", "docker-compose", #npm, ]
+  packages = ["docker.io", "docker-compose", "npm", "python3-pip", "python3-dev", "python3-venv", ]
+  files    = local.vm_websocket_client_init
   run_commands = [
     "systemctl enable docker",
     "systemctl start docker",
@@ -39,19 +54,10 @@ module "websocket_client_vm" {
 # server
 ####################################################
 
-locals {
-  vm_startup_container_dir = "/var/lib/azure"
-  vm_websocket_server_init = {
-    "${local.vm_startup_container_dir}/Dockerfile"       = { owner = "root", permissions = "0744", content = templatefile("./scripts/websockets/server/app/Dockerfile", {}) }
-    "${local.vm_startup_container_dir}/main.py"          = { owner = "root", permissions = "0744", content = templatefile("./scripts/websockets/server/app/main.py", {}) }
-    "${local.vm_startup_container_dir}/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("./scripts/websockets/server/app/requirements.txt", {}) }
-  }
-}
-
 module "vm_websocket_server_init" {
   source   = "../../modules/cloud-config-gen"
   files    = local.vm_websocket_server_init
-  packages = ["docker.io", "docker-compose", #npm, ]
+  packages = ["docker.io", "docker-compose", "npm", ]
   run_commands = [
     "systemctl enable docker",
     "systemctl start docker",

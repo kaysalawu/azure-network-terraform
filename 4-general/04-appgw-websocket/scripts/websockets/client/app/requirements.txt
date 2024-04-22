@@ -1,1 +1,1 @@
-websockets==11.0.3
+websocket-client==0.53.0
