@@ -1,5 +1,7 @@
 # Lab01 - IPsec over ExpressRoute <!-- omit from toc -->
 
+⚠️ Lab and document update in progress ...
+
 Contents
 
 - [Overview](#overview)

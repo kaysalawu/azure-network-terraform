@@ -38,7 +38,8 @@ module "branch2" {
 
   config_ergw = {
     enable = true
-    sku    = "ErGw1AZ"
+    # sku    = "ErGw1AZ"
+    sku = "Standard"
   }
 
   config_s2s_vpngw = {

@@ -37,8 +37,8 @@ module "branch1" {
   }
 
   config_ergw = {
-    enable = false
-    sku    = "ErGw1AZ"
+    enable = true
+    sku    = "Standard"
   }
 
   depends_on = [

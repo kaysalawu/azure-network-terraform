@@ -23,7 +23,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT1}"
+                          "id": "${ER_CIRCUIT_ID}"
                         },
                         "name": "BitsInPerSecond",
                         "aggregationType": 4,
@@ -34,7 +34,7 @@
                       },
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT1}"
+                          "id": "${ER_CIRCUIT_ID}"
                         },
                         "name": "BitsOutPerSecond",
                         "aggregationType": 4,
@@ -84,7 +84,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT1}"
+                          "id": "${ER_CIRCUIT_ID}"
                         },
                         "name": "BitsInPerSecond",
                         "aggregationType": 4,
@@ -95,7 +95,7 @@
                       },
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT1}"
+                          "id": "${ER_CIRCUIT_ID}"
                         },
                         "name": "BitsOutPerSecond",
                         "aggregationType": 4,
@@ -152,7 +152,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT1}"
+                          "id": "${ER_CIRCUIT_ID}"
                         },
                         "name": "BgpAvailability",
                         "aggregationType": 4,
@@ -213,7 +213,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT1}"
+                          "id": "${ER_CIRCUIT_ID}"
                         },
                         "name": "BgpAvailability",
                         "aggregationType": 4,
@@ -280,7 +280,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT1}"
+                          "id": "${ER_CIRCUIT_ID}"
                         },
                         "name": "BgpAvailability",
                         "aggregationType": 4,
@@ -341,7 +341,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "${ER_CIRCUIT1}"
+                          "id": "${ER_CIRCUIT_ID}"
                         },
                         "name": "BgpAvailability",
                         "aggregationType": 4,

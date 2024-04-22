@@ -46,9 +46,9 @@ module "hub1_appgw" {
 
   http_listeners = [
     {
-      name      = "good-juice-http-lsn"
-      host_name = local.hub1_host_good_juice
-      #firewall_policy_id = azurerm_web_application_firewall_policy.hub1_appgw.id
+      name               = "good-juice-http-lsn"
+      host_name          = local.hub1_host_good_juice
+      firewall_policy_id = azurerm_web_application_firewall_policy.hub1_appgw.id
     },
     {
       name      = "bad-juice-http-lsn"

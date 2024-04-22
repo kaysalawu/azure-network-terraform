@@ -4,7 +4,7 @@
 
 locals {
   prefix                      = "Lab07"
-  lab_name                    = "HubSpoke_Nva_1Region"
+  lab_name                    = "ExpressRoute_IPv6"
   enable_diagnostics          = false
   enable_onprem_wan_link      = false
   enable_ipv6                 = true
@@ -165,7 +165,8 @@ locals {
 
     config_ergw = {
       enable = true
-      sku    = "ErGw1AZ"
+      # sku    = "ErGw1AZ"
+      sku = "Standard"
     }
 
     config_firewall = {
@@ -253,12 +254,12 @@ locals {
 
   init_dir = "/var/lib/azure"
   vm_script_targets_region1 = [
-    { name = "branch1 ", dns = lower(local.branch1_vm_fqdn), ipv4 = local.branch1_vm_addr, ipv6 = local.branch1_vm_addr_v6, probe = true },
-    { name = "branch2 ", dns = lower(local.branch2_vm_fqdn), ipv4 = local.branch2_vm_addr, ipv6 = local.branch2_vm_addr_v6, probe = true },
-    { name = "hub1    ", dns = lower(local.hub1_vm_fqdn), ipv4 = local.hub1_vm_addr, ipv6 = local.hub1_vm_addr_v6, probe = false },
+    { name = "branch1", dns = lower(local.branch1_vm_fqdn), ipv4 = local.branch1_vm_addr, ipv6 = local.branch1_vm_addr_v6, probe = true },
+    { name = "branch2", dns = lower(local.branch2_vm_fqdn), ipv4 = local.branch2_vm_addr, ipv6 = local.branch2_vm_addr_v6, probe = true },
+    { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ipv4 = local.hub1_vm_addr, ipv6 = local.hub1_vm_addr_v6, probe = false },
     { name = "hub1-spoke3-pep", dns = lower(local.hub1_spoke3_pep_fqdn), ping = false, probe = true },
-    { name = "spoke1  ", dns = lower(local.spoke1_vm_fqdn), ipv4 = local.spoke1_vm_addr, ipv6 = local.spoke1_vm_addr_v6, probe = true },
-    { name = "spoke2  ", dns = lower(local.spoke2_vm_fqdn), ipv4 = local.spoke2_vm_addr, ipv6 = local.spoke2_vm_addr_v6, probe = true },
+    { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ipv4 = local.spoke1_vm_addr, ipv6 = local.spoke1_vm_addr_v6, probe = true },
+    { name = "spoke2 ", dns = lower(local.spoke2_vm_fqdn), ipv4 = local.spoke2_vm_addr, ipv6 = local.spoke2_vm_addr_v6, probe = true },
   ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ipv4 = "icanhazip.com", ipv6 = "icanhazip.com" },

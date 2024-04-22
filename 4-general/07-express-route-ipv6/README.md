@@ -366,7 +366,7 @@ Hello, World!
 <summary>Sample output</summary>
 
 ```sh
-azureuser@spoke1Vm:~$ ip add
+azureuser@spoke1Vm:~$ ip address
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
@@ -726,7 +726,13 @@ We can see the hub and spoke Vnet ranges being learned dynamically in the BGP ta
 </details>
 <p>
 
-**8.5.** Display linux kernel route tables.
+**8.5.** Exit the vtysh shell by typing `exit` and pressing `Enter`.
+
+```sh
+exit
+```
+
+**8.6.** Display linux kernel route tables.
 
 ```sh
 netstat -rn
