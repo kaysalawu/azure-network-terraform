@@ -1,0 +1,433 @@
+{
+  "lenses": {
+    "0": {
+      "order": 0,
+      "parts": {
+        "0": {
+          "position": {
+            "x": 0,
+            "y": 0,
+            "colSpan": 5,
+            "rowSpan": 3
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              },
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        },
+                        "name": "BitsInPerSecond",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "metricVisualization": {
+                          "displayName": "BitsInPerSecond"
+                        }
+                      },
+                      {
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        },
+                        "name": "BitsOutPerSecond",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "metricVisualization": {
+                          "displayName": "BitsOutPerSecond"
+                        }
+                      }
+                    ],
+                    "title": "Avg BitsInPerSecond and Avg BitsOutPerSecond for az1",
+                    "titleKind": 1,
+                    "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "isVisible": true,
+                        "position": 2,
+                        "hideSubtitle": false
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "isVisible": true,
+                          "axisType": 2
+                        },
+                        "y": {
+                          "isVisible": true,
+                          "axisType": 1
+                        }
+                      }
+                    },
+                    "timespan": {
+                      "relative": {
+                        "duration": 86400000
+                      },
+                      "showUTCTime": false,
+                      "grain": 1
+                    }
+                  }
+                },
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        },
+                        "name": "BitsInPerSecond",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "metricVisualization": {
+                          "displayName": "BitsInPerSecond"
+                        }
+                      },
+                      {
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        },
+                        "name": "BitsOutPerSecond",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "metricVisualization": {
+                          "displayName": "BitsOutPerSecond"
+                        }
+                      }
+                    ],
+                    "title": "Avg BitsInPerSecond and Avg BitsOutPerSecond for az1",
+                    "titleKind": 1,
+                    "visualization": {
+                      "chartType": 3,
+                      "legendVisualization": {
+                        "isVisible": true,
+                        "position": 2,
+                        "hideSubtitle": false
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "isVisible": true,
+                          "axisType": 2
+                        },
+                        "y": {
+                          "isVisible": true,
+                          "axisType": 1
+                        }
+                      },
+                      "disablePinning": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "2": {
+          "position": {
+            "x": 0,
+            "y": 3,
+            "colSpan": 5,
+            "rowSpan": 3
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              },
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        },
+                        "name": "BgpAvailability",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "metricVisualization": {
+                          "displayName": "Bgp Availability"
+                        }
+                      }
+                    ],
+                    "title": "Avg Bgp Availability for az1 where Peer = 'Primary-IPv4'",
+                    "titleKind": 1,
+                    "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "isVisible": true,
+                        "position": 2,
+                        "hideSubtitle": false
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "isVisible": true,
+                          "axisType": 2
+                        },
+                        "y": {
+                          "isVisible": true,
+                          "axisType": 1
+                        }
+                      }
+                    },
+                    "filterCollection": {
+                      "filters": [
+                        {
+                          "key": "Peer",
+                          "operator": 0,
+                          "values": [
+                            "Primary-IPv4"
+                          ]
+                        }
+                      ]
+                    },
+                    "timespan": {
+                      "relative": {
+                        "duration": 86400000
+                      },
+                      "showUTCTime": false,
+                      "grain": 1
+                    }
+                  }
+                },
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        },
+                        "name": "BgpAvailability",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "metricVisualization": {
+                          "displayName": "Bgp Availability"
+                        }
+                      }
+                    ],
+                    "title": "Avg Bgp Availability for az1 where Peer = 'Primary-IPv4'",
+                    "titleKind": 1,
+                    "visualization": {
+                      "chartType": 3,
+                      "legendVisualization": {
+                        "isVisible": true,
+                        "position": 2,
+                        "hideSubtitle": false
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "isVisible": true,
+                          "axisType": 2
+                        },
+                        "y": {
+                          "isVisible": true,
+                          "axisType": 1
+                        }
+                      },
+                      "disablePinning": true
+                    }
+                  }
+                }
+              }
+            },
+            "filters": {
+              "Peer": {
+                "model": {
+                  "operator": "equals",
+                  "values": [
+                    "Primary-IPv4"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "4": {
+          "position": {
+            "x": 0,
+            "y": 6,
+            "colSpan": 5,
+            "rowSpan": 3
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              },
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        },
+                        "name": "BgpAvailability",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "metricVisualization": {
+                          "displayName": "Bgp Availability"
+                        }
+                      }
+                    ],
+                    "title": "Avg Bgp Availability for az1 where Peer = 'Secondary-IPv4'",
+                    "titleKind": 1,
+                    "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "isVisible": true,
+                        "position": 2,
+                        "hideSubtitle": false
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "isVisible": true,
+                          "axisType": 2
+                        },
+                        "y": {
+                          "isVisible": true,
+                          "axisType": 1
+                        }
+                      }
+                    },
+                    "filterCollection": {
+                      "filters": [
+                        {
+                          "key": "Peer",
+                          "operator": 0,
+                          "values": [
+                            "Secondary-IPv4"
+                          ]
+                        }
+                      ]
+                    },
+                    "timespan": {
+                      "relative": {
+                        "duration": 86400000
+                      },
+                      "showUTCTime": false,
+                      "grain": 1
+                    }
+                  }
+                },
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        },
+                        "name": "BgpAvailability",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "metricVisualization": {
+                          "displayName": "Bgp Availability"
+                        }
+                      }
+                    ],
+                    "title": "Avg Bgp Availability for az1 where Peer = 'Secondary-IPv4'",
+                    "titleKind": 1,
+                    "visualization": {
+                      "chartType": 3,
+                      "legendVisualization": {
+                        "isVisible": true,
+                        "position": 2,
+                        "hideSubtitle": false
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "isVisible": true,
+                          "axisType": 2
+                        },
+                        "y": {
+                          "isVisible": true,
+                          "axisType": 1
+                        }
+                      },
+                      "disablePinning": true
+                    }
+                  }
+                }
+              }
+            },
+            "filters": {
+              "Peer": {
+                "model": {
+                  "operator": "equals",
+                  "values": [
+                    "Secondary-IPv4"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "metadata": {
+    "model": {
+      "timeRange": {
+        "value": {
+          "relative": {
+            "duration": 24,
+            "timeUnit": 1
+          }
+        },
+        "type": "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange"
+      },
+      "filterLocale": {
+        "value": "en-us"
+      },
+      "filters": {
+        "value": {
+          "MsPortalFx_TimeRange": {
+            "model": {
+              "format": "utc",
+              "granularity": "auto",
+              "relative": "4h"
+            },
+            "displayCache": {
+              "name": "UTC Time",
+              "value": "Past 4 hours"
+            },
+            "filteredPartIds": [
+              "StartboardPart-MonitorChartPart-4f55e5da-0104-4134-8261-fb8acfa77140",
+              "StartboardPart-MonitorChartPart-4f55e5da-0104-4134-8261-fb8acfa7716d",
+              "StartboardPart-MonitorChartPart-4f55e5da-0104-4134-8261-fb8acfa77336",
+              "StartboardPart-MonitorChartPart-4f55e5da-0104-4134-8261-fb8acfa773b7",
+              "StartboardPart-MonitorChartPart-4f55e5da-0104-4134-8261-fb8acfa7736c",
+              "StartboardPart-MonitorChartPart-4f55e5da-0104-4134-8261-fb8acfa77405"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

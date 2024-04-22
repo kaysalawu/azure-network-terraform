@@ -1,0 +1,11 @@
+Dockerfile
+docker-compose*
+.gitignore
+pyvenv.cfg
+tests
+node_modules/
+npm-debug.log
+bin/
+include/
+lib/
+lib64/

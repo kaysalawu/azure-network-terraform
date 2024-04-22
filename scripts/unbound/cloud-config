@@ -1,0 +1,52 @@
+#cloud-config
+
+package_update: true
+packages:
+  - tcpdump
+  - bind9-host
+  - dnsutils
+  - net-tools
+  - unbound
+
+write_files:
+  - path: /var/log/unbound
+    permissions: '0755'
+    owner: root:root
+    content: |
+
+  - path: /etc/unbound/unbound.conf
+    permissions: '0640'
+    owner: root:root
+    content: |
+      server:
+          #interface: 0.0.0.0
+          access-control: 127.0.0.0/8 allow
+          access-control: 10.0.0.0/8 allow
+
+          %{~ for tuple in ONPREM_LOCAL_RECORDS ~}
+          local-data: "${tuple.name} 3600 IN A ${tuple.record}"
+          %{~ endfor ~}
+
+          %{~ for tuple in REDIRECTED_HOSTS ~}
+          %{~ for host in tuple.hosts ~}
+          local-zone: ${host} redirect
+          %{~ endfor ~}
+          %{~ endfor ~}
+
+          %{~ for tuple in REDIRECTED_HOSTS ~}
+          %{~ for host in tuple.hosts ~}
+          local-data: "${host} ${tuple.ttl} ${tuple.class} ${tuple.type} ${tuple.record}"
+          %{~ endfor ~}
+          %{~ endfor ~}
+
+      %{~ for tuple in FORWARD_ZONES }
+      forward-zone:
+          name: "${tuple.zone}"
+          %{~ for target in tuple.targets ~}
+          forward-addr: ${target}
+          %{~ endfor ~}
+      %{~ endfor ~}
+
+runcmd:
+  - systemctl restart unbound
+  - systemctl enable unbound

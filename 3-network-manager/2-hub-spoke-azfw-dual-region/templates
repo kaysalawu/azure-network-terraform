@@ -1,0 +1,16 @@
+../../0-templates/01-config.tf
+../../0-templates/hub-spoke/03-branch1.tf
+../../0-templates/hub-spoke/03-branch3.tf
+../../0-templates/04-spokes-region1.tf
+../../0-templates/04-spokes-region2.tf
+../../0-templates/05-hub1.tf
+../../0-templates/05-hub2.tf
+../../0-templates/avnm/06-conn-hub1.tf
+../../0-templates/avnm/06-conn-hub2.tf
+../../0-templates/avnm/06-conn-interhub-azfw.tf
+../../0-templates/services/services-region1.tf
+../../0-templates/services/services-region2.tf
+../../0-templates/outputs/outputs-dual-region.tf
+../../0-templates/avnm/svc-nm-global.tf
+../../0-templates/avnm/svc-nm-azpol-hubspoke-region1.tf
+../../0-templates/avnm/svc-nm-azpol-hubspoke-region2.tf

@@ -1,0 +1,285 @@
+{
+  "lenses": {
+    "0": {
+      "order": 0,
+      "parts": {
+        "0": {
+          "position": {
+            "x": 0,
+            "y": 0,
+            "colSpan": 6,
+            "rowSpan": 4
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              },
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${PRIVATE_DNS_RESOLVER_ID}"
+                        },
+                        "name": "QPS",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.network/dnsresolvers",
+                        "metricVisualization": {
+                          "displayName": "Queries Per Second"
+                        }
+                      }
+                    ],
+                    "title": "Queries Per Second [Avg]",
+                    "titleKind": 1,
+                    "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "isVisible": true,
+                        "position": 2,
+                        "hideSubtitle": false
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "isVisible": true,
+                          "axisType": 2
+                        },
+                        "y": {
+                          "isVisible": true,
+                          "axisType": 1
+                        }
+                      }
+                    },
+                    "timespan": {
+                      "relative": {
+                        "duration": 86400000
+                      },
+                      "showUTCTime": false,
+                      "grain": 1
+                    }
+                  }
+                },
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${PRIVATE_DNS_RESOLVER_ID}"
+                        },
+                        "name": "QPS",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.network/dnsresolvers",
+                        "metricVisualization": {
+                          "displayName": "Queries Per Second"
+                        }
+                      }
+                    ],
+                    "title": "Queries Per Second [Avg]",
+                    "titleKind": 2,
+                    "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "isVisible": true,
+                        "position": 2,
+                        "hideSubtitle": false
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "isVisible": true,
+                          "axisType": 2
+                        },
+                        "y": {
+                          "isVisible": true,
+                          "axisType": 1
+                        }
+                      },
+                      "disablePinning": true
+                    }
+                  }
+                }
+              }
+            },
+            "filters": {
+              "MsPortalFx_TimeRange": {
+                "model": {
+                  "format": "local",
+                  "granularity": "auto",
+                  "relative": "1440m"
+                }
+              }
+            }
+          }
+        },
+        "1": {
+          "position": {
+            "x": 6,
+            "y": 0,
+            "colSpan": 6,
+            "rowSpan": 4
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              },
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${PRIVATE_DNS_RESOLVER_ID}"
+                        },
+                        "name": "InboundEndpointCount",
+                        "aggregationType": 7,
+                        "namespace": "microsoft.network/dnsresolvers",
+                        "metricVisualization": {
+                          "displayName": "Inbound Endpoint Count"
+                        }
+                      },
+                      {
+                        "resourceMetadata": {
+                          "id": "${PRIVATE_DNS_RESOLVER_ID}"
+                        },
+                        "name": "OutboundEndpointCount",
+                        "aggregationType": 7,
+                        "namespace": "microsoft.network/dnsresolvers",
+                        "metricVisualization": {
+                          "displayName": "Outbound Endpoint Count"
+                        }
+                      }
+                    ],
+                    "title": "Inbound Endpoint / Outbound Endpoint Count [Count]",
+                    "titleKind": 1,
+                    "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "isVisible": true,
+                        "position": 2,
+                        "hideSubtitle": false
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "isVisible": true,
+                          "axisType": 2
+                        },
+                        "y": {
+                          "isVisible": true,
+                          "axisType": 1
+                        }
+                      }
+                    },
+                    "timespan": {
+                      "relative": {
+                        "duration": 86400000
+                      },
+                      "showUTCTime": false,
+                      "grain": 1
+                    }
+                  }
+                },
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${PRIVATE_DNS_RESOLVER_ID}"
+                        },
+                        "name": "InboundEndpointCount",
+                        "aggregationType": 7,
+                        "namespace": "microsoft.network/dnsresolvers",
+                        "metricVisualization": {
+                          "displayName": "Inbound Endpoint Count"
+                        }
+                      },
+                      {
+                        "resourceMetadata": {
+                          "id": "${PRIVATE_DNS_RESOLVER_ID}"
+                        },
+                        "name": "OutboundEndpointCount",
+                        "aggregationType": 7,
+                        "namespace": "microsoft.network/dnsresolvers",
+                        "metricVisualization": {
+                          "displayName": "Outbound Endpoint Count"
+                        }
+                      }
+                    ],
+                    "title": "Inbound Endpoint / Outbound Endpoint Count [Count]",
+                    "titleKind": 2,
+                    "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "isVisible": true,
+                        "position": 2,
+                        "hideSubtitle": false
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "isVisible": true,
+                          "axisType": 2
+                        },
+                        "y": {
+                          "isVisible": true,
+                          "axisType": 1
+                        }
+                      },
+                      "disablePinning": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "metadata": {
+    "model": {
+      "timeRange": {
+        "value": {
+          "relative": {
+            "duration": 24,
+            "timeUnit": 1
+          }
+        },
+        "type": "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange"
+      },
+      "filterLocale": {
+        "value": "en-us"
+      },
+      "filters": {
+        "value": {
+          "MsPortalFx_TimeRange": {
+            "model": {
+              "format": "utc",
+              "granularity": "auto",
+              "relative": "24h"
+            },
+            "displayCache": {
+              "name": "UTC Time",
+              "value": "Past 24 hours"
+            }
+          }
+        }
+      }
+    }
+  }
+}

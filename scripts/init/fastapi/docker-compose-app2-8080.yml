@@ -1,0 +1,18 @@
+version: '3'
+services:
+  app2-8080:
+    container_name: app2-8080
+    build:
+      context: ./app/app
+      dockerfile: Dockerfile
+    network_mode: host
+    command: uvicorn main:app --host '0.0.0.0' --port 8080
+    restart: always
+  app2-ipv6-8080:
+    container_name: app2-ipv6-8080
+    build:
+      context: ./app/app
+      dockerfile: Dockerfile
+    network_mode: host
+    command: uvicorn main:app --host '::' --port 8080
+    restart: always

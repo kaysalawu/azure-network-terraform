@@ -1,0 +1,21 @@
+version: '3'
+services:
+  app4-nginx-443:
+    container_name: app4-nginx-443
+    build:
+      context: ./nginx/nginx-443
+      dockerfile: Dockerfile
+    network_mode: host
+    volumes:
+      - /etc/ssl/app/cert.pem:/etc/ssl/app/cert.pem
+      - /etc/ssl/app/key.pem:/etc/ssl/app/key.pem
+      - /etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+    restart: always
+  app4-80:
+    container_name: app4-80
+    build:
+      context: ./app/app
+      dockerfile: Dockerfile
+    network_mode: host
+    command: uvicorn main:app --host '0.0.0.0' --port 80
+    restart: always

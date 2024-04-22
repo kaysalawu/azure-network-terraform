@@ -1,0 +1,36 @@
+{
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Network/virtualNetworks"
+      },
+      {
+        "allOf": [
+          {
+            "field": "tags['lab']",
+            "equals": "${LAB_ID}"
+          },
+          {
+            "field": "tags['env']",
+            "equals": "${ENV}"
+          },
+          {
+            "anyOf": [
+              {
+                "field": "tags['nodeType']",
+                "equals": "${NODE_TYPE}"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "then": {
+    "effect": "addToNetworkGroup",
+    "details": {
+      "networkGroupId": "${NETWORK_GROUP_ID}"
+    }
+  }
+}

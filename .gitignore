@@ -1,0 +1,57 @@
+# Compiled files
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+.terraform/
+*.hcl
+*.tfvars
+vars.tfvars
+#*.json
+#*backend*
+tfplan
+.tmp
+modulez/
+
+# Module directory
+
+# Other files
+*rendered
+*keys/
+*credentials/
+plugins/
+*plugins/
+*scrap*
+*reference*
+*artifact
+*anthos-keys
+backend.tf
+*certs/
+*.pem
+*.crt
+*.key
+*.cer
+*.pfx
+*.log
+
+# Skaffold
+bin/
+include/
+lib/
+lib64/
+share/
+pyvenv.cfg
+pkg/
+.DS_Store
+*.pyc
+*.swp
+*~
+.vscode/
+.vs/
+.idea
+.skaffold-*.yaml
+.kubernetes-manifests-*/
+_run.*
+_dev.*
+_delete.*
+_env.txt
+

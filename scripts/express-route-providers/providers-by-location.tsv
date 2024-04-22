@@ -1,0 +1,103 @@
+PeeringLocation	Provider
+Melbourne	AARNet | Devoli | Equinix | Megaport | NETSG | NEXTDC | Optus | Orange | Telstra Corporation | TPG Telecom
+Sydney	AARNet | AT&T Netbond | British Telecom | Cello | Devoli | Equinix | GTT | Kordia | Megaport | NEXTDC | NTT Communications | Optus | Orange | Spark NZ | Telstra Corporation | TPG Telecom | Verizon | Vocus Group NZ
+Chennai2	Airtel
+Mumbai2	Airtel | Orange | SIFY | Vodafone Idea Limited
+Pune	Airtel | Lightstorm | Tata Communications
+Bangkok	AIS | National Telecom | UIH
+Amsterdam	Aryaka Networks | AT&T Netbond | British Telecom | Colt Ethernet | Colt IPVPN | Deutsche Telekom AG | Equinix | euNetworks | GEANT | GlobalConnect DK | GTT | InterCloud | InterCloud for Azure | Interxion | IX Reach | KPN | Level 3 Communications - Exchange | Level 3 Communications - IPVPN | Megaport | NTT Communications | Orange | PacketFabric | Tata Communications | Telefonica | Telenor | Telia Carrier | Verizon | Zayo
+Chicago	Aryaka Networks | AT&T Dynamic Exchange | AT&T Netbond | British Telecom | CenturyLink Cloud Connect | Cologix | Colt Ethernet | Colt IPVPN | Comcast | Coresite | Equinix | InterCloud for Azure | Internet2 | Level 3 Communications - Exchange | Level 3 Communications - IPVPN | Megaport | Momentum Telecom | Orange | PacketFabric | PCCW Global Limited | Sprint | Tata Communications | Telia Carrier | Verizon | Vodafone | Zayo | Zayo Group
+Dallas	Aryaka Networks | AT&T Connectivity Plus | AT&T Dynamic Exchange | AT&T Netbond | CenturyLink Cloud Connect | Cologix | Cox Business Cloud Port | DE-CIX | DISA SCCA | Equinix | GTT | InterCloud for Azure | Internet2 | Level 3 Communications - Exchange | Level 3 Communications - IPVPN | MCM Telecom | Megaport | Neutrona Networks | Orange | PacketFabric | Telefonica | Telia Carrier | Telmex | Transtelco | Verizon | Zayo
+Hong Kong	Aryaka Networks | British Telecom | CenturyLink Cloud Connect | Chief Telecom | China Mobile International | China Telecom Global | China Unicom Global | Colt Ethernet | Equinix | InterCloud for Azure | Megaport | NTT Communications | Orange | PCCW Global Limited | Tata Communications | Telefonica | Telia Carrier | Verizon | Zayo
+Sao Paulo	Aryaka Networks | Ascenty | British Telecom | Equinix | InterCloud for Azure | Level 3 Communications - Exchange | Level 3 Communications - IPVPN | Neutrona Networks | Orange | RedCLARA | Tata Communications | Telefonica | UOLDIVEO
+Seattle	Aryaka Networks | CenturyLink Cloud Connect | DE-CIX | Equinix | Level 3 Communications - Exchange | Level 3 Communications - IPVPN | Megaport | Pacific Northwest Gigapop | PacketFabric | Telia Carrier | Telus | Zayo
+Silicon Valley	Aryaka Networks | AT&T | AT&T Dynamic Exchange | AT&T Netbond | British Telecom | CenturyLink Cloud Connect | Colt Ethernet | Colt IPVPN | Comcast | Coresite | Cox Business Cloud Port | Equinix | InterCloud for Azure | Internet2 | IX Reach | Level 3 Communications - Exchange | Level 3 Communications - IPVPN | Megaport | Momentum Telecom | Oracle Cloud FastConnect | Orange | Packet | PacketFabric | Sprint | Tata Communications | Telia Carrier | Verizon | Verizon | Vodafone | Zayo | Zayo Group
+Singapore	Aryaka Networks | AT&T Netbond | British Telecom | China Mobile International | China Telecom Global | Epsilon Global Communications | Equinix | GTT | InterCloud | InterCloud for Azure | Level 3 Communications - Exchange | Level 3 Communications - IPVPN | Lightstorm | Megaport | NTT Communications | Oracle Cloud FastConnect | Orange | PCCW Global Limited | SingTel Domestic | SingTel International | Tata Communications | Telefonica | Telstra Corporation | Verizon | Vodafone
+Tokyo	Aryaka Networks | AT&T Netbond | BBIX | British Telecom | CenturyLink Cloud Connect | Colt Ethernet | Colt IPVPN | Equinix | IIJ | InterCloud for Azure | KDDI | KDDI CORPORATION | Megaport | NTT Communications | NTT Communications - Flexible InterConnect | NTT EAST | Oracle Cloud FastConnect | Orange | SoftBank | Verizon
+Washington DC	Aryaka Networks | AT&T | AT&T Netbond | British Telecom | CenturyLink Cloud Connect | Cologix | Colt Ethernet | Colt IPVPN | Comcast | Coresite | Cox Business Cloud Port | Crown Castle | DISA SCCA | Equinix | GTT | InterCloud | InterCloud for Azure | Internet2 | Iron Mountain | IX Reach | Level 3 Communications - Exchange | Level 3 Communications - IPVPN | Lightpath | Megaport | Neutrona Networks | NTT Communications | Oracle Cloud FastConnect | Orange | PacketFabric | SES | SkyTap Prod | Sprint | Tata Communications | Telefonica | Telia Carrier | Verizon | Zayo | Zayo Group
+Sao Paulo2	Ascenty | TIVIT
+Campinas	Ascenty | Oracle Cloud FastConnect
+Los Angeles	AT&T Dynamic Exchange | CloudFlare | Coresite | Equinix | Megaport | Neutrona Networks | NTT Communications | Sohonet | Zayo | Zayo Group
+Miami	AT&T Dynamic Exchange | C3ntro | Claro | Equinix | Megaport | Neutrona Networks | PacketFabric | PITChile
+Frankfurt	AT&T Netbond | British Telecom | CenturyLink Cloud Connect | China Unicom Global | Colt Ethernet | Colt IPVPN | DE-CIX | Deutsche Telekom AG IntraSelect | Equinix | euNetworks | GBI | GEANT | InterCloud for Azure | Interxion | Megaport | NTT Global DataCenters EMEA | Oracle Cloud FastConnect | Orange | Telia Carrier | Verizon | Zayo
+London	AT&T Netbond | Bezeq International | British Telecom | CenturyLink Cloud Connect | Colt Ethernet | Colt IPVPN | Equinix | euNetworks | InterCloud | InterCloud for Azure | Internet Solutions - Cloud Connect | Interxion | Jisc | Level 3 Communications - Exchange | Level 3 Communications - IPVPN | Megaport | MTN | NTT Communications | Oracle Cloud FastConnect | Orange | PacketFabric | PCCW Global Limited | Tata Communications | Telehouse - KDDI | Telenor | Telia Carrier | Verizon | Vodafone | Zayo
+Toronto	AT&T Netbond | Bell Canada | CenturyLink Cloud Connect | Cologix | Equinix | IX Reach | Megaport | Oracle Cloud FastConnect | Orange | PacketFabric | Telus | Verizon | Zayo
+Phoenix	AT&T Netbond | CenturyLink Cloud Connect | Cox Business Cloud Port | DE-CIX | Megaport | Oracle Cloud FastConnect | Zayo
+Osaka	AtTokyo | BBIX | Colt Ethernet | Colt IPVPN | DE-CIX | Equinix | IIJ | IIJ SMART HUB | KDDI CORPORATION | Megaport | NTT Communications | NTT Communications - Flexible InterConnect | NTT SmartConnect | SoftBank | TOKAI Communications
+Tokyo2	AtTokyo | BBIX | China Unicom Global | Colt Ethernet | DE-CIX | Equinix | IIJ | IIJ SMART HUB | IX Reach | KDDI CORPORATION | Megaport | NTT Communications - Flexible InterConnect | PCCW Global Limited | SoftBank Multi-Cloud Access | TOKAI Communications
+Cape Town	BCX | Internet Solutions | Liquid Telecom | MTN Global Connect | Teraco | Vodacom
+Johannesburg	BCX | British Telecom | Internet Solutions | Liquid Telecom | MTN Global Connect | Oracle Cloud FastConnect | Orange | Teraco | Vodacom
+Montreal	Bell Canada | CenturyLink Cloud Connect | Cologix | Fibrenoire | Megaport | RISQ | Telus | Zayo
+Quebec City	Bell Canada | Equinix | Fibrenoire | Megaport | RISQ | Telus
+Vancouver	Bell Canada | Cologix | Megaport | Telus | Zayo
+Tel Aviv	Bezeq International
+Amsterdam2	BICS | British Telecom | CenturyLink Cloud Connect | Cinia | Colt Ethernet | Colt IPVPN | DE-CIX | Equinix | euNetworks | GEANT | Interxion | Megaport | NL-IX | NOS | NTT Global DataCenters EMEA | Oracle Cloud FastConnect | Orange | Vodafone
+London2	BICS | British Telecom | CenturyLink Cloud Connect | Colt Ethernet | Epsilon Global Communications | Equinix | GTT | Intelsat | Interxion | IX Reach | Jisc | Megaport | NTT Global DataCenters EMEA | Ooredoo Cloudconnect | Orange | SES | Sohonet | Telehouse - KDDI | Vodafone | Zayo
+Newport	British Telecom | Colt Ethernet | Colt IPVPN | Jisc | Level 3 Communications - Exchange | Level 3 Communications - IPVPN | Next Generation Data
+Paris	British Telecom | CenturyLink Cloud Connect | Colt Ethernet | Colt IPVPN | Equinix | euNetworks | InterCloud for Azure | Interxion | Jaguar Network | Megaport | Orange | Telia Carrier | Verizon | Zayo
+Mumbai	British Telecom | BSNL | DE-CIX | GlobalcloudXchange | InterCloud for Azure | NTT Communications India Network Services Pvt Ltd | Reliance Jio | Tata Communications | Verizon
+Chennai	BSNL | DE-CIX | GlobalcloudXchange | Lightstorm | NTT Communications India Network Services Pvt Ltd | SIFY | Tata Communications | Vodafone Idea Limited
+Canberra	CDC
+Canberra2	CDC | Equinix
+Bogota	CenturyLink Cloud Connect | Cirion Technologies | Equinix
+Dublin	CenturyLink Cloud Connect | Colt Ethernet | Colt IPVPN | eir | Equinix | euNetworks | GEANT | Interxion | Megaport | Zayo
+Las Vegas	CenturyLink Cloud Connect | Megaport | PacketFabric
+New York	CenturyLink Cloud Connect | Coresite | Crown Castle | DE-CIX | Equinix | InterCloud for Azure | Lightpath | Megaport | Momentum Telecom | NTT Communications | Packet | PacketFabric | Zayo | Zayo Group
+San Antonio	CenturyLink Cloud Connect | Megaport | Zayo
+Singapore2	CenturyLink Cloud Connect | China Unicom Global | Colt Ethernet | Colt IPVPN | DE-CIX | Epsilon Global Communications | Equinix | Megaport | NTT Communications - Flexible InterConnect | PCCW Global Limited | SingTel Domestic | SingTel International | Telehouse - KDDI
+Washington DC2	CenturyLink Cloud Connect | Coresite | Intelsat | Megaport | Momentum Telecom | Oracle Cloud FastConnect | Viasat | Zayo
+Taipei	Chief Telecom | Chunghwa Telecom | FarEasTone
+Hong Kong2	China Mobile International | China Telecom Global | Deutsche Telekom AG | Epsilon Global Communications | Equinix | iAdvantage | Megaport | PCCW Global Limited | SingTel International | Vodafone
+Queretaro	Cirion Technologies | Megaport | Transtelco
+Rio de Janeiro	Cirion Technologies | Equinix
+Santiago	Cirion Technologies | PITChile
+Minneapolis	Cologix | Megaport
+Berlin	Colt Ethernet | Equinix | NTT Global DataCenters EMEA
+Frankfurt2	Colt Ethernet | DE-CIX | Deutsche Telekom AG | Equinix | InterCloud for Azure | Oracle Cloud FastConnect | Telefonica
+Geneva	Colt Ethernet | Equinix | InterCloud for Azure | Megaport | Swisscom
+Marseille	Colt Ethernet | DE-CIX | GEANT | Interxion | Jaguar Network | Ooredoo Cloudconnect
+Milan	Colt Ethernet | Equinix | FastWeb | IRIDEOS | Retelit | Vodafone
+Munich	Colt Ethernet | DE-CIX | Megaport
+Paris2	Colt Ethernet | Equinix | InterCloud for Azure | Orange
+Seoul	Colt Ethernet | Equinix | KINX | KT | LG CNS | LG UPLUS | Oracle Cloud FastConnect | Sejong Telecom | SK Telecom | SKT
+Zurich	Colt Ethernet | Colt IPVPN | Equinix | InterCloud for Azure | Interxion | Megaport | Swisscom | Zayo
+Chicago2	Coresite | DE-CIX
+Denver	Coresite | Megaport | PacketFabric | Zayo
+Silicon Valley2	Coresite
+Dubai2	DE-CIX | du datamena | Equinix | GBI | Lightstorm | Megaport | Orange | Orixcom
+Madrid	DE-CIX | InterCloud for Azure | Interxion | Megaport | NOS | Telefonica
+Kuala Lumpur	DE-CIX | Time dotCom
+Copenhagen	DE-CIX | GlobalConnect | Interxion
+Auckland	Devoli | Kordia | Megaport | REANNZ | Spark NZ | Vocus Group NZ
+Atlanta	Equinix | Megaport | PacketFabric
+Los Angeles2	Equinix | GTT | PacketFabric
+Perth	Equinix | Megaport | NEXTDC
+Stockholm	Equinix | GlobalConnect | Interxion | Megaport | Telia Carrier
+Warsaw	Equinix | Orange Poland | T-Mobile Poland
+Zurich2	Equinix
+Dubai	Etisalat UAE
+Toronto2	Fibrenoire | Zayo
+Oslo	GlobalConnect | Megaport | Telenor Secure Cloud Connect | Telia Carrier
+Stavanger	GlobalConnect | Megaport | Telenor Secure Cloud Connect
+NRPTestLocation	Hybrid Portal Test | nrpe2eixp01 | nrpslicebvttestcrossconnectioprovider
+Dublin2	InterCloud for Azure | Interxion | KPN | NL-IX | Orange
+Chennai3	Jio
+Jamnagar	Jio | Jio for JioCloud
+Mumbai3	Jio
+Nagpur	Jio | Jio for JioCloud
+Seoul2	KT
+Busan	LG CNS
+Sydney2	Megaport | NETSG | NEXTDC
+Amsterdam Metro	Megaport
+Tokyo3	NEC | SCSK
+Jakarta	NTT Communications - Flexible InterConnect | Telin | XL Axiata
+Doha2	Ooredoo Cloudconnect
+Doha	Ooredoo Cloudconnect | Vodafone Qatar
+AsiaSouthEast SIN22 Skytap	SkytapInDC Prod
+WestEurope AMS23 Skytap	SkytapInDC Prod
+SouthCentralUS SAT09 Skytap	SkytapInDC Prod
+EastAsia HKG20 Skytap	SkytapInDC Prod
+NorthEurope DUB12 Skytap	SkytapInDC Prod
+UkSouth LON23 Skytap	SkytapInDC Prod
+UkSouth LON24 Skytap	SkytapInDC Prod
+dallas	Vodafone
