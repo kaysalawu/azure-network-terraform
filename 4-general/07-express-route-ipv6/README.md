@@ -26,7 +26,7 @@ Contents
 
 This lab deploys a single-region Hub and Spoke Vnet topology using Virtual Network Appliances (NVA) for traffic inspection. The lab demonstrates traffic routing patterns, [hybrid DNS](https://learn.microsoft.com/en-us/azure/dns/private-resolver-hybrid-dns) resolution, NVA deployment, and [PrivateLink Services](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview) access to IaaS, [PrivateLink](https://learn.microsoft.com/en-us/azure/private-link/private-link-overview) access to PaaS services.
 
-<img src="./images/architecture.png" alt="Hub and Spoke (Single region)" width="700">
+<img src="./images/architecture.png" alt="Hub and Spoke (Single region)" width="800">
 
 ***Hub1*** is a Vnet hub that has an NVA used for inspection of traffic between an on-premises branch and Vnet spokes. User-Defined Routes (UDR) are used to influence the hub Vnet data plane to route traffic between the branch and spokes via the NVA. An isolated spoke ***spoke3*** does not have Vnet peering to ***hub1***, but is reachable from the hub via [Private Link Service](https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview).
 
@@ -296,7 +296,7 @@ Where ***\<AAAA\>*** is a randomly generated two-byte string.
 **5.1.** On your Cloudshell (or local machine), get the storage account hostname and blob URL.
 
 ```sh
-spoke3_storage_account=$(az storage account list -g Lab07_HubSpoke_Nva_1Region_RG --query "[?contains(name, 'lab07spoke3sa')].name" -o tsv)
+spoke3_storage_account=$(az storage account list -g Lab07_ExpressRoute_IPv6_RG --query "[?contains(name, 'lab07spoke3sa')].name" -o tsv)
 
 spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
 spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
@@ -442,7 +442,7 @@ azureuser@branch1Vm:~$ az login --identity
 **6.3.** Get the storage account hostname and blob URL.
 
 ```sh
-spoke3_storage_account=$(az storage account list -g Lab07_HubSpoke_Nva_1Region_RG --query "[?contains(name, 'lab07spoke3sa')].name" -o tsv)
+spoke3_storage_account=$(az storage account list -g Lab07_ExpressRoute_IPv6_RG --query "[?contains(name, 'lab07spoke3sa')].name" -o tsv)
 
 spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
 spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
@@ -842,7 +842,7 @@ cd azure-network-terraform/4-general/07-express-route-ipv6
 2\. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
 ```sh
-bash ../../scripts/_cleanup.sh Lab07_HubSpoke_Nva_1Region_RG
+bash ../../scripts/_cleanup.sh Lab07_ExpressRoute_IPv6_RG
 ```
 
 <details>
@@ -850,18 +850,18 @@ bash ../../scripts/_cleanup.sh Lab07_HubSpoke_Nva_1Region_RG
 <summary>Sample output</summary>
 
 ```sh
-3-hub-spoke-nva-single-region$    bash ../../scripts/_cleanup.sh Lab07_HubSpoke_Nva_1Region_RG
+3-hub-spoke-nva-single-region$    bash ../../scripts/_cleanup.sh Lab07_ExpressRoute_IPv6_RG
 
-Resource group: Lab07_HubSpoke_Nva_1Region_RG
+Resource group: Lab07_ExpressRoute_IPv6_RG
 
-⏳ Checking for diagnostic settings on resources in Lab07_HubSpoke_Nva_1Region_RG ...
+⏳ Checking for diagnostic settings on resources in Lab07_ExpressRoute_IPv6_RG ...
 ➜  Checking firewall ...
 ➜  Checking vnet gateway ...
     ❌ Deleting: diag setting [Lab07-hub1-vpngw-diag] for vnet gateway [Lab07-hub1-vpngw] ...
 ➜  Checking vpn gateway ...
 ➜  Checking er gateway ...
 ➜  Checking app gateway ...
-⏳ Checking for azure policies in Lab07_HubSpoke_Nva_1Region_RG ...
+⏳ Checking for azure policies in Lab07_ExpressRoute_IPv6_RG ...
 Done!
 ```
 
@@ -871,7 +871,7 @@ Done!
 3\. Delete the resource group to remove all resources installed.
 
 ```sh
-az group delete -g Lab07_HubSpoke_Nva_1Region_RG --no-wait
+az group delete -g Lab07_ExpressRoute_IPv6_RG --no-wait
 ```
 
 4\. Delete terraform state files and other generated files.

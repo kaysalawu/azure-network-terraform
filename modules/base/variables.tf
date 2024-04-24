@@ -389,5 +389,5 @@ variable "trusted_subnet_address_prefix" {
 variable "enable_ipv6" {
   description = "enable ipv6"
   type        = bool
-  default     = true
+  default     = false
 }

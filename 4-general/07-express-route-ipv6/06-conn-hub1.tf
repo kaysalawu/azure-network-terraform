@@ -221,6 +221,32 @@ resource "azurerm_virtual_network_gateway_connection" "hub1_branch1_lng" {
 }
 
 ####################################################
+# gateway-to-gateway connection
+####################################################
+
+resource "azurerm_virtual_network_gateway_connection" "hub1_branch2_conn" {
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = local.region1
+  name                = "${local.prefix}-hub1-branch2-conn"
+
+  type                            = "Vnet2Vnet"
+  virtual_network_gateway_id      = module.hub1.s2s_vpngw.id
+  peer_virtual_network_gateway_id = module.branch2.s2s_vpngw.id
+  shared_key                      = local.psk
+}
+
+resource "azurerm_virtual_network_gateway_connection" "branch2_hub1_conn" {
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = local.region1
+  name                = "${local.prefix}-branch2-hub1-conn"
+
+  type                            = "Vnet2Vnet"
+  virtual_network_gateway_id      = module.branch2.s2s_vpngw.id
+  peer_virtual_network_gateway_id = module.hub1.s2s_vpngw.id
+  shared_key                      = local.psk
+}
+
+####################################################
 # output files
 ####################################################
 
