@@ -83,9 +83,12 @@ resource "azurerm_network_manager" "avnm" {
 # network groups
 ####################################################
 
+# float
+
 resource "azurerm_network_manager_network_group" "ng_spokes_prod_float" {
   name               = "${local.prefix}-ng-spokes-prod-float"
   network_manager_id = azurerm_network_manager.avnm.id
+  description        = "All floating spokes in prod"
 }
 
 ####################################################
@@ -102,6 +105,18 @@ resource "azurerm_policy_definition" "ng_spokes_prod_float" {
 }
 
 ####################################################
+# policy assignments
+####################################################
+
+# float
+
+resource "azurerm_resource_group_policy_assignment" "ng_spokes_prod_float" {
+  name                 = "${local.prefix}-ng-spokes-prod-float"
+  policy_definition_id = azurerm_policy_definition.ng_spokes_prod_float.id
+  resource_group_id    = azurerm_resource_group.rg.id
+}
+
+####################################################
 # configuration
 ####################################################
 
@@ -112,6 +127,7 @@ resource "azurerm_network_manager_connectivity_configuration" "conn_config_mesh_
   name                  = "${local.prefix}-conn-config-mesh-float"
   network_manager_id    = azurerm_network_manager.avnm.id
   connectivity_topology = "Mesh"
+  global_mesh_enabled   = true
 
   applies_to_group {
     group_connectivity  = "DirectlyConnected"
@@ -124,21 +140,18 @@ resource "azurerm_network_manager_connectivity_configuration" "conn_config_mesh_
   ]
 }
 
-/*
 ####################################################
-# security
+# output files
 ####################################################
 
-# resource "azurerm_network_manager_security_admin_configuration" "secadmin_config_region1" {
-#   name               = "${local.prefix}-secadmin-config-region1"
-#   network_manager_id = azurerm_network_manager.avnm.id
-# }
+locals {
+  avnm_files_global = {
+    "output/policies/pol-ng-spokes-prod-float.json" = local.policy_ng_spokes_prod_float
+  }
+}
 
-# resource "azurerm_network_manager_admin_rule_collection" "secadmin_rule_col_region1" {
-#   name                            = "${local.prefix}-secadmin-rule-col-region1"
-#   security_admin_configuration_id = azurerm_network_manager_security_admin_configuration.secadmin_config_region1.id
-#   network_group_ids = [
-#     azurerm_network_manager_network_group.ng_spokes_prod_region1.id
-#   ]
-# }
-*/
+resource "local_file" "avnm_files_global" {
+  for_each = local.avnm_files_global
+  filename = each.key
+  content  = each.value
+}

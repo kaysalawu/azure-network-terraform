@@ -20,6 +20,7 @@ locals {
 resource "azurerm_network_manager_network_group" "ng_spokes_prod_region2" {
   name               = "${local.prefix}-ng-spokes-prod-region2"
   network_manager_id = azurerm_network_manager.avnm.id
+  description        = "All spokes in prod region2"
 }
 
 ####################################################

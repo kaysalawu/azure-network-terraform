@@ -43,7 +43,7 @@ module "branch2" {
   }
 
   config_s2s_vpngw = {
-    enable = false
+    enable = true
     sku    = "VpnGw1AZ"
   }
 
