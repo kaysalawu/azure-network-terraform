@@ -11,7 +11,7 @@ Contents
 - [7. Effective Routes](#7-effective-routes)
 - [8. VNet Gateway - BGP Peers](#8-vnet-gateway---bgp-peers)
 - [9. VNet Gateway - Route Tables](#9-vnet-gateway---route-tables)
-- [10. VNet Gateway - Route Tables](#10-vnet-gateway---route-tables)
+- [10. Express Route - Route Tables](#10-express-route---route-tables)
 - [Clean Up](#clean-up)
 
 
@@ -47,11 +47,11 @@ azureuser@branch2Vm:~$ ping-ipv4
 
  ping ipv4 ...
 
-branch1  - 10.10.0.5 -NA
-branch2  - 10.20.0.5 -OK 0.051 ms
-hub1     - 10.11.0.5 -OK 5.233 ms
-spoke1   - 10.1.0.5 -OK 5.663 ms
-spoke2   - 10.2.0.5 -OK 4.956 ms
+branch1 - 10.10.0.5 -NA
+branch2 - 10.20.0.5 -OK 0.070 ms
+hub1    - 10.11.0.5 -OK 5.082 ms
+spoke1  - 10.1.0.5 -OK 5.128 ms
+spoke2  - 10.2.0.5 -OK 5.329 ms
 internet - icanhazip.com -NA
 ```
 
@@ -60,12 +60,12 @@ azureuser@branch2Vm:~$ ping-ipv6
 
  ping ipv6 ...
 
-branch1  - fd00:db8:10::5 -NA
-branch2  - fd00:db8:20::5 -OK 0.062 ms
-hub1     - fd00:db8:11::5 -OK 4.530 ms
-spoke1   - fd00:db8:1::5 -OK 5.423 ms
-spoke2   - fd00:db8:2::5 -OK 4.869 ms
-internet - icanhazip.com -OK 1.893 ms
+branch1 - fd00:db8:10::5 -NA
+branch2 - fd00:db8:20::5 -OK 0.030 ms
+hub1    - fd00:db8:11::5 -OK 4.425 ms
+spoke1  - fd00:db8:1::5 -OK 6.121 ms
+spoke2  - fd00:db8:2::5 -OK 4.844 ms
+internet - icanhazip.com -OK 1.692 ms
 ```
 
 </details>
@@ -92,10 +92,10 @@ azureuser@branch2Vm:~$ ping-dns4
  ping dns ipv4 ...
 
 branch1vm.corp - 10.10.0.5 -NA
-branch2vm.corp - 10.20.0.5 -OK 0.042 ms
-hub1vm.eu.az.corp - 10.11.0.5 -OK 5.030 ms
-spoke1vm.eu.az.corp - 10.1.0.5 -OK 4.530 ms
-spoke2vm.eu.az.corp - 10.2.0.5 -OK 5.045 ms
+branch2vm.corp - 10.20.0.5 -OK 0.051 ms
+hub1vm.eu.az.corp - 10.11.0.5 -OK 4.656 ms
+spoke1vm.eu.az.corp - 10.1.0.5 -OK 5.242 ms
+spoke2vm.eu.az.corp - 10.2.0.5 -OK 5.000 ms
 icanhazip.com - 104.16.184.241 -NA
 ```
 
@@ -105,11 +105,11 @@ azureuser@branch2Vm:~$ ping-dns6
  ping dns ipv6 ...
 
 branch1vm.corp - fd00:db8:10::5 -NA
-branch2vm.corp - fd00:db8:20::5 -OK 0.050 ms
-hub1vm.eu.az.corp - fd00:db8:11::5 -OK 4.142 ms
-spoke1vm.eu.az.corp - fd00:db8:1::5 -OK 5.297 ms
-spoke2vm.eu.az.corp - fd00:db8:2::5 -OK 6.390 ms
-icanhazip.com - 2606:4700::6810:b8f1 -OK 1.577 ms
+branch2vm.corp - fd00:db8:20::5 -OK 0.030 ms
+hub1vm.eu.az.corp - fd00:db8:11::5 -OK 6.454 ms
+spoke1vm.eu.az.corp - fd00:db8:1::5 -OK 8.200 ms
+spoke2vm.eu.az.corp - fd00:db8:2::5 -OK 4.488 ms
+icanhazip.com - 2606:4700::6810:b8f1 -OK 1.710 ms
 ```
 
 </details>
@@ -136,13 +136,13 @@ azureuser@branch2Vm:~$ curl-dns4
  curl dns ipv4 ...
 
  - branch1vm.corp
-200 (0.007322s) - 10.20.0.5 - branch2vm.corp
-200 (0.024905s) - 10.11.0.5 - hub1vm.eu.az.corp
-200 (0.012535s) - 10.11.7.88 - spoke3pls.eu.az.corp
-200 (0.023217s) - 10.1.0.5 - spoke1vm.eu.az.corp
-200 (0.023481s) - 10.2.0.5 - spoke2vm.eu.az.corp
-200 (0.129947s) - 104.16.184.241 - icanhazip.com
-200 (0.072317s) - 10.11.7.99 - https://lab07spoke3sac7fc.blob.core.windows.net/spoke3/spoke3.txt
+200 (0.003274s) - 10.20.0.5 - branch2vm.corp
+200 (0.028319s) - 10.11.0.5 - hub1vm.eu.az.corp
+200 (0.010905s) - 10.11.7.88 - spoke3pls.eu.az.corp
+200 (0.021640s) - 10.1.0.5 - spoke1vm.eu.az.corp
+200 (0.036478s) - 10.2.0.5 - spoke2vm.eu.az.corp
+200 (0.038866s) - 104.16.184.241 - icanhazip.com
+200 (0.045451s) - 10.11.7.99 - https://lab07spoke3sa2e6a.blob.core.windows.net/spoke3/spoke3.txt
 ```
 
 ```sh
@@ -151,13 +151,13 @@ azureuser@branch2Vm:~$ curl-dns6
  curl dns ipv6 ...
 
  - branch1vm.corp
-200 (0.003065s) - fd00:db8:20::5 - branch2vm.corp
-200 (0.023754s) - fd00:db8:11::5 - hub1vm.eu.az.corp
-000 (0.022765s) -  - spoke3pls.eu.az.corp
-200 (0.027924s) - fd00:db8:1::5 - spoke1vm.eu.az.corp
-200 (0.025396s) - fd00:db8:2::5 - spoke2vm.eu.az.corp
-200 (0.011390s) - 2606:4700::6810:b9f1 - icanhazip.com
-000 (0.002337s) -  - https://lab07spoke3sac7fc.blob.core.windows.net/spoke3/spoke3.txt
+200 (0.003495s) - fd00:db8:20::5 - branch2vm.corp
+200 (0.026114s) - fd00:db8:11::5 - hub1vm.eu.az.corp
+000 (0.013409s) -  - spoke3pls.eu.az.corp
+200 (0.022774s) - fd00:db8:1::5 - spoke1vm.eu.az.corp
+200 (0.024746s) - fd00:db8:2::5 - spoke2vm.eu.az.corp
+200 (0.058128s) - 2606:4700::6810:b8f1 - icanhazip.com
+000 (0.002307s) -  - https://lab07spoke3sa2e6a.blob.core.windows.net/spoke3/spoke3.txt
 ```
 
 </details>
@@ -207,7 +207,7 @@ Where ***\<AAAA\>*** is a randomly generated two-byte string.
 **5.1.** On your Cloudshell (or local machine), get the storage account hostname and blob URL.
 
 ```sh
-spoke3_storage_account=$(az storage account list -g Lab07_HubSpoke_Nva_1Region_RG --query "[?contains(name, 'lab07spoke3sa')].name" -o tsv)
+spoke3_storage_account=$(az storage account list -g Lab07_ExpressRoute_IPv6_RG --query "[?contains(name, 'lab07spoke3sa')].name" -o tsv)
 
 spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
 spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
@@ -315,7 +315,7 @@ azureuser@branch2Vm:~$ az login --identity
 **6.3.** Get the storage account hostname and blob URL.
 
 ```sh
-spoke3_storage_account=$(az storage account list -g Lab07_HubSpoke_Nva_1Region_RG --query "[?contains(name, 'lab07spoke3sa')].name" -o tsv)
+spoke3_storage_account=$(az storage account list -g Lab07_ExpressRoute_IPv6_RG --query "[?contains(name, 'lab07spoke3sa')].name" -o tsv)
 
 spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
 spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
@@ -396,7 +396,7 @@ Hello, World!
 **7.1.** Run the following command and select `Lab07-branch2-vm-main-nic` when prompted.
 
 ```sh
-bash ../../scripts/_routes_nic.sh Lab07_HubSpoke_Nva_1Region_RG
+bash ../../scripts/_routes_nic.sh Lab07_ExpressRoute_IPv6_RG
 ```
 
 <details>
@@ -410,6 +410,7 @@ Source                 Prefix                 State    NextHopType            Ne
 ---------------------  ---------------------  -------  ---------------------  ------------
 Default                10.20.0.0/20           Active   VnetLocal
 Default                10.20.16.0/20          Active   VnetLocal
+VirtualNetworkGateway  172.16.0.0/30          Active   VirtualNetworkGateway  10.20.88.110
 VirtualNetworkGateway  10.1.0.0/20            Active   VirtualNetworkGateway  10.20.88.110
 VirtualNetworkGateway  10.1.0.0/20            Active   VirtualNetworkGateway  10.20.88.111
 VirtualNetworkGateway  10.2.0.0/20            Active   VirtualNetworkGateway  10.20.88.110
@@ -418,7 +419,6 @@ VirtualNetworkGateway  10.11.0.0/20           Active   VirtualNetworkGateway  10
 VirtualNetworkGateway  10.11.0.0/20           Active   VirtualNetworkGateway  10.20.88.111
 VirtualNetworkGateway  10.11.16.0/20          Active   VirtualNetworkGateway  10.20.88.110
 VirtualNetworkGateway  10.11.16.0/20          Active   VirtualNetworkGateway  10.20.88.111
-VirtualNetworkGateway  172.16.0.0/30          Active   VirtualNetworkGateway  10.20.88.110
 Default                0.0.0.0/0              Active   Internet
 Default                fd00:db8:20::/56       Active   VnetLocal
 Default                fd00:db8:20:aa00::/56  Active   VnetLocal
@@ -426,7 +426,6 @@ VirtualNetworkGateway  fd00:db8:1::/56        Active   VirtualNetworkGateway  10
 VirtualNetworkGateway  fd00:db8:1::/56        Active   VirtualNetworkGateway  10.20.88.111
 VirtualNetworkGateway  fd00:db8:2::/56        Active   VirtualNetworkGateway  10.20.88.110
 VirtualNetworkGateway  fd00:db8:2::/56        Active   VirtualNetworkGateway  10.20.88.111
-VirtualNetworkGateway  2001:db8:1::/126       Active   VirtualNetworkGateway  10.20.88.110
 VirtualNetworkGateway  fd00:db8:11::/56       Active   VirtualNetworkGateway  10.20.88.110
 VirtualNetworkGateway  fd00:db8:11::/56       Active   VirtualNetworkGateway  10.20.88.111
 VirtualNetworkGateway  fd00:db8:11:aa00::/56  Active   VirtualNetworkGateway  10.20.88.110
@@ -441,7 +440,7 @@ Default                ::/0                   Active   Internet
 **7.2.** Run the following command and select `Lab07-hub1-nva-untrust-nic` when prompted.
 
 ```sh
-bash ../../scripts/_routes_nic.sh Lab07_HubSpoke_Nva_1Region_RG
+bash ../../scripts/_routes_nic.sh Lab07_ExpressRoute_IPv6_RG
 ```
 
 <details>
@@ -457,13 +456,13 @@ Default                10.11.0.0/20           Active   VnetLocal
 Default                10.11.16.0/20          Active   VnetLocal
 Default                10.1.0.0/20            Active   VNetPeering
 Default                10.2.0.0/20            Active   VNetPeering
-VirtualNetworkGateway  10.10.0.0/24           Active   VirtualNetworkGateway  10.11.16.12
-VirtualNetworkGateway  10.10.0.0/24           Active   VirtualNetworkGateway  10.11.16.13
-VirtualNetworkGateway  172.16.0.0/30          Active   VirtualNetworkGateway  10.20.88.110
+VirtualNetworkGateway  10.10.0.0/24           Active   VirtualNetworkGateway  10.11.16.14
+VirtualNetworkGateway  10.10.0.0/24           Active   VirtualNetworkGateway  10.11.16.15
 VirtualNetworkGateway  10.20.0.0/20           Active   VirtualNetworkGateway  10.20.88.110
 VirtualNetworkGateway  10.20.0.0/20           Active   VirtualNetworkGateway  10.20.88.111
 VirtualNetworkGateway  10.20.16.0/20          Active   VirtualNetworkGateway  10.20.88.110
 VirtualNetworkGateway  10.20.16.0/20          Active   VirtualNetworkGateway  10.20.88.111
+VirtualNetworkGateway  172.16.0.0/30          Active   VirtualNetworkGateway  10.20.88.110
 Default                0.0.0.0/0              Active   Internet
 Default                10.11.7.99/32          Active   InterfaceEndpoint
 Default                10.11.7.88/32          Active   InterfaceEndpoint
@@ -471,7 +470,6 @@ Default                fd00:db8:11::/56       Active   VnetLocal
 Default                fd00:db8:11:aa00::/56  Active   VnetLocal
 Default                fd00:db8:1::/56        Active   VNetPeering
 Default                fd00:db8:2::/56        Active   VNetPeering
-VirtualNetworkGateway  2001:db8:1::/126       Active   VirtualNetworkGateway  10.20.88.110
 VirtualNetworkGateway  fd00:db8:20:aa00::/56  Active   VirtualNetworkGateway  10.20.88.110
 VirtualNetworkGateway  fd00:db8:20:aa00::/56  Active   VirtualNetworkGateway  10.20.88.111
 VirtualNetworkGateway  fd00:db8:20::/56       Active   VirtualNetworkGateway  10.20.88.110
@@ -485,7 +483,7 @@ Default                ::/0                   Active   Internet
 **7.3.** Run the following command and select the number for `Lab07-spoke1-vm-main-nic` when prompted.
 
 ```sh
-bash ../../scripts/_routes_nic.sh Lab07_HubSpoke_Nva_1Region_RG
+bash ../../scripts/_routes_nic.sh Lab07_ExpressRoute_IPv6_RG
 ```
 
 <details>
@@ -501,8 +499,8 @@ Default   10.1.0.0/20            Active   VnetLocal
 Default   10.11.16.0/20          Active   VNetPeering
 Default   10.11.0.0/20           Invalid  VNetPeering
 Default   0.0.0.0/0              Invalid  Internet
-User      0.0.0.0/0              Active   VirtualAppliance   10.11.2.99
 User      10.11.0.0/20           Active   VirtualAppliance   10.11.2.99
+User      0.0.0.0/0              Active   VirtualAppliance   10.11.2.99
 Default   10.11.7.99/32          Active   InterfaceEndpoint
 Default   10.11.7.88/32          Active   InterfaceEndpoint
 Default   fd00:db8:1::/56        Active   VnetLocal
@@ -521,7 +519,7 @@ User      fd00:db8:11::/56       Active   VirtualAppliance   fd00:db8:11:2::99
 **8.1.** Run the following command to view the BGP peers for the Express Route circuit.
 
 ```sh
-bash ../../scripts/vnet-gateway/get_bgp_peer_status.sh Lab07_HubSpoke_Nva_1Region_RG
+bash ../../scripts/vnet-gateway/get_bgp_peer_status.sh Lab07_ExpressRoute_IPv6_RG
 ```
 
 <details>
@@ -529,40 +527,57 @@ bash ../../scripts/vnet-gateway/get_bgp_peer_status.sh Lab07_HubSpoke_Nva_1Regio
 <summary>Sample output</summary>
 
 ```sh
-07-express-route-ipv6$ bash ../../scripts/vnet-gateway/get_bgp_peer_status.sh Lab07_HubSpoke_Nva_1Region_RG
+Resource group: Lab07_ExpressRoute_IPv6_RG
 
-Resource group: Lab07_HubSpoke_Nva_1Region_RG
+Gateway: Lab07-branch1-ergw
+Route tables:
+
 
 Gateway: Lab07-branch2-ergw
 Route tables:
-Neighbor    ASN    LocalAddress    RoutesReceived    State
-----------  -----  --------------  ----------------  ---------
-10.20.16.4  12076  10.20.16.13     10                Connected
-10.20.16.5  12076  10.20.16.13     8                 Connected
+Neighbor     ASN    LocalAddress    RoutesReceived    State
+-----------  -----  --------------  ----------------  ---------
+10.20.16.4   12076  10.20.16.12     9                 Connected
+10.20.16.5   12076  10.20.16.12     8                 Connected
+10.20.16.14  65515  10.20.16.12     4                 Connected
+10.20.16.15  65515  10.20.16.12     4                 Connected
+
+Gateway: Lab07-branch2-vpngw
+Route tables:
+Neighbor     ASN    LocalAddress    RoutesReceived    State
+-----------  -----  --------------  ----------------  ---------
+10.20.16.14  65515  10.20.16.14     0                 Unknown
+10.20.16.15  65515  10.20.16.14     4                 Connected
+10.20.16.12  65515  10.20.16.14     4                 Connected
+10.20.16.13  65515  10.20.16.14     4                 Connected
+10.20.16.14  65515  10.20.16.15     4                 Connected
+10.20.16.15  65515  10.20.16.15     0                 Unknown
+10.20.16.12  65515  10.20.16.15     4                 Connected
+10.20.16.13  65515  10.20.16.15     4                 Connected
 
 Gateway: Lab07-hub1-ergw
 Route tables:
 Neighbor     ASN    LocalAddress    RoutesReceived    State
 -----------  -----  --------------  ----------------  ---------
-10.11.16.6   12076  10.11.16.14     6                 Connected
-10.11.16.7   12076  10.11.16.14     4                 Connected
-10.11.16.12  65515  10.11.16.14     1                 Connected
-10.11.16.13  65515  10.11.16.14     1                 Connected
+10.11.16.6   12076  10.11.16.12     5                 Connected
+10.11.16.7   12076  10.11.16.12     4                 Connected
+10.11.16.14  65515  10.11.16.12     3                 Connected
+10.11.16.15  65515  10.11.16.12     3                 Connected
 
 Gateway: Lab07-hub1-vpngw
 Route tables:
 Neighbor       ASN    LocalAddress    RoutesReceived    State
 -------------  -----  --------------  ----------------  ---------
-192.168.10.10  65001  10.11.16.13     1                 Connected
-10.11.16.12    65515  10.11.16.13     2                 Connected
-10.11.16.13    65515  10.11.16.13     0                 Unknown
-10.11.16.14    65515  10.11.16.13     8                 Connected
-10.11.16.15    65515  10.11.16.13     8                 Connected
-192.168.10.10  65001  10.11.16.12     1                 Connected
-10.11.16.12    65515  10.11.16.12     0                 Unknown
-10.11.16.13    65515  10.11.16.12     2                 Connected
-10.11.16.14    65515  10.11.16.12     8                 Connected
-10.11.16.15    65515  10.11.16.12     8                 Connected
+192.168.10.10  65001  10.11.16.15     1                 Connected
+10.11.16.13    65515  10.11.16.15     8                 Connected
+10.11.16.12    65515  10.11.16.15     8                 Connected
+10.11.16.14    65515  10.11.16.15     4                 Connected
+10.11.16.15    65515  10.11.16.15     0                 Unknown
+192.168.10.10  65001  10.11.16.14     1                 Connected
+10.11.16.13    65515  10.11.16.14     8                 Connected
+10.11.16.12    65515  10.11.16.14     8                 Connected
+10.11.16.14    65515  10.11.16.14     0                 Unknown
+10.11.16.15    65515  10.11.16.14     4                 Connected
 ```
 
 </details>
@@ -570,10 +585,10 @@ Neighbor       ASN    LocalAddress    RoutesReceived    State
 
 ## 9. VNet Gateway - Route Tables
 
-**9.1.** Run the following command to view the BGP peers for the Express Route circuit.
+**9.1.** Run the following command to view the route tables for the VNet gateways.
 
 ```sh
-bash ../../scripts/vnet-gateway/get_bgp_peer_status.sh Lab07_HubSpoke_Nva_1Region_RG
+bash ../../scripts/vnet-gateway/get_route_tables.sh Lab07_ExpressRoute_IPv6_RG
 ```
 
 <details>
@@ -581,125 +596,193 @@ bash ../../scripts/vnet-gateway/get_bgp_peer_status.sh Lab07_HubSpoke_Nva_1Regio
 <summary>Sample output</summary>
 
 ```sh
-07-express-route-ipv6$ bash ../../scripts/vnet-gateway/get_route_tables.sh Lab07_HubSpoke_Nva_1Region_RG
+07-express-route-ipv6$ bash ../../scripts/vnet-gateway/get_route_tables.sh Lab07_ExpressRoute_IPv6_RG
 
-Resource group: Lab07_HubSpoke_Nva_1Region_RG
+Resource group: Lab07_ExpressRoute_IPv6_RG
+
+Gateway: Lab07-branch1-ergw
+Route tables:
+Network                NextHop    Origin    SourcePeer    AsPath    Weight
+---------------------  ---------  --------  ------------  --------  --------
+10.10.0.0/20                      Network   10.10.16.13             32768
+10.10.16.0/20                     Network   10.10.16.13             32768
+fd00:db8:10::/56                  Network   10.10.16.13             32768
+fd00:db8:10:aa00::/56             Network   10.10.16.13             32768
 
 Gateway: Lab07-branch2-ergw
 Route tables:
 Network                NextHop              Origin    SourcePeer    AsPath       Weight
 ---------------------  -------------------  --------  ------------  -----------  --------
-10.20.0.0/20                                Network   10.20.16.12                32768
-10.20.16.0/20                               Network   10.20.16.12                32768
-fd00:db8:20::/56                            Network   10.20.16.12                32768
-fd00:db8:20:aa00::/56                       Network   10.20.16.12                32768
-fd00:db8:1::/56        fd00:db8:20:aa16::5  EBgp      10.20.16.5    12076-12076  32769
-fd00:db8:1::/56        fd00:db8:20:aa16::4  EBgp      10.20.16.4    12076-12076  32769
-fd00:db8:2::/56        fd00:db8:20:aa16::5  EBgp      10.20.16.5    12076-12076  32769
-fd00:db8:2::/56        fd00:db8:20:aa16::4  EBgp      10.20.16.4    12076-12076  32769
-fd00:db8:11::/56       fd00:db8:20:aa16::5  EBgp      10.20.16.5    12076-12076  32769
-fd00:db8:11::/56       fd00:db8:20:aa16::4  EBgp      10.20.16.4    12076-12076  32769
-fd00:db8:11:aa00::/56  fd00:db8:20:aa16::5  EBgp      10.20.16.5    12076-12076  32769
-fd00:db8:11:aa00::/56  fd00:db8:20:aa16::4  EBgp      10.20.16.4    12076-12076  32769
-10.1.0.0/20            10.20.16.5           EBgp      10.20.16.5    12076-12076  32769
-10.1.0.0/20            10.20.16.4           EBgp      10.20.16.4    12076-12076  32769
-10.2.0.0/20            10.20.16.5           EBgp      10.20.16.5    12076-12076  32769
-10.2.0.0/20            10.20.16.4           EBgp      10.20.16.4    12076-12076  32769
-10.11.0.0/20           10.20.16.5           EBgp      10.20.16.5    12076-12076  32769
-10.11.0.0/20           10.20.16.4           EBgp      10.20.16.4    12076-12076  32769
-10.11.16.0/20          10.20.16.5           EBgp      10.20.16.5    12076-12076  32769
-10.11.16.0/20          10.20.16.4           EBgp      10.20.16.4    12076-12076  32769
-2001:db8:1::/126       fd00:db8:20:aa16::4  EBgp      10.20.16.4    12076-64512  32769
+10.20.0.0/20                                Network   10.20.16.13                32768
+10.20.16.0/20                               Network   10.20.16.13                32768
+fd00:db8:20::/56                            Network   10.20.16.13                32768
+fd00:db8:20:aa00::/56                       Network   10.20.16.13                32768
 172.16.0.0/30          10.20.16.4           EBgp      10.20.16.4    12076-64512  32769
+fd00:db8:1::/56        fd00:db8:20:aa16::4  EBgp      10.20.16.4    12076-12076  32769
+fd00:db8:1::/56        fd00:db8:20:aa16::5  EBgp      10.20.16.5    12076-12076  32769
+fd00:db8:2::/56        fd00:db8:20:aa16::4  EBgp      10.20.16.4    12076-12076  32769
+fd00:db8:2::/56        fd00:db8:20:aa16::5  EBgp      10.20.16.5    12076-12076  32769
+fd00:db8:11::/56       fd00:db8:20:aa16::4  EBgp      10.20.16.4    12076-12076  32769
+fd00:db8:11::/56       fd00:db8:20:aa16::5  EBgp      10.20.16.5    12076-12076  32769
+fd00:db8:11:aa00::/56  fd00:db8:20:aa16::4  EBgp      10.20.16.4    12076-12076  32769
+fd00:db8:11:aa00::/56  fd00:db8:20:aa16::5  EBgp      10.20.16.5    12076-12076  32769
+10.1.0.0/20            10.20.16.4           EBgp      10.20.16.4    12076-12076  32769
+10.1.0.0/20            10.20.16.5           EBgp      10.20.16.5    12076-12076  32769
+10.2.0.0/20            10.20.16.4           EBgp      10.20.16.4    12076-12076  32769
+10.2.0.0/20            10.20.16.5           EBgp      10.20.16.5    12076-12076  32769
+10.11.0.0/20           10.20.16.4           EBgp      10.20.16.4    12076-12076  32769
+10.11.0.0/20           10.20.16.5           EBgp      10.20.16.5    12076-12076  32769
+10.11.16.0/20          10.20.16.4           EBgp      10.20.16.4    12076-12076  32769
+10.11.16.0/20          10.20.16.5           EBgp      10.20.16.5    12076-12076  32769
+10.1.0.0/20            10.20.16.15          IBgp      10.20.16.15                32768
+10.1.0.0/20            10.20.16.14          IBgp      10.20.16.14                32768
+10.2.0.0/20            10.20.16.15          IBgp      10.20.16.15                32768
+10.2.0.0/20            10.20.16.14          IBgp      10.20.16.14                32768
+10.11.0.0/20           10.20.16.15          IBgp      10.20.16.15                32768
+10.11.0.0/20           10.20.16.14          IBgp      10.20.16.14                32768
+10.11.16.0/20          10.20.16.15          IBgp      10.20.16.15                32768
+10.11.16.0/20          10.20.16.14          IBgp      10.20.16.14                32768
+
+Gateway: Lab07-branch2-vpngw
+Route tables:
+Network                NextHop              Origin    SourcePeer    AsPath    Weight
+---------------------  -------------------  --------  ------------  --------  --------
+10.20.0.0/20           10.20.16.12          IBgp      10.20.16.12             32769
+10.20.0.0/20           10.20.16.13          IBgp      10.20.16.13             32769
+10.20.16.0/20          10.20.16.12          IBgp      10.20.16.12             32769
+10.20.16.0/20          10.20.16.13          IBgp      10.20.16.13             32769
+fd00:db8:20::/56       fd00:db8:20:aa16::c  IBgp      10.20.16.12             32769
+fd00:db8:20::/56       fd00:db8:20:aa16::d  IBgp      10.20.16.13             32769
+fd00:db8:20:aa00::/56  fd00:db8:20:aa16::c  IBgp      10.20.16.12             32769
+fd00:db8:20:aa00::/56  fd00:db8:20:aa16::d  IBgp      10.20.16.13             32769
+10.11.0.0/20                                Network   10.20.16.14             32768
+10.11.0.0/20           10.20.16.15          IBgp      10.20.16.15             32768
+10.11.16.0/20                               Network   10.20.16.14             32768
+10.11.16.0/20          10.20.16.15          IBgp      10.20.16.15             32768
+10.1.0.0/20                                 Network   10.20.16.14             32768
+10.1.0.0/20            10.20.16.15          IBgp      10.20.16.15             32768
+10.2.0.0/20                                 Network   10.20.16.14             32768
+10.2.0.0/20            10.20.16.15          IBgp      10.20.16.15             32768
+10.20.0.0/20                                Network   10.20.16.14             32768
+10.20.16.0/20                               Network   10.20.16.14             32768
+10.20.0.0/20           10.20.16.12          IBgp      10.20.16.12             32769
+10.20.0.0/20           10.20.16.13          IBgp      10.20.16.13             32769
+10.20.16.0/20          10.20.16.12          IBgp      10.20.16.12             32769
+10.20.16.0/20          10.20.16.13          IBgp      10.20.16.13             32769
+fd00:db8:20::/56       fd00:db8:20:aa16::c  IBgp      10.20.16.12             32769
+fd00:db8:20::/56       fd00:db8:20:aa16::d  IBgp      10.20.16.13             32769
+fd00:db8:20:aa00::/56  fd00:db8:20:aa16::c  IBgp      10.20.16.12             32769
+fd00:db8:20:aa00::/56  fd00:db8:20:aa16::d  IBgp      10.20.16.13             32769
+10.11.0.0/20                                Network   10.20.16.15             32768
+10.11.0.0/20           10.20.16.14          IBgp      10.20.16.14             32768
+10.11.16.0/20                               Network   10.20.16.15             32768
+10.11.16.0/20          10.20.16.14          IBgp      10.20.16.14             32768
+10.1.0.0/20                                 Network   10.20.16.15             32768
+10.1.0.0/20            10.20.16.14          IBgp      10.20.16.14             32768
+10.2.0.0/20                                 Network   10.20.16.15             32768
+10.2.0.0/20            10.20.16.14          IBgp      10.20.16.14             32768
+10.20.0.0/20                                Network   10.20.16.15             32768
+10.20.16.0/20                               Network   10.20.16.15             32768
 
 Gateway: Lab07-hub1-ergw
 Route tables:
 Network                NextHop              Origin    SourcePeer    AsPath       Weight
 ---------------------  -------------------  --------  ------------  -----------  --------
-10.11.0.0/20                                Network   10.11.16.14                32768
-10.11.16.0/20                               Network   10.11.16.14                32768
-fd00:db8:11::/56                            Network   10.11.16.14                32768
-fd00:db8:11:aa00::/56                       Network   10.11.16.14                32768
-10.1.0.0/20                                 Network   10.11.16.14                32768
-fd00:db8:1::/56                             Network   10.11.16.14                32768
-10.2.0.0/20                                 Network   10.11.16.14                32768
-fd00:db8:2::/56                             Network   10.11.16.14                32768
-10.10.0.0/24           10.11.16.12          IBgp      10.11.16.12   65001        32768
-10.10.0.0/24           10.11.16.13          IBgp      10.11.16.13   65001        32768
-2001:db8:1::/126       fd00:db8:11:aa16::4  EBgp      10.11.16.6    12076-64512  32769
-172.16.0.0/30          10.11.16.6           EBgp      10.11.16.6    12076-64512  32769
-fd00:db8:20::/56       fd00:db8:11:aa16::5  EBgp      10.11.16.7    12076-12076  32769
+10.11.0.0/20                                Network   10.11.16.12                32768
+10.11.16.0/20                               Network   10.11.16.12                32768
+fd00:db8:11::/56                            Network   10.11.16.12                32768
+fd00:db8:11:aa00::/56                       Network   10.11.16.12                32768
+10.1.0.0/20                                 Network   10.11.16.12                32768
+fd00:db8:1::/56                             Network   10.11.16.12                32768
+10.10.0.0/24           10.11.16.14          IBgp      10.11.16.14   65001        32768
+10.10.0.0/24           10.11.16.15          IBgp      10.11.16.15   65001        32768
+10.2.0.0/20                                 Network   10.11.16.12                32768
+fd00:db8:2::/56                             Network   10.11.16.12                32768
 fd00:db8:20::/56       fd00:db8:11:aa16::4  EBgp      10.11.16.6    12076-12076  32769
-fd00:db8:20:aa00::/56  fd00:db8:11:aa16::5  EBgp      10.11.16.7    12076-12076  32769
+fd00:db8:20::/56       fd00:db8:11:aa16::5  EBgp      10.11.16.7    12076-12076  32769
 fd00:db8:20:aa00::/56  fd00:db8:11:aa16::4  EBgp      10.11.16.6    12076-12076  32769
-10.20.0.0/20           10.11.16.7           EBgp      10.11.16.7    12076-12076  32769
+fd00:db8:20:aa00::/56  fd00:db8:11:aa16::5  EBgp      10.11.16.7    12076-12076  32769
 10.20.0.0/20           10.11.16.6           EBgp      10.11.16.6    12076-12076  32769
-10.20.16.0/20          10.11.16.7           EBgp      10.11.16.7    12076-12076  32769
+10.20.0.0/20           10.11.16.7           EBgp      10.11.16.7    12076-12076  32769
 10.20.16.0/20          10.11.16.6           EBgp      10.11.16.6    12076-12076  32769
+10.20.16.0/20          10.11.16.7           EBgp      10.11.16.7    12076-12076  32769
+172.16.0.0/30          10.11.16.6           EBgp      10.11.16.6    12076-64512  32769
+10.20.0.0/20           10.11.16.14          IBgp      10.11.16.14                32768
+10.20.0.0/20           10.11.16.15          IBgp      10.11.16.15                32768
+10.20.16.0/20          10.11.16.14          IBgp      10.11.16.14                32768
+10.20.16.0/20          10.11.16.15          IBgp      10.11.16.15                32768
 
 Gateway: Lab07-hub1-vpngw
 Route tables:
 Network                NextHop              Origin    SourcePeer     AsPath    Weight
 ---------------------  -------------------  --------  -------------  --------  --------
-10.11.0.0/20           10.11.16.15          IBgp      10.11.16.15              32769
-10.11.0.0/20           10.11.16.14          IBgp      10.11.16.14              32769
-10.11.16.0/20          10.11.16.15          IBgp      10.11.16.15              32769
-10.11.16.0/20          10.11.16.14          IBgp      10.11.16.14              32769
-10.1.0.0/20            10.11.16.15          IBgp      10.11.16.15              32769
-10.1.0.0/20            10.11.16.14          IBgp      10.11.16.14              32769
-192.168.10.10/32                            Network   10.11.16.12              32768
-192.168.10.10/32       10.11.16.13          IBgp      10.11.16.13              32768
-10.2.0.0/20            10.11.16.15          IBgp      10.11.16.15              32769
-10.2.0.0/20            10.11.16.14          IBgp      10.11.16.14              32769
+10.11.0.0/20           10.11.16.13          IBgp      10.11.16.13              32769
+10.11.0.0/20           10.11.16.12          IBgp      10.11.16.12              32769
+10.11.16.0/20          10.11.16.13          IBgp      10.11.16.13              32769
+10.11.16.0/20          10.11.16.12          IBgp      10.11.16.12              32769
+fd00:db8:11::/56       fd00:db8:11:aa16::d  IBgp      10.11.16.13              32769
+fd00:db8:11::/56       fd00:db8:11:aa16::c  IBgp      10.11.16.12              32769
+fd00:db8:11:aa00::/56  fd00:db8:11:aa16::d  IBgp      10.11.16.13              32769
+fd00:db8:11:aa00::/56  fd00:db8:11:aa16::c  IBgp      10.11.16.12              32769
+10.1.0.0/20            10.11.16.13          IBgp      10.11.16.13              32769
+10.1.0.0/20            10.11.16.12          IBgp      10.11.16.12              32769
+fd00:db8:1::/56        fd00:db8:11:aa16::d  IBgp      10.11.16.13              32769
+fd00:db8:1::/56        fd00:db8:11:aa16::c  IBgp      10.11.16.12              32769
+192.168.10.10/32                            Network   10.11.16.14              32768
+192.168.10.10/32       10.11.16.15          IBgp      10.11.16.15              32768
 10.10.0.0/24           192.168.10.10        EBgp      192.168.10.10  65001     32768
-10.10.0.0/24           10.11.16.13          IBgp      10.11.16.13    65001     32768
-fd00:db8:2::/56        fd00:db8:11:aa16::d  IBgp      10.11.16.15              32769
-fd00:db8:2::/56        fd00:db8:11:aa16::c  IBgp      10.11.16.14              32769
-fd00:db8:1::/56        fd00:db8:11:aa16::d  IBgp      10.11.16.15              32769
-fd00:db8:1::/56        fd00:db8:11:aa16::c  IBgp      10.11.16.14              32769
-fd00:db8:11:aa00::/56  fd00:db8:11:aa16::d  IBgp      10.11.16.15              32769
-fd00:db8:11:aa00::/56  fd00:db8:11:aa16::c  IBgp      10.11.16.14              32769
-fd00:db8:11::/56       fd00:db8:11:aa16::d  IBgp      10.11.16.15              32769
-fd00:db8:11::/56       fd00:db8:11:aa16::c  IBgp      10.11.16.14              32769
-10.11.0.0/20                                Network   10.11.16.12              32768
-10.11.16.0/20                               Network   10.11.16.12              32768
-10.1.0.0/20                                 Network   10.11.16.12              32768
-10.2.0.0/20                                 Network   10.11.16.12              32768
-10.11.0.0/20           10.11.16.15          IBgp      10.11.16.15              32769
-10.11.0.0/20           10.11.16.14          IBgp      10.11.16.14              32769
-10.11.16.0/20          10.11.16.15          IBgp      10.11.16.15              32769
-10.11.16.0/20          10.11.16.14          IBgp      10.11.16.14              32769
-10.1.0.0/20            10.11.16.15          IBgp      10.11.16.15              32769
-10.1.0.0/20            10.11.16.14          IBgp      10.11.16.14              32769
-192.168.10.10/32                            Network   10.11.16.13              32768
-192.168.10.10/32       10.11.16.12          IBgp      10.11.16.12              32768
+10.10.0.0/24           10.11.16.15          IBgp      10.11.16.15    65001     32768
+10.2.0.0/20            10.11.16.13          IBgp      10.11.16.13              32769
+10.2.0.0/20            10.11.16.12          IBgp      10.11.16.12              32769
+fd00:db8:2::/56        fd00:db8:11:aa16::d  IBgp      10.11.16.13              32769
+fd00:db8:2::/56        fd00:db8:11:aa16::c  IBgp      10.11.16.12              32769
+10.20.0.0/20                                Network   10.11.16.14              32768
+10.20.0.0/20           10.11.16.15          IBgp      10.11.16.15              32768
+10.20.16.0/20                               Network   10.11.16.14              32768
+10.20.16.0/20          10.11.16.15          IBgp      10.11.16.15              32768
+10.11.0.0/20                                Network   10.11.16.14              32768
+10.11.16.0/20                               Network   10.11.16.14              32768
+10.1.0.0/20                                 Network   10.11.16.14              32768
+10.2.0.0/20                                 Network   10.11.16.14              32768
+10.11.0.0/20           10.11.16.13          IBgp      10.11.16.13              32769
+10.11.0.0/20           10.11.16.12          IBgp      10.11.16.12              32769
+10.11.16.0/20          10.11.16.13          IBgp      10.11.16.13              32769
+10.11.16.0/20          10.11.16.12          IBgp      10.11.16.12              32769
+fd00:db8:11::/56       fd00:db8:11:aa16::d  IBgp      10.11.16.13              32769
+fd00:db8:11::/56       fd00:db8:11:aa16::c  IBgp      10.11.16.12              32769
+fd00:db8:11:aa00::/56  fd00:db8:11:aa16::d  IBgp      10.11.16.13              32769
+fd00:db8:11:aa00::/56  fd00:db8:11:aa16::c  IBgp      10.11.16.12              32769
+10.1.0.0/20            10.11.16.13          IBgp      10.11.16.13              32769
+10.1.0.0/20            10.11.16.12          IBgp      10.11.16.12              32769
+fd00:db8:1::/56        fd00:db8:11:aa16::d  IBgp      10.11.16.13              32769
+fd00:db8:1::/56        fd00:db8:11:aa16::c  IBgp      10.11.16.12              32769
+192.168.10.10/32                            Network   10.11.16.15              32768
+192.168.10.10/32       10.11.16.14          IBgp      10.11.16.14              32768
 10.10.0.0/24           192.168.10.10        EBgp      192.168.10.10  65001     32768
-10.10.0.0/24           10.11.16.12          IBgp      10.11.16.12    65001     32768
-10.2.0.0/20            10.11.16.15          IBgp      10.11.16.15              32769
-10.2.0.0/20            10.11.16.14          IBgp      10.11.16.14              32769
-fd00:db8:2::/56        fd00:db8:11:aa16::d  IBgp      10.11.16.15              32769
-fd00:db8:2::/56        fd00:db8:11:aa16::c  IBgp      10.11.16.14              32769
-fd00:db8:1::/56        fd00:db8:11:aa16::d  IBgp      10.11.16.15              32769
-fd00:db8:1::/56        fd00:db8:11:aa16::c  IBgp      10.11.16.14              32769
-fd00:db8:11:aa00::/56  fd00:db8:11:aa16::d  IBgp      10.11.16.15              32769
-fd00:db8:11:aa00::/56  fd00:db8:11:aa16::c  IBgp      10.11.16.14              32769
-fd00:db8:11::/56       fd00:db8:11:aa16::d  IBgp      10.11.16.15              32769
-fd00:db8:11::/56       fd00:db8:11:aa16::c  IBgp      10.11.16.14              32769
-10.11.0.0/20                                Network   10.11.16.13              32768
-10.11.16.0/20                               Network   10.11.16.13              32768
-10.1.0.0/20                                 Network   10.11.16.13              32768
-10.2.0.0/20                                 Network   10.11.16.13              32768
+10.10.0.0/24           10.11.16.14          IBgp      10.11.16.14    65001     32768
+10.2.0.0/20            10.11.16.13          IBgp      10.11.16.13              32769
+10.2.0.0/20            10.11.16.12          IBgp      10.11.16.12              32769
+fd00:db8:2::/56        fd00:db8:11:aa16::d  IBgp      10.11.16.13              32769
+fd00:db8:2::/56        fd00:db8:11:aa16::c  IBgp      10.11.16.12              32769
+10.20.0.0/20                                Network   10.11.16.15              32768
+10.20.0.0/20           10.11.16.14          IBgp      10.11.16.14              32768
+10.20.16.0/20                               Network   10.11.16.15              32768
+10.20.16.0/20          10.11.16.14          IBgp      10.11.16.14              32768
+10.11.0.0/20                                Network   10.11.16.15              32768
+10.11.16.0/20                               Network   10.11.16.15              32768
+10.1.0.0/20                                 Network   10.11.16.15              32768
+10.2.0.0/20                                 Network   10.11.16.15              32768
 ```
 
 </details>
 <p>
 
-## 10. VNet Gateway - Route Tables
+## 10. Express Route - Route Tables
 
-**10.1.** Run the following command to view the BGP peers for the Express Route circuit.
+**10.1.** Run the following command to view the route table for the Express Route circuit.
 
 ```sh
-bash ../../scripts/vnet-gateway/get_bgp_peer_status.sh Lab07_HubSpoke_Nva_1Region_RG
+bash ../../scripts/vnet-gateway/get_er_route_tables.sh Lab07_ExpressRoute_IPv6_RG
 ```
 
 <details>
@@ -707,26 +790,26 @@ bash ../../scripts/vnet-gateway/get_bgp_peer_status.sh Lab07_HubSpoke_Nva_1Regio
 <summary>Sample output</summary>
 
 ```sh
-07-express-route-ipv6$ bash ../../scripts/vnet-gateway/get_er_route_tables.sh Lab07_HubSpoke_Nva_1Region_RG
+07-express-route-ipv6$ bash ../../scripts/vnet-gateway/get_er_route_tables.sh Lab07_ExpressRoute_IPv6_RG
 
-Resource group: Lab07_HubSpoke_Nva_1Region_RG
+Resource group: Lab07_ExpressRoute_IPv6_RG
 
 
 ⏳ AzurePrivatePeering (Primary): Lab07-er1
 LocPrf    Network                NextHop               Path    Weight
 --------  ---------------------  --------------------  ------  --------
-          10.1.0.0/20            10.11.16.14           65515   0
-          10.1.0.0/20            10.11.16.15*          65515   0
-          10.2.0.0/20            10.11.16.14           65515   0
-          10.2.0.0/20            10.11.16.15*          65515   0
-          10.11.0.0/20           10.11.16.14           65515   0
-          10.11.0.0/20           10.11.16.15*          65515   0
-          10.11.16.0/20          10.11.16.14           65515   0
-          10.11.16.0/20          10.11.16.15*          65515   0
-          10.20.0.0/20           10.20.16.13           65515   0
-          10.20.0.0/20           10.20.16.12*          65515   0
-          10.20.16.0/20          10.20.16.13           65515   0
-          10.20.16.0/20          10.20.16.12*          65515   0
+          10.1.0.0/20            10.11.16.12           65515   0
+          10.1.0.0/20            10.11.16.13*          65515   0
+          10.2.0.0/20            10.11.16.12           65515   0
+          10.2.0.0/20            10.11.16.13*          65515   0
+          10.11.0.0/20           10.11.16.12           65515   0
+          10.11.0.0/20           10.11.16.13*          65515   0
+          10.11.16.0/20          10.11.16.12           65515   0
+          10.11.16.0/20          10.11.16.13*          65515   0
+          10.20.0.0/20           10.20.16.12           65515   0
+          10.20.0.0/20           10.20.16.13*          65515   0
+          10.20.16.0/20          10.20.16.12           65515   0
+          10.20.16.0/20          10.20.16.13*          65515   0
           FD00:DB8:1::/56        FD00:DB8:11:AA16::C   65515   0
           FD00:DB8:1::/56        FD00:DB8:11:AA16::D*  65515   0
           FD00:DB8:2::/56        FD00:DB8:11:AA16::C   65515   0
@@ -735,22 +818,22 @@ LocPrf    Network                NextHop               Path    Weight
           FD00:DB8:11::/56       FD00:DB8:11:AA16::D*  65515   0
           FD00:DB8:11:AA00::/56  FD00:DB8:11:AA16::C   65515   0
           FD00:DB8:11:AA00::/56  FD00:DB8:11:AA16::D*  65515   0
-          FD00:DB8:20::/56       FD00:DB8:20:AA16::D   65515   0
-          FD00:DB8:20::/56       FD00:DB8:20:AA16::C*  65515   0
-          FD00:DB8:20:AA00::/56  FD00:DB8:20:AA16::D   65515   0
-          FD00:DB8:20:AA00::/56  FD00:DB8:20:AA16::C*  65515   0
+          FD00:DB8:20::/56       FD00:DB8:20:AA16::C   65515   0
+          FD00:DB8:20::/56       FD00:DB8:20:AA16::D*  65515   0
+          FD00:DB8:20:AA00::/56  FD00:DB8:20:AA16::C   65515   0
+          FD00:DB8:20:AA00::/56  FD00:DB8:20:AA16::D*  65515   0
 
 ⏳ AzurePrivatePeering (Secondary): Lab07-er1
 LocPrf    Network                NextHop               Path    Weight
 --------  ---------------------  --------------------  ------  --------
-          10.1.0.0/20            10.11.16.15           65515   0
-          10.1.0.0/20            10.11.16.14*          65515   0
-          10.2.0.0/20            10.11.16.15           65515   0
-          10.2.0.0/20            10.11.16.14*          65515   0
-          10.11.0.0/20           10.11.16.15           65515   0
-          10.11.0.0/20           10.11.16.14*          65515   0
-          10.11.16.0/20          10.11.16.15           65515   0
-          10.11.16.0/20          10.11.16.14*          65515   0
+          10.1.0.0/20            10.11.16.13           65515   0
+          10.1.0.0/20            10.11.16.12*          65515   0
+          10.2.0.0/20            10.11.16.13           65515   0
+          10.2.0.0/20            10.11.16.12*          65515   0
+          10.11.0.0/20           10.11.16.13           65515   0
+          10.11.0.0/20           10.11.16.12*          65515   0
+          10.11.16.0/20          10.11.16.13           65515   0
+          10.11.16.0/20          10.11.16.12*          65515   0
           10.20.0.0/20           10.20.16.13           65515   0
           10.20.0.0/20           10.20.16.12*          65515   0
           10.20.16.0/20          10.20.16.13           65515   0

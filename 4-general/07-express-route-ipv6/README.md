@@ -114,6 +114,45 @@ Login to virtual machine `Lab07-spoke1Vm` via the [serial console](https://learn
   - password = ***Password123***
 - You should now be in a shell session `azureuser@Lab07-spoke1Vm:~$`
 
+Type the following command to check the interfaces of `Hs12-spoke1Vm` to observe the dual-stack configuration.
+
+```sh
+ip address
+```
+
+<details>
+
+<summary>Sample output</summary>
+
+```sh
+azureuser@spoke1Vm:~$ ip address
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:0d:3a:b4:2a:52 brd ff:ff:ff:ff:ff:ff
+    inet 10.1.0.5/24 brd 10.1.0.255 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fd00:db8:1::5/128 scope global dynamic noprefixroute
+       valid_lft 17272280sec preferred_lft 8632280sec
+    inet6 fe80::20d:3aff:feb4:2a52/64 scope link
+       valid_lft forever preferred_lft forever
+3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default
+    link/ether 02:42:4b:41:b5:be brd ff:ff:ff:ff:ff:ff
+    inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:4bff:fe41:b5be/64 scope link
+       valid_lft forever preferred_lft forever
+```
+
+The interface ***eth0*** has both IPv4 and IPv6 addresses.
+
+</details>
+<p>
+
 Run the following tests from inside the serial console session.
 
 ### 1. Ping IP
@@ -136,12 +175,12 @@ azureuser@spoke1Vm:~$ ping-ipv4
 
  ping ipv4 ...
 
-branch1  - 10.10.0.5 -OK 4.920 ms
-branch2  - 10.20.0.5 -OK 5.409 ms
-hub1     - 10.11.0.5 -OK 2.040 ms
-spoke1   - 10.1.0.5 -OK 0.047 ms
-spoke2   - 10.2.0.5 -OK 5.021 ms
-internet - icanhazip.com -OK 3.089 ms
+branch1 - 10.10.0.5 -OK 4.838 ms
+branch2 - 10.20.0.5 -OK 4.708 ms
+hub1    - 10.11.0.5 -OK 3.843 ms
+spoke1  - 10.1.0.5 -OK 0.049 ms
+spoke2  - 10.2.0.5 -OK 2.526 ms
+internet - icanhazip.com -OK 3.438 ms
 ```
 
 ```sh
@@ -149,11 +188,11 @@ azureuser@spoke1Vm:~$ ping-ipv6
 
  ping ipv6 ...
 
-branch1  - fd00:db8:10::5 -NA
-branch2  - fd00:db8:20::5 -OK 5.448 ms
-hub1     - fd00:db8:11::5 -OK 3.229 ms
-spoke1   - fd00:db8:1::5 -OK 0.028 ms
-spoke2   - fd00:db8:2::5 -OK 4.022 ms
+branch1 - fd00:db8:10::5 -NA
+branch2 - fd00:db8:20::5 -NA
+hub1    - fd00:db8:11::5 -OK 2.943 ms
+spoke1  - fd00:db8:1::5 -OK 0.026 ms
+spoke2  - fd00:db8:2::5 -OK 3.843 ms
 internet - icanhazip.com -NA
 ```
 
@@ -180,12 +219,12 @@ azureuser@spoke1Vm:~$ ping-dns4
 
  ping dns ipv4 ...
 
-branch1vm.corp - 10.10.0.5 -OK 3.645 ms
-branch2vm.corp - 10.20.0.5 -OK 5.142 ms
-hub1vm.eu.az.corp - 10.11.0.5 -OK 2.027 ms
-spoke1vm.eu.az.corp - 10.1.0.5 -OK 0.044 ms
-spoke2vm.eu.az.corp - 10.2.0.5 -OK 2.934 ms
-icanhazip.com - 104.16.185.241 -OK 3.586 ms
+branch1vm.corp - 10.10.0.5 -OK 4.363 ms
+branch2vm.corp - 10.20.0.5 -OK 6.206 ms
+hub1vm.eu.az.corp - 10.11.0.5 -OK 2.633 ms
+spoke1vm.eu.az.corp - 10.1.0.5 -OK 0.042 ms
+spoke2vm.eu.az.corp - 10.2.0.5 -OK 2.398 ms
+icanhazip.com - 104.16.185.241 -OK 3.478 ms
 ```
 
 ```sh
@@ -194,11 +233,11 @@ azureuser@spoke1Vm:~$ ping-dns6
  ping dns ipv6 ...
 
 branch1vm.corp - fd00:db8:10::5 -NA
-branch2vm.corp - fd00:db8:20::5 -OK 4.997 ms
-hub1vm.eu.az.corp - fd00:db8:11::5 -OK 3.114 ms
-spoke1vm.eu.az.corp - fd00:db8:1::5 -OK 0.030 ms
-spoke2vm.eu.az.corp - fd00:db8:2::5 -OK 2.781 ms
-icanhazip.com - 2606:4700::6810:b9f1 -NA
+branch2vm.corp - fd00:db8:20::5 -OK 5.459 ms
+hub1vm.eu.az.corp - fd00:db8:11::5 -OK 4.154 ms
+spoke1vm.eu.az.corp - fd00:db8:1::5 -OK 0.051 ms
+spoke2vm.eu.az.corp - fd00:db8:2::5 -OK 3.270 ms
+icanhazip.com - 2606:4700::6810:b8f1 -NA
 ```
 
 </details>
@@ -224,14 +263,14 @@ azureuser@spoke1Vm:~$ curl-dns4
 
  curl dns ipv4 ...
 
-200 (0.010081s) - 10.10.0.5 - branch1vm.corp
-200 (0.012095s) - 10.20.0.5 - branch2vm.corp
-200 (0.015842s) - 10.11.0.5 - hub1vm.eu.az.corp
-200 (0.006419s) - 10.11.7.88 - spoke3pls.eu.az.corp
-200 (0.005225s) - 10.1.0.5 - spoke1vm.eu.az.corp
-200 (0.010203s) - 10.2.0.5 - spoke2vm.eu.az.corp
-200 (0.016035s) - 104.16.184.241 - icanhazip.com
-200 (0.224486s) - 10.11.7.99 - https://lab07spoke3sac7fc.blob.core.windows.net/spoke3/spoke3.txt
+200 (0.013871s) - 10.10.0.5 - branch1vm.corp
+200 (0.012421s) - 10.20.0.5 - branch2vm.corp
+200 (0.012948s) - 10.11.0.5 - hub1vm.eu.az.corp
+200 (0.007686s) - 10.11.7.88 - spoke3pls.eu.az.corp
+200 (0.007404s) - 10.1.0.5 - spoke1vm.eu.az.corp
+200 (0.013592s) - 10.2.0.5 - spoke2vm.eu.az.corp
+200 (0.019216s) - 104.16.185.241 - icanhazip.com
+200 (0.056920s) - 10.11.7.99 - https://lab07spoke3sa2e6a.blob.core.windows.net/spoke3/spoke3.txt
 ```
 
 ```sh
@@ -240,13 +279,13 @@ azureuser@spoke1Vm:~$ curl-dns6
  curl dns ipv6 ...
 
  - branch1vm.corp
-200 (0.013930s) - fd00:db8:20::5 - branch2vm.corp
-200 (0.010055s) - fd00:db8:11::5 - hub1vm.eu.az.corp
-000 (0.005408s) -  - spoke3pls.eu.az.corp
-200 (0.005770s) - fd00:db8:1::5 - spoke1vm.eu.az.corp
-200 (0.013372s) - fd00:db8:2::5 - spoke2vm.eu.az.corp
-000 (2.252133s) -  - icanhazip.com
-000 (0.009671s) -  - https://lab07spoke3sac7fc.blob.core.windows.net/spoke3/spoke3.txt
+200 (0.017159s) - fd00:db8:20::5 - branch2vm.corp
+200 (0.013452s) - fd00:db8:11::5 - hub1vm.eu.az.corp
+000 (0.007145s) -  - spoke3pls.eu.az.corp
+200 (0.006907s) - fd00:db8:1::5 - spoke1vm.eu.az.corp
+200 (0.013564s) - fd00:db8:2::5 - spoke2vm.eu.az.corp
+000 (2.250972s) -  - icanhazip.com
+000 (0.003388s) -  - https://lab07spoke3sa2e6a.blob.core.windows.net/spoke3/spoke3.txt
 ```
 
 </details>
@@ -358,40 +397,6 @@ Hello, World!
 
 </details>
 <p>
-
-**5.4** Check the interfaces of `Lab07-spoke1Vm` to observe the dual-stack configuration.
-
-<details>
-
-<summary>Sample output</summary>
-
-```sh
-azureuser@spoke1Vm:~$ ip address
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host
-       valid_lft forever preferred_lft forever
-2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
-    link/ether 00:0d:3a:ba:1c:98 brd ff:ff:ff:ff:ff:ff
-    inet 10.1.0.5/24 brd 10.1.0.255 scope global eth0
-       valid_lft forever preferred_lft forever
-    inet6 fd00:db8:1::5/128 scope global dynamic noprefixroute
-       valid_lft 17277583sec preferred_lft 8637583sec
-    inet6 fe80::20d:3aff:feba:1c98/64 scope link
-       valid_lft forever preferred_lft forever
-3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default
-    link/ether 02:42:b8:78:db:f3 brd ff:ff:ff:ff:ff:ff
-    inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
-       valid_lft forever preferred_lft forever
-    inet6 fe80::42:b8ff:fe78:dbf3/64 scope link
-       valid_lft forever preferred_lft forever
-```
-
-</details>
-<p>
-
 
 ### 6. Private Link Access to Storage Account from On-premises
 
@@ -540,48 +545,50 @@ azureuser@branch1Vm:~$ trace-ipv4
 
 branch1
 -------------------------------------
- 1:  branch1Vm                                             0.095ms reached
+ 1:  branch1Vm                                             0.101ms reached
      Resume: pmtu 65535 hops 1 back 1
 
 branch2
 -------------------------------------
  1?: [LOCALHOST]                      pmtu 1500
- 1:  10.10.1.9                                             1.345ms
- 1:  10.10.1.9                                             1.911ms
+ 1:  10.10.1.9                                             1.408ms
+ 1:  10.10.1.9                                             2.121ms
+ 2:  10.10.1.9                                             0.986ms pmtu 1436
+ 2:  10.10.1.9                                             0.858ms pmtu 1422
  2:  no reply
  3:  no reply
 
 hub1
 -------------------------------------
  1?: [LOCALHOST]                      pmtu 1500
- 1:  10.10.1.9                                             1.194ms
- 1:  10.10.1.9                                             0.705ms
- 2:  10.10.1.9                                             4.878ms pmtu 1436
- 2:  10.10.1.9                                             1.376ms pmtu 1422
- 2:  10.11.1.4                                             3.608ms
- 3:  10.11.0.5                                             3.836ms reached
+ 1:  10.10.1.9                                             3.848ms
+ 1:  10.10.1.9                                             4.674ms
+ 2:  10.10.1.9                                             4.766ms pmtu 1436
+ 2:  10.10.1.9                                             1.007ms pmtu 1422
+ 2:  10.11.1.4                                             2.987ms
+ 3:  10.11.0.5                                             4.256ms reached
      Resume: pmtu 1422 hops 3 back 3
 
 spoke1
 -------------------------------------
  1?: [LOCALHOST]                      pmtu 1500
- 1:  10.10.1.9                                             0.941ms
- 1:  10.10.1.9                                             1.334ms
- 2:  10.10.1.9                                             1.017ms pmtu 1436
- 2:  10.10.1.9                                             0.756ms pmtu 1422
- 2:  10.11.1.4                                             4.040ms
- 3:  10.1.0.5                                              6.840ms reached
+ 1:  10.10.1.9                                             9.890ms
+ 1:  10.10.1.9                                             1.134ms
+ 2:  10.10.1.9                                             4.524ms pmtu 1436
+ 2:  10.10.1.9                                             4.652ms pmtu 1422
+ 2:  10.11.1.4                                             2.593ms
+ 3:  10.1.0.5                                              3.612ms reached
      Resume: pmtu 1422 hops 3 back 3
 
 spoke2
 -------------------------------------
  1?: [LOCALHOST]                      pmtu 1500
- 1:  10.10.1.9                                             1.076ms
- 1:  10.10.1.9                                             1.183ms
- 2:  10.10.1.9                                             1.038ms pmtu 1436
- 2:  10.10.1.9                                             1.001ms pmtu 1422
- 2:  10.11.1.4                                             3.524ms
- 3:  10.2.0.5                                              3.748ms reached
+ 1:  10.10.1.9                                             6.328ms
+ 1:  10.10.1.9                                             0.932ms
+ 2:  10.10.1.9                                             1.081ms pmtu 1436
+ 2:  10.10.1.9                                             3.934ms pmtu 1422
+ 2:  10.11.1.4                                             6.788ms
+ 3:  10.2.0.5                                              4.638ms reached
      Resume: pmtu 1422 hops 3 back 3
 
 internet
@@ -625,6 +632,7 @@ Copyright 1996-2005 Kunihiro Ishiguro, et al.
 **8.3.** Display the routing table by typing `show ip route` and pressing the space bar to show the complete output.
 
 ```sh
+show interface brief
 show ip route
 show ipv6 route
 ```
@@ -634,6 +642,20 @@ show ipv6 route
 <summary>Sample output</summary>
 
 ```sh
+branch1Nva# show interface brief
+Interface       Status  VRF             Addresses
+---------       ------  ---             ---------
+eth0            up      default         10.10.1.9/24
+                                        + fd00:db8:10:1::9/128
+eth1            up      default         10.10.2.9/24
+                                        + fd00:db8:10:2::9/128
+ip_vti0         down    default
+lo              up      default         192.168.10.10/32
+vti0            up      default         10.10.10.1/32
+vti1            up      default         10.10.10.5/32
+```
+
+```sh
 branch1Nva# show ip route
 Codes: K - kernel route, C - connected, S - static, R - RIP,
        O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
@@ -641,26 +663,30 @@ Codes: K - kernel route, C - connected, S - static, R - RIP,
        F - PBR, f - OpenFabric,
        > - selected route, * - FIB route, q - queued route, r - rejected route
 
-S   0.0.0.0/0 [1/0] via 10.10.1.1, eth0, 1d19h39m
-K>* 0.0.0.0/0 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 1d19h39m
-B>* 10.1.0.0/20 [20/0] via 10.11.16.12, vti0, 00:02:13
-  *                    via 10.11.16.13, vti1, 00:02:13
-B>* 10.2.0.0/20 [20/0] via 10.11.16.12, vti0, 00:02:13
-  *                    via 10.11.16.13, vti1, 00:02:13
-S>* 10.10.0.0/24 [1/0] via 10.10.1.1, eth0, 1d19h39m
-C>* 10.10.1.0/24 is directly connected, eth0, 1d19h39m
-C>* 10.10.2.0/24 is directly connected, eth1, 1d19h39m
-B>* 10.11.0.0/20 [20/0] via 10.11.16.12, vti0, 00:02:13
-  *                     via 10.11.16.13, vti1, 00:02:13
-B>* 10.11.16.0/20 [20/0] via 10.11.16.12, vti0, 00:02:13
-  *                      via 10.11.16.13, vti1, 00:02:13
-S   10.11.16.12/32 [1/0] is directly connected, vti0, 00:02:13
-C>* 10.11.16.12/32 is directly connected, vti0, 00:02:13
-S   10.11.16.13/32 [1/0] is directly connected, vti1, 00:02:13
-C>* 10.11.16.13/32 is directly connected, vti1, 00:02:13
-K>* 168.63.129.16/32 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 1d19h39m
-K>* 169.254.169.254/32 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 1d19h39m
-C>* 192.168.10.10/32 is directly connected, lo, 1d19h39m
+S   0.0.0.0/0 [1/0] via 10.10.1.1, eth0, 20:38:34
+K>* 0.0.0.0/0 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 20:38:34
+B>* 10.1.0.0/20 [20/0] via 10.11.16.14, vti0, 00:00:18
+  *                    via 10.11.16.15, vti1, 00:00:18
+B>* 10.2.0.0/20 [20/0] via 10.11.16.14, vti0, 00:00:18
+  *                    via 10.11.16.15, vti1, 00:00:18
+S>* 10.10.0.0/24 [1/0] via 10.10.1.1, eth0, 20:38:34
+C>* 10.10.1.0/24 is directly connected, eth0, 20:38:34
+C>* 10.10.2.0/24 is directly connected, eth1, 20:38:34
+B>* 10.11.0.0/20 [20/0] via 10.11.16.14, vti0, 00:00:18
+  *                     via 10.11.16.15, vti1, 00:00:18
+B>* 10.11.16.0/20 [20/0] via 10.11.16.14, vti0, 00:00:18
+  *                      via 10.11.16.15, vti1, 00:00:18
+S   10.11.16.14/32 [1/0] is directly connected, vti0, 00:00:18
+C>* 10.11.16.14/32 is directly connected, vti0, 00:00:18
+S   10.11.16.15/32 [1/0] is directly connected, vti1, 00:00:18
+C>* 10.11.16.15/32 is directly connected, vti1, 00:00:18
+B>* 10.20.0.0/20 [20/0] via 10.11.16.14, vti0, 00:00:18
+  *                     via 10.11.16.15, vti1, 00:00:18
+B>* 10.20.16.0/20 [20/0] via 10.11.16.14, vti0, 00:00:18
+  *                      via 10.11.16.15, vti1, 00:00:18
+K>* 168.63.129.16/32 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 20:38:34
+K>* 169.254.169.254/32 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 20:38:34
+C>* 192.168.10.10/32 is directly connected, lo, 20:38:34
 ```
 
 ```sh
@@ -671,16 +697,16 @@ Codes: K - kernel route, C - connected, S - static, R - RIPng,
        f - OpenFabric,
        > - selected route, * - FIB route, q - queued route, r - rejected route
 
-K * ::/0 [0/200] via fe80::1234:5678:9abc, eth1, 1d19h40m
-K>* ::/0 [0/100] via fe80::1234:5678:9abc, eth0, 1d19h40m
-K>* fd00:db8:10:1::/64 [0/100] is directly connected, eth0, 1d19h40m
-C>* fd00:db8:10:1::9/128 is directly connected, eth0, 1d19h40m
-K>* fd00:db8:10:2::/64 [0/200] is directly connected, eth1, 1d19h40m
-C>* fd00:db8:10:2::9/128 is directly connected, eth1, 1d19h40m
-C * fe80::/64 is directly connected, vti1, 00:02:52
-C * fe80::/64 is directly connected, vti0, 00:02:52
-C * fe80::/64 is directly connected, eth1, 1d19h40m
-C>* fe80::/64 is directly connected, eth0, 1d19h40m
+K * ::/0 [0/200] via fe80::1234:5678:9abc, eth1, 20:38:59
+K>* ::/0 [0/100] via fe80::1234:5678:9abc, eth0, 20:38:59
+K>* fd00:db8:10:1::/64 [0/100] is directly connected, eth0, 20:38:59
+C>* fd00:db8:10:1::9/128 is directly connected, eth0, 20:38:59
+K>* fd00:db8:10:2::/64 [0/200] is directly connected, eth1, 20:38:59
+C>* fd00:db8:10:2::9/128 is directly connected, eth1, 20:38:59
+C * fe80::/64 is directly connected, vti1, 00:00:43
+C * fe80::/64 is directly connected, vti0, 00:00:43
+C * fe80::/64 is directly connected, eth1, 20:38:59
+C>* fe80::/64 is directly connected, eth0, 20:38:59
 ```
 
 We can see the Vnet ranges learned dynamically via BGP.
@@ -700,7 +726,7 @@ show ip bgp
 
 ```sh
 branch1Nva# show ip bgp
-BGP table version is 2853, local router ID is 192.168.10.10, vrf id 0
+BGP table version is 1630, local router ID is 192.168.10.10, vrf id 0
 Default local pref 100, local AS 65001
 Status codes:  s suppressed, d damped, h history, * valid, > best, = multipath,
                i internal, r RIB-failure, S Stale, R Removed
@@ -708,17 +734,21 @@ Nexthop codes: @NNN nexthop's vrf id, < announce-nh-self
 Origin codes:  i - IGP, e - EGP, ? - incomplete
 
    Network          Next Hop            Metric LocPrf Weight Path
-*> 10.1.0.0/20      10.11.16.12                            0 65515 i
-*=                  10.11.16.13                            0 65515 i
-*> 10.2.0.0/20      10.11.16.12                            0 65515 i
-*=                  10.11.16.13                            0 65515 i
+*= 10.1.0.0/20      10.11.16.15                            0 65515 i
+*>                  10.11.16.14                            0 65515 i
+*= 10.2.0.0/20      10.11.16.15                            0 65515 i
+*>                  10.11.16.14                            0 65515 i
 *> 10.10.0.0/24     0.0.0.0                  0         32768 i
-*> 10.11.0.0/20     10.11.16.12                            0 65515 i
-*=                  10.11.16.13                            0 65515 i
-*> 10.11.16.0/20    10.11.16.12                            0 65515 i
-*=                  10.11.16.13                            0 65515 i
+*= 10.11.0.0/20     10.11.16.15                            0 65515 i
+*>                  10.11.16.14                            0 65515 i
+*= 10.11.16.0/20    10.11.16.15                            0 65515 i
+*>                  10.11.16.14                            0 65515 i
+*= 10.20.0.0/20     10.11.16.15                            0 65515 i
+*>                  10.11.16.14                            0 65515 i
+*= 10.20.16.0/20    10.11.16.15                            0 65515 i
+*>                  10.11.16.14                            0 65515 i
 
-Displayed  5 routes and 9 total paths
+Displayed  7 routes and 13 total paths
 ```
 
 We can see the hub and spoke Vnet ranges being learned dynamically in the BGP table.
@@ -744,37 +774,54 @@ netstat -rn -A inet6
 <summary>Sample output</summary>
 
 ```sh
-azureuser@Lab07-hub1-nva-0:~$ netstat -rn
+azureuser@branch1Nva:~$ netstat -rn
 Kernel IP routing table
 Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface
-0.0.0.0         10.11.1.1       0.0.0.0         UG        0 0          0 eth0
-10.11.1.0       0.0.0.0         255.255.255.0   U         0 0          0 eth0
-10.11.2.0       0.0.0.0         255.255.255.0   U         0 0          0 eth1
-168.63.129.16   10.11.1.1       255.255.255.255 UGH       0 0          0 eth0
-169.254.169.254 10.11.1.1       255.255.255.255 UGH       0 0          0 eth0
+0.0.0.0         10.10.1.1       0.0.0.0         UG        0 0          0 eth0
+10.1.0.0        10.11.16.14     255.255.240.0   UG        0 0          0 vti0
+10.2.0.0        10.11.16.14     255.255.240.0   UG        0 0          0 vti0
+10.10.0.0       10.10.1.1       255.255.255.0   UG        0 0          0 eth0
+10.10.1.0       0.0.0.0         255.255.255.0   U         0 0          0 eth0
+10.10.2.0       0.0.0.0         255.255.255.0   U         0 0          0 eth1
+10.11.0.0       10.11.16.14     255.255.240.0   UG        0 0          0 vti0
+10.11.16.0      10.11.16.14     255.255.240.0   UG        0 0          0 vti0
+10.11.16.14     0.0.0.0         255.255.255.255 UH        0 0          0 vti0
+10.11.16.15     0.0.0.0         255.255.255.255 UH        0 0          0 vti1
+10.20.0.0       10.11.16.14     255.255.240.0   UG        0 0          0 vti0
+10.20.16.0      10.11.16.14     255.255.240.0   UG        0 0          0 vti0
+168.63.129.16   10.10.1.1       255.255.255.255 UGH       0 0          0 eth0
+169.254.169.254 10.10.1.1       255.255.255.255 UGH       0 0          0 eth0
 ```
 
 ```sh
-azureuser@Lab07-hub1-nva-0:~$ netstat -rn -A inet6
+azureuser@branch1Nva:~$ netstat -rn -A inet6
 Kernel IPv6 routing table
 Destination                    Next Hop                   Flag Met Ref Use If
 ::/0                           ::                         !n   -1  1     0 lo
 ::1/128                        ::                         U    256 1     0 lo
-fd00:db8:11:1::/64             ::                         U    100 2     0 eth0
-fd00:db8:11:2::/64             ::                         U    200 2     0 eth1
-fe80::/64                      ::                         U    256 3     0 eth0
-fe80::/64                      ::                         U    256 3     0 eth1
+fd00:db8:10:1::/64             ::                         U    100 1     0 eth0
+fd00:db8:10:2::/64             ::                         U    200 2     0 eth1
+fe80::/64                      ::                         U    256 2     0 eth1
+fe80::/64                      ::                         U    256 1     0 eth0
+fe80::/64                      ::                         U    256 1     0 vti0
+fe80::/64                      ::                         U    256 1     0 vti1
 ::/0                           fe80::1234:5678:9abc       UGe  100 3     0 eth0
 ::/0                           fe80::1234:5678:9abc       UGe  200 1     0 eth1
 ::1/128                        ::                         Un   0   4     0 lo
-fd00:db8:11:1::4/128           ::                         Un   0   4     0 eth0
-fd00:db8:11:2::4/128           ::                         Un   0   4     0 eth1
-fe80::/128                     ::                         Un   0   3     0 eth0
+fd00:db8:10:1::9/128           ::                         Un   0   4     0 eth0
+fd00:db8:10:2::9/128           ::                         Un   0   3     0 eth1
+fe80::/128                     ::                         Un   0   5     0 eth0
 fe80::/128                     ::                         Un   0   3     0 eth1
-fe80::20d:3aff:fed9:1454/128   ::                         Un   0   4     0 eth1
-fe80::222:48ff:fe9e:a806/128   ::                         Un   0   6     0 eth0
-ff00::/8                       ::                         U    256 5     0 eth0
-ff00::/8                       ::                         U    256 2     0 eth1
+fe80::/128                     ::                         Un   0   3     0 vti0
+fe80::/128                     ::                         Un   0   3     0 vti1
+fe80::5efe:a0a:109/128         ::                         Un   0   2     0 vti0
+fe80::5efe:a0a:109/128         ::                         Un   0   2     0 vti1
+fe80::20d:3aff:fed7:d51a/128   ::                         Un   0   4     0 eth0
+fe80::222:48ff:fea3:7572/128   ::                         Un   0   5     0 eth1
+ff00::/8                       ::                         U    256 5     0 eth1
+ff00::/8                       ::                         U    256 2     0 eth0
+ff00::/8                       ::                         U    256 1     0 vti0
+ff00::/8                       ::                         U    256 1     0 vti1
 ::/0                           ::                         !n   -1  1     0 lo
 ```
 
@@ -792,36 +839,69 @@ ip route show table all
 <summary>Sample output</summary>
 
 ```sh
-root@Lab07-hub1-nva-0:/home/azureuser# ip route show table all
-168.63.129.16 via 10.11.2.1 dev eth1 table rt1
-default via 10.11.1.1 dev eth0 proto dhcp src 10.11.1.4 metric 100
-10.11.1.0/24 dev eth0 proto kernel scope link src 10.11.1.4
-10.11.2.0/24 dev eth1 proto kernel scope link src 10.11.2.4
-168.63.129.16 via 10.11.1.1 dev eth0 proto dhcp src 10.11.1.4 metric 100
-169.254.169.254 via 10.11.1.1 dev eth0 proto dhcp src 10.11.1.4 metric 100
-local 10.11.1.4 dev eth0 table local proto kernel scope host src 10.11.1.4
-broadcast 10.11.1.255 dev eth0 table local proto kernel scope link src 10.11.1.4
-local 10.11.2.4 dev eth1 table local proto kernel scope host src 10.11.2.4
-broadcast 10.11.2.255 dev eth1 table local proto kernel scope link src 10.11.2.4
+azureuser@branch1Nva:~$ ip route show table all
+168.63.129.16 via 10.10.2.1 dev eth1 table rt1
+default via 10.10.1.1 dev eth0 proto dhcp src 10.10.1.9 metric 100
+10.1.0.0/20 proto bgp metric 20
+        nexthop via 10.11.16.14 dev vti0 weight 1
+        nexthop via 10.11.16.15 dev vti1 weight 1
+10.2.0.0/20 proto bgp metric 20
+        nexthop via 10.11.16.14 dev vti0 weight 1
+        nexthop via 10.11.16.15 dev vti1 weight 1
+10.10.0.0/24 via 10.10.1.1 dev eth0 proto static metric 20
+10.10.1.0/24 dev eth0 proto kernel scope link src 10.10.1.9
+10.10.2.0/24 dev eth1 proto kernel scope link src 10.10.2.9
+10.11.0.0/20 proto bgp metric 20
+        nexthop via 10.11.16.14 dev vti0 weight 1
+        nexthop via 10.11.16.15 dev vti1 weight 1
+10.11.16.0/20 proto bgp metric 20
+        nexthop via 10.11.16.14 dev vti0 weight 1
+        nexthop via 10.11.16.15 dev vti1 weight 1
+10.11.16.14 dev vti0 proto kernel scope link src 10.10.10.1
+10.11.16.15 dev vti1 proto kernel scope link src 10.10.10.5
+10.20.0.0/20 proto bgp metric 20
+        nexthop via 10.11.16.14 dev vti0 weight 1
+        nexthop via 10.11.16.15 dev vti1 weight 1
+10.20.16.0/20 proto bgp metric 20
+        nexthop via 10.11.16.14 dev vti0 weight 1
+        nexthop via 10.11.16.15 dev vti1 weight 1
+168.63.129.16 via 10.10.1.1 dev eth0 proto dhcp src 10.10.1.9 metric 100
+169.254.169.254 via 10.10.1.1 dev eth0 proto dhcp src 10.10.1.9 metric 100
+local 10.10.1.9 dev eth0 table local proto kernel scope host src 10.10.1.9
+broadcast 10.10.1.255 dev eth0 table local proto kernel scope link src 10.10.1.9
+local 10.10.2.9 dev eth1 table local proto kernel scope host src 10.10.2.9
+broadcast 10.10.2.255 dev eth1 table local proto kernel scope link src 10.10.2.9
+local 10.10.10.1 dev vti0 table local proto kernel scope host src 10.10.10.1
+local 10.10.10.5 dev vti1 table local proto kernel scope host src 10.10.10.5
 local 127.0.0.0/8 dev lo table local proto kernel scope host src 127.0.0.1
 local 127.0.0.1 dev lo table local proto kernel scope host src 127.0.0.1
 broadcast 127.255.255.255 dev lo table local proto kernel scope link src 127.0.0.1
+local 192.168.10.10 dev lo table local proto kernel scope host src 192.168.10.10
+broadcast 192.168.10.10 dev lo table local proto kernel scope link src 192.168.10.10
 ::1 dev lo proto kernel metric 256 pref medium
-fd00:db8:11:1::/64 dev eth0 proto ra metric 100 pref medium
-fd00:db8:11:2::/64 dev eth1 proto ra metric 200 pref medium
-fe80::/64 dev eth0 proto kernel metric 256 pref medium
+fd00:db8:10:1::/64 dev eth0 proto ra metric 100 pref medium
+fd00:db8:10:2::/64 dev eth1 proto ra metric 200 pref medium
 fe80::/64 dev eth1 proto kernel metric 256 pref medium
-default via fe80::1234:5678:9abc dev eth0 proto ra metric 100 expires 8999sec pref medium
-default via fe80::1234:5678:9abc dev eth1 proto ra metric 200 expires 8999sec pref medium
+fe80::/64 dev eth0 proto kernel metric 256 pref medium
+fe80::/64 dev vti0 proto kernel metric 256 pref medium
+fe80::/64 dev vti1 proto kernel metric 256 pref medium
+default via fe80::1234:5678:9abc dev eth0 proto ra metric 100 expires 8998sec pref medium
+default via fe80::1234:5678:9abc dev eth1 proto ra metric 200 expires 8998sec pref medium
 local ::1 dev lo table local proto kernel metric 0 pref medium
-local fd00:db8:11:1::4 dev eth0 table local proto kernel metric 0 pref medium
-local fd00:db8:11:2::4 dev eth1 table local proto kernel metric 0 pref medium
+local fd00:db8:10:1::9 dev eth0 table local proto kernel metric 0 pref medium
+local fd00:db8:10:2::9 dev eth1 table local proto kernel metric 0 pref medium
 anycast fe80:: dev eth0 table local proto kernel metric 0 pref medium
 anycast fe80:: dev eth1 table local proto kernel metric 0 pref medium
-local fe80::20d:3aff:fed9:1454 dev eth1 table local proto kernel metric 0 pref medium
-local fe80::222:48ff:fe9e:a806 dev eth0 table local proto kernel metric 0 pref medium
-multicast ff00::/8 dev eth0 table local proto kernel metric 256 pref medium
+anycast fe80:: dev vti0 table local proto kernel metric 0 pref medium
+anycast fe80:: dev vti1 table local proto kernel metric 0 pref medium
+local fe80::5efe:a0a:109 dev vti0 table local proto kernel metric 0 pref medium
+local fe80::5efe:a0a:109 dev vti1 table local proto kernel metric 0 pref medium
+local fe80::20d:3aff:fed7:d51a dev eth0 table local proto kernel metric 0 pref medium
+local fe80::222:48ff:fea3:7572 dev eth1 table local proto kernel metric 0 pref medium
 multicast ff00::/8 dev eth1 table local proto kernel metric 256 pref medium
+multicast ff00::/8 dev eth0 table local proto kernel metric 256 pref medium
+multicast ff00::/8 dev vti0 table local proto kernel metric 256 pref medium
+multicast ff00::/8 dev vti1 table local proto kernel metric 256 pref medium
 ```
 
 </details>
