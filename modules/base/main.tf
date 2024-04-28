@@ -52,7 +52,7 @@ resource "azurerm_virtual_network" "this" {
   }
 
   lifecycle {
-    ignore_changes = all
+    # ignore_changes = all
   }
 }
 

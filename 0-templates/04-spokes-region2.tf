@@ -46,6 +46,7 @@ module "spoke4" {
   }
 
   config_vnet = {
+    bgp_community = local.spoke4_bgp_community
     address_space = local.spoke4_address_space
     subnets       = local.spoke4_subnets
     nat_gateway_subnet_names = [
@@ -129,6 +130,7 @@ module "spoke5" {
   }
 
   config_vnet = {
+    bgp_community = local.spoke5_bgp_community
     address_space = local.spoke5_address_space
     subnets       = local.spoke5_subnets
     nat_gateway_subnet_names = [
@@ -212,6 +214,7 @@ module "spoke6" {
   }
 
   config_vnet = {
+    bgp_community = local.spoke6_bgp_community
     address_space = local.spoke6_address_space
     subnets       = local.spoke6_subnets
     nat_gateway_subnet_names = [

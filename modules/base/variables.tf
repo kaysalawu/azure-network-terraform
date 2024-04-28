@@ -20,6 +20,12 @@ variable "location" {
   type        = string
 }
 
+variable "bgp_community" {
+  description = "bgp community"
+  type        = string
+  default     = null
+}
+
 variable "tags" {
   description = "tags for all hub resources"
   type        = map(any)

@@ -24,7 +24,6 @@ resource "azurerm_express_route_circuit" "this" {
   }
 }
 
-
 resource "azurerm_express_route_circuit_authorization" "this" {
   for_each                   = { for c in var.circuits : c.name => c }
   resource_group_name        = var.resource_group
@@ -64,22 +63,25 @@ resource "megaport_azure_connection" "primary" {
     service_key                 = azurerm_express_route_circuit.this[each.value.name].service_key
     auto_create_private_peering = each.value.auto_create_private_peering
 
-    private_peering {
-      peer_asn         = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
-      primary_subnet   = each.value.ipv4_config.primary_peer_address_prefix
-      secondary_subnet = each.value.ipv4_config.secondary_peer_address_prefix
-      requested_vlan   = each.value.requested_vlan
+    dynamic "private_peering" {
+      for_each = each.value.ipv4_config.create_megaport_vxc_peering && !each.value.auto_create_private_peering ? [1] : []
+      content {
+        peer_asn         = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
+        primary_subnet   = each.value.ipv4_config.primary_peer_address_prefix
+        secondary_subnet = each.value.ipv4_config.secondary_peer_address_prefix
+        requested_vlan   = each.value.requested_vlan
+      }
     }
 
-    # dynamic "private_peering" {
-    #   for_each = each.value.ipv6_enabled ? [1] : []
-    #   content {
-    #     peer_asn         = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
-    #     primary_subnet   = each.value.primary_peer_address_prefix_ipv6
-    #     secondary_subnet = each.value.secondary_peer_address_prefix_ipv6
-    #     requested_vlan   = each.value.requested_vlan
-    #   }
-    # }
+    dynamic "private_peering" {
+      for_each = each.value.ipv4_config.create_megaport_vxc_peering && !each.value.auto_create_private_peering ? [1] : []
+      content {
+        peer_asn         = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
+        primary_subnet   = each.value.ipv6_config.primary_peer_address_prefix
+        secondary_subnet = each.value.ipv6_config.secondary_peer_address_prefix
+        requested_vlan   = each.value.requested_vlan
+      }
+    }
   }
 
   lifecycle {
@@ -102,7 +104,7 @@ resource "azurerm_express_route_circuit_peering" "this" {
   vlan_id                       = each.value.requested_vlan
 
   dynamic "ipv6" {
-    for_each = each.value.ipv6_config.enabled ? [1] : []
+    for_each = each.value.ipv6_config.create_azure_private_peering ? [1] : []
     content {
       primary_peer_address_prefix   = each.value.ipv6_config.primary_peer_address_prefix
       secondary_peer_address_prefix = each.value.ipv6_config.secondary_peer_address_prefix
@@ -115,3 +117,19 @@ resource "azurerm_express_route_circuit_peering" "this" {
   ]
 }
 
+# dashboard
+#----------------------------
+
+# locals {
+#   dashboard_vars = { for c in var.circuits :
+#     c.name => templatefile("${path.module}/dashboard/dashboard.json", { ER_CIRCUIT_ID = azurerm_express_route_circuit.this[c.name].id })
+#   }
+# }
+
+# resource "azurerm_portal_dashboard" "hub2_er" {
+#   for_each             = local.dashboard_vars
+#   resource_group_name  = var.resource_group
+#   location             = var.azure_location
+#   name                 = "${each.key}-dashb"
+#   dashboard_properties = each.value
+# }
