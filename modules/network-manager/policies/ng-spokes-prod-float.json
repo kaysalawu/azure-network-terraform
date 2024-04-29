@@ -9,21 +9,17 @@
         "allOf": [
           {
             "field": "tags['lab']",
-            "equals": "Ne31"
+            "equals": "${LAB_ID}"
           },
           {
             "field": "tags['env']",
-            "equals": "prod"
-          },
-          {
-            "field": "location",
-            "equals": "northeurope"
+            "equals": "${ENV}"
           },
           {
             "anyOf": [
               {
                 "field": "tags['nodeType']",
-                "equals": "spoke"
+                "equals": "${NODE_TYPE}"
               }
             ]
           }
@@ -34,7 +30,7 @@
   "then": {
     "effect": "addToNetworkGroup",
     "details": {
-      "networkGroupId": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Ne31_HubSpoke_Azfw_1Region_RG/providers/Microsoft.Network/networkManagers/Ne31-avnm/networkGroups/Ne31-ng-spokes-prod-region1"
+      "networkGroupId": "${NETWORK_GROUP_ID}"
     }
   }
 }

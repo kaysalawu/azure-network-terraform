@@ -1,0 +1,20 @@
+{
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Network/virtualNetworks/subnets"
+      },
+      {
+        "field": "name",
+        "equals": "${SUBNET_NAME}"
+      }
+    ]
+  },
+  "then": {
+    "effect": "addToNetworkGroup",
+    "details": {
+      "networkGroupId": "${NETWORK_GROUP_ID}"
+    }
+  }
+}

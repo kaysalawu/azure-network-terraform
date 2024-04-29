@@ -1,5 +1,4 @@
 
-
 variable "prefix" {
   description = "prefix"
   type        = string
@@ -53,18 +52,17 @@ variable "circuits" {
     auto_create_private_peering = optional(bool, false)
 
     ipv4_config = object({
+      create_megaport_vxc_peering   = optional(bool, false)
+      create_azure_private_peering  = optional(bool, false)
       primary_peer_address_prefix   = optional(string, null)
       secondary_peer_address_prefix = optional(string, null)
     })
     ipv6_config = optional(object({
-      enabled                       = optional(bool, false)
+      create_megaport_vxc_peering   = optional(bool, false)
+      create_azure_private_peering  = optional(bool, false)
       primary_peer_address_prefix   = optional(string, null)
       secondary_peer_address_prefix = optional(string, null)
-      }), {
-      enabled                       = false
-      primary_peer_address_prefix   = null
-      secondary_peer_address_prefix = null
-    })
+    }))
   }))
   default = []
 }

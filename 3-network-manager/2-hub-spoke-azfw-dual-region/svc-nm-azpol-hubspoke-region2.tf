@@ -7,10 +7,6 @@ locals {
     ENV              = "prod"
     NODE_TYPE        = "spoke"
   })
-  policy_cleanup_commands_region2 = [
-    "az policy assignment delete -n ${local.prefix}-ng-spokes-prod-region2",
-    "az policy definition delete -n ${local.prefix}-ng-spokes-prod-region2",
-  ]
 }
 
 ####################################################
@@ -18,8 +14,8 @@ locals {
 ####################################################
 
 resource "azurerm_network_manager_network_group" "ng_spokes_prod_region2" {
-  name               = "${local.prefix}-ng-spokes-prod-region2"
-  network_manager_id = azurerm_network_manager.avnm.id
+  name               = "ng-spokes-prod-region2"
+  network_manager_id = local.network_manager.id
   description        = "All spokes in prod region2"
 }
 
@@ -51,11 +47,10 @@ resource "azurerm_resource_group_policy_assignment" "ng_spokes_prod_region2" {
 ####################################################
 
 # connectivity
-#---------------------------
 
 resource "azurerm_network_manager_connectivity_configuration" "conn_config_hub_spoke_region2" {
-  name                  = "${local.prefix}-conn-config-hub-spoke-region2"
-  network_manager_id    = azurerm_network_manager.avnm.id
+  name                  = "conn-config-hub-spoke-region2"
+  network_manager_id    = local.network_manager.id
   connectivity_topology = "HubAndSpoke"
   hub {
     resource_id   = module.hub2.vnet.id
@@ -72,17 +67,15 @@ resource "azurerm_network_manager_connectivity_configuration" "conn_config_hub_s
   ]
 }
 
-####################################################
 # security
-####################################################
 
 resource "azurerm_network_manager_security_admin_configuration" "secadmin_config_region2" {
-  name               = "${local.prefix}-secadmin-config-region2"
-  network_manager_id = azurerm_network_manager.avnm.id
+  name               = "secadmin-config-region2"
+  network_manager_id = local.network_manager.id
 }
 
 resource "azurerm_network_manager_admin_rule_collection" "secadmin_rule_col_region2" {
-  name                            = "${local.prefix}-secadmin-rule-col-region2"
+  name                            = "secadmin-rule-col-region2"
   security_admin_configuration_id = azurerm_network_manager_security_admin_configuration.secadmin_config_region2.id
   network_group_ids = [
     azurerm_network_manager_network_group.ng_spokes_prod_region2.id
@@ -91,7 +84,7 @@ resource "azurerm_network_manager_admin_rule_collection" "secadmin_rule_col_regi
 
 resource "azurerm_network_manager_admin_rule" "secadmin_rules_region2" {
   for_each                 = local.secadmin_rules_global
-  name                     = "${local.prefix}-secadmin-rules-${each.key}"
+  name                     = "secadmin-rules-region2-${each.key}"
   admin_rule_collection_id = azurerm_network_manager_admin_rule_collection.secadmin_rule_col_region2.id
   description              = each.value.description
   action                   = each.value.action
@@ -124,7 +117,7 @@ resource "azurerm_network_manager_admin_rule" "secadmin_rules_region2" {
 # connectivity
 
 resource "azurerm_network_manager_deployment" "conn_config_hub_spoke_region2" {
-  network_manager_id = azurerm_network_manager.avnm.id
+  network_manager_id = local.network_manager.id
   location           = local.region2
   scope_access       = "Connectivity"
   configuration_ids = [
@@ -138,8 +131,10 @@ resource "azurerm_network_manager_deployment" "conn_config_hub_spoke_region2" {
   }
 }
 
+# security
+
 resource "azurerm_network_manager_deployment" "secadmin_config_region2" {
-  network_manager_id = azurerm_network_manager.avnm.id
+  network_manager_id = local.network_manager.id
   location           = local.region2
   scope_access       = "SecurityAdmin"
   configuration_ids = [
@@ -155,29 +150,6 @@ resource "azurerm_network_manager_deployment" "secadmin_config_region2" {
   }
   depends_on = [
     azurerm_network_manager_deployment.conn_config_hub_spoke_region2,
-  ]
-}
-
-####################################################
-# cleanup
-####################################################
-
-resource "null_resource" "policy_cleanup_region2" {
-  count = length(local.policy_cleanup_commands_region2)
-  triggers = {
-    create = ":"
-    delete = local.policy_cleanup_commands_region2[count.index]
-  }
-  provisioner "local-exec" {
-    command = self.triggers.create
-  }
-  provisioner "local-exec" {
-    when    = destroy
-    command = self.triggers.delete
-  }
-  depends_on = [
-    azurerm_policy_definition.ng_spokes_prod_region2,
-    azurerm_resource_group_policy_assignment.ng_spokes_prod_region2,
   ]
 }
 

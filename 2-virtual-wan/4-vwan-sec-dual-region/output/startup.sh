@@ -73,8 +73,8 @@ echo  "\$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "
 echo  "\$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke4vm.us.az.corp) - spoke4vm.us.az.corp"
 echo  "\$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke5vm.us.az.corp) - spoke5vm.us.az.corp"
 echo  "\$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24xspoke3sa58a0.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan24xspoke3sa58a0.blob.core.windows.net/spoke3/spoke3.txt"
-echo  "\$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24xspoke6sa58a0.blob.core.windows.net/spoke6/spoke6.txt) - https://vwan24xspoke6sa58a0.blob.core.windows.net/spoke6/spoke6.txt"
+echo  "\$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://va24spoke3sa21b1.blob.core.windows.net/spoke3/spoke3.txt) - https://va24spoke3sa21b1.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://va24spoke6sa21b1.blob.core.windows.net/spoke6/spoke6.txt) - https://va24spoke6sa21b1.blob.core.windows.net/spoke6/spoke6.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns4
 
@@ -179,8 +179,8 @@ echo  "\$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "
 echo  "\$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke4vm.us.az.corp) - spoke4vm.us.az.corp"
 echo  "\$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke5vm.us.az.corp) - spoke5vm.us.az.corp"
 echo  "\$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24xspoke3sa58a0.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan24xspoke3sa58a0.blob.core.windows.net/spoke3/spoke3.txt"
-echo  "\$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24xspoke6sa58a0.blob.core.windows.net/spoke6/spoke6.txt) - https://vwan24xspoke6sa58a0.blob.core.windows.net/spoke6/spoke6.txt"
+echo  "\$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://va24spoke3sa21b1.blob.core.windows.net/spoke3/spoke3.txt) - https://va24spoke3sa21b1.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://va24spoke6sa21b1.blob.core.windows.net/spoke6/spoke6.txt) - https://va24spoke6sa21b1.blob.core.windows.net/spoke6/spoke6.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns6
 

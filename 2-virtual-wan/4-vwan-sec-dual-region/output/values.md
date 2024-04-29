@@ -15,8 +15,8 @@
 | UntrustSubnet   | 10.10.1.0/24   |
 | - | -  |
 | VM_IP   | 10.10.0.5   |
-| VM_NAME   | Vwan24x-branch1Vm   |
-| VNET_NAME   | Vwan24x-branch1-vnet   |
+| VM_NAME   | Va24-branch1Vm   |
+| VNET_NAME   | Va24-branch1-vnet   |
 | VNET_RANGES   | 10.10.0.0/20, 10.10.16.0/20, fd00:db8:10::/56, fd00:db8:10:aa00::/56   |
 
 ## branch3
@@ -34,8 +34,8 @@
 | UntrustSubnet   | 10.30.1.0/24   |
 | - | -  |
 | VM_IP   | 10.30.0.5   |
-| VM_NAME   | Vwan24x-branch3Vm   |
-| VNET_NAME   | Vwan24x-branch3-vnet   |
+| VM_NAME   | Va24-branch3Vm   |
+| VNET_NAME   | Va24-branch3-vnet   |
 | VNET_RANGES   | 10.30.0.0/20, 10.30.16.0/20, fd00:db8:30::/56, fd00:db8:30:aa00::/56   |
 
 ## hub1
@@ -47,7 +47,7 @@
 | PRIVATELINK_SERVICE_ENDPOINT_DNS   | spoke3pls.hub1.az.corp   |
 | PRIVATELINK_SERVICE_ENDPOINT_IP   | 10.11.7.88   |
 | PRIVATE_DNS_INBOUND_IP   | 10.11.8.4   |
-| SPOKE3_BLOB_URL (Sample)   | https://vwan24xspoke3sa58a0.blob.core.windows.net/spoke3/spoke3.txt   |
+| SPOKE3_BLOB_URL (Sample)   | https://va24spoke3sa21b1.blob.core.windows.net/spoke3/spoke3.txt   |
 | *Subnets*|        |
 | AppGatewaySubnet   | 10.11.4.0/24   |
 | AppServiceSubnet   | 10.11.13.0/24   |
@@ -67,8 +67,8 @@
 | UntrustSubnet   | 10.11.1.0/24   |
 | - | -  |
 | VM_IP   | 10.11.0.5   |
-| VM_NAME   | Vwan24x-hub1Vm   |
-| VNET_NAME   | Vwan24x-hub1-vnet   |
+| VM_NAME   | Va24-hub1Vm   |
+| VNET_NAME   | Va24-hub1-vnet   |
 | VNET_RANGES   | 10.11.0.0/20, 10.11.16.0/20, fd00:db8:11::/56, fd00:db8:11:aa00::/56   |
 
 ## hub2
@@ -80,7 +80,7 @@
 | PRIVATELINK_SERVICE_ENDPOINT_DNS   | spoke6pls.hub2.az.corp   |
 | PRIVATELINK_SERVICE_ENDPOINT_IP   | 10.22.7.88   |
 | PRIVATE_DNS_INBOUND_IP   | 10.22.8.4   |
-| SPOKE6_BLOB_URL (Sample)   | https://vwan24xspoke6sa58a0.blob.core.windows.net/spoke6/spoke6.txt   |
+| SPOKE6_BLOB_URL (Sample)   | https://va24spoke6sa21b1.blob.core.windows.net/spoke6/spoke6.txt   |
 | *Subnets*|        |
 | AppGatewaySubnet   | 10.22.4.0/24   |
 | AppServiceSubnet   | 10.22.13.0/24   |
@@ -100,8 +100,8 @@
 | UntrustSubnet   | 10.22.1.0/24   |
 | - | -  |
 | VM_IP   | 10.22.0.5   |
-| VM_NAME   | Vwan24x-hub2Vm   |
-| VNET_NAME   | Vwan24x-hub2-vnet   |
+| VM_NAME   | Va24-hub2Vm   |
+| VNET_NAME   | Va24-hub2-vnet   |
 | VNET_RANGES   | 10.22.0.0/20, 10.22.16.0/20, fd00:db8:22::/56, fd00:db8:22:aa00::/56   |
 
 ## spoke1
@@ -122,8 +122,8 @@
 | UntrustSubnet   | 10.1.1.0/24   |
 | - | -  |
 | VM_IP   | 10.1.0.5   |
-| VM_NAME   | Vwan24x-spoke1Vm   |
-| VNET_NAME   | Vwan24x-spoke1-vnet   |
+| VM_NAME   | Va24-spoke1Vm   |
+| VNET_NAME   | Va24-spoke1-vnet   |
 | VNET_RANGES   | 10.1.0.0/20, fd00:db8:1::/56   |
 
 ## spoke2
@@ -144,8 +144,8 @@
 | UntrustSubnet   | 10.2.1.0/24   |
 | - | -  |
 | VM_IP   | 10.2.0.5   |
-| VM_NAME   | Vwan24x-spoke2Vm   |
-| VNET_NAME   | Vwan24x-spoke2-vnet   |
+| VM_NAME   | Va24-spoke2Vm   |
+| VNET_NAME   | Va24-spoke2-vnet   |
 | VNET_RANGES   | 10.2.0.0/20, fd00:db8:2::/56   |
 
 ## spoke3
@@ -166,8 +166,8 @@
 | UntrustSubnet   | 10.3.1.0/24   |
 | - | -  |
 | VM_IP   | 10.3.0.5   |
-| VM_NAME   | Vwan24x-spoke3Vm   |
-| VNET_NAME   | Vwan24x-spoke3-vnet   |
+| VM_NAME   | Va24-spoke3Vm   |
+| VNET_NAME   | Va24-spoke3-vnet   |
 | VNET_RANGES   | 10.3.0.0/20, fd00:db8:3::/56   |
 
 ## spoke4
@@ -188,8 +188,8 @@
 | UntrustSubnet   | 10.4.1.0/24   |
 | - | -  |
 | VM_IP   | 10.4.0.5   |
-| VM_NAME   | Vwan24x-spoke4Vm   |
-| VNET_NAME   | Vwan24x-spoke4-vnet   |
+| VM_NAME   | Va24-spoke4Vm   |
+| VNET_NAME   | Va24-spoke4-vnet   |
 | VNET_RANGES   | 10.4.0.0/20, fd00:db8:4::/56   |
 
 ## spoke5
@@ -210,8 +210,8 @@
 | UntrustSubnet   | 10.5.1.0/24   |
 | - | -  |
 | VM_IP   | 10.5.0.5   |
-| VM_NAME   | Vwan24x-spoke5Vm   |
-| VNET_NAME   | Vwan24x-spoke5-vnet   |
+| VM_NAME   | Va24-spoke5Vm   |
+| VNET_NAME   | Va24-spoke5-vnet   |
 | VNET_RANGES   | 10.5.0.0/20, fd00:db8:5::/56   |
 
 ## spoke6
@@ -232,6 +232,6 @@
 | UntrustSubnet   | 10.6.1.0/24   |
 | - | -  |
 | VM_IP   | 10.6.0.5   |
-| VM_NAME   | Vwan24x-spoke6Vm   |
-| VNET_NAME   | Vwan24x-spoke6-vnet   |
+| VM_NAME   | Va24-spoke6Vm   |
+| VNET_NAME   | Va24-spoke6-vnet   |
 | VNET_RANGES   | 10.6.0.0/20, fd00:db8:6::/56   |
