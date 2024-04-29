@@ -48,6 +48,7 @@ provider "azurerm" {
 }
 
 provider "azapi" {}
+provider "cidrblock" {}
 
 terraform {
   required_providers {
@@ -61,6 +62,9 @@ terraform {
     }
     azapi = {
       source = "azure/azapi"
+    }
+    cidrblock = {
+      source = "amilevskiy/cidrblock"
     }
   }
 }
@@ -107,6 +111,7 @@ locals {
 
   hub1_features = {
     config_vnet = {
+      bgp_community               = local.hub1_bgp_community
       address_space               = local.hub1_address_space
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
@@ -207,6 +212,7 @@ locals {
 
   hub2_features = {
     config_vnet = {
+      bgp_community               = local.hub1_bgp_community
       address_space               = local.hub2_address_space
       subnets                     = local.hub2_subnets
       enable_private_dns_resolver = true
@@ -307,7 +313,7 @@ locals {
 
   vhub1_features = {
     express_route_gateway = {
-      enable = false
+      enable = true
       sku    = "ErGw1AZ"
     }
 
@@ -336,12 +342,12 @@ locals {
     }
 
     config_security = {
-      create_firewall    = false
+      create_firewall    = true
       firewall_sku       = local.firewall_sku
       firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
       routing_policies = [
-        # { name = "internet", destinations = ["Internet"] },
-        # { name = "private_traffic", destinations = ["PrivateTraffic"] }
+        { name = "internet", destinations = ["Internet"] },
+        { name = "private_traffic", destinations = ["PrivateTraffic"] }
       ]
     }
   }

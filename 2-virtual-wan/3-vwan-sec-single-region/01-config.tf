@@ -97,6 +97,7 @@ locals {
   hub1_prefix        = local.prefix == "" ? "hub1-" : join("-", [local.prefix, "hub1-"])
   hub1_location      = local.region1
   hub1_address_space = ["10.11.0.0/20", "10.11.16.0/20", "fd00:db8:11::/56", "fd00:db8:11:aa00::/56", ]
+  hub1_bgp_community = "12076:20011"
   hub1_nat_ranges = {
     "branch1" = {
       "egress-static"  = "10.11.90.0/24"
@@ -159,6 +160,7 @@ locals {
   hub2_prefix        = local.prefix == "" ? "hub2-" : join("-", [local.prefix, "hub2-"])
   hub2_location      = local.region2
   hub2_address_space = ["10.22.0.0/20", "10.22.16.0/20", "fd00:db8:22::/56", "fd00:db8:22:aa00::/56", ]
+  hub2_bgp_community = "12076:20022"
   hub2_dns_zone      = local.region2_dns_zone
   hub2_subnets = {
     ("MainSubnet")                    = { address_prefixes = ["10.22.0.0/24", "fd00:db8:22::/64", ], }
@@ -213,6 +215,7 @@ locals {
   branch1_prefix        = local.prefix == "" ? "branch1-" : join("-", [local.prefix, "branch1-"])
   branch1_location      = local.region1
   branch1_address_space = ["10.10.0.0/20", "10.10.16.0/20", "fd00:db8:10::/56", "fd00:db8:10:aa00::/56", ]
+  branch1_bgp_community = "12076:20010"
   branch1_nva_asn       = "65001"
   branch1_dns_zone      = local.onprem_domain
   branch1_subnets = {
@@ -251,6 +254,7 @@ locals {
   branch2_prefix        = local.prefix == "" ? "branch2-" : join("-", [local.prefix, "branch2-"])
   branch2_location      = local.region1
   branch2_address_space = ["10.20.0.0/20", "10.20.16.0/20", "fd00:db8:20::/56", "fd00:db8:20:aa00::/56", ]
+  branch2_bgp_community = "12076:20020"
   branch2_nva_asn       = "65002"
   branch2_dns_zone      = local.onprem_domain
   branch2_subnets = {
@@ -291,6 +295,7 @@ locals {
   branch3_prefix        = local.prefix == "" ? "branch3-" : join("-", [local.prefix, "branch3-"])
   branch3_location      = local.region2
   branch3_address_space = ["10.30.0.0/20", "10.30.16.0/20", "fd00:db8:30::/56", "fd00:db8:30:aa00::/56", ]
+  branch3_bgp_community = "12076:20030"
   branch3_nva_asn       = "65003"
   branch3_dns_zone      = local.onprem_domain
   branch3_subnets = {
@@ -329,6 +334,7 @@ locals {
   spoke1_prefix        = local.prefix == "" ? "spoke1-" : join("-", [local.prefix, "spoke1-"])
   spoke1_location      = local.region1
   spoke1_address_space = ["10.1.0.0/20", "fd00:db8:1::/56", ]
+  spoke1_bgp_community = "12076:20001"
   spoke1_dns_zone      = local.region1_dns_zone
   spoke1_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.1.0.0/24", "fd00:db8:1::/64", ] }
@@ -362,6 +368,7 @@ locals {
   spoke2_prefix        = local.prefix == "" ? "spoke2-" : join("-", [local.prefix, "spoke2-"])
   spoke2_location      = local.region1
   spoke2_address_space = ["10.2.0.0/20", "fd00:db8:2::/56", ]
+  spoke2_bgp_community = "12076:20002"
   spoke2_dns_zone      = local.region1_dns_zone
   spoke2_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.2.0.0/24", "fd00:db8:2::/64"] }
@@ -395,6 +402,7 @@ locals {
   spoke3_prefix        = local.prefix == "" ? "spoke3-" : join("-", [local.prefix, "spoke3-"])
   spoke3_location      = local.region1
   spoke3_address_space = ["10.3.0.0/20", "fd00:db8:3::/56", ]
+  spoke3_bgp_community = "12076:20003"
   spoke3_dns_zone      = local.region1_dns_zone
   spoke3_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.3.0.0/24", "fd00:db8:3::/64"], }
@@ -428,6 +436,7 @@ locals {
   spoke4_prefix        = local.prefix == "" ? "spoke4-" : join("-", [local.prefix, "spoke4-"])
   spoke4_location      = local.region2
   spoke4_address_space = ["10.4.0.0/20", "fd00:db8:4::/56", ]
+  spoke4_bgp_community = "12076:20004"
   spoke4_dns_zone      = local.region2_dns_zone
   spoke4_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.4.0.0/24", "fd00:db8:4::/64"], }
@@ -461,6 +470,7 @@ locals {
   spoke5_prefix        = local.prefix == "" ? "spoke5-" : join("-", [local.prefix, "spoke5-"])
   spoke5_location      = local.region2
   spoke5_address_space = ["10.5.0.0/20", "fd00:db8:5::/56", ]
+  spoke5_bgp_community = "12076:20005"
   spoke5_dns_zone      = local.region2_dns_zone
   spoke5_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.5.0.0/24", "fd00:db8:5::/64"], }
@@ -494,6 +504,7 @@ locals {
   spoke6_prefix        = local.prefix == "" ? "spoke6-" : join("-", [local.prefix, "spoke6-"])
   spoke6_location      = local.region2
   spoke6_address_space = ["10.6.0.0/20", "fd00:db8:6::/56", ]
+  spoke6_bgp_community = "12076:20006"
   spoke6_dns_zone      = local.region2_dns_zone
   spoke6_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.6.0.0/24", "fd00:db8:6::/64"], }

@@ -26,6 +26,7 @@ module "branch1" {
   }
 
   config_vnet = {
+    bgp_community = local.branch1_bgp_community
     address_space = local.branch1_address_space
     subnets       = local.branch1_subnets
     nat_gateway_subnet_names = [

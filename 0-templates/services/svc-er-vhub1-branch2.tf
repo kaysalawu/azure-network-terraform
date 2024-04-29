@@ -84,6 +84,9 @@ resource "azurerm_express_route_circuit_authorization" "er1_branch2" {
   resource_group_name        = azurerm_resource_group.rg.name
   name                       = "${local.prefix}-er1-branch2"
   express_route_circuit_name = module.megaport.express_route_circuit["${local.prefix}-er1"].name
+  depends_on = [
+    module.megaport,
+  ]
 }
 
 resource "azurerm_virtual_network_gateway_connection" "er1_branch2" {
@@ -94,6 +97,9 @@ resource "azurerm_virtual_network_gateway_connection" "er1_branch2" {
   virtual_network_gateway_id = module.branch2.ergw.id
   authorization_key          = azurerm_express_route_circuit_authorization.er1_branch2.authorization_key
   express_route_circuit_id   = module.megaport.express_route_circuit["${local.prefix}-er1"].id
+  depends_on = [
+    module.megaport,
+  ]
 }
 
 # hub1
@@ -102,6 +108,9 @@ resource "azurerm_express_route_circuit_authorization" "er1_hub1" {
   resource_group_name        = azurerm_resource_group.rg.name
   name                       = "${local.prefix}-er1-hub1"
   express_route_circuit_name = module.megaport.express_route_circuit["${local.prefix}-er1"].name
+  depends_on = [
+    module.megaport,
+  ]
 }
 
 # resource "azurerm_express_route_connection" "er_vhub1" {

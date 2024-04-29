@@ -94,6 +94,43 @@ module "hub2_udr_main" {
   ]
 }
 
+# route maps
+#----------------------------
+
+data "cidrblock_summarization" "vhub2_route_map_cidr_blocks" {
+  cidr_blocks = [
+    local.hub2_address_space.0,
+    local.hub2_address_space.1,
+  ]
+}
+
+resource "azurerm_route_map" "vhub2_route_map" {
+  name           = "route-map"
+  virtual_hub_id = module.vhub2.virtual_hub.id
+
+  rule {
+    name = "aggregate-hub2"
+
+    match_criterion {
+      match_condition = "Contains"
+      route_prefix = [
+        local.hub2_address_space.0,
+        local.hub2_address_space.1,
+      ]
+    }
+
+    next_step_if_matched = "Continue"
+
+    action {
+      type = "Replace"
+
+      parameter {
+        route_prefix = data.cidrblock_summarization.vhub2_route_map_cidr_blocks.summarized_cidr_blocks
+      }
+    }
+  }
+}
+
 ####################################################
 # vpn-site connection
 ####################################################
@@ -127,6 +164,11 @@ resource "azurerm_vpn_gateway_connection" "vhub2_site_branch3_conn" {
   vpn_gateway_id            = module.vhub2.vpngw.id
   remote_vpn_site_id        = azurerm_vpn_site.vhub2_site_branch3.id
   internet_security_enabled = true
+
+  routing {
+    associated_route_table = data.azurerm_virtual_hub_route_table.vhub2_default.id
+    outbound_route_map_id  = azurerm_route_map.vhub2_route_map.id
+  }
 
   vpn_link {
     name             = "${local.vhub2_prefix}site-branch3-conn-vpn-link-0"
