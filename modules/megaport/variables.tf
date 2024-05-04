@@ -50,19 +50,18 @@ variable "circuits" {
     sku_tier                    = optional(string, "Standard")
     sku_family                  = optional(string, "MeteredData")
     auto_create_private_peering = optional(bool, false)
+    virtual_network_gateway_id  = optional(string, null)
+    express_route_gateway_id    = optional(string, null)
 
     ipv4_config = object({
-      create_megaport_vxc_peering   = optional(bool, false)
-      create_azure_private_peering  = optional(bool, false)
       primary_peer_address_prefix   = optional(string, null)
       secondary_peer_address_prefix = optional(string, null)
     })
     ipv6_config = optional(object({
-      create_megaport_vxc_peering   = optional(bool, false)
       create_azure_private_peering  = optional(bool, false)
       primary_peer_address_prefix   = optional(string, null)
       secondary_peer_address_prefix = optional(string, null)
-    }))
+    }), {})
   }))
   default = []
 }

@@ -1,0 +1,173 @@
+{
+    "productId": 195776,
+    "productUid": "21f5fc64-3cff-41d3-978d-7a8b82ad6d92",
+    "productName": "Poc08-er1-sec",
+    "productType": "VXC",
+    "rateLimit": 50,
+    "distanceBand": "ZONE",
+    "provisioningStatus": "LIVE",
+    "usageAlgorithm": "POST_PAID_HOURLY_SPEED_LONG_HAUL_VXC",
+    "createdBy": "dbb1e1f8-0861-423b-b85c-e71256d4a486",
+    "createDate": 1714747759216,
+    "resources": {
+        "csp_connection": [
+            {
+                "connectType": "VROUTER",
+                "resource_name": "a_csp_connection",
+                "resource_type": "csp_connection",
+                "vlan": 2032,
+                "ip_addresses": [
+                    "172.16.0.5/30"
+                ],
+                "bgp_peers": [
+                    "172.16.0.6"
+                ],
+                "bgp_status": {
+                    "172.16.0.6": 0
+                },
+                "interfaces": [
+                    {
+                        "bgpConnections": [
+                            {
+                                "bfdEnabled": false,
+                                "description": null,
+                                "ebgpMultihop": null,
+                                "localAsn": 64512,
+                                "localIpAddress": "172.16.0.5",
+                                "medIn": null,
+                                "medOut": null,
+                                "password": null,
+                                "peerAsn": 12076,
+                                "peerIpAddress": "172.16.0.6",
+                                "peerType": "PRIV_CLOUD",
+                                "prefixFilterIn": null,
+                                "prefixFilterOut": null,
+                                "prefixLimit": null,
+                                "shutdown": true,
+                                "importWhitelist": null,
+                                "importBlacklist": null,
+                                "exportWhitelist": null,
+                                "exportBlacklist": null,
+                                "exportPolicy": null,
+                                "denyExportTo": null,
+                                "permitExportTo": null,
+                                "asPathPrependCount": null
+                            }
+                        ],
+                        "ipAddresses": [
+                            "172.16.0.5/30"
+                        ],
+                        "vlan": 100
+                    }
+                ],
+                "virtualRouterName": ""
+            },
+            {
+                "bandwidth": 50,
+                "connectType": "AZURE",
+                "managed": false,
+                "megaports": [
+                    {
+                        "port": 12960,
+                        "type": "primary",
+                        "vxc": 195791
+                    },
+                    {
+                        "port": 12961,
+                        "type": "secondary",
+                        "vxc": 195776
+                    }
+                ],
+                "ports": [
+                    {
+                        "service_id": 29316,
+                        "type": "primary",
+                        "vxc_service_ids": [
+                            529532
+                        ]
+                    },
+                    {
+                        "service_id": 29317,
+                        "type": "secondary",
+                        "vxc_service_ids": [
+                            529483
+                        ]
+                    }
+                ],
+                "peers": [
+                    {
+                        "peer_asn": 64512,
+                        "primary_subnet": "172.16.0.0/30",
+                        "secondary_subnet": "172.16.0.4/30",
+                        "type": "private",
+                        "vlan": "100"
+                    }
+                ],
+                "resource_name": "b_csp_connection",
+                "resource_type": "csp_connection",
+                "service_key": "2f83be4d-e343-4334-b0c8-50f77bc6cba8",
+                "vlan": 40
+            }
+        ],
+        "vll": {
+            "a_vlan": 2032,
+            "b_vlan": 40,
+            "a_inner_vlan": 507,
+            "rate_limit_mbps": 50,
+            "resource_name": "vll",
+            "resource_type": "vll",
+            "up": 1,
+            "shutdown": false,
+            "ainnerVlan": 507
+        }
+    },
+    "vxcApproval": {
+        "status": null,
+        "message": null,
+        "uid": null,
+        "type": null,
+        "newSpeed": null
+    },
+    "contractStartDate": null,
+    "contractEndDate": null,
+    "contractTermMonths": 1,
+    "locked": false,
+    "adminLocked": false,
+    "attributeTags": {},
+    "up": true,
+    "shutdown": false,
+    "cancelable": true,
+    "aEnd": {
+        "ownerUid": "d594938d-b56f-42d8-b66e-f71ac55a46d5",
+        "productUid": "099e38ff-bc0d-4400-94e7-53e3b1030592",
+        "productName": "salawu-poc08-mcr1",
+        "locationId": 90,
+        "location": "Equinix LD5",
+        "locationDetail": {
+            "name": "Equinix LD5",
+            "city": "London",
+            "metro": "London",
+            "country": "United Kingdom"
+        },
+        "vlan": 2032,
+        "innerVlan": 507,
+        "secondaryName": null,
+        "vNicIndex": 4
+    },
+    "bEnd": {
+        "ownerUid": "c40de5ed-4707-4471-a78c-69436de2c505",
+        "productUid": "a702187f-3ce0-4cfa-a283-c8b79075b63e",
+        "productName": "Dublin Secondary",
+        "locationId": 94,
+        "location": "Equinix DB1",
+        "locationDetail": {
+            "name": "Equinix DB1",
+            "city": "Dublin",
+            "metro": "Dublin",
+            "country": "Ireland"
+        },
+        "vlan": 40,
+        "innerVlan": null,
+        "secondaryName": null
+    }
+}

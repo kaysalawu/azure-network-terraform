@@ -1,0 +1,13 @@
+Usage: script.py -g RESOURCE_GROUP -c CIRCUIT_NAME -a ACTION
+
+This script requires options and arguments:
+  -g, --resource-group   The name of the resource group.
+  -c, --circuit-name     The name of the circuit.
+  -a, --action           The action to perform (list, start, shutdown).
+
+Options:
+  -h, --helper           Display this help message and exit.
+
+Examples:
+  script.py -g myResourceGroup -c myCircuitName -a shutdown-bgp-connection
+  script.py -g myResourceGroup -c myCircuitName -a start-bgp-connection

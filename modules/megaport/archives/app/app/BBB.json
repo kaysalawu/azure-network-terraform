@@ -1,0 +1,102 @@
+{
+    "name": "Poc08-er1-sec",
+    "secondaryName": "Poc08-er1-sec",
+    "rateLimit": 50,
+    "term": null,
+    "costCentre": null,
+    "dealUid": null,
+    "aEndConfig": {
+        "connectType": "VROUTER",
+        "interfaces": [
+            {
+                "vlan": 100,
+                "ipAddresses": [
+                    "172.16.0.5/30"
+                ],
+                "bfd": {
+                    "txInterval": null,
+                    "rxInterval": null,
+                    "multiplier": null
+                },
+                "bgpConnections": [
+                    {
+                        "bfdEnabled": false,
+                        "description": null,
+                        "ebgpMultihop": null,
+                        "localAsn": 64512,
+                        "localIpAddress": "172.16.0.5",
+                        "medIn": null,
+                        "medOut": null,
+                        "password": null,
+                        "peerAsn": 12076,
+                        "peerIpAddress": "172.16.0.6",
+                        "peerType": "PRIV_CLOUD",
+                        "prefixFilterIn": null,
+                        "prefixFilterOut": null,
+                        "prefixLimit": null,
+                        "shutdown": false,
+                        "importWhitelist": null,
+                        "importBlacklist": null,
+                        "exportWhitelist": null,
+                        "exportBlacklist": null,
+                        "exportPolicy": null,
+                        "denyExportTo": null,
+                        "permitExportTo": null,
+                        "asPathPrependCount": null
+                    }
+                ],
+                "ipRoutes": [],
+                "natIpAddresses": []
+            }
+        ]
+    },
+    "bEndConfig": {
+        "bandwidth": 50,
+        "connectType": "AZURE",
+        "managed": false,
+        "megaports": [
+            {
+                "port": 12960,
+                "type": "primary",
+                "vxc": 195791
+            },
+            {
+                "port": 12961,
+                "type": "secondary",
+                "vxc": 195776
+            }
+        ],
+        "ports": [
+            {
+                "service_id": 29316,
+                "type": "primary",
+                "vxc_service_ids": [
+                    529532
+                ]
+            },
+            {
+                "service_id": 29317,
+                "type": "secondary",
+                "vxc_service_ids": [
+                    529483
+                ]
+            }
+        ],
+        "peers": [
+            {
+                "peer_asn": 64512,
+                "primary_subnet": "172.16.0.0/30",
+                "secondary_subnet": "172.16.0.4/30",
+                "type": "private",
+                "vlan": "100"
+            }
+        ],
+        "resource_name": "b_csp_connection",
+        "resource_type": "csp_connection",
+        "service_key": "2f83be4d-e343-4334-b0c8-50f77bc6cba8",
+        "vlan": 40
+    },
+    "aEndVlan": 2032,
+    "shutdown": false,
+    "bEndInnerVlan": -1
+}

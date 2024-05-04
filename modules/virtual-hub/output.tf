@@ -15,7 +15,7 @@ output "firewall" {
 }
 
 output "firewall_private_ip" {
-  value = try(module.azfw[0].virtual_hub[0].private_ip_address, {})
+  value = try(module.azfw[0].private_ip, "")
 }
 
 output "virtual_hub" {

@@ -4,47 +4,24 @@ locals {
 }
 
 ####################################################
-# network manager
+# network group
 ####################################################
 
-resource "azurerm_network_manager" "this" {
-  count               = var.use_azapi ? 0 : 1
-  resource_group_name = var.resource_group_name
-  location            = var.location
-  name                = "${local.prefix}-nm"
-  description         = var.description
-  scope_accesses      = var.scope_accesses
-  scope {
-    subscription_ids     = var.scope_subscription_ids
-    management_group_ids = var.scope_management_group_ids
-  }
-}
+# vnet
 
-# azapi
-
-resource "azapi_resource" "azurerm_network_manager" {
+resource "azapi_resource" "network_group_vnet" {
   count     = var.use_azapi ? 1 : 0
-  type      = "Microsoft.Network/networkManagers@2022-09-01"
-  name      = "${local.prefix}-nm"
-  parent_id = data.resource_group.this.id
-  location  = local.region1
+  type      = "Microsoft.Network/networkManagers/networkGroups@2022-06-01-preview"
+  name      = "ng-trusted-mesh-networks-region1"
+  parent_id = local.network_manager.id
 
   body = jsonencode({
     properties = {
-      description = "global"
-      networkManagerScopeAccesses = [
-        "Connectivity",
-        "SecurityAdmin",
-        "Routing",
-      ]
-      networkManagerScopes = {
-        subscriptions    = var.scope_subscription_ids
-        managementGroups = var.scope_management_group_ids
-      }
+      description = "network group for hub and spoke (meshed) topology"
+      memberType  = "VirtualNetwork"
     }
   })
   schema_validation_enabled = false
-  depends_on = [
-    azurerm_network_manager.this
-  ]
 }
+
+

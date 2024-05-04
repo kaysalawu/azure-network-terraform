@@ -24,13 +24,6 @@ resource "azurerm_express_route_circuit" "this" {
   }
 }
 
-resource "azurerm_express_route_circuit_authorization" "this" {
-  for_each                   = { for c in var.circuits : c.name => c }
-  resource_group_name        = var.resource_group
-  name                       = each.value.name
-  express_route_circuit_name = azurerm_express_route_circuit.this[each.value.name].name
-}
-
 # mcr
 #----------------------------
 
@@ -62,26 +55,28 @@ resource "megaport_azure_connection" "primary" {
   csp_settings {
     service_key                 = azurerm_express_route_circuit.this[each.value.name].service_key
     auto_create_private_peering = each.value.auto_create_private_peering
+  }
 
-    dynamic "private_peering" {
-      for_each = each.value.ipv4_config.create_megaport_vxc_peering && !each.value.auto_create_private_peering ? [1] : []
-      content {
-        peer_asn         = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
-        primary_subnet   = each.value.ipv4_config.primary_peer_address_prefix
-        secondary_subnet = each.value.ipv4_config.secondary_peer_address_prefix
-        requested_vlan   = each.value.requested_vlan
-      }
-    }
+  lifecycle {
+    ignore_changes = [a_end, ]
+  }
+}
 
-    dynamic "private_peering" {
-      for_each = each.value.ipv4_config.create_megaport_vxc_peering && !each.value.auto_create_private_peering ? [1] : []
-      content {
-        peer_asn         = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
-        primary_subnet   = each.value.ipv6_config.primary_peer_address_prefix
-        secondary_subnet = each.value.ipv6_config.secondary_peer_address_prefix
-        requested_vlan   = each.value.requested_vlan
-      }
-    }
+# secondary
+
+resource "megaport_azure_connection" "secondary" {
+  for_each   = { for c in var.circuits : c.name => c }
+  vxc_name   = "${each.value.name}-sec"
+  rate_limit = each.value.bandwidth_in_mbps
+
+  a_end {
+    port_id        = megaport_mcr.this[each.value.mcr_name].id
+    requested_vlan = each.value.requested_vlan
+  }
+
+  csp_settings {
+    service_key                 = azurerm_express_route_circuit.this[each.value.name].service_key
+    auto_create_private_peering = each.value.auto_create_private_peering
   }
 
   lifecycle {
@@ -112,24 +107,51 @@ resource "azurerm_express_route_circuit_peering" "this" {
     }
   }
   depends_on = [
-    azurerm_express_route_circuit_authorization.this,
     megaport_azure_connection.primary,
+    azurerm_express_route_circuit_authorization.this,
+  ]
+}
+
+# gateway connections
+#----------------------------
+
+resource "azurerm_express_route_circuit_authorization" "this" {
+  for_each                   = { for c in var.circuits : c.name => c if c.virtual_network_gateway_id != null }
+  resource_group_name        = var.resource_group
+  name                       = each.value.name
+  express_route_circuit_name = azurerm_express_route_circuit.this[each.value.name].name
+}
+
+resource "azurerm_virtual_network_gateway_connection" "vnet" {
+  for_each                   = { for c in var.circuits : c.name => c if c.virtual_network_gateway_id != null }
+  resource_group_name        = var.resource_group
+  name                       = each.value.name
+  location                   = var.azure_location
+  type                       = "ExpressRoute"
+  virtual_network_gateway_id = each.value.virtual_network_gateway_id
+  authorization_key          = azurerm_express_route_circuit_authorization.this[each.value.name].authorization_key
+  express_route_circuit_id   = azurerm_express_route_circuit.this[each.value.name].id
+  depends_on = [
+    megaport_azure_connection.primary,
+    azurerm_express_route_circuit_authorization.this,
   ]
 }
 
 # dashboard
-#----------------------------
+# ----------------------------
 
-# locals {
-#   dashboard_vars = { for c in var.circuits :
-#     c.name => templatefile("${path.module}/dashboard/dashboard.json", { ER_CIRCUIT_ID = azurerm_express_route_circuit.this[c.name].id })
-#   }
-# }
+locals {
+  dashboard_vars = { for c in var.circuits :
+    c.name => templatefile("${path.module}/dashboard/dashboard.json", {
+      ER_CIRCUIT_ID = azurerm_express_route_circuit.this[c.name].id
+    })
+  }
+}
 
-# resource "azurerm_portal_dashboard" "hub2_er" {
-#   for_each             = local.dashboard_vars
-#   resource_group_name  = var.resource_group
-#   location             = var.azure_location
-#   name                 = "${each.key}-dashb"
-#   dashboard_properties = each.value
-# }
+resource "azurerm_portal_dashboard" "hub2_er" {
+  for_each             = local.dashboard_vars
+  resource_group_name  = var.resource_group
+  location             = var.azure_location
+  name                 = "${each.key}-dashb"
+  dashboard_properties = each.value
+}

@@ -381,7 +381,7 @@ resource "azurerm_public_ip" "ars_pip" {
   resource_group_name = var.resource_group
   name                = "${local.prefix}ars-pip"
   location            = var.location
-  sku                 = var.config_ergw.sku
+  sku                 = "Standard"
   allocation_method   = "Static"
   tags                = var.tags
   timeouts {
