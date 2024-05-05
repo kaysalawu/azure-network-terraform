@@ -8,6 +8,7 @@ locals {
   enable_diagnostics          = false
   enable_onprem_wan_link      = false
   enable_ipv6                 = true
+  create_vwan_route_maps      = false
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
   spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
@@ -25,6 +26,7 @@ resource "random_id" "random" {
 }
 
 data "azurerm_client_config" "current" {}
+data "azurerm_subscription" "current" {}
 
 ####################################################
 # providers
@@ -88,6 +90,7 @@ locals {
 
   hub1_features = {
     config_vnet = {
+      bgp_community               = local.hub1_bgp_community
       address_space               = local.hub1_address_space
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
@@ -210,10 +213,9 @@ locals {
     }
 
     config_security = {
-      create_firewall       = false
-      enable_routing_intent = false
-      firewall_sku          = local.firewall_sku
-      firewall_policy_id    = azurerm_firewall_policy.firewall_policy["region1"].id
+      create_firewall    = false
+      firewall_sku       = local.firewall_sku
+      firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
       routing_policies = [
         # { name = "internet", destinations = ["Internet"] },
         # { name = "private_traffic", destinations = ["PrivateTraffic"] }
@@ -454,7 +456,24 @@ module "fw_policy_rule_collection_group" {
     }
   ]
   application_rule_collection = []
-  nat_rule_collection         = []
+  nat_rule_collection = [
+    # {
+    #   name     = "nat-rc"
+    #   priority = 200
+    #   action   = "Dnat"
+    #   rule = [
+    #     {
+    #       name                = "nat-rc-any-to-spoke1vm"
+    #       source_addresses    = ["*"]
+    #       destination_address = "52.169.147.205"
+    #       protocols           = ["TCP"]
+    #       destination_ports   = ["22"]
+    #       translated_address  = "10.1.0.5"
+    #       translated_port     = 22
+    #     }
+    #   ]
+    # }
+  ]
 }
 
 ####################################################
