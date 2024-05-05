@@ -215,6 +215,7 @@ module "dns_resolver" {
   depends_on = [
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
+    azurerm_private_dns_zone_virtual_network_link.dns,
   ]
 }
 
