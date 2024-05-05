@@ -3,21 +3,15 @@
 ####################################################
 
 locals {
-  prefix                      = "Poc08"
-  lab_name                    = "Network_SRE"
-  enable_diagnostics          = false
-  enable_onprem_wan_link      = false
-  enable_ipv6                 = true
-  spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
-  spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
-  spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
+  prefix                 = "Poc08"
+  lab_name               = "Network_SRE"
+  enable_diagnostics     = true
+  enable_onprem_wan_link = false
+  enable_ipv6            = false
 
   hub1_tags    = { "lab" = local.prefix, "env" = "prod", "nodeType" = "hub" }
-  branch1_tags = { "lab" = local.prefix, "env" = "prod", "nodeType" = "branch" }
   branch2_tags = { "lab" = local.prefix, "env" = "prod", "nodeType" = "branch" }
   spoke1_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "spoke" }
-  spoke2_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "spoke" }
-  spoke3_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "float" }
 }
 
 resource "random_id" "random" {
@@ -76,16 +70,11 @@ locals {
   spoke1_udr_main_routes = concat(local.region1_default_udr_destinations, [
     { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
   ])
-  spoke2_udr_main_routes = concat(local.region1_default_udr_destinations, [
-    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
-  ])
   hub1_udr_main_routes = concat(local.region1_default_udr_destinations, [
     { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
-    { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
   ])
   hub1_gateway_udr_destinations = [
     { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
-    { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
     { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
   ]
 
@@ -108,23 +97,11 @@ locals {
         "onprem" = {
           domain = local.onprem_domain
           target_dns_servers = [
-            { ip_address = local.branch1_dns_addr, port = 53 },
+            { ip_address = local.branch2_dns_addr, port = 53 },
           ]
         }
         "${local.region1_code}" = {
           domain = local.region1_dns_zone
-          target_dns_servers = [
-            { ip_address = local.hub1_dns_in_addr, port = 53 },
-          ]
-        }
-        "azurewebsites" = {
-          domain = "privatelink.azurewebsites.net"
-          target_dns_servers = [
-            { ip_address = local.hub1_dns_in_addr, port = 53 },
-          ]
-        }
-        "blob" = {
-          domain = "privatelink.blob.core.windows.net"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
@@ -161,12 +138,12 @@ locals {
     }
 
     config_ergw = {
-      enable = false
+      enable = true
       sku    = "ErGw1AZ"
     }
 
     config_firewall = {
-      enable             = true
+      enable             = false
       firewall_sku       = local.firewall_sku
       firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
     }
@@ -202,15 +179,14 @@ resource "azurerm_resource_group" "rg" {
 }
 
 module "common" {
-  source              = "../../modules/common"
-  resource_group      = azurerm_resource_group.rg.name
-  env                 = "common"
-  prefix              = local.prefix
-  firewall_sku        = local.firewall_sku
-  regions             = local.regions
-  private_prefixes    = local.private_prefixes
-  private_prefixes_v6 = local.private_prefixes_v6
-  tags                = {}
+  source           = "../../modules/common"
+  resource_group   = azurerm_resource_group.rg.name
+  env              = "common"
+  prefix           = local.prefix
+  firewall_sku     = local.firewall_sku
+  regions          = local.regions
+  private_prefixes = local.private_prefixes
+  tags             = {}
 }
 
 # private dns zones
@@ -250,15 +226,12 @@ locals {
 
   init_dir = "/var/lib/azure"
   vm_script_targets_region1 = [
-    { name = "branch1", dns = lower(local.branch1_vm_fqdn), ipv4 = local.branch1_vm_addr, ipv6 = local.branch1_vm_addr_v6, probe = true },
-    { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ipv4 = local.hub1_vm_addr, ipv6 = local.hub1_vm_addr_v6, probe = false },
-    { name = "hub1-spoke3-pep", dns = lower(local.hub1_spoke3_pep_fqdn), ping = false, probe = true },
-    { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ipv4 = local.spoke1_vm_addr, ipv6 = local.spoke1_vm_addr_v6, probe = true },
-    { name = "spoke2 ", dns = lower(local.spoke2_vm_fqdn), ipv4 = local.spoke2_vm_addr, ipv6 = local.spoke2_vm_addr_v6, probe = true },
+    { name = "branch2", dns = lower(local.branch2_vm_fqdn), ipv4 = local.branch2_vm_addr, probe = true },
+    { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ipv4 = local.hub1_vm_addr, probe = false },
+    { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ipv4 = local.spoke1_vm_addr, probe = true },
   ]
   vm_script_targets_misc = [
-    { name = "internet", dns = "icanhazip.com", ipv4 = "icanhazip.com", ipv6 = "icanhazip.com" },
-    { name = "hub1-spoke3-blob", dns = local.spoke3_blob_url, ping = false, probe = true },
+    { name = "internet", dns = "icanhazip.com", ipv4 = "icanhazip.com" },
   ]
   vm_script_targets = concat(
     local.vm_script_targets_region1,
@@ -295,12 +268,7 @@ locals {
     "${local.init_dir}/init/startup.sh" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/startup.sh", local.probe_init_vars) }
   }
   onprem_local_records = [
-    { name = lower(local.branch1_vm_fqdn), rdata = local.branch1_vm_addr, ttl = "300", type = "A" },
     { name = lower(local.branch2_vm_fqdn), rdata = local.branch2_vm_addr, ttl = "300", type = "A" },
-    { name = lower(local.branch3_vm_fqdn), rdata = local.branch3_vm_addr, ttl = "300", type = "A" },
-    { name = lower(local.branch1_vm_fqdn), rdata = local.branch1_vm_addr_v6, ttl = "300", type = "AAAA" },
-    { name = lower(local.branch2_vm_fqdn), rdata = local.branch2_vm_addr_v6, ttl = "300", type = "AAAA" },
-    { name = lower(local.branch3_vm_fqdn), rdata = local.branch3_vm_addr_v6, ttl = "300", type = "AAAA" },
   ]
   onprem_redirected_hosts = []
 }
@@ -345,26 +313,15 @@ module "probe_vm_cloud_init" {
 # addresses
 ####################################################
 
-# branch1
+# branch2
 
-resource "azurerm_public_ip" "branch1_nva_pip" {
+resource "azurerm_public_ip" "branch2_nva_pip" {
   resource_group_name = azurerm_resource_group.rg.name
-  name                = "${local.branch1_prefix}nva-pip"
-  location            = local.branch1_location
+  name                = "${local.branch2_prefix}nva-pip"
+  location            = local.branch2_location
   sku                 = "Standard"
   allocation_method   = "Static"
-  tags                = local.branch1_tags
-}
-
-# branch3
-
-resource "azurerm_public_ip" "branch3_nva_pip" {
-  count               = length(local.regions) > 1 ? 1 : 0
-  resource_group_name = azurerm_resource_group.rg.name
-  name                = "${local.branch3_prefix}nva-pip"
-  location            = local.branch3_location
-  sku                 = "Standard"
-  allocation_method   = "Static"
+  tags                = local.branch2_tags
 }
 
 # hub1

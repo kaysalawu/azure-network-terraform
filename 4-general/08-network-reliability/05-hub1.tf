@@ -26,13 +26,7 @@ module "hub1" {
   tags            = local.hub1_tags
 
   enable_diagnostics           = local.enable_diagnostics
-  enable_ipv6                  = local.enable_ipv6
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
-  # flow_log_nsg_ids = [
-  #   module.common.nsg_main["region1"].id,
-  # ]
-  # network_watcher_name           = "NetworkWatcher_${local.region1}"
-  # network_watcher_resource_group = "NetworkWatcherRG"
 
   dns_zones_linked_to_vnet = [
     { name = module.common.private_dns_zones[local.region1_dns_zone].name, registration_enabled = true },
@@ -43,7 +37,6 @@ module "hub1" {
   vnets_linked_to_ruleset = [
     { name = "hub1", vnet_id = module.hub1.vnet.id },
     { name = "spoke1", vnet_id = module.spoke1.vnet.id },
-    { name = "spoke2", vnet_id = module.spoke2.vnet.id },
   ]
 
   nsg_subnet_map = {
@@ -94,14 +87,12 @@ module "hub1_vm" {
   custom_data     = base64encode(module.vm_cloud_init.cloud_config)
   tags            = local.hub1_tags
 
-  enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
-      name                 = "${local.hub1_prefix}vm-main-nic"
-      subnet_id            = module.hub1.subnets["MainSubnet"].id
-      private_ip_address   = local.hub1_vm_addr
-      private_ipv6_address = local.hub1_vm_addr_v6
-      create_public_ip     = true
+      name               = "${local.hub1_prefix}vm-main-nic"
+      subnet_id          = module.hub1.subnets["MainSubnet"].id
+      private_ip_address = local.hub1_vm_addr
+      create_public_ip   = true
     },
   ]
   depends_on = [
