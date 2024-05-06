@@ -67,7 +67,7 @@ module "nm_region2" {
 
   connectivity_deployment = {
     configuration_names = ["cc-ng-hubspoke-region2", ]
-    configuration_ids   = [module.nm_mesh_global.connectivity_configurations["cc-ng-mesh-global"].id, ]
+    # configuration_ids   = [module.nm_mesh_global.connectivity_configurations["cc-ng-mesh-global"].id, ]
   }
 
   security_deployment = {

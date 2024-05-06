@@ -26,11 +26,8 @@ main_dirs=(
 3-network-manager
 )
 
-all_dirs=(
-1-hub-and-spoke
-2-virtual-wan
-3-network-manager
-#4-general
+custom_dirs=(
+4-general
 )
 
 function showUsage() {
@@ -41,7 +38,10 @@ function showUsage() {
   --plan, -p     : Run terraform plan on all target directories\n\
   --validate, -v : Run terraform validate on all target directories\n\
   --cleanup, -u  : Delete terraform state files\n\
-  --docs, -d     : Generate terraform docs"
+  --docs, -d     : Generate terraform docs\n\
+  --custom-plan, -cp  : Run custom terraform plan\n\
+  --custom-validate, -cv : Run custom terraform validate\n\
+  --custom-cleanup, -cu : Run custom terraform cleanup"
 }
 
 dir_diff() {
@@ -145,7 +145,7 @@ terraform_docs(){
 }
 
 run_dir_diff() {
-    for dir in "${all_dirs[@]}"; do
+    for dir in "${main_dirs[@]}"; do
         if [ -d "$dir" ]; then
             echo && echo -e "$dir"
             echo "----------------------------------"
@@ -202,7 +202,7 @@ run_delete_files() {
 
 run_terraform_plan() {
     echo
-    for dir in "${all_dirs[@]}"; do
+    for dir in "${main_dirs[@]}"; do
         if [ -d "$dir" ]; then
             echo && echo -e "$dir"
             echo "----------------------------------"
@@ -219,7 +219,7 @@ run_terraform_plan() {
 
 run_terraform_validate() {
     echo
-    for dir in "${all_dirs[@]}"; do
+    for dir in "${main_dirs[@]}"; do
         if [ -d "$dir" ]; then
             echo && echo -e "$dir"
             echo "----------------------------------"
@@ -238,7 +238,7 @@ run_terraform_cleanup() {
     read -p "Delete terraform state? (y/n): " yn
     if [[ $yn == [Yy] ]]; then
         echo
-        for dir in "${all_dirs[@]}"; do
+        for dir in "${main_dirs[@]}"; do
             if [ -d "$dir" ]; then
                 echo && echo -e "$dir"
                 echo "----------------------------------"
@@ -275,24 +275,94 @@ run_terraform_docs() {
     fi
 }
 
-if [[ "$1" == "--diff" || "$1" == "-f" ]]; then
+function run_terraform_plan_custom() {
+    for dir in "${custom_dirs[@]}"; do
+        if [ -d "$dir" ]; then
+            for subdir in "$dir"/*/; do
+                if [ -d "$subdir" ]; then
+                    echo && echo "$(basename "${subdir%/}")"
+                    echo "----------------------------------"
+                    terraform_plan "$subdir"
+                fi
+            done
+        fi
+    done
+}
+
+function run_terraform_validate_custom() {
+    for dir in "${custom_dirs[@]}"; do
+        if [ -d "$dir" ]; then
+            for subdir in "$dir"/*/; do
+                if [ -d "$subdir" ]; then
+                    echo && echo "$(basename "${subdir%/}")"
+                    echo "----------------------------------"
+                    terraform_validate "$subdir"
+                fi
+            done
+        fi
+    done
+}
+
+function run_terraform_cleanup_custom() {
+    read -p "Delete terraform state? (y/n): " yn
+    if [[ $yn == [Yy] ]]; then
+        for dir in "${custom_dirs[@]}"; do
+            if [ -d "$dir" ]; then
+                for subdir in "$dir"/*/; do
+                    if [ -d "$subdir" ]; then
+                        echo && echo "$(basename "${subdir%/}")"
+                        echo "----------------------------------"
+                        terraform_cleanup "$subdir"
+                    fi
+                done
+            fi
+        done
+    elif [[ $yn == [Nn] ]]; then
+        return 1
+    else
+        echo -e "Invalid input. Please answer y or n."
+        return 1
+    fi
+    echo -e "\n${char_celebrate} done!"
+}
+
+case "$1" in
+  "--diff" | "-f")
     echo && run_dir_diff
-elif [[ "$1" == "--copy" || "$1" == "-c" ]]; then
+    ;;
+  "--copy" | "-c")
     echo && run_copy_files
-elif [[ "$1" == "--df" || "$1" == "-x" ]]; then
+    ;;
+  "--delete" | "-x")
     echo && run_delete_files
-elif [[ "$1" == "--plan" || "$1" == "-p" ]]; then
+    ;;
+  "--plan" | "-p")
     echo && run_terraform_plan
-elif [[ "$1" == "--validate" || "$1" == "-v" ]]; then
+    ;;
+  "--validate" | "-v")
     echo && run_terraform_validate
-elif [[ "$1" == "--cleanup" || "$1" == "-u" ]]; then
+    ;;
+  "--cleanup" | "-u")
     echo && run_terraform_cleanup
-elif [[ "$1" == "--docs" || "$1" == "-d" ]]; then
+    ;;
+  "--docs" | "-d")
     echo && run_terraform_docs
-elif [[ "$1" == "--help" || "$1" == "-h" ]]; then
+    ;;
+  "--custom-plan" | "-cp")
+    echo && run_terraform_plan_custom
+    ;;
+  "--custom-validate" | "-cv")
+    echo && run_terraform_validate_custom
+    ;;
+  "--custom-cleanup" | "-cu")
+    echo && run_terraform_cleanup_custom
+    ;;
+  "--help" | "-h")
     showUsage
-else
+    ;;
+  *)
     showUsage
-fi
+    ;;
+esac
 
 cd "$working_dir" || exit
