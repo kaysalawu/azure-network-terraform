@@ -9,7 +9,7 @@
         "allOf": [
           {
             "field": "tags['lab']",
-            "equals": "Ne31"
+            "equals": "Ne32"
           },
           {
             "field": "tags['env']",
@@ -17,7 +17,7 @@
           },
           {
             "field": "location",
-            "equals": "northeurope"
+            "equals": "eastus"
           },
           {
             "anyOf": [
@@ -34,7 +34,7 @@
   "then": {
     "effect": "addToNetworkGroup",
     "details": {
-      "networkGroupId": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Ne31_HubSpoke_Azfw_1Region_RG/providers/Microsoft.Network/networkManagers/Ne31-avnm/networkGroups/Ne31-ng-spokes-prod-region1"
+      "networkGroupId": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Ne32_HubSpoke_Azfw_2Region_RG/providers/Microsoft.Network/networkManagers/Ne32-avnm/networkGroups/ng-hubspoke-region2"
     }
   }
 }

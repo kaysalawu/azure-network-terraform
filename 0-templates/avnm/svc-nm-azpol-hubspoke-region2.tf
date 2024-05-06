@@ -1,7 +1,7 @@
 
 locals {
-  policy_ng_spokes_prod_region2 = templatefile("../../policies/avnm/ng-spokes-prod-region.json", {
-    NETWORK_GROUP_ID = azurerm_network_manager_network_group.ng_spokes_prod_region2.id
+  policy_ng_vnets_region2 = templatefile("../../policies/avnm/ng-vnets-region.json", {
+    NETWORK_GROUP_ID = module.nm_region2.vnet_network_groups["ng-hubspoke-region2"].id
     LOCATION         = local.region2
     LAB_ID           = local.prefix
     ENV              = "prod"
@@ -10,147 +10,93 @@ locals {
 }
 
 ####################################################
-# network groups
+# deployments
 ####################################################
 
-resource "azurerm_network_manager_network_group" "ng_spokes_prod_region2" {
-  name               = "ng-spokes-prod-region2"
-  network_manager_id = local.network_manager.id
-  description        = "All spokes in prod region2"
+# region2
+
+module "nm_region2" {
+  source             = "../../modules/network-manager"
+  resource_group     = azurerm_resource_group.rg.name
+  prefix             = local.prefix
+  location           = local.region2
+  network_manager_id = azurerm_network_manager.avnm.id
+
+  network_groups = [
+    {
+      name        = "ng-hubspoke-region2"
+      description = "All spokes in prod region2"
+      member_type = "VirtualNetwork"
+      static_members = [
+        # module.spoke4.vnet.id,
+        # module.spoke5.vnet.id,
+      ]
+    },
+  ]
+
+  connectivity_configurations = [
+    {
+      deploy                = true
+      name                  = "cc-ng-hubspoke-region2"
+      network_group_name    = "ng-hubspoke-region2"
+      connectivity_topology = "HubAndSpoke"
+      global_mesh_enabled   = false
+      applies_to_group = {
+        group_connectivity  = "None"
+        global_mesh_enabled = false
+        use_hub_gateway     = true
+      }
+      hub = {
+        resource_id   = module.hub2.vnet.id
+        resource_type = "Microsoft.Network/virtualNetworks"
+      }
+    },
+  ]
+
+  security_admin_configurations = [
+    {
+      deploy           = true
+      name             = "sac-ng-hubspoke-region2"
+      rule_collections = []
+    },
+    {
+      name             = "sac2-ng-hubspoke-region2"
+      rule_collections = []
+    },
+  ]
+
+  connectivity_deployment = {
+    configuration_names = ["cc-ng-hubspoke-region2", ]
+    configuration_ids   = [module.nm_mesh_global.connectivity_configurations["cc-ng-mesh-global"].id, ]
+  }
+
+  security_deployment = {
+    configuration_names = ["sac-ng-hubspoke-region2"]
+    configuration_ids   = []
+  }
 }
 
 ####################################################
 # policy definitions
 ####################################################
 
-resource "azurerm_policy_definition" "ng_spokes_prod_region2" {
-  name         = "${local.prefix}-ng-spokes-prod-region2"
+resource "azurerm_policy_definition" "ng_hubspoke_region2" {
+  name         = "${local.prefix}-ng-hubspoke-region2"
   policy_type  = "Custom"
   mode         = "Microsoft.Network.Data"
   display_name = "All spokes in prod region2"
   metadata     = templatefile("../../policies/avnm/metadata.json", {})
-  policy_rule  = local.policy_ng_spokes_prod_region2
+  policy_rule  = local.policy_ng_vnets_region2
 }
 
 ####################################################
 # policy assignments
 ####################################################
 
-resource "azurerm_resource_group_policy_assignment" "ng_spokes_prod_region2" {
-  name                 = "${local.prefix}-ng-spokes-prod-region2"
-  policy_definition_id = azurerm_policy_definition.ng_spokes_prod_region2.id
+resource "azurerm_resource_group_policy_assignment" "ng_hubspoke_region2" {
+  name                 = "${local.prefix}-ng-hubspoke-region2"
+  policy_definition_id = azurerm_policy_definition.ng_hubspoke_region2.id
   resource_group_id    = azurerm_resource_group.rg.id
-}
-
-####################################################
-# configuration
-####################################################
-
-# connectivity
-
-resource "azurerm_network_manager_connectivity_configuration" "conn_config_hub_spoke_region2" {
-  name                  = "conn-config-hub-spoke-region2"
-  network_manager_id    = local.network_manager.id
-  connectivity_topology = "HubAndSpoke"
-  hub {
-    resource_id   = module.hub2.vnet.id
-    resource_type = "Microsoft.Network/virtualNetworks"
-  }
-  applies_to_group {
-    group_connectivity  = "None"
-    network_group_id    = azurerm_network_manager_network_group.ng_spokes_prod_region2.id
-    global_mesh_enabled = false
-    use_hub_gateway     = true
-  }
-  depends_on = [
-    module.hub2
-  ]
-}
-
-# security
-
-resource "azurerm_network_manager_security_admin_configuration" "secadmin_config_region2" {
-  name               = "secadmin-config-region2"
-  network_manager_id = local.network_manager.id
-}
-
-resource "azurerm_network_manager_admin_rule_collection" "secadmin_rule_col_region2" {
-  name                            = "secadmin-rule-col-region2"
-  security_admin_configuration_id = azurerm_network_manager_security_admin_configuration.secadmin_config_region2.id
-  network_group_ids = [
-    azurerm_network_manager_network_group.ng_spokes_prod_region2.id
-  ]
-}
-
-resource "azurerm_network_manager_admin_rule" "secadmin_rules_region2" {
-  for_each                 = local.secadmin_rules_global
-  name                     = "secadmin-rules-region2-${each.key}"
-  admin_rule_collection_id = azurerm_network_manager_admin_rule_collection.secadmin_rule_col_region2.id
-  description              = each.value.description
-  action                   = each.value.action
-  direction                = each.value.direction
-  priority                 = each.value.priority
-  protocol                 = each.value.protocol
-  source_port_ranges       = each.value.destination_port_ranges
-
-  dynamic "source" {
-    for_each = each.value.source
-    content {
-      address_prefix_type = source.value.address_prefix_type
-      address_prefix      = source.value.address_prefix
-    }
-  }
-
-  dynamic "destination" {
-    for_each = each.value.destinations
-    content {
-      address_prefix_type = destination.value.address_prefix_type
-      address_prefix      = destination.value.address_prefix
-    }
-  }
-}
-
-####################################################
-# deployment
-####################################################
-
-# connectivity
-
-resource "azurerm_network_manager_deployment" "conn_config_hub_spoke_region2" {
-  network_manager_id = local.network_manager.id
-  location           = local.region2
-  scope_access       = "Connectivity"
-  configuration_ids = [
-    azurerm_network_manager_connectivity_configuration.conn_config_hub_spoke_region2.id,
-    azurerm_network_manager_connectivity_configuration.conn_config_mesh_float.id,
-  ]
-  triggers = {
-    connectivity_configuration_id = azurerm_network_manager_connectivity_configuration.conn_config_hub_spoke_region2.id
-    policy_json_region2           = local.policy_ng_spokes_prod_region2
-    policy_json_global            = local.policy_ng_spokes_prod_float
-  }
-}
-
-# security
-
-resource "azurerm_network_manager_deployment" "secadmin_config_region2" {
-  network_manager_id = local.network_manager.id
-  location           = local.region2
-  scope_access       = "SecurityAdmin"
-  configuration_ids = [
-    azurerm_network_manager_security_admin_configuration.secadmin_config_region2.id,
-  ]
-  triggers = {
-    connectivity_configuration_id = azurerm_network_manager_security_admin_configuration.secadmin_config_region2.id
-    policy_json                   = local.policy_ng_spokes_prod_region2
-    admin_rule_changes = jsonencode({
-      protocol                = [for rule in local.secadmin_rules_global : rule.protocol]
-      destination_port_ranges = [for rule in local.secadmin_rules_global : rule.destination_port_ranges]
-    })
-  }
-  depends_on = [
-    azurerm_network_manager_deployment.conn_config_hub_spoke_region2,
-  ]
 }
 
 ####################################################
@@ -159,7 +105,7 @@ resource "azurerm_network_manager_deployment" "secadmin_config_region2" {
 
 locals {
   avnm_files_region2 = {
-    "output/policies/pol-ng-spokes-prod-region2.json" = local.policy_ng_spokes_prod_region2
+    "output/policies/pol-ng-vnets-region2.json" = local.policy_ng_vnets_region2
   }
 }
 

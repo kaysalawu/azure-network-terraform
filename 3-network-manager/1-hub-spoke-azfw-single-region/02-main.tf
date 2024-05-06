@@ -41,6 +41,7 @@ provider "azurerm" {
 }
 
 provider "azapi" {}
+provider "cidrblock" {}
 
 terraform {
   required_providers {
@@ -54,6 +55,9 @@ terraform {
     }
     azapi = {
       source = "azure/azapi"
+    }
+    cidrblock = {
+      source = "amilevskiy/cidrblock"
     }
   }
 }
@@ -89,6 +93,7 @@ locals {
 
   hub1_features = {
     config_vnet = {
+      bgp_community               = local.hub1_bgp_community
       address_space               = local.hub1_address_space
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
@@ -167,14 +172,16 @@ locals {
     }
 
     config_nva = {
-      enable          = false
-      type            = null
-      scenario_option = null
-      opn_type        = null
-      custom_data     = null
-      ilb_untrust_ip  = null
-      ilb_trust_ip    = null
-      enable_ipv6     = null
+      enable           = false
+      type             = null
+      scenario_option  = null
+      opn_type         = null
+      custom_data      = null
+      ilb_untrust_ip   = null
+      ilb_trust_ip     = null
+      ilb_untrust_ipv6 = null
+      ilb_trust_ipv6   = null
+      enable_ipv6      = null
     }
   }
 }

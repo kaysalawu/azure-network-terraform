@@ -6,7 +6,7 @@ import os
 import json
 from _megaport import *
 
-def show_help(self):
+def show_help():
     with open('help.txt', 'r') as file:
         help_text = file.read()
     print(help_text)

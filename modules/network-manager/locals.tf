@@ -1,13 +1,8 @@
 
 locals {
-  network_manager = local.use_azapi ? azapi_resource.avnm[0] : azurerm_network_manager.avnm[0]
-  policy_ng_spokes_prod_float = templatefile("../../policies/avnm/ng-spokes-prod-float.json", {
-    NETWORK_GROUP_ID = azurerm_network_manager_network_group.ng_spokes_prod_float.id
-    LAB_ID           = local.prefix
-    ENV              = "prod"
-    NODE_TYPE        = "float"
-  })
-  secadmin_rules_global = {
+  prefix = var.prefix == "" ? "" : format("%s-", var.prefix)
+
+  default_rules_high_risk = {
     "tcp-high-risk" = {
       description = "tcp-high-risk"
       action      = "Deny"

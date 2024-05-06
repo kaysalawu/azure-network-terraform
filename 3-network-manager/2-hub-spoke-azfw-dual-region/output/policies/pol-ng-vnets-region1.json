@@ -9,17 +9,21 @@
         "allOf": [
           {
             "field": "tags['lab']",
-            "equals": "${LAB_ID}"
+            "equals": "Ne32"
           },
           {
             "field": "tags['env']",
             "equals": "prod"
           },
           {
+            "field": "location",
+            "equals": "northeurope"
+          },
+          {
             "anyOf": [
               {
                 "field": "tags['nodeType']",
-                "equals": "hub"
+                "equals": "spoke"
               }
             ]
           }
@@ -30,7 +34,7 @@
   "then": {
     "effect": "addToNetworkGroup",
     "details": {
-      "networkGroupId": "${NETWORK_GROUP_ID}"
+      "networkGroupId": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Ne32_HubSpoke_Azfw_2Region_RG/providers/Microsoft.Network/networkManagers/Ne32-avnm/networkGroups/ng-hubspoke-region1"
     }
   }
 }

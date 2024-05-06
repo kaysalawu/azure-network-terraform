@@ -49,6 +49,7 @@ provider "azurerm" {
 }
 
 provider "azapi" {}
+provider "cidrblock" {}
 
 terraform {
   required_providers {
@@ -62,6 +63,9 @@ terraform {
     }
     azapi = {
       source = "azure/azapi"
+    }
+    cidrblock = {
+      source = "amilevskiy/cidrblock"
     }
   }
 }
@@ -127,6 +131,7 @@ locals {
 
   hub1_features = {
     config_vnet = {
+      bgp_community               = local.hub1_bgp_community
       address_space               = local.hub1_address_space
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
@@ -212,19 +217,22 @@ locals {
     }
 
     config_nva = {
-      enable          = false
-      type            = null
-      scenario_option = null
-      opn_type        = null
-      custom_data     = null
-      ilb_untrust_ip  = null
-      ilb_trust_ip    = null
-      enable_ipv6     = null
+      enable           = false
+      type             = null
+      scenario_option  = null
+      opn_type         = null
+      custom_data      = null
+      ilb_untrust_ip   = null
+      ilb_trust_ip     = null
+      ilb_untrust_ipv6 = null
+      ilb_trust_ipv6   = null
+      enable_ipv6      = null
     }
   }
 
   hub2_features = {
     config_vnet = {
+      bgp_community               = local.hub2_bgp_community
       address_space               = local.hub2_address_space
       subnets                     = local.hub2_subnets
       enable_private_dns_resolver = true
@@ -310,14 +318,16 @@ locals {
     }
 
     config_nva = {
-      enable          = false
-      type            = null
-      scenario_option = null
-      opn_type        = null
-      custom_data     = null
-      ilb_untrust_ip  = null
-      ilb_trust_ip    = null
-      enable_ipv6     = null
+      enable           = false
+      type             = null
+      scenario_option  = null
+      opn_type         = null
+      custom_data      = null
+      ilb_untrust_ip   = null
+      ilb_trust_ip     = null
+      ilb_untrust_ipv6 = null
+      ilb_trust_ipv6   = null
+      enable_ipv6      = null
     }
   }
 }
@@ -612,7 +622,24 @@ module "fw_policy_rule_collection_group" {
     }
   ]
   application_rule_collection = []
-  nat_rule_collection         = []
+  nat_rule_collection = [
+    # {
+    #   name     = "nat-rc"
+    #   priority = 200
+    #   action   = "Dnat"
+    #   rule = [
+    #     {
+    #       name                = "nat-rc-any-to-spoke1vm"
+    #       source_addresses    = ["*"]
+    #       destination_address = "52.169.147.205"
+    #       protocols           = ["TCP"]
+    #       destination_ports   = ["22"]
+    #       translated_address  = "10.1.0.5"
+    #       translated_port     = 22
+    #     }
+    #   ]
+    # }
+  ]
 }
 
 ####################################################
