@@ -25,6 +25,7 @@ module "branch2" {
   }
 
   config_vnet = {
+    bgp_community = local.branch2_bgp_community
     address_space = local.branch2_address_space
     subnets       = local.branch2_subnets
     nat_gateway_subnet_names = [
@@ -38,8 +39,7 @@ module "branch2" {
 
   config_ergw = {
     enable = true
-    # sku    = "ErGw1AZ"
-    sku = "Standard"
+    sku    = "ErGw1AZ"
   }
 
   config_s2s_vpngw = {
