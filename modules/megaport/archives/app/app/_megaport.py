@@ -6,7 +6,7 @@ import os
 import json
 
 class Megaport:
-    def __init__(self, mcr_name, service_key=None, username=None, password=None):
+    def __init__(self, mcr_name=None, service_key=None, username=None, password=None):
         self.base_url = "https://api.megaport.com"
         self.auth_url = "https://auth-m2m.megaport.com/oauth2/token"
         self.username = os.getenv('TF_VAR_megaport_access_key')
@@ -14,21 +14,9 @@ class Megaport:
         if not self.username or not self.password:
             raise ValueError("Username and password must be provided via environment.")
         self.access_token = self.get_access_token()
-        self.mcr = self.get_mcr(mcr_name)
+        self.mcr_name = mcr_name
+        self.mcr = self.get_mcr()
         self.connections = None
-
-    def get_access_token(self):
-        auth_credentials = base64.b64encode(f"{self.username}:{self.password}".encode()).decode()
-        access_token_response = requests.post(self.auth_url, headers={
-            "Authorization": f"Basic {auth_credentials}",
-            "Content-Type": "application/x-www-form-urlencoded"
-        }, data={"grant_type": "client_credentials"})
-
-        access_token = access_token_response.json().get('access_token')
-        if not access_token:
-            sys.exit("MegaportAuth: Failed!")
-        print("MegaportAuth: Success!")
-        return access_token
 
     def list_mcrs(self, search_string=None):
         headers = {
@@ -45,7 +33,20 @@ class Megaport:
             else:
                 print(product.get("productName"))
 
-    def get_mcr(self, product_name):
+    def get_access_token(self):
+        auth_credentials = base64.b64encode(f"{self.username}:{self.password}".encode()).decode()
+        access_token_response = requests.post(self.auth_url, headers={
+            "Authorization": f"Basic {auth_credentials}",
+            "Content-Type": "application/x-www-form-urlencoded"
+        }, data={"grant_type": "client_credentials"})
+
+        access_token = access_token_response.json().get('access_token')
+        if not access_token:
+            sys.exit("MegaportAuth: Failed!")
+        print("MegaportAuth: Success!")
+        return access_token
+
+    def get_mcr(self):
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.access_token}"
@@ -54,15 +55,14 @@ class Megaport:
         all_products = response.json().get("data")
 
         for product in all_products:
-            if product.get("productType") == "MCR2" and product.get("productName") == product_name:
-                self.mcr = product
+            if product.get("productType") == "MCR2" and product.get("productName") == self.mcr_name:
                 return product
 
     def get_connections(self):
         self.connections = self.mcr.get("associatedVxcs")
-        return (json.dumps(self.connections, indent=4))
+        return (self.connections)
 
-    def select_connection(self):
+    def prompt_connection(self):
         if not self.connections:
             self.get_connections()
         print("\nAvailable Connections:")
@@ -75,7 +75,7 @@ class Megaport:
         except (IndexError, ValueError):
             print("Invalid selection.")
 
-    def select_bgp_action(self):
+    def prompt_bgp_action(self):
         actions = ("1. Enable BGP", "2. Disable BGP")
         print("\nSelect BGP action:")
         for action in actions:
@@ -92,7 +92,7 @@ class Megaport:
             print("Invalid selection.")
 
     def interactive_bgp(self):
-        connection = self.select_connection()
+        connection = self.prompt_connection()
         product_uid = connection['productUid']
         csp_connection = connection['resources']['csp_connection']
 
@@ -108,7 +108,7 @@ class Megaport:
                     for bgpConnection in interface['bgpConnections']:
                         current_action = bgpConnection.get('shutdown')
                         print(f"(BGP shutdown is currently {current_action})")
-                        action = self.select_bgp_action()
+                        action = self.prompt_bgp_action()
                         if action == "enable":
                             bgpConnection['shutdown'] = False
                         elif action == "disable":
