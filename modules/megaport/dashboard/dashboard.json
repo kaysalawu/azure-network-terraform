@@ -81,30 +81,30 @@
               "content": {
                 "options": {
                   "chart": {
+                    "grouping": {
+                      "dimension": [
+                        "DeviceRole",
+                        "PeeringType"
+                      ],
+                      "sort": 2,
+                      "top": 10
+                    },
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "BitsOutPerSecond",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/expressroutecircuits",
                         "metricVisualization": {
                           "displayName": "BitsOutPerSecond"
+                        },
+                        "name": "BitsOutPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
                         }
                       }
                     ],
                     "title": "Avg BitsOutPerSecond",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2,
-                        "hideHoverCard": false,
-                        "hideLabelNames": true
-                      },
                       "axisVisualization": {
                         "x": {
                           "axisType": 2,
@@ -115,15 +115,15 @@
                           "isVisible": true
                         }
                       },
-                      "disablePinning": true
-                    },
-                    "grouping": {
-                      "dimension": [
-                        "DeviceRole",
-                        "PeeringType"
-                      ],
-                      "sort": 2,
-                      "top": 10
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 }
@@ -225,13 +225,13 @@
                     "title": "Avg Bgp Availability",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 2,
+                      "chartType": 3,
                       "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
                         "hideSubtitle": false,
                         "isVisible": true,
-                        "position": 2,
-                        "hideHoverCard": false,
-                        "hideLabelNames": true
+                        "position": 2
                       },
                       "axisVisualization": {
                         "x": {
@@ -271,28 +271,27 @@
                   "chart": {
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "QosDropBitsInPerSecond",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/expressroutecircuits",
                         "metricVisualization": {
                           "displayName": "DroppedInBitsPerSecond"
+                        },
+                        "name": "QosDropBitsInPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
                         }
                       }
                     ],
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 14400000
+                      },
+                      "showUTCTime": true
+                    },
                     "title": "Avg Dropped In Bits per Second",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2,
-                        "hideHoverCard": false,
-                        "hideLabelNames": true
-                      },
                       "axisVisualization": {
                         "x": {
                           "axisType": 2,
@@ -302,14 +301,15 @@
                           "axisType": 1,
                           "isVisible": true
                         }
-                      }
-                    },
-                    "timespan": {
-                      "relative": {
-                        "duration": 14400000
                       },
-                      "showUTCTime": true,
-                      "grain": 1
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -327,28 +327,20 @@
                   "chart": {
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "QosDropBitsInPerSecond",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/expressroutecircuits",
                         "metricVisualization": {
                           "displayName": "DroppedInBitsPerSecond"
+                        },
+                        "name": "QosDropBitsInPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
                         }
                       }
                     ],
                     "title": "Avg Dropped Bits In per Second",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2,
-                        "hideHoverCard": false,
-                        "hideLabelNames": true
-                      },
                       "axisVisualization": {
                         "x": {
                           "axisType": 2,
@@ -359,7 +351,15 @@
                           "isVisible": true
                         }
                       },
-                      "disablePinning": true
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 }
@@ -382,39 +382,38 @@
                   "chart": {
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "BitsInPerSecond",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/expressroutecircuits",
                         "metricVisualization": {
                           "displayName": "BitsInPerSecond"
+                        },
+                        "name": "BitsInPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
                         }
                       },
                       {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "BitsOutPerSecond",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/expressroutecircuits",
                         "metricVisualization": {
                           "displayName": "BitsOutPerSecond"
+                        },
+                        "name": "BitsOutPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
                         }
                       }
                     ],
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 14400000
+                      },
+                      "showUTCTime": true
+                    },
                     "title": "Avg BitsInPerSecond",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 3,
-                      "legendVisualization": {
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2,
-                        "hideHoverCard": false,
-                        "hideLabelNames": true
-                      },
                       "axisVisualization": {
                         "x": {
                           "axisType": 2,
@@ -424,14 +423,15 @@
                           "axisType": 1,
                           "isVisible": true
                         }
-                      }
-                    },
-                    "timespan": {
-                      "relative": {
-                        "duration": 14400000
                       },
-                      "showUTCTime": true,
-                      "grain": 1
+                      "chartType": 3,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -447,30 +447,30 @@
               "content": {
                 "options": {
                   "chart": {
+                    "grouping": {
+                      "dimension": [
+                        "DeviceRole",
+                        "PeeringType"
+                      ],
+                      "sort": 2,
+                      "top": 10
+                    },
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "BitsInPerSecond",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/expressroutecircuits",
                         "metricVisualization": {
                           "displayName": "BitsInPerSecond"
+                        },
+                        "name": "BitsInPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
                         }
                       }
                     ],
                     "title": "Avg BitsInPerSecond",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2,
-                        "hideHoverCard": false,
-                        "hideLabelNames": true
-                      },
                       "axisVisualization": {
                         "x": {
                           "axisType": 2,
@@ -481,15 +481,15 @@
                           "isVisible": true
                         }
                       },
-                      "disablePinning": true
-                    },
-                    "grouping": {
-                      "dimension": [
-                        "DeviceRole",
-                        "PeeringType"
-                      ],
-                      "sort": 2,
-                      "top": 10
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 }
@@ -591,13 +591,13 @@
                     "title": "Avg Arp Availability",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 2,
+                      "chartType": 3,
                       "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
                         "hideSubtitle": false,
                         "isVisible": true,
-                        "position": 2,
-                        "hideHoverCard": false,
-                        "hideLabelNames": true
+                        "position": 2
                       },
                       "axisVisualization": {
                         "x": {
@@ -637,28 +637,27 @@
                   "chart": {
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "QosDropBitsOutPerSecond",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/expressroutecircuits",
                         "metricVisualization": {
                           "displayName": "DroppedOutBitsPerSecond"
+                        },
+                        "name": "QosDropBitsOutPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
                         }
                       }
                     ],
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 14400000
+                      },
+                      "showUTCTime": true
+                    },
                     "title": "Avg Dropped Out Bits per Second",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2,
-                        "hideHoverCard": false,
-                        "hideLabelNames": true
-                      },
                       "axisVisualization": {
                         "x": {
                           "axisType": 2,
@@ -668,14 +667,15 @@
                           "axisType": 1,
                           "isVisible": true
                         }
-                      }
-                    },
-                    "timespan": {
-                      "relative": {
-                        "duration": 14400000
                       },
-                      "showUTCTime": true,
-                      "grain": 1
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -693,28 +693,20 @@
                   "chart": {
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "QosDropBitsOutPerSecond",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/expressroutecircuits",
                         "metricVisualization": {
                           "displayName": "DroppedOutBitsPerSecond"
+                        },
+                        "name": "QosDropBitsOutPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
                         }
                       }
                     ],
                     "title": "Avg Dropped Bits Out per Second",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2,
-                        "hideHoverCard": false,
-                        "hideLabelNames": true
-                      },
                       "axisVisualization": {
                         "x": {
                           "axisType": 2,
@@ -725,7 +717,15 @@
                           "isVisible": true
                         }
                       },
-                      "disablePinning": true
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 }
@@ -748,44 +748,44 @@
                   "chart": {
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "FastPathRoutesCountForCircuit",
                         "aggregationType": 3,
-                        "namespace": "microsoft.network/expressroutecircuits",
                         "metricVisualization": {
                           "displayName": "FastPathRoutesCount"
+                        },
+                        "name": "FastPathRoutesCountForCircuit",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
                         }
                       }
                     ],
-                    "title": "Max FastPathRoutesCount for Poc08-er1",
-                    "titleKind": 1,
-                    "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideHoverCard": false,
-                        "hideLabelNames": true
-                      },
-                      "axisVisualization": {
-                        "x": {
-                          "isVisible": true,
-                          "axisType": 2
-                        },
-                        "y": {
-                          "isVisible": true,
-                          "axisType": 1
-                        }
-                      }
-                    },
                     "timespan": {
+                      "grain": 1,
                       "relative": {
                         "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "showUTCTime": false
+                    },
+                    "title": "Max FastPathRoutesCount for Poc08-er1",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -803,38 +803,38 @@
                   "chart": {
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "FastPathRoutesCountForCircuit",
                         "aggregationType": 3,
-                        "namespace": "microsoft.network/expressroutecircuits",
                         "metricVisualization": {
                           "displayName": "FastPathRoutesCount"
+                        },
+                        "name": "FastPathRoutesCountForCircuit",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
                         }
                       }
                     ],
                     "title": "Max FastPathRoutesCount for Poc08-er1",
                     "titleKind": 1,
                     "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideHoverCard": false,
-                        "hideLabelNames": true
-                      },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
-                      "disablePinning": true
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 }
@@ -866,44 +866,44 @@
                   "chart": {
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "GlobalReachBitsInPerSecond",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/expressroutecircuits",
                         "metricVisualization": {
                           "displayName": "GlobalReachBitsInPerSecond"
+                        },
+                        "name": "GlobalReachBitsInPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
                         }
                       }
                     ],
-                    "title": "Avg GlobalReach BitsInPerSecond",
-                    "titleKind": 2,
-                    "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideHoverCard": false,
-                        "hideLabelNames": true
-                      },
-                      "axisVisualization": {
-                        "x": {
-                          "isVisible": true,
-                          "axisType": 2
-                        },
-                        "y": {
-                          "isVisible": true,
-                          "axisType": 1
-                        }
-                      }
-                    },
                     "timespan": {
+                      "grain": 1,
                       "relative": {
                         "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "showUTCTime": false
+                    },
+                    "title": "Avg GlobalReach BitsInPerSecond",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -921,38 +921,38 @@
                   "chart": {
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "GlobalReachBitsInPerSecond",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/expressroutecircuits",
                         "metricVisualization": {
                           "displayName": "GlobalReachBitsInPerSecond"
+                        },
+                        "name": "GlobalReachBitsInPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
                         }
                       }
                     ],
                     "title": "Avg GlobalReach BitsInPerSecond",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideHoverCard": false,
-                        "hideLabelNames": true
-                      },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
-                      "disablePinning": true
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 }
@@ -984,44 +984,44 @@
                   "chart": {
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "GlobalReachBitsOutPerSecond",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/expressroutecircuits",
                         "metricVisualization": {
                           "displayName": "GlobalReachBitsOutPerSecond"
+                        },
+                        "name": "GlobalReachBitsOutPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
                         }
                       }
                     ],
-                    "title": "Avg GlobalReach BitsOutPerSecond",
-                    "titleKind": 2,
-                    "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideHoverCard": false,
-                        "hideLabelNames": true
-                      },
-                      "axisVisualization": {
-                        "x": {
-                          "isVisible": true,
-                          "axisType": 2
-                        },
-                        "y": {
-                          "isVisible": true,
-                          "axisType": 1
-                        }
-                      }
-                    },
                     "timespan": {
+                      "grain": 1,
                       "relative": {
                         "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "showUTCTime": false
+                    },
+                    "title": "Avg GlobalReach BitsOutPerSecond",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -1039,38 +1039,38 @@
                   "chart": {
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "GlobalReachBitsOutPerSecond",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/expressroutecircuits",
                         "metricVisualization": {
                           "displayName": "GlobalReachBitsOutPerSecond"
+                        },
+                        "name": "GlobalReachBitsOutPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
                         }
                       }
                     ],
                     "title": "Avg GlobalReach BitsOutPerSecond",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideHoverCard": false,
-                        "hideLabelNames": true
-                      },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
-                      "disablePinning": true
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 }

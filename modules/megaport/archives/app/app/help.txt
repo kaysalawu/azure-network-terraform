@@ -1,13 +1,14 @@
-Usage: script.py -g RESOURCE_GROUP -c CIRCUIT_NAME -a ACTION
+Usage: main.py [command] -g RESOURCE_GROUP -c CIRCUIT_NAME
 
 This script requires options and arguments:
   -g, --resource-group   The name of the resource group.
   -c, --circuit-name     The name of the circuit.
-  -a, --action           The action to perform (list, start, shutdown).
+
+Commands:
+  list mcr               List all MCRs under the specified resource group and circuit.
 
 Options:
   -h, --helper           Display this help message and exit.
 
 Examples:
-  script.py -g myResourceGroup -c myCircuitName -a shutdown-bgp-connection
-  script.py -g myResourceGroup -c myCircuitName -a start-bgp-connection
+  main.py list mcr -g myResourceGroup -c myCircuitName

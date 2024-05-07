@@ -6,7 +6,7 @@ import os
 import json
 
 class Megaport:
-    def __init__(self, service_key, username=None, password=None):
+    def __init__(self, mcr_name, service_key=None, username=None, password=None):
         self.base_url = "https://api.megaport.com"
         self.auth_url = "https://auth-m2m.megaport.com/oauth2/token"
         self.username = os.getenv('TF_VAR_megaport_access_key')
@@ -14,7 +14,7 @@ class Megaport:
         if not self.username or not self.password:
             raise ValueError("Username and password must be provided via environment.")
         self.access_token = self.get_access_token()
-        self.mcr = None
+        self.mcr = self.get_mcr(mcr_name)
         self.connections = None
 
     def get_access_token(self):
@@ -75,10 +75,9 @@ class Megaport:
         except (IndexError, ValueError):
             print("Invalid selection.")
 
-    def select_bgp_action(self, current_action):
+    def select_bgp_action(self):
         actions = ("1. Enable BGP", "2. Disable BGP")
         print("\nSelect BGP action:")
-        print(f"(BGP shutdown is currently {current_action})")
         for action in actions:
             print(action)
         choice = input("Select an action number: ")
@@ -92,7 +91,7 @@ class Megaport:
         except ValueError:
             print("Invalid selection.")
 
-    def update_connection_bgp(self):
+    def interactive_bgp(self):
         connection = self.select_connection()
         product_uid = connection['productUid']
         csp_connection = connection['resources']['csp_connection']
@@ -108,7 +107,8 @@ class Megaport:
                 for interface in update_data['aEndConfig']['interfaces']:
                     for bgpConnection in interface['bgpConnections']:
                         current_action = bgpConnection.get('shutdown')
-                        action = self.select_bgp_action(current_action)
+                        print(f"(BGP shutdown is currently {current_action})")
+                        action = self.select_bgp_action()
                         if action == "enable":
                             bgpConnection['shutdown'] = False
                         elif action == "disable":
