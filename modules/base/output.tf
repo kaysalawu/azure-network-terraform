@@ -66,6 +66,10 @@ output "ergw" {
   value = try(module.ergw[0].gateway, {})
 }
 
+output "ergw_name" {
+  value = try(module.ergw[0].gateway_name, "")
+}
+
 output "ergw_public_ip" {
   value = try(module.ergw[0].public_ip, {})
 }

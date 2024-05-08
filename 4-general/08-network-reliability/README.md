@@ -336,7 +336,7 @@ Where ***\<AAAA\>*** is a randomly generated two-byte string.
 **5.1.** On your Cloudshell (or local machine), get the storage account hostname and blob URL.
 
 ```sh
-spoke3_storage_account=$(az storage account list -g Poc08_HubSpoke_Azfw_1Region_RG --query "[?contains(name, 'hs11spoke3sa')].name" -o tsv)
+spoke3_storage_account=$(az storage account list -g Poc08_Network_SRE_RG --query "[?contains(name, 'hs11spoke3sa')].name" -o tsv)
 
 spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
 spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
@@ -449,7 +449,7 @@ azureuser@branch1Vm:~$ az login --identity
 **6.3.** Get the storage account hostname and blob URL.
 
 ```sh
-spoke3_storage_account=$(az storage account list -g Poc08_HubSpoke_Azfw_1Region_RG --query "[?contains(name, 'hs11spoke3sa')].name" -o tsv)
+spoke3_storage_account=$(az storage account list -g Poc08_Network_SRE_RG --query "[?contains(name, 'hs11spoke3sa')].name" -o tsv)
 
 spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
 spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
@@ -835,7 +835,7 @@ cd azure-network-terraform/1-hub-and-spoke/1-hub-spoke-azfw-single-region
 2\. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
 ```sh
-bash ../../scripts/_cleanup.sh Poc08_HubSpoke_Azfw_1Region_RG
+bash ../../scripts/_cleanup.sh Poc08_Network_SRE_RG
 ```
 
 <details>
@@ -843,19 +843,20 @@ bash ../../scripts/_cleanup.sh Poc08_HubSpoke_Azfw_1Region_RG
 <summary>Sample output</summary>
 
 ```sh
-1-hub-spoke-azfw-single-region$    bash ../../scripts/_cleanup.sh Poc08_HubSpoke_Azfw_1Region_RG
+08-network-reliability$ bash ../../scripts/_cleanup.sh Poc08_Network_SRE_RG
 
-Resource group: Poc08_HubSpoke_Azfw_1Region_RG
+Resource group: Poc08_Network_SRE_RG
 
-⏳ Checking for diagnostic settings on resources in Poc08_HubSpoke_Azfw_1Region_RG ...
+⏳ Checking for diagnostic settings on resources in Poc08_Network_SRE_RG ...
 ➜  Checking firewall ...
-    ❌ Deleting: diag setting [Poc08-hub1-azfw-diag] for firewall [Poc08-hub1-azfw] ...
 ➜  Checking vnet gateway ...
+    ❌ Deleting: diag setting [Poc08-hub1-ergw-diag] for vnet gateway [Poc08-hub1-ergw] ...
     ❌ Deleting: diag setting [Poc08-hub1-vpngw-diag] for vnet gateway [Poc08-hub1-vpngw] ...
 ➜  Checking vpn gateway ...
 ➜  Checking er gateway ...
 ➜  Checking app gateway ...
-⏳ Checking for azure policies in Poc08RG ...
+⏳ Checking for azure policies in Poc08_Network_SRE_RG ...
+
 Done!
 ```
 
@@ -865,7 +866,7 @@ Done!
 3\. Delete the resource group to remove all resources installed.
 
 ```sh
-az group delete -g Poc08_HubSpoke_Azfw_1Region_RG --no-wait
+az group delete -g Poc08_Network_SRE_RG --no-wait
 ```
 
 4\. Delete terraform state files and other generated files.

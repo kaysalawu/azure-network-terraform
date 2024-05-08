@@ -14,6 +14,8 @@ module "branch2" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.branch2_tags
 
+  log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
+
   enable_diagnostics = local.enable_diagnostics
 
   nsg_subnet_map = {

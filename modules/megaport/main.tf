@@ -201,13 +201,13 @@ resource "azurerm_express_route_connection" "vwan" {
   express_route_circuit_peering_id = azurerm_express_route_circuit_peering.this[local.vwan_connections[count.index].name].id
 }
 
+###################################################
 # dashboard
-# ----------------------------
+###################################################
 
 locals {
-  dashboard_vars = { for c in var.circuits :
-    c.name => templatefile("${path.module}/dashboard/dashboard.json", {
-      ER_CIRCUIT_ID = azurerm_express_route_circuit.this[c.name].id
+  dashboard_vars = { for c in var.circuits : c.name => templatefile("${path.module}/dashboard/dashboard.json", {
+    ER_CIRCUIT_ID = azurerm_express_route_circuit.this[c.name].id
     })
   }
 }
@@ -226,6 +226,10 @@ resource "azurerm_portal_dashboard" "express_route" {
 
 locals {
   main_files = {
+    "output/express-route/app/app/main.py"           = templatefile("${path.module}/archives/app/app/main.py", {})
+    "output/express-route/app/app/_megaport.py"      = templatefile("${path.module}/archives/app/app/_megaport.py", {})
+    "output/express-route/app/app/network-tester.sh" = templatefile("${path.module}/archives/app/app/network-tester.sh", {})
+    "output/express-route/app/app/requirements.txt"  = templatefile("${path.module}/archives/app/app/requirements.txt", {})
     "output/express-route/cleanup.sh" = templatefile("${path.module}/scripts/cleanup.sh", {
       RESOURCE_GROUP = var.resource_group
     })

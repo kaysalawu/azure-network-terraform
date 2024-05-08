@@ -14,6 +14,8 @@ module "branch1" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.branch1_tags
 
+  log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
+
   enable_diagnostics = local.enable_diagnostics
   enable_ipv6        = local.enable_ipv6
 

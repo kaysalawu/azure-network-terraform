@@ -9,6 +9,10 @@ char_celebrate="\u2B50"
 char_executing="\u23F3"
 char_arrow="\u279C"
 
+echo -e "\n#######################################"
+echo -e "Script: $(basename $0)"
+echo "#######################################"
+
 rg=$1
 echo -e "\nResource group: $rg\n"
 
@@ -29,10 +33,36 @@ delete_express_route_gateway_connections(){
         echo -e "$char_executing Processing circuit: $circuit"
         for connection in $(az network vpn-connection list -g "$rg" --query "[?contains(connectionType, 'ExpressRoute')].name" -o tsv); do
             echo -e "$char_question Deleting connection: $connection"
-            az network vpn-connection delete -g "$rg" -n "$connection"
+            az network vpn-connection delete -g "$rg" -n "$connection" --no-wait
             echo -e "$char_delete Deleted connection: $connection"
         done
     done
 }
 
+check_gateway_connection_status() {
+  local all_deleted
+  echo -e "$char_executing Checking status of gateway connections ..."
+  while true; do
+    all_deleted=true
+    mapfile -t circuits < <(az network express-route list -g "$rg" --query '[].name' -o tsv)
+    for circuit in "${circuits[@]}"; do
+      mapfile -t connections < <(az network vpn-connection list -g "$rg" --query "[?contains(connectionType, 'ExpressRoute')].name" -o tsv)
+      for connection in "${connections[@]}"; do
+        if [[ -n "$connection" ]]; then
+          echo -e "     - $char_executing Waiting for connection: $connection to delete..."
+          all_deleted=false
+        fi
+      done
+    done
+    if [[ $all_deleted == true ]]; then
+      echo -e "   $char_pass All gateway connections deleted successfully."
+      break
+    else
+      echo -e "   $char_arrow Gateway connections are still deleting. Checking again in 30 seconds..."
+      sleep 30
+    fi
+  done
+}
+
 delete_express_route_gateway_connections
+# check_gateway_connection_status

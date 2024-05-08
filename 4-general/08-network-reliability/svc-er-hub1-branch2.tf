@@ -46,15 +46,15 @@ module "megaport" {
 
   circuits = [
     {
-      name              = "${local.prefix}-er1"
-      mcr_name          = "mcr1"
-      location          = local.region1
-      peering_location  = local.express_route_location
-      bandwidth_in_mbps = local.bandwidth_in_mbps
-      requested_vlan    = local.megaport_vlan1
-
-      virtual_network_gateway_id  = module.hub1.ergw.id
-      auto_create_private_peering = false
+      name                         = "${local.prefix}-er1"
+      mcr_name                     = "mcr1"
+      location                     = local.region1
+      peering_location             = local.express_route_location
+      bandwidth_in_mbps            = local.bandwidth_in_mbps
+      requested_vlan               = local.megaport_vlan1
+      virtual_network_gateway_name = module.hub1.ergw_name
+      enable_mcr_auto_peering      = false
+      enable_mcr_peering           = true
 
       ipv4_config = {
         primary_peer_address_prefix   = local.csp_range1
@@ -62,15 +62,15 @@ module "megaport" {
       }
     },
     {
-      name              = "${local.prefix}-er2"
-      mcr_name          = "mcr1"
-      location          = local.region1
-      peering_location  = local.express_route_location
-      bandwidth_in_mbps = local.bandwidth_in_mbps
-      requested_vlan    = local.megaport_vlan2
-
-      virtual_network_gateway_id  = module.hub1.ergw.id
-      auto_create_private_peering = false
+      name                         = "${local.prefix}-er2"
+      mcr_name                     = "mcr1"
+      location                     = local.region1
+      peering_location             = local.express_route_location
+      bandwidth_in_mbps            = local.bandwidth_in_mbps
+      requested_vlan               = local.megaport_vlan2
+      virtual_network_gateway_name = module.hub1.ergw_name
+      enable_mcr_auto_peering      = false
+      enable_mcr_peering           = true
 
       ipv4_config = {
         primary_peer_address_prefix   = local.csp_range3
@@ -78,15 +78,15 @@ module "megaport" {
       }
     },
     {
-      name              = "${local.prefix}-er3"
-      mcr_name          = "mcr1"
-      location          = local.region1
-      peering_location  = local.express_route_location
-      bandwidth_in_mbps = local.bandwidth_in_mbps
-      requested_vlan    = local.megaport_vlan3
-
-      virtual_network_gateway_id  = module.branch2.ergw.id
-      auto_create_private_peering = false
+      name                         = "${local.prefix}-er3"
+      mcr_name                     = "mcr1"
+      location                     = local.region1
+      peering_location             = local.express_route_location
+      bandwidth_in_mbps            = local.bandwidth_in_mbps
+      requested_vlan               = local.megaport_vlan3
+      virtual_network_gateway_name = module.branch2.ergw_name
+      enable_mcr_auto_peering      = false
+      enable_mcr_peering           = true
 
       ipv4_config = {
         primary_peer_address_prefix   = local.csp_range5
@@ -96,3 +96,23 @@ module "megaport" {
   ]
 }
 
+###################################################
+# dashboard
+###################################################
+
+locals {
+  dashboard_vars = templatefile("./dashboard/system-dashboard.json", {
+    ER1_CIRCUIT_NAME = module.megaport.express_route_circuit["${local.prefix}-er1"].name,
+    ER2_CIRCUIT_NAME = module.megaport.express_route_circuit["${local.prefix}-er2"].name,
+    ER1_CIRCUIT_ID   = module.megaport.express_route_circuit["${local.prefix}-er1"].id,
+    ER2_CIRCUIT_ID   = module.megaport.express_route_circuit["${local.prefix}-er2"].id,
+    HUB1_ERGW_ID     = module.hub1.ergw.id,
+  })
+}
+
+resource "azurerm_portal_dashboard" "express_route" {
+  resource_group_name  = azurerm_resource_group.rg.name
+  location             = azurerm_resource_group.rg.location
+  name                 = "${local.prefix}-system-dashboard"
+  dashboard_properties = local.dashboard_vars
+}
