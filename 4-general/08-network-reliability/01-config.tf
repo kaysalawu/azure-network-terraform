@@ -64,6 +64,10 @@ locals {
   ]
   # private_prefixes_map    = { for i, prefix in local.private_prefixes : i => prefix }
   # private_prefixes_v6_map = { for i, prefix in local.private_prefixes_v6 : i => prefix }
+
+  azure_asn          = 12076
+  azure_internal_asn = 65515
+  megaport_asn       = 64512
 }
 
 # vhub1
@@ -185,7 +189,7 @@ locals {
 locals {
   spoke1_prefix        = local.prefix == "" ? "spoke1-" : join("-", [local.prefix, "spoke1-"])
   spoke1_location      = local.region1
-  spoke1_address_space = ["10.1.0.0/20", "fd00:db8:1::/56", ]
+  spoke1_address_space = ["10.1.0.0/20", ]
   spoke1_bgp_community = "12076:20001"
   spoke1_dns_zone      = local.region1_dns_zone
   spoke1_subnets = {

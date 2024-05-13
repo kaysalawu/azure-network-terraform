@@ -67,4 +67,4 @@
 | VM_IP   | 10.1.0.5   |
 | VM_NAME   | Poc08-spoke1Vm   |
 | VNET_NAME   | Poc08-spoke1-vnet   |
-| VNET_RANGES   | 10.1.0.0/20, fd00:db8:1::/56   |
+| VNET_RANGES   | 10.1.0.0/20   |

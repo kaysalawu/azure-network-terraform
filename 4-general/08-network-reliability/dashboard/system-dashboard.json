@@ -91,38 +91,30 @@
               "content": {
                 "options": {
                   "chart": {
-                    "grouping": {
-                      "dimension": "DeviceRole",
-                      "sort": 2,
-                      "top": 10
-                    },
                     "metrics": [
                       {
-                        "aggregationType": 4,
-                        "metricVisualization": {
-                          "displayName": "BitsInPerSecond"
+                        "resourceMetadata": {
+                          "id": "${ER1_CIRCUIT_ID}"
                         },
                         "name": "BitsInPerSecond",
-                        "namespace": "microsoft.network/expressroutecircuits",
-                        "resourceMetadata": {
-                          "id": "${ER1_CIRCUIT_ID}"
-                        }
-                      },
-                      {
                         "aggregationType": 4,
-                        "metricVisualization": {
-                          "displayName": "BitsOutPerSecond"
-                        },
-                        "name": "BitsOutPerSecond",
                         "namespace": "microsoft.network/expressroutecircuits",
-                        "resourceMetadata": {
-                          "id": "${ER1_CIRCUIT_ID}"
+                        "metricVisualization": {
+                          "displayName": "BitsInPerSecond"
                         }
                       }
                     ],
-                    "title": "${ER1_CIRCUIT_NAME} Bits In/Out PerSecond [Avg]",
+                    "title": "${ER1_CIRCUIT_NAME} Bits In PerSecond [Avg]",
                     "titleKind": 2,
                     "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      },
                       "axisVisualization": {
                         "x": {
                           "axisType": 2,
@@ -133,15 +125,12 @@
                           "isVisible": true
                         }
                       },
-                      "chartType": 2,
-                      "disablePinning": true,
-                      "legendVisualization": {
-                        "hideHoverCard": false,
-                        "hideLabelNames": true,
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2
-                      }
+                      "disablePinning": true
+                    },
+                    "grouping": {
+                      "dimension": "DeviceRole",
+                      "sort": 2,
+                      "top": 10
                     }
                   }
                 }
@@ -153,7 +142,7 @@
           "position": {
             "x": 4,
             "y": 0,
-            "colSpan": 3,
+            "colSpan": 4,
             "rowSpan": 4
           },
           "metadata": {
@@ -262,146 +251,23 @@
                   }
                 }
               }
+            },
+            "filters": {
+              "MsPortalFx_TimeRange": {
+                "model": {
+                  "format": "utc",
+                  "granularity": "auto",
+                  "relative": "60m"
+                }
+              }
             }
           }
         },
         "2": {
           "position": {
-            "x": 7,
+            "x": 8,
             "y": 0,
-            "colSpan": 4,
-            "rowSpan": 4
-          },
-          "metadata": {
-            "inputs": [
-              {
-                "name": "sharedTimeRange",
-                "isOptional": true
-              },
-              {
-                "name": "options",
-                "value": {
-                  "chart": {
-                    "grouping": {
-                      "dimension": "roleInstance",
-                      "sort": 2,
-                      "top": 10
-                    },
-                    "metrics": [
-                      {
-                        "aggregationType": 4,
-                        "metricVisualization": {
-                          "displayName": "Bits Received Per second",
-                          "resourceDisplayName": "Poc08-hub1-ergw"
-                        },
-                        "name": "ExpressRouteGatewayBitsPerSecond",
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "resourceMetadata": {
-                          "id": "${HUB1_ERGW_ID}"
-                        }
-                      }
-                    ],
-                    "timespan": {
-                      "grain": 1,
-                      "relative": {
-                        "duration": 14400000
-                      },
-                      "showUTCTime": false
-                    },
-                    "title": "Poc08-hub1-ergw - Bits Received Per Second [Avg]",
-                    "titleKind": 2,
-                    "visualization": {
-                      "axisVisualization": {
-                        "x": {
-                          "axisType": 2,
-                          "isVisible": true
-                        },
-                        "y": {
-                          "axisType": 1,
-                          "isVisible": true
-                        }
-                      },
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "hideHoverCard": false,
-                        "hideLabelNames": true,
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2
-                      }
-                    }
-                  }
-                },
-                "isOptional": true
-              }
-            ],
-            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
-            "settings": {
-              "content": {
-                "options": {
-                  "chart": {
-                    "grouping": {
-                      "dimension": "roleInstance",
-                      "sort": 2,
-                      "top": 10
-                    },
-                    "metrics": [
-                      {
-                        "aggregationType": 4,
-                        "metricVisualization": {
-                          "displayName": "Bits Received Per second",
-                          "resourceDisplayName": "Poc08-hub1-ergw"
-                        },
-                        "name": "ExpressRouteGatewayBitsPerSecond",
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "resourceMetadata": {
-                          "id": "${HUB1_ERGW_ID}"
-                        }
-                      }
-                    ],
-                    "title": "Poc08-hub1-ergw - Bits Received Per Second [Avg]",
-                    "titleKind": 2,
-                    "visualization": {
-                      "axisVisualization": {
-                        "x": {
-                          "axisType": 2,
-                          "isVisible": true
-                        },
-                        "y": {
-                          "axisType": 1,
-                          "isVisible": true
-                        }
-                      },
-                      "chartType": 2,
-                      "disablePinning": true,
-                      "legendVisualization": {
-                        "hideHoverCard": false,
-                        "hideLabelNames": true,
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "filters": {
-              "MsPortalFx_TimeRange": {
-                "model": {
-                  "format": "local",
-                  "granularity": "auto",
-                  "relative": "240m"
-                }
-              }
-            }
-          }
-        },
-        "3": {
-          "position": {
-            "x": 11,
-            "y": 0,
-            "colSpan": 4,
+            "colSpan": 5,
             "rowSpan": 4
           },
           "metadata": {
@@ -439,7 +305,7 @@
                       },
                       "showUTCTime": true
                     },
-                    "title": "Poc08-hub1-ergw - Count Of Routes Learned from Peer [Max]",
+                    "title": "${HUB1_ERGW_NAME} - Count Of Routes Learned from Peer [Max]",
                     "titleKind": 2,
                     "visualization": {
                       "axisVisualization": {
@@ -471,25 +337,128 @@
               "content": {
                 "options": {
                   "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${HUB1_ERGW_ID}"
+                        },
+                        "name": "ExpressRouteGatewayCountOfRoutesLearnedFromPeer",
+                        "aggregationType": 3,
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "metricVisualization": {
+                          "displayName": "Count Of Routes Learned from Peer"
+                        }
+                      }
+                    ],
+                    "title": "${HUB1_ERGW_NAME} IN_0 - Routes Learned [Max]",
+                    "titleKind": 2,
+                    "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "disablePinning": true
+                    },
                     "grouping": {
-                      "dimension": "BgpPeerAddress",
+                      "dimension": [
+                        "roleInstance",
+                        "BgpPeerAddress"
+                      ],
+                      "sort": 2,
+                      "top": 10
+                    }
+                  }
+                }
+              }
+            },
+            "filters": {
+              "roleInstance": {
+                "model": {
+                  "operator": "equals",
+                  "values": [
+                    "GatewayTenantWorker_IN_0"
+                  ]
+                }
+              },
+              "BgpPeerAddress": {
+                "model": {
+                  "operator": "equals",
+                  "values": [
+                    "10.11.16.6-ExpressRoute Device",
+                    "10.11.16.7-ExpressRoute Device",
+                    "10.11.16.8-ExpressRoute Device",
+                    "10.11.16.9-ExpressRoute Device"
+                  ]
+                }
+              },
+              "MsPortalFx_TimeRange": {
+                "model": {
+                  "format": "utc",
+                  "granularity": "auto",
+                  "relative": "60m"
+                }
+              }
+            }
+          }
+        },
+        "3": {
+          "position": {
+            "x": 13,
+            "y": 0,
+            "colSpan": 4,
+            "rowSpan": 4
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              },
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "grouping": {
+                      "dimension": "roleInstance",
                       "sort": 2,
                       "top": 10
                     },
                     "metrics": [
                       {
-                        "aggregationType": 3,
+                        "aggregationType": 4,
                         "metricVisualization": {
-                          "displayName": "Count Of Routes Learned from Peer"
+                          "displayName": "Bits Received Per second",
+                          "resourceDisplayName": "${HUB1_ERGW_NAME}"
                         },
-                        "name": "ExpressRouteGatewayCountOfRoutesLearnedFromPeer",
+                        "name": "ExpressRouteGatewayBitsPerSecond",
                         "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${HUB1_ERGW_ID}"
                         }
                       }
                     ],
-                    "title": "Poc08-hub1-ergw - Routes Learned [Max]",
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 14400000
+                      },
+                      "showUTCTime": false
+                    },
+                    "title": "${HUB1_ERGW_NAME} - Bits Received Per Second [Avg]",
                     "titleKind": 2,
                     "visualization": {
                       "axisVisualization": {
@@ -502,8 +471,7 @@
                           "isVisible": true
                         }
                       },
-                      "chartType": 5,
-                      "disablePinning": true,
+                      "chartType": 2,
                       "legendVisualization": {
                         "hideHoverCard": false,
                         "hideLabelNames": true,
@@ -513,6 +481,67 @@
                       }
                     }
                   }
+                },
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "resourceMetadata": {
+                          "id": "${HUB1_ERGW_ID}"
+                        },
+                        "name": "ExpressRouteGatewayBitsPerSecond",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "metricVisualization": {
+                          "displayName": "Bits Received Per second",
+                          "resourceDisplayName": "${HUB1_ERGW_NAME}"
+                        }
+                      }
+                    ],
+                    "title": "${HUB1_ERGW_NAME} - Bits Received Per Second [Avg]",
+                    "titleKind": 2,
+                    "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      },
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "disablePinning": true
+                    },
+                    "grouping": {
+                      "dimension": "roleInstance",
+                      "sort": 2,
+                      "top": 10
+                    }
+                  }
+                }
+              }
+            },
+            "filters": {
+              "MsPortalFx_TimeRange": {
+                "model": {
+                  "format": "local",
+                  "granularity": "auto",
+                  "relative": "60m"
                 }
               }
             }
@@ -603,38 +632,30 @@
               "content": {
                 "options": {
                   "chart": {
-                    "grouping": {
-                      "dimension": "DeviceRole",
-                      "sort": 2,
-                      "top": 10
-                    },
                     "metrics": [
                       {
-                        "aggregationType": 4,
-                        "metricVisualization": {
-                          "displayName": "BitsOutPerSecond"
-                        },
-                        "name": "BitsOutPerSecond",
-                        "namespace": "microsoft.network/expressroutecircuits",
                         "resourceMetadata": {
                           "id": "${ER2_CIRCUIT_ID}"
-                        }
-                      },
-                      {
-                        "aggregationType": 4,
-                        "metricVisualization": {
-                          "displayName": "BitsInPerSecond"
                         },
                         "name": "BitsInPerSecond",
+                        "aggregationType": 4,
                         "namespace": "microsoft.network/expressroutecircuits",
-                        "resourceMetadata": {
-                          "id": "${ER2_CIRCUIT_ID}"
+                        "metricVisualization": {
+                          "displayName": "BitsInPerSecond"
                         }
                       }
                     ],
-                    "title": "${ER2_CIRCUIT_NAME} Bits In/Out PerSecond [Avg]",
+                    "title": "${ER2_CIRCUIT_NAME} Bits In PerSecond [Avg]",
                     "titleKind": 2,
                     "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      },
                       "axisVisualization": {
                         "x": {
                           "axisType": 2,
@@ -645,15 +666,12 @@
                           "isVisible": true
                         }
                       },
-                      "chartType": 2,
-                      "disablePinning": true,
-                      "legendVisualization": {
-                        "hideHoverCard": false,
-                        "hideLabelNames": true,
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2
-                      }
+                      "disablePinning": true
+                    },
+                    "grouping": {
+                      "dimension": "DeviceRole",
+                      "sort": 2,
+                      "top": 10
                     }
                   }
                 }
@@ -665,7 +683,7 @@
           "position": {
             "x": 4,
             "y": 4,
-            "colSpan": 3,
+            "colSpan": 4,
             "rowSpan": 4
           },
           "metadata": {
@@ -784,52 +802,41 @@
         },
         "6": {
           "position": {
-            "x": 7,
+            "x": 8,
             "y": 4,
-            "colSpan": 4,
+            "colSpan": 5,
             "rowSpan": 4
           },
           "metadata": {
             "inputs": [
               {
-                "name": "sharedTimeRange",
-                "isOptional": true
-              },
-              {
                 "name": "options",
                 "value": {
                   "chart": {
-                    "grouping": {
-                      "dimension": [
-                        "roleInstance",
-                        "direction"
-                      ],
-                      "sort": 2,
-                      "top": 10
-                    },
                     "metrics": [
                       {
-                        "aggregationType": 3,
-                        "metricVisualization": {
-                          "displayName": "Max Flows Created Per Second"
-                        },
-                        "name": "ExpressRouteGatewayMaxFlowsCreationRate",
-                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${HUB1_ERGW_ID}"
+                        },
+                        "name": "ExpressRouteGatewayCountOfRoutesLearnedFromPeer",
+                        "aggregationType": 3,
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "metricVisualization": {
+                          "displayName": "Count Of Routes Learned from Peer"
                         }
                       }
                     ],
-                    "timespan": {
-                      "grain": 1,
-                      "relative": {
-                        "duration": 14400000
-                      },
-                      "showUTCTime": true
-                    },
-                    "title": "Poc08-hub1-ergw - Max Flows Created Per Second [Max]",
+                    "title": "${HUB1_ERGW_NAME} IN_1 - Routes Learned [Max]",
                     "titleKind": 2,
                     "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      },
                       "axisVisualization": {
                         "x": {
                           "axisType": 2,
@@ -839,18 +846,50 @@
                           "axisType": 1,
                           "isVisible": true
                         }
-                      },
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "hideHoverCard": false,
-                        "hideLabelNames": true,
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2
                       }
+                    },
+                    "filterCollection": {
+                      "filters": [
+                        {
+                          "key": "roleInstance",
+                          "operator": 0,
+                          "values": [
+                            "GatewayTenantWorker_IN_1"
+                          ]
+                        },
+                        {
+                          "key": "BgpPeerAddress",
+                          "operator": 0,
+                          "values": [
+                            "10.11.16.6-ExpressRoute Device",
+                            "10.11.16.7-ExpressRoute Device",
+                            "10.11.16.8-ExpressRoute Device",
+                            "10.11.16.9-ExpressRoute Device"
+                          ]
+                        }
+                      ]
+                    },
+                    "grouping": {
+                      "dimension": [
+                        "roleInstance",
+                        "BgpPeerAddress"
+                      ],
+                      "sort": 2,
+                      "top": 10
+                    },
+                    "timespan": {
+                      "relative": {
+                        "duration": 3600000
+                      },
+                      "showUTCTime": true,
+                      "grain": 1
                     }
                   }
                 },
+                "isOptional": true
+              },
+              {
+                "name": "sharedTimeRange",
                 "isOptional": true
               }
             ],
@@ -859,30 +898,30 @@
               "content": {
                 "options": {
                   "chart": {
-                    "grouping": {
-                      "dimension": [
-                        "roleInstance",
-                        "direction"
-                      ],
-                      "sort": 2,
-                      "top": 10
-                    },
                     "metrics": [
                       {
-                        "aggregationType": 4,
-                        "metricVisualization": {
-                          "displayName": "Active Flows"
-                        },
-                        "name": "ExpressRouteGatewayActiveFlows",
-                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${HUB1_ERGW_ID}"
+                        },
+                        "name": "ExpressRouteGatewayCountOfRoutesLearnedFromPeer",
+                        "aggregationType": 3,
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "metricVisualization": {
+                          "displayName": "Count Of Routes Learned from Peer"
                         }
                       }
                     ],
-                    "title": "Poc08-hub1-ergw - Active Flows [Avg]",
+                    "title": "${HUB1_ERGW_NAME} IN_1 - Routes Learned [Max]",
                     "titleKind": 2,
                     "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      },
                       "axisVisualization": {
                         "x": {
                           "axisType": 2,
@@ -893,26 +932,38 @@
                           "isVisible": true
                         }
                       },
-                      "chartType": 2,
-                      "disablePinning": true,
-                      "legendVisualization": {
-                        "hideHoverCard": false,
-                        "hideLabelNames": true,
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2
-                      }
+                      "disablePinning": true
+                    },
+                    "grouping": {
+                      "dimension": [
+                        "roleInstance",
+                        "BgpPeerAddress"
+                      ],
+                      "sort": 2,
+                      "top": 10
                     }
                   }
                 }
               }
             },
             "filters": {
-              "MsPortalFx_TimeRange": {
+              "roleInstance": {
                 "model": {
-                  "format": "utc",
-                  "granularity": "auto",
-                  "relative": "240m"
+                  "operator": "equals",
+                  "values": [
+                    "GatewayTenantWorker_IN_1"
+                  ]
+                }
+              },
+              "BgpPeerAddress": {
+                "model": {
+                  "operator": "equals",
+                  "values": [
+                    "10.11.16.6-ExpressRoute Device",
+                    "10.11.16.7-ExpressRoute Device",
+                    "10.11.16.8-ExpressRoute Device",
+                    "10.11.16.9-ExpressRoute Device"
+                  ]
                 }
               }
             }
@@ -920,7 +971,7 @@
         },
         "7": {
           "position": {
-            "x": 11,
+            "x": 13,
             "y": 4,
             "colSpan": 4,
             "rowSpan": 4
@@ -928,41 +979,34 @@
           "metadata": {
             "inputs": [
               {
-                "name": "sharedTimeRange",
-                "isOptional": true
-              },
-              {
                 "name": "options",
                 "value": {
                   "chart": {
-                    "grouping": {
-                      "dimension": "BgpPeerAddress",
-                      "sort": 2,
-                      "top": 10
-                    },
                     "metrics": [
                       {
-                        "aggregationType": 3,
-                        "metricVisualization": {
-                          "displayName": "Count Of Routes Advertised to Peer"
-                        },
-                        "name": "ExpressRouteGatewayCountOfRoutesAdvertisedToPeer",
-                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${HUB1_ERGW_ID}"
+                        },
+                        "name": "ExpressRouteGatewayActiveFlows",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "metricVisualization": {
+                          "displayName": "Active Flows",
+                          "resourceDisplayName": "${HUB1_ERGW_NAME}"
                         }
                       }
                     ],
-                    "timespan": {
-                      "grain": 1,
-                      "relative": {
-                        "duration": 14400000
-                      },
-                      "showUTCTime": true
-                    },
-                    "title": "Poc08-hub1-ergw - Count Of Routes Advertised to Peer [Max]",
+                    "title": "${HUB1_ERGW_NAME} - Active Flows [Avg]",
                     "titleKind": 2,
                     "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      },
                       "axisVisualization": {
                         "x": {
                           "axisType": 2,
@@ -972,19 +1016,26 @@
                           "axisType": 1,
                           "isVisible": true
                         }
+                      }
+                    },
+                    "grouping": {
+                      "dimension": "roleInstance",
+                      "sort": 2,
+                      "top": 10
+                    },
+                    "timespan": {
+                      "relative": {
+                        "duration": 3600000
                       },
-                      "chartType": 5,
-                      "legendVisualization": {
-                        "hideHoverCard": false,
-                        "hideLabelNames": true,
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2
-                      },
-                      "sortIndex": 1
+                      "showUTCTime": false,
+                      "grain": 1
                     }
                   }
                 },
+                "isOptional": true
+              },
+              {
+                "name": "sharedTimeRange",
                 "isOptional": true
               }
             ],
@@ -993,27 +1044,31 @@
               "content": {
                 "options": {
                   "chart": {
-                    "grouping": {
-                      "dimension": "BgpPeerAddress",
-                      "sort": 2,
-                      "top": 10
-                    },
                     "metrics": [
                       {
-                        "aggregationType": 3,
-                        "metricVisualization": {
-                          "displayName": "Count Of Routes Advertised to Peer"
-                        },
-                        "name": "ExpressRouteGatewayCountOfRoutesAdvertisedToPeer",
-                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${HUB1_ERGW_ID}"
+                        },
+                        "name": "ExpressRouteGatewayActiveFlows",
+                        "aggregationType": 4,
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "metricVisualization": {
+                          "displayName": "Active Flows",
+                          "resourceDisplayName": "${HUB1_ERGW_NAME}"
                         }
                       }
                     ],
-                    "title": "Poc08-hub1-ergw - Routes Advertised [Max]",
+                    "title": "${HUB1_ERGW_NAME} - Active Flows [Avg]",
                     "titleKind": 2,
                     "visualization": {
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      },
                       "axisVisualization": {
                         "x": {
                           "axisType": 2,
@@ -1024,137 +1079,12 @@
                           "isVisible": true
                         }
                       },
-                      "chartType": 5,
-                      "disablePinning": true,
-                      "legendVisualization": {
-                        "hideHoverCard": false,
-                        "hideLabelNames": true,
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2
-                      },
-                      "sortIndex": 1
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "8": {
-          "position": {
-            "x": 4,
-            "y": 8,
-            "colSpan": 3,
-            "rowSpan": 4
-          },
-          "metadata": {
-            "inputs": [
-              {
-                "name": "sharedTimeRange",
-                "isOptional": true
-              },
-              {
-                "name": "options",
-                "value": {
-                  "chart": {
+                      "disablePinning": true
+                    },
                     "grouping": {
                       "dimension": "roleInstance",
                       "sort": 2,
                       "top": 10
-                    },
-                    "metrics": [
-                      {
-                        "aggregationType": 1,
-                        "metricVisualization": {
-                          "displayName": "Frequency of Routes change"
-                        },
-                        "name": "ExpressRouteGatewayFrequencyOfRoutesChanged",
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "resourceMetadata": {
-                          "id": "${HUB1_ERGW_ID}"
-                        }
-                      }
-                    ],
-                    "timespan": {
-                      "grain": 1,
-                      "relative": {
-                        "duration": 14400000
-                      },
-                      "showUTCTime": true
-                    },
-                    "title": "Sum Frequency of Routes change",
-                    "titleKind": 2,
-                    "visualization": {
-                      "axisVisualization": {
-                        "x": {
-                          "axisType": 2,
-                          "isVisible": true
-                        },
-                        "y": {
-                          "axisType": 1,
-                          "isVisible": true
-                        }
-                      },
-                      "chartType": 3,
-                      "legendVisualization": {
-                        "hideHoverCard": false,
-                        "hideLabelNames": true,
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2
-                      }
-                    }
-                  }
-                },
-                "isOptional": true
-              }
-            ],
-            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
-            "settings": {
-              "content": {
-                "options": {
-                  "chart": {
-                    "grouping": {
-                      "dimension": "roleInstance",
-                      "sort": 2,
-                      "top": 10
-                    },
-                    "metrics": [
-                      {
-                        "aggregationType": 1,
-                        "metricVisualization": {
-                          "displayName": "Frequency of Routes change"
-                        },
-                        "name": "ExpressRouteGatewayFrequencyOfRoutesChanged",
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "resourceMetadata": {
-                          "id": "${HUB1_ERGW_ID}"
-                        }
-                      }
-                    ],
-                    "title": "Poc08-hub1-ergw - Freq Routes change [Sum]",
-                    "titleKind": 2,
-                    "visualization": {
-                      "axisVisualization": {
-                        "x": {
-                          "axisType": 2,
-                          "isVisible": true
-                        },
-                        "y": {
-                          "axisType": 1,
-                          "isVisible": true
-                        }
-                      },
-                      "chartType": 3,
-                      "disablePinning": true,
-                      "legendVisualization": {
-                        "hideHoverCard": false,
-                        "hideLabelNames": true,
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2
-                      }
                     }
                   }
                 }
@@ -1163,136 +1093,9 @@
             "filters": {
               "MsPortalFx_TimeRange": {
                 "model": {
-                  "format": "utc",
+                  "format": "local",
                   "granularity": "auto",
-                  "relative": "240m"
-                }
-              }
-            }
-          }
-        },
-        "9": {
-          "position": {
-            "x": 7,
-            "y": 8,
-            "colSpan": 4,
-            "rowSpan": 4
-          },
-          "metadata": {
-            "inputs": [
-              {
-                "name": "sharedTimeRange",
-                "isOptional": true
-              },
-              {
-                "name": "options",
-                "value": {
-                  "chart": {
-                    "grouping": {
-                      "dimension": [
-                        "roleInstance",
-                        "direction"
-                      ],
-                      "sort": 2,
-                      "top": 10
-                    },
-                    "metrics": [
-                      {
-                        "aggregationType": 3,
-                        "metricVisualization": {
-                          "displayName": "Max Flows Created Per Second"
-                        },
-                        "name": "ExpressRouteGatewayMaxFlowsCreationRate",
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "resourceMetadata": {
-                          "id": "${HUB1_ERGW_ID}"
-                        }
-                      }
-                    ],
-                    "timespan": {
-                      "grain": 1,
-                      "relative": {
-                        "duration": 14400000
-                      },
-                      "showUTCTime": true
-                    },
-                    "title": "Poc08-hub1-ergw - Max Flows Per Sec",
-                    "titleKind": 2,
-                    "visualization": {
-                      "axisVisualization": {
-                        "x": {
-                          "axisType": 2,
-                          "isVisible": true
-                        },
-                        "y": {
-                          "axisType": 1,
-                          "isVisible": true
-                        }
-                      },
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "hideHoverCard": false,
-                        "hideLabelNames": true,
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2
-                      }
-                    }
-                  }
-                },
-                "isOptional": true
-              }
-            ],
-            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
-            "settings": {
-              "content": {
-                "options": {
-                  "chart": {
-                    "grouping": {
-                      "dimension": [
-                        "roleInstance",
-                        "direction"
-                      ],
-                      "sort": 2,
-                      "top": 10
-                    },
-                    "metrics": [
-                      {
-                        "aggregationType": 3,
-                        "metricVisualization": {
-                          "displayName": "Max Flows Created Per Second"
-                        },
-                        "name": "ExpressRouteGatewayMaxFlowsCreationRate",
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "resourceMetadata": {
-                          "id": "${HUB1_ERGW_ID}"
-                        }
-                      }
-                    ],
-                    "title": "Poc08-hub1-ergw - Max Flows Created Per Sec",
-                    "titleKind": 2,
-                    "visualization": {
-                      "axisVisualization": {
-                        "x": {
-                          "axisType": 2,
-                          "isVisible": true
-                        },
-                        "y": {
-                          "axisType": 1,
-                          "isVisible": true
-                        }
-                      },
-                      "chartType": 2,
-                      "disablePinning": true,
-                      "legendVisualization": {
-                        "hideHoverCard": false,
-                        "hideLabelNames": true,
-                        "hideSubtitle": false,
-                        "isVisible": true,
-                        "position": 2
-                      }
-                    }
-                  }
+                  "relative": "60m"
                 }
               }
             }
@@ -1321,11 +1124,11 @@
             "model": {
               "format": "utc",
               "granularity": "auto",
-              "relative": "24h"
+              "relative": "60m"
             },
             "displayCache": {
               "name": "UTC Time",
-              "value": "Past 24 hours"
+              "value": "Past hour"
             }
           }
         }

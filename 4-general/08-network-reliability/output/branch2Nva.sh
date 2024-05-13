@@ -275,8 +275,8 @@ service integrated-vtysh-config
 !-----------------------------------------
 ! Prefix Lists
 !-----------------------------------------
-ip prefix-list BLOCK_HUB_GW_SUBNET deny 10.11.16.0/20
-ip prefix-list BLOCK_HUB_GW_SUBNET permit 0.0.0.0/0 le 32
+ip prefix-list ALL permit 0.0.0.0/0 le 32
+bgp as-path access-list 10 permit ^65515_12076_64512_12076$
 !
 !-----------------------------------------
 ! Interface
@@ -297,11 +297,21 @@ ip route 10.20.0.0/24 10.20.1.1
 !-----------------------------------------
 ! Route Maps
 !-----------------------------------------
-  route-map ONPREM permit 100
-  match ip address prefix-list all
-  set as-path prepend 65002 65002 65002
-  route-map AZURE permit 110
-  match ip address prefix-list all
+  route-map PREFER_EXPRESS_ROUTE_IN permit 10
+  match as-path 10
+  set local-preference 300
+  route-map AZURE_IPSEC_PRIMARY_IN permit 10
+  match ip address prefix-list ALL
+  set local-preference 200
+  route-map AZURE_IPSEC_SECONDARY_IN permit 10
+  match ip address prefix-list ALL
+  set local-preference 100
+  route-map AZURE_IPSEC_PRIMARY_OUT permit 10
+  match ip address prefix-list ALL
+  set as-path prepend 65002 65002 65002 65002 65002
+  route-map AZURE_IPSEC_SECONDARY_OUT permit 10
+  match ip address prefix-list ALL
+  set as-path prepend 65002 65002 65002 65002 65002 65002
 !
 !-----------------------------------------
 ! BGP
@@ -320,13 +330,20 @@ neighbor 10.20.17.5 remote-as 65515
 neighbor 10.20.17.5 ebgp-multihop 255
 !
 address-family ipv4 unicast
-  network 10.20.0.0/24
+  network 10.20.0.0/20
+  network 10.20.0.0/20
   neighbor 10.11.16.14 soft-reconfiguration inbound
+  neighbor 10.11.16.14 route-map AZURE_IPSEC_PRIMARY_IN in
+  neighbor 10.11.16.14 route-map AZURE_IPSEC_PRIMARY_OUT out
   neighbor 10.11.16.15 soft-reconfiguration inbound
+  neighbor 10.11.16.15 route-map AZURE_IPSEC_SECONDARY_IN in
+  neighbor 10.11.16.15 route-map AZURE_IPSEC_SECONDARY_OUT out
   neighbor 10.20.17.4 soft-reconfiguration inbound
   neighbor 10.20.17.4 as-override
+  neighbor 10.20.17.4 route-map PREFER_EXPRESS_ROUTE_IN in
   neighbor 10.20.17.5 soft-reconfiguration inbound
   neighbor 10.20.17.5 as-override
+  neighbor 10.20.17.5 route-map PREFER_EXPRESS_ROUTE_IN in
 exit-address-family
 !
 line vty

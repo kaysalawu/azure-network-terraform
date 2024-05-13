@@ -14,9 +14,8 @@ module "branch2" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.branch2_tags
 
+  enable_diagnostics           = local.enable_diagnostics
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
-
-  enable_diagnostics = local.enable_diagnostics
 
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region1"].id
@@ -41,11 +40,11 @@ module "branch2" {
 
   config_ergw = {
     enable = true
-    sku    = "ErGw3AZ"
+    sku    = "ErGw1AZ"
   }
 
   config_s2s_vpngw = {
-    enable = true
+    enable = false
     sku    = "VpnGw1AZ"
   }
 
@@ -116,31 +115,45 @@ module "branch2_dns" {
 ####################################################
 
 locals {
-  branch2_nva_route_map_onprem      = "ONPREM"
-  branch2_nva_route_map_azure       = "AZURE"
-  branch2_nva_route_map_block_azure = "BLOCK_HUB_GW_SUBNET"
+  branch2_nva_rmap_azure_ipsec_pri_in      = "AZURE_IPSEC_PRIMARY_IN"
+  branch2_nva_rmap_azure_ipsec_sec_in      = "AZURE_IPSEC_SECONDARY_IN"
+  branch2_nva_rmap_azure_ipsec_pri_out     = "AZURE_IPSEC_PRIMARY_OUT"
+  branch2_nva_rmap_azure_ipsec_sec_out     = "AZURE_IPSEC_SECONDARY_OUT"
+  branch2_nva_rmap_prefer_express_route_in = "PREFER_EXPRESS_ROUTE_IN"
   branch2_nva_vars = {
     LOCAL_ASN = local.branch2_nva_asn
     LOOPBACK0 = local.branch2_nva_loopback0
     LOOPBACKS = []
 
     PREFIX_LISTS = [
-      "ip prefix-list ${local.branch2_nva_route_map_block_azure} deny ${local.hub1_address_space[1]}",
-      "ip prefix-list ${local.branch2_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
+      "ip prefix-list ALL permit 0.0.0.0/0 le 32",
+      "bgp as-path access-list 10 permit ^${local.azure_internal_asn}_${local.azure_asn}_${local.megaport_asn}_${local.azure_asn}$",
     ]
     ROUTE_MAPS = [
-      # prepend as-path between branches
-      "route-map ${local.branch2_nva_route_map_onprem} permit 100",
-      "match ip address prefix-list all",
-      "set as-path prepend ${local.branch2_nva_asn} ${local.branch2_nva_asn} ${local.branch2_nva_asn}",
+      # prefer express route (longer as-path) azure --> onprem
+      "route-map ${local.branch2_nva_rmap_prefer_express_route_in} permit 10",
+      "match as-path 10",
+      "set local-preference 300",
 
-      # do nothing (placeholder for future use)
-      "route-map ${local.branch2_nva_route_map_azure} permit 110",
-      "match ip address prefix-list all",
+      # ipsec primary: azure --> onprem
+      "route-map ${local.branch2_nva_rmap_azure_ipsec_pri_in} permit 10",
+      "match ip address prefix-list ALL",
+      "set local-preference 200",
 
-      # block inbound gateway subnet, allow all other hub and spoke cidrs
-      # "route-map ${local.branch2_nva_route_map_block_azure} permit 120",
-      # "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
+      # ipsec secondary: azure --> onprem
+      "route-map ${local.branch2_nva_rmap_azure_ipsec_sec_in} permit 10",
+      "match ip address prefix-list ALL",
+      "set local-preference 100",
+
+      # ipsec primary: onprem --> azure
+      "route-map ${local.branch2_nva_rmap_azure_ipsec_pri_out} permit 10",
+      "match ip address prefix-list ALL",
+      "set as-path prepend ${local.branch2_nva_asn} ${local.branch2_nva_asn} ${local.branch2_nva_asn} ${local.branch2_nva_asn} ${local.branch2_nva_asn}",
+
+      # ipsec secondary: onprem --> azure
+      "route-map ${local.branch2_nva_rmap_azure_ipsec_sec_out} permit 10",
+      "match ip address prefix-list ALL",
+      "set as-path prepend ${local.branch2_nva_asn} ${local.branch2_nva_asn} ${local.branch2_nva_asn} ${local.branch2_nva_asn} ${local.branch2_nva_asn} ${local.branch2_nva_asn}",
     ]
     STATIC_ROUTES = [
       { prefix = "0.0.0.0/0", next_hop = local.branch2_untrust_default_gw },
@@ -182,14 +195,20 @@ locals {
         peer_ip         = module.hub1.s2s_vpngw_bgp_default_ip0
         ebgp_multihop   = true
         source_loopback = true
-        route_maps      = []
+        route_maps = [
+          { direction = "in", name = local.branch2_nva_rmap_azure_ipsec_pri_in },
+          { direction = "out", name = local.branch2_nva_rmap_azure_ipsec_pri_out },
+        ]
       },
       {
         peer_asn        = module.hub1.s2s_vpngw_bgp_asn
         peer_ip         = module.hub1.s2s_vpngw_bgp_default_ip1
         ebgp_multihop   = true
         source_loopback = true
-        route_maps      = []
+        route_maps = [
+          { direction = "in", name = local.branch2_nva_rmap_azure_ipsec_sec_in },
+          { direction = "out", name = local.branch2_nva_rmap_azure_ipsec_sec_out },
+        ]
       },
       {
         peer_asn        = module.branch2.ars_bgp_asn
@@ -197,7 +216,9 @@ locals {
         ebgp_multihop   = true
         source_loopback = false
         as_override     = true
-        route_maps      = []
+        route_maps = [
+          { direction = "in", name = local.branch2_nva_rmap_prefer_express_route_in },
+        ]
       },
       {
         peer_asn        = module.branch2.ars_bgp_asn
@@ -205,11 +226,14 @@ locals {
         ebgp_multihop   = true
         source_loopback = false
         as_override     = true
-        route_maps      = []
+        route_maps = [
+          { direction = "in", name = local.branch2_nva_rmap_prefer_express_route_in },
+        ]
       },
     ]
     BGP_ADVERTISED_PREFIXES_IPV4 = [
-      local.branch2_subnets["MainSubnet"].address_prefixes[0],
+      local.branch2_address_space[0],
+      local.branch2_address_space[0],
     ]
   }
   branch2_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.branch2_nva_vars, {
@@ -294,6 +318,12 @@ module "branch2_vm" {
 
 locals {
   branch2_routes_main = [
+    {
+      name                   = "private"
+      address_prefix         = ["10.0.0.0/8"]
+      next_hop_type          = "VirtualAppliance"
+      next_hop_in_ip_address = local.branch2_nva_untrust_addr
+    }
   ]
 }
 
@@ -305,7 +335,35 @@ module "branch2_udr_main" {
   subnet_id      = module.branch2.subnets["MainSubnet"].id
   routes         = local.branch2_routes_main
 
-  disable_bgp_route_propagation = false
+  disable_bgp_route_propagation = true
+  depends_on = [
+    module.branch2_dns,
+    module.branch2_nva,
+    time_sleep.branch2,
+  ]
+}
+
+# gateway
+
+locals {
+  branch2_routes_gateway = [
+    {
+      name                   = "main"
+      address_prefix         = local.branch2_subnets["MainSubnet"].address_prefixes
+      next_hop_type          = "VirtualAppliance"
+      next_hop_in_ip_address = local.branch2_nva_untrust_addr
+    }
+  ]
+}
+
+module "branch2_udr_gateway" {
+  source         = "../../modules/route-table"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = "${local.branch2_prefix}gateway"
+  location       = local.branch2_location
+  subnet_id      = module.branch2.subnets["GatewaySubnet"].id
+  routes         = local.branch2_routes_gateway
+
   depends_on = [
     module.branch2_dns,
     module.branch2_nva,

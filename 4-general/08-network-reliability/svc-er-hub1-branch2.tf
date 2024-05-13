@@ -1,7 +1,5 @@
 
 locals {
-  azure_asn              = 12706
-  megaport_asn           = 64512
   megaport_vlan1         = 100
   megaport_vlan2         = 200
   megaport_vlan3         = 300
@@ -107,6 +105,7 @@ locals {
     ER1_CIRCUIT_ID   = module.megaport.express_route_circuit["${local.prefix}-er1"].id,
     ER2_CIRCUIT_ID   = module.megaport.express_route_circuit["${local.prefix}-er2"].id,
     HUB1_ERGW_ID     = module.hub1.ergw.id,
+    HUB1_ERGW_NAME   = module.hub1.ergw_name,
   })
 }
 
