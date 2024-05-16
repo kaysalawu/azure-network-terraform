@@ -382,26 +382,33 @@ Resource group: Poc08_Network_SRE_RG
 ⏳ Checking for diagnostic settings on resources in Poc08_Network_SRE_RG ...
 ➜  Checking firewall ...
 ➜  Checking vnet gateway ...
+    ❌ Deleting: diag setting [Poc08-branch2-ergw-diag] for vnet gateway [Poc08-branch2-ergw] ...
     ❌ Deleting: diag setting [Poc08-hub1-ergw-diag] for vnet gateway [Poc08-hub1-ergw] ...
     ❌ Deleting: diag setting [Poc08-hub1-vpngw-diag] for vnet gateway [Poc08-hub1-vpngw] ...
 ➜  Checking vpn gateway ...
 ➜  Checking er gateway ...
 ➜  Checking app gateway ...
 ⏳ Checking for azure policies in Poc08_Network_SRE_RG ...
-
 Done!
 ```
 
 </details>
 <p>
 
-3\. Delete the resource group to remove all resources installed.
+3\. Delete ExpressRoute connections, ExpressRoute peerings and Megaport configurations.
+
+```sh
+bash ../../scripts/express-route/delete_ergw_connections.sh Poc08_Network_SRE_RG
+bash ../../scripts/express-route/delete_private_peerings.sh Poc08_Network_SRE_RG
+```
+
+4\. Delete the resource group to remove all resources installed.
 
 ```sh
 az group delete -g Poc08_Network_SRE_RG --no-wait
 ```
 
-4\. Delete terraform state files and other generated files.
+5\. Delete terraform state files and other generated files.
 
 ```sh
 rm -rf .terraform*
