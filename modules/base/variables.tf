@@ -132,6 +132,9 @@ variable "config_vnet" {
     nat_gateway_subnet_names     = optional(list(string), [])
     subnet_names_private_dns     = optional(list(string), [])
 
+    enable_vnet_flow_logs           = optional(bool, false)
+    enable_vnet_flow_logs_analytics = optional(bool, true)
+
     private_dns_inbound_subnet_name  = optional(string, null)
     private_dns_outbound_subnet_name = optional(string, null)
     ruleset_dns_forwarding_rules     = optional(map(any), {})

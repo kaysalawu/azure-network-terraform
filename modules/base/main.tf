@@ -146,7 +146,7 @@ resource "azurerm_subnet_network_security_group_association" "this_azapi" {
 # nsg flow logs
 ####################################################
 
-resource "azurerm_network_watcher_flow_log" "this" {
+resource "azurerm_network_watcher_flow_log" "nsg" {
   count                = length(var.flow_log_nsg_ids)
   resource_group_name  = var.network_watcher_resource_group
   network_watcher_name = var.network_watcher_name
@@ -168,6 +168,51 @@ resource "azurerm_network_watcher_flow_log" "this" {
     workspace_resource_id = data.azurerm_log_analytics_workspace.this[0].id
     interval_in_minutes   = 10
   }
+}
+
+####################################################
+# vnet flow logs
+####################################################
+
+resource "azapi_resource" "vnet_flow_log" {
+  count = (
+    !var.config_vnet.enable_vnet_flow_logs ||
+    var.network_watcher_resource_group == null ||
+    var.network_watcher_name == null ? 0 : 1
+  )
+  type      = "Microsoft.Network/networkWatchers/flowLogs@2022-09-01"
+  name      = "${local.prefix}vnet-flow-log"
+  parent_id = data.azurerm_network_watcher.this[0].id
+  location  = var.location
+
+  body = jsonencode({
+    properties = {
+      targetResourceId = azurerm_virtual_network.this.id
+      storageId        = var.storage_account.id
+      enabled          = true
+      format = {
+        type    = "JSON"
+        version = 2
+      }
+      flowAnalyticsConfiguration = {
+        networkWatcherFlowAnalyticsConfiguration = {
+          enabled                  = true
+          workspaceResourceId      = data.azurerm_log_analytics_workspace.this[0].id
+          trafficAnalyticsInterval = 60
+        }
+      }
+      retentionPolicy = {
+        enabled = true
+        days    = 2
+      }
+    }
+  })
+  schema_validation_enabled = false
+
+  depends_on = [
+    azurerm_subnet.this,
+    azurerm_virtual_network.this,
+  ]
 }
 
 ####################################################

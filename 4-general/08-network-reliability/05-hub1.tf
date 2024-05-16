@@ -25,8 +25,10 @@ module "hub1" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.hub1_tags
 
-  enable_diagnostics           = local.enable_diagnostics
-  log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
+  enable_diagnostics             = local.enable_diagnostics
+  log_analytics_workspace_name   = module.common.log_analytics_workspaces["region1"].name
+  network_watcher_name           = "NetworkWatcher_${local.region1}"
+  network_watcher_resource_group = "NetworkWatcherRG"
 
   dns_zones_linked_to_vnet = [
     { name = module.common.private_dns_zones[local.region1_dns_zone].name, registration_enabled = true },

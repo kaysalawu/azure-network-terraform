@@ -8,6 +8,7 @@ locals {
   enable_diagnostics     = true
   enable_onprem_wan_link = false
   enable_ipv6            = false
+  enable_vnet_flow_logs  = true
 
   hub1_tags    = { "lab" = local.prefix, "env" = "prod", "nodeType" = "hub" }
   branch2_tags = { "lab" = local.prefix, "env" = "prod", "nodeType" = "branch" }
@@ -87,6 +88,7 @@ locals {
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
       enable_ars                  = false
+      enable_vnet_flow_logs       = local.enable_vnet_flow_logs
       nat_gateway_subnet_names = [
         "MainSubnet",
         "TrustSubnet",
