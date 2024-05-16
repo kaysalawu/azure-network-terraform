@@ -219,25 +219,3 @@ resource "azurerm_portal_dashboard" "express_route" {
   name                 = "${each.key}-dashb"
   dashboard_properties = each.value
 }
-
-###################################################
-# output files
-###################################################
-
-locals {
-  main_files = {
-    "output/express-route/app/app/main.py"           = templatefile("${path.module}/archives/app/app/main.py", {})
-    "output/express-route/app/app/_megaport.py"      = templatefile("${path.module}/archives/app/app/_megaport.py", {})
-    "output/express-route/app/app/network-tester.sh" = templatefile("${path.module}/archives/app/app/network-tester.sh", {})
-    "output/express-route/app/app/requirements.txt"  = templatefile("${path.module}/archives/app/app/requirements.txt", {})
-    "output/express-route/cleanup.sh" = templatefile("${path.module}/scripts/cleanup.sh", {
-      RESOURCE_GROUP = var.resource_group
-    })
-  }
-}
-
-resource "local_file" "main_files" {
-  for_each = local.main_files
-  filename = each.key
-  content  = each.value
-}

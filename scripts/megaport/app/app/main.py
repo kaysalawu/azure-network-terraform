@@ -5,12 +5,12 @@ from _megaport import *
 parser = argparse.ArgumentParser(description="Manage MCR commands")
 parser.add_argument('command', nargs='*', help='The command to execute (e.g., "list mcr")')
 parser.add_argument('-q', '--query', help='Query string for searching specific details.')
+parser.add_argument('-o', '--output', help='Output format (e.g. "--output json", "-o table").')
 parser.add_argument('-g', '--resource-group', help='The name of the resource group.')
 parser.add_argument('-c', '--circuit-name', help='The name of the circuit.')
 parser.add_argument('-v', '--vxc', help='The name of the vxc connection.')
 parser.add_argument('-a', '--access-token', help='Get Megaport access token.')
 parser.add_argument('-m', '--mcr', help='Megaport MCR name.')
-parser.add_argument('-b', '--bgp-routes', help='MCR BGP routes from looking glass.')
 parser.add_argument('-i', '--interactive', nargs='+', help='Interactive options such as MCR BGP, or VXC operations.')
 
 args = parser.parse_args()
@@ -40,11 +40,25 @@ def show_mcr(mcr_name, query_string=None):
 
 def show_routes(mcr_name, query_string=None):
     megaport = Megaport(mcr_name)
-    mcr_details = megaport.get_mcr()
-    if mcr_details:
-        print("MCR Details:", json.dumps(mcr_details, indent=2))
+    mcr_routes = megaport.get_routes()
+    if mcr_routes:
+        print(display_routes(mcr_routes))
     else:
         print("MCR not found.")
+
+def display_routes(routes):
+    header = f"\n{'Prefix':<18}{'BgpType':<12}{'NextHop':<16}{'NextHopVxc':<18}{'AsPath'}"
+    divider = f"{'-------':<18}{'--------':<12}{'---------':<16}{'------------':<18}{'-------'}"
+    print(header)
+    print(divider)
+    for route in routes:
+        best = "*" if route["best"] else ""
+        prefix = f'{route["prefix"]}{best}'
+        bgp_type = "eBGP" if route["external"] else "iBGP"
+        next_hop_ip = route["nextHop"]["ip"]
+        next_hop_vxc = route["nextHop"]["vxc"]["name"]
+        as_path = route["asPath"]
+        print(f"{prefix:<18}{bgp_type:<12}{next_hop_ip:<16}{next_hop_vxc:<18}{as_path}")
 
 def bgp_interactive(mcr_name):
     megaport = Megaport(mcr_name)

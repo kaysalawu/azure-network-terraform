@@ -4,6 +4,7 @@ import requests
 import sys
 import os
 import json
+import time
 
 class Megaport:
     def __init__(self, mcr_name=None, service_key=None, username=None, password=None):
@@ -56,6 +57,34 @@ class Megaport:
         for product in all_products:
             if product.get("productType") == "MCR2" and product.get("productName") == self.mcr_name:
                 return product
+
+    def get_routes(self):
+        if not self.mcr:
+            self.get_mcr()
+        product_uid = self.mcr.get("productUid")
+        url = f"{self.base_url}/v2/product/mcr2/{product_uid}/diagnostics/routes/bgp?async=True"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.access_token}"
+        }
+        response = requests.get(f"{url}", headers=headers)
+        operation_id = response.json().get("data")
+        return self.retrieve_async_result(operation_id)
+
+    def retrieve_async_result(self, operation_id):
+        product_uid = self.mcr.get("productUid")
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.access_token}"
+        }
+        url = f"{self.base_url}/v2/product/mcr2/{product_uid}/diagnostics/routes/operation?operationId={operation_id}"
+        response = requests.get(f"{url}", headers=headers)
+        while True:
+            response = requests.get(url, headers=headers)
+            data = response.json().get("data")
+            if data:
+                return data
+            time.sleep(5)
 
     def get_connections(self):
         self.connections = self.mcr.get("associatedVxcs")

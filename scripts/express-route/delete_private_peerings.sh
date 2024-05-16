@@ -64,4 +64,4 @@ check_peerings_status() {
 }
 
 delete_express_route_private_peerings
-# check_peerings_status
+check_peerings_status

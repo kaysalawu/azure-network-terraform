@@ -364,6 +364,8 @@ module "ergw" {
   sku           = var.config_ergw.sku
   active_active = var.config_ergw.active_active
 
+  log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
+
   depends_on = [
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,

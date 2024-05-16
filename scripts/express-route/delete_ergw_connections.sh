@@ -28,10 +28,10 @@ fi
 
 delete_express_route_gateway_connections(){
     # for each ciruit in list_express_route_circuits, delete all gateway connections
-    mapfile -t circuits < <(az network express-route list -g "$rg" --query '[].name' -o tsv)
-    for circuit in "${circuits[@]}"; do
-        echo -e "$char_executing Processing circuit: $circuit"
-        for connection in $(az network vpn-connection list -g "$rg" --query "[?contains(connectionType, 'ExpressRoute')].name" -o tsv); do
+    mapfile -t gateways < <(az network vnet-gateway list -g "$rg" --query '[].name' -o tsv)
+    for gateway in "${gateways[@]}"; do
+        echo -e "$char_executing Processing gateway: $gateway"
+        for connection in $(az network vpn-connection list -g "$rg" --vnet-gateway $gateway --query "[?contains(connectionType, 'ExpressRoute')].name" -o tsv); do
             echo -e "$char_question Deleting connection: $connection"
             az network vpn-connection delete -g "$rg" -n "$connection" --no-wait
             echo -e "$char_delete Deleted connection: $connection"
@@ -45,11 +45,10 @@ check_gateway_connection_status() {
   while true; do
     all_deleted=true
     mapfile -t circuits < <(az network express-route list -g "$rg" --query '[].name' -o tsv)
-    for circuit in "${circuits[@]}"; do
-      mapfile -t connections < <(az network vpn-connection list -g "$rg" --query "[?contains(connectionType, 'ExpressRoute')].name" -o tsv)
-      for connection in "${connections[@]}"; do
+    for gateway in "${gateways[@]}"; do
+      for connection in $(az network vpn-connection list -g "$rg" --vnet-gateway $gateway --query "[?contains(connectionType, 'ExpressRoute')].name" -o tsv); do
         if [[ -n "$connection" ]]; then
-          echo -e "     - $char_executing Waiting for connection: $connection to delete..."
+          echo -e "     - $char_executing Waiting for gateway/conn $gateway/$connection to delete..."
           all_deleted=false
         fi
       done
@@ -65,4 +64,4 @@ check_gateway_connection_status() {
 }
 
 delete_express_route_gateway_connections
-# check_gateway_connection_status
+check_gateway_connection_status
