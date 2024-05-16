@@ -395,12 +395,95 @@ Done!
 </details>
 <p>
 
-3\. Delete ExpressRoute connections, ExpressRoute peerings and Megaport configurations.
+3\. Delete ExpressRoute connections, peerings, circuits and Megaport configuration.
 
 ```sh
 bash ../../scripts/express-route/delete_ergw_connections.sh Poc08_Network_SRE_RG
 bash ../../scripts/express-route/delete_private_peerings.sh Poc08_Network_SRE_RG
+bash ../../scripts/express-route/delete_er_circuits.sh Poc08_Network_SRE_RG
+terraform destroy -target=module.megaport --auto-approve
 ```
+
+<details>
+
+<summary>Sample output</summary>
+
+```sh
+08-network-reliability$ bash ../../scripts/express-route/delete_ergw_connections.sh Poc08_Network_SRE_RG
+
+#######################################
+Script: delete_ergw_connections.sh
+#######################################
+
+Resource group: Poc08_Network_SRE_RG
+
+⏳ Processing gateway: Poc08-branch2-ergw
+❓ Deleting connection: Poc08-er3
+❌ Deleted connection: Poc08-er3
+⏳ Processing gateway: Poc08-hub1-ergw
+❓ Deleting connection: Poc08-er2
+❌ Deleted connection: Poc08-er2
+❓ Deleting connection: Poc08-er1
+❌ Deleted connection: Poc08-er1
+⏳ Processing gateway: Poc08-hub1-vpngw
+⏳ Checking status of gateway connections ...
+     - ⏳ Waiting for gateway/conn Poc08-branch2-ergw/Poc08-er3 to delete...
+     - ⏳ Waiting for gateway/conn Poc08-hub1-ergw/Poc08-er2 to delete...
+     - ⏳ Waiting for gateway/conn Poc08-hub1-ergw/Poc08-er1 to delete...
+   ➜ Gateway connections are still deleting. Checking again in 30 seconds...
+     - ⏳ Waiting for gateway/conn Poc08-branch2-ergw/Poc08-er3 to delete...
+     - ⏳ Waiting for gateway/conn Poc08-hub1-ergw/Poc08-er2 to delete...
+     - ⏳ Waiting for gateway/conn Poc08-hub1-ergw/Poc08-er1 to delete...
+   ➜ Gateway connections are still deleting. Checking again in 30 seconds...
+     - ⏳ Waiting for gateway/conn Poc08-branch2-ergw/Poc08-er3 to delete...
+     - ⏳ Waiting for gateway/conn Poc08-hub1-ergw/Poc08-er2 to delete...
+     - ⏳ Waiting for gateway/conn Poc08-hub1-ergw/Poc08-er1 to delete...
+   ➜ Gateway connections are still deleting. Checking again in 30 seconds...
+     - ⏳ Waiting for gateway/conn Poc08-branch2-ergw/Poc08-er3 to delete...
+     - ⏳ Waiting for gateway/conn Poc08-hub1-ergw/Poc08-er1 to delete...
+   ➜ Gateway connections are still deleting. Checking again in 30 seconds...
+     - ⏳ Waiting for gateway/conn Poc08-branch2-ergw/Poc08-er3 to delete...
+     - ⏳ Waiting for gateway/conn Poc08-hub1-ergw/Poc08-er1 to delete...
+   ➜ Gateway connections are still deleting. Checking again in 30 seconds...
+   ✔ All gateway connections deleted successfully.
+```
+
+```sh
+#######################################
+Script: delete_private_peerings.sh
+#######################################
+
+Resource group: Poc08_Network_SRE_RG
+
+⏳ Processing circuit: Poc08-er1
+⏳ Processing circuit: Poc08-er2
+⏳ Processing circuit: Poc08-er3
+⏳ Checking status of peerings ...
+   ✔ All peerings deleted successfully.
+```
+
+```sh
+08-network-reliability$ bash ../../scripts/express-route/delete_er_circuits.sh Poc08_Network_SRE_RG
+
+#######################################
+Script: delete_er_circuits.sh
+#######################################
+
+Resource group: Poc08_Network_SRE_RG
+
+⏳ Deleting circuit: Poc08-er1
+⏳ Deleting circuit: Poc08-er2
+⏳ Deleting circuit: Poc08-er3
+⏳ Checking status of circuits ...
+     - Poc08-er1 still deleting ...
+     - Poc08-er2 still deleting ...
+     - Poc08-er3 still deleting ...
+   ➜ Circuits are still deleting. Checking again in 10 seconds...
+   ✔ All circuits deleted successfully.
+```
+
+</details>
+<p>
 
 4\. Delete the resource group to remove all resources installed.
 
@@ -408,7 +491,8 @@ bash ../../scripts/express-route/delete_private_peerings.sh Poc08_Network_SRE_RG
 az group delete -g Poc08_Network_SRE_RG --no-wait
 ```
 
-5\. Delete terraform state files and other generated files.
+
+8\. Delete terraform state files and other generated files.
 
 ```sh
 rm -rf .terraform*
