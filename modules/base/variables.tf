@@ -118,8 +118,13 @@ variable "vnets_linked_to_ruleset" {
 
 variable "config_vnet" {
   type = object({
-    address_space                = list(string)
-    subnets                      = optional(map(any), {})
+    address_space = list(string)
+    subnets = optional(map(object({
+      address_prefixes                              = list(string)
+      delegate                                      = optional(list(string), [])
+      private_endpoint_network_policies             = optional(list(string), ["Disabled"]) # Enabled, Disabled, NetworkSecurityGroupEnabled, RouteTableEnabled
+      private_link_service_network_policies_enabled = optional(list(bool), [false])
+    })), {})
     nsg_id                       = optional(string)
     dns_servers                  = optional(list(string))
     bgp_community                = optional(string, null)

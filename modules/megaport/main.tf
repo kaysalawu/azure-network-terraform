@@ -1,7 +1,7 @@
 
 locals {
-  vnet_connections = { for c in var.circuits : c.name => c if c.virtual_network_gateway_name != null }
-  vwan_connections = { for c in var.circuits : c.name => c if c.express_route_gateway_name != null }
+  vnet_connections = { for c in var.gateway_connections : "${c.virtual_network_gateway_name}--${c.express_route_circuit_name}" => c if c.virtual_network_gateway_name != null }
+  vwan_connections = { for c in var.gateway_connections : "${c.express_route_circuit_name}--${c.express_route_circuit_name}" => c if c.express_route_gateway_name != null }
 }
 
 # locations
@@ -151,7 +151,7 @@ resource "azurerm_express_route_circuit_peering" "this" {
 # gateway connections
 #----------------------------
 
-# # vnet
+# vnet
 
 data "azurerm_virtual_network_gateway" "vnet" {
   for_each            = local.vnet_connections
@@ -166,19 +166,19 @@ data "azurerm_virtual_network_gateway" "vnet" {
 resource "azurerm_express_route_circuit_authorization" "vnet" {
   for_each                   = local.vnet_connections
   resource_group_name        = var.resource_group
-  name                       = each.value.name
-  express_route_circuit_name = azurerm_express_route_circuit.this[each.value.name].name
+  name                       = "${each.key}--auth"
+  express_route_circuit_name = azurerm_express_route_circuit.this[each.value.express_route_circuit_name].name
 }
 
 resource "azurerm_virtual_network_gateway_connection" "vnet" {
   for_each                   = local.vnet_connections
   resource_group_name        = var.resource_group
-  name                       = each.value.name
-  location                   = azurerm_express_route_circuit.this[each.value.name].location
+  name                       = "${each.key}--conn"
+  location                   = azurerm_express_route_circuit.this[each.value.express_route_circuit_name].location
   type                       = "ExpressRoute"
   virtual_network_gateway_id = data.azurerm_virtual_network_gateway.vnet[each.key].id
   authorization_key          = azurerm_express_route_circuit_authorization.vnet[each.key].authorization_key
-  express_route_circuit_id   = azurerm_express_route_circuit.this[each.key].id
+  express_route_circuit_id   = azurerm_express_route_circuit.this[each.value.express_route_circuit_name].id
   depends_on = [
     megaport_azure_connection.primary,
     megaport_azure_connection.secondary,
@@ -188,17 +188,17 @@ resource "azurerm_virtual_network_gateway_connection" "vnet" {
 # vwan
 
 resource "azurerm_express_route_circuit_authorization" "vwan" {
-  count                      = length(local.vwan_connections)
+  for_each                   = local.vwan_connections
   resource_group_name        = var.resource_group
-  name                       = local.vwan_connections[count.index].name
-  express_route_circuit_name = azurerm_express_route_circuit.this[local.vwan_connections[count.index].name].name
+  name                       = "${each.key}--auth"
+  express_route_circuit_name = azurerm_express_route_circuit.this[each.value.express_route_circuit_name].name
 }
 
 resource "azurerm_express_route_connection" "vwan" {
-  count                            = length(local.vwan_connections)
-  name                             = local.vwan_connections[count.index].name
-  express_route_gateway_id         = "/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${var.resource_group}/providers/Microsoft.Network/expressRouteGateways/${local.vwan_connections[count.index].express_route_gateway_name}"
-  express_route_circuit_peering_id = azurerm_express_route_circuit_peering.this[local.vwan_connections[count.index].name].id
+  for_each                         = local.vwan_connections
+  name                             = "${each.key}--conn"
+  express_route_gateway_id         = "/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${var.resource_group}/providers/Microsoft.Network/expressRouteGateways/${each.value.express_route_gateway_name}"
+  express_route_circuit_peering_id = azurerm_express_route_circuit_peering.this[each.value.express_route_circuit_name].id
 }
 
 ###################################################

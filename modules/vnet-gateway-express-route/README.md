@@ -49,5 +49,6 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_gateway"></a> [gateway](#output\_gateway) | n/a |
+| <a name="output_gateway_name"></a> [gateway\_name](#output\_gateway\_name) | n/a |
 | <a name="output_public_ip"></a> [public\_ip](#output\_public\_ip) | n/a |
 <!-- END_TF_DOCS -->

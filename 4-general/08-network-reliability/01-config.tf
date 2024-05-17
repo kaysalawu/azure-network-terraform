@@ -62,8 +62,6 @@ locals {
   private_prefixes_v6 = [
     "fd00::/8",
   ]
-  # private_prefixes_map    = { for i, prefix in local.private_prefixes : i => prefix }
-  # private_prefixes_v6_map = { for i, prefix in local.private_prefixes_v6 : i => prefix }
 
   azure_asn          = 12076
   azure_internal_asn = 65515
@@ -111,8 +109,8 @@ locals {
     ("ManagementSubnet")              = { address_prefixes = ["10.11.3.0/24", ], }
     ("AppGatewaySubnet")              = { address_prefixes = ["10.11.4.0/24", ], }
     ("LoadBalancerSubnet")            = { address_prefixes = ["10.11.5.0/24", ], }
-    ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.11.6.0/24", ], enable_private_link_policies = [true] }
-    ("PrivateEndpointSubnet")         = { address_prefixes = ["10.11.7.0/24", ], enable_private_endpoint_policies = [true] }
+    ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.11.6.0/24", ], private_link_service_network_policies_enabled = [true] }
+    ("PrivateEndpointSubnet")         = { address_prefixes = ["10.11.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
     ("DnsResolverInboundSubnet")      = { address_prefixes = ["10.11.8.0/24", ], delegate = ["Microsoft.Network/dnsResolvers"] }
     ("DnsResolverOutboundSubnet")     = { address_prefixes = ["10.11.9.0/24", ], delegate = ["Microsoft.Network/dnsResolvers"] }
     ("RouteServerSubnet")             = { address_prefixes = ["10.11.10.0/24", ], }
@@ -199,8 +197,8 @@ locals {
     ("ManagementSubnet")         = { address_prefixes = ["10.1.3.0/24", ], }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.1.4.0/24", ], }
     ("LoadBalancerSubnet")       = { address_prefixes = ["10.1.5.0/24", ], }
-    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.1.6.0/24", ], enable_private_link_service_network_policies = [true] }
-    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.1.7.0/24", ], enable_private_endpoint_network_policies = [true] }
+    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.1.6.0/24", ], private_link_service_network_policies_enabled = [true] }
+    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.1.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
     ("AppServiceSubnet")         = { address_prefixes = ["10.1.8.0/24", ], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.1.9.0/24", ], }
     ("TestSubnet")               = { address_prefixes = ["10.1.10.0/24"], }

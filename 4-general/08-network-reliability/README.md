@@ -1,6 +1,6 @@
 # Azure Network Reliability (High SLA) <!-- omit from toc -->
 
-## Lab: Poc08 <!-- omit from toc -->
+## Lab: Lab08 <!-- omit from toc -->
 
 Contents
 
@@ -67,15 +67,15 @@ The table below shows the auto-generated output files from the lab. They are loc
 
 Each virtual machine is pre-configured with a shell [script](../../scripts/server.sh) to run various types of network reachability tests. Serial console access has been configured for all virtual machines.
 
-Login to virtual machine `Poc08-spoke1Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
+Login to virtual machine `Lab08-spoke1Vm` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
 
 - On Azure portal select *Virtual machines*
-- Select the virtual machine `Poc08-spoke1Vm`
+- Select the virtual machine `Lab08-spoke1Vm`
 - Under ***Help*** section, select ***Serial console*** and wait for a login prompt
 - Enter the login credentials
   - username = ***azureuser***
   - password = ***Password123***
-- You should now be in a shell session `azureuser@Poc08-spoke1Vm:~$`
+- You should now be in a shell session `azureuser@Lab08-spoke1Vm:~$`
 
 ### 1. Ping IP
 
@@ -161,7 +161,7 @@ azureuser@spoke1Vm:~$ curl-dns4
 
 ### 4. On-premises Routes
 
-**4.1** Login to on-premises virtual machine `Poc08-branch2Nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
+**4.1** Login to on-premises virtual machine `Lab08-branch2Nva` via the [serial console](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/serial-console-overview#access-serial-console-for-virtual-machines-via-azure-portal):
   - username = ***azureuser***
   - password = ***Password123***
 
@@ -367,7 +367,7 @@ cd azure-network-terraform/4-general/08-network-reliability
 2\. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
 ```sh
-bash ../../scripts/_cleanup.sh Poc08_Network_SRE_RG
+bash ../../scripts/_cleanup.sh Lab08_Network_SRE_RG
 ```
 
 <details>
@@ -375,20 +375,20 @@ bash ../../scripts/_cleanup.sh Poc08_Network_SRE_RG
 <summary>Sample output</summary>
 
 ```sh
-08-network-reliability$ bash ../../scripts/_cleanup.sh Poc08_Network_SRE_RG
+08-network-reliability$ bash ../../scripts/_cleanup.sh Lab08_Network_SRE_RG
 
-Resource group: Poc08_Network_SRE_RG
+Resource group: Lab08_Network_SRE_RG
 
-⏳ Checking for diagnostic settings on resources in Poc08_Network_SRE_RG ...
+⏳ Checking for diagnostic settings on resources in Lab08_Network_SRE_RG ...
 ➜  Checking firewall ...
 ➜  Checking vnet gateway ...
-    ❌ Deleting: diag setting [Poc08-branch2-ergw-diag] for vnet gateway [Poc08-branch2-ergw] ...
-    ❌ Deleting: diag setting [Poc08-hub1-ergw-diag] for vnet gateway [Poc08-hub1-ergw] ...
-    ❌ Deleting: diag setting [Poc08-hub1-vpngw-diag] for vnet gateway [Poc08-hub1-vpngw] ...
+    ❌ Deleting: diag setting [Lab08-branch2-ergw-diag] for vnet gateway [Lab08-branch2-ergw] ...
+    ❌ Deleting: diag setting [Lab08-hub1-ergw-diag] for vnet gateway [Lab08-hub1-ergw] ...
+    ❌ Deleting: diag setting [Lab08-hub1-vpngw-diag] for vnet gateway [Lab08-hub1-vpngw] ...
 ➜  Checking vpn gateway ...
 ➜  Checking er gateway ...
 ➜  Checking app gateway ...
-⏳ Checking for azure policies in Poc08_Network_SRE_RG ...
+⏳ Checking for azure policies in Lab08_Network_SRE_RG ...
 Done!
 ```
 
@@ -398,9 +398,9 @@ Done!
 3\. Delete ExpressRoute connections, peerings, circuits and Megaport configuration.
 
 ```sh
-bash ../../scripts/express-route/delete_ergw_connections.sh Poc08_Network_SRE_RG
-bash ../../scripts/express-route/delete_private_peerings.sh Poc08_Network_SRE_RG
-bash ../../scripts/express-route/delete_er_circuits.sh Poc08_Network_SRE_RG
+bash ../../scripts/express-route/delete_ergw_connections.sh Lab08_Network_SRE_RG
+bash ../../scripts/express-route/delete_private_peerings.sh Lab08_Network_SRE_RG
+bash ../../scripts/express-route/delete_er_circuits.sh Lab08_Network_SRE_RG
 terraform destroy -target=module.megaport --auto-approve
 ```
 
@@ -409,41 +409,41 @@ terraform destroy -target=module.megaport --auto-approve
 <summary>Sample output</summary>
 
 ```sh
-08-network-reliability$ bash ../../scripts/express-route/delete_ergw_connections.sh Poc08_Network_SRE_RG
+08-network-reliability$ bash ../../scripts/express-route/delete_ergw_connections.sh Lab08_Network_SRE_RG
 
 #######################################
 Script: delete_ergw_connections.sh
 #######################################
 
-Resource group: Poc08_Network_SRE_RG
+Resource group: Lab08_Network_SRE_RG
 
-⏳ Processing gateway: Poc08-branch2-ergw
-❓ Deleting connection: Poc08-er3
-❌ Deleted connection: Poc08-er3
-⏳ Processing gateway: Poc08-hub1-ergw
-❓ Deleting connection: Poc08-er2
-❌ Deleted connection: Poc08-er2
-❓ Deleting connection: Poc08-er1
-❌ Deleted connection: Poc08-er1
-⏳ Processing gateway: Poc08-hub1-vpngw
+⏳ Processing gateway: Lab08-branch2-ergw
+❓ Deleting connection: Lab08-er3
+❌ Deleted connection: Lab08-er3
+⏳ Processing gateway: Lab08-hub1-ergw
+❓ Deleting connection: Lab08-er2
+❌ Deleted connection: Lab08-er2
+❓ Deleting connection: Lab08-er1
+❌ Deleted connection: Lab08-er1
+⏳ Processing gateway: Lab08-hub1-vpngw
 ⏳ Checking status of gateway connections ...
-     - ⏳ Waiting for gateway/conn Poc08-branch2-ergw/Poc08-er3 to delete...
-     - ⏳ Waiting for gateway/conn Poc08-hub1-ergw/Poc08-er2 to delete...
-     - ⏳ Waiting for gateway/conn Poc08-hub1-ergw/Poc08-er1 to delete...
+     - ⏳ Waiting for gateway/conn Lab08-branch2-ergw/Lab08-er3 to delete...
+     - ⏳ Waiting for gateway/conn Lab08-hub1-ergw/Lab08-er2 to delete...
+     - ⏳ Waiting for gateway/conn Lab08-hub1-ergw/Lab08-er1 to delete...
    ➜ Gateway connections are still deleting. Checking again in 30 seconds...
-     - ⏳ Waiting for gateway/conn Poc08-branch2-ergw/Poc08-er3 to delete...
-     - ⏳ Waiting for gateway/conn Poc08-hub1-ergw/Poc08-er2 to delete...
-     - ⏳ Waiting for gateway/conn Poc08-hub1-ergw/Poc08-er1 to delete...
+     - ⏳ Waiting for gateway/conn Lab08-branch2-ergw/Lab08-er3 to delete...
+     - ⏳ Waiting for gateway/conn Lab08-hub1-ergw/Lab08-er2 to delete...
+     - ⏳ Waiting for gateway/conn Lab08-hub1-ergw/Lab08-er1 to delete...
    ➜ Gateway connections are still deleting. Checking again in 30 seconds...
-     - ⏳ Waiting for gateway/conn Poc08-branch2-ergw/Poc08-er3 to delete...
-     - ⏳ Waiting for gateway/conn Poc08-hub1-ergw/Poc08-er2 to delete...
-     - ⏳ Waiting for gateway/conn Poc08-hub1-ergw/Poc08-er1 to delete...
+     - ⏳ Waiting for gateway/conn Lab08-branch2-ergw/Lab08-er3 to delete...
+     - ⏳ Waiting for gateway/conn Lab08-hub1-ergw/Lab08-er2 to delete...
+     - ⏳ Waiting for gateway/conn Lab08-hub1-ergw/Lab08-er1 to delete...
    ➜ Gateway connections are still deleting. Checking again in 30 seconds...
-     - ⏳ Waiting for gateway/conn Poc08-branch2-ergw/Poc08-er3 to delete...
-     - ⏳ Waiting for gateway/conn Poc08-hub1-ergw/Poc08-er1 to delete...
+     - ⏳ Waiting for gateway/conn Lab08-branch2-ergw/Lab08-er3 to delete...
+     - ⏳ Waiting for gateway/conn Lab08-hub1-ergw/Lab08-er1 to delete...
    ➜ Gateway connections are still deleting. Checking again in 30 seconds...
-     - ⏳ Waiting for gateway/conn Poc08-branch2-ergw/Poc08-er3 to delete...
-     - ⏳ Waiting for gateway/conn Poc08-hub1-ergw/Poc08-er1 to delete...
+     - ⏳ Waiting for gateway/conn Lab08-branch2-ergw/Lab08-er3 to delete...
+     - ⏳ Waiting for gateway/conn Lab08-hub1-ergw/Lab08-er1 to delete...
    ➜ Gateway connections are still deleting. Checking again in 30 seconds...
    ✔ All gateway connections deleted successfully.
 ```
@@ -453,31 +453,31 @@ Resource group: Poc08_Network_SRE_RG
 Script: delete_private_peerings.sh
 #######################################
 
-Resource group: Poc08_Network_SRE_RG
+Resource group: Lab08_Network_SRE_RG
 
-⏳ Processing circuit: Poc08-er1
-⏳ Processing circuit: Poc08-er2
-⏳ Processing circuit: Poc08-er3
+⏳ Processing circuit: Lab08-er1
+⏳ Processing circuit: Lab08-er2
+⏳ Processing circuit: Lab08-er3
 ⏳ Checking status of peerings ...
    ✔ All peerings deleted successfully.
 ```
 
 ```sh
-08-network-reliability$ bash ../../scripts/express-route/delete_er_circuits.sh Poc08_Network_SRE_RG
+08-network-reliability$ bash ../../scripts/express-route/delete_er_circuits.sh Lab08_Network_SRE_RG
 
 #######################################
 Script: delete_er_circuits.sh
 #######################################
 
-Resource group: Poc08_Network_SRE_RG
+Resource group: Lab08_Network_SRE_RG
 
-⏳ Deleting circuit: Poc08-er1
-⏳ Deleting circuit: Poc08-er2
-⏳ Deleting circuit: Poc08-er3
+⏳ Deleting circuit: Lab08-er1
+⏳ Deleting circuit: Lab08-er2
+⏳ Deleting circuit: Lab08-er3
 ⏳ Checking status of circuits ...
-     - Poc08-er1 still deleting ...
-     - Poc08-er2 still deleting ...
-     - Poc08-er3 still deleting ...
+     - Lab08-er1 still deleting ...
+     - Lab08-er2 still deleting ...
+     - Lab08-er3 still deleting ...
    ➜ Circuits are still deleting. Checking again in 10 seconds...
    ✔ All circuits deleted successfully.
 ```
@@ -488,7 +488,7 @@ Resource group: Poc08_Network_SRE_RG
 4\. Delete the resource group to remove all resources installed.
 
 ```sh
-az group delete -g Poc08_Network_SRE_RG --no-wait
+az group delete -g Lab08_Network_SRE_RG --no-wait
 ```
 
 

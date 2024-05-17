@@ -93,21 +93,21 @@ locals {
   }
   hub1_dns_zone = local.region1_dns_zone
   hub1_subnets = {
-    ("MainSubnet")                    = { address_prefixes = ["10.11.0.0/24"] }
-    ("UntrustSubnet")                 = { address_prefixes = ["10.11.1.0/24"] }
-    ("TrustSubnet")                   = { address_prefixes = ["10.11.2.0/24"] }
-    ("ManagementSubnet")              = { address_prefixes = ["10.11.3.0/24"] }
-    ("AppGatewaySubnet")              = { address_prefixes = ["10.11.4.0/24"] }
-    ("LoadBalancerSubnet")            = { address_prefixes = ["10.11.5.0/24"] }
-    ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.11.6.0/24"], enable_private_link_policies = [true] }
-    ("PrivateEndpointSubnet")         = { address_prefixes = ["10.11.7.0/24"], enable_private_endpoint_policies = [true] }
-    ("DnsResolverInboundSubnet")      = { address_prefixes = ["10.11.8.0/24"], delegate = ["Microsoft.Network/dnsResolvers"] }
-    ("DnsResolverOutboundSubnet")     = { address_prefixes = ["10.11.9.0/24"], delegate = ["Microsoft.Network/dnsResolvers"] }
-    ("RouteServerSubnet")             = { address_prefixes = ["10.11.10.0/24"] }
-    ("AzureFirewallSubnet")           = { address_prefixes = ["10.11.11.0/24"] }
-    ("AzureFirewallManagementSubnet") = { address_prefixes = ["10.11.12.0/24"] }
-    ("AppServiceSubnet")              = { address_prefixes = ["10.11.13.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
-    ("GatewaySubnet")                 = { address_prefixes = ["10.11.16.0/24"] }
+    ("MainSubnet")                    = { address_prefixes = ["10.11.0.0/24", ] }
+    ("UntrustSubnet")                 = { address_prefixes = ["10.11.1.0/24", ] }
+    ("TrustSubnet")                   = { address_prefixes = ["10.11.2.0/24", ] }
+    ("ManagementSubnet")              = { address_prefixes = ["10.11.3.0/24", ] }
+    ("AppGatewaySubnet")              = { address_prefixes = ["10.11.4.0/24", ] }
+    ("LoadBalancerSubnet")            = { address_prefixes = ["10.11.5.0/24", ] }
+    ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.11.6.0/24", ], private_link_service_network_policies_enabled = [true] }
+    ("PrivateEndpointSubnet")         = { address_prefixes = ["10.11.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
+    ("DnsResolverInboundSubnet")      = { address_prefixes = ["10.11.8.0/24", ], delegate = ["Microsoft.Network/dnsResolvers"] }
+    ("DnsResolverOutboundSubnet")     = { address_prefixes = ["10.11.9.0/24", ], delegate = ["Microsoft.Network/dnsResolvers"] }
+    ("RouteServerSubnet")             = { address_prefixes = ["10.11.10.0/24", ] }
+    ("AzureFirewallSubnet")           = { address_prefixes = ["10.11.11.0/24", ] }
+    ("AzureFirewallManagementSubnet") = { address_prefixes = ["10.11.12.0/24", ] }
+    ("AppServiceSubnet")              = { address_prefixes = ["10.11.13.0/24"], delegate = ["Microsoft.Web/serverFarms", ] }
+    ("GatewaySubnet")                 = { address_prefixes = ["10.11.16.0/24", ] }
   }
   hub1_default_gw_main      = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 1)
   hub1_default_gw_nva       = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 1)
@@ -142,21 +142,21 @@ locals {
   hub2_address_space = ["10.22.0.0/20", "10.22.16.0/20"]
   hub2_dns_zone      = local.region2_dns_zone
   hub2_subnets = {
-    ("MainSubnet")                    = { address_prefixes = ["10.22.0.0/24"] }
-    ("UntrustSubnet")                 = { address_prefixes = ["10.22.1.0/24"] }
-    ("TrustSubnet")                   = { address_prefixes = ["10.22.2.0/24"] }
-    ("ManagementSubnet")              = { address_prefixes = ["10.22.3.0/24"] }
-    ("AppGatewaySubnet")              = { address_prefixes = ["10.22.4.0/24"] }
-    ("LoadBalancerSubnet")            = { address_prefixes = ["10.22.5.0/24"] }
-    ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.22.6.0/24"], enable_private_link_service_network_policies = [true] }
-    ("PrivateEndpointSubnet")         = { address_prefixes = ["10.22.7.0/24"], enable_private_endpoint_network_policies = [true] }
-    ("DnsResolverInboundSubnet")      = { address_prefixes = ["10.22.8.0/24"], delegate = ["Microsoft.Network/dnsResolvers"] }
-    ("DnsResolverOutboundSubnet")     = { address_prefixes = ["10.22.9.0/24"], delegate = ["Microsoft.Network/dnsResolvers"] }
-    ("RouteServerSubnet")             = { address_prefixes = ["10.22.10.0/24"] }
-    ("AzureFirewallSubnet")           = { address_prefixes = ["10.22.11.0/24"] }
-    ("AzureFirewallManagementSubnet") = { address_prefixes = ["10.22.12.0/24"] }
-    ("AppServiceSubnet")              = { address_prefixes = ["10.22.13.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
-    ("GatewaySubnet")                 = { address_prefixes = ["10.22.16.0/24"] }
+    ("MainSubnet")                    = { address_prefixes = ["10.22.0.0/24", ] }
+    ("UntrustSubnet")                 = { address_prefixes = ["10.22.1.0/24", ] }
+    ("TrustSubnet")                   = { address_prefixes = ["10.22.2.0/24", ] }
+    ("ManagementSubnet")              = { address_prefixes = ["10.22.3.0/24", ] }
+    ("AppGatewaySubnet")              = { address_prefixes = ["10.22.4.0/24", ] }
+    ("LoadBalancerSubnet")            = { address_prefixes = ["10.22.5.0/24", ] }
+    ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.22.6.0/24", ], private_link_service_network_policies_enabled = [true] }
+    ("PrivateEndpointSubnet")         = { address_prefixes = ["10.22.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
+    ("DnsResolverInboundSubnet")      = { address_prefixes = ["10.22.8.0/24", ], delegate = ["Microsoft.Network/dnsResolvers"] }
+    ("DnsResolverOutboundSubnet")     = { address_prefixes = ["10.22.9.0/24", ], delegate = ["Microsoft.Network/dnsResolvers"] }
+    ("RouteServerSubnet")             = { address_prefixes = ["10.22.10.0/24", ] }
+    ("AzureFirewallSubnet")           = { address_prefixes = ["10.22.11.0/24", ] }
+    ("AzureFirewallManagementSubnet") = { address_prefixes = ["10.22.12.0/24", ] }
+    ("AppServiceSubnet")              = { address_prefixes = ["10.22.13.0/24"], delegate = ["Microsoft.Web/serverFarms", ] }
+    ("GatewaySubnet")                 = { address_prefixes = ["10.22.16.0/24", ] }
   }
   hub2_default_gw_main      = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 1)
   hub2_default_gw_nva       = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 1)
@@ -191,12 +191,12 @@ locals {
   branch1_nva_asn       = "65001"
   branch1_dns_zone      = local.onprem_domain
   branch1_subnets = {
-    ("MainSubnet")       = { address_prefixes = ["10.10.0.0/24"] }
-    ("UntrustSubnet")    = { address_prefixes = ["10.10.1.0/24"] }
-    ("TrustSubnet")      = { address_prefixes = ["10.10.2.0/24"] }
-    ("ManagementSubnet") = { address_prefixes = ["10.10.3.0/24"] }
-    ("DnsServerSubnet")  = { address_prefixes = ["10.10.4.0/24"] }
-    ("GatewaySubnet")    = { address_prefixes = ["10.10.16.0/24"] }
+    ("MainSubnet")       = { address_prefixes = ["10.10.0.0/24", ] }
+    ("UntrustSubnet")    = { address_prefixes = ["10.10.1.0/24", ] }
+    ("TrustSubnet")      = { address_prefixes = ["10.10.2.0/24", ] }
+    ("ManagementSubnet") = { address_prefixes = ["10.10.3.0/24", ] }
+    ("DnsServerSubnet")  = { address_prefixes = ["10.10.4.0/24", ] }
+    ("GatewaySubnet")    = { address_prefixes = ["10.10.16.0/24", ] }
   }
   branch1_untrust_default_gw = cidrhost(local.branch1_subnets["UntrustSubnet"].address_prefixes[0], 1)
   branch1_trust_default_gw   = cidrhost(local.branch1_subnets["TrustSubnet"].address_prefixes[0], 1)
@@ -223,12 +223,12 @@ locals {
   branch2_nva_asn       = "65002"
   branch2_dns_zone      = local.onprem_domain
   branch2_subnets = {
-    ("MainSubnet")       = { address_prefixes = ["10.20.0.0/24"] }
-    ("UntrustSubnet")    = { address_prefixes = ["10.20.1.0/24"] }
-    ("TrustSubnet")      = { address_prefixes = ["10.20.2.0/24"] }
-    ("ManagementSubnet") = { address_prefixes = ["10.20.3.0/24"] }
-    ("DnsServerSubnet")  = { address_prefixes = ["10.20.4.0/24"] }
-    ("GatewaySubnet")    = { address_prefixes = ["10.20.16.0/24"] }
+    ("MainSubnet")       = { address_prefixes = ["10.20.0.0/24", ] }
+    ("UntrustSubnet")    = { address_prefixes = ["10.20.1.0/24", ] }
+    ("TrustSubnet")      = { address_prefixes = ["10.20.2.0/24", ] }
+    ("ManagementSubnet") = { address_prefixes = ["10.20.3.0/24", ] }
+    ("DnsServerSubnet")  = { address_prefixes = ["10.20.4.0/24", ] }
+    ("GatewaySubnet")    = { address_prefixes = ["10.20.16.0/24", ] }
   }
   branch2_untrust_default_gw = cidrhost(local.branch2_subnets["UntrustSubnet"].address_prefixes[0], 1)
   branch2_trust_default_gw   = cidrhost(local.branch2_subnets["TrustSubnet"].address_prefixes[0], 1)
@@ -257,12 +257,12 @@ locals {
   branch3_nva_asn       = "65003"
   branch3_dns_zone      = local.onprem_domain
   branch3_subnets = {
-    ("MainSubnet")       = { address_prefixes = ["10.30.0.0/24"] }
-    ("UntrustSubnet")    = { address_prefixes = ["10.30.1.0/24"] }
-    ("TrustSubnet")      = { address_prefixes = ["10.30.2.0/24"] }
-    ("ManagementSubnet") = { address_prefixes = ["10.30.3.0/24"] }
-    ("DnsServerSubnet")  = { address_prefixes = ["10.30.4.0/24"] }
-    ("GatewaySubnet")    = { address_prefixes = ["10.30.16.0/24"] }
+    ("MainSubnet")       = { address_prefixes = ["10.30.0.0/24", ] }
+    ("UntrustSubnet")    = { address_prefixes = ["10.30.1.0/24", ] }
+    ("TrustSubnet")      = { address_prefixes = ["10.30.2.0/24", ] }
+    ("ManagementSubnet") = { address_prefixes = ["10.30.3.0/24", ] }
+    ("DnsServerSubnet")  = { address_prefixes = ["10.30.4.0/24", ] }
+    ("GatewaySubnet")    = { address_prefixes = ["10.30.16.0/24", ] }
   }
   branch3_untrust_default_gw = cidrhost(local.branch3_subnets["UntrustSubnet"].address_prefixes[0], 1)
   branch3_trust_default_gw   = cidrhost(local.branch3_subnets["TrustSubnet"].address_prefixes[0], 1)
@@ -288,16 +288,16 @@ locals {
   spoke1_address_space = ["10.1.0.0/20", ]
   spoke1_dns_zone      = local.region1_dns_zone
   spoke1_subnets = {
-    ("MainSubnet")               = { address_prefixes = ["10.1.0.0/24"] }
-    ("UntrustSubnet")            = { address_prefixes = ["10.1.1.0/24"] }
-    ("TrustSubnet")              = { address_prefixes = ["10.1.2.0/24"] }
-    ("ManagementSubnet")         = { address_prefixes = ["10.1.3.0/24"] }
-    ("AppGatewaySubnet")         = { address_prefixes = ["10.1.4.0/24"] }
-    ("LoadBalancerSubnet")       = { address_prefixes = ["10.1.5.0/24"] }
-    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.1.6.0/24"] }
-    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.1.7.0/24"] }
-    ("AppServiceSubnet")         = { address_prefixes = ["10.1.8.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
-    ("GatewaySubnet")            = { address_prefixes = ["10.1.9.0/24"] }
+    ("MainSubnet")               = { address_prefixes = ["10.1.0.0/24", ] }
+    ("UntrustSubnet")            = { address_prefixes = ["10.1.1.0/24", ] }
+    ("TrustSubnet")              = { address_prefixes = ["10.1.2.0/24", ] }
+    ("ManagementSubnet")         = { address_prefixes = ["10.1.3.0/24", ] }
+    ("AppGatewaySubnet")         = { address_prefixes = ["10.1.4.0/24", ] }
+    ("LoadBalancerSubnet")       = { address_prefixes = ["10.1.5.0/24", ] }
+    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.1.6.0/24", ] }
+    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.1.7.0/24", ] }
+    ("AppServiceSubnet")         = { address_prefixes = ["10.1.8.0/24"], delegate = ["Microsoft.Web/serverFarms", ] }
+    ("GatewaySubnet")            = { address_prefixes = ["10.1.9.0/24", ] }
   }
   spoke1_vm_addr      = cidrhost(local.spoke1_subnets["MainSubnet"].address_prefixes[0], 5)
   spoke1_ilb_addr     = cidrhost(local.spoke1_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
@@ -317,16 +317,16 @@ locals {
   spoke2_address_space = ["10.2.0.0/20", ]
   spoke2_dns_zone      = local.region1_dns_zone
   spoke2_subnets = {
-    ("MainSubnet")               = { address_prefixes = ["10.2.0.0/24"] }
-    ("UntrustSubnet")            = { address_prefixes = ["10.2.1.0/24"] }
-    ("TrustSubnet")              = { address_prefixes = ["10.2.2.0/24"] }
-    ("ManagementSubnet")         = { address_prefixes = ["10.2.3.0/24"] }
-    ("AppGatewaySubnet")         = { address_prefixes = ["10.2.4.0/24"] }
-    ("LoadBalancerSubnet")       = { address_prefixes = ["10.2.5.0/24"] }
-    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.2.6.0/24"] }
-    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.2.7.0/24"] }
-    ("AppServiceSubnet")         = { address_prefixes = ["10.2.8.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
-    ("GatewaySubnet")            = { address_prefixes = ["10.2.9.0/24"] }
+    ("MainSubnet")               = { address_prefixes = ["10.2.0.0/24", ] }
+    ("UntrustSubnet")            = { address_prefixes = ["10.2.1.0/24", ] }
+    ("TrustSubnet")              = { address_prefixes = ["10.2.2.0/24", ] }
+    ("ManagementSubnet")         = { address_prefixes = ["10.2.3.0/24", ] }
+    ("AppGatewaySubnet")         = { address_prefixes = ["10.2.4.0/24", ] }
+    ("LoadBalancerSubnet")       = { address_prefixes = ["10.2.5.0/24", ] }
+    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.2.6.0/24", ] }
+    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.2.7.0/24", ] }
+    ("AppServiceSubnet")         = { address_prefixes = ["10.2.8.0/24"], delegate = ["Microsoft.Web/serverFarms", ] }
+    ("GatewaySubnet")            = { address_prefixes = ["10.2.9.0/24", ] }
   }
   spoke2_vm_addr      = cidrhost(local.spoke2_subnets["MainSubnet"].address_prefixes[0], 5)
   spoke2_ilb_addr     = cidrhost(local.spoke2_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
@@ -346,16 +346,16 @@ locals {
   spoke3_address_space = ["10.3.0.0/20", ]
   spoke3_dns_zone      = local.region1_dns_zone
   spoke3_subnets = {
-    ("MainSubnet")               = { address_prefixes = ["10.3.0.0/24"] }
-    ("UntrustSubnet")            = { address_prefixes = ["10.3.1.0/24"] }
-    ("TrustSubnet")              = { address_prefixes = ["10.3.2.0/24"] }
-    ("ManagementSubnet")         = { address_prefixes = ["10.3.3.0/24"] }
-    ("AppGatewaySubnet")         = { address_prefixes = ["10.3.4.0/24"] }
-    ("LoadBalancerSubnet")       = { address_prefixes = ["10.3.5.0/24"] }
-    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.3.6.0/24"] }
-    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.3.7.0/24"] }
-    ("AppServiceSubnet")         = { address_prefixes = ["10.3.8.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
-    ("GatewaySubnet")            = { address_prefixes = ["10.3.9.0/24"] }
+    ("MainSubnet")               = { address_prefixes = ["10.3.0.0/24", ] }
+    ("UntrustSubnet")            = { address_prefixes = ["10.3.1.0/24", ] }
+    ("TrustSubnet")              = { address_prefixes = ["10.3.2.0/24", ] }
+    ("ManagementSubnet")         = { address_prefixes = ["10.3.3.0/24", ] }
+    ("AppGatewaySubnet")         = { address_prefixes = ["10.3.4.0/24", ] }
+    ("LoadBalancerSubnet")       = { address_prefixes = ["10.3.5.0/24", ] }
+    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.3.6.0/24", ] }
+    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.3.7.0/24", ] }
+    ("AppServiceSubnet")         = { address_prefixes = ["10.3.8.0/24"], delegate = ["Microsoft.Web/serverFarms", ] }
+    ("GatewaySubnet")            = { address_prefixes = ["10.3.9.0/24", ] }
   }
   spoke3_vm_addr      = cidrhost(local.spoke3_subnets["MainSubnet"].address_prefixes[0], 5)
   spoke3_ilb_addr     = cidrhost(local.spoke3_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
@@ -375,16 +375,16 @@ locals {
   spoke4_address_space = ["10.4.0.0/20", ]
   spoke4_dns_zone      = local.region2_dns_zone
   spoke4_subnets = {
-    ("MainSubnet")               = { address_prefixes = ["10.4.0.0/24"] }
-    ("UntrustSubnet")            = { address_prefixes = ["10.4.1.0/24"] }
-    ("TrustSubnet")              = { address_prefixes = ["10.4.2.0/24"] }
-    ("ManagementSubnet")         = { address_prefixes = ["10.4.3.0/24"] }
-    ("AppGatewaySubnet")         = { address_prefixes = ["10.4.4.0/24"] }
-    ("LoadBalancerSubnet")       = { address_prefixes = ["10.4.5.0/24"] }
-    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.4.6.0/24"] }
-    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.4.7.0/24"] }
-    ("AppServiceSubnet")         = { address_prefixes = ["10.4.8.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
-    ("GatewaySubnet")            = { address_prefixes = ["10.4.9.0/24"] }
+    ("MainSubnet")               = { address_prefixes = ["10.4.0.0/24", ] }
+    ("UntrustSubnet")            = { address_prefixes = ["10.4.1.0/24", ] }
+    ("TrustSubnet")              = { address_prefixes = ["10.4.2.0/24", ] }
+    ("ManagementSubnet")         = { address_prefixes = ["10.4.3.0/24", ] }
+    ("AppGatewaySubnet")         = { address_prefixes = ["10.4.4.0/24", ] }
+    ("LoadBalancerSubnet")       = { address_prefixes = ["10.4.5.0/24", ] }
+    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.4.6.0/24", ] }
+    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.4.7.0/24", ] }
+    ("AppServiceSubnet")         = { address_prefixes = ["10.4.8.0/24"], delegate = ["Microsoft.Web/serverFarms", ] }
+    ("GatewaySubnet")            = { address_prefixes = ["10.4.9.0/24", ] }
   }
   spoke4_vm_addr      = cidrhost(local.spoke4_subnets["MainSubnet"].address_prefixes[0], 5)
   spoke4_ilb_addr     = cidrhost(local.spoke4_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
@@ -404,16 +404,16 @@ locals {
   spoke5_address_space = ["10.5.0.0/20", ]
   spoke5_dns_zone      = local.region2_dns_zone
   spoke5_subnets = {
-    ("MainSubnet")               = { address_prefixes = ["10.5.0.0/24"] }
-    ("UntrustSubnet")            = { address_prefixes = ["10.5.1.0/24"] }
-    ("TrustSubnet")              = { address_prefixes = ["10.5.2.0/24"] }
-    ("ManagementSubnet")         = { address_prefixes = ["10.5.3.0/24"] }
-    ("AppGatewaySubnet")         = { address_prefixes = ["10.5.4.0/24"] }
-    ("LoadBalancerSubnet")       = { address_prefixes = ["10.5.5.0/24"] }
-    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.5.6.0/24"] }
-    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.5.7.0/24"] }
-    ("AppServiceSubnet")         = { address_prefixes = ["10.5.8.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
-    ("GatewaySubnet")            = { address_prefixes = ["10.5.9.0/24"] }
+    ("MainSubnet")               = { address_prefixes = ["10.5.0.0/24", ] }
+    ("UntrustSubnet")            = { address_prefixes = ["10.5.1.0/24", ] }
+    ("TrustSubnet")              = { address_prefixes = ["10.5.2.0/24", ] }
+    ("ManagementSubnet")         = { address_prefixes = ["10.5.3.0/24", ] }
+    ("AppGatewaySubnet")         = { address_prefixes = ["10.5.4.0/24", ] }
+    ("LoadBalancerSubnet")       = { address_prefixes = ["10.5.5.0/24", ] }
+    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.5.6.0/24", ] }
+    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.5.7.0/24", ] }
+    ("AppServiceSubnet")         = { address_prefixes = ["10.5.8.0/24"], delegate = ["Microsoft.Web/serverFarms", ] }
+    ("GatewaySubnet")            = { address_prefixes = ["10.5.9.0/24", ] }
   }
   spoke5_vm_addr      = cidrhost(local.spoke5_subnets["MainSubnet"].address_prefixes[0], 5)
   spoke5_ilb_addr     = cidrhost(local.spoke5_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
@@ -433,16 +433,16 @@ locals {
   spoke6_address_space = ["10.6.0.0/20", ]
   spoke6_dns_zone      = local.region2_dns_zone
   spoke6_subnets = {
-    ("MainSubnet")               = { address_prefixes = ["10.6.0.0/24"] }
-    ("UntrustSubnet")            = { address_prefixes = ["10.6.1.0/24"] }
-    ("TrustSubnet")              = { address_prefixes = ["10.6.2.0/24"] }
-    ("ManagementSubnet")         = { address_prefixes = ["10.6.3.0/24"] }
-    ("AppGatewaySubnet")         = { address_prefixes = ["10.6.4.0/24"] }
-    ("LoadBalancerSubnet")       = { address_prefixes = ["10.6.5.0/24"] }
-    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.6.6.0/24"] }
-    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.6.7.0/24"] }
-    ("AppServiceSubnet")         = { address_prefixes = ["10.6.8.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
-    ("GatewaySubnet")            = { address_prefixes = ["10.6.9.0/24"] }
+    ("MainSubnet")               = { address_prefixes = ["10.6.0.0/24", ] }
+    ("UntrustSubnet")            = { address_prefixes = ["10.6.1.0/24", ] }
+    ("TrustSubnet")              = { address_prefixes = ["10.6.2.0/24", ] }
+    ("ManagementSubnet")         = { address_prefixes = ["10.6.3.0/24", ] }
+    ("AppGatewaySubnet")         = { address_prefixes = ["10.6.4.0/24", ] }
+    ("LoadBalancerSubnet")       = { address_prefixes = ["10.6.5.0/24", ] }
+    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.6.6.0/24", ] }
+    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.6.7.0/24", ] }
+    ("AppServiceSubnet")         = { address_prefixes = ["10.6.8.0/24"], delegate = ["Microsoft.Web/serverFarms", ] }
+    ("GatewaySubnet")            = { address_prefixes = ["10.6.9.0/24", ] }
   }
   spoke6_vm_addr      = cidrhost(local.spoke6_subnets["MainSubnet"].address_prefixes[0], 5)
   spoke6_ilb_addr     = cidrhost(local.spoke6_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)

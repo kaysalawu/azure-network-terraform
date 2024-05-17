@@ -37,21 +37,19 @@ variable "mcr" {
 variable "circuits" {
   description = "megaport circuits"
   type = list(object({
-    name                         = string
-    location                     = string
-    peering_location             = string
-    peering_type                 = optional(string, "AzurePrivatePeering")
-    advertised_public_prefixes   = optional(list(string))
-    service_provider_name        = optional(string, "Megaport")
-    bandwidth_in_mbps            = optional(number, 50)
-    requested_vlan               = optional(number, 0)
-    mcr_name                     = string
-    sku_tier                     = optional(string, "Standard")
-    sku_family                   = optional(string, "MeteredData")
-    enable_mcr_auto_peering      = optional(bool, false)
-    virtual_network_gateway_name = optional(string, null)
-    express_route_gateway_name   = optional(string, null)
-    enable_mcr_peering           = optional(bool, false)
+    name                       = string
+    location                   = string
+    peering_location           = string
+    peering_type               = optional(string, "AzurePrivatePeering")
+    advertised_public_prefixes = optional(list(string))
+    service_provider_name      = optional(string, "Megaport")
+    bandwidth_in_mbps          = optional(number, 50)
+    requested_vlan             = optional(number, 0)
+    mcr_name                   = string
+    sku_tier                   = optional(string, "Standard")
+    sku_family                 = optional(string, "MeteredData")
+    enable_mcr_auto_peering    = optional(bool, false)
+    enable_mcr_peering         = optional(bool, false)
 
     ipv4_config = object({
       primary_peer_address_prefix   = optional(string, null)
@@ -62,6 +60,16 @@ variable "circuits" {
       primary_peer_address_prefix   = optional(string, null)
       secondary_peer_address_prefix = optional(string, null)
     }), {})
+  }))
+  default = []
+}
+
+variable "gateway_connections" {
+  description = "express route connection to gateway"
+  type = list(object({
+    express_route_circuit_name   = string
+    virtual_network_gateway_name = optional(string, null)
+    express_route_gateway_name   = optional(string, null)
   }))
   default = []
 }

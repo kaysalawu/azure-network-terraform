@@ -3,7 +3,7 @@
 ####################################################
 
 locals {
-  prefix                 = "Poc08"
+  prefix                 = "Lab08"
   lab_name               = "Network_SRE"
   enable_diagnostics     = true
   enable_onprem_wan_link = false

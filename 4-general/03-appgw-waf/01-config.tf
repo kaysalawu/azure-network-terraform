@@ -69,21 +69,21 @@ locals {
   }
   hub1_dns_zone = local.region1_dns_zone
   hub1_subnets = {
-    ("MainSubnet")                    = { address_prefixes = ["10.11.0.0/24"] }
-    ("UntrustSubnet")                 = { address_prefixes = ["10.11.1.0/24"] }
-    ("TrustSubnet")                   = { address_prefixes = ["10.11.2.0/24"] }
-    ("ManagementSubnet")              = { address_prefixes = ["10.11.3.0/24"] }
-    ("AppGatewaySubnet")              = { address_prefixes = ["10.11.4.0/24"] }
-    ("LoadBalancerSubnet")            = { address_prefixes = ["10.11.5.0/24"] }
-    ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.11.6.0/24"], enable_private_link_policies = [true] }
-    ("PrivateEndpointSubnet")         = { address_prefixes = ["10.11.7.0/24"], enable_private_endpoint_policies = [true] }
-    ("DnsResolverInboundSubnet")      = { address_prefixes = ["10.11.8.0/24"], delegate = ["Microsoft.Network/dnsResolvers"] }
-    ("DnsResolverOutboundSubnet")     = { address_prefixes = ["10.11.9.0/24"], delegate = ["Microsoft.Network/dnsResolvers"] }
-    ("RouteServerSubnet")             = { address_prefixes = ["10.11.10.0/24"] }
-    ("AzureFirewallSubnet")           = { address_prefixes = ["10.11.11.0/24"] }
-    ("AzureFirewallManagementSubnet") = { address_prefixes = ["10.11.12.0/24"] }
-    ("AppServiceSubnet")              = { address_prefixes = ["10.11.13.0/24"], delegate = ["Microsoft.Web/serverFarms"] }
-    ("GatewaySubnet")                 = { address_prefixes = ["10.11.16.0/24"] }
+    ("MainSubnet")                    = { address_prefixes = ["10.11.0.0/24", ] }
+    ("UntrustSubnet")                 = { address_prefixes = ["10.11.1.0/24", ] }
+    ("TrustSubnet")                   = { address_prefixes = ["10.11.2.0/24", ] }
+    ("ManagementSubnet")              = { address_prefixes = ["10.11.3.0/24", ] }
+    ("AppGatewaySubnet")              = { address_prefixes = ["10.11.4.0/24", ] }
+    ("LoadBalancerSubnet")            = { address_prefixes = ["10.11.5.0/24", ] }
+    ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.11.6.0/24", ], private_link_service_network_policies_enabled = [true] }
+    ("PrivateEndpointSubnet")         = { address_prefixes = ["10.11.7.0/24", ], private_endpoint_network_policies = ["Enabled", ] }
+    ("DnsResolverInboundSubnet")      = { address_prefixes = ["10.11.8.0/24"], delegate = ["Microsoft.Network/dnsResolvers", ] }
+    ("DnsResolverOutboundSubnet")     = { address_prefixes = ["10.11.9.0/24"], delegate = ["Microsoft.Network/dnsResolvers", ] }
+    ("RouteServerSubnet")             = { address_prefixes = ["10.11.10.0/24", ] }
+    ("AzureFirewallSubnet")           = { address_prefixes = ["10.11.11.0/24", ] }
+    ("AzureFirewallManagementSubnet") = { address_prefixes = ["10.11.12.0/24", ] }
+    ("AppServiceSubnet")              = { address_prefixes = ["10.11.13.0/24"], delegate = ["Microsoft.Web/serverFarms", ] }
+    ("GatewaySubnet")                 = { address_prefixes = ["10.11.16.0/24", ] }
   }
   hub1_default_gw_main = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 1)
   hub1_default_gw_nva  = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 1)
