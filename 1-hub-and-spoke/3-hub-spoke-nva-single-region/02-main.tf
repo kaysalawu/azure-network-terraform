@@ -8,6 +8,7 @@ locals {
   enable_diagnostics          = false
   enable_onprem_wan_link      = false
   enable_ipv6                 = true
+  enable_vnet_flow_logs       = false
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
   spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
@@ -41,6 +42,7 @@ provider "azurerm" {
 }
 
 provider "azapi" {}
+provider "cidrblock" {}
 
 terraform {
   required_providers {
@@ -54,6 +56,9 @@ terraform {
     }
     azapi = {
       source = "azure/azapi"
+    }
+    cidrblock = {
+      source = "amilevskiy/cidrblock"
     }
   }
 }
@@ -102,6 +107,7 @@ locals {
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
       enable_ars                  = false
+      enable_vnet_flow_logs       = local.enable_vnet_flow_logs
       nat_gateway_subnet_names = [
         "MainSubnet",
         "TrustSubnet",
