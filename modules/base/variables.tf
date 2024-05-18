@@ -121,6 +121,7 @@ variable "config_vnet" {
     address_space = list(string)
     subnets = optional(map(object({
       address_prefixes                              = list(string)
+      address_prefixes_v6                           = optional(list(string), [])
       delegate                                      = optional(list(string), [])
       private_endpoint_network_policies             = optional(list(string), ["Disabled"]) # Enabled, Disabled, NetworkSecurityGroupEnabled, RouteTableEnabled
       private_link_service_network_policies_enabled = optional(list(bool), [false])
