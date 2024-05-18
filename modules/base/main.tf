@@ -65,7 +65,7 @@ resource "azurerm_subnet" "this" {
   resource_group_name  = var.resource_group
   virtual_network_name = azurerm_virtual_network.this.name
   name                 = each.key
-  address_prefixes     = each.value.address_prefixes
+  address_prefixes     = var.enable_ipv6 ? concat(each.value.address_prefixes, each.value.address_prefixes_v6) : each.value.address_prefixes
 
   dynamic "delegation" {
     for_each = [for d in var.delegation : d if contains(try(each.value.delegate, []), d.name)]
@@ -96,7 +96,7 @@ resource "azapi_resource" "subnets" {
 
   body = jsonencode({
     properties = {
-      addressPrefixes       = each.value.address_prefixes
+      addressPrefixes       = var.enable_ipv6 ? concat(each.value.address_prefixes, each.value.address_prefixes_v6) : each.value.address_prefixes
       defaultOutboundAccess = tobool(try(each.value.default_outbound_access[0], false))
       delegations = [for d in var.delegation : {
         name = d.name
