@@ -116,6 +116,10 @@ To view the dashboards, follow the steps below:
 
     <img src="../../images/demos/hub-and-spoke/hs14-hub1-vpngw-db.png" alt="Go to dashboard" width="900">
 
+    Sample dashboard for Vnet flow logs in ***hub1***.
+
+    <img src="../../images/demos/hub-and-spoke/hs14-traffic-analytics-vnet-fl.png" alt="Go to dashboard" width="900">
+
 </details>
 <p>
 

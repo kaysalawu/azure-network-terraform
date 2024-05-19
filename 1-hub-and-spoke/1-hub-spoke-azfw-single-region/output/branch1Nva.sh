@@ -141,23 +141,23 @@ conn %default
 
 conn Tunnel0
     left=10.10.1.9
-    leftid=13.74.118.159
-    right=172.205.36.251
-    rightid=172.205.36.251
+    leftid=52.169.236.154
+    right=68.219.44.115
+    rightid=68.219.44.115
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.10.1.9
-    leftid=13.74.118.159
-    right=172.205.37.4
-    rightid=172.205.37.4
+    leftid=52.169.236.154
+    right=68.219.43.220
+    rightid=68.219.43.220
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.10.1.9
-    leftid=13.74.118.159
+    leftid=52.169.236.154
     right=1.1.1.1
     rightid=1.1.1.1
     auto=start
@@ -170,8 +170,8 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.10.1.9 172.205.36.251 : PSK "changeme"
-10.10.1.9 172.205.37.4 : PSK "changeme"
+10.10.1.9 68.219.44.115 : PSK "changeme"
+10.10.1.9 68.219.43.220 : PSK "changeme"
 10.10.1.9 1.1.1.1 : PSK "changeme"
 
 EOF
@@ -289,7 +289,7 @@ service integrated-vtysh-config
 !-----------------------------------------
 ! Prefix Lists
 !-----------------------------------------
-ip prefix-list BLOCK_HUB_GW_SUBNET deny 10.11.16.0/20
+ip prefix-list BLOCK_HUB_GW_SUBNET deny fd00:db8:11::/56
 ip prefix-list BLOCK_HUB_GW_SUBNET permit 0.0.0.0/0 le 32
 !
 !-----------------------------------------
