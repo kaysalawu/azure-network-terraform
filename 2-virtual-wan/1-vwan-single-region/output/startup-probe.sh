@@ -183,9 +183,31 @@ chmod a+x /usr/local/bin/crawlz
 
 # light-traffic generator
 
+cat <<'EOF' > /usr/local/bin/light-traffic
+nping -c 5 --tcp-connect -p 80,8080 branch1vm.corp > /dev/null 2>&1
+nping -c 5 --tcp-connect -p 80,8080 spoke3pls.eu.az.corp > /dev/null 2>&1
+nping -c 5 --tcp-connect -p 80,8080 spoke1vm.eu.az.corp > /dev/null 2>&1
+nping -c 5 --tcp-connect -p 80,8080 spoke2vm.eu.az.corp > /dev/null 2>&1
+nping -c 5 --tcp-connect -p 80,8080 https://vwan21spoke3sab17c.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
+EOF
+chmod a+x /usr/local/bin/light-traffic
 
 # heavy-traffic generator
 
+cat <<'EOF' > /usr/local/bin/heavy-traffic
+#! /bin/bash
+i=0
+while [ $i -lt 5 ]; do
+    ab -n $1 -c $2 branch1vm.corp > /dev/null 2>&1
+    ab -n $1 -c $2 spoke3pls.eu.az.corp > /dev/null 2>&1
+    ab -n $1 -c $2 spoke1vm.eu.az.corp > /dev/null 2>&1
+    ab -n $1 -c $2 spoke2vm.eu.az.corp > /dev/null 2>&1
+    ab -n $1 -c $2 https://vwan21spoke3sab17c.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
+    let i=i+1
+  sleep 5
+done
+EOF
+chmod a+x /usr/local/bin/heavy-traffic
 
 ########################################################
 # traffic generators (ipv6)
@@ -193,15 +215,87 @@ chmod a+x /usr/local/bin/crawlz
 
 # light-traffic generator
 
+cat <<'EOF' > /usr/local/bin/light-traffic-ipv6
+nping -c 5 -6 --tcp-connect -p 80,8080 branch1vm.corp > /dev/null 2>&1
+nping -c 5 -6 --tcp-connect -p 80,8080 spoke3pls.eu.az.corp > /dev/null 2>&1
+nping -c 5 -6 --tcp-connect -p 80,8080 spoke1vm.eu.az.corp > /dev/null 2>&1
+nping -c 5 -6 --tcp-connect -p 80,8080 spoke2vm.eu.az.corp > /dev/null 2>&1
+nping -c 5 -6 --tcp-connect -p 80,8080 https://vwan21spoke3sab17c.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
+EOF
+chmod a+x /usr/local/bin/light-traffic-ipv6
 
 # heavy-traffic generator
 
+cat <<'EOF' > /usr/local/bin/heavy-traffic-ipv6
+#! /bin/bash
+
+get_ipv6() {
+  ipv6=$(host -t AAAA $1 | awk '/has IPv6 address/ {print $5}')
+  if [ -z "$ipv6" ]; then
+    echo $1
+  else
+    echo $ipv6
+  fi
+}
+
+i=0
+while [ $i -lt 8 ]; do
+    ab -s 3 -n $1 -c $2 [$(get_ipv6 branch1vm.corp)]/ > /dev/null 2>&1
+  # check if ab command was successful
+  if [ $? -ne 0 ]; then
+    echo "target: branch1vm.corp failed"
+    exit 1
+  else
+    echo "target: branch1vm.corp passed"
+  fi
+    ab -s 3 -n $1 -c $2 [$(get_ipv6 spoke3pls.eu.az.corp)]/ > /dev/null 2>&1
+  # check if ab command was successful
+  if [ $? -ne 0 ]; then
+    echo "target: spoke3pls.eu.az.corp failed"
+    exit 1
+  else
+    echo "target: spoke3pls.eu.az.corp passed"
+  fi
+    ab -s 3 -n $1 -c $2 [$(get_ipv6 spoke1vm.eu.az.corp)]/ > /dev/null 2>&1
+  # check if ab command was successful
+  if [ $? -ne 0 ]; then
+    echo "target: spoke1vm.eu.az.corp failed"
+    exit 1
+  else
+    echo "target: spoke1vm.eu.az.corp passed"
+  fi
+    ab -s 3 -n $1 -c $2 [$(get_ipv6 spoke2vm.eu.az.corp)]/ > /dev/null 2>&1
+  # check if ab command was successful
+  if [ $? -ne 0 ]; then
+    echo "target: spoke2vm.eu.az.corp failed"
+    exit 1
+  else
+    echo "target: spoke2vm.eu.az.corp passed"
+  fi
+    ab -s 3 -n $1 -c $2 [$(get_ipv6 https://vwan21spoke3sab17c.blob.core.windows.net/spoke3/spoke3.txt)]/ > /dev/null 2>&1
+  # check if ab command was successful
+  if [ $? -ne 0 ]; then
+    echo "target: https://vwan21spoke3sab17c.blob.core.windows.net/spoke3/spoke3.txt failed"
+    exit 1
+  else
+    echo "target: https://vwan21spoke3sab17c.blob.core.windows.net/spoke3/spoke3.txt passed"
+  fi
+    let i=i+1
+  sleep 5
+done
+EOF
+chmod a+x /usr/local/bin/heavy-traffic-ipv6
 
 ########################################################
 # crontabs
 ########################################################
 
 cat <<'EOF' > /etc/cron.d/traffic-gen
+*/1 * * * * /usr/local/bin/light-traffic 2>&1 > /dev/null
+*/1 * * * * /usr/local/bin/heavy-traffic 15 1 2>&1 > /dev/null
+*/2 * * * * /usr/local/bin/heavy-traffic 3 1 2>&1 > /dev/null
+*/3 * * * * /usr/local/bin/heavy-traffic 8 2 2>&1 > /dev/null
+*/5 * * * * /usr/local/bin/heavy-traffic 5 1 2>&1 > /dev/null
 EOF
 
 crontab /etc/cron.d/traffic-gen
