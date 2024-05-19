@@ -5,9 +5,9 @@
 locals {
   prefix                      = "Hs14"
   lab_name                    = "HubSpoke_Nva_2Region"
-  enable_diagnostics          = false
   enable_onprem_wan_link      = true
-  enable_ipv6                 = true
+  enable_diagnostics          = false
+  enable_ipv6                 = false
   enable_vnet_flow_logs       = false
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke6_storage_account_name = lower(replace("${local.spoke6_prefix}sa${random_id.random.hex}", "-", ""))
@@ -86,11 +86,11 @@ locals {
   ]
   spoke1_udr_main_routes = concat(local.region1_default_udr_destinations, [
     { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "hub1v6", address_prefix = [local.hub1_address_space.2, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
   ])
   spoke2_udr_main_routes = concat(local.region1_default_udr_destinations, [
     { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "hub1v6", address_prefix = [local.hub1_address_space.2, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
   ])
   hub1_udr_main_routes = concat(local.region1_default_udr_destinations, [
     { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
@@ -104,12 +104,15 @@ locals {
     { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
     { name = "spoke1v6", address_prefix = [local.spoke1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
     { name = "spoke2v6", address_prefix = [local.spoke2_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
-    { name = "hub1v6", address_prefix = [local.hub1_address_space.2, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
   ]
   hub1_appliance_udr_destinations = [
     { name = "spoke4", address_prefix = [local.spoke4_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
     { name = "spoke5", address_prefix = [local.spoke5_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
     { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
+    { name = "spoke4v6", address_prefix = [local.spoke4_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
+    { name = "spoke5v6", address_prefix = [local.spoke5_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
+    { name = "hub2v6", address_prefix = [local.hub2_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
   ]
 
   region2_default_udr_destinations = [
@@ -118,11 +121,11 @@ locals {
   ]
   spoke4_udr_main_routes = concat(local.region2_default_udr_destinations, [
     { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
-    { name = "hub2v6", address_prefix = [local.hub2_address_space.2], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
+    { name = "hub2v6", address_prefix = [local.hub2_address_space.1], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
   ])
   spoke5_udr_main_routes = concat(local.region2_default_udr_destinations, [
     { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
-    { name = "hub2v6", address_prefix = [local.hub2_address_space.2, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
+    { name = "hub2v6", address_prefix = [local.hub2_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
   ])
   hub2_udr_main_routes = concat(local.region2_default_udr_destinations, [
     { name = "spoke4", address_prefix = [local.spoke4_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
@@ -136,13 +139,16 @@ locals {
     { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
     { name = "spoke4v6", address_prefix = [local.spoke4_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
     { name = "spoke5v6", address_prefix = [local.spoke5_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
-    { name = "hub2v6", address_prefix = [local.hub2_address_space.2, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
+    { name = "hub2v6", address_prefix = [local.hub2_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
 
   ]
   hub2_appliance_udr_destinations = [
     { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
     { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
     { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "spoke1v6", address_prefix = [local.spoke1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "spoke2v6", address_prefix = [local.spoke2_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
   ]
 
   firewall_sku = "Basic"
@@ -237,6 +243,7 @@ locals {
 
     config_nva = {
       enable           = true
+      enable_ipv6      = local.enable_ipv6
       type             = "linux"
       scenario_option  = "TwoNics"
       opn_type         = "TwoNics"
@@ -245,7 +252,6 @@ locals {
       ilb_trust_ip     = local.hub1_nva_ilb_trust_addr
       ilb_untrust_ipv6 = local.hub1_nva_ilb_untrust_addr_v6
       ilb_trust_ipv6   = local.hub1_nva_ilb_trust_addr_v6
-      enable_ipv6      = local.enable_ipv6
     }
   }
 
@@ -339,6 +345,7 @@ locals {
 
     config_nva = {
       enable           = true
+      enable_ipv6      = local.enable_ipv6
       type             = "linux"
       scenario_option  = "TwoNics"
       opn_type         = "TwoNics"
@@ -347,7 +354,6 @@ locals {
       ilb_trust_ip     = local.hub2_nva_ilb_trust_addr
       ilb_untrust_ipv6 = local.hub2_nva_ilb_untrust_addr_v6
       ilb_trust_ipv6   = local.hub2_nva_ilb_trust_addr_v6
-      enable_ipv6      = local.enable_ipv6
     }
   }
 }
@@ -422,14 +428,14 @@ locals {
   init_dir = "/var/lib/azure"
   vm_script_targets_region1 = [
     { name = "branch1", dns = lower(local.branch1_vm_fqdn), ipv4 = local.branch1_vm_addr, ipv6 = local.branch1_vm_addr_v6, probe = true },
-    { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ipv4 = local.hub1_vm_addr, ipv6 = local.hub1_vm_addr_v6, probe = false },
+    { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ipv4 = local.hub1_vm_addr, ipv6 = local.hub1_vm_addr_v6, probe = true },
     { name = "hub1-spoke3-pep", dns = lower(local.hub1_spoke3_pep_fqdn), ping = false, probe = true },
     { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ipv4 = local.spoke1_vm_addr, ipv6 = local.spoke1_vm_addr_v6, probe = true },
     { name = "spoke2 ", dns = lower(local.spoke2_vm_fqdn), ipv4 = local.spoke2_vm_addr, ipv6 = local.spoke2_vm_addr_v6, probe = true },
   ]
   vm_script_targets_region2 = [
     { name = "branch3", dns = lower(local.branch3_vm_fqdn), ipv4 = local.branch3_vm_addr, ipv6 = local.branch3_vm_addr_v6, probe = true },
-    { name = "hub2   ", dns = lower(local.hub2_vm_fqdn), ipv4 = local.hub2_vm_addr, ipv6 = local.hub2_vm_addr_v6, probe = false },
+    { name = "hub2   ", dns = lower(local.hub2_vm_fqdn), ipv4 = local.hub2_vm_addr, ipv6 = local.hub2_vm_addr_v6, probe = true },
     { name = "hub2-spoke6-pep", dns = lower(local.hub2_spoke6_pep_fqdn), ping = false, probe = true },
     { name = "spoke4 ", dns = lower(local.spoke4_vm_fqdn), ipv4 = local.spoke4_vm_addr, ipv6 = local.spoke4_vm_addr_v6, probe = true },
     { name = "spoke5 ", dns = lower(local.spoke5_vm_fqdn), ipv4 = local.spoke5_vm_addr, ipv6 = local.spoke5_vm_addr_v6, probe = true },
@@ -738,6 +744,7 @@ locals {
   main_files = {
     "output/server.sh"              = local.vm_startup
     "output/startup.sh"             = templatefile("../../scripts/startup.sh", local.vm_init_vars)
+    "output/startup-probe.sh"       = templatefile("../../scripts/startup.sh", local.probe_init_vars)
     "output/probe-cloud-config.yml" = module.probe_vm_cloud_init.cloud_config
     "output/vm-cloud-config.yml"    = module.vm_cloud_init.cloud_config
     "output/hub1-linux-nva.sh"      = local.hub1_linux_nva_init

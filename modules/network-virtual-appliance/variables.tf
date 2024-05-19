@@ -189,7 +189,7 @@ variable "log_analytics_workspace_name" {
 variable "enable_ipv6" {
   description = "enable ipv6"
   type        = bool
-  default     = false
+  # default     = false
 }
 
 variable "virtual_network_id" {
