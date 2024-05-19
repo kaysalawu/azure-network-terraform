@@ -56,7 +56,7 @@ module "hub1_appliance_udr" {
     name                   = r.name
     address_prefix         = r.address_prefix
     next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = module.hub2.firewall_private_ip
+    next_hop_in_ip_address = r.next_hop_ip
   }]
   depends_on = [module.hub1, ]
 }
@@ -73,7 +73,7 @@ module "hub2_appliance_udr" {
     name                   = r.name
     address_prefix         = r.address_prefix
     next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = module.hub1.firewall_private_ip
+    next_hop_in_ip_address = r.next_hop_ip
   }]
   depends_on = [
     module.hub2,
