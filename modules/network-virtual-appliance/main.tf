@@ -1,7 +1,7 @@
 
 locals {
   prefix = var.prefix == "" ? "${var.name}" : format("%s-%s", var.prefix, var.name)
-  frontend_ip_configuration = concat(
+  frontend_ip_configuration_trust = concat(
     [{
       name                          = "nva"
       zones                         = ["1", "2", "3"]
@@ -19,7 +19,7 @@ locals {
     }] : []
   )
 
-  backend_pools = concat(
+  backend_pools_trust = concat(
     [{
       name = "nva"
       interfaces = [for nva in module.nva : {
@@ -27,7 +27,7 @@ locals {
         network_interface_id  = nva.interfaces["${local.prefix}-trust-nic"].id
       }]
     }],
-    var.enable_ipv6 ? [{
+    var.enable_ipv6 && module.nva[0].private_ipv6_address != null ? [{ #TODO: fix. requires dual terraform apply
       name = "nva-ipv6"
       addresses = [{
         name               = "nva-ipv6"
@@ -37,7 +37,7 @@ locals {
     }] : []
   )
 
-  lb_rules = concat(
+  lb_rules_trust = concat(
     [{
       name                           = "nva-ha"
       protocol                       = "All"
@@ -47,7 +47,7 @@ locals {
       backend_address_pool_name      = ["nva", ]
       probe_name                     = var.health_probes[0].name
     }],
-    var.enable_ipv6 ? [{
+    var.enable_ipv6 && module.nva[0].private_ipv6_address != null ? [{ #TODO: fix. requires dual terraform apply
       name                           = "nva-ha-ipv6"
       protocol                       = "All"
       frontend_port                  = "0"
@@ -182,11 +182,8 @@ module "ilb_trust" {
 
   log_analytics_workspace_name = var.log_analytics_workspace_name
 
-  frontend_ip_configuration = local.frontend_ip_configuration
-
-  probes = var.health_probes
-
-  backend_pools = local.backend_pools
-
-  lb_rules = local.lb_rules
+  frontend_ip_configuration = local.frontend_ip_configuration_trust
+  backend_pools             = local.backend_pools_trust
+  lb_rules                  = local.lb_rules_trust
+  probes                    = var.health_probes
 }

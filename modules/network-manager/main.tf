@@ -150,6 +150,15 @@ resource "azurerm_network_manager_admin_rule" "default" {
 # deployment
 ####################################################
 
+resource "time_sleep" "wait_before_deploying" {
+  create_duration = "120s"
+  depends_on = [
+    azurerm_network_manager_connectivity_configuration.this,
+    azurerm_network_manager_security_admin_configuration.this,
+    azurerm_network_manager_admin_rule.default,
+  ]
+}
+
 # connectivity
 #-----------------------
 
@@ -166,6 +175,9 @@ resource "azurerm_network_manager_deployment" "connectivity" {
       configuration_ids = local.connectivity_configuration_ids_to_deploy
     })
   }
+  depends_on = [
+    time_sleep.wait_before_deploying,
+  ]
 }
 
 # security

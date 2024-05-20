@@ -171,7 +171,7 @@ interface lo
 ip route 0.0.0.0/0 10.22.2.1
 ip route 192.168.22.69/32 10.22.2.1
 ip route 192.168.22.68/32 10.22.2.1
-ip route 10.5.0.0/20 10.22.2.1
+ip route 10.5.0.0/16 10.22.2.1
 !
 !-----------------------------------------
 ! Route Maps
@@ -191,7 +191,7 @@ neighbor 192.168.22.68 update-source lo
 !
 address-family ipv4 unicast
   network 10.22.0.0/24
-  network 10.5.0.0/20
+  network 10.5.0.0/16
   neighbor 192.168.22.69 soft-reconfiguration inbound
   neighbor 192.168.22.68 soft-reconfiguration inbound
 exit-address-family
