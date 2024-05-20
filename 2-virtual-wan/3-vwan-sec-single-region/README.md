@@ -51,8 +51,16 @@ Ensure you meet all requirements in the [prerequisites](../../prerequisites/READ
    ```sh
    cd azure-network-terraform/2-virtual-wan/3-vwan-sec-single-region
    ```
+3. (Optional) If you wannt to enable additional features such as IPv6, Vnet flow logs and logging set the following variables to `true` in the [`main.tf`](./02-main.tf) file.
 
-3. Run the following terraform commands and type ***yes*** at the prompt:
+   | Variable | Description | Default | Link |
+   |----------|-------------|---------|------|
+   | enable_diagnostics | Enable Azure Monitor diagnostics | false | [main.tf](./02-main.tf#L9) |
+   | enable_ipv6 | Enable IPv6 on all supported resources | false | [main.tf](./02-main.tf#L10) |
+   | enable_flow_logs | Enable Vnet flow logs in the Vnet hubs | false | [main.tf](./02-main.tf#L11) |
+   ||||
+
+4. Run the following terraform commands and type ***yes*** at the prompt:
 
    ```sh
    terraform init
@@ -139,18 +147,18 @@ azureuser@spoke1Vm:~$ ip address
     inet6 ::1/128 scope host
        valid_lft forever preferred_lft forever
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
-    link/ether 00:22:48:9d:e9:00 brd ff:ff:ff:ff:ff:ff
+    link/ether 00:22:48:a3:28:73 brd ff:ff:ff:ff:ff:ff
     inet 10.1.0.5/24 brd 10.1.0.255 scope global eth0
        valid_lft forever preferred_lft forever
     inet6 fd00:db8:1::5/128 scope global dynamic noprefixroute
-       valid_lft 17275287sec preferred_lft 8635287sec
-    inet6 fe80::222:48ff:fe9d:e900/64 scope link
+       valid_lft 17279521sec preferred_lft 8639521sec
+    inet6 fe80::222:48ff:fea3:2873/64 scope link
        valid_lft forever preferred_lft forever
 3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default
-    link/ether 02:42:01:5d:89:64 brd ff:ff:ff:ff:ff:ff
+    link/ether 02:42:24:44:83:66 brd ff:ff:ff:ff:ff:ff
     inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
        valid_lft forever preferred_lft forever
-    inet6 fe80::42:1ff:fe5d:8964/64 scope link
+    inet6 fe80::42:24ff:fe44:8366/64 scope link
        valid_lft forever preferred_lft forever
 ```
 
@@ -181,10 +189,10 @@ azureuser@spoke1Vm:~$ ping-ipv4
 
  ping ipv4 ...
 
-branch1 - 10.10.0.5 -OK 4.144 ms
-hub1    - 10.11.0.5 -OK 4.757 ms
-spoke1  - 10.1.0.5 -OK 0.062 ms
-spoke2  - 10.2.0.5 -OK 4.739 ms
+branch1 - 10.10.0.5 -OK 3.601 ms
+hub1    - 10.11.0.5 -OK 3.494 ms
+spoke1  - 10.1.0.5 -OK 0.048 ms
+spoke2  - 10.2.0.5 -OK 4.359 ms
 internet - icanhazip.com -NA
 ```
 
@@ -195,7 +203,7 @@ azureuser@spoke1Vm:~$ ping-ipv6
 
 branch1 - fd00:db8:10::5 -NA
 hub1    - fd00:db8:11::5 -NA
-spoke1  - fd00:db8:1::5 -OK 0.039 ms
+spoke1  - fd00:db8:1::5 -OK 0.055 ms
 spoke2  - fd00:db8:2::5 -NA
 internet - icanhazip.com -NA
 ```
@@ -225,10 +233,10 @@ azureuser@spoke1Vm:~$ ping-dns4
 
  ping dns ipv4 ...
 
-branch1vm.corp - 10.10.0.5 -OK 5.066 ms
-hub1vm.eu.az.corp - 10.11.0.5 -OK 4.166 ms
-spoke1vm.eu.az.corp - 10.1.0.5 -OK 0.042 ms
-spoke2vm.eu.az.corp - 10.2.0.5 -OK 5.338 ms
+branch1vm.corp - 10.10.0.5 -OK 3.687 ms
+hub1vm.eu.az.corp - 10.11.0.5 -OK 4.205 ms
+spoke1vm.eu.az.corp - 10.1.0.5 -OK 0.038 ms
+spoke2vm.eu.az.corp - 10.2.0.5 -OK 3.982 ms
 icanhazip.com - 104.16.184.241 -NA
 ```
 
@@ -239,7 +247,7 @@ azureuser@spoke1Vm:~$ ping-dns6
 
 branch1vm.corp - fd00:db8:10::5 -NA
 hub1vm.eu.az.corp - fd00:db8:11::5 -NA
-spoke1vm.eu.az.corp - fd00:db8:1::5 -OK 0.046 ms
+spoke1vm.eu.az.corp - fd00:db8:1::5 -OK 0.037 ms
 spoke2vm.eu.az.corp - fd00:db8:2::5 -NA
 icanhazip.com - 2606:4700::6810:b8f1 -NA
 ```
@@ -269,13 +277,13 @@ azureuser@spoke1Vm:~$ curl-dns4
 
  curl dns ipv4 ...
 
-200 (0.015453s) - 10.10.0.5 - branch1vm.corp
-200 (0.012578s) - 10.11.0.5 - hub1vm.eu.az.corp
-200 (0.011511s) - 10.11.7.88 - spoke3pls.eu.az.corp
-200 (0.012123s) - 10.1.0.5 - spoke1vm.eu.az.corp
-200 (0.020411s) - 10.2.0.5 - spoke2vm.eu.az.corp
-200 (0.016030s) - 104.16.185.241 - icanhazip.com
-200 (0.026883s) - 10.11.7.99 - https://vwan23spoke3sa59db.blob.core.windows.net/spoke3/spoke3.txt
+200 (0.010163s) - 10.10.0.5 - branch1vm.corp
+200 (0.010960s) - 10.11.0.5 - hub1vm.eu.az.corp
+200 (0.007691s) - 10.11.7.88 - spoke3pls.eu.az.corp
+200 (0.003870s) - 10.1.0.5 - spoke1vm.eu.az.corp
+200 (0.010707s) - 10.2.0.5 - spoke2vm.eu.az.corp
+200 (0.014919s) - 104.16.185.241 - icanhazip.com
+200 (0.032712s) - 10.11.7.99 - https://vwan23spoke3saf1b3.blob.core.windows.net/spoke3/spoke3.txt
 ```
 
 ```sh
@@ -285,11 +293,11 @@ azureuser@spoke1Vm:~$ curl-dns6
 
  - branch1vm.corp
  - hub1vm.eu.az.corp
-000 (0.006737s) -  - spoke3pls.eu.az.corp
-200 (0.011276s) - fd00:db8:1::5 - spoke1vm.eu.az.corp
+000 (0.027251s) -  - spoke3pls.eu.az.corp
+200 (0.011521s) - fd00:db8:1::5 - spoke1vm.eu.az.corp
  - spoke2vm.eu.az.corp
-000 (2.251584s) -  - icanhazip.com
-000 (0.007812s) -  - https://vwan23spoke3sa59db.blob.core.windows.net/spoke3/spoke3.txt
+000 (2.251322s) -  - icanhazip.com
+000 (0.002382s) -  - https://vwan23spoke3saf1b3.blob.core.windows.net/spoke3/spoke3.txt
 ```
 
 </details>
@@ -313,7 +321,7 @@ azureuser@spoke1Vm:~$ curl spoke3pls.eu.az.corp
   "app": "SERVER",
   "hostname": "spoke3Vm",
   "server-ipv4": "10.3.0.5",
-  "server-ipv6": "fd00:db8:3::5",
+  "server-ipv6": "NotFound",
   "remote-addr": "10.3.6.4",
   "headers": {
     "host": "spoke3pls.eu.az.corp",
@@ -352,7 +360,7 @@ echo -e "\n$spoke3_sgtacct_host\n" && echo
 <summary>Sample output</summary>
 
 ```sh
-vwan23spoke3sa59db.blob.core.windows.net
+vwan23spoke3saf1b3.blob.core.windows.net
 ```
 
 </details>
@@ -374,16 +382,16 @@ Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-vwan23spoke3sa59db.blob.core.windows.net        canonical name = vwan23spoke3sa59db.privatelink.blob.core.windows.net.
-vwan23spoke3sa59db.privatelink.blob.core.windows.net    canonical name = blob.db4prdstr12a.store.core.windows.net.
-Name:   blob.db4prdstr12a.store.core.windows.net
-Address: 20.60.145.164
+vwan23spoke3saf1b3.blob.core.windows.net        canonical name = vwan23spoke3saf1b3.privatelink.blob.core.windows.net.
+vwan23spoke3saf1b3.privatelink.blob.core.windows.net    canonical name = blob.db4prdstr14a.store.core.windows.net.
+Name:   blob.db4prdstr14a.store.core.windows.net
+Address: 20.60.205.196
 ```
 
 </details>
 <p>
 
-We can see that the endpoint is a public IP address, ***20.60.145.164***. We can see the CNAME `vwan23spoke3sa59db.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
+We can see that the endpoint is a public IP address, ***20.60.205.196***. We can see the CNAME `vwan23spoke3saf1b3.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
 
 **5.3.** Test access to the storage account blob.
 
@@ -464,7 +472,7 @@ echo -e "\n$spoke3_sgtacct_host\n" && echo
 <summary>Sample output</summary>
 
 ```sh
-vwan23spoke3sa59db.blob.core.windows.net
+vwan23spoke3saf1b3.blob.core.windows.net
 ```
 
 </details>
@@ -486,8 +494,8 @@ Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-vwan23spoke3sa59db.blob.core.windows.net        canonical name = vwan23spoke3sa59db.privatelink.blob.core.windows.net.
-Name:   vwan23spoke3sa59db.privatelink.blob.core.windows.net
+vwan23spoke3saf1b3.blob.core.windows.net        canonical name = vwan23spoke3saf1b3.privatelink.blob.core.windows.net.
+Name:   vwan23spoke3saf1b3.privatelink.blob.core.windows.net
 Address: 10.11.7.99
 ```
 
@@ -496,9 +504,9 @@ Address: 10.11.7.99
 
 We can see that the storage account hostname resolves to the private endpoint ***10.11.7.99*** in ***hub1***. The following is a summary of the DNS resolution from `Vwan23-branch1Vm`:
 
-- On-premises server `Vwan23-branch1Vm` makes a DNS request for `vwan23spoke3sa59db.blob.core.windows.net`
+- On-premises server `Vwan23-branch1Vm` makes a DNS request for `vwan23spoke3saf1b3.blob.core.windows.net`
 - The request is received by on-premises DNS server `Vwan23-branch1-dns`
-- The DNS server resolves `vwan23spoke3sa59db.blob.core.windows.net` to the CNAME `vwan23spoke3sa59db.privatelink.blob.core.windows.net`
+- The DNS server resolves `vwan23spoke3saf1b3.blob.core.windows.net` to the CNAME `vwan23spoke3saf1b3.privatelink.blob.core.windows.net`
 - The DNS server has a conditional DNS forwarding defined in the branch1 unbound DNS configuration file, [output/branch1Dns.sh](./output/branch1Dns.sh).
 
   ```sh
@@ -565,10 +573,9 @@ Firewall: Vwan23-vhub1-azfw
 AddressPrefixes    AsPath    NextHopType
 -----------------  --------  --------------------------
 10.10.0.0/24       65001     VPN_S2S_Gateway
-10.11.0.0/20                 Virtual Network Connection
-10.11.16.0/20                Virtual Network Connection
-10.1.0.0/20                  Virtual Network Connection
-10.2.0.0/20        65010     HubBgpConnection
+10.11.0.0/16                 Virtual Network Connection
+10.1.0.0/16                  Virtual Network Connection
+10.2.0.0/16        65010     HubBgpConnection
 0.0.0.0/0                    Internet
 ```
 
@@ -620,30 +627,28 @@ Codes: K - kernel route, C - connected, S - static, R - RIP,
        F - PBR, f - OpenFabric,
        > - selected route, * - FIB route, q - queued route, r - rejected route
 
-B   0.0.0.0/0 [20/0] via 192.168.11.12, vti1, 00:09:03
-                     via 192.168.11.13, vti0, 00:09:03
-S   0.0.0.0/0 [1/0] via 10.10.1.1, eth0, 00:32:16
-K>* 0.0.0.0/0 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 00:32:16
-B>* 10.1.0.0/20 [20/0] via 192.168.11.12, vti1, 00:09:03
-  *                    via 192.168.11.13, vti0, 00:09:03
-B>* 10.2.0.0/20 [20/0] via 192.168.11.12, vti1, 00:09:03
-  *                    via 192.168.11.13, vti0, 00:09:03
-S>* 10.10.0.0/24 [1/0] via 10.10.1.1, eth0, 00:32:16
-C>* 10.10.1.0/24 is directly connected, eth0, 00:32:16
-C>* 10.10.2.0/24 is directly connected, eth1, 00:32:16
-B>* 10.11.0.0/20 [20/0] via 192.168.11.12, vti1, 00:09:03
-  *                     via 192.168.11.13, vti0, 00:09:03
-B>* 10.11.16.0/20 [20/0] via 192.168.11.12, vti1, 00:09:03
-  *                      via 192.168.11.13, vti0, 00:09:03
-K>* 168.63.129.16/32 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 00:32:16
-K>* 169.254.169.254/32 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 00:32:16
-C>* 192.168.10.10/32 is directly connected, lo, 00:32:16
-B>* 192.168.11.0/24 [20/0] via 192.168.11.12, vti1, 00:09:03
-  *                        via 192.168.11.13, vti0, 00:09:03
-S   192.168.11.12/32 [1/0] is directly connected, vti1, 00:09:03
-C>* 192.168.11.12/32 is directly connected, vti1, 00:09:03
-S   192.168.11.13/32 [1/0] is directly connected, vti0, 00:09:03
-C>* 192.168.11.13/32 is directly connected, vti0, 00:09:03
+B   0.0.0.0/0 [20/0] via 192.168.11.12, vti1, 00:06:38
+                     via 192.168.11.13, vti0, 00:06:38
+S   0.0.0.0/0 [1/0] via 10.10.1.1, eth0, 01:03:15
+K>* 0.0.0.0/0 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 01:03:15
+B>* 10.1.0.0/16 [20/0] via 192.168.11.12, vti1, 00:06:38
+  *                    via 192.168.11.13, vti0, 00:06:38
+B>* 10.2.0.0/16 [20/0] via 192.168.11.12, vti1, 00:06:38
+  *                    via 192.168.11.13, vti0, 00:06:38
+S>* 10.10.0.0/24 [1/0] via 10.10.1.1, eth0, 01:03:15
+C>* 10.10.1.0/24 is directly connected, eth0, 01:03:15
+C>* 10.10.2.0/24 is directly connected, eth1, 01:03:15
+B>* 10.11.0.0/16 [20/0] via 192.168.11.12, vti1, 00:06:38
+  *                     via 192.168.11.13, vti0, 00:06:38
+K>* 168.63.129.16/32 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 01:03:15
+K>* 169.254.169.254/32 [0/100] via 10.10.1.1, eth0, src 10.10.1.9, 01:03:15
+C>* 192.168.10.10/32 is directly connected, lo, 01:03:15
+B>* 192.168.11.0/24 [20/0] via 192.168.11.12, vti1, 00:06:38
+  *                        via 192.168.11.13, vti0, 00:06:38
+S   192.168.11.12/32 [1/0] is directly connected, vti1, 00:06:38
+C>* 192.168.11.12/32 is directly connected, vti1, 00:06:38
+S   192.168.11.13/32 [1/0] is directly connected, vti0, 00:06:38
+C>* 192.168.11.13/32 is directly connected, vti0, 00:06:38
 ```
 
 We can see the Vnet ranges learned dynamically via BGP.
@@ -656,16 +661,16 @@ Codes: K - kernel route, C - connected, S - static, R - RIPng,
        f - OpenFabric,
        > - selected route, * - FIB route, q - queued route, r - rejected route
 
-K * ::/0 [0/200] via fe80::1234:5678:9abc, eth1, 00:32:38
-K>* ::/0 [0/100] via fe80::1234:5678:9abc, eth0, 00:32:38
-K>* fd00:db8:10:1::/64 [0/100] is directly connected, eth0, 00:32:38
-C>* fd00:db8:10:1::9/128 is directly connected, eth0, 00:32:38
-K>* fd00:db8:10:2::/64 [0/200] is directly connected, eth1, 00:32:38
-C>* fd00:db8:10:2::9/128 is directly connected, eth1, 00:32:38
-C * fe80::/64 is directly connected, vti0, 00:09:25
-C * fe80::/64 is directly connected, vti1, 00:09:25
-C * fe80::/64 is directly connected, eth1, 00:32:38
-C>* fe80::/64 is directly connected, eth0, 00:32:38
+K>* ::/0 [0/100] via fe80::1234:5678:9abc, eth0, 00:22:36
+K * ::/0 [0/200] via fe80::1234:5678:9abc, eth1, 00:24:12
+K>* fd00:db8:10:1::/64 [0/100] is directly connected, eth0, 00:22:36
+C>* fd00:db8:10:1::9/128 is directly connected, eth0, 00:22:34
+K>* fd00:db8:10:2::/64 [0/200] is directly connected, eth1, 00:24:12
+C>* fd00:db8:10:2::9/128 is directly connected, eth1, 00:24:10
+C * fe80::/64 is directly connected, vti0, 00:06:55
+C * fe80::/64 is directly connected, vti1, 00:06:55
+C * fe80::/64 is directly connected, eth1, 01:03:32
+C>* fe80::/64 is directly connected, eth0, 01:03:32
 ```
 
 IPv6 is not yet configured for BGP but we can see static and connected IPv6 routes.
@@ -685,7 +690,7 @@ show ip bgp
 
 ```sh
 branch1Nva# show ip bgp
-BGP table version is 40, local router ID is 192.168.10.10, vrf id 0
+BGP table version is 82, local router ID is 192.168.10.10, vrf id 0
 Default local pref 100, local AS 65001
 Status codes:  s suppressed, d damped, h history, * valid, > best, = multipath,
                i internal, r RIB-failure, S Stale, R Removed
@@ -693,21 +698,19 @@ Nexthop codes: @NNN nexthop's vrf id, < announce-nh-self
 Origin codes:  i - IGP, e - EGP, ? - incomplete
 
    Network          Next Hop            Metric LocPrf Weight Path
-*= 0.0.0.0/0        192.168.11.13                          0 65515 i
-*>                  192.168.11.12                          0 65515 i
-*= 10.1.0.0/20      192.168.11.13                          0 65515 i
-*>                  192.168.11.12                          0 65515 i
-*= 10.2.0.0/20      192.168.11.13            0             0 65515 65010 i
-*>                  192.168.11.12            0             0 65515 65010 i
-*> 10.10.0.0/24     0.0.0.0                  0         32768 i
-*> 10.11.0.0/20     192.168.11.12                          0 65515 i
+*> 0.0.0.0/0        192.168.11.12                          0 65515 i
 *=                  192.168.11.13                          0 65515 i
-*> 10.11.16.0/20    192.168.11.12                          0 65515 i
+*> 10.1.0.0/16      192.168.11.12                          0 65515 i
+*=                  192.168.11.13                          0 65515 i
+*> 10.2.0.0/16      192.168.11.12            0             0 65515 65010 i
+*=                  192.168.11.13            0             0 65515 65010 i
+*> 10.10.0.0/24     0.0.0.0                  0         32768 i
+*> 10.11.0.0/16     192.168.11.12                          0 65515 i
 *=                  192.168.11.13                          0 65515 i
 *> 192.168.11.0/24  192.168.11.12                          0 65515 i
 *=                  192.168.11.13                          0 65515 i
 
-Displayed  7 routes and 13 total paths
+Displayed  6 routes and 11 total paths
 ```
 
 We can see the hub and spoke Vnet ranges being learned dynamically in the BGP table.

@@ -5,10 +5,10 @@
 locals {
   prefix                      = "Vwan23"
   lab_name                    = "SecVwan_1Region"
-  enable_diagnostics          = false
   enable_onprem_wan_link      = false
+  enable_diagnostics          = true
   enable_ipv6                 = true
-  enable_vnet_flow_logs       = false
+  enable_vnet_flow_logs       = true
   create_vwan_route_maps      = false
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
@@ -78,7 +78,7 @@ locals {
   ]
   spoke2_udr_main_routes = concat(local.region1_default_udr_destinations, [
     { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "hub1v6", address_prefix = [local.hub1_address_space.2, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
   ])
   hub1_udr_main_routes = concat(local.region1_default_udr_destinations, [
     { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
@@ -552,6 +552,7 @@ locals {
   main_files = {
     "output/server.sh"              = local.vm_startup
     "output/startup.sh"             = templatefile("../../scripts/startup.sh", local.vm_init_vars)
+    "output/startup-probe.sh"       = templatefile("../../scripts/startup.sh", local.probe_init_vars)
     "output/probe-cloud-config.yml" = module.probe_vm_cloud_init.cloud_config
     "output/vm-cloud-config.yml"    = module.vm_cloud_init.cloud_config
     "output/hub1-linux-nva.sh"      = local.hub1_linux_nva_init
