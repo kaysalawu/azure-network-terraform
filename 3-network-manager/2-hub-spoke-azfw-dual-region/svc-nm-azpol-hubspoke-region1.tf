@@ -74,6 +74,12 @@ module "nm_region1" {
     configuration_names = ["sac-ng-hubspoke-region1"]
     configuration_ids   = []
   }
+
+  depends_on = [
+    module.hub1,
+    module.spoke1,
+    module.spoke2,
+  ]
 }
 
 ####################################################

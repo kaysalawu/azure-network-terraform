@@ -27,7 +27,7 @@ locals {
         network_interface_id  = nva.interfaces["${local.prefix}-trust-nic"].id
       }]
     }],
-    var.enable_ipv6 && module.nva[0].private_ipv6_address != null ? [{ #TODO: fix. requires dual terraform apply. create local backendpool resource for ipv6.
+    var.enable_ipv6 ? [{ #TODO: fix. requires dual terraform apply. create local backendpool resource for ipv6.
       name = "nva-ipv6"
       addresses = [{
         name               = "nva-ipv6"
@@ -47,7 +47,7 @@ locals {
       backend_address_pool_name      = ["nva", ]
       probe_name                     = var.health_probes[0].name
     }],
-    var.enable_ipv6 && module.nva[0].private_ipv6_address != null ? [{ #TODO: fix. requires dual terraform apply. create local backendpool resource for ipv6.
+    var.enable_ipv6 ? [{ #TODO: fix. requires dual terraform apply. create local backendpool resource for ipv6.
       name                           = "nva-ha-ipv6"
       protocol                       = "All"
       frontend_port                  = "0"
@@ -164,6 +164,9 @@ module "ilb_untrust" {
       probe_name                     = var.health_probes[0].name
     },
   ]
+  depends_on = [
+    module.nva,
+  ]
 }
 
 ####################################################
@@ -186,4 +189,8 @@ module "ilb_trust" {
   backend_pools             = local.backend_pools_trust
   lb_rules                  = local.lb_rules_trust
   probes                    = var.health_probes
+
+  depends_on = [
+    module.nva,
+  ]
 }

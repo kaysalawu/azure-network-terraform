@@ -306,8 +306,8 @@ azureuser@spoke1Vm:~$ curl-dns4
 200 (0.154482s) - 10.4.0.5 - spoke4vm.us.az.corp
 200 (0.160333s) - 10.5.0.5 - spoke5vm.us.az.corp
 200 (0.016558s) - 104.16.184.241 - icanhazip.com
-200 (0.035977s) - 10.11.7.99 - https://vw24spoke3sa5d99.blob.core.windows.net/spoke3/spoke3.txt
-200 (0.303681s) - 10.22.7.99 - https://vw24spoke6sa5d99.blob.core.windows.net/spoke6/spoke6.txt
+200 (0.035977s) - 10.11.7.99 - https://vwan24spoke3sa5d99.blob.core.windows.net/spoke3/spoke3.txt
+200 (0.303681s) - 10.22.7.99 - https://vwan24spoke6sa5d99.blob.core.windows.net/spoke6/spoke6.txt
 ```
 
 ```sh
@@ -326,8 +326,8 @@ azureuser@spoke1Vm:~$ curl-dns6
  - spoke4vm.us.az.corp
  - spoke5vm.us.az.corp
 000 (2.251979s) -  - icanhazip.com
-000 (0.006467s) -  - https://vw24spoke3sa5d99.blob.core.windows.net/spoke3/spoke3.txt
-000 (0.009678s) -  - https://vw24spoke6sa5d99.blob.core.windows.net/spoke6/spoke6.txt
+000 (0.006467s) -  - https://vwan24spoke3sa5d99.blob.core.windows.net/spoke3/spoke3.txt
+000 (0.009678s) -  - https://vwan24spoke6sa5d99.blob.core.windows.net/spoke6/spoke6.txt
 ```
 
 </details>
@@ -420,7 +420,7 @@ echo -e "\n$spoke3_sgtacct_host\n" && echo
 <summary>Sample output</summary>
 
 ```sh
-vw24spoke3sa5d99.blob.core.windows.net
+vwan24spoke3sa5d99.blob.core.windows.net
 ```
 
 </details>
@@ -442,8 +442,8 @@ Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-vw24spoke3sa5d99.blob.core.windows.net  canonical name = vw24spoke3sa5d99.privatelink.blob.core.windows.net.
-vw24spoke3sa5d99.privatelink.blob.core.windows.net      canonical name = blob.db4prdstr15a.store.core.windows.net.
+vwan24spoke3sa5d99.blob.core.windows.net  canonical name = vwan24spoke3sa5d99.privatelink.blob.core.windows.net.
+vwan24spoke3sa5d99.privatelink.blob.core.windows.net      canonical name = blob.db4prdstr15a.store.core.windows.net.
 Name:   blob.db4prdstr15a.store.core.windows.net
 Address: 20.60.204.97
 ```
@@ -451,7 +451,7 @@ Address: 20.60.204.97
 </details>
 <p>
 
-We can see that the endpoint is a public IP address, ***20.60.204.97***. We can see the CNAME `vw24spoke3sa5d99.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
+We can see that the endpoint is a public IP address, ***20.60.204.97***. We can see the CNAME `vwan24spoke3sa5d99.privatelink.blob.core.windows.net.` created for the storage account which recursively resolves to the public IP address.
 
 **5.3.** Test access to the storage account blob.
 
@@ -532,7 +532,7 @@ echo -e "\n$spoke3_sgtacct_host\n" && echo
 <summary>Sample output</summary>
 
 ```sh
-vw24spoke3sa5d99.blob.core.windows.net
+vwan24spoke3sa5d99.blob.core.windows.net
 ```
 
 </details>
@@ -554,8 +554,8 @@ Server:         127.0.0.53
 Address:        127.0.0.53#53
 
 Non-authoritative answer:
-vw24spoke3sa5d99.blob.core.windows.net  canonical name = vw24spoke3sa5d99.privatelink.blob.core.windows.net.
-Name:   vw24spoke3sa5d99.privatelink.blob.core.windows.net
+vwan24spoke3sa5d99.blob.core.windows.net  canonical name = vwan24spoke3sa5d99.privatelink.blob.core.windows.net.
+Name:   vwan24spoke3sa5d99.privatelink.blob.core.windows.net
 Address: 10.11.7.99
 ```
 
@@ -564,9 +564,9 @@ Address: 10.11.7.99
 
 We can see that the storage account hostname resolves to the private endpoint ***10.11.7.99*** in ***hub1***. The following is a summary of the DNS resolution from `Vwan24-branch1Vm`:
 
-- On-premises server `Vwan24-branch1Vm` makes a DNS request for `vw24spoke3sa5d99.blob.core.windows.net`
+- On-premises server `Vwan24-branch1Vm` makes a DNS request for `vwan24spoke3sa5d99.blob.core.windows.net`
 - The request is received by on-premises DNS server `Vwan24-branch1-dns`
-- The DNS server resolves `vw24spoke3sa5d99.blob.core.windows.net` to the CNAME `vw24spoke3sa5d99.privatelink.blob.core.windows.net`
+- The DNS server resolves `vwan24spoke3sa5d99.blob.core.windows.net` to the CNAME `vwan24spoke3sa5d99.privatelink.blob.core.windows.net`
 - The DNS server has a conditional DNS forwarding defined in the branch1 unbound DNS configuration file, [output/branch1Dns.sh](./output/branch1Dns.sh).
 
   ```sh
@@ -610,11 +610,11 @@ bash ../../scripts/_routes_vwan.sh Vwan24_SecVwan_2Region_RG
 <summary>Sample output</summary>
 
 ```sh
-4-vwan-sec-dual-region$ bash ../../scripts/_routes_vwan.sh Vw24_SecVwan_2Region_RG
+4-vwan-sec-dual-region$ bash ../../scripts/_routes_vwan.sh Vwan24_SecVwan_2Region_RG
 
-Resource group: Vw24_SecVwan_2Region_RG
+Resource group: Vwan24_SecVwan_2Region_RG
 
-vHub:       Vw24-vhub2-hub
+vHub:       Vwan24-vhub2-hub
 RouteTable: defaultRouteTable
 -------------------------------------------------------
 
@@ -626,8 +626,8 @@ AddressPrefixes    NextHopType
 192.168.0.0/16     Azure Firewall
 
 
-vHub:     Vw24-vhub2-hub
-Firewall: Vw24-vhub2-azfw
+vHub:     Vwan24-vhub2-hub
+Firewall: Vwan24-vhub2-azfw
 -------------------------------------------------------
 
 AddressPrefixes    AsPath             NextHopType
@@ -642,7 +642,7 @@ AddressPrefixes    AsPath             NextHopType
 10.5.0.0/16        65020              HubBgpConnection
 0.0.0.0/0                             Internet
 
-vHub:       Vw24-vhub1-hub
+vHub:       Vwan24-vhub1-hub
 RouteTable: defaultRouteTable
 -------------------------------------------------------
 
@@ -654,8 +654,8 @@ AddressPrefixes    NextHopType
 192.168.0.0/16     Azure Firewall
 
 
-vHub:     Vw24-vhub1-hub
-Firewall: Vw24-vhub1-azfw
+vHub:     Vwan24-vhub1-hub
+Firewall: Vwan24-vhub1-azfw
 -------------------------------------------------------
 
 AddressPrefixes    AsPath             NextHopType
