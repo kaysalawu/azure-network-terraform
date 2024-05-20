@@ -134,10 +134,6 @@ locals {
       # do nothing (placeholder for future use)
       "route-map ${local.branch1_nva_route_map_azure} permit 110",
       "match ip address prefix-list all",
-
-      # block inbound gateway subnet, allow all other hub and spoke cidrs
-      # "route-map ${local.branch1_nva_route_map_block_azure} permit 120",
-      # "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
     ]
     STATIC_ROUTES = [
       { prefix = "0.0.0.0/0", next_hop = local.branch1_untrust_default_gw },

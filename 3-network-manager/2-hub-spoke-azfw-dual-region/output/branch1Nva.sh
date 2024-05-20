@@ -141,25 +141,25 @@ conn %default
 
 conn Tunnel0
     left=10.10.1.9
-    leftid=13.79.194.119
-    right=4.209.29.112
-    rightid=4.209.29.112
+    leftid=52.178.156.42
+    right=172.205.11.3
+    rightid=172.205.11.3
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.10.1.9
-    leftid=13.79.194.119
-    right=4.209.29.157
-    rightid=4.209.29.157
+    leftid=52.178.156.42
+    right=172.205.11.2
+    rightid=172.205.11.2
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.10.1.9
-    leftid=13.79.194.119
-    right=20.232.135.25
-    rightid=20.232.135.25
+    leftid=52.178.156.42
+    right=52.191.71.150
+    rightid=52.191.71.150
     auto=start
     mark=300
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -170,9 +170,9 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.10.1.9 4.209.29.112 : PSK "changeme"
-10.10.1.9 4.209.29.157 : PSK "changeme"
-10.10.1.9 20.232.135.25 : PSK "changeme"
+10.10.1.9 172.205.11.3 : PSK "changeme"
+10.10.1.9 172.205.11.2 : PSK "changeme"
+10.10.1.9 52.191.71.150 : PSK "changeme"
 
 EOF
 
@@ -191,12 +191,12 @@ case "$PLUTO_CONNECTION" in
   Tunnel0)
     VTI_INTERFACE=vti0
     VTI_LOCALADDR=10.10.10.1
-    VTI_REMOTEADDR=10.11.16.7
+    VTI_REMOTEADDR=10.11.16.6
     ;;
   Tunnel1)
     VTI_INTERFACE=vti1
     VTI_LOCALADDR=10.10.10.5
-    VTI_REMOTEADDR=10.11.16.6
+    VTI_REMOTEADDR=10.11.16.7
     ;;
   Tunnel2)
     VTI_INTERFACE=vti2
@@ -289,7 +289,7 @@ service integrated-vtysh-config
 !-----------------------------------------
 ! Prefix Lists
 !-----------------------------------------
-ip prefix-list BLOCK_HUB_GW_SUBNET deny 10.11.16.0/20
+ip prefix-list BLOCK_HUB_GW_SUBNET deny fd00:db8:11::/56
 ip prefix-list BLOCK_HUB_GW_SUBNET permit 0.0.0.0/0 le 32
 !
 !-----------------------------------------
@@ -302,8 +302,8 @@ interface lo
 ! Static Routes
 !-----------------------------------------
 ip route 0.0.0.0/0 10.10.1.1
-ip route 10.11.16.7/32 vti0
-ip route 10.11.16.6/32 vti1
+ip route 10.11.16.6/32 vti0
+ip route 10.11.16.7/32 vti1
 ip route 192.168.30.30/32 vti2
 ip route 10.30.1.9 10.10.1.1
 ip route 10.10.0.0/24 10.10.1.1
@@ -322,20 +322,20 @@ ip route 10.10.0.0/24 10.10.1.1
 !-----------------------------------------
 router bgp 65001
 bgp router-id 192.168.10.10
-neighbor 10.11.16.7 remote-as 65515
-neighbor 10.11.16.7 ebgp-multihop 255
-neighbor 10.11.16.7 update-source lo
 neighbor 10.11.16.6 remote-as 65515
 neighbor 10.11.16.6 ebgp-multihop 255
 neighbor 10.11.16.6 update-source lo
+neighbor 10.11.16.7 remote-as 65515
+neighbor 10.11.16.7 ebgp-multihop 255
+neighbor 10.11.16.7 update-source lo
 neighbor 192.168.30.30 remote-as 65003
 neighbor 192.168.30.30 ebgp-multihop 255
 neighbor 192.168.30.30 update-source lo
 !
 address-family ipv4 unicast
   network 10.10.0.0/24
-  neighbor 10.11.16.7 soft-reconfiguration inbound
   neighbor 10.11.16.6 soft-reconfiguration inbound
+  neighbor 10.11.16.7 soft-reconfiguration inbound
   neighbor 192.168.30.30 soft-reconfiguration inbound
 exit-address-family
 !
