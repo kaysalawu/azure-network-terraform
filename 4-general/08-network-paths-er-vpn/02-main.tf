@@ -4,11 +4,11 @@
 
 locals {
   prefix                 = "Lab08"
-  lab_name               = "Network_SRE"
-  enable_diagnostics     = true
+  lab_name               = "ExR_VPN"
   enable_onprem_wan_link = false
+  enable_diagnostics     = true
   enable_ipv6            = false
-  enable_vnet_flow_logs  = true
+  enable_vnet_flow_logs  = false
 
   hub1_tags    = { "lab" = local.prefix, "env" = "prod", "nodeType" = "hub" }
   branch2_tags = { "lab" = local.prefix, "env" = "prod", "nodeType" = "branch" }
@@ -152,6 +152,7 @@ locals {
 
     config_nva = {
       enable           = false
+      enable_ipv6      = null
       type             = null
       scenario_option  = null
       opn_type         = null
@@ -160,7 +161,6 @@ locals {
       ilb_trust_ip     = null
       ilb_untrust_ipv6 = null
       ilb_trust_ipv6   = null
-      enable_ipv6      = null
     }
   }
 }
@@ -181,14 +181,15 @@ resource "azurerm_resource_group" "rg" {
 }
 
 module "common" {
-  source           = "../../modules/common"
-  resource_group   = azurerm_resource_group.rg.name
-  env              = "common"
-  prefix           = local.prefix
-  firewall_sku     = local.firewall_sku
-  regions          = local.regions
-  private_prefixes = local.private_prefixes
-  tags             = {}
+  source              = "../../modules/common"
+  resource_group      = azurerm_resource_group.rg.name
+  env                 = "common"
+  prefix              = local.prefix
+  firewall_sku        = local.firewall_sku
+  regions             = local.regions
+  private_prefixes    = local.private_prefixes
+  private_prefixes_v6 = local.private_prefixes_v6
+  tags                = {}
 }
 
 # private dns zones
@@ -427,6 +428,7 @@ locals {
   main_files = {
     "output/server.sh"              = local.vm_startup
     "output/startup.sh"             = templatefile("../../scripts/startup.sh", local.vm_init_vars)
+    "output/startup-probe.sh"       = templatefile("../../scripts/startup.sh", local.probe_init_vars)
     "output/probe-cloud-config.yml" = module.probe_vm_cloud_init.cloud_config
     "output/vm-cloud-config.yml"    = module.vm_cloud_init.cloud_config
   }

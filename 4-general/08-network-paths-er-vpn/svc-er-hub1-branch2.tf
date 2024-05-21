@@ -23,7 +23,7 @@ variable "megaport_secret_key" {}
 ####################################################
 # megaport
 ####################################################
-
+/*
 module "megaport" {
   source = "../../modules/megaport"
   providers = {
@@ -71,6 +71,10 @@ module "megaport" {
       ipv4_config = {
         primary_peer_address_prefix   = local.csp_range3
         secondary_peer_address_prefix = local.csp_range4
+      }
+      ipv6_config = {
+        primary_peer_address_prefix   = local.csp_range3_v6
+        secondary_peer_address_prefix = local.csp_range4_v6
       }
     },
     {
@@ -127,3 +131,4 @@ resource "azurerm_portal_dashboard" "express_route" {
   name                 = "${local.prefix}-system-dashboard"
   dashboard_properties = local.dashboard_vars
 }
+*/
