@@ -17,7 +17,7 @@
 | VM_IP   | 10.20.0.5   |
 | VM_NAME   | Lab08-branch2Vm   |
 | VNET_NAME   | Lab08-branch2-vnet   |
-| VNET_RANGES   | 10.20.0.0/20, 10.20.16.0/20   |
+| VNET_RANGES   | 10.20.0.0/16, fd00:db8:20::/56   |
 
 ## hub1
 
@@ -45,7 +45,7 @@
 | VM_IP   | 10.11.0.5   |
 | VM_NAME   | Lab08-hub1Vm   |
 | VNET_NAME   | Lab08-hub1-vnet   |
-| VNET_RANGES   | 10.11.0.0/20, 10.11.16.0/20   |
+| VNET_RANGES   | 10.11.0.0/16, fd00:db8:11::/56   |
 
 ## spoke1
 
@@ -67,4 +67,4 @@
 | VM_IP   | 10.1.0.5   |
 | VM_NAME   | Lab08-spoke1Vm   |
 | VNET_NAME   | Lab08-spoke1-vnet   |
-| VNET_RANGES   | 10.1.0.0/20   |
+| VNET_RANGES   | 10.1.0.0/16, fd00:db8:1::/56   |

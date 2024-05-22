@@ -141,23 +141,23 @@ conn %default
 
 conn Tunnel0
     left=10.10.1.9
-    leftid=52.178.160.102
-    right=172.205.35.58
-    rightid=172.205.35.58
+    leftid=52.169.0.86
+    right=4.245.165.156
+    rightid=4.245.165.156
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.10.1.9
-    leftid=52.178.160.102
-    right=172.205.35.121
-    rightid=172.205.35.121
+    leftid=52.169.0.86
+    right=4.245.165.219
+    rightid=4.245.165.219
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.10.1.9
-    leftid=52.178.160.102
+    leftid=52.169.0.86
     right=1.1.1.1
     rightid=1.1.1.1
     auto=start
@@ -170,8 +170,8 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.10.1.9 172.205.35.58 : PSK "changeme"
-10.10.1.9 172.205.35.121 : PSK "changeme"
+10.10.1.9 4.245.165.156 : PSK "changeme"
+10.10.1.9 4.245.165.219 : PSK "changeme"
 10.10.1.9 1.1.1.1 : PSK "changeme"
 
 EOF
@@ -385,7 +385,7 @@ chmod a+x /usr/local/bin/ipsec-debug
 #-----------------------------------
 
 cat <<EOF > /etc/cron.d/ipsec-auto-restart
-*/10 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
+*/30 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
 EOF
 
 crontab /etc/cron.d/ipsec-auto-restart

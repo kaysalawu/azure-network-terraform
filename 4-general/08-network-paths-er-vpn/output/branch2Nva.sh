@@ -141,17 +141,17 @@ conn %default
 
 conn Tunnel0
     left=10.20.1.9
-    leftid=13.74.46.185
-    right=4.209.26.30
-    rightid=4.209.26.30
+    leftid=52.164.190.249
+    right=172.205.29.35
+    rightid=172.205.29.35
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.20.1.9
-    leftid=13.74.46.185
-    right=4.209.26.20
-    rightid=4.209.26.20
+    leftid=52.164.190.249
+    right=172.205.29.60
+    rightid=172.205.29.60
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -162,8 +162,8 @@ conn Tunnel1
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.20.1.9 4.209.26.30 : PSK "changeme"
-10.20.1.9 4.209.26.20 : PSK "changeme"
+10.20.1.9 172.205.29.35 : PSK "changeme"
+10.20.1.9 172.205.29.60 : PSK "changeme"
 
 EOF
 
@@ -330,8 +330,8 @@ neighbor 10.20.17.5 remote-as 65515
 neighbor 10.20.17.5 ebgp-multihop 255
 !
 address-family ipv4 unicast
-  network 10.20.0.0/20
-  network 10.20.0.0/20
+  network 10.20.0.0/16
+  network 10.20.0.0/16
   neighbor 10.11.16.14 soft-reconfiguration inbound
   neighbor 10.11.16.14 route-map AZURE_IPSEC_PRIMARY_IN in
   neighbor 10.11.16.14 route-map AZURE_IPSEC_PRIMARY_OUT out
@@ -392,7 +392,7 @@ chmod a+x /usr/local/bin/ipsec-debug
 #-----------------------------------
 
 cat <<EOF > /etc/cron.d/ipsec-auto-restart
-*/10 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
+*/30 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
 EOF
 
 crontab /etc/cron.d/ipsec-auto-restart

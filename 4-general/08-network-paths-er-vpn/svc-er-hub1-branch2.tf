@@ -23,7 +23,7 @@ variable "megaport_secret_key" {}
 ####################################################
 # megaport
 ####################################################
-/*
+
 module "megaport" {
   source = "../../modules/megaport"
   providers = {
@@ -131,4 +131,3 @@ resource "azurerm_portal_dashboard" "express_route" {
   name                 = "${local.prefix}-system-dashboard"
   dashboard_properties = local.dashboard_vars
 }
-*/
