@@ -1,6 +1,6 @@
 # Azure Network Reliability (High SLA) <!-- omit from toc -->
 
-## Lab: Lab08 <!-- omit from toc -->
+## Lab08 <!-- omit from toc -->
 
 Contents
 

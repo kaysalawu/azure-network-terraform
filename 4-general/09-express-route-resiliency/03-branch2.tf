@@ -14,7 +14,8 @@ module "branch2" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.branch2_tags
 
-  enable_diagnostics = local.enable_diagnostics
+  enable_diagnostics           = local.enable_diagnostics
+  log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
 
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region1"].id
@@ -77,7 +78,6 @@ locals {
   }
   branch2_forward_zones = [
     { zone = "${local.region1_dns_zone}.", targets = [local.hub1_dns_in_addr, ] },
-    { zone = "${local.region2_dns_zone}.", targets = [local.hub2_dns_in_addr, ] },
     { zone = "privatelink.blob.core.windows.net.", targets = [local.hub1_dns_in_addr, ] },
     { zone = "privatelink.azurewebsites.net.", targets = [local.hub1_dns_in_addr, ] },
     { zone = "privatelink.database.windows.net.", targets = [local.hub1_dns_in_addr, ] },
@@ -98,13 +98,11 @@ module "branch2_dns" {
   custom_data     = base64encode(local.branch2_unbound_startup)
   tags            = local.branch2_tags
 
-  enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
-      name                 = "${local.branch2_prefix}dns-main"
-      subnet_id            = module.branch2.subnets["MainSubnet"].id
-      private_ip_address   = local.branch2_dns_addr
-      private_ipv6_address = local.branch2_dns_addr_v6
+      name               = "${local.branch2_prefix}dns-main"
+      subnet_id          = module.branch2.subnets["MainSubnet"].id
+      private_ip_address = local.branch2_dns_addr
     },
   ]
   depends_on = [
@@ -127,14 +125,11 @@ module "branch2_vm" {
   custom_data     = base64encode(module.probe_vm_cloud_init.cloud_config)
   tags            = local.branch2_tags
 
-  enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
-      name                 = "${local.branch2_prefix}vm-main-nic"
-      subnet_id            = module.branch2.subnets["MainSubnet"].id
-      private_ip_address   = local.branch2_vm_addr
-      private_ipv6_address = local.branch2_vm_addr_v6
-      create_public_ip     = true
+      name               = "${local.branch2_prefix}vm-main-nic"
+      subnet_id          = module.branch2.subnets["MainSubnet"].id
+      private_ip_address = local.branch2_vm_addr
     },
   ]
   depends_on = [

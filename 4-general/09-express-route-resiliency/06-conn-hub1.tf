@@ -49,14 +49,7 @@ module "spoke1_udr_main" {
   prefix         = "${local.spoke1_prefix}main"
   location       = local.spoke1_location
   subnet_id      = module.spoke1.subnets["MainSubnet"].id
-  routes = [for r in local.spoke1_udr_main_routes : {
-    name                   = r.name
-    address_prefix         = r.address_prefix
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = r.next_hop_ip
-  }]
-
-  disable_bgp_route_propagation = true
+  routes         = []
 
   depends_on = [
     time_sleep.hub1,
@@ -78,12 +71,7 @@ module "hub1_gateway_udr" {
   prefix         = "${local.hub1_prefix}gateway"
   location       = local.hub1_location
   subnet_id      = module.hub1.subnets["GatewaySubnet"].id
-  routes = [for r in local.hub1_gateway_udr_destinations : {
-    name                   = r.name
-    address_prefix         = r.address_prefix
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = r.next_hop_ip
-  }]
+  routes         = []
 
   depends_on = [
     time_sleep.hub1,
@@ -98,14 +86,7 @@ module "hub1_udr_main" {
   prefix         = "${local.hub1_prefix}main"
   location       = local.hub1_location
   subnet_id      = module.hub1.subnets["MainSubnet"].id
-  routes = [for r in local.hub1_udr_main_routes : {
-    name                   = r.name
-    address_prefix         = r.address_prefix
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = r.next_hop_ip
-  }]
-
-  disable_bgp_route_propagation = true
+  routes         = []
 
   depends_on = [
     time_sleep.hub1,

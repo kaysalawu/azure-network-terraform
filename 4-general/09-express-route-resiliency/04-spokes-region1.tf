@@ -24,9 +24,11 @@ module "spoke1" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.spoke1_tags
 
-  enable_diagnostics           = local.enable_diagnostics
-  enable_ipv6                  = local.enable_ipv6
-  log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
+  enable_diagnostics             = local.enable_diagnostics
+  enable_ipv6                    = local.enable_ipv6
+  log_analytics_workspace_name   = module.common.log_analytics_workspaces["region1"].name
+  network_watcher_name           = "NetworkWatcher_${local.region1}"
+  network_watcher_resource_group = "NetworkWatcherRG"
 
   dns_zones_linked_to_vnet = [
     { name = module.common.private_dns_zones[local.region1_dns_zone].name, registration_enabled = true },
@@ -46,6 +48,7 @@ module "spoke1" {
   }
 
   config_vnet = {
+    bgp_community = local.spoke1_bgp_community
     address_space = local.spoke1_address_space
     subnets       = local.spoke1_subnets
     nat_gateway_subnet_names = [
