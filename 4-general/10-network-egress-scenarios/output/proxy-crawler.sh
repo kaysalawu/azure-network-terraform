@@ -16,9 +16,26 @@ reset=$(tput sgr0)
 export ETH0_IP=$(hostname -I | awk '{print $1}')
 echo -e "\nExtracting az token..."
 export TOKEN=$(timeout 5 az account get-access-token --query accessToken -o tsv 2>/dev/null)
+
+download_json_file() {
+    local url="https://www.microsoft.com/en-us/download/details.aspx?id=56519"
+    local json_url=$(curl -s "$url" | grep -oP '(?<=href=")[^"]*\.json' | head -n 1)
+    if [ -n "$json_url" ]; then
+        if [[ ! "$json_url" =~ ^http ]]; then
+            json_url="https://www.microsoft.com$json_url"
+        fi
+        curl -o service_tags.json "$json_url"
+        echo "JSON file downloaded as service_tags.json"
+    else
+        echo "JSON file not found on the page."
+    fi
+}
+
 echo -e "Downloading service tags JSON..."
 if [ ! -f service_tags.json ]; then
-  curl -o service_tags.json "https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20240318.json" 2>/dev/null
+    download_json_file
+else
+    echo "service_tags.json already exists."
 fi
 
 echo -e "\n-------------------------------------"
@@ -187,26 +204,26 @@ function download_blob() {
   #####################################################
   echo -e "\n6. Blob (Data Plane)"
   #####################################################
-  local host=$(echo https://lab10hub9f17.blob.core.windows.net/storage/storage.txt | awk -F/ '{print $3}')
-  echo -e "   url = https://lab10hub9f17.blob.core.windows.net/storage/storage.txt"
+  local host=$(echo https://lab10hubd16a.blob.core.windows.net/storage/storage.txt | awk -F/ '{print $3}')
+  echo -e "   url = https://lab10hubd16a.blob.core.windows.net/storage/storage.txt"
   echo -e "   host = $host"
   resolve_dns $host 2>/dev/null
   get_azure_service_tag_from_host $host 2>/dev/null
   storage_account_key=""
   storage_access_token=""
   blob_access=""
-  echo -e "   az storage account keys list -g Lab10_NetworkEgress_RG --account-name lab10hub9f17"
-  if storage_account_key=$(timeout 5 az storage account keys list -g Lab10_NetworkEgress_RG --account-name lab10hub9f17 --query "[0].value" -o tsv 2>/dev/null); then
-    echo "   az storage blob download --account-name lab10hub9f17 -c storage -n storage.txt --account-key <KEY>"
-    blob_access=$(timeout 5 az storage blob download --account-name lab10hub9f17 -c storage -n storage.txt --account-key $storage_account_key --query content -o tsv 2>/dev/null)
+  echo -e "   az storage account keys list -g Lab10_NetworkEgress_RG --account-name lab10hubd16a"
+  if storage_account_key=$(timeout 5 az storage account keys list -g Lab10_NetworkEgress_RG --account-name lab10hubd16a --query "[0].value" -o tsv 2>/dev/null); then
+    echo "   az storage blob download --account-name lab10hubd16a -c storage -n storage.txt --account-key <KEY>"
+    blob_access=$(timeout 5 az storage blob download --account-name lab10hubd16a -c storage -n storage.txt --account-key $storage_account_key --query content -o tsv 2>/dev/null)
   else
     echo -e "   Storage account key: timed out!"
     echo -e "   Fallback: Get access token for storage.azure.com via metadata ..."
     if ! storage_access_token=$(timeout 5 curl -H Metadata:true "http://169.254.169.254:80/metadata/identity/oauth2/token?resource=https%3A%2F%2Fstorage.azure.com&api-version=2018-02-01" -s | jq -r .access_token); then
       echo -e "   Storage access token: timed out!"
     else
-      echo "   curl https://lab10hub9f17.blob.core.windows.net/storage/storage.txt ..."
-      blob_access=$(timeout 5 curl -s -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "x-ms-version: 2019-02-02" -H "Authorization: Bearer $storage_access_token" "https://lab10hub9f17.blob.core.windows.net/storage/storage.txt")
+      echo "   curl https://lab10hubd16a.blob.core.windows.net/storage/storage.txt ..."
+      blob_access=$(timeout 5 curl -s -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "x-ms-version: 2019-02-02" -H "Authorization: Bearer $storage_access_token" "https://lab10hubd16a.blob.core.windows.net/storage/storage.txt")
     fi
   fi
 
@@ -224,22 +241,22 @@ function access_keyvault_secret() {
   #####################################################
   echo -e "\n7. KeyVault (Data Plane)"
   #####################################################
-  local host=$(echo https://lab10-hub-kv9f17.vault.azure.net/secrets/message | awk -F/ '{print $3}')
-  echo -e "   url: https://lab10-hub-kv9f17.vault.azure.net/secrets/message"
+  local host=$(echo https://lab10-hub-kvd16a.vault.azure.net/secrets/message | awk -F/ '{print $3}')
+  echo -e "   url: https://lab10-hub-kvd16a.vault.azure.net/secrets/message"
   echo -e "   host: $host"
   resolve_dns $host
   get_azure_service_tag_from_host $host 2>/dev/null
   secret_value=""
   vault_access_token=""
-  echo "   az keyvault secret show --vault-name lab10-hub-kv9f17 --name message"
-  if ! secret_value=$(timeout 5 az keyvault secret show --vault-name lab10-hub-kv9f17 --name message --query value -o tsv 2>/dev/null); then
+  echo "   az keyvault secret show --vault-name lab10-hub-kvd16a --name message"
+  if ! secret_value=$(timeout 5 az keyvault secret show --vault-name lab10-hub-kvd16a --name message --query value -o tsv 2>/dev/null); then
     echo -e "   message: timed out!"
     echo -e "   Fallback: Get access token for vault.azure.net via metadata ..."
     if ! vault_access_token=$(timeout 5 curl -H Metadata:true "http://169.254.169.254/metadata/identity/oauth2/token?resource=https%3A%2F%2Fvault.azure.net&api-version=2018-02-01" -s | jq -r .access_token); then
       echo -e "   Vault token: timed out!"
     else
-      echo "curl https://lab10-hub-kv9f17.vault.azure.net/secrets/message?api-version=7.2"
-      secret_value=$(timeout 5 curl -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "Authorization : Bearer $vault_access_token" "https://lab10-hub-kv9f17.vault.azure.net/secrets/message?api-version=7.2" -o secret.txt 2>/dev/null)
+      echo "curl https://lab10-hub-kvd16a.vault.azure.net/secrets/message?api-version=7.2"
+      secret_value=$(timeout 5 curl -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "Authorization : Bearer $vault_access_token" "https://lab10-hub-kvd16a.vault.azure.net/secrets/message?api-version=7.2" -o secret.txt 2>/dev/null)
     fi
   fi
 

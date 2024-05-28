@@ -9,7 +9,7 @@ echo "" >> $logs_path
 START_TOTAL=$(date +%s)
 
 
-# EXport the following variables
+# Export the following variables
 
 # export RG=Poc3RG
 # export LOC=westeurope

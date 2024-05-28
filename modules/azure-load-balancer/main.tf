@@ -172,7 +172,7 @@ resource "azurerm_lb_backend_address_pool_address" "this" {
   backend_address_ip_configuration_id = local.backend_pools_addresses_list[count.index].backend_address_ip_configuration_id
   virtual_network_id                  = local.backend_pools_addresses_list[count.index].virtual_network_id
   ip_address                          = local.backend_pools_addresses_list[count.index].ip_address
-  depends_on                          = [time_sleep.this, ]
+  depends_on                          = [time_sleep.this, azurerm_lb.this]
 }
 
 ####################################################

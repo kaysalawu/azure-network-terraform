@@ -60,6 +60,23 @@ module "hub_proxy_init" {
     local.hub_proxy_files,
   )
   run_commands = [
+    "sysctl -w net.ipv4.ip_forward=1",
+    "sysctl -w net.ipv4.conf.eth0.disable_xfrm=1",
+    "sysctl -w net.ipv4.conf.eth0.disable_policy=1",
+    "echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf",
+    "sysctl -w net.ipv6.conf.all.forwarding=1",
+    "echo 'net.ipv6.conf.all.forwarding=1' >> /etc/sysctl.conf",
+    "sysctl -p",
+    "echo iptables-persistent iptables-persistent/autosave_v4 boolean false | debconf-set-selections",
+    "echo iptables-persistent iptables-persistent/autosave_v6 boolean false | debconf-set-selections",
+    "apt-get -y install iptables-persistent",
+    "iptables -P FORWARD ACCEPT",
+    "iptables -P INPUT ACCEPT",
+    "iptables -P OUTPUT ACCEPT",
+    "iptables -t nat -A POSTROUTING -d 10.0.0.0/8 -j ACCEPT",
+    "iptables -t nat -A POSTROUTING -d 172.16.0.0/12 -j ACCEPT",
+    "iptables -t nat -A POSTROUTING -d 192.168.0.0/16 -j ACCEPT",
+    "iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE",
     ". ${local.init_dir}/init/startup.sh",
     ". ${local.init_dir}/unbound/setup-unbound.sh",
     ". ${local.init_dir}/squid/setup-squid.sh",
@@ -79,12 +96,13 @@ module "hub_proxy" {
   custom_data     = base64encode(module.hub_proxy_init.cloud_config)
   tags            = local.hub_tags
 
+  enable_ip_forwarding = true
   interfaces = [
     {
-      name               = "${local.hub_prefix}proxy-prod-nic"
+      name               = "${local.hub_prefix}proxy-nic"
       subnet_id          = module.hub.subnets["PublicSubnet"].id
       private_ip_address = local.hub_proxy_addr
-      #create_public_ip   = true
+      create_public_ip   = true
     },
   ]
 }

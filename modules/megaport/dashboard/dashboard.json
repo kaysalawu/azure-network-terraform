@@ -22,54 +22,182 @@
                   "chart": {
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "BitsInPerSecond",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/expressroutecircuits",
                         "metricVisualization": {
                           "displayName": "BitsInPerSecond"
+                        },
+                        "name": "BitsInPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
                         }
                       },
                       {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "BitsOutPerSecond",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/expressroutecircuits",
                         "metricVisualization": {
                           "displayName": "BitsOutPerSecond"
+                        },
+                        "name": "BitsOutPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
                         }
                       }
                     ],
-                    "title": "Avg BitsInPerSecond and Avg BitsOutPerSecond for az1",
-                    "titleKind": 1,
-                    "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
-                      "axisVisualization": {
-                        "x": {
-                          "isVisible": true,
-                          "axisType": 2
-                        },
-                        "y": {
-                          "isVisible": true,
-                          "axisType": 1
-                        }
-                      }
-                    },
                     "timespan": {
+                      "grain": 1,
                       "relative": {
                         "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "showUTCTime": false
+                    },
+                    "title": "Avg BitsInPerSecond and Avg BitsOutPerSecond for az1",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                },
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "grouping": {
+                      "dimension": [
+                        "DeviceRole",
+                        "PeeringType"
+                      ],
+                      "sort": 2,
+                      "top": 10
+                    },
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "BitsOutPerSecond"
+                        },
+                        "name": "BitsOutPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        }
+                      }
+                    ],
+                    "title": "Avg BitsOutPerSecond",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "1": {
+          "position": {
+            "x": 5,
+            "y": 0,
+            "colSpan": 5,
+            "rowSpan": 3
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              },
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "filterCollection": {
+                      "filters": [
+                        {
+                          "key": "Peer",
+                          "operator": 0,
+                          "values": [
+                            "Primary-IPv4"
+                          ]
+                        }
+                      ]
+                    },
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "Bgp Availability"
+                        },
+                        "name": "BgpAvailability",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        }
+                      }
+                    ],
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 86400000
+                      },
+                      "showUTCTime": false
+                    },
+                    "title": "Avg Bgp Availability for az1 where Peer = 'Primary-IPv4'",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -86,45 +214,41 @@
                         "resourceMetadata": {
                           "id": "${ER_CIRCUIT_ID}"
                         },
-                        "name": "BitsInPerSecond",
+                        "name": "BgpAvailability",
                         "aggregationType": 4,
                         "namespace": "microsoft.network/expressroutecircuits",
                         "metricVisualization": {
-                          "displayName": "BitsInPerSecond"
-                        }
-                      },
-                      {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "BitsOutPerSecond",
-                        "aggregationType": 4,
-                        "namespace": "microsoft.network/expressroutecircuits",
-                        "metricVisualization": {
-                          "displayName": "BitsOutPerSecond"
+                          "displayName": "Bgp Availability"
                         }
                       }
                     ],
-                    "title": "Avg BitsInPerSecond and Avg BitsOutPerSecond for az1",
-                    "titleKind": 1,
+                    "title": "Avg Bgp Availability",
+                    "titleKind": 2,
                     "visualization": {
                       "chartType": 3,
                       "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
                         "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
+                        "position": 2
                       },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
                       "disablePinning": true
+                    },
+                    "grouping": {
+                      "dimension": "Peer",
+                      "sort": 2,
+                      "top": 10
                     }
                   }
                 }
@@ -134,7 +258,248 @@
         },
         "2": {
           "position": {
+            "x": 10,
+            "y": 0,
+            "colSpan": 5,
+            "rowSpan": 3
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "DroppedInBitsPerSecond"
+                        },
+                        "name": "QosDropBitsInPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        }
+                      }
+                    ],
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 14400000
+                      },
+                      "showUTCTime": true
+                    },
+                    "title": "Avg Dropped In Bits per Second",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                },
+                "isOptional": true
+              },
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "DroppedInBitsPerSecond"
+                        },
+                        "name": "QosDropBitsInPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        }
+                      }
+                    ],
+                    "title": "Avg Dropped Bits In per Second",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "3": {
+          "position": {
             "x": 0,
+            "y": 3,
+            "colSpan": 5,
+            "rowSpan": 3
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "BitsInPerSecond"
+                        },
+                        "name": "BitsInPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        }
+                      },
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "BitsOutPerSecond"
+                        },
+                        "name": "BitsOutPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        }
+                      }
+                    ],
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 14400000
+                      },
+                      "showUTCTime": true
+                    },
+                    "title": "Avg BitsInPerSecond",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 3,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                },
+                "isOptional": true
+              },
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "grouping": {
+                      "dimension": [
+                        "DeviceRole",
+                        "PeeringType"
+                      ],
+                      "sort": 2,
+                      "top": 10
+                    },
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "BitsInPerSecond"
+                        },
+                        "name": "BitsInPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        }
+                      }
+                    ],
+                    "title": "Avg BitsInPerSecond",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "4": {
+          "position": {
+            "x": 5,
             "y": 3,
             "colSpan": 5,
             "rowSpan": 3
@@ -149,167 +514,6 @@
                 "name": "options",
                 "value": {
                   "chart": {
-                    "metrics": [
-                      {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "BgpAvailability",
-                        "aggregationType": 4,
-                        "namespace": "microsoft.network/expressroutecircuits",
-                        "metricVisualization": {
-                          "displayName": "Bgp Availability"
-                        }
-                      }
-                    ],
-                    "title": "Avg Bgp Availability for az1 where Peer = 'Primary-IPv4'",
-                    "titleKind": 1,
-                    "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
-                      "axisVisualization": {
-                        "x": {
-                          "isVisible": true,
-                          "axisType": 2
-                        },
-                        "y": {
-                          "isVisible": true,
-                          "axisType": 1
-                        }
-                      }
-                    },
-                    "filterCollection": {
-                      "filters": [
-                        {
-                          "key": "Peer",
-                          "operator": 0,
-                          "values": [
-                            "Primary-IPv4"
-                          ]
-                        }
-                      ]
-                    },
-                    "timespan": {
-                      "relative": {
-                        "duration": 86400000
-                      },
-                      "showUTCTime": false,
-                      "grain": 1
-                    }
-                  }
-                },
-                "isOptional": true
-              }
-            ],
-            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
-            "settings": {
-              "content": {
-                "options": {
-                  "chart": {
-                    "metrics": [
-                      {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "BgpAvailability",
-                        "aggregationType": 4,
-                        "namespace": "microsoft.network/expressroutecircuits",
-                        "metricVisualization": {
-                          "displayName": "Bgp Availability"
-                        }
-                      }
-                    ],
-                    "title": "Avg Bgp Availability for az1 where Peer = 'Primary-IPv4'",
-                    "titleKind": 1,
-                    "visualization": {
-                      "chartType": 3,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
-                      "axisVisualization": {
-                        "x": {
-                          "isVisible": true,
-                          "axisType": 2
-                        },
-                        "y": {
-                          "isVisible": true,
-                          "axisType": 1
-                        }
-                      },
-                      "disablePinning": true
-                    }
-                  }
-                }
-              }
-            },
-            "filters": {
-              "Peer": {
-                "model": {
-                  "operator": "equals",
-                  "values": [
-                    "Primary-IPv4"
-                  ]
-                }
-              }
-            }
-          }
-        },
-        "4": {
-          "position": {
-            "x": 0,
-            "y": 6,
-            "colSpan": 5,
-            "rowSpan": 3
-          },
-          "metadata": {
-            "inputs": [
-              {
-                "name": "sharedTimeRange",
-                "isOptional": true
-              },
-              {
-                "name": "options",
-                "value": {
-                  "chart": {
-                    "metrics": [
-                      {
-                        "resourceMetadata": {
-                          "id": "${ER_CIRCUIT_ID}"
-                        },
-                        "name": "BgpAvailability",
-                        "aggregationType": 4,
-                        "namespace": "microsoft.network/expressroutecircuits",
-                        "metricVisualization": {
-                          "displayName": "Bgp Availability"
-                        }
-                      }
-                    ],
-                    "title": "Avg Bgp Availability for az1 where Peer = 'Secondary-IPv4'",
-                    "titleKind": 1,
-                    "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
-                      "axisVisualization": {
-                        "x": {
-                          "isVisible": true,
-                          "axisType": 2
-                        },
-                        "y": {
-                          "isVisible": true,
-                          "axisType": 1
-                        }
-                      }
-                    },
                     "filterCollection": {
                       "filters": [
                         {
@@ -321,12 +525,45 @@
                         }
                       ]
                     },
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "Bgp Availability"
+                        },
+                        "name": "BgpAvailability",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        }
+                      }
+                    ],
                     "timespan": {
+                      "grain": 1,
                       "relative": {
                         "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "showUTCTime": false
+                    },
+                    "title": "Avg Bgp Availability for az1 where Peer = 'Secondary-IPv4'",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -343,46 +580,508 @@
                         "resourceMetadata": {
                           "id": "${ER_CIRCUIT_ID}"
                         },
-                        "name": "BgpAvailability",
+                        "name": "ArpAvailability",
                         "aggregationType": 4,
                         "namespace": "microsoft.network/expressroutecircuits",
                         "metricVisualization": {
-                          "displayName": "Bgp Availability"
+                          "displayName": "Arp Availability"
                         }
                       }
                     ],
-                    "title": "Avg Bgp Availability for az1 where Peer = 'Secondary-IPv4'",
-                    "titleKind": 1,
+                    "title": "Avg Arp Availability",
+                    "titleKind": 2,
                     "visualization": {
                       "chartType": 3,
                       "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
                         "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
+                        "position": 2
                       },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
                       "disablePinning": true
+                    },
+                    "grouping": {
+                      "dimension": "Peer",
+                      "sort": 2,
+                      "top": 10
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "5": {
+          "position": {
+            "x": 10,
+            "y": 3,
+            "colSpan": 5,
+            "rowSpan": 3
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "DroppedOutBitsPerSecond"
+                        },
+                        "name": "QosDropBitsOutPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        }
+                      }
+                    ],
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 14400000
+                      },
+                      "showUTCTime": true
+                    },
+                    "title": "Avg Dropped Out Bits per Second",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                },
+                "isOptional": true
+              },
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "DroppedOutBitsPerSecond"
+                        },
+                        "name": "QosDropBitsOutPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        }
+                      }
+                    ],
+                    "title": "Avg Dropped Bits Out per Second",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "6": {
+          "position": {
+            "x": 0,
+            "y": 6,
+            "colSpan": 5,
+            "rowSpan": 3
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 3,
+                        "metricVisualization": {
+                          "displayName": "FastPathRoutesCount"
+                        },
+                        "name": "FastPathRoutesCountForCircuit",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        }
+                      }
+                    ],
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 86400000
+                      },
+                      "showUTCTime": false
+                    },
+                    "title": "Max FastPathRoutesCount for Poc08-er1",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                },
+                "isOptional": true
+              },
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 3,
+                        "metricVisualization": {
+                          "displayName": "FastPathRoutesCount"
+                        },
+                        "name": "FastPathRoutesCountForCircuit",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        }
+                      }
+                    ],
+                    "title": "Max FastPathRoutesCount for Poc08-er1",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 }
               }
             },
             "filters": {
-              "Peer": {
+              "MsPortalFx_TimeRange": {
                 "model": {
-                  "operator": "equals",
-                  "values": [
-                    "Secondary-IPv4"
-                  ]
+                  "format": "local",
+                  "granularity": "auto",
+                  "relative": "1440m"
+                }
+              }
+            }
+          }
+        },
+        "7": {
+          "position": {
+            "x": 5,
+            "y": 6,
+            "colSpan": 5,
+            "rowSpan": 3
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "GlobalReachBitsInPerSecond"
+                        },
+                        "name": "GlobalReachBitsInPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        }
+                      }
+                    ],
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 86400000
+                      },
+                      "showUTCTime": false
+                    },
+                    "title": "Avg GlobalReach BitsInPerSecond",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                },
+                "isOptional": true
+              },
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "GlobalReachBitsInPerSecond"
+                        },
+                        "name": "GlobalReachBitsInPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        }
+                      }
+                    ],
+                    "title": "Avg GlobalReach BitsInPerSecond",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "filters": {
+              "MsPortalFx_TimeRange": {
+                "model": {
+                  "format": "local",
+                  "granularity": "auto",
+                  "relative": "1440m"
+                }
+              }
+            }
+          }
+        },
+        "8": {
+          "position": {
+            "x": 10,
+            "y": 6,
+            "colSpan": 5,
+            "rowSpan": 3
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "GlobalReachBitsOutPerSecond"
+                        },
+                        "name": "GlobalReachBitsOutPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        }
+                      }
+                    ],
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 86400000
+                      },
+                      "showUTCTime": false
+                    },
+                    "title": "Avg GlobalReach BitsOutPerSecond",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                },
+                "isOptional": true
+              },
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "GlobalReachBitsOutPerSecond"
+                        },
+                        "name": "GlobalReachBitsOutPerSecond",
+                        "namespace": "microsoft.network/expressroutecircuits",
+                        "resourceMetadata": {
+                          "id": "${ER_CIRCUIT_ID}"
+                        }
+                      }
+                    ],
+                    "title": "Avg GlobalReach BitsOutPerSecond",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "filters": {
+              "MsPortalFx_TimeRange": {
+                "model": {
+                  "format": "local",
+                  "granularity": "auto",
+                  "relative": "1440m"
                 }
               }
             }
@@ -416,15 +1115,7 @@
             "displayCache": {
               "name": "UTC Time",
               "value": "Past 4 hours"
-            },
-            "filteredPartIds": [
-              "StartboardPart-MonitorChartPart-4f55e5da-0104-4134-8261-fb8acfa77140",
-              "StartboardPart-MonitorChartPart-4f55e5da-0104-4134-8261-fb8acfa7716d",
-              "StartboardPart-MonitorChartPart-4f55e5da-0104-4134-8261-fb8acfa77336",
-              "StartboardPart-MonitorChartPart-4f55e5da-0104-4134-8261-fb8acfa773b7",
-              "StartboardPart-MonitorChartPart-4f55e5da-0104-4134-8261-fb8acfa7736c",
-              "StartboardPart-MonitorChartPart-4f55e5da-0104-4134-8261-fb8acfa77405"
-            ]
+            }
           }
         }
       }

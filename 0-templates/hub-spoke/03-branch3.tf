@@ -14,8 +14,9 @@ module "branch3" {
   storage_account = module.common.storage_accounts["region2"]
   tags            = local.branch3_tags
 
-  enable_diagnostics = local.enable_diagnostics
-  enable_ipv6        = local.enable_ipv6
+  enable_diagnostics           = local.enable_diagnostics
+  log_analytics_workspace_name = module.common.log_analytics_workspaces["region2"].name
+  enable_ipv6                  = local.enable_ipv6
 
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region2"].id
@@ -133,10 +134,6 @@ locals {
       # do nothing (placeholder for future use)
       "route-map ${local.branch3_nva_route_map_azure} permit 110",
       "match ip address prefix-list all",
-
-      # block inbound gateway subnet, allow all other hub and spoke cidrs
-      "route-map ${local.branch3_nva_route_map_block_azure} permit 120",
-      "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
     ]
     STATIC_ROUTES = [
       { prefix = "0.0.0.0/0", next_hop = local.branch3_untrust_default_gw },

@@ -1,0 +1,36 @@
+{
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Network/virtualNetworks"
+      },
+      {
+        "allOf": [
+          {
+            "field": "tags['lab']",
+            "equals": "Ne31"
+          },
+          {
+            "field": "tags['env']",
+            "equals": "prod"
+          },
+          {
+            "anyOf": [
+              {
+                "field": "tags['nodeType']",
+                "equals": "float"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "then": {
+    "effect": "addToNetworkGroup",
+    "details": {
+      "networkGroupId": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Ne31_HubSpoke_Azfw_1Region_RG/providers/Microsoft.Network/networkManagers/Ne31-avnm/networkGroups/ng-mesh-global"
+    }
+  }
+}

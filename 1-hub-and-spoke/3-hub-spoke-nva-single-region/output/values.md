@@ -17,7 +17,7 @@
 | VM_IP   | 10.10.0.5   |
 | VM_NAME   | Hs13-branch1Vm   |
 | VNET_NAME   | Hs13-branch1-vnet   |
-| VNET_RANGES   | 10.10.0.0/20, 10.10.16.0/20, fd00:db8:10::/56, fd00:db8:10:aa00::/56   |
+| VNET_RANGES   | 10.10.0.0/16, fd00:db8:10::/56   |
 
 ## hub1
 
@@ -28,7 +28,7 @@
 | PRIVATELINK_SERVICE_ENDPOINT_DNS   | spoke3pls.hub1.az.corp   |
 | PRIVATELINK_SERVICE_ENDPOINT_IP   | 10.11.7.88   |
 | PRIVATE_DNS_INBOUND_IP   | 10.11.8.4   |
-| SPOKE3_BLOB_URL (Sample)   | https://hs13spoke3sa9354.blob.core.windows.net/spoke3/spoke3.txt   |
+| SPOKE3_BLOB_URL (Sample)   | https://hs13spoke3sa8181.blob.core.windows.net/spoke3/spoke3.txt   |
 | *Subnets*|        |
 | AppGatewaySubnet   | 10.11.4.0/24   |
 | AppServiceSubnet   | 10.11.13.0/24   |
@@ -50,7 +50,7 @@
 | VM_IP   | 10.11.0.5   |
 | VM_NAME   | Hs13-hub1Vm   |
 | VNET_NAME   | Hs13-hub1-vnet   |
-| VNET_RANGES   | 10.11.0.0/20, 10.11.16.0/20, fd00:db8:11::/56, fd00:db8:11:aa00::/56   |
+| VNET_RANGES   | 10.11.0.0/16, fd00:db8:11::/56   |
 
 ## spoke1
 
@@ -72,7 +72,7 @@
 | VM_IP   | 10.1.0.5   |
 | VM_NAME   | Hs13-spoke1Vm   |
 | VNET_NAME   | Hs13-spoke1-vnet   |
-| VNET_RANGES   | 10.1.0.0/20, fd00:db8:1::/56   |
+| VNET_RANGES   | 10.1.0.0/16, fd00:db8:1::/56   |
 
 ## spoke2
 
@@ -94,7 +94,7 @@
 | VM_IP   | 10.2.0.5   |
 | VM_NAME   | Hs13-spoke2Vm   |
 | VNET_NAME   | Hs13-spoke2-vnet   |
-| VNET_RANGES   | 10.2.0.0/20, fd00:db8:2::/56   |
+| VNET_RANGES   | 10.2.0.0/16, fd00:db8:2::/56   |
 
 ## spoke3
 
@@ -116,4 +116,4 @@
 | VM_IP   | 10.3.0.5   |
 | VM_NAME   | Hs13-spoke3Vm   |
 | VNET_NAME   | Hs13-spoke3-vnet   |
-| VNET_RANGES   | 10.3.0.0/20, fd00:db8:3::/56   |
+| VNET_RANGES   | 10.3.0.0/16, fd00:db8:3::/56   |

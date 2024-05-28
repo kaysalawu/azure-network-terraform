@@ -1,6 +1,62 @@
 
 locals {
   prefix = var.prefix == "" ? "${var.name}" : format("%s-%s", var.prefix, var.name)
+  frontend_ip_configuration_trust = concat(
+    [{
+      name                          = "nva"
+      zones                         = ["1", "2", "3"]
+      subnet_id                     = var.subnet_id_trust
+      private_ip_address            = var.ilb_trust_ip
+      private_ip_address_allocation = "Static"
+    }],
+    var.enable_ipv6 ? [{
+      name                          = "nva-ipv6"
+      zones                         = ["1", "2", "3"]
+      subnet_id                     = var.subnet_id_trust
+      private_ip_address_version    = "IPv6"
+      private_ip_address            = var.ilb_trust_ipv6
+      private_ip_address_allocation = "Static"
+    }] : []
+  )
+
+  backend_pools_trust = concat(
+    [{
+      name = "nva"
+      interfaces = [for nva in module.nva : {
+        ip_configuration_name = nva.interfaces["${local.prefix}-trust-nic"].ip_configuration[0].name
+        network_interface_id  = nva.interfaces["${local.prefix}-trust-nic"].id
+      }]
+    }],
+    var.enable_ipv6 ? [{ #TODO: fix. requires dual terraform apply. create local backendpool resource for ipv6.
+      name = "nva-ipv6"
+      addresses = [{
+        name               = "nva-ipv6"
+        virtual_network_id = var.virtual_network_id
+        ip_address         = module.nva[0].private_ipv6_address
+      }]
+    }] : []
+  )
+
+  lb_rules_trust = concat(
+    [{
+      name                           = "nva-ha"
+      protocol                       = "All"
+      frontend_port                  = "0"
+      backend_port                   = "0"
+      frontend_ip_configuration_name = "nva"
+      backend_address_pool_name      = ["nva", ]
+      probe_name                     = var.health_probes[0].name
+    }],
+    var.enable_ipv6 ? [{ #TODO: fix. requires dual terraform apply. create local backendpool resource for ipv6.
+      name                           = "nva-ha-ipv6"
+      protocol                       = "All"
+      frontend_port                  = "0"
+      backend_port                   = "0"
+      frontend_ip_configuration_name = "nva-ipv6"
+      backend_address_pool_name      = ["nva-ipv6", ]
+      probe_name                     = var.health_probes[0].name
+    }] : []
+  )
 }
 
 ####################################################
@@ -108,6 +164,9 @@ module "ilb_untrust" {
       probe_name                     = var.health_probes[0].name
     },
   ]
+  depends_on = [
+    module.nva,
+  ]
 }
 
 ####################################################
@@ -126,64 +185,12 @@ module "ilb_trust" {
 
   log_analytics_workspace_name = var.log_analytics_workspace_name
 
-  frontend_ip_configuration = [
-    {
-      name                          = "nva"
-      zones                         = ["1", "2", "3"]
-      subnet_id                     = var.subnet_id_trust
-      private_ip_address            = var.ilb_trust_ip
-      private_ip_address_allocation = "Static"
-    },
-    {
-      name                          = "nva-ipv6"
-      zones                         = ["1", "2", "3"]
-      subnet_id                     = var.subnet_id_trust
-      private_ip_address_version    = "IPv6"
-      private_ip_address            = var.ilb_trust_ipv6
-      private_ip_address_allocation = "Static"
-    },
-  ]
+  frontend_ip_configuration = local.frontend_ip_configuration_trust
+  backend_pools             = local.backend_pools_trust
+  lb_rules                  = local.lb_rules_trust
+  probes                    = var.health_probes
 
-  probes = var.health_probes
-
-  backend_pools = [
-    {
-      name = "nva"
-      interfaces = [for nva in module.nva : {
-        ip_configuration_name = nva.interfaces["${local.prefix}-trust-nic"].ip_configuration[0].name
-        network_interface_id  = nva.interfaces["${local.prefix}-trust-nic"].id
-      }]
-    },
-    {
-      name = "nva-ipv6"
-      addresses = [
-        {
-          name               = "nva-ipv6"
-          virtual_network_id = var.virtual_network_id
-          ip_address         = module.nva[0].private_ipv6_address
-        },
-      ]
-    },
-  ]
-
-  lb_rules = [
-    {
-      name                           = "nva-ha"
-      protocol                       = "All"
-      frontend_port                  = "0"
-      backend_port                   = "0"
-      frontend_ip_configuration_name = "nva"
-      backend_address_pool_name      = ["nva", ]
-      probe_name                     = var.health_probes[0].name
-    },
-    {
-      name                           = "nva-ha-ipv6"
-      protocol                       = "All"
-      frontend_port                  = "0"
-      backend_port                   = "0"
-      frontend_ip_configuration_name = "nva-ipv6"
-      backend_address_pool_name      = ["nva-ipv6", ]
-      probe_name                     = var.health_probes[0].name
-    },
+  depends_on = [
+    module.nva,
   ]
 }

@@ -141,25 +141,25 @@ conn %default
 
 conn Tunnel0
     left=10.30.1.9
-    leftid=40.71.19.85
-    right=57.151.12.135
-    rightid=57.151.12.135
+    leftid=52.170.64.127
+    right=51.8.18.227
+    rightid=51.8.18.227
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.30.1.9
-    leftid=40.71.19.85
-    right=57.151.9.26
-    rightid=57.151.9.26
+    leftid=52.170.64.127
+    right=51.8.18.219
+    rightid=51.8.18.219
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.30.1.9
-    leftid=40.71.19.85
-    right=52.169.28.192
-    rightid=52.169.28.192
+    leftid=52.170.64.127
+    right=52.138.215.62
+    rightid=52.138.215.62
     auto=start
     mark=300
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -170,9 +170,9 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.30.1.9 57.151.12.135 : PSK "changeme"
-10.30.1.9 57.151.9.26 : PSK "changeme"
-10.30.1.9 52.169.28.192 : PSK "changeme"
+10.30.1.9 51.8.18.227 : PSK "changeme"
+10.30.1.9 51.8.18.219 : PSK "changeme"
+10.30.1.9 52.138.215.62 : PSK "changeme"
 
 EOF
 
@@ -289,7 +289,7 @@ service integrated-vtysh-config
 !-----------------------------------------
 ! Prefix Lists
 !-----------------------------------------
-ip prefix-list BLOCK_HUB_GW_SUBNET deny 10.22.16.0/20
+ip prefix-list BLOCK_HUB_GW_SUBNET deny fd00:db8:22::/56
 ip prefix-list BLOCK_HUB_GW_SUBNET permit 0.0.0.0/0 le 32
 !
 !-----------------------------------------
@@ -316,8 +316,6 @@ ip route 10.30.0.0/24 10.30.1.1
   set as-path prepend 65003 65003 65003
   route-map AZURE permit 110
   match ip address prefix-list all
-  route-map BLOCK_HUB_GW_SUBNET permit 120
-  match ip address prefix-list BLOCK_HUB_GW_SUBNET
 !
 !-----------------------------------------
 ! BGP

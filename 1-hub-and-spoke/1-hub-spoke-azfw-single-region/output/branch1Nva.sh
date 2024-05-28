@@ -141,23 +141,23 @@ conn %default
 
 conn Tunnel0
     left=10.10.1.9
-    leftid=52.178.195.70
-    right=4.209.162.7
-    rightid=4.209.162.7
+    leftid=13.74.80.215
+    right=4.209.241.78
+    rightid=4.209.241.78
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.10.1.9
-    leftid=52.178.195.70
-    right=4.209.161.243
-    rightid=4.209.161.243
+    leftid=13.74.80.215
+    right=4.209.241.99
+    rightid=4.209.241.99
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.10.1.9
-    leftid=52.178.195.70
+    leftid=13.74.80.215
     right=1.1.1.1
     rightid=1.1.1.1
     auto=start
@@ -170,8 +170,8 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.10.1.9 4.209.162.7 : PSK "changeme"
-10.10.1.9 4.209.161.243 : PSK "changeme"
+10.10.1.9 4.209.241.78 : PSK "changeme"
+10.10.1.9 4.209.241.99 : PSK "changeme"
 10.10.1.9 1.1.1.1 : PSK "changeme"
 
 EOF
@@ -289,7 +289,7 @@ service integrated-vtysh-config
 !-----------------------------------------
 ! Prefix Lists
 !-----------------------------------------
-ip prefix-list BLOCK_HUB_GW_SUBNET deny 10.11.16.0/20
+ip prefix-list BLOCK_HUB_GW_SUBNET deny fd00:db8:11::/56
 ip prefix-list BLOCK_HUB_GW_SUBNET permit 0.0.0.0/0 le 32
 !
 !-----------------------------------------
@@ -385,7 +385,7 @@ chmod a+x /usr/local/bin/ipsec-debug
 #-----------------------------------
 
 cat <<EOF > /etc/cron.d/ipsec-auto-restart
-*/10 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
+*/30 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
 EOF
 
 crontab /etc/cron.d/ipsec-auto-restart

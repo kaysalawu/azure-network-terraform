@@ -62,8 +62,10 @@ locals {
   private_prefixes_v6 = [
     "fd00::/8",
   ]
-  # private_prefixes_map    = { for i, prefix in local.private_prefixes : i => prefix }
-  # private_prefixes_v6_map = { for i, prefix in local.private_prefixes_v6 : i => prefix }
+
+  azure_asn          = 12076
+  azure_internal_asn = 65515
+  megaport_asn       = 64512
 }
 
 # vhub1
@@ -97,6 +99,7 @@ locals {
   hub1_prefix        = local.prefix == "" ? "hub1-" : join("-", [local.prefix, "hub1-"])
   hub1_location      = local.region1
   hub1_address_space = ["10.11.0.0/20", "10.11.16.0/20", "fd00:db8:11::/56", "fd00:db8:11:aa00::/56", ]
+  hub1_bgp_community = "12076:20011"
   hub1_nat_ranges = {
     "branch1" = {
       "egress-static"  = "10.11.90.0/24"
@@ -112,8 +115,8 @@ locals {
     ("ManagementSubnet")              = { address_prefixes = ["10.11.3.0/24", "fd00:db8:11:3::/64", ], }
     ("AppGatewaySubnet")              = { address_prefixes = ["10.11.4.0/24", "fd00:db8:11:4::/64", ], }
     ("LoadBalancerSubnet")            = { address_prefixes = ["10.11.5.0/24", "fd00:db8:11:5::/64", ], }
-    ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.11.6.0/24", "fd00:db8:11:6::/64", ], enable_private_link_policies = [true] }
-    ("PrivateEndpointSubnet")         = { address_prefixes = ["10.11.7.0/24", "fd00:db8:11:7::/64", ], enable_private_endpoint_policies = [true] }
+    ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.11.6.0/24", ], private_link_service_network_policies_enabled = [true] }
+    ("PrivateEndpointSubnet")         = { address_prefixes = ["10.11.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
     ("DnsResolverInboundSubnet")      = { address_prefixes = ["10.11.8.0/24", ], delegate = ["Microsoft.Network/dnsResolvers"] }
     ("DnsResolverOutboundSubnet")     = { address_prefixes = ["10.11.9.0/24", ], delegate = ["Microsoft.Network/dnsResolvers"] }
     ("RouteServerSubnet")             = { address_prefixes = ["10.11.10.0/24", "fd00:db8:11:10::/64", ], }
@@ -159,6 +162,7 @@ locals {
   hub2_prefix        = local.prefix == "" ? "hub2-" : join("-", [local.prefix, "hub2-"])
   hub2_location      = local.region2
   hub2_address_space = ["10.22.0.0/20", "10.22.16.0/20", "fd00:db8:22::/56", "fd00:db8:22:aa00::/56", ]
+  hub2_bgp_community = "12076:20022"
   hub2_dns_zone      = local.region2_dns_zone
   hub2_subnets = {
     ("MainSubnet")                    = { address_prefixes = ["10.22.0.0/24", "fd00:db8:22::/64", ], }
@@ -167,8 +171,8 @@ locals {
     ("ManagementSubnet")              = { address_prefixes = ["10.22.3.0/24", "fd00:db8:22:3::/64", ], }
     ("AppGatewaySubnet")              = { address_prefixes = ["10.22.4.0/24", "fd00:db8:22:4::/64", ], }
     ("LoadBalancerSubnet")            = { address_prefixes = ["10.22.5.0/24", "fd00:db8:22:5::/64", ], }
-    ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.22.6.0/24", "fd00:db8:22:6::/64", ], enable_private_link_service_network_policies = [true] }
-    ("PrivateEndpointSubnet")         = { address_prefixes = ["10.22.7.0/24", "fd00:db8:22:7::/64", ], enable_private_endpoint_network_policies = [true] }
+    ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.22.6.0/24", ], private_link_service_network_policies_enabled = [true] }
+    ("PrivateEndpointSubnet")         = { address_prefixes = ["10.22.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
     ("DnsResolverInboundSubnet")      = { address_prefixes = ["10.22.8.0/24", ], delegate = ["Microsoft.Network/dnsResolvers"] }
     ("DnsResolverOutboundSubnet")     = { address_prefixes = ["10.22.9.0/24", ], delegate = ["Microsoft.Network/dnsResolvers"] }
     ("RouteServerSubnet")             = { address_prefixes = ["10.22.10.0/24", "fd00:db8:22:10::/64", ], }
@@ -213,6 +217,7 @@ locals {
   branch1_prefix        = local.prefix == "" ? "branch1-" : join("-", [local.prefix, "branch1-"])
   branch1_location      = local.region1
   branch1_address_space = ["10.10.0.0/20", "10.10.16.0/20", "fd00:db8:10::/56", "fd00:db8:10:aa00::/56", ]
+  branch1_bgp_community = "12076:20010"
   branch1_nva_asn       = "65001"
   branch1_dns_zone      = local.onprem_domain
   branch1_subnets = {
@@ -251,6 +256,7 @@ locals {
   branch2_prefix        = local.prefix == "" ? "branch2-" : join("-", [local.prefix, "branch2-"])
   branch2_location      = local.region1
   branch2_address_space = ["10.20.0.0/20", "10.20.16.0/20", "fd00:db8:20::/56", "fd00:db8:20:aa00::/56", ]
+  branch2_bgp_community = "12076:20020"
   branch2_nva_asn       = "65002"
   branch2_dns_zone      = local.onprem_domain
   branch2_subnets = {
@@ -291,6 +297,7 @@ locals {
   branch3_prefix        = local.prefix == "" ? "branch3-" : join("-", [local.prefix, "branch3-"])
   branch3_location      = local.region2
   branch3_address_space = ["10.30.0.0/20", "10.30.16.0/20", "fd00:db8:30::/56", "fd00:db8:30:aa00::/56", ]
+  branch3_bgp_community = "12076:20030"
   branch3_nva_asn       = "65003"
   branch3_dns_zone      = local.onprem_domain
   branch3_subnets = {
@@ -329,6 +336,7 @@ locals {
   spoke1_prefix        = local.prefix == "" ? "spoke1-" : join("-", [local.prefix, "spoke1-"])
   spoke1_location      = local.region1
   spoke1_address_space = ["10.1.0.0/20", "fd00:db8:1::/56", ]
+  spoke1_bgp_community = "12076:20001"
   spoke1_dns_zone      = local.region1_dns_zone
   spoke1_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.1.0.0/24", "fd00:db8:1::/64", ] }
@@ -337,8 +345,8 @@ locals {
     ("ManagementSubnet")         = { address_prefixes = ["10.1.3.0/24", "fd00:db8:1:3::/64", ], }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.1.4.0/24", "fd00:db8:1:4::/64", ], }
     ("LoadBalancerSubnet")       = { address_prefixes = ["10.1.5.0/24", "fd00:db8:1:5::/64", ], }
-    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.1.6.0/24", "fd00:db8:1:6::/64", ], enable_private_link_service_network_policies = [true] }
-    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.1.7.0/24", "fd00:db8:1:7::/64", ], enable_private_endpoint_network_policies = [true] }
+    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.1.6.0/24", ], private_link_service_network_policies_enabled = [true] }
+    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.1.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
     ("AppServiceSubnet")         = { address_prefixes = ["10.1.8.0/24", "fd00:db8:1:8::/64", ], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.1.9.0/24", "fd00:db8:1:9::/64", ], }
     ("TestSubnet")               = { address_prefixes = ["10.1.10.0/24"], }
@@ -362,6 +370,7 @@ locals {
   spoke2_prefix        = local.prefix == "" ? "spoke2-" : join("-", [local.prefix, "spoke2-"])
   spoke2_location      = local.region1
   spoke2_address_space = ["10.2.0.0/20", "fd00:db8:2::/56", ]
+  spoke2_bgp_community = "12076:20002"
   spoke2_dns_zone      = local.region1_dns_zone
   spoke2_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.2.0.0/24", "fd00:db8:2::/64"] }
@@ -370,8 +379,8 @@ locals {
     ("ManagementSubnet")         = { address_prefixes = ["10.2.3.0/24", "fd00:db8:2:3::/64"], }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.2.4.0/24", "fd00:db8:2:4::/64"], }
     ("LoadBalancerSubnet")       = { address_prefixes = ["10.2.5.0/24", "fd00:db8:2:5::/64"], }
-    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.2.6.0/24", "fd00:db8:2:6::/64"], enable_private_link_service_network_policies = [true] }
-    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.2.7.0/24", "fd00:db8:2:7::/64"], enable_private_endpoint_network_policies = [true] }
+    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.2.6.0/24", ], private_link_service_network_policies_enabled = [true] }
+    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.2.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
     ("AppServiceSubnet")         = { address_prefixes = ["10.2.8.0/24", "fd00:db8:2:8::/64"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.2.9.0/24", "fd00:db8:2:9::/64"], }
     ("TestSubnet")               = { address_prefixes = ["10.2.10.0/24"], }
@@ -395,6 +404,7 @@ locals {
   spoke3_prefix        = local.prefix == "" ? "spoke3-" : join("-", [local.prefix, "spoke3-"])
   spoke3_location      = local.region1
   spoke3_address_space = ["10.3.0.0/20", "fd00:db8:3::/56", ]
+  spoke3_bgp_community = "12076:20003"
   spoke3_dns_zone      = local.region1_dns_zone
   spoke3_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.3.0.0/24", "fd00:db8:3::/64"], }
@@ -403,8 +413,8 @@ locals {
     ("ManagementSubnet")         = { address_prefixes = ["10.3.3.0/24", "fd00:db8:3:3::/64"], }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.3.4.0/24", "fd00:db8:3:4::/64"], }
     ("LoadBalancerSubnet")       = { address_prefixes = ["10.3.5.0/24", "fd00:db8:3:5::/64"], }
-    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.3.6.0/24", "fd00:db8:3:6::/64"], enable_private_link_service_network_policies = [true] }
-    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.3.7.0/24", "fd00:db8:3:7::/64"], enable_private_endpoint_network_policies = [true] }
+    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.3.6.0/24", ], private_link_service_network_policies_enabled = [true] }
+    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.3.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
     ("AppServiceSubnet")         = { address_prefixes = ["10.3.8.0/24", "fd00:db8:3:8::/64"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.3.9.0/24", "fd00:db8:3:9::/64"], }
     ("TestSubnet")               = { address_prefixes = ["10.3.10.0/24", "fd00:db8:3:10::/64"], use_azapi = [true], default_outbound_access = [false] }
@@ -428,6 +438,7 @@ locals {
   spoke4_prefix        = local.prefix == "" ? "spoke4-" : join("-", [local.prefix, "spoke4-"])
   spoke4_location      = local.region2
   spoke4_address_space = ["10.4.0.0/20", "fd00:db8:4::/56", ]
+  spoke4_bgp_community = "12076:20004"
   spoke4_dns_zone      = local.region2_dns_zone
   spoke4_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.4.0.0/24", "fd00:db8:4::/64"], }
@@ -436,8 +447,8 @@ locals {
     ("ManagementSubnet")         = { address_prefixes = ["10.4.3.0/24", "fd00:db8:4:3::/64"], }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.4.4.0/24", "fd00:db8:4:4::/64"], }
     ("LoadBalancerSubnet")       = { address_prefixes = ["10.4.5.0/24", "fd00:db8:4:5::/64"], }
-    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.4.6.0/24", "fd00:db8:4:6::/64"], enable_private_link_service_network_policies = [true] }
-    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.4.7.0/24", "fd00:db8:4:7::/64"], enable_private_endpoint_network_policies = [true] }
+    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.4.6.0/24", ], private_link_service_network_policies_enabled = [true] }
+    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.4.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
     ("AppServiceSubnet")         = { address_prefixes = ["10.4.8.0/24", "fd00:db8:4:8::/64"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.4.9.0/24", "fd00:db8:4:9::/64"], }
     ("TestSubnet")               = { address_prefixes = ["10.4.10.0/24"], }
@@ -461,6 +472,7 @@ locals {
   spoke5_prefix        = local.prefix == "" ? "spoke5-" : join("-", [local.prefix, "spoke5-"])
   spoke5_location      = local.region2
   spoke5_address_space = ["10.5.0.0/20", "fd00:db8:5::/56", ]
+  spoke5_bgp_community = "12076:20005"
   spoke5_dns_zone      = local.region2_dns_zone
   spoke5_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.5.0.0/24", "fd00:db8:5::/64"], }
@@ -469,8 +481,8 @@ locals {
     ("ManagementSubnet")         = { address_prefixes = ["10.5.3.0/24", "fd00:db8:5:3::/64"], }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.5.4.0/24", "fd00:db8:5:4::/64"], }
     ("LoadBalancerSubnet")       = { address_prefixes = ["10.5.5.0/24", "fd00:db8:5:5::/64"], }
-    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.5.6.0/24", "fd00:db8:5:6::/64"], enable_private_link_service_network_policies = [true] }
-    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.5.7.0/24", "fd00:db8:5:7::/64"], enable_private_endpoint_network_policies = [true] }
+    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.5.6.0/24", ], private_link_service_network_policies_enabled = [true] }
+    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.5.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
     ("AppServiceSubnet")         = { address_prefixes = ["10.5.8.0/24", "fd00:db8:5:8::/64"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.5.9.0/24", "fd00:db8:5:9::/64"], }
     ("TestSubnet")               = { address_prefixes = ["10.5.10.0/24"], }
@@ -494,6 +506,7 @@ locals {
   spoke6_prefix        = local.prefix == "" ? "spoke6-" : join("-", [local.prefix, "spoke6-"])
   spoke6_location      = local.region2
   spoke6_address_space = ["10.6.0.0/20", "fd00:db8:6::/56", ]
+  spoke6_bgp_community = "12076:20006"
   spoke6_dns_zone      = local.region2_dns_zone
   spoke6_subnets = {
     ("MainSubnet")               = { address_prefixes = ["10.6.0.0/24", "fd00:db8:6::/64"], }
@@ -502,8 +515,8 @@ locals {
     ("ManagementSubnet")         = { address_prefixes = ["10.6.3.0/24", "fd00:db8:6:3::/64"], }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.6.4.0/24", "fd00:db8:6:4::/64"], }
     ("LoadBalancerSubnet")       = { address_prefixes = ["10.6.5.0/24", "fd00:db8:6:5::/64"], }
-    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.6.6.0/24", "fd00:db8:6:6::/64"], enable_private_link_service_network_policies = [true] }
-    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.6.7.0/24", "fd00:db8:6:7::/64"], enable_private_endpoint_network_policies = [true] }
+    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.6.6.0/24", "fd00:db8:6:6::/64", ], private_link_service_network_policies_enabled = [true] }
+    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.6.7.0/24", "fd00:db8:6:7::/64", ], private_endpoint_network_policies = ["Enabled"] }
     ("AppServiceSubnet")         = { address_prefixes = ["10.6.8.0/24", "fd00:db8:6:8::/64"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.6.9.0/24", "fd00:db8:6:9::/64"], }
     ("TestSubnet")               = { address_prefixes = ["10.6.10.0/24", "fd00:db8:6:10::/64"], use_azapi = [true], default_outbound_access = [false] }

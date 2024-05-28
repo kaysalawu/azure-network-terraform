@@ -5,9 +5,10 @@
 locals {
   prefix                      = "Hs12"
   lab_name                    = "HubSpoke_Azfw_2Region"
-  enable_diagnostics          = false
   enable_onprem_wan_link      = true
-  enable_ipv6                 = true
+  enable_diagnostics          = false
+  enable_ipv6                 = false
+  enable_vnet_flow_logs       = false
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke6_storage_account_name = lower(replace("${local.spoke6_prefix}sa${random_id.random.hex}", "-", ""))
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
@@ -33,6 +34,7 @@ resource "random_id" "random" {
 }
 
 data "azurerm_client_config" "current" {}
+data "azurerm_subscription" "current" {}
 
 ####################################################
 # providers
@@ -48,6 +50,7 @@ provider "azurerm" {
 }
 
 provider "azapi" {}
+provider "cidrblock" {}
 
 terraform {
   required_providers {
@@ -61,6 +64,9 @@ terraform {
     }
     azapi = {
       source = "azure/azapi"
+    }
+    cidrblock = {
+      source = "amilevskiy/cidrblock"
     }
   }
 }
@@ -126,10 +132,12 @@ locals {
 
   hub1_features = {
     config_vnet = {
+      bgp_community               = local.hub1_bgp_community
       address_space               = local.hub1_address_space
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
       enable_ars                  = false
+      enable_vnet_flow_logs       = local.enable_vnet_flow_logs
       nat_gateway_subnet_names = [
         "MainSubnet",
         "TrustSubnet",
@@ -211,23 +219,27 @@ locals {
     }
 
     config_nva = {
-      enable          = false
-      type            = null
-      scenario_option = null
-      opn_type        = null
-      custom_data     = null
-      ilb_untrust_ip  = null
-      ilb_trust_ip    = null
-      enable_ipv6     = null
+      enable           = false
+      enable_ipv6      = null
+      type             = null
+      scenario_option  = null
+      opn_type         = null
+      custom_data      = null
+      ilb_untrust_ip   = null
+      ilb_trust_ip     = null
+      ilb_untrust_ipv6 = null
+      ilb_trust_ipv6   = null
     }
   }
 
   hub2_features = {
     config_vnet = {
+      bgp_community               = local.hub2_bgp_community
       address_space               = local.hub2_address_space
       subnets                     = local.hub2_subnets
       enable_private_dns_resolver = true
       enable_ars                  = false
+      enable_vnet_flow_logs       = local.enable_vnet_flow_logs
       nat_gateway_subnet_names = [
         "MainSubnet",
         "TrustSubnet",
@@ -309,14 +321,16 @@ locals {
     }
 
     config_nva = {
-      enable          = false
-      type            = null
-      scenario_option = null
-      opn_type        = null
-      custom_data     = null
-      ilb_untrust_ip  = null
-      ilb_trust_ip    = null
-      enable_ipv6     = null
+      enable           = false
+      enable_ipv6      = null
+      type             = null
+      scenario_option  = null
+      opn_type         = null
+      custom_data      = null
+      ilb_untrust_ip   = null
+      ilb_trust_ip     = null
+      ilb_untrust_ipv6 = null
+      ilb_trust_ipv6   = null
     }
   }
 }
@@ -391,14 +405,14 @@ locals {
   init_dir = "/var/lib/azure"
   vm_script_targets_region1 = [
     { name = "branch1", dns = lower(local.branch1_vm_fqdn), ipv4 = local.branch1_vm_addr, ipv6 = local.branch1_vm_addr_v6, probe = true },
-    { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ipv4 = local.hub1_vm_addr, ipv6 = local.hub1_vm_addr_v6, probe = false },
+    { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ipv4 = local.hub1_vm_addr, ipv6 = local.hub1_vm_addr_v6, probe = true },
     { name = "hub1-spoke3-pep", dns = lower(local.hub1_spoke3_pep_fqdn), ping = false, probe = true },
     { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ipv4 = local.spoke1_vm_addr, ipv6 = local.spoke1_vm_addr_v6, probe = true },
     { name = "spoke2 ", dns = lower(local.spoke2_vm_fqdn), ipv4 = local.spoke2_vm_addr, ipv6 = local.spoke2_vm_addr_v6, probe = true },
   ]
   vm_script_targets_region2 = [
     { name = "branch3", dns = lower(local.branch3_vm_fqdn), ipv4 = local.branch3_vm_addr, ipv6 = local.branch3_vm_addr_v6, probe = true },
-    { name = "hub2   ", dns = lower(local.hub2_vm_fqdn), ipv4 = local.hub2_vm_addr, ipv6 = local.hub2_vm_addr_v6, probe = false },
+    { name = "hub2   ", dns = lower(local.hub2_vm_fqdn), ipv4 = local.hub2_vm_addr, ipv6 = local.hub2_vm_addr_v6, probe = true },
     { name = "hub2-spoke6-pep", dns = lower(local.hub2_spoke6_pep_fqdn), ping = false, probe = true },
     { name = "spoke4 ", dns = lower(local.spoke4_vm_fqdn), ipv4 = local.spoke4_vm_addr, ipv6 = local.spoke4_vm_addr_v6, probe = true },
     { name = "spoke5 ", dns = lower(local.spoke5_vm_fqdn), ipv4 = local.spoke5_vm_addr, ipv6 = local.spoke5_vm_addr_v6, probe = true },
@@ -611,7 +625,24 @@ module "fw_policy_rule_collection_group" {
     }
   ]
   application_rule_collection = []
-  nat_rule_collection         = []
+  nat_rule_collection = [
+    # {
+    #   name     = "nat-rc"
+    #   priority = 200
+    #   action   = "Dnat"
+    #   rule = [
+    #     {
+    #       name                = "nat-rc-any-to-spoke1vm"
+    #       source_addresses    = ["*"]
+    #       destination_address = "52.169.147.205"
+    #       protocols           = ["TCP"]
+    #       destination_ports   = ["22"]
+    #       translated_address  = "10.1.0.5"
+    #       translated_port     = 22
+    #     }
+    #   ]
+    # }
+  ]
 }
 
 ####################################################
@@ -622,6 +653,7 @@ locals {
   main_files = {
     "output/server.sh"              = local.vm_startup
     "output/startup.sh"             = templatefile("../../scripts/startup.sh", local.vm_init_vars)
+    "output/startup-probe.sh"       = templatefile("../../scripts/startup.sh", local.probe_init_vars)
     "output/probe-cloud-config.yml" = module.probe_vm_cloud_init.cloud_config
     "output/vm-cloud-config.yml"    = module.vm_cloud_init.cloud_config
   }

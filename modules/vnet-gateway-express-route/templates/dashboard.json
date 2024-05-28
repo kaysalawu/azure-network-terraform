@@ -20,51 +20,51 @@
                 "name": "options",
                 "value": {
                   "chart": {
-                    "metrics": [
-                      {
-                        "resourceMetadata": {
-                          "id": "${GATEWAY_ID}"
-                        },
-                        "name": "ExpressRouteGatewayBitsPerSecond",
-                        "aggregationType": 4,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "Bits Received Per second",
-                          "resourceDisplayName": "${GATEWAY_NAME}"
-                        }
-                      }
-                    ],
-                    "title": "Bits Received Per Second",
-                    "titleKind": 2,
-                    "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
-                      "axisVisualization": {
-                        "x": {
-                          "isVisible": true,
-                          "axisType": 2
-                        },
-                        "y": {
-                          "isVisible": true,
-                          "axisType": 1
-                        }
-                      }
-                    },
                     "grouping": {
                       "dimension": "roleInstance",
                       "sort": 2,
                       "top": 10
                     },
+                    "metrics": [
+                      {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "Bits Received Per second",
+                          "resourceDisplayName": "${GATEWAY_NAME}"
+                        },
+                        "name": "ExpressRouteGatewayBitsPerSecond",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
+                        }
+                      }
+                    ],
                     "timespan": {
+                      "grain": 1,
                       "relative": {
                         "duration": 3600000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "showUTCTime": false
+                    },
+                    "title": "Bits Received Per Second",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -76,45 +76,47 @@
               "content": {
                 "options": {
                   "chart": {
+                    "grouping": {
+                      "dimension": "roleInstance",
+                      "sort": 2,
+                      "top": 10
+                    },
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${GATEWAY_ID}"
-                        },
-                        "name": "ExpressRouteGatewayBitsPerSecond",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "metricVisualization": {
                           "displayName": "Bits Received Per second",
                           "resourceDisplayName": "${GATEWAY_NAME}"
+                        },
+                        "name": "ExpressRouteGatewayBitsPerSecond",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
                         }
                       }
                     ],
                     "title": "Bits Received Per Second",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
-                      "disablePinning": true
-                    },
-                    "grouping": {
-                      "dimension": "roleInstance",
-                      "sort": 2,
-                      "top": 10
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 }
@@ -125,7 +127,7 @@
                 "model": {
                   "format": "local",
                   "granularity": "auto",
-                  "relative": "60m"
+                  "relative": "240m"
                 }
               }
             }
@@ -150,49 +152,43 @@
                   "chart": {
                     "metrics": [
                       {
+                        "aggregationType": 3,
+                        "metricVisualization": {
+                          "displayName": "Max Flows Created Per Second"
+                        },
+                        "name": "ExpressRouteGatewayMaxFlowsCreationRate",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
-                        },
-                        "name": "ExpressRouteGatewayCpuUtilization",
-                        "aggregationType": 4,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "CPU utilization",
-                          "resourceDisplayName": "${GATEWAY_NAME}"
                         }
                       }
                     ],
-                    "title": "CPU Utilization",
-                    "titleKind": 2,
-                    "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 86400000
                       },
+                      "showUTCTime": false
+                    },
+                    "title": "Max Flows Created Per Second [Max]",
+                    "titleKind": 1,
+                    "visualization": {
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
-                      }
-                    },
-                    "grouping": {
-                      "dimension": "roleInstance",
-                      "sort": 2,
-                      "top": 10
-                    },
-                    "timespan": {
-                      "relative": {
-                        "duration": 3600000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "chartType": 3,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -209,51 +205,46 @@
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
                         },
-                        "name": "ExpressRouteGatewayCpuUtilization",
-                        "aggregationType": 4,
+                        "name": "ExpressRouteGatewayMaxFlowsCreationRate",
+                        "aggregationType": 3,
                         "namespace": "microsoft.network/virtualnetworkgateways",
                         "metricVisualization": {
-                          "displayName": "CPU utilization",
-                          "resourceDisplayName": "${GATEWAY_NAME}"
+                          "displayName": "Max Flows Created Per Second"
                         }
                       }
                     ],
-                    "title": "CPU Utilization",
+                    "title": "Max Max Flows Created Per Second",
                     "titleKind": 2,
                     "visualization": {
                       "chartType": 2,
                       "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
                         "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
+                        "position": 2
                       },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
                       "disablePinning": true
                     },
                     "grouping": {
-                      "dimension": "roleInstance",
+                      "dimension": [
+                        "roleInstance",
+                        "direction"
+                      ],
                       "sort": 2,
                       "top": 10
                     }
                   }
-                }
-              }
-            },
-            "filters": {
-              "MsPortalFx_TimeRange": {
-                "model": {
-                  "format": "local",
-                  "granularity": "auto",
-                  "relative": "60m"
                 }
               }
             }
@@ -278,43 +269,43 @@
                   "chart": {
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${GATEWAY_ID}"
-                        },
-                        "name": "ExpressRouteGatewayActiveFlows",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "metricVisualization": {
                           "displayName": "Active Flows"
+                        },
+                        "name": "ExpressRouteGatewayActiveFlows",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
                         }
                       }
                     ],
-                    "title": "Active Flows [Avg]",
-                    "titleKind": 1,
-                    "visualization": {
-                      "chartType": 3,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
-                      "axisVisualization": {
-                        "x": {
-                          "isVisible": true,
-                          "axisType": 2
-                        },
-                        "y": {
-                          "isVisible": true,
-                          "axisType": 1
-                        }
-                      }
-                    },
                     "timespan": {
+                      "grain": 1,
                       "relative": {
                         "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "showUTCTime": false
+                    },
+                    "title": "Active Flows [Avg]",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 3,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -326,50 +317,48 @@
               "content": {
                 "options": {
                   "chart": {
+                    "grouping": {
+                      "dimension": "roleInstance",
+                      "sort": 2,
+                      "top": 10
+                    },
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${GATEWAY_ID}"
-                        },
-                        "name": "ExpressRouteGatewayActiveFlows",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "metricVisualization": {
                           "displayName": "Active Flows"
+                        },
+                        "name": "ExpressRouteGatewayActiveFlows",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
                         }
                       }
                     ],
-                    "title": "Active Flows [Avg]",
-                    "titleKind": 1,
+                    "title": "Avg Active Flows",
+                    "titleKind": 2,
                     "visualization": {
-                      "chartType": 3,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
-                      "disablePinning": true
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
-                }
-              }
-            },
-            "filters": {
-              "MsPortalFx_TimeRange": {
-                "model": {
-                  "format": "local",
-                  "granularity": "auto",
-                  "relative": "1440m"
                 }
               }
             }
@@ -385,55 +374,62 @@
           "metadata": {
             "inputs": [
               {
-                "name": "sharedTimeRange",
-                "isOptional": true
-              },
-              {
                 "name": "options",
                 "value": {
                   "chart": {
+                    "grouping": {
+                      "dimension": "roleInstance",
+                      "sort": 2,
+                      "top": 10
+                    },
                     "metrics": [
                       {
+                        "aggregationType": 3,
+                        "metricVisualization": {
+                          "displayName": "Count Of Routes Advertised to Peer"
+                        },
+                        "name": "ExpressRouteGatewayCountOfRoutesAdvertisedToPeer",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
-                        },
-                        "name": "ExpressRouteGatewayFrequencyOfRoutesChanged",
-                        "aggregationType": 1,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "Frequency of Routes change"
                         }
                       }
                     ],
-                    "title": "Frequency of Routes change [Sum]",
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 14400000
+                      },
+                      "showUTCTime": true
+                    },
+                    "title": "Max Count Of Routes Advertised to Peer for ${GATEWAY_NAME} by roleInstance",
                     "titleKind": 1,
                     "visualization": {
-                      "chartType": 1,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
-                      }
-                    },
-                    "timespan": {
-                      "relative": {
-                        "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "chartType": 3,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
+                "isOptional": true
+              },
+              {
+                "name": "sharedTimeRange",
                 "isOptional": true
               }
             ],
@@ -447,45 +443,44 @@
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
                         },
-                        "name": "ExpressRouteGatewayFrequencyOfRoutesChanged",
-                        "aggregationType": 1,
+                        "name": "ExpressRouteGatewayCountOfRoutesAdvertisedToPeer",
+                        "aggregationType": 3,
                         "namespace": "microsoft.network/virtualnetworkgateways",
                         "metricVisualization": {
-                          "displayName": "Frequency of Routes change"
+                          "displayName": "Count Of Routes Advertised to Peer"
                         }
                       }
                     ],
-                    "title": "Frequency of Routes change [Sum]",
-                    "titleKind": 1,
+                    "title": "Max Count Of Routes Advertised to Peer",
+                    "titleKind": 2,
                     "visualization": {
-                      "chartType": 1,
+                      "chartType": 5,
                       "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
                         "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
+                        "position": 2
                       },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
+                      "sortIndex": 1,
                       "disablePinning": true
+                    },
+                    "grouping": {
+                      "dimension": "BgpPeerAddress",
+                      "sort": 2,
+                      "top": 10
                     }
                   }
-                }
-              }
-            },
-            "filters": {
-              "MsPortalFx_TimeRange": {
-                "model": {
-                  "format": "local",
-                  "granularity": "auto",
-                  "relative": "1440m"
                 }
               }
             }
@@ -508,50 +503,50 @@
                 "name": "options",
                 "value": {
                   "chart": {
-                    "metrics": [
-                      {
-                        "resourceMetadata": {
-                          "id": "${GATEWAY_ID}"
-                        },
-                        "name": "ExpressRouteGatewayActiveFlows",
-                        "aggregationType": 4,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "Active Flows"
-                        }
-                      }
-                    ],
-                    "title": "Active Flows by Instance [Avg]",
-                    "titleKind": 1,
-                    "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
-                      "axisVisualization": {
-                        "x": {
-                          "isVisible": true,
-                          "axisType": 2
-                        },
-                        "y": {
-                          "isVisible": true,
-                          "axisType": 1
-                        }
-                      }
-                    },
                     "grouping": {
                       "dimension": "roleInstance",
                       "sort": 2,
                       "top": 10
                     },
+                    "metrics": [
+                      {
+                        "aggregationType": 3,
+                        "metricVisualization": {
+                          "displayName": "Number of VMs in the Virtual Network [Max]"
+                        },
+                        "name": "ExpressRouteGatewayNumberOfVmInVnet",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
+                        }
+                      }
+                    ],
                     "timespan": {
+                      "grain": 1,
                       "relative": {
                         "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "showUTCTime": false
+                    },
+                    "title": "Max Number of VMs in the Virtual Network",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 1,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -563,55 +558,48 @@
               "content": {
                 "options": {
                   "chart": {
-                    "metrics": [
-                      {
-                        "resourceMetadata": {
-                          "id": "${GATEWAY_ID}"
-                        },
-                        "name": "ExpressRouteGatewayActiveFlows",
-                        "aggregationType": 4,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "Active Flows"
-                        }
-                      }
-                    ],
-                    "title": "Active Flows by Instance [Avg]",
-                    "titleKind": 1,
-                    "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
-                      "axisVisualization": {
-                        "x": {
-                          "isVisible": true,
-                          "axisType": 2
-                        },
-                        "y": {
-                          "isVisible": true,
-                          "axisType": 1
-                        }
-                      },
-                      "disablePinning": true
-                    },
                     "grouping": {
                       "dimension": "roleInstance",
                       "sort": 2,
                       "top": 10
+                    },
+                    "metrics": [
+                      {
+                        "aggregationType": 3,
+                        "metricVisualization": {
+                          "displayName": "Number of VMs in the Virtual Network"
+                        },
+                        "name": "ExpressRouteGatewayNumberOfVmInVnet",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
+                        }
+                      }
+                    ],
+                    "title": "Max Number of VMs in the Virtual Network",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
-                }
-              }
-            },
-            "filters": {
-              "MsPortalFx_TimeRange": {
-                "model": {
-                  "format": "local",
-                  "granularity": "auto",
-                  "relative": "1440m"
                 }
               }
             }
@@ -634,45 +622,51 @@
                 "name": "options",
                 "value": {
                   "chart": {
+                    "grouping": {
+                      "dimension": "roleInstance",
+                      "sort": 2,
+                      "top": 10
+                    },
                     "metrics": [
                       {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "CPU utilization",
+                          "resourceDisplayName": "${GATEWAY_NAME}"
+                        },
+                        "name": "ExpressRouteGatewayCpuUtilization",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
-                        },
-                        "name": "ExpressRouteGatewayMaxFlowsCreationRate",
-                        "aggregationType": 3,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "Max Flows Created Per Second"
                         }
                       }
                     ],
-                    "title": "Max Flows Created Per Second [Max]",
-                    "titleKind": 1,
-                    "visualization": {
-                      "chartType": 3,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 3600000
                       },
+                      "showUTCTime": false
+                    },
+                    "title": "CPU Utilization",
+                    "titleKind": 2,
+                    "visualization": {
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
-                      }
-                    },
-                    "timespan": {
-                      "relative": {
-                        "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -684,39 +678,47 @@
               "content": {
                 "options": {
                   "chart": {
+                    "grouping": {
+                      "dimension": "roleInstance",
+                      "sort": 2,
+                      "top": 10
+                    },
                     "metrics": [
                       {
+                        "aggregationType": 4,
+                        "metricVisualization": {
+                          "displayName": "CPU utilization",
+                          "resourceDisplayName": "${GATEWAY_NAME}"
+                        },
+                        "name": "ExpressRouteGatewayCpuUtilization",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
-                        },
-                        "name": "ExpressRouteGatewayMaxFlowsCreationRate",
-                        "aggregationType": 3,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "Max Flows Created Per Second"
                         }
                       }
                     ],
-                    "title": "Max Flows Created Per Second [Max]",
-                    "titleKind": 1,
+                    "title": "CPU Utilization",
+                    "titleKind": 2,
                     "visualization": {
-                      "chartType": 3,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
-                      "disablePinning": true
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 }
@@ -727,7 +729,7 @@
                 "model": {
                   "format": "local",
                   "granularity": "auto",
-                  "relative": "1440m"
+                  "relative": "240m"
                 }
               }
             }
@@ -752,48 +754,43 @@
                   "chart": {
                     "metrics": [
                       {
+                        "aggregationType": 1,
+                        "metricVisualization": {
+                          "displayName": "Frequency of Routes change"
+                        },
+                        "name": "ExpressRouteGatewayFrequencyOfRoutesChanged",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
-                        },
-                        "name": "ExpressRouteGatewayNumberOfVmInVnet",
-                        "aggregationType": 3,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "Number of VMs in the Virtual Network [Max]"
                         }
                       }
                     ],
-                    "title": "Max Number of VMs in the Virtual Network",
-                    "titleKind": 1,
-                    "visualization": {
-                      "chartType": 1,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
-                      "axisVisualization": {
-                        "x": {
-                          "isVisible": true,
-                          "axisType": 2
-                        },
-                        "y": {
-                          "isVisible": true,
-                          "axisType": 1
-                        }
-                      }
-                    },
-                    "grouping": {
-                      "dimension": "roleInstance",
-                      "sort": 2,
-                      "top": 10
-                    },
                     "timespan": {
+                      "grain": 1,
                       "relative": {
                         "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "showUTCTime": false
+                    },
+                    "title": "Frequency of Routes change [Sum]",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 1,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -805,39 +802,46 @@
               "content": {
                 "options": {
                   "chart": {
+                    "grouping": {
+                      "dimension": "roleInstance",
+                      "sort": 2,
+                      "top": 10
+                    },
                     "metrics": [
                       {
+                        "aggregationType": 1,
+                        "metricVisualization": {
+                          "displayName": "Frequency of Routes change"
+                        },
+                        "name": "ExpressRouteGatewayFrequencyOfRoutesChanged",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
-                        },
-                        "name": "ExpressRouteGatewayNumberOfVmInVnet",
-                        "aggregationType": 3,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "Number of VMs in the Virtual Network"
                         }
                       }
                     ],
-                    "title": "Number of VMs in the Virtual Network [Max]",
-                    "titleKind": 1,
+                    "title": "Sum Frequency of Routes change",
+                    "titleKind": 2,
                     "visualization": {
-                      "chartType": 1,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
-                      "disablePinning": true
+                      "chartType": 3,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 }
@@ -864,43 +868,43 @@
                   "chart": {
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${GATEWAY_ID}"
-                        },
-                        "name": "ExpressRouteGatewayCountOfRoutesAdvertisedToPeer",
                         "aggregationType": 3,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "metricVisualization": {
                           "displayName": "Count Of Routes Advertised to Peer"
+                        },
+                        "name": "ExpressRouteGatewayCountOfRoutesAdvertisedToPeer",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
                         }
                       }
                     ],
-                    "title": "Count Of Routes Advertised to Peer [Max]",
-                    "titleKind": 1,
-                    "visualization": {
-                      "chartType": 5,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
-                      "axisVisualization": {
-                        "x": {
-                          "isVisible": true,
-                          "axisType": 2
-                        },
-                        "y": {
-                          "isVisible": true,
-                          "axisType": 1
-                        }
-                      }
-                    },
                     "timespan": {
+                      "grain": 1,
                       "relative": {
                         "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "showUTCTime": false
+                    },
+                    "title": "Count Of Routes Advertised to Peer [Max]",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 5,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -917,17 +921,6 @@
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
                         },
-                        "name": "ExpressRouteGatewayCountOfRoutesAdvertisedToPeer",
-                        "aggregationType": 3,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "Count Of Routes Advertised to Peer"
-                        }
-                      },
-                      {
-                        "resourceMetadata": {
-                          "id": "${GATEWAY_ID}"
-                        },
                         "name": "ExpressRouteGatewayCountOfRoutesLearnedFromPeer",
                         "aggregationType": 3,
                         "namespace": "microsoft.network/virtualnetworkgateways",
@@ -936,26 +929,33 @@
                         }
                       }
                     ],
-                    "title": "Count Of Routes Advertised/Learned to/from Peer [Max]",
-                    "titleKind": 1,
+                    "title": "Max Count Of Routes Learned from Peer",
+                    "titleKind": 2,
                     "visualization": {
                       "chartType": 5,
                       "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
                         "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
+                        "position": 2
                       },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
                       "disablePinning": true
+                    },
+                    "grouping": {
+                      "dimension": "BgpPeerAddress",
+                      "sort": 2,
+                      "top": 10
                     }
                   }
                 }

@@ -1,0 +1,246 @@
+MCR Routes: {
+  "message": "MCR routes are retrieved successfully",
+  "terms": "This data is subject to the Acceptable Use Policy https://www.megaport.com/legal/acceptable-use-policy",
+  "data": [
+    {
+      "prefix": "10.1.0.0/20",
+      "best": true,
+      "external": true,
+      "origin": "IGP",
+      "source": "172.16.0.2",
+      "valid": true,
+      "weight": 0,
+      "asPath": "12076",
+      "localPref": 100,
+      "nextHop": {
+        "ip": "172.16.0.2",
+        "vxc": {
+          "id": "d68f5c81-0bf2-4cfc-8267-944ccc56c9f2",
+          "name": "Poc08-er1-pri"
+        }
+      }
+    },
+    {
+      "prefix": "10.11.0.0/20",
+      "best": true,
+      "external": true,
+      "origin": "IGP",
+      "source": "172.16.0.2",
+      "valid": true,
+      "weight": 0,
+      "asPath": "12076",
+      "localPref": 100,
+      "nextHop": {
+        "ip": "172.16.0.2",
+        "vxc": {
+          "id": "d68f5c81-0bf2-4cfc-8267-944ccc56c9f2",
+          "name": "Poc08-er1-pri"
+        }
+      }
+    },
+    {
+      "prefix": "10.11.16.0/20",
+      "best": true,
+      "external": true,
+      "origin": "IGP",
+      "source": "172.16.0.2",
+      "valid": true,
+      "weight": 0,
+      "asPath": "12076",
+      "localPref": 100,
+      "nextHop": {
+        "ip": "172.16.0.2",
+        "vxc": {
+          "id": "d68f5c81-0bf2-4cfc-8267-944ccc56c9f2",
+          "name": "Poc08-er1-pri"
+        }
+      }
+    },
+    {
+      "prefix": "10.20.0.0/20",
+      "best": true,
+      "external": true,
+      "origin": "IGP",
+      "source": "172.16.0.18",
+      "valid": true,
+      "weight": 0,
+      "asPath": "12076",
+      "localPref": 100,
+      "nextHop": {
+        "ip": "172.16.0.18",
+        "vxc": {
+          "id": "0e401329-2f63-4b6d-a7c6-8d39e10387cc",
+          "name": "Poc08-er3-pri"
+        }
+      }
+    },
+    {
+      "prefix": "10.20.0.0/20",
+      "best": false,
+      "external": true,
+      "origin": "IGP",
+      "source": "172.16.0.22",
+      "valid": true,
+      "weight": 0,
+      "asPath": "12076",
+      "localPref": 100,
+      "nextHop": {
+        "ip": "172.16.0.22",
+        "vxc": {
+          "id": "1c35da33-b205-4883-87cc-06ad92e40655",
+          "name": "Poc08-er3-sec"
+        }
+      }
+    },
+    {
+      "prefix": "10.20.16.0/20",
+      "best": true,
+      "external": true,
+      "origin": "IGP",
+      "source": "172.16.0.18",
+      "valid": true,
+      "weight": 0,
+      "asPath": "12076",
+      "localPref": 100,
+      "nextHop": {
+        "ip": "172.16.0.18",
+        "vxc": {
+          "id": "0e401329-2f63-4b6d-a7c6-8d39e10387cc",
+          "name": "Poc08-er3-pri"
+        }
+      }
+    },
+    {
+      "prefix": "10.20.16.0/20",
+      "best": false,
+      "external": true,
+      "origin": "IGP",
+      "source": "172.16.0.22",
+      "valid": true,
+      "weight": 0,
+      "asPath": "12076",
+      "localPref": 100,
+      "nextHop": {
+        "ip": "172.16.0.22",
+        "vxc": {
+          "id": "1c35da33-b205-4883-87cc-06ad92e40655",
+          "name": "Poc08-er3-sec"
+        }
+      }
+    },
+    {
+      "prefix": "172.16.0.0/30",
+      "best": true,
+      "external": true,
+      "med": 0,
+      "origin": "incomplete",
+      "source": "0.0.0.0",
+      "valid": true,
+      "weight": 32768,
+      "asPath": "",
+      "localPref": 100,
+      "nextHop": {
+        "ip": "0.0.0.0",
+        "vxc": {
+          "id": "d68f5c81-0bf2-4cfc-8267-944ccc56c9f2",
+          "name": "Poc08-er1-pri"
+        }
+      }
+    },
+    {
+      "prefix": "172.16.0.4/30",
+      "best": true,
+      "external": true,
+      "med": 0,
+      "origin": "incomplete",
+      "source": "0.0.0.0",
+      "valid": true,
+      "weight": 32768,
+      "asPath": "",
+      "localPref": 100,
+      "nextHop": {
+        "ip": "0.0.0.0",
+        "vxc": {
+          "id": "1b5005aa-640f-4bda-8673-06b2de98b726",
+          "name": "Poc08-er1-sec"
+        }
+      }
+    },
+    {
+      "prefix": "172.16.0.8/30",
+      "best": true,
+      "external": true,
+      "med": 0,
+      "origin": "incomplete",
+      "source": "0.0.0.0",
+      "valid": true,
+      "weight": 32768,
+      "asPath": "",
+      "localPref": 100,
+      "nextHop": {
+        "ip": "0.0.0.0",
+        "vxc": {
+          "id": "f0444a13-ed5f-4aa3-b7d3-eb69d06a574b",
+          "name": "Poc08-er2-pri"
+        }
+      }
+    },
+    {
+      "prefix": "172.16.0.12/30",
+      "best": true,
+      "external": true,
+      "med": 0,
+      "origin": "incomplete",
+      "source": "0.0.0.0",
+      "valid": true,
+      "weight": 32768,
+      "asPath": "",
+      "localPref": 100,
+      "nextHop": {
+        "ip": "0.0.0.0",
+        "vxc": {
+          "id": "bc7976e4-e2f1-49fb-ae09-a8729d986a9a",
+          "name": "Poc08-er2-sec"
+        }
+      }
+    },
+    {
+      "prefix": "172.16.0.16/30",
+      "best": true,
+      "external": true,
+      "med": 0,
+      "origin": "incomplete",
+      "source": "0.0.0.0",
+      "valid": true,
+      "weight": 32768,
+      "asPath": "",
+      "localPref": 100,
+      "nextHop": {
+        "ip": "0.0.0.0",
+        "vxc": {
+          "id": "0e401329-2f63-4b6d-a7c6-8d39e10387cc",
+          "name": "Poc08-er3-pri"
+        }
+      }
+    },
+    {
+      "prefix": "172.16.0.20/30",
+      "best": true,
+      "external": true,
+      "med": 0,
+      "origin": "incomplete",
+      "source": "0.0.0.0",
+      "valid": true,
+      "weight": 32768,
+      "asPath": "",
+      "localPref": 100,
+      "nextHop": {
+        "ip": "0.0.0.0",
+        "vxc": {
+          "id": "1c35da33-b205-4883-87cc-06ad92e40655",
+          "name": "Poc08-er3-sec"
+        }
+      }
+    }
+  ]
+}

@@ -118,8 +118,15 @@ variable "vnets_linked_to_ruleset" {
 
 variable "config_vnet" {
   type = object({
-    address_space                = list(string)
-    subnets                      = optional(map(any), {})
+    address_space = list(string)
+    subnets = optional(map(object({
+      use_azapi                                     = optional(list(bool), [false])
+      address_prefixes                              = list(string)
+      address_prefixes_v6                           = optional(list(string), [])
+      delegate                                      = optional(list(string), [])
+      private_endpoint_network_policies             = optional(list(string), ["Disabled"]) # Enabled, Disabled, NetworkSecurityGroupEnabled, RouteTableEnabled
+      private_link_service_network_policies_enabled = optional(list(bool), [false])
+    })), {})
     nsg_id                       = optional(string)
     dns_servers                  = optional(list(string))
     bgp_community                = optional(string, null)
@@ -131,6 +138,9 @@ variable "config_vnet" {
     enable_express_route_gateway = optional(bool, false)
     nat_gateway_subnet_names     = optional(list(string), [])
     subnet_names_private_dns     = optional(list(string), [])
+
+    enable_vnet_flow_logs           = optional(bool, false)
+    enable_vnet_flow_logs_analytics = optional(bool, true)
 
     private_dns_inbound_subnet_name  = optional(string, null)
     private_dns_outbound_subnet_name = optional(string, null)
@@ -253,6 +263,7 @@ variable "config_firewall" {
 variable "config_nva" {
   type = object({
     enable           = optional(bool, false)
+    enable_ipv6      = optional(bool, false)
     type             = optional(string, "cisco")
     ilb_untrust_ip   = optional(string)
     ilb_trust_ip     = optional(string)
@@ -261,16 +272,15 @@ variable "config_nva" {
     custom_data      = optional(string)
     scenario_option  = optional(string, "TwoNics") # Active-Active, TwoNics
     opn_type         = optional(string, "TwoNics") # Primary, Secondary, TwoNics
-    enable_ipv6      = optional(bool, false)
   })
   default = {
     enable           = false
+    enable_ipv6      = false
     type             = "cisco"
     internal_lb_addr = null
     custom_data      = null
     scenario_option  = "TwoNics"
     opn_type         = "TwoNics"
-    enable_ipv6      = false
   }
 }
 

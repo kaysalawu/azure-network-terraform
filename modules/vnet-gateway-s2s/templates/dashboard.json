@@ -22,43 +22,43 @@
                   "chart": {
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${GATEWAY_ID}"
-                        },
-                        "name": "TunnelAverageBandwidth",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "metricVisualization": {
                           "displayName": "Tunnel Bandwidth"
+                        },
+                        "name": "TunnelAverageBandwidth",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
                         }
                       }
                     ],
-                    "title": "Tunnel Bandwidth [Avg]",
-                    "titleKind": 1,
-                    "visualization": {
-                      "chartType": 3,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
-                      "axisVisualization": {
-                        "x": {
-                          "isVisible": true,
-                          "axisType": 2
-                        },
-                        "y": {
-                          "isVisible": true,
-                          "axisType": 1
-                        }
-                      }
-                    },
                     "timespan": {
+                      "grain": 1,
                       "relative": {
                         "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "showUTCTime": false
+                    },
+                    "title": "Tunnel Bandwidth [Avg]",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 3,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -70,39 +70,46 @@
               "content": {
                 "options": {
                   "chart": {
+                    "grouping": {
+                      "dimension": "Instance",
+                      "sort": 2,
+                      "top": 10
+                    },
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${GATEWAY_ID}"
-                        },
-                        "name": "TunnelAverageBandwidth",
                         "aggregationType": 4,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "metricVisualization": {
                           "displayName": "Tunnel Bandwidth"
+                        },
+                        "name": "TunnelAverageBandwidth",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
                         }
                       }
                     ],
                     "title": "Tunnel Bandwidth [Avg]",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 3,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
-                      "disablePinning": true
+                      "chartType": 3,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 }
@@ -129,54 +136,54 @@
                   "chart": {
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${GATEWAY_ID}"
-                        },
-                        "name": "TunnelEgressBytes",
                         "aggregationType": 1,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "metricVisualization": {
                           "displayName": "Tunnel Egress Bytes"
+                        },
+                        "name": "TunnelEgressBytes",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
                         }
                       },
                       {
-                        "resourceMetadata": {
-                          "id": "${GATEWAY_ID}"
-                        },
-                        "name": "TunnelIngressBytes",
                         "aggregationType": 1,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "metricVisualization": {
                           "displayName": "Tunnel Ingress Bytes"
+                        },
+                        "name": "TunnelIngressBytes",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
                         }
                       }
                     ],
-                    "title": "Tunnel MMSA and QMSA Count [SUM]",
-                    "titleKind": 2,
-                    "visualization": {
-                      "chartType": 3,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
-                      "axisVisualization": {
-                        "x": {
-                          "isVisible": true,
-                          "axisType": 2
-                        },
-                        "y": {
-                          "isVisible": true,
-                          "axisType": 1
-                        }
-                      }
-                    },
                     "timespan": {
+                      "grain": 1,
                       "relative": {
                         "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "showUTCTime": false
+                    },
+                    "title": "Tunnel MMSA and QMSA Count [SUM]",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 3,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -217,18 +224,20 @@
                     "visualization": {
                       "chartType": 2,
                       "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
                         "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
+                        "position": 2
                       },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
                       "disablePinning": true
@@ -249,66 +258,65 @@
           "metadata": {
             "inputs": [
               {
-                "name": "sharedTimeRange",
-                "isOptional": true
-              },
-              {
                 "name": "options",
                 "value": {
                   "chart": {
+                    "grouping": {
+                      "dimension": [
+                        "ConnectionName",
+                        "Instance"
+                      ],
+                      "sort": 2,
+                      "top": 10
+                    },
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${GATEWAY_ID}"
-                        },
-                        "name": "TunnelEgressPacketDropCount",
                         "aggregationType": 1,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "metricVisualization": {
                           "displayName": "Tunnel Egress Packet Drop Count"
-                        }
-                      },
-                      {
+                        },
+                        "name": "TunnelEgressPacketDropCount",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
-                        },
-                        "name": "TunnelIngressPacketDropCount",
-                        "aggregationType": 1,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "Tunnel Ingress Packet Drop Count"
                         }
                       }
                     ],
-                    "title": "Tunnel Egress/Ingress Packet Drop Count [Sum]",
-                    "titleKind": 1,
-                    "visualization": {
-                      "chartType": 3,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 14400000
                       },
+                      "showUTCTime": true
+                    },
+                    "title": "Tunnel Egress Packet Drop [Sum]",
+                    "titleKind": 2,
+                    "visualization": {
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
-                      }
-                    },
-                    "timespan": {
-                      "relative": {
-                        "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
+                "isOptional": true
+              },
+              {
+                "name": "sharedTimeRange",
                 "isOptional": true
               }
             ],
@@ -317,50 +325,49 @@
               "content": {
                 "options": {
                   "chart": {
+                    "grouping": {
+                      "dimension": [
+                        "ConnectionName",
+                        "Instance"
+                      ],
+                      "sort": 2,
+                      "top": 10
+                    },
                     "metrics": [
                       {
-                        "resourceMetadata": {
-                          "id": "${GATEWAY_ID}"
-                        },
-                        "name": "TunnelEgressPacketDropCount",
                         "aggregationType": 1,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "metricVisualization": {
                           "displayName": "Tunnel Egress Packet Drop Count"
-                        }
-                      },
-                      {
+                        },
+                        "name": "TunnelEgressPacketDropCount",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
-                        },
-                        "name": "TunnelIngressPacketDropCount",
-                        "aggregationType": 1,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "Tunnel Ingress Packet Drop Count"
                         }
                       }
                     ],
-                    "title": "Tunnel Packet Drop [Sum]",
+                    "title": "Tunnel Egress Packet Drop [Sum]",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 3,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
-                      "disablePinning": true
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 }
@@ -378,66 +385,62 @@
           "metadata": {
             "inputs": [
               {
-                "name": "sharedTimeRange",
-                "isOptional": true
-              },
-              {
                 "name": "options",
                 "value": {
                   "chart": {
+                    "grouping": {
+                      "dimension": "Instance",
+                      "sort": 2,
+                      "top": 10
+                    },
                     "metrics": [
                       {
+                        "aggregationType": 1,
+                        "metricVisualization": {
+                          "displayName": "BGP Routes Learned"
+                        },
+                        "name": "BgpRoutesLearned",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
-                        },
-                        "name": "MmsaCount",
-                        "aggregationType": 1,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "Tunnel MMSA Count"
-                        }
-                      },
-                      {
-                        "resourceMetadata": {
-                          "id": "${GATEWAY_ID}"
-                        },
-                        "name": "QmsaCount",
-                        "aggregationType": 1,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "Tunnel QMSA Count"
                         }
                       }
                     ],
-                    "title": "Tunnel MMSA and QMSA Count [SUM]",
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 14400000
+                      },
+                      "showUTCTime": true
+                    },
+                    "title": "BP Routes Advertised/Learned [Count]",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
-                      }
-                    },
-                    "timespan": {
-                      "relative": {
-                        "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "chartType": 3,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
+                "isOptional": true
+              },
+              {
+                "name": "sharedTimeRange",
                 "isOptional": true
               }
             ],
@@ -446,50 +449,46 @@
               "content": {
                 "options": {
                   "chart": {
+                    "grouping": {
+                      "dimension": "Instance",
+                      "sort": 2,
+                      "top": 10
+                    },
                     "metrics": [
                       {
+                        "aggregationType": 1,
+                        "metricVisualization": {
+                          "displayName": "BGP Routes Learned"
+                        },
+                        "name": "BgpRoutesLearned",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
-                        },
-                        "name": "MmsaCount",
-                        "aggregationType": 1,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "Tunnel MMSA Count"
-                        }
-                      },
-                      {
-                        "resourceMetadata": {
-                          "id": "${GATEWAY_ID}"
-                        },
-                        "name": "QmsaCount",
-                        "aggregationType": 1,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "Tunnel QMSA Count"
                         }
                       }
                     ],
-                    "title": "Tunnel MMSA and QMSA Count [Sum]",
+                    "title": "BGP Routes Advertised/Learned [Count]",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
-                      "disablePinning": true
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 }
@@ -514,56 +513,53 @@
                 "name": "options",
                 "value": {
                   "chart": {
+                    "grouping": {
+                      "dimension": [
+                        "ConnectionName",
+                        "Instance"
+                      ],
+                      "sort": 2,
+                      "top": 10
+                    },
                     "metrics": [
                       {
+                        "aggregationType": 1,
+                        "metricVisualization": {
+                          "displayName": "Tunnel Total Flow Count"
+                        },
+                        "name": "TunnelTotalFlowCount",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
-                        },
-                        "name": "BgpRoutesAdvertised",
-                        "aggregationType": 7,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "BGP Routes Advertised"
-                        }
-                      },
-                      {
-                        "resourceMetadata": {
-                          "id": "${GATEWAY_ID}"
-                        },
-                        "name": "BgpRoutesLearned",
-                        "aggregationType": 7,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "BGP Routes Learned"
                         }
                       }
                     ],
-                    "title": "Tunnel MMSA and QMSA Count [SUM]",
-                    "titleKind": 2,
-                    "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
-                      "axisVisualization": {
-                        "x": {
-                          "isVisible": true,
-                          "axisType": 2
-                        },
-                        "y": {
-                          "isVisible": true,
-                          "axisType": 1
-                        }
-                      }
-                    },
                     "timespan": {
+                      "grain": 1,
                       "relative": {
                         "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "showUTCTime": false
+                    },
+                    "title": "Tunnel Total Flow Count [Sum]",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -575,50 +571,47 @@
               "content": {
                 "options": {
                   "chart": {
+                    "grouping": {
+                      "dimension": [
+                        "ConnectionName",
+                        "Instance"
+                      ],
+                      "sort": 2,
+                      "top": 10
+                    },
                     "metrics": [
                       {
+                        "aggregationType": 1,
+                        "metricVisualization": {
+                          "displayName": "Tunnel Total Flow Count"
+                        },
+                        "name": "TunnelTotalFlowCount",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
-                        },
-                        "name": "BgpRoutesAdvertised",
-                        "aggregationType": 7,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "BGP Routes Advertised"
-                        }
-                      },
-                      {
-                        "resourceMetadata": {
-                          "id": "${GATEWAY_ID}"
-                        },
-                        "name": "BgpRoutesLearned",
-                        "aggregationType": 7,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "BGP Routes Learned"
                         }
                       }
                     ],
-                    "title": "BP Routes Advertised/Learned [Count]",
+                    "title": "Tunnel Total Flow Count [Sum]",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
-                      "disablePinning": true
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 }
@@ -636,55 +629,65 @@
           "metadata": {
             "inputs": [
               {
-                "name": "sharedTimeRange",
-                "isOptional": true
-              },
-              {
                 "name": "options",
                 "value": {
                   "chart": {
+                    "grouping": {
+                      "dimension": [
+                        "Instance",
+                        "ConnectionName"
+                      ],
+                      "sort": 2,
+                      "top": 10
+                    },
                     "metrics": [
                       {
+                        "aggregationType": 1,
+                        "metricVisualization": {
+                          "displayName": "Tunnel Ingress Bytes"
+                        },
+                        "name": "TunnelIngressBytes",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
-                        },
-                        "name": "BgpPeerStatus",
-                        "aggregationType": 7,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "BGP Peer Status"
                         }
                       }
                     ],
-                    "title": "Tunnel MMSA and QMSA Count [SUM]",
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 14400000
+                      },
+                      "showUTCTime": true
+                    },
+                    "title": "Tunnel Egress Bytes [Sum]",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 5,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
-                      }
-                    },
-                    "timespan": {
-                      "relative": {
-                        "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
+                "isOptional": true
+              },
+              {
+                "name": "sharedTimeRange",
                 "isOptional": true
               }
             ],
@@ -693,44 +696,49 @@
               "content": {
                 "options": {
                   "chart": {
+                    "grouping": {
+                      "dimension": [
+                        "Instance",
+                        "ConnectionName"
+                      ],
+                      "sort": 2,
+                      "top": 10
+                    },
                     "metrics": [
                       {
+                        "aggregationType": 1,
+                        "metricVisualization": {
+                          "displayName": "Tunnel Ingress Bytes"
+                        },
+                        "name": "TunnelIngressBytes",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
-                        },
-                        "name": "BgpPeerStatus",
-                        "aggregationType": 7,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "BGP Peer Status"
                         }
                       }
                     ],
-                    "title": "BGP Peer Status [Count]",
+                    "title": "Tunnel Egress Bytes [Sum]",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 4,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
-                      "disablePinning": true
-                    },
-                    "grouping": {
-                      "dimension": "BgpPeerAddress",
-                      "sort": 2,
-                      "top": 10
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 }
@@ -757,43 +765,54 @@
                   "chart": {
                     "metrics": [
                       {
+                        "aggregationType": 1,
+                        "metricVisualization": {
+                          "displayName": "Tunnel Egress Packet Drop Count"
+                        },
+                        "name": "TunnelEgressPacketDropCount",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
-                        },
-                        "name": "VnetAddressPrefixCount",
+                        }
+                      },
+                      {
                         "aggregationType": 1,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "metricVisualization": {
-                          "displayName": "VNet Address Prefix Count"
+                          "displayName": "Tunnel Ingress Packet Drop Count"
+                        },
+                        "name": "TunnelIngressPacketDropCount",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
                         }
                       }
                     ],
-                    "title": "VNet Address Prefix Count [Sum]",
-                    "titleKind": 1,
-                    "visualization": {
-                      "chartType": 1,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
-                      "axisVisualization": {
-                        "x": {
-                          "isVisible": true,
-                          "axisType": 2
-                        },
-                        "y": {
-                          "isVisible": true,
-                          "axisType": 1
-                        }
-                      }
-                    },
                     "timespan": {
+                      "grain": 1,
                       "relative": {
                         "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "showUTCTime": false
+                    },
+                    "title": "Tunnel Egress/Ingress Packet Drop Count [Sum]",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 3,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -805,39 +824,49 @@
               "content": {
                 "options": {
                   "chart": {
+                    "grouping": {
+                      "dimension": [
+                        "ConnectionName",
+                        "Instance"
+                      ],
+                      "sort": 2,
+                      "top": 10
+                    },
                     "metrics": [
                       {
+                        "aggregationType": 1,
+                        "metricVisualization": {
+                          "displayName": "Tunnel Ingress Packet Drop Count"
+                        },
+                        "name": "TunnelIngressPacketDropCount",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
-                        },
-                        "name": "VnetAddressPrefixCount",
-                        "aggregationType": 1,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
-                        "metricVisualization": {
-                          "displayName": "VNet Address Prefix Count"
                         }
                       }
                     ],
-                    "title": "VNet Address Prefix Count [Sum]",
+                    "title": "Tunnel Ingress Packet Drop [Sum]",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 1,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
-                      "disablePinning": true
+                      "chartType": 3,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 }
@@ -855,6 +884,127 @@
           "metadata": {
             "inputs": [
               {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "grouping": {
+                      "dimension": "Instance",
+                      "sort": 2,
+                      "top": 10
+                    },
+                    "metrics": [
+                      {
+                        "aggregationType": 1,
+                        "metricVisualization": {
+                          "displayName": "BGP Routes Advertised"
+                        },
+                        "name": "BgpRoutesAdvertised",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
+                        }
+                      }
+                    ],
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 14400000
+                      },
+                      "showUTCTime": true
+                    },
+                    "title": "BGP Routes Advertised [Count]",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                },
+                "isOptional": true
+              },
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "grouping": {
+                      "dimension": "Instance",
+                      "sort": 2,
+                      "top": 10
+                    },
+                    "metrics": [
+                      {
+                        "aggregationType": 1,
+                        "metricVisualization": {
+                          "displayName": "BGP Routes Advertised"
+                        },
+                        "name": "BgpRoutesAdvertised",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
+                        }
+                      }
+                    ],
+                    "title": "BGP Routes Advertised [Count]",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "8": {
+          "position": {
+            "x": 0,
+            "y": 8,
+            "colSpan": 4,
+            "rowSpan": 4
+          },
+          "metadata": {
+            "inputs": [
+              {
                 "name": "sharedTimeRange",
                 "isOptional": true
               },
@@ -864,51 +1014,415 @@
                   "chart": {
                     "metrics": [
                       {
+                        "aggregationType": 7,
+                        "metricVisualization": {
+                          "displayName": "BGP Routes Advertised"
+                        },
+                        "name": "BgpRoutesAdvertised",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
-                        },
-                        "name": "TunnelTotalFlowCount",
-                        "aggregationType": 1,
-                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        }
+                      },
+                      {
+                        "aggregationType": 7,
                         "metricVisualization": {
-                          "displayName": "Tunnel Total Flow Count"
+                          "displayName": "BGP Routes Learned"
+                        },
+                        "name": "BgpRoutesLearned",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
                         }
                       }
                     ],
-                    "title": "Tunnel Total Flow Count [Sum]",
-                    "titleKind": 1,
-                    "visualization": {
-                      "chartType": 2,
-                      "legendVisualization": {
-                        "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
-                      },
-                      "axisVisualization": {
-                        "x": {
-                          "isVisible": true,
-                          "axisType": 2
-                        },
-                        "y": {
-                          "isVisible": true,
-                          "axisType": 1
-                        }
-                      }
-                    },
-                    "grouping": {
-                      "dimension": [
-                        "ConnectionName",
-                        "Instance"
-                      ],
-                      "sort": 2,
-                      "top": 10
-                    },
                     "timespan": {
+                      "grain": 1,
                       "relative": {
                         "duration": 86400000
                       },
-                      "showUTCTime": false,
-                      "grain": 1
+                      "showUTCTime": false
+                    },
+                    "title": "Tunnel MMSA and QMSA Count [SUM]",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                },
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 7,
+                        "metricVisualization": {
+                          "displayName": "BGP Routes Advertised"
+                        },
+                        "name": "BgpRoutesAdvertised",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
+                        }
+                      },
+                      {
+                        "aggregationType": 7,
+                        "metricVisualization": {
+                          "displayName": "BGP Routes Learned"
+                        },
+                        "name": "BgpRoutesLearned",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
+                        }
+                      }
+                    ],
+                    "title": "BP Routes Advertised/Learned [Count]",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "9": {
+          "position": {
+            "x": 4,
+            "y": 8,
+            "colSpan": 4,
+            "rowSpan": 4
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              },
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 7,
+                        "metricVisualization": {
+                          "displayName": "BGP Peer Status"
+                        },
+                        "name": "BgpPeerStatus",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
+                        }
+                      }
+                    ],
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 86400000
+                      },
+                      "showUTCTime": false
+                    },
+                    "title": "Tunnel MMSA and QMSA Count [SUM]",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 5,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                },
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "grouping": {
+                      "dimension": "Instance",
+                      "sort": 2,
+                      "top": 10
+                    },
+                    "metrics": [
+                      {
+                        "aggregationType": 7,
+                        "metricVisualization": {
+                          "displayName": "BGP Peer Status"
+                        },
+                        "name": "BgpPeerStatus",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
+                        }
+                      }
+                    ],
+                    "title": "BGP Peer Status [Count]",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 3,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "10": {
+          "position": {
+            "x": 8,
+            "y": 8,
+            "colSpan": 4,
+            "rowSpan": 4
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              },
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 1,
+                        "metricVisualization": {
+                          "displayName": "Tunnel MMSA Count"
+                        },
+                        "name": "MmsaCount",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
+                        }
+                      },
+                      {
+                        "aggregationType": 1,
+                        "metricVisualization": {
+                          "displayName": "Tunnel QMSA Count"
+                        },
+                        "name": "QmsaCount",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
+                        }
+                      }
+                    ],
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 86400000
+                      },
+                      "showUTCTime": false
+                    },
+                    "title": "Tunnel MMSA and QMSA Count [SUM]",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                },
+                "isOptional": true
+              }
+            ],
+            "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+            "settings": {
+              "content": {
+                "options": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 1,
+                        "metricVisualization": {
+                          "displayName": "Tunnel MMSA Count"
+                        },
+                        "name": "MmsaCount",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
+                        }
+                      },
+                      {
+                        "aggregationType": 1,
+                        "metricVisualization": {
+                          "displayName": "Tunnel QMSA Count"
+                        },
+                        "name": "QmsaCount",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
+                        }
+                      }
+                    ],
+                    "title": "Tunnel MMSA and QMSA Count [Sum]",
+                    "titleKind": 2,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 2,
+                      "disablePinning": true,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "11": {
+          "position": {
+            "x": 12,
+            "y": 8,
+            "colSpan": 4,
+            "rowSpan": 4
+          },
+          "metadata": {
+            "inputs": [
+              {
+                "name": "sharedTimeRange",
+                "isOptional": true
+              },
+              {
+                "name": "options",
+                "value": {
+                  "chart": {
+                    "metrics": [
+                      {
+                        "aggregationType": 1,
+                        "metricVisualization": {
+                          "displayName": "VNet Address Prefix Count"
+                        },
+                        "name": "VnetAddressPrefixCount",
+                        "namespace": "microsoft.network/virtualnetworkgateways",
+                        "resourceMetadata": {
+                          "id": "${GATEWAY_ID}"
+                        }
+                      }
+                    ],
+                    "timespan": {
+                      "grain": 1,
+                      "relative": {
+                        "duration": 86400000
+                      },
+                      "showUTCTime": false
+                    },
+                    "title": "VNet Address Prefix Count [Sum]",
+                    "titleKind": 1,
+                    "visualization": {
+                      "axisVisualization": {
+                        "x": {
+                          "axisType": 2,
+                          "isVisible": true
+                        },
+                        "y": {
+                          "axisType": 1,
+                          "isVisible": true
+                        }
+                      },
+                      "chartType": 1,
+                      "legendVisualization": {
+                        "hideSubtitle": false,
+                        "isVisible": true,
+                        "position": 2
+                      }
                     }
                   }
                 },
@@ -925,40 +1439,39 @@
                         "resourceMetadata": {
                           "id": "${GATEWAY_ID}"
                         },
-                        "name": "TunnelTotalFlowCount",
-                        "aggregationType": 1,
+                        "name": "VnetAddressPrefixCount",
+                        "aggregationType": 7,
                         "namespace": "microsoft.network/virtualnetworkgateways",
                         "metricVisualization": {
-                          "displayName": "Tunnel Total Flow Count"
+                          "displayName": "VNet Address Prefix Count"
                         }
                       }
                     ],
-                    "title": "Tunnel Total Flow Count [Sum]",
+                    "title": "VNet Address Prefix Count [Count]",
                     "titleKind": 2,
                     "visualization": {
                       "chartType": 2,
                       "legendVisualization": {
+                        "hideHoverCard": false,
+                        "hideLabelNames": true,
+                        "hideSubtitle": false,
                         "isVisible": true,
-                        "position": 2,
-                        "hideSubtitle": false
+                        "position": 2
                       },
                       "axisVisualization": {
                         "x": {
-                          "isVisible": true,
-                          "axisType": 2
+                          "axisType": 2,
+                          "isVisible": true
                         },
                         "y": {
-                          "isVisible": true,
-                          "axisType": 1
+                          "axisType": 1,
+                          "isVisible": true
                         }
                       },
                       "disablePinning": true
                     },
                     "grouping": {
-                      "dimension": [
-                        "ConnectionName",
-                        "Instance"
-                      ],
+                      "dimension": "Instance",
                       "sort": 2,
                       "top": 10
                     }

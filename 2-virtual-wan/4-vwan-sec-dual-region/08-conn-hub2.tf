@@ -105,6 +105,7 @@ data "cidrblock_summarization" "vhub2_route_map_cidr_blocks" {
 }
 
 resource "azurerm_route_map" "vhub2_route_map" {
+  count          = local.create_vwan_route_maps ? 1 : 0
   name           = "route-map"
   virtual_hub_id = module.vhub2.virtual_hub.id
 
@@ -167,7 +168,7 @@ resource "azurerm_vpn_gateway_connection" "vhub2_site_branch3_conn" {
 
   routing {
     associated_route_table = data.azurerm_virtual_hub_route_table.vhub2_default.id
-    outbound_route_map_id  = azurerm_route_map.vhub2_route_map.id
+    outbound_route_map_id  = local.create_vwan_route_maps ? azurerm_route_map.vhub2_route_map[0].id : null
   }
 
   vpn_link {

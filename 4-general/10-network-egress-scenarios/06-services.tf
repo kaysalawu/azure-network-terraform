@@ -25,7 +25,6 @@ locals {
   } }
 }
 
-
 resource "azurerm_role_assignment" "combined_role_assignment" {
   count                = length(local.role_assignments)
   scope                = azurerm_resource_group.rg.id

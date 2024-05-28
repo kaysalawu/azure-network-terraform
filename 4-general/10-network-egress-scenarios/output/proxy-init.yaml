@@ -76,9 +76,26 @@ write_files:
       export ETH0_IP=$(hostname -I | awk '{print $1}')
       echo -e "\nExtracting az token..."
       export TOKEN=$(timeout 5 az account get-access-token --query accessToken -o tsv 2>/dev/null)
+      
+      download_json_file() {
+          local url="https://www.microsoft.com/en-us/download/details.aspx?id=56519"
+          local json_url=$(curl -s "$url" | grep -oP '(?<=href=")[^"]*\.json' | head -n 1)
+          if [ -n "$json_url" ]; then
+              if [[ ! "$json_url" =~ ^http ]]; then
+                  json_url="https://www.microsoft.com$json_url"
+              fi
+              curl -o service_tags.json "$json_url"
+              echo "JSON file downloaded as service_tags.json"
+          else
+              echo "JSON file not found on the page."
+          fi
+      }
+      
       echo -e "Downloading service tags JSON..."
       if [ ! -f service_tags.json ]; then
-        curl -o service_tags.json "https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20240318.json" 2>/dev/null
+          download_json_file
+      else
+          echo "service_tags.json already exists."
       fi
       
       echo -e "\n-------------------------------------"
@@ -247,26 +264,26 @@ write_files:
         #####################################################
         echo -e "\n6. Blob (Data Plane)"
         #####################################################
-        local host=$(echo https://lab10hub9f17.blob.core.windows.net/storage/storage.txt | awk -F/ '{print $3}')
-        echo -e "   url = https://lab10hub9f17.blob.core.windows.net/storage/storage.txt"
+        local host=$(echo https://lab10hubd16a.blob.core.windows.net/storage/storage.txt | awk -F/ '{print $3}')
+        echo -e "   url = https://lab10hubd16a.blob.core.windows.net/storage/storage.txt"
         echo -e "   host = $host"
         resolve_dns $host 2>/dev/null
         get_azure_service_tag_from_host $host 2>/dev/null
         storage_account_key=""
         storage_access_token=""
         blob_access=""
-        echo -e "   az storage account keys list -g Lab10_NetworkEgress_RG --account-name lab10hub9f17"
-        if storage_account_key=$(timeout 5 az storage account keys list -g Lab10_NetworkEgress_RG --account-name lab10hub9f17 --query "[0].value" -o tsv 2>/dev/null); then
-          echo "   az storage blob download --account-name lab10hub9f17 -c storage -n storage.txt --account-key <KEY>"
-          blob_access=$(timeout 5 az storage blob download --account-name lab10hub9f17 -c storage -n storage.txt --account-key $storage_account_key --query content -o tsv 2>/dev/null)
+        echo -e "   az storage account keys list -g Lab10_NetworkEgress_RG --account-name lab10hubd16a"
+        if storage_account_key=$(timeout 5 az storage account keys list -g Lab10_NetworkEgress_RG --account-name lab10hubd16a --query "[0].value" -o tsv 2>/dev/null); then
+          echo "   az storage blob download --account-name lab10hubd16a -c storage -n storage.txt --account-key <KEY>"
+          blob_access=$(timeout 5 az storage blob download --account-name lab10hubd16a -c storage -n storage.txt --account-key $storage_account_key --query content -o tsv 2>/dev/null)
         else
           echo -e "   Storage account key: timed out!"
           echo -e "   Fallback: Get access token for storage.azure.com via metadata ..."
           if ! storage_access_token=$(timeout 5 curl -H Metadata:true "http://169.254.169.254:80/metadata/identity/oauth2/token?resource=https%3A%2F%2Fstorage.azure.com&api-version=2018-02-01" -s | jq -r .access_token); then
             echo -e "   Storage access token: timed out!"
           else
-            echo "   curl https://lab10hub9f17.blob.core.windows.net/storage/storage.txt ..."
-            blob_access=$(timeout 5 curl -s -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "x-ms-version: 2019-02-02" -H "Authorization: Bearer $storage_access_token" "https://lab10hub9f17.blob.core.windows.net/storage/storage.txt")
+            echo "   curl https://lab10hubd16a.blob.core.windows.net/storage/storage.txt ..."
+            blob_access=$(timeout 5 curl -s -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "x-ms-version: 2019-02-02" -H "Authorization: Bearer $storage_access_token" "https://lab10hubd16a.blob.core.windows.net/storage/storage.txt")
           fi
         fi
       
@@ -284,22 +301,22 @@ write_files:
         #####################################################
         echo -e "\n7. KeyVault (Data Plane)"
         #####################################################
-        local host=$(echo https://lab10-hub-kv9f17.vault.azure.net/secrets/message | awk -F/ '{print $3}')
-        echo -e "   url: https://lab10-hub-kv9f17.vault.azure.net/secrets/message"
+        local host=$(echo https://lab10-hub-kvd16a.vault.azure.net/secrets/message | awk -F/ '{print $3}')
+        echo -e "   url: https://lab10-hub-kvd16a.vault.azure.net/secrets/message"
         echo -e "   host: $host"
         resolve_dns $host
         get_azure_service_tag_from_host $host 2>/dev/null
         secret_value=""
         vault_access_token=""
-        echo "   az keyvault secret show --vault-name lab10-hub-kv9f17 --name message"
-        if ! secret_value=$(timeout 5 az keyvault secret show --vault-name lab10-hub-kv9f17 --name message --query value -o tsv 2>/dev/null); then
+        echo "   az keyvault secret show --vault-name lab10-hub-kvd16a --name message"
+        if ! secret_value=$(timeout 5 az keyvault secret show --vault-name lab10-hub-kvd16a --name message --query value -o tsv 2>/dev/null); then
           echo -e "   message: timed out!"
           echo -e "   Fallback: Get access token for vault.azure.net via metadata ..."
           if ! vault_access_token=$(timeout 5 curl -H Metadata:true "http://169.254.169.254/metadata/identity/oauth2/token?resource=https%3A%2F%2Fvault.azure.net&api-version=2018-02-01" -s | jq -r .access_token); then
             echo -e "   Vault token: timed out!"
           else
-            echo "curl https://lab10-hub-kv9f17.vault.azure.net/secrets/message?api-version=7.2"
-            secret_value=$(timeout 5 curl -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "Authorization : Bearer $vault_access_token" "https://lab10-hub-kv9f17.vault.azure.net/secrets/message?api-version=7.2" -o secret.txt 2>/dev/null)
+            echo "curl https://lab10-hub-kvd16a.vault.azure.net/secrets/message?api-version=7.2"
+            secret_value=$(timeout 5 curl -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "Authorization : Bearer $vault_access_token" "https://lab10-hub-kvd16a.vault.azure.net/secrets/message?api-version=7.2" -o secret.txt 2>/dev/null)
           fi
         fi
       
@@ -549,36 +566,36 @@ write_files:
       
       # ping-ipv4
       
-      cat <<EOF > /usr/local/bin/ping-ipv4
+      cat <<'EOF' > /usr/local/bin/ping-ipv4
       echo -e "\n ping ipv4 ...\n"
       EOF
       chmod a+x /usr/local/bin/ping-ipv4
       
       # ping-dns4
       
-      cat <<EOF > /usr/local/bin/ping-dns4
+      cat <<'EOF' > /usr/local/bin/ping-dns4
       echo -e "\n ping dns ipv4 ...\n"
       EOF
       chmod a+x /usr/local/bin/ping-dns4
       
       # curl-ipv4
       
-      cat <<EOF > /usr/local/bin/curl-ipv4
+      cat <<'EOF' > /usr/local/bin/curl-ipv4
       echo -e "\n curl ipv4 ...\n"
       EOF
       chmod a+x /usr/local/bin/curl-ipv4
       
       # curl-dns4
       
-      cat <<EOF > /usr/local/bin/curl-dns4
+      cat <<'EOF' > /usr/local/bin/curl-dns4
       echo -e "\n curl dns ipv4 ...\n"
-      echo  "\$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null contoso.com) - contoso.com"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null contoso.com) - contoso.com"
       EOF
       chmod a+x /usr/local/bin/curl-dns4
       
       # trace-ipv4
       
-      cat <<EOF > /usr/local/bin/trace-ipv4
+      cat <<'EOF' > /usr/local/bin/trace-ipv4
       echo -e "\n trace ipv4 ...\n"
       EOF
       chmod a+x /usr/local/bin/trace-ipv4
@@ -589,36 +606,36 @@ write_files:
       
       # ping-ipv6
       
-      cat <<EOF > /usr/local/bin/ping-ipv6
+      cat <<'EOF' > /usr/local/bin/ping-ipv6
       echo -e "\n ping ipv6 ...\n"
       EOF
       chmod a+x /usr/local/bin/ping-ipv6
       
       # ping-dns6
       
-      cat <<EOF > /usr/local/bin/ping-dns6
+      cat <<'EOF' > /usr/local/bin/ping-dns6
       echo -e "\n ping dns ipv6 ...\n"
       EOF
       chmod a+x /usr/local/bin/ping-dns6
       
       # curl-ipv6
       
-      cat <<EOF > /usr/local/bin/curl-ipv6
+      cat <<'EOF' > /usr/local/bin/curl-ipv6
       echo -e "\n curl ipv6 ...\n"
       EOF
       chmod a+x /usr/local/bin/curl-ipv6
       
       # curl-dns6
       
-      cat <<EOF > /usr/local/bin/curl-dns6
+      cat <<'EOF' > /usr/local/bin/curl-dns6
       echo -e "\n curl dns ipv6 ...\n"
-      echo  "\$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null contoso.com) - contoso.com"
+      echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null contoso.com) - contoso.com"
       EOF
       chmod a+x /usr/local/bin/curl-dns6
       
       # trace-ipv6
       
-      cat <<EOF > /usr/local/bin/trace-ipv6
+      cat <<'EOF' > /usr/local/bin/trace-ipv6
       echo -e "\n trace ipv6 ...\n"
       EOF
       chmod a+x /usr/local/bin/trace-ipv6
@@ -629,7 +646,7 @@ write_files:
       
       # dns-info
       
-      cat <<EOF > /usr/local/bin/dns-info
+      cat <<'EOF' > /usr/local/bin/dns-info
       echo -e "\n resolvectl ...\n"
       resolvectl status
       EOF
@@ -653,10 +670,20 @@ write_files:
       
       
       ########################################################
+      # traffic generators (ipv6)
+      ########################################################
+      
+      # light-traffic generator
+      
+      
+      # heavy-traffic generator
+      
+      
+      ########################################################
       # crontabs
       ########################################################
       
-      cat <<EOF > /etc/cron.d/traffic-gen
+      cat <<'EOF' > /etc/cron.d/traffic-gen
       EOF
       
       crontab /etc/cron.d/traffic-gen
@@ -743,6 +770,23 @@ write_files:
       
 
 runcmd:
+  - sysctl -w net.ipv4.ip_forward=1
+  - sysctl -w net.ipv4.conf.eth0.disable_xfrm=1
+  - sysctl -w net.ipv4.conf.eth0.disable_policy=1
+  - echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf
+  - sysctl -w net.ipv6.conf.all.forwarding=1
+  - echo 'net.ipv6.conf.all.forwarding=1' >> /etc/sysctl.conf
+  - sysctl -p
+  - echo iptables-persistent iptables-persistent/autosave_v4 boolean false | debconf-set-selections
+  - echo iptables-persistent iptables-persistent/autosave_v6 boolean false | debconf-set-selections
+  - apt-get -y install iptables-persistent
+  - iptables -P FORWARD ACCEPT
+  - iptables -P INPUT ACCEPT
+  - iptables -P OUTPUT ACCEPT
+  - iptables -t nat -A POSTROUTING -d 10.0.0.0/8 -j ACCEPT
+  - iptables -t nat -A POSTROUTING -d 172.16.0.0/12 -j ACCEPT
+  - iptables -t nat -A POSTROUTING -d 192.168.0.0/16 -j ACCEPT
+  - iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
   - . /var/lib/azure/init/startup.sh
   - . /var/lib/azure/unbound/setup-unbound.sh
   - . /var/lib/azure/squid/setup-squid.sh

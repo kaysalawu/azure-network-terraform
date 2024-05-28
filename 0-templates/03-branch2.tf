@@ -14,7 +14,9 @@ module "branch2" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.branch2_tags
 
-  enable_diagnostics = local.enable_diagnostics
+  enable_diagnostics           = local.enable_diagnostics
+  log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
+  enable_ipv6                  = local.enable_ipv6
 
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region1"].id
@@ -71,7 +73,7 @@ locals {
     TARGETS              = local.vm_script_targets
     ACCESS_CONTROL_PREFIXES = concat(
       local.private_prefixes,
-      ["127.0.0.0/8", "35.199.192.0/19", ]
+      ["127.0.0.0/8", "35.199.192.0/19", "fd00::/8", ]
     )
   }
   branch2_forward_zones = [

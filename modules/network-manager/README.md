@@ -7,9 +7,7 @@ No requirements.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azapi"></a> [azapi](#provider\_azapi) | n/a |
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
-| <a name="provider_resource"></a> [resource](#provider\_resource) | n/a |
 
 ## Modules
 
@@ -19,29 +17,36 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [azapi_resource.azurerm_network_manager](https://registry.terraform.io/providers/azure/azapi/latest/docs/resources/resource) | resource |
-| [azurerm_network_manager.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_manager) | resource |
-| [resource_group.this](https://registry.terraform.io/providers/hashicorp/resource/latest/docs/data-sources/group) | data source |
+| [azurerm_network_manager_admin_rule.default](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_manager_admin_rule) | resource |
+| [azurerm_network_manager_admin_rule_collection.default](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_manager_admin_rule_collection) | resource |
+| [azurerm_network_manager_connectivity_configuration.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_manager_connectivity_configuration) | resource |
+| [azurerm_network_manager_deployment.connectivity](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_manager_deployment) | resource |
+| [azurerm_network_manager_deployment.security](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_manager_deployment) | resource |
+| [azurerm_network_manager_network_group.vnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_manager_network_group) | resource |
+| [azurerm_network_manager_security_admin_configuration.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_manager_security_admin_configuration) | resource |
+| [azurerm_network_manager_static_member.vnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_manager_static_member) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_description"></a> [description](#input\_description) | global | `string` | n/a | yes |
-| <a name="input_enable_diagnostics"></a> [enable\_diagnostics](#input\_enable\_diagnostics) | enable diagnostics | `bool` | `false` | no |
-| <a name="input_flow_log_nsg_ids"></a> [flow\_log\_nsg\_ids](#input\_flow\_log\_nsg\_ids) | flow log nsg id | `list(string)` | `[]` | no |
-| <a name="input_location"></a> [location](#input\_location) | location for network manager and other resources | `string` | n/a | yes |
-| <a name="input_log_analytics_workspace_name"></a> [log\_analytics\_workspace\_name](#input\_log\_analytics\_workspace\_name) | log analytics workspace name | `string` | `null` | no |
-| <a name="input_network_watcher_name"></a> [network\_watcher\_name](#input\_network\_watcher\_name) | network watcher name | `string` | `null` | no |
-| <a name="input_network_watcher_resource_group"></a> [network\_watcher\_resource\_group](#input\_network\_watcher\_resource\_group) | network watcher resource group | `string` | `null` | no |
+| <a name="input_connectivity_configurations"></a> [connectivity\_configurations](#input\_connectivity\_configurations) | connectivity configuration | <pre>list(object({<br>    name                  = string<br>    network_group_name    = string<br>    connectivity_topology = optional(string)<br>    global_mesh_enabled   = optional(bool, false)<br>    deploy                = optional(bool, false)<br><br>    hub = optional(object({<br>      resource_id   = string<br>      resource_type = optional(string, "Microsoft.Network/virtualNetworks")<br>    }), null)<br><br>    applies_to_group = object({<br>      group_connectivity  = optional(string, "None")<br>      global_mesh_enabled = optional(bool, false)<br>      use_hub_gateway     = optional(bool, false)<br>    })<br>  }))</pre> | `[]` | no |
+| <a name="input_connectivity_deployment"></a> [connectivity\_deployment](#input\_connectivity\_deployment) | connectivity deployment | <pre>object({<br>    configuration_names = optional(list(string), [])<br>    configuration_ids   = optional(list(string), [])<br>  })</pre> | `{}` | no |
+| <a name="input_location"></a> [location](#input\_location) | location for network manager and other resources | `string` | `null` | no |
+| <a name="input_network_groups"></a> [network\_groups](#input\_network\_groups) | network group | <pre>list(object({<br>    name           = string<br>    description    = optional(string)<br>    member_type    = optional(string, "VirtualNetwork")<br>    static_members = optional(list(string))<br>  }))</pre> | `[]` | no |
+| <a name="input_network_manager_id"></a> [network\_manager\_id](#input\_network\_manager\_id) | network manager id | `string` | n/a | yes |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | prefix to append before all resources | `string` | n/a | yes |
-| <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | resource group name | `any` | n/a | yes |
-| <a name="input_scope_accesses"></a> [scope\_accesses](#input\_scope\_accesses) | scope accesses | `list(string)` | <pre>[<br>  "Connectivity",<br>  "SecurityAdmin"<br>]</pre> | no |
-| <a name="input_scope_management_group_ids"></a> [scope\_management\_group\_ids](#input\_scope\_management\_group\_ids) | scope management group ids | `list(string)` | `[]` | no |
-| <a name="input_scope_subscription_ids"></a> [scope\_subscription\_ids](#input\_scope\_subscription\_ids) | scope subscription ids | `list(string)` | `[]` | no |
+| <a name="input_resource_group"></a> [resource\_group](#input\_resource\_group) | resource group name | `any` | n/a | yes |
+| <a name="input_security_admin_configurations"></a> [security\_admin\_configurations](#input\_security\_admin\_configurations) | security admin configuration | <pre>list(object({<br>    name                = string<br>    description         = optional(string)<br>    apply_default_rules = optional(bool, true)<br>    deploy              = optional(bool, false)<br><br>    rule_collections = optional(list(object({<br>      name              = string<br>      description       = optional(string)<br>      network_group_ids = list(string)<br>      rules = list(object({<br>        name                    = string<br>        description             = optional(string)<br>        action                  = string<br>        direction               = string<br>        priority                = number<br>        protocol                = string<br>        destination_port_ranges = list(string)<br>        source = list(object({<br>          address_prefix_type = string<br>          address_prefix      = string<br>        }))<br>        destinations = list(object({<br>          address_prefix_type = string<br>          address_prefix      = string<br>        }))<br>      }))<br>    })))<br>  }))</pre> | `[]` | no |
+| <a name="input_security_deployment"></a> [security\_deployment](#input\_security\_deployment) | security deployment | <pre>object({<br>    configuration_names = optional(list(string), [])<br>    configuration_ids   = optional(list(string), [])<br>  })</pre> | `{}` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | tags for all hub resources | `map(any)` | `{}` | no |
+| <a name="input_use_azpapi"></a> [use\_azpapi](#input\_use\_azpapi) | use azpapi | `bool` | `false` | no |
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_connectivity_configurations"></a> [connectivity\_configurations](#output\_connectivity\_configurations) | connectivity configurations |
+| <a name="output_security_configurations"></a> [security\_configurations](#output\_security\_configurations) | security configurations |
+| <a name="output_vnet_network_groups"></a> [vnet\_network\_groups](#output\_vnet\_network\_groups) | network groups |
 <!-- END_TF_DOCS -->

@@ -1,5 +1,5 @@
 
-variable "resource_group_name" {
+variable "resource_group" {
   description = "resource group name"
   type        = any
 }
@@ -12,32 +12,7 @@ variable "prefix" {
 variable "location" {
   description = "location for network manager and other resources"
   type        = string
-}
-
-variable "description" {
-  description = "global"
-  type        = string
-}
-
-variable "scope_accesses" {
-  description = "scope accesses"
-  type        = list(string)
-  default = [
-    "Connectivity",
-    "SecurityAdmin"
-  ]
-}
-
-variable "scope_subscription_ids" {
-  description = "scope subscription ids"
-  type        = list(string)
-  default     = []
-}
-
-variable "scope_management_group_ids" {
-  description = "scope management group ids"
-  type        = list(string)
-  default     = []
+  default     = null
 }
 
 variable "tags" {
@@ -46,32 +21,100 @@ variable "tags" {
   default     = {}
 }
 
-variable "enable_diagnostics" {
-  description = "enable diagnostics"
+variable "use_azpapi" {
+  description = "use azpapi"
   type        = bool
   default     = false
 }
 
-variable "log_analytics_workspace_name" {
-  description = "log analytics workspace name"
+variable "network_manager_id" {
+  description = "network manager id"
   type        = string
-  default     = null
 }
 
-variable "network_watcher_resource_group" {
-  description = "network watcher resource group"
-  type        = string
-  default     = null
+variable "network_groups" {
+  description = "network group"
+  type = list(object({
+    name           = string
+    description    = optional(string)
+    member_type    = optional(string, "VirtualNetwork")
+    static_members = optional(list(string))
+  }))
+  default = []
 }
 
-variable "network_watcher_name" {
-  description = "network watcher name"
-  type        = string
-  default     = null
+variable "connectivity_configurations" {
+  description = "connectivity configuration"
+  type = list(object({
+    name                  = string
+    network_group_name    = string
+    connectivity_topology = optional(string)
+    global_mesh_enabled   = optional(bool, false)
+    deploy                = optional(bool, false)
+
+    hub = optional(object({
+      resource_id   = string
+      resource_type = optional(string, "Microsoft.Network/virtualNetworks")
+    }), null)
+
+    applies_to_group = object({
+      group_connectivity  = optional(string, "None")
+      global_mesh_enabled = optional(bool, false)
+      use_hub_gateway     = optional(bool, false)
+    })
+  }))
+  default = []
 }
 
-variable "flow_log_nsg_ids" {
-  description = "flow log nsg id"
-  type        = list(string)
-  default     = []
+variable "security_admin_configurations" {
+  description = "security admin configuration"
+
+  type = list(object({
+    name                = string
+    description         = optional(string)
+    apply_default_rules = optional(bool, true)
+    deploy              = optional(bool, false)
+
+    rule_collections = optional(list(object({
+      name              = string
+      description       = optional(string)
+      network_group_ids = list(string)
+      rules = list(object({
+        name                    = string
+        description             = optional(string)
+        action                  = string
+        direction               = string
+        priority                = number
+        protocol                = string
+        destination_port_ranges = list(string)
+        source = list(object({
+          address_prefix_type = string
+          address_prefix      = string
+        }))
+        destinations = list(object({
+          address_prefix_type = string
+          address_prefix      = string
+        }))
+      }))
+    })))
+  }))
+  default = []
+}
+
+variable "connectivity_deployment" {
+  description = "connectivity deployment"
+  type = object({
+    configuration_names = optional(list(string), [])
+    configuration_ids   = optional(list(string), [])
+  })
+  default = {}
+}
+
+variable "security_deployment" {
+  description = "security deployment"
+  type = object({
+    configuration_names = optional(list(string), [])
+    configuration_ids   = optional(list(string), [])
+  })
+  default = {}
 }

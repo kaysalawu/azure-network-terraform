@@ -141,25 +141,25 @@ conn %default
 
 conn Tunnel0
     left=10.30.1.9
-    leftid=20.185.46.161
-    right=172.212.15.155
-    rightid=172.212.15.155
+    leftid=52.191.29.79
+    right=51.8.60.140
+    rightid=51.8.60.140
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.30.1.9
-    leftid=20.185.46.161
-    right=172.212.15.154
-    rightid=172.212.15.154
+    leftid=52.191.29.79
+    right=51.8.60.99
+    rightid=51.8.60.99
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.30.1.9
-    leftid=20.185.46.161
-    right=52.169.196.136
-    rightid=52.169.196.136
+    leftid=52.191.29.79
+    right=52.169.65.113
+    rightid=52.169.65.113
     auto=start
     mark=300
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -170,9 +170,9 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.30.1.9 172.212.15.155 : PSK "changeme"
-10.30.1.9 172.212.15.154 : PSK "changeme"
-10.30.1.9 52.169.196.136 : PSK "changeme"
+10.30.1.9 51.8.60.140 : PSK "changeme"
+10.30.1.9 51.8.60.99 : PSK "changeme"
+10.30.1.9 52.169.65.113 : PSK "changeme"
 
 EOF
 
@@ -289,7 +289,7 @@ service integrated-vtysh-config
 !-----------------------------------------
 ! Prefix Lists
 !-----------------------------------------
-ip prefix-list BLOCK_HUB_GW_SUBNET deny 10.22.16.0/20
+ip prefix-list BLOCK_HUB_GW_SUBNET deny fd00:db8:22::/56
 ip prefix-list BLOCK_HUB_GW_SUBNET permit 0.0.0.0/0 le 32
 !
 !-----------------------------------------
@@ -316,8 +316,6 @@ ip route 10.30.0.0/24 10.30.1.1
   set as-path prepend 65003 65003 65003
   route-map AZURE permit 110
   match ip address prefix-list all
-  route-map BLOCK_HUB_GW_SUBNET permit 120
-  match ip address prefix-list BLOCK_HUB_GW_SUBNET
 !
 !-----------------------------------------
 ! BGP
@@ -387,7 +385,7 @@ chmod a+x /usr/local/bin/ipsec-debug
 #-----------------------------------
 
 cat <<EOF > /etc/cron.d/ipsec-auto-restart
-*/10 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
+*/30 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
 EOF
 
 crontab /etc/cron.d/ipsec-auto-restart

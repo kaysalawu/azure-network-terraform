@@ -5,9 +5,10 @@
 locals {
   prefix                      = "Hs13"
   lab_name                    = "HubSpoke_Nva_1Region"
-  enable_diagnostics          = false
   enable_onprem_wan_link      = false
-  enable_ipv6                 = true
+  enable_diagnostics          = false
+  enable_ipv6                 = false
+  enable_vnet_flow_logs       = false
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
   spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
@@ -25,6 +26,7 @@ resource "random_id" "random" {
 }
 
 data "azurerm_client_config" "current" {}
+data "azurerm_subscription" "current" {}
 
 ####################################################
 # providers
@@ -40,6 +42,7 @@ provider "azurerm" {
 }
 
 provider "azapi" {}
+provider "cidrblock" {}
 
 terraform {
   required_providers {
@@ -53,6 +56,9 @@ terraform {
     }
     azapi = {
       source = "azure/azapi"
+    }
+    cidrblock = {
+      source = "amilevskiy/cidrblock"
     }
   }
 }
@@ -71,11 +77,11 @@ locals {
   ]
   spoke1_udr_main_routes = concat(local.region1_default_udr_destinations, [
     { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "hub1v6", address_prefix = [local.hub1_address_space.2, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
   ])
   spoke2_udr_main_routes = concat(local.region1_default_udr_destinations, [
     { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "hub1v6", address_prefix = [local.hub1_address_space.2, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
   ])
   hub1_udr_main_routes = concat(local.region1_default_udr_destinations, [
     { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
@@ -89,17 +95,19 @@ locals {
     { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
     { name = "spoke1v6", address_prefix = [local.spoke1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
     { name = "spoke2v6", address_prefix = [local.spoke2_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
-    { name = "hub1v6", address_prefix = [local.hub1_address_space.2, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
   ]
 
   firewall_sku = "Basic"
 
   hub1_features = {
     config_vnet = {
+      bgp_community               = local.hub1_bgp_community
       address_space               = local.hub1_address_space
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
       enable_ars                  = false
+      enable_vnet_flow_logs       = local.enable_vnet_flow_logs
       nat_gateway_subnet_names = [
         "MainSubnet",
         "TrustSubnet",
@@ -175,6 +183,7 @@ locals {
 
     config_nva = {
       enable           = true
+      enable_ipv6      = local.enable_ipv6
       type             = "linux"
       scenario_option  = "TwoNics"
       opn_type         = "TwoNics"
@@ -183,7 +192,6 @@ locals {
       ilb_trust_ip     = local.hub1_nva_ilb_trust_addr
       ilb_untrust_ipv6 = local.hub1_nva_ilb_untrust_addr_v6
       ilb_trust_ipv6   = local.hub1_nva_ilb_trust_addr_v6
-      enable_ipv6      = local.enable_ipv6
     }
   }
 }
@@ -442,7 +450,24 @@ module "fw_policy_rule_collection_group" {
     }
   ]
   application_rule_collection = []
-  nat_rule_collection         = []
+  nat_rule_collection = [
+    # {
+    #   name     = "nat-rc"
+    #   priority = 200
+    #   action   = "Dnat"
+    #   rule = [
+    #     {
+    #       name                = "nat-rc-any-to-spoke1vm"
+    #       source_addresses    = ["*"]
+    #       destination_address = "52.169.147.205"
+    #       protocols           = ["TCP"]
+    #       destination_ports   = ["22"]
+    #       translated_address  = "10.1.0.5"
+    #       translated_port     = 22
+    #     }
+    #   ]
+    # }
+  ]
 }
 
 ####################################################
@@ -489,6 +514,7 @@ locals {
   main_files = {
     "output/server.sh"              = local.vm_startup
     "output/startup.sh"             = templatefile("../../scripts/startup.sh", local.vm_init_vars)
+    "output/startup-probe.sh"       = templatefile("../../scripts/startup.sh", local.probe_init_vars)
     "output/probe-cloud-config.yml" = module.probe_vm_cloud_init.cloud_config
     "output/vm-cloud-config.yml"    = module.vm_cloud_init.cloud_config
     "output/hub1-linux-nva.sh"      = local.hub1_linux_nva_init

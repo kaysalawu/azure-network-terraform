@@ -65,7 +65,7 @@ resource "azurerm_subnet" "this" {
   resource_group_name  = var.resource_group
   virtual_network_name = azurerm_virtual_network.this.name
   name                 = each.key
-  address_prefixes     = each.value.address_prefixes
+  address_prefixes     = var.enable_ipv6 ? concat(each.value.address_prefixes, each.value.address_prefixes_v6) : each.value.address_prefixes
 
   dynamic "delegation" {
     for_each = [for d in var.delegation : d if contains(try(each.value.delegate, []), d.name)]
@@ -78,8 +78,8 @@ resource "azurerm_subnet" "this" {
     }
   }
   service_endpoints                             = try(each.value.service_endpoints, [])
-  private_endpoint_network_policies_enabled     = try(each.value.address_prefixes.enable_private_endpoint_policies[0], false)
-  private_link_service_network_policies_enabled = try(each.value.address_prefixes.enable_private_link_policies[0], false)
+  private_endpoint_network_policies             = try(each.value.private_endpoint_network_policies[0], "Disabled")
+  private_link_service_network_policies_enabled = try(each.value.private_link_service_network_policies_enabled[0], false)
 
   depends_on = [
     azurerm_virtual_network.this,
@@ -90,13 +90,13 @@ resource "azurerm_subnet" "this" {
 
 resource "azapi_resource" "subnets" {
   for_each  = { for k, v in var.config_vnet.subnets : k => v if try(v.use_azapi[0], false) }
-  type      = "Microsoft.Network/virtualNetworks/subnets@2023-04-01"
+  type      = "Microsoft.Network/virtualNetworks/subnets@2023-09-01"
   name      = each.key
   parent_id = azurerm_virtual_network.this.id
 
   body = jsonencode({
     properties = {
-      addressPrefixes       = each.value.address_prefixes
+      addressPrefixes       = var.enable_ipv6 ? concat(each.value.address_prefixes, each.value.address_prefixes_v6) : each.value.address_prefixes
       defaultOutboundAccess = tobool(try(each.value.default_outbound_access[0], false))
       delegations = [for d in var.delegation : {
         name = d.name
@@ -108,8 +108,8 @@ resource "azapi_resource" "subnets" {
       serviceEndpoints = [for service_endpoint in try(each.value.service_endpoints, []) : {
         service = service_endpoint
       }]
-      privateEndpointNetworkPolicies    = try(each.value.address_prefixes.enable_private_endpoint_policies[0] ? "Enabled" : "Disabled", "Disabled")
-      privateLinkServiceNetworkPolicies = try(each.value.address_prefixes.enable_private_link_policies[0] ? "Enabled" : "Disabled", "Disabled")
+      privateEndpointNetworkPolicies    = try(each.value.private_endpoint_network_policies[0], "Disabled")
+      privateLinkServiceNetworkPolicies = try(each.value.private_link_service_network_policies_enabled[0], false) == true ? "Enabled" : "Disabled"
     }
   })
   schema_validation_enabled = false
@@ -146,7 +146,7 @@ resource "azurerm_subnet_network_security_group_association" "this_azapi" {
 # nsg flow logs
 ####################################################
 
-resource "azurerm_network_watcher_flow_log" "this" {
+resource "azurerm_network_watcher_flow_log" "nsg" {
   count                = length(var.flow_log_nsg_ids)
   resource_group_name  = var.network_watcher_resource_group
   network_watcher_name = var.network_watcher_name
@@ -168,6 +168,51 @@ resource "azurerm_network_watcher_flow_log" "this" {
     workspace_resource_id = data.azurerm_log_analytics_workspace.this[0].id
     interval_in_minutes   = 10
   }
+}
+
+####################################################
+# vnet flow logs
+####################################################
+
+resource "azapi_resource" "vnet_flow_log" {
+  count = (
+    !var.config_vnet.enable_vnet_flow_logs ||
+    var.network_watcher_resource_group == null ||
+    var.network_watcher_name == null ? 0 : 1
+  )
+  type      = "Microsoft.Network/networkWatchers/flowLogs@2022-09-01"
+  name      = "${local.prefix}vnet-flow-log"
+  parent_id = data.azurerm_network_watcher.this[0].id
+  location  = var.location
+
+  body = jsonencode({
+    properties = {
+      targetResourceId = azurerm_virtual_network.this.id
+      storageId        = var.storage_account.id
+      enabled          = true
+      format = {
+        type    = "JSON"
+        version = 2
+      }
+      flowAnalyticsConfiguration = {
+        networkWatcherFlowAnalyticsConfiguration = {
+          enabled                  = true
+          workspaceResourceId      = data.azurerm_log_analytics_workspace.this[0].id
+          trafficAnalyticsInterval = 60
+        }
+      }
+      retentionPolicy = {
+        enabled = true
+        days    = 2
+      }
+    }
+  })
+  schema_validation_enabled = false
+
+  depends_on = [
+    azurerm_subnet.this,
+    azurerm_virtual_network.this,
+  ]
 }
 
 ####################################################
@@ -215,6 +260,7 @@ module "dns_resolver" {
   depends_on = [
     azurerm_subnet.this,
     azurerm_subnet_network_security_group_association.this,
+    azurerm_private_dns_zone_virtual_network_link.dns,
   ]
 }
 
@@ -381,7 +427,7 @@ resource "azurerm_public_ip" "ars_pip" {
   resource_group_name = var.resource_group
   name                = "${local.prefix}ars-pip"
   location            = var.location
-  sku                 = var.config_ergw.sku
+  sku                 = "Standard"
   allocation_method   = "Static"
   tags                = var.tags
   timeouts {

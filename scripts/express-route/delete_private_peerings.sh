@@ -9,6 +9,10 @@ char_celebrate="\u2B50"
 char_executing="\u23F3"
 char_arrow="\u279C"
 
+echo -e "\n#######################################"
+echo -e "Script: $(basename $0)"
+echo "#######################################"
+
 rg=$1
 echo -e "\nResource group: $rg\n"
 
@@ -28,11 +32,36 @@ delete_express_route_private_peerings(){
   for circuit in "${circuits[@]}"; do
     echo -e "$char_executing Processing circuit: $circuit"
     for peering in $(az network express-route peering list -g "$rg" --circuit-name "$circuit" --query '[].name' -o tsv); do
-      echo -e "   $char_delete Deleting: $peering"
-      az network express-route peering delete -g "$rg" --circuit-name "$circuit" --name "$peering"
+      echo -e "   $char_delete Delete: $peering"
+      az network express-route peering delete -g "$rg" --circuit-name "$circuit" --name "$peering" --no-wait
     done
   done
-  echo -e "$char_celebrate Done!"
+}
+
+check_peerings_status() {
+  local all_deleted
+  echo -e "$char_executing Checking status of peerings ..."
+  while true; do
+    all_deleted=true
+    mapfile -t circuits < <(az network express-route list -g "$rg" --query '[].name' -o tsv) || true
+    for circuit in "${circuits[@]}"; do
+      mapfile -t peerings < <(az network express-route peering list -g "$rg" --circuit-name "$circuit" --query '[*].name' -o tsv) || true
+      for peering in "${peerings[@]}"; do
+        if [[ -n "$peering" ]]; then
+          echo -e "     - $circuit: $peering still deleting ..."
+          all_deleted=false
+        fi
+      done
+    done
+    if [[ $all_deleted == true ]]; then
+      echo -e "   $char_pass All peerings deleted successfully."
+      break
+    else
+      echo -e "   $char_arrow Peerings are still deleting. Checking again in 10 seconds..."
+      sleep 10
+    fi
+  done
 }
 
 delete_express_route_private_peerings
+check_peerings_status

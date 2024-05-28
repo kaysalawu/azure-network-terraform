@@ -5,9 +5,10 @@
 locals {
   prefix                      = "Ne31"
   lab_name                    = "HubSpoke_Azfw_1Region"
-  enable_diagnostics          = false
   enable_onprem_wan_link      = false
-  enable_ipv6                 = true
+  enable_diagnostics          = false
+  enable_ipv6                 = false
+  enable_vnet_flow_logs       = false
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
   spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
@@ -41,6 +42,7 @@ provider "azurerm" {
 }
 
 provider "azapi" {}
+provider "cidrblock" {}
 
 terraform {
   required_providers {
@@ -54,6 +56,9 @@ terraform {
     }
     azapi = {
       source = "azure/azapi"
+    }
+    cidrblock = {
+      source = "amilevskiy/cidrblock"
     }
   }
 }
@@ -89,10 +94,12 @@ locals {
 
   hub1_features = {
     config_vnet = {
+      bgp_community               = local.hub1_bgp_community
       address_space               = local.hub1_address_space
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
       enable_ars                  = false
+      enable_vnet_flow_logs       = local.enable_vnet_flow_logs
       nat_gateway_subnet_names = [
         "MainSubnet",
         "TrustSubnet",
@@ -167,14 +174,16 @@ locals {
     }
 
     config_nva = {
-      enable          = false
-      type            = null
-      scenario_option = null
-      opn_type        = null
-      custom_data     = null
-      ilb_untrust_ip  = null
-      ilb_trust_ip    = null
-      enable_ipv6     = null
+      enable           = false
+      enable_ipv6      = null
+      type             = null
+      scenario_option  = null
+      opn_type         = null
+      custom_data      = null
+      ilb_untrust_ip   = null
+      ilb_trust_ip     = null
+      ilb_untrust_ipv6 = null
+      ilb_trust_ipv6   = null
     }
   }
 }
@@ -244,7 +253,7 @@ locals {
   init_dir = "/var/lib/azure"
   vm_script_targets_region1 = [
     { name = "branch1", dns = lower(local.branch1_vm_fqdn), ipv4 = local.branch1_vm_addr, ipv6 = local.branch1_vm_addr_v6, probe = true },
-    { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ipv4 = local.hub1_vm_addr, ipv6 = local.hub1_vm_addr_v6, probe = false },
+    { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ipv4 = local.hub1_vm_addr, ipv6 = local.hub1_vm_addr_v6, probe = true },
     { name = "hub1-spoke3-pep", dns = lower(local.hub1_spoke3_pep_fqdn), ping = false, probe = true },
     { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ipv4 = local.spoke1_vm_addr, ipv6 = local.spoke1_vm_addr_v6, probe = true },
     { name = "spoke2 ", dns = lower(local.spoke2_vm_fqdn), ipv4 = local.spoke2_vm_addr, ipv6 = local.spoke2_vm_addr_v6, probe = true },
@@ -461,6 +470,7 @@ locals {
   main_files = {
     "output/server.sh"              = local.vm_startup
     "output/startup.sh"             = templatefile("../../scripts/startup.sh", local.vm_init_vars)
+    "output/startup-probe.sh"       = templatefile("../../scripts/startup.sh", local.probe_init_vars)
     "output/probe-cloud-config.yml" = module.probe_vm_cloud_init.cloud_config
     "output/vm-cloud-config.yml"    = module.vm_cloud_init.cloud_config
   }
