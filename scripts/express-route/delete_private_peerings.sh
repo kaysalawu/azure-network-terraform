@@ -43,9 +43,9 @@ check_peerings_status() {
   echo -e "$char_executing Checking status of peerings ..."
   while true; do
     all_deleted=true
-    mapfile -t circuits < <(az network express-route list -g "$rg" --query '[].name' -o tsv)
+    mapfile -t circuits < <(az network express-route list -g "$rg" --query '[].name' -o tsv) || true
     for circuit in "${circuits[@]}"; do
-      mapfile -t peerings < <(az network express-route peering list -g "$rg" --circuit-name "$circuit" --query '[*].name' -o tsv)
+      mapfile -t peerings < <(az network express-route peering list -g "$rg" --circuit-name "$circuit" --query '[*].name' -o tsv) || true
       for peering in "${peerings[@]}"; do
         if [[ -n "$peering" ]]; then
           echo -e "     - $circuit: $peering still deleting ..."

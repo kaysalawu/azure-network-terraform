@@ -4,7 +4,7 @@
 
 locals {
   prefix                 = "Lab08"
-  lab_name               = "ExR_VPN"
+  lab_name               = "ER_VPN"
   enable_onprem_wan_link = false
   enable_diagnostics     = true
   enable_ipv6            = false

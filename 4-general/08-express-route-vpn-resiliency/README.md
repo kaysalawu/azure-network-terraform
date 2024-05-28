@@ -494,7 +494,7 @@ az group delete -g Lab08_ExR_VPN_RG --no-wait
 ```
 
 
-8\. Delete terraform state files and other generated files.
+5\. Delete terraform state files and other generated files.
 
 ```sh
 rm -rf .terraform*
