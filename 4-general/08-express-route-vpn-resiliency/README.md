@@ -14,7 +14,7 @@ Contents
   - [2. Ping DNS](#2-ping-dns)
   - [3. Curl DNS](#3-curl-dns)
   - [4. On-premises Routes](#4-on-premises-routes)
-- [Detailed Network Tests](#detailed-network-tests)
+- [Detailed Resiliency Test Results](#detailed-resiliency-test-results)
 - [Cleanup](#cleanup)
 
 ## Overview
@@ -26,6 +26,10 @@ This lab deploys a simple hub and spoke architecture to demonstrate high availab
 The dashboard marker shows that the primary and secondary links of ExpressRoute circuits `Lab08-er1` and `Lab08-er2` are up. The ExpressRoute gateway `Lab08-hub1-ergw` is zone-redundant and has two instances of the gateway in different availability zones. The dashboard shows active traffic flow across the two instances.
 
 <img src="./images/dashboards/0-er-and-vpn-coexistence.png" alt="er1-pri-enabled" width="1100">
+
+👉 See the detailed [ExpressRoute resiliency test results](./tests/0.%20ER-and-VPN-coexistence.md)
+<p>
+<a href="./tests/0.%20ER-and-VPN-coexistence.md"><img src="./images/scenarios/test-banner.png" alt="Detailed test results" width="200"></a>
 
 ## Prerequisites
 
@@ -358,9 +362,11 @@ multicast ff00::/8 dev eth0 table local proto kernel metric 256 pref medium
 </details>
 <p>
 
-## Detailed Network Tests
+## Detailed Resiliency Test Results
 
-Proceed to the section, [1. ER1-primary-circuit-only](./tests/1.%20ER1-primary-circuit-only.md) for detailed network tests on the ExpressRoute and VPN paths. Return back here to cleanup the lab when done.
+👉 See the detailed [ExpressRoute resiliency test results](./tests/0.%20ER-and-VPN-coexistence.md)
+<p>
+<a href="./tests/0.%20ER-and-VPN-coexistence.md"><img src="./images/scenarios/test-banner.png" alt="Detailed test results" width="150"></a>
 
 ## Cleanup
 
