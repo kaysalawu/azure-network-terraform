@@ -21,6 +21,8 @@ Contents
 
 This lab deploys a simple hub and spoke architecture to demonstrate high availability network connectivity to Azure using ExpressRoute and VPN gateways. The overall aim is to get a composite SLA higher than the individual SLAs of ExpressRoute and VPN gateways.
 
+<img src="./images/scenarios/architecture.png" alt="er1-pri-enabled" width="1100">
+
 ## Prerequisites
 
 Ensure you meet all requirements in the [prerequisites](../../prerequisites/README.md) before proceeding.

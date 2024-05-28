@@ -78,8 +78,8 @@ resource "azurerm_subnet" "this" {
     }
   }
   service_endpoints                             = try(each.value.service_endpoints, [])
-  private_endpoint_network_policies             = try(each.value.address_prefixes.private_endpoint_network_policies[0], "Disabled")
-  private_link_service_network_policies_enabled = try(each.value.address_prefixes.private_link_service_network_policies_enabled[0], false)
+  private_endpoint_network_policies             = try(each.value.private_endpoint_network_policies[0], "Disabled")
+  private_link_service_network_policies_enabled = try(each.value.private_link_service_network_policies_enabled[0], false)
 
   depends_on = [
     azurerm_virtual_network.this,
@@ -90,7 +90,7 @@ resource "azurerm_subnet" "this" {
 
 resource "azapi_resource" "subnets" {
   for_each  = { for k, v in var.config_vnet.subnets : k => v if try(v.use_azapi[0], false) }
-  type      = "Microsoft.Network/virtualNetworks/subnets@2023-04-01"
+  type      = "Microsoft.Network/virtualNetworks/subnets@2023-09-01"
   name      = each.key
   parent_id = azurerm_virtual_network.this.id
 
@@ -108,8 +108,8 @@ resource "azapi_resource" "subnets" {
       serviceEndpoints = [for service_endpoint in try(each.value.service_endpoints, []) : {
         service = service_endpoint
       }]
-      privateEndpointNetworkPolicies    = try(each.value.address_prefixes.enable_private_endpoint_policies[0] ? "Enabled" : "Disabled", "Disabled")
-      privateLinkServiceNetworkPolicies = try(each.value.address_prefixes.enable_private_link_policies[0] ? "Enabled" : "Disabled", "Disabled")
+      privateEndpointNetworkPolicies    = try(each.value.private_endpoint_network_policies[0], "Disabled")
+      privateLinkServiceNetworkPolicies = try(each.value.private_link_service_network_policies_enabled[0], false) == true ? "Enabled" : "Disabled"
     }
   })
   schema_validation_enabled = false

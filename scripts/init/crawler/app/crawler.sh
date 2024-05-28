@@ -16,9 +16,26 @@ reset=$(tput sgr0)
 export ETH0_IP=$(hostname -I | awk '{print $1}')
 echo -e "\nExtracting az token..."
 export TOKEN=$(timeout 5 az account get-access-token --query accessToken -o tsv 2>/dev/null)
+
+download_json_file() {
+    local url="https://www.microsoft.com/en-us/download/details.aspx?id=56519"
+    local json_url=$(curl -s "$url" | grep -oP '(?<=href=")[^"]*\.json' | head -n 1)
+    if [ -n "$json_url" ]; then
+        if [[ ! "$json_url" =~ ^http ]]; then
+            json_url="https://www.microsoft.com$json_url"
+        fi
+        curl -o service_tags.json "$json_url"
+        echo "JSON file downloaded as service_tags.json"
+    else
+        echo "JSON file not found on the page."
+    fi
+}
+
 echo -e "Downloading service tags JSON..."
 if [ ! -f service_tags.json ]; then
-  curl -o service_tags.json "${SERVICE_TAGS_DOWNLOAD_LINK}" 2>/dev/null
+    download_json_file
+else
+    echo "service_tags.json already exists."
 fi
 
 echo -e "\n-------------------------------------"

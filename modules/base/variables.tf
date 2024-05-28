@@ -120,6 +120,7 @@ variable "config_vnet" {
   type = object({
     address_space = list(string)
     subnets = optional(map(object({
+      use_azapi                                     = optional(list(bool), [false])
       address_prefixes                              = list(string)
       address_prefixes_v6                           = optional(list(string), [])
       delegate                                      = optional(list(string), [])
