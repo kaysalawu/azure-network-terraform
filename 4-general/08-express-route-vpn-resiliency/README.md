@@ -29,7 +29,7 @@ The dashboard marker shows that the primary and secondary links of ExpressRoute 
 
 👉 See the detailed [ExpressRoute resiliency test results](./tests/0.%20ER-and-VPN-coexistence.md)
 <p>
-<a href="./tests/0.%20ER-and-VPN-coexistence.md"><img src="./images/scenarios/test-banner.png" alt="Detailed test results" width="150"></a>
+<a href="./tests/0.%20ER-and-VPN-coexistence.md"><img src="./images/scenarios/test-banner.png" alt="Detailed test results" width="200"></a>
 
 ## Prerequisites
 
