@@ -13,6 +13,7 @@ Contents
   - [1. Ping IP](#1-ping-ip)
   - [2. Ping DNS](#2-ping-dns)
   - [3. Curl DNS](#3-curl-dns)
+  - [Detailed Resiliency Test Results](#detailed-resiliency-test-results)
 - [Cleanup](#cleanup)
 
 ## Overview
@@ -24,6 +25,11 @@ This lab deploys a simple hub and spoke architecture to demonstrate high availab
 The dashboard marker shows all ExpressRoute circuits active. The ExpressRoute gateway `Lab09-hub1-ergw` is zone-redundant and has two instances of the gateway in different availability zones. The dashboard shows active traffic flow across the two instances.
 
 <img src="./images/dashboards/0-all-er-circuits-up.png" alt="er1-pri-enabled" width="1100">
+
+👉 See the detailed [ExpressRoute resiliency test results](./tests/1.%20ER1-primary-down.md)
+<p>
+<a href="./tests/1.%20ER1-primary-down.md"><img src="./images/scenarios/test-banner.png" alt="Detailed resiliency tests" width="150"></a>
+
 
 ## Prerequisites
 
@@ -161,6 +167,12 @@ azureuser@spoke1Vm:~$ curl-dns4
 
 </details>
 <p>
+
+### Detailed Resiliency Test Results
+
+👉 See the detailed [ExpressRoute resiliency test results](./tests/1.%20ER1-primary-down.md)
+<p>
+<a href="./tests/1.%20ER1-primary-down.md"><img src="./images/scenarios/test-banner.png" alt="Detailed resiliency tests" width="150"></a>
 
 ## Cleanup
 
