@@ -21,6 +21,10 @@ This lab deploys a simple hub and spoke architecture to demonstrate high availab
 
 <img src="./images/scenarios/architecture.png" alt="er1-pri-enabled" width="400">
 
+The dashboard marker shows all ExpressRoute circuits active. The ExpressRoute gateway `Lab09-hub1-ergw` is zone-redundant and has two instances of the gateway in different availability zones. The dashboard shows active traffic flow across the two instances.
+
+<img src="./images/dashboards/0-all-er-circuits-up.png" alt="er1-pri-enabled" width="1100">
+
 ## Prerequisites
 
 Ensure you meet all requirements in the [prerequisites](../../prerequisites/README.md) before proceeding.
