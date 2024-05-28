@@ -48,10 +48,9 @@ module "spoke1" {
   }
 
   config_vnet = {
-    enable_vnet_flow_logs = local.enable_vnet_flow_logs
-    bgp_community         = local.spoke1_bgp_community
-    address_space         = local.spoke1_address_space
-    subnets               = local.spoke1_subnets
+    bgp_community = local.spoke1_bgp_community
+    address_space = local.spoke1_address_space
+    subnets       = local.spoke1_subnets
     nat_gateway_subnet_names = [
       "MainSubnet",
       "TrustSubnet",

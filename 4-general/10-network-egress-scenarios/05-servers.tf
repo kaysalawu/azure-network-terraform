@@ -118,6 +118,47 @@ module "hub_server2_vm" {
 }
 
 ####################################################
+# udr
+####################################################
+
+# production
+
+resource "time_sleep" "hub_production_udr" {
+  create_duration = "2m"
+  depends_on = [
+    module.hub,
+    module.hub_proxy,
+    module.hub_server1_vm,
+    module.hub_server2_vm,
+  ]
+}
+
+module "hub_production_udr" {
+  source         = "../../modules/route-table"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = "${local.prefix}-hub-production"
+  location       = local.hub_location
+  subnet_id      = module.hub.subnets["ProductionSubnet"].id
+  routes = [
+    {
+      name           = "azure-services"
+      address_prefix = local.service_tags
+      next_hop_type  = "Internet"
+    },
+    # {
+    #   name                   = "default"
+    #   address_prefix         = ["0.0.0.0/1", "128.0.0.0/1", ]
+    #   next_hop_type          = "VirtualAppliance"
+    #   next_hop_in_ip_address = local.hub_proxy_addr
+    # },
+  ]
+
+  depends_on = [
+    time_sleep.hub_production_udr
+  ]
+}
+
+####################################################
 # output files
 ####################################################
 

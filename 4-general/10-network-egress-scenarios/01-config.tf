@@ -61,18 +61,29 @@ locals {
   ]
   private_prefixes_map = { for i, prefix in local.private_prefixes : i => prefix }
 
+  service_tags = [
+    "AzureActiveDirectory",
+    "AzureBackup",
+    "AzureKeyVault",
+    # "AzureLoadBalancer",
+    "AzureMonitor",
+    "AzureResourceManager",
+    "EventHub",
+    "Storage",
+  ]
+
   service_endpoints = local.enable_service_endpoints ? [
     "Microsoft.Storage",
     # "Microsoft.Storage.Global",
-    "Microsoft.KeyVault",
-    "Microsoft.Sql",
-    "Microsoft.ServiceBus",
-    "Microsoft.EventHub",
-    "Microsoft.AzureActiveDirectory",
-    "Microsoft.Web",
-    "Microsoft.CognitiveServices",
-    "Microsoft.ContainerRegistry",
-    "Microsoft.AzureCosmosDB",
+    # "Microsoft.KeyVault",
+    # "Microsoft.Sql",
+    # "Microsoft.ServiceBus",
+    # "Microsoft.EventHub",
+    # "Microsoft.AzureActiveDirectory",
+    # "Microsoft.Web",
+    # "Microsoft.CognitiveServices",
+    # "Microsoft.ContainerRegistry",
+    # "Microsoft.AzureCosmosDB",
   ] : []
 }
 
