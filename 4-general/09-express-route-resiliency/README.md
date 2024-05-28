@@ -28,7 +28,7 @@ The dashboard marker shows all ExpressRoute circuits active. The ExpressRoute ga
 
 👉 See the detailed [ExpressRoute resiliency test results](./tests/1.%20ER1-primary-down.md)
 <p>
-<a href="./tests/1.%20ER1-primary-down.md"><img src="./images/scenarios/test-banner.png" alt="Detailed resiliency tests" width="150"></a>
+<a href="./tests/1.%20ER1-primary-down.md"><img src="./images/scenarios/test-banner.png" alt="Detailed resiliency tests" width="200"></a>
 
 
 ## Prerequisites
@@ -172,7 +172,7 @@ azureuser@spoke1Vm:~$ curl-dns4
 
 👉 See the detailed [ExpressRoute resiliency test results](./tests/1.%20ER1-primary-down.md)
 <p>
-<a href="./tests/1.%20ER1-primary-down.md"><img src="./images/scenarios/test-banner.png" alt="Detailed resiliency tests" width="150"></a>
+<a href="./tests/1.%20ER1-primary-down.md"><img src="./images/scenarios/test-banner.png" alt="Detailed resiliency tests" width="200"></a>
 
 ## Cleanup
 
