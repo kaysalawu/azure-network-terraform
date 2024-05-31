@@ -3,7 +3,7 @@
 ####################################################
 
 locals {
-  prefix                      = "Vw24"
+  prefix                      = "Vwan24"
   lab_name                    = "SecVwan_2Region"
   enable_onprem_wan_link      = false
   enable_diagnostics          = false
