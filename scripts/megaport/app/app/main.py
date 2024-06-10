@@ -2,7 +2,9 @@ import argparse
 import sys
 from _megaport import *
 
-parser = argparse.ArgumentParser(description="Manage MCR commands")
+parser = argparse.ArgumentParser(
+    description="Manage MCR commands. Set environment variables TF_VAR_megaport_access_key and TF_VAR_megaport_secret_key before running any commands"
+)
 parser.add_argument('command', nargs='*', help='The command to execute (e.g., "list mcr")')
 parser.add_argument('-q', '--query', help='Query string for searching specific details.')
 parser.add_argument('-o', '--output', help='Output format (e.g. "--output json", "-o table").')

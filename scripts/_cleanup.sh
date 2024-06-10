@@ -22,10 +22,8 @@ echo && echo "Resource group: $RG" && echo
 delete_diag_settings() {
     local resource_type=$1
     local list_command=$2
-
     # Get all resources of the specified type in the resource group
     local resource_ids=$($list_command -g "$RG" --query "[].id" -o tsv)
-
     # Iterate over the resources and delete the diagnostic settings
     echo -e "$char_arrow  Checking $resource_type ..."
     for resource_id in $resource_ids; do
@@ -39,6 +37,7 @@ delete_diag_settings() {
 }
 
 delete_azure_policies() {
+    echo -e "$char_executing Checking for azure policies in $RG ..."
     local policy_definitions=$(az policy definition list --query "[?contains(name, '$LAB_ID')].name" -o tsv)
     for policy_definition in $policy_definitions; do
         # delete all policy assignments for the policy definition
@@ -58,11 +57,25 @@ delete_azure_policies() {
 }
 
 delete_express_route_private_peerings() {
+    echo -e "$char_arrow  Checking express route private peerings ..."
     local express_route_circuit_ids=$(az network express-route list --query "[].id" -o tsv)
     for express_route_circuit_id in $express_route_circuit_ids; do
         local express_route_circuit_name=$(echo $express_route_circuit_id | rev | cut -d'/' -f1 | rev)
         echo -e "$char_delete Deleting: express route circuit [$express_route_circuit_name] ..."
         az network express-route peering delete -g $RG --circuit-name $express_route_circuit_name -n AzurePrivatePeering
+    done
+}
+
+delete_nva_vm_extensions() {
+    echo -e "$char_arrow  Checking NVA vm extensions ..."
+    local vm_ids=$(az vm list -g $RG --query "[?contains(name, 'nva')].id" -o tsv)
+    for vm_id in $vm_ids; do
+        local vm_name=$(echo $vm_id | rev | cut -d'/' -f1 | rev)
+        local vm_extensions=$(az vm extension list --vm-name $vm_name -g $RG --query "[].name" -o tsv)
+        for vm_extension in $vm_extensions; do
+            echo -e "$char_delete Deleting: vm extension [$vm_extension] for vm [$vm_name] ..."
+            az vm extension delete --vm-name $vm_name -g $RG --name $vm_extension --no-wait
+        done
     done
 }
 
@@ -92,11 +105,8 @@ echo -e "$char_executing Checking for diagnostic settings on resources in $RG ..
  delete_vpn_gateway_diag_settings
  delete_express_route_gateway_diag_settings
  delete_app_gateway_diag_settings
-
-echo -e "$char_executing Checking for azure policies in $RG ..."
+ delete_nva_vm_extensions
 delete_azure_policies
-
-# echo -e "$char_executing Checking for express route private peerings in $RG ..."
-# delete_express_route_private_peerings
+delete_express_route_private_peerings
 
 echo "Done!"

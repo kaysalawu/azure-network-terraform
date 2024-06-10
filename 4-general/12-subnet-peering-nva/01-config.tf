@@ -9,7 +9,7 @@ locals {
   psk      = "changeme"
 
   region1          = "northeurope"
-  region2          = "eastus"
+  region2          = "northeurope"
   region1_code     = "eu"
   region2_code     = "us"
   region1_dns_zone = "${local.region1_code}.${local.cloud_domain}"
@@ -98,63 +98,58 @@ locals {
 locals {
   hub1_prefix        = local.prefix == "" ? "hub1-" : join("-", [local.prefix, "hub1-"])
   hub1_location      = local.region1
-  hub1_address_space = ["10.11.0.0/16", "fd00:db8:11::/56", ]
+  hub1_address_space = ["192.168.0.0/16", "fd00:db8:11::/56", ]
   hub1_bgp_community = "12076:20011"
-  hub1_nat_ranges = {
-    "branch1" = {
-      "egress-static"  = "10.11.90.0/24"
-      "egress-dynamic" = "10.11.91.0/24"
-      "ingress-static" = "10.11.80.0/24"
-    }
-  }
-  hub1_dns_zone = local.region1_dns_zone
+  hub1_nat_ranges    = {}
+  hub1_domain        = "ecs.corp"
+  hub1_dns_zone      = local.hub1_domain
   hub1_subnets = {
-    ("MainSubnet")                    = { address_prefixes = ["10.11.0.0/24", ], address_prefixes_v6 = ["fd00:db8:11::/64", ], }
-    ("UntrustSubnet")                 = { address_prefixes = ["10.11.1.0/24", ], address_prefixes_v6 = ["fd00:db8:11:1::/64", ], }
-    ("TrustSubnet")                   = { address_prefixes = ["10.11.2.0/24", ], address_prefixes_v6 = ["fd00:db8:11:2::/64", ], }
-    ("ManagementSubnet")              = { address_prefixes = ["10.11.3.0/24", ], address_prefixes_v6 = ["fd00:db8:11:3::/64", ], }
-    ("AppGatewaySubnet")              = { address_prefixes = ["10.11.4.0/24", ], address_prefixes_v6 = ["fd00:db8:11:4::/64", ], }
-    ("LoadBalancerSubnet")            = { address_prefixes = ["10.11.5.0/24", ], address_prefixes_v6 = ["fd00:db8:11:5::/64", ], }
-    ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.11.6.0/24", ], }
-    ("PrivateEndpointSubnet")         = { address_prefixes = ["10.11.7.0/24", ], private_endpoint_network_policies = ["Enabled", "RouteTableEnabled", ] }
-    ("DnsResolverInboundSubnet")      = { address_prefixes = ["10.11.8.0/24", ], delegate = ["Microsoft.Network/dnsResolvers"] }
-    ("DnsResolverOutboundSubnet")     = { address_prefixes = ["10.11.9.0/24", ], delegate = ["Microsoft.Network/dnsResolvers"] }
-    ("RouteServerSubnet")             = { address_prefixes = ["10.11.10.0/24", ], address_prefixes_v6 = ["fd00:db8:11:10::/64", ], }
-    ("AzureFirewallSubnet")           = { address_prefixes = ["10.11.11.0/24", ], address_prefixes_v6 = ["fd00:db8:11:11::/64", ], }
-    ("AzureFirewallManagementSubnet") = { address_prefixes = ["10.11.12.0/24", ], address_prefixes_v6 = ["fd00:db8:11:12::/64", ], }
-    ("AppServiceSubnet")              = { address_prefixes = ["10.11.13.0/24", ], address_prefixes_v6 = ["fd00:db8:11:13::/64", ], delegate = ["Microsoft.Web/serverFarms"] }
-    ("GatewaySubnet")                 = { address_prefixes = ["10.11.16.0/24", ], address_prefixes_v6 = ["fd00:db8:11:16::/64", ], }
-    ("TestSubnet")                    = { address_prefixes = ["10.11.17.0/24", ], address_prefixes_v6 = ["fd00:db8:11:17::/64", ], }
+    ("ProdSubnet")         = { address_prefixes = ["192.168.0.0/24", ], address_prefixes_v6 = ["fd00:db8:11::/64", ], }
+    ("NonProdSubnet")      = { address_prefixes = ["192.168.1.0/24", ], address_prefixes_v6 = ["fd00:db8:11:1::/64", ], }
+    ("PublicSubnet")       = { address_prefixes = ["192.168.2.0/24", ], address_prefixes_v6 = ["fd00:db8:11:2::/64", ], }
+    ("NetAppFileSubnet")   = { address_prefixes = ["192.168.3.0/24", ], address_prefixes_v6 = ["fd00:db8:11:3::/64", ], }
+    ("UntrustSubnet")      = { address_prefixes = ["192.168.4.0/24", ], address_prefixes_v6 = ["fd00:db8:11:4::/64", ], }
+    ("TrustSubnet")        = { address_prefixes = ["192.168.5.0/24", ], address_prefixes_v6 = ["fd00:db8:11:5::/64", ], }
+    ("AppGatewaySubnet")   = { address_prefixes = ["192.168.6.0/24", ], address_prefixes_v6 = ["fd00:db8:11:6::/64", ], }
+    ("LoadBalancerSubnet") = { address_prefixes = ["192.168.7.0/24", ], address_prefixes_v6 = ["fd00:db8:11:7::/64", ], }
+    ("GatewaySubnet")      = { address_prefixes = ["192.168.8.0/24", ], address_prefixes_v6 = ["fd00:db8:11:8::/64", ], }
   }
-  hub1_default_gw_main      = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 1)
   hub1_default_gw_nva       = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 1)
-  hub1_vm_addr              = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 5)
   hub1_nva_trust_addr       = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 4)
   hub1_nva_untrust_addr     = cidrhost(local.hub1_subnets["UntrustSubnet"].address_prefixes[0], 4)
   hub1_nva_ilb_trust_addr   = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 99)
   hub1_nva_ilb_untrust_addr = cidrhost(local.hub1_subnets["UntrustSubnet"].address_prefixes[0], 99)
 
-  hub1_vm_addr_v6              = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes_v6[0], 5)
   hub1_nva_trust_addr_v6       = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes_v6[0], 4)
   hub1_nva_untrust_addr_v6     = cidrhost(local.hub1_subnets["UntrustSubnet"].address_prefixes_v6[0], 4)
   hub1_nva_ilb_trust_addr_v6   = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes_v6[0], 153)
   hub1_nva_ilb_untrust_addr_v6 = cidrhost(local.hub1_subnets["UntrustSubnet"].address_prefixes_v6[0], 153)
 
-  hub1_appgw_addr         = cidrhost(local.hub1_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
-  hub1_dns_in_addr        = cidrhost(local.hub1_subnets["DnsResolverInboundSubnet"].address_prefixes[0], 4)
-  hub1_vpngw_bgp_ip       = cidrhost(local.hub1_subnets["GatewaySubnet"].address_prefixes[0], 254)
-  hub1_spoke3_pls_pep_ip  = cidrhost(local.hub1_subnets["PrivateEndpointSubnet"].address_prefixes[0], 88)
-  hub1_spoke3_blob_pep_ip = cidrhost(local.hub1_subnets["PrivateEndpointSubnet"].address_prefixes[0], 99)
-  hub1_nva_loopback0      = "10.11.11.11"
-  hub1_nva_tun_range0     = "10.11.50.0/30"
-  hub1_nva_tun_range1     = "10.11.51.4/30"
-  hub1_vpngw_bgp_apipa_0  = cidrhost(local.bgp_apipa_range1, 1)
-  hub1_vpngw_bgp_apipa_1  = cidrhost(local.bgp_apipa_range2, 1)
-  hub1_vm_hostname        = "hub1Vm"
-  hub1_ilb_hostname       = "hub1-ilb"
-  hub1_spoke3_pep_host    = "spoke3pls"
-  hub1_vm_fqdn            = "${local.hub1_vm_hostname}.${local.hub1_dns_zone}"
-  hub1_spoke3_pep_fqdn    = "${local.hub1_spoke3_pep_host}.${local.hub1_dns_zone}"
+  hub1_cgs1_addr      = cidrhost(local.hub1_subnets["PublicSubnet"].address_prefixes[0], 4)
+  hub1_cgs2_addr      = cidrhost(local.hub1_subnets["PublicSubnet"].address_prefixes[0], 5)
+  hub1_prodvm_addr    = cidrhost(local.hub1_subnets["ProdSubnet"].address_prefixes[0], 5)
+  hub1_prodhavm_addr  = cidrhost(local.hub1_subnets["ProdSubnet"].address_prefixes[0], 6)
+  hub1_nonprodvm_addr = cidrhost(local.hub1_subnets["NonProdSubnet"].address_prefixes[0], 5)
+  hub1_nafvm_addr     = cidrhost(local.hub1_subnets["NetAppFileSubnet"].address_prefixes[0], 5)
+  hub1_appgw_addr     = cidrhost(local.hub1_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
+
+  hub1_nva_loopback0  = "192.168.11.11"
+  hub1_nva_tun_range0 = "192.168.50.0/30"
+  hub1_nva_tun_range1 = "192.168.51.4/30"
+
+  hub1_cgs1_hostname      = "cgs1"
+  hub1_cgs2_hostname      = "cgs2"
+  hub1_prodvm_hostname    = "prodvm"
+  hub1_prodhavm_hostname  = "prodhavm"
+  hub1_nonprodvm_hostname = "nonprodvm"
+  hub1_nafvm_hostname     = "nafvm"
+
+  hub1_cgs1_fdn      = "${local.hub1_cgs1_hostname}.${local.hub1_dns_zone}"
+  hub1_cgs2_fdn      = "${local.hub1_cgs2_hostname}.${local.hub1_dns_zone}"
+  hub1_prodvm_fdn    = "${local.hub1_prodvm_hostname}.${local.hub1_dns_zone}"
+  hub1_prodhavm_fdn  = "${local.hub1_prodhavm_hostname}.${local.hub1_dns_zone}"
+  hub1_nonprodvm_fdn = "${local.hub1_nonprodvm_hostname}.${local.hub1_dns_zone}"
+  hub1_nafvm_fdn     = "${local.hub1_nafvm_hostname}.${local.hub1_dns_zone}"
 }
 
 # hub2
@@ -247,7 +242,7 @@ locals {
   branch1_vm_addr_v6          = cidrhost(local.branch1_subnets["MainSubnet"].address_prefixes_v6[0], 5)
   branch1_dns_addr_v6         = cidrhost(local.branch1_subnets["MainSubnet"].address_prefixes_v6[0], 6)
 
-  branch1_nva_loopback0 = "192.168.10.10"
+  branch1_nva_loopback0 = "172.16.10.10"
   branch1_bgp_apipa_0   = cidrhost(local.bgp_apipa_range3, 2)
   branch1_bgp_apipa_1   = cidrhost(local.bgp_apipa_range4, 2)
   branch1_vm_hostname   = "branch1Vm"
@@ -288,7 +283,7 @@ locals {
   branch2_vm_addr_v6          = cidrhost(local.branch2_subnets["MainSubnet"].address_prefixes_v6[0], 5)
   branch2_dns_addr_v6         = cidrhost(local.branch2_subnets["MainSubnet"].address_prefixes_v6[0], 6)
 
-  branch2_nva_loopback0  = "192.168.20.20"
+  branch2_nva_loopback0  = "172.16.20.20"
   branch2_nva_tun_range0 = "10.20.20.0/30"
   branch2_nva_tun_range1 = "10.20.20.4/30"
   branch2_nva_tun_range2 = "10.20.20.8/30"
@@ -331,7 +326,7 @@ locals {
   branch3_vm_addr_v6          = cidrhost(local.branch3_subnets["MainSubnet"].address_prefixes_v6[0], 5)
   branch3_dns_addr_v6         = cidrhost(local.branch3_subnets["MainSubnet"].address_prefixes_v6[0], 6)
 
-  branch3_nva_loopback0 = "192.168.30.30"
+  branch3_nva_loopback0 = "172.16.30.30"
   branch3_bgp_apipa_0   = cidrhost(local.bgp_apipa_range7, 2)
   branch3_bgp_apipa_1   = cidrhost(local.bgp_apipa_range8, 2)
   branch3_vm_hostname   = "branch3Vm"

@@ -30,9 +30,6 @@ module "hub2" {
   log_analytics_workspace_name   = module.common.log_analytics_workspaces["region2"].name
   network_watcher_name           = "NetworkWatcher_${local.region2}"
   network_watcher_resource_group = "NetworkWatcherRG"
-  # flow_log_nsg_ids = [
-  #   module.common.nsg_main["region2"].id,
-  # ]
 
   dns_zones_linked_to_vnet = [
     { name = module.common.private_dns_zones[local.region2_dns_zone].name, registration_enabled = true },
@@ -43,7 +40,6 @@ module "hub2" {
   vnets_linked_to_ruleset = [
     { name = "hub2", vnet_id = module.hub2.vnet.id },
     { name = "spoke4", vnet_id = module.spoke4.vnet.id },
-    { name = "spoke5", vnet_id = module.spoke5.vnet.id },
   ]
 
   nsg_subnet_map = {

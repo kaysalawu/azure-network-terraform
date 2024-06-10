@@ -3,30 +3,17 @@
 ####################################################
 
 locals {
-  prefix                      = "Hs14"
-  lab_name                    = "HubSpoke_Nva_2Region"
-  enable_onprem_wan_link      = true
-  enable_diagnostics          = false
-  enable_ipv6                 = false
-  enable_vnet_flow_logs       = false
-  spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
-  spoke6_storage_account_name = lower(replace("${local.spoke6_prefix}sa${random_id.random.hex}", "-", ""))
-  spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
-  spoke6_blob_url             = "https://${local.spoke6_storage_account_name}.blob.core.windows.net/spoke6/spoke6.txt"
-  spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
-  spoke6_apps_fqdn            = lower("${local.spoke6_prefix}${random_id.random.hex}.azurewebsites.net")
+  prefix                 = "Lab12"
+  lab_name               = "Subnet_Peering"
+  enable_onprem_wan_link = false
+  enable_diagnostics     = false
+  enable_ipv6            = false
+  enable_vnet_flow_logs  = false
 
   hub1_tags    = { "lab" = local.prefix, "env" = "prod", "nodeType" = "hub" }
   hub2_tags    = { "lab" = local.prefix, "env" = "prod", "nodeType" = "hub" }
   branch1_tags = { "lab" = local.prefix, "env" = "prod", "nodeType" = "branch" }
-  branch2_tags = { "lab" = local.prefix, "env" = "prod", "nodeType" = "branch" }
-  branch3_tags = { "lab" = local.prefix, "env" = "prod", "nodeType" = "branch" }
-  spoke1_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "spoke" }
-  spoke2_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "spoke" }
-  spoke3_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "float" }
   spoke4_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "spoke" }
-  spoke5_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "spoke" }
-  spoke6_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "float" }
 }
 
 resource "random_id" "random" {
@@ -81,74 +68,44 @@ locals {
     "region2" = { name = local.region2, dns_zone = local.region2_dns_zone }
   }
   region1_default_udr_destinations = [
-    { name = "default-region1", address_prefix = ["0.0.0.0/0"], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "defaultv6-region1", address_prefix = ["::/0"], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 }
+    { name = "default-region1", address_prefix = ["0.0.0.0/0"], next_hop_ip = local.hub1_nva_ilb_untrust_addr },
   ]
-  spoke1_udr_main_routes = concat(local.region1_default_udr_destinations, [
-    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
-  ])
-  spoke2_udr_main_routes = concat(local.region1_default_udr_destinations, [
-    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
-  ])
-  hub1_udr_main_routes = concat(local.region1_default_udr_destinations, [
-    { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "spoke1v6", address_prefix = [local.spoke1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
-    { name = "spoke2v6", address_prefix = [local.spoke2_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
-  ])
   hub1_gateway_udr_destinations = [
-    { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "spoke1v6", address_prefix = [local.spoke1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
-    { name = "spoke2v6", address_prefix = [local.spoke2_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
-    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "Prod", address_prefix = [local.hub1_subnets["ProdSubnet"].address_prefixes.0], next_hop_ip = local.hub1_nva_ilb_untrust_addr },
+    { name = "NonProd", address_prefix = [local.hub1_subnets["NonProdSubnet"].address_prefixes.0], next_hop_ip = local.hub1_nva_ilb_untrust_addr },
   ]
+  hub1_public_udr_destinations = concat(local.region1_default_udr_destinations, [
+    { name = "Prod", address_prefix = [local.hub1_subnets["ProdSubnet"].address_prefixes.0], next_hop_ip = local.hub1_nva_ilb_untrust_addr },
+    { name = "NonProd", address_prefix = [local.hub1_subnets["NonProdSubnet"].address_prefixes.0], next_hop_ip = local.hub1_nva_ilb_untrust_addr },
+  ])
+  hub1_app_gateway_udr_destinations = [
+    { name = "Prod", address_prefix = [local.hub1_subnets["ProdSubnet"].address_prefixes.0], next_hop_ip = local.hub1_nva_ilb_untrust_addr },
+    { name = "NonProd", address_prefix = [local.hub1_subnets["NonProdSubnet"].address_prefixes.0], next_hop_ip = local.hub1_nva_ilb_untrust_addr },
+  ]
+  hub1_prod_destinations = concat(local.region1_default_udr_destinations, [
+    { name = "Public", address_prefix = [local.hub1_subnets["PublicSubnet"].address_prefixes.0], next_hop_ip = local.hub1_nva_ilb_untrust_addr },
+    { name = "NonProd", address_prefix = [local.hub1_subnets["NonProdSubnet"].address_prefixes.0], next_hop_ip = local.hub1_nva_ilb_untrust_addr },
+  ])
+  hub1_nonprod_destinations = concat(local.region1_default_udr_destinations, [
+    { name = "Public", address_prefix = [local.hub1_subnets["PublicSubnet"].address_prefixes.0], next_hop_ip = local.hub1_nva_ilb_untrust_addr },
+    { name = "Prod", address_prefix = [local.hub1_subnets["ProdSubnet"].address_prefixes.0], next_hop_ip = local.hub1_nva_ilb_untrust_addr },
+  ])
   hub1_appliance_udr_destinations = [
-    { name = "spoke4", address_prefix = [local.spoke4_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
-    { name = "spoke5", address_prefix = [local.spoke5_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
-    { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
-    { name = "spoke4v6", address_prefix = [local.spoke4_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
-    { name = "spoke5v6", address_prefix = [local.spoke5_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
-    { name = "hub2v6", address_prefix = [local.hub2_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
+    { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_untrust_addr },
+    { name = "spoke4", address_prefix = [local.spoke4_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_untrust_addr },
   ]
 
   region2_default_udr_destinations = [
-    { name = "default-region2", address_prefix = ["0.0.0.0/0"], next_hop_ip = local.hub2_nva_ilb_trust_addr },
-    { name = "defaultv6-region2", address_prefix = ["::/0"], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 }
+    { name = "default-region2", address_prefix = ["0.0.0.0/0"], next_hop_ip = local.hub2_nva_ilb_untrust_addr },
   ]
   spoke4_udr_main_routes = concat(local.region2_default_udr_destinations, [
-    { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
-    { name = "hub2v6", address_prefix = [local.hub2_address_space.1], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
-  ])
-  spoke5_udr_main_routes = concat(local.region2_default_udr_destinations, [
-    { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
-    { name = "hub2v6", address_prefix = [local.hub2_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
+    { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_untrust_addr },
   ])
   hub2_udr_main_routes = concat(local.region2_default_udr_destinations, [
-    { name = "spoke4", address_prefix = [local.spoke4_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
-    { name = "spoke5", address_prefix = [local.spoke5_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
-    { name = "spoke4v6", address_prefix = [local.spoke4_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
-    { name = "spoke5v6", address_prefix = [local.spoke5_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
+    { name = "spoke4", address_prefix = [local.spoke4_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_untrust_addr },
   ])
-  hub2_gateway_udr_destinations = [
-    { name = "spoke4", address_prefix = [local.spoke4_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
-    { name = "spoke5", address_prefix = [local.spoke5_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
-    { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = local.hub2_nva_ilb_trust_addr },
-    { name = "spoke4v6", address_prefix = [local.spoke4_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
-    { name = "spoke5v6", address_prefix = [local.spoke5_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
-    { name = "hub2v6", address_prefix = [local.hub2_address_space.1, ], next_hop_ip = local.hub2_nva_ilb_trust_addr_v6 },
-
-  ]
   hub2_appliance_udr_destinations = [
-    { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "spoke1v6", address_prefix = [local.spoke1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
-    { name = "spoke2v6", address_prefix = [local.spoke2_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
-    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_untrust_addr },
   ]
 
   firewall_sku = "Basic"
@@ -158,48 +115,16 @@ locals {
       bgp_community               = local.hub1_bgp_community
       address_space               = local.hub1_address_space
       subnets                     = local.hub1_subnets
-      enable_private_dns_resolver = true
+      enable_private_dns_resolver = false
       enable_ars                  = false
       enable_vnet_flow_logs       = local.enable_vnet_flow_logs
       nat_gateway_subnet_names = [
-        "MainSubnet",
+        "ProdSubnet",
+        "NonProdSubnet",
+        "NetAppFileSubnet",
         "TrustSubnet",
-        "TestSubnet",
       ]
-
-      ruleset_dns_forwarding_rules = {
-        "onprem" = {
-          domain = local.onprem_domain
-          target_dns_servers = [
-            { ip_address = local.branch1_dns_addr, port = 53 },
-            { ip_address = local.branch3_dns_addr, port = 53 },
-          ]
-        }
-        "${local.region1_code}" = {
-          domain = local.region1_dns_zone
-          target_dns_servers = [
-            { ip_address = local.hub1_dns_in_addr, port = 53 },
-          ]
-        }
-        "${local.region2_code}" = {
-          domain = local.region2_dns_zone
-          target_dns_servers = [
-            { ip_address = local.hub1_dns_in_addr, port = 53 },
-          ]
-        }
-        "azurewebsites" = {
-          domain = "privatelink.azurewebsites.net"
-          target_dns_servers = [
-            { ip_address = local.hub1_dns_in_addr, port = 53 },
-          ]
-        }
-        "blob" = {
-          domain = "privatelink.blob.core.windows.net"
-          target_dns_servers = [
-            { ip_address = local.hub1_dns_in_addr, port = 53 },
-          ]
-        }
-      }
+      ruleset_dns_forwarding_rules = {}
     }
 
     config_s2s_vpngw = {
@@ -236,22 +161,22 @@ locals {
     }
 
     config_firewall = {
-      enable             = true
+      enable             = false
       firewall_sku       = local.firewall_sku
       firewall_policy_id = azurerm_firewall_policy.firewall_policy["region1"].id
     }
 
     config_nva = {
-      enable           = false
-      enable_ipv6      = null
-      type             = null
-      scenario_option  = null
-      opn_type         = null
-      custom_data      = null
-      ilb_untrust_ip   = null
-      ilb_trust_ip     = null
-      ilb_untrust_ipv6 = null
-      ilb_trust_ipv6   = null
+      enable           = true
+      enable_ipv6      = local.enable_ipv6
+      type             = "linux"
+      scenario_option  = "TwoNics"
+      opn_type         = "TwoNics"
+      custom_data      = base64encode(local.hub1_linux_nva_init)
+      ilb_untrust_ip   = local.hub1_nva_ilb_untrust_addr
+      ilb_trust_ip     = local.hub1_nva_ilb_trust_addr
+      ilb_untrust_ipv6 = local.hub1_nva_ilb_untrust_addr_v6
+      ilb_trust_ipv6   = local.hub1_nva_ilb_trust_addr_v6
     }
   }
 
@@ -266,50 +191,16 @@ locals {
       nat_gateway_subnet_names = [
         "MainSubnet",
         "TrustSubnet",
-        "TestSubnet",
       ]
-
-      ruleset_dns_forwarding_rules = {
-        "onprem" = {
-          domain = local.onprem_domain
-          target_dns_servers = [
-            { ip_address = local.branch3_dns_addr, port = 53 },
-            { ip_address = local.branch1_dns_addr, port = 53 },
-          ]
-        }
-        "${local.region1_code}" = {
-          domain = local.region1_dns_zone
-          target_dns_servers = [
-            { ip_address = local.hub2_dns_in_addr, port = 53 },
-          ]
-        }
-        "${local.region2_code}" = {
-          domain = local.region2_dns_zone
-          target_dns_servers = [
-            { ip_address = local.hub2_dns_in_addr, port = 53 },
-          ]
-        }
-        "azurewebsites" = {
-          domain = "privatelink.azurewebsites.net"
-          target_dns_servers = [
-            { ip_address = local.hub2_dns_in_addr, port = 53 },
-          ]
-        }
-        "blob.core.windows.net" = {
-          domain = "privatelink.blob.core.windows.net"
-          target_dns_servers = [
-            { ip_address = local.hub2_dns_in_addr, port = 53 },
-          ]
-        }
-      }
+      ruleset_dns_forwarding_rules = {}
     }
 
     config_s2s_vpngw = {
-      enable = true
+      enable = false
       sku    = "VpnGw1AZ"
       ip_configuration = [
-        { name = "ipconf0", public_ip_address_name = azurerm_public_ip.hub2_s2s_vpngw_pip0.name, apipa_addresses = ["169.254.21.1"] },
-        { name = "ipconf1", public_ip_address_name = azurerm_public_ip.hub2_s2s_vpngw_pip1.name, apipa_addresses = ["169.254.21.5"] }
+        # { name = "ipconf0", public_ip_address_name = azurerm_public_ip.hub2_s2s_vpngw_pip0.name, apipa_addresses = ["169.254.21.1"] },
+        # { name = "ipconf1", public_ip_address_name = azurerm_public_ip.hub2_s2s_vpngw_pip1.name, apipa_addresses = ["169.254.21.5"] }
       ]
       bgp_settings = {
         asn = local.hub2_vpngw_asn
@@ -427,23 +318,19 @@ locals {
 
   init_dir = "/var/lib/azure"
   vm_script_targets_region1 = [
-    { name = "branch1", dns = lower(local.branch1_vm_fqdn), ipv4 = local.branch1_vm_addr, ipv6 = local.branch1_vm_addr_v6, probe = true },
-    { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ipv4 = local.hub1_vm_addr, ipv6 = local.hub1_vm_addr_v6, probe = true },
-    { name = "hub1-spoke3-pep", dns = lower(local.hub1_spoke3_pep_fqdn), ping = false, probe = true },
-    { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ipv4 = local.spoke1_vm_addr, ipv6 = local.spoke1_vm_addr_v6, probe = true },
-    { name = "spoke2 ", dns = lower(local.spoke2_vm_fqdn), ipv4 = local.spoke2_vm_addr, ipv6 = local.spoke2_vm_addr_v6, probe = true },
+    { name = "branch1", dns = lower(local.branch1_vm_fqdn), ipv4 = local.branch1_vm_addr },
+    { name = "cgs1", dns = lower(local.hub1_cgs1_fdn), ipv4 = local.hub1_cgs1_addr },
+    { name = "cgs2", dns = lower(local.hub1_cgs2_fdn), ipv4 = local.hub1_cgs2_addr },
+    { name = "prod", dns = lower(local.hub1_prodvm_fdn), ipv4 = local.hub1_prodvm_addr },
+    { name = "prodha", dns = lower(local.hub1_prodhavm_fdn), ipv4 = local.hub1_prodhavm_addr },
+    { name = "nonprod", dns = lower(local.hub1_nonprodvm_fdn), ipv4 = local.hub1_nonprodvm_addr },
+    { name = "naf", dns = lower(local.hub1_nafvm_fdn), ipv4 = local.hub1_nafvm_addr },
   ]
   vm_script_targets_region2 = [
-    { name = "branch3", dns = lower(local.branch3_vm_fqdn), ipv4 = local.branch3_vm_addr, ipv6 = local.branch3_vm_addr_v6, probe = true },
-    { name = "hub2   ", dns = lower(local.hub2_vm_fqdn), ipv4 = local.hub2_vm_addr, ipv6 = local.hub2_vm_addr_v6, probe = true },
-    { name = "hub2-spoke6-pep", dns = lower(local.hub2_spoke6_pep_fqdn), ping = false, probe = true },
-    { name = "spoke4 ", dns = lower(local.spoke4_vm_fqdn), ipv4 = local.spoke4_vm_addr, ipv6 = local.spoke4_vm_addr_v6, probe = true },
-    { name = "spoke5 ", dns = lower(local.spoke5_vm_fqdn), ipv4 = local.spoke5_vm_addr, ipv6 = local.spoke5_vm_addr_v6, probe = true },
+    { name = "spoke4 ", dns = lower(local.spoke4_vm_fqdn), ipv4 = local.spoke4_vm_addr },
   ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ipv4 = "icanhazip.com", ipv6 = "icanhazip.com" },
-    { name = "hub1-spoke3-blob", dns = local.spoke3_blob_url, ping = false, probe = true },
-    { name = "hub2-spoke6-blob", dns = local.spoke6_blob_url, ping = false, probe = true },
   ]
   vm_script_targets = concat(
     local.vm_script_targets_region1,
@@ -482,11 +369,6 @@ locals {
   }
   onprem_local_records = [
     { name = lower(local.branch1_vm_fqdn), rdata = local.branch1_vm_addr, ttl = "300", type = "A" },
-    { name = lower(local.branch2_vm_fqdn), rdata = local.branch2_vm_addr, ttl = "300", type = "A" },
-    { name = lower(local.branch3_vm_fqdn), rdata = local.branch3_vm_addr, ttl = "300", type = "A" },
-    { name = lower(local.branch1_vm_fqdn), rdata = local.branch1_vm_addr_v6, ttl = "300", type = "AAAA" },
-    { name = lower(local.branch2_vm_fqdn), rdata = local.branch2_vm_addr_v6, ttl = "300", type = "AAAA" },
-    { name = lower(local.branch3_vm_fqdn), rdata = local.branch3_vm_addr_v6, ttl = "300", type = "AAAA" },
   ]
   onprem_redirected_hosts = []
 }
@@ -542,17 +424,6 @@ resource "azurerm_public_ip" "branch1_nva_pip" {
   tags                = local.branch1_tags
 }
 
-# branch3
-
-resource "azurerm_public_ip" "branch3_nva_pip" {
-  count               = length(local.regions) > 1 ? 1 : 0
-  resource_group_name = azurerm_resource_group.rg.name
-  name                = "${local.branch3_prefix}nva-pip"
-  location            = local.branch3_location
-  sku                 = "Standard"
-  allocation_method   = "Static"
-}
-
 # hub1
 
 resource "azurerm_public_ip" "hub1_s2s_vpngw_pip0" {
@@ -573,28 +444,6 @@ resource "azurerm_public_ip" "hub1_s2s_vpngw_pip1" {
   allocation_method   = "Static"
   zones               = [1, 2, 3]
   tags                = local.hub1_tags
-}
-
-# hub2
-
-resource "azurerm_public_ip" "hub2_s2s_vpngw_pip0" {
-  resource_group_name = azurerm_resource_group.rg.name
-  name                = "${local.hub2_prefix}s2s-vpngw-pip0"
-  location            = local.hub2_location
-  sku                 = "Standard"
-  allocation_method   = "Static"
-  zones               = [1, 2, 3]
-  tags                = local.hub2_tags
-}
-
-resource "azurerm_public_ip" "hub2_s2s_vpngw_pip1" {
-  resource_group_name = azurerm_resource_group.rg.name
-  name                = "${local.hub2_prefix}s2s-vpngw-pip1"
-  location            = local.hub2_location
-  sku                 = "Standard"
-  allocation_method   = "Static"
-  zones               = [1, 2, 3]
-  tags                = local.hub2_tags
 }
 
 ####################################################
