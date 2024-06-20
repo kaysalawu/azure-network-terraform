@@ -68,7 +68,7 @@ module "hub1_vm" {
   custom_data     = base64encode(local.vm_startup)
   tags            = local.hub1_tags
 
-  enable_ip_forwarding = true
+  ip_forwarding_enabled = true
   interfaces = [
     {
       name               = "${local.hub1_prefix}vm-main-nic"

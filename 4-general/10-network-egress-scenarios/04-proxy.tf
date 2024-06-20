@@ -96,7 +96,7 @@ module "hub_proxy" {
   custom_data     = base64encode(module.hub_proxy_init.cloud_config)
   tags            = local.hub_tags
 
-  enable_ip_forwarding = true
+  ip_forwarding_enabled = true
   interfaces = [
     {
       name               = "${local.hub_prefix}proxy-nic"

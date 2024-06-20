@@ -51,12 +51,14 @@ module "hub1_appliance_udr" {
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.hub1_prefix}azfw"
   location       = local.hub1_location
-  subnet_id      = module.hub1.subnets["AzureFirewallSubnet"].id
+  subnet_ids = [
+    module.hub1.subnets["AzureFirewallSubnet"].id,
+  ]
   routes = [for r in local.hub1_appliance_udr_destinations : {
     name                   = r.name
     address_prefix         = r.address_prefix
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = r.next_hop_ip
+    next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
+    next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
   }]
   depends_on = [module.hub1, ]
 }
@@ -68,12 +70,14 @@ module "hub2_appliance_udr" {
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.hub2_prefix}azfw"
   location       = local.hub2_location
-  subnet_id      = module.hub2.subnets["AzureFirewallSubnet"].id
+  subnet_ids = [
+    module.hub2.subnets["AzureFirewallSubnet"].id,
+  ]
   routes = [for r in local.hub2_appliance_udr_destinations : {
     name                   = r.name
     address_prefix         = r.address_prefix
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = r.next_hop_ip
+    next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
+    next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
   }]
   depends_on = [
     module.hub2,

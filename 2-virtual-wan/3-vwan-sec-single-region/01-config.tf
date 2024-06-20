@@ -63,6 +63,17 @@ locals {
     "fd00::/8",
   ]
 
+  service_tags = [
+    "AzureActiveDirectory",
+    "AzureBackup",
+    "AzureKeyVault",
+    # "AzureLoadBalancer",
+    "AzureMonitor",
+    "AzureResourceManager",
+    "EventHub",
+    "Storage",
+  ]
+
   azure_asn          = 12076
   azure_internal_asn = 65515
   megaport_asn       = 64512

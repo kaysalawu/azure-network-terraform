@@ -237,8 +237,8 @@ module "branch1_nva" {
   source_image_sku       = "20_04-lts"
   source_image_version   = "latest"
 
-  enable_ip_forwarding = true
-  enable_ipv6          = local.enable_ipv6
+  ip_forwarding_enabled = true
+  enable_ipv6           = local.enable_ipv6
   interfaces = [
     {
       name                 = "${local.branch1_prefix}nva-untrust-nic"
@@ -309,8 +309,10 @@ module "branch1_udr_main" {
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.branch1_prefix}main"
   location       = local.branch1_location
-  subnet_id      = module.branch1.subnets["MainSubnet"].id
-  routes         = local.branch1_routes_main
+  subnet_ids = [
+    module.branch1.subnets["MainSubnet"].id,
+  ]
+  routes = local.branch1_routes_main
 
   disable_bgp_route_propagation = true
   depends_on = [

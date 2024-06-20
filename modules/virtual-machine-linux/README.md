@@ -37,7 +37,7 @@ No modules.
 | <a name="input_computer_name"></a> [computer\_name](#input\_computer\_name) | computer name | `string` | `""` | no |
 | <a name="input_custom_data"></a> [custom\_data](#input\_custom\_data) | base64 string containing virtual machine custom data | `string` | `null` | no |
 | <a name="input_dns_servers"></a> [dns\_servers](#input\_dns\_servers) | DNS servers | `list(any)` | `null` | no |
-| <a name="input_enable_ip_forwarding"></a> [enable\_ip\_forwarding](#input\_enable\_ip\_forwarding) | enable ip forwarding | `bool` | `false` | no |
+| <a name="input_ip_forwarding_enabled"></a> [enable\_ip\_forwarding](#input\_enable\_ip\_forwarding) | enable ip forwarding | `bool` | `false` | no |
 | <a name="input_enable_ipv6"></a> [enable\_ipv6](#input\_enable\_ipv6) | enable dual stack networking | `bool` | `false` | no |
 | <a name="input_enable_plan"></a> [enable\_plan](#input\_enable\_plan) | enable plan | `bool` | `false` | no |
 | <a name="input_enable_public_ip"></a> [enable\_public\_ip](#input\_enable\_public\_ip) | enable public ip interface | `bool` | `false` | no |

@@ -246,7 +246,7 @@ variable "virtual_network_id" {
 #   default     = "Password123"
 # }
 
-# variable "enable_ip_forwarding" {
+# variable "ip_forwarding_enabled" {
 #   description = "enable ip forwarding"
 #   type        = bool
 #   default     = false

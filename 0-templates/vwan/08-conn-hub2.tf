@@ -48,12 +48,14 @@ module "spoke5_udr_main" {
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.spoke5_prefix}main"
   location       = local.spoke5_location
-  subnet_id      = module.spoke5.subnets["MainSubnet"].id
+  subnet_ids = [
+    module.spoke5.subnets["MainSubnet"].id,
+  ]
   routes = [for r in local.spoke5_udr_main_routes : {
     name                   = r.name
     address_prefix         = r.address_prefix
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = r.next_hop_ip
+    next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
+    next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
   }]
 
   disable_bgp_route_propagation = true
@@ -78,12 +80,14 @@ module "hub2_udr_main" {
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.hub2_prefix}main"
   location       = local.hub2_location
-  subnet_id      = module.hub2.subnets["MainSubnet"].id
+  subnet_ids = [
+    module.hub2.subnets["MainSubnet"].id,
+  ]
   routes = [for r in local.hub2_udr_main_routes : {
     name                   = r.name
     address_prefix         = r.address_prefix
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = r.next_hop_ip
+    next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
+    next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
   }]
 
   disable_bgp_route_propagation = true
