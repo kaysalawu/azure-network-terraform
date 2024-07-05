@@ -50,8 +50,8 @@ variable "log_analytics_workspace_name" {
   default     = null
 }
 
-variable "network_watcher_resource_group" {
-  description = "network watcher resource group"
+variable "network_watcher_resource_group_name" {
+  description = "network watcher resource group name"
   type        = string
   default     = null
 }
@@ -123,6 +123,7 @@ variable "config_vnet" {
       use_azapi                                     = optional(list(bool), [false])
       address_prefixes                              = list(string)
       address_prefixes_v6                           = optional(list(string), [])
+      service_endpoints                             = optional(list(string), [])
       delegate                                      = optional(list(string), [])
       private_endpoint_network_policies             = optional(list(string), ["Disabled"]) # Enabled, Disabled, NetworkSecurityGroupEnabled, RouteTableEnabled
       private_link_service_network_policies_enabled = optional(list(bool), [false])

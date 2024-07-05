@@ -8,7 +8,7 @@ locals {
   enable_onprem_wan_link      = false
   enable_diagnostics          = false
   enable_ipv6                 = false
-  enable_vnet_flow_logs       = false
+  enable_vnet_flow_logs       = true
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
   spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")

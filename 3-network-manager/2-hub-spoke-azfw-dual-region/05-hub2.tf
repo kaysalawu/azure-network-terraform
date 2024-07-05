@@ -25,11 +25,11 @@ module "hub2" {
   storage_account = module.common.storage_accounts["region2"]
   tags            = local.hub2_tags
 
-  enable_diagnostics             = local.enable_diagnostics
-  enable_ipv6                    = local.enable_ipv6
-  log_analytics_workspace_name   = module.common.log_analytics_workspaces["region2"].name
-  network_watcher_name           = "NetworkWatcher_${local.region2}"
-  network_watcher_resource_group = "NetworkWatcherRG"
+  enable_diagnostics                  = local.enable_diagnostics
+  enable_ipv6                         = local.enable_ipv6
+  log_analytics_workspace_name        = module.common.log_analytics_workspaces["region2"].name
+  network_watcher_name                = "NetworkWatcher_${local.region2}"
+  network_watcher_resource_group_name = "NetworkWatcherRG"
   # flow_log_nsg_ids = [
   #   module.common.nsg_main["region2"].id,
   # ]

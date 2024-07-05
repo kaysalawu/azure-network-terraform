@@ -44,7 +44,7 @@ echo -e "-------------------------------------"
 echo "VM Name:        Lab10-Server2"
 echo "Resource Group: Lab10_NetworkEgress_RG"
 echo "Location:       northeurope"
-echo "VNET Name:      Lab10-hub-vnet"
+echo "VNET Name:      Lab10-hub1-vnet"
 echo "Subnet Name:    ProductionSubnet"
 echo "Private IP:     $ETH0_IP"
 echo -e "-------------------------------------"
@@ -122,7 +122,7 @@ function check_service_endpoints() {
   echo -e "\n2. Check Service Endpoints"
   #####################################################
   echo -e "   Subnet --> ProductionSubnet"
-  if ! service_endpoints=$(timeout 5 az network vnet subnet show -g Lab10_NetworkEgress_RG --vnet-name Lab10-hub-vnet --name "ProductionSubnet" --query "serviceEndpoints[].service" -o tsv 2>/dev/null); then
+  if ! service_endpoints=$(timeout 5 az network vnet subnet show -g Lab10_NetworkEgress_RG --vnet-name Lab10-hub1-vnet --name "ProductionSubnet" --query "serviceEndpoints[].service" -o tsv 2>/dev/null); then
   echo -e "   Service Endpoint: Timed out!"
   SERVICE_ENDPOINTS=("Timed out!")
   elif [ -z "$service_endpoints" ]; then
@@ -140,7 +140,7 @@ function check_private_subnet() {
   echo -e "\n3. Check Private Subnet"
   #####################################################
   echo -e "   Subnet --> ProductionSubnet"
-  if ! default_outbound_access=$(timeout 5 az network vnet subnet list --resource-group Lab10_NetworkEgress_RG --vnet-name Lab10-hub-vnet --query "[?name=='ProductionSubnet'].defaultOutboundAccess" -o tsv 2>/dev/null); then
+  if ! default_outbound_access=$(timeout 5 az network vnet subnet list --resource-group Lab10_NetworkEgress_RG --vnet-name Lab10-hub1-vnet --query "[?name=='ProductionSubnet'].defaultOutboundAccess" -o tsv 2>/dev/null); then
     echo -e "   DefaultOutbound: Timed out!"
     default_outbound_access="Timed out!"
   fi
@@ -204,26 +204,26 @@ function download_blob() {
   #####################################################
   echo -e "\n6. Blob (Data Plane)"
   #####################################################
-  local host=$(echo https://lab10hubd16a.blob.core.windows.net/storage/storage.txt | awk -F/ '{print $3}')
-  echo -e "   url = https://lab10hubd16a.blob.core.windows.net/storage/storage.txt"
+  local host=$(echo https://lab10hubf4fa.blob.core.windows.net/storage/storage.txt | awk -F/ '{print $3}')
+  echo -e "   url = https://lab10hubf4fa.blob.core.windows.net/storage/storage.txt"
   echo -e "   host = $host"
   resolve_dns $host 2>/dev/null
   get_azure_service_tag_from_host $host 2>/dev/null
   storage_account_key=""
   storage_access_token=""
   blob_access=""
-  echo -e "   az storage account keys list -g Lab10_NetworkEgress_RG --account-name lab10hubd16a"
-  if storage_account_key=$(timeout 5 az storage account keys list -g Lab10_NetworkEgress_RG --account-name lab10hubd16a --query "[0].value" -o tsv 2>/dev/null); then
-    echo "   az storage blob download --account-name lab10hubd16a -c storage -n storage.txt --account-key <KEY>"
-    blob_access=$(timeout 5 az storage blob download --account-name lab10hubd16a -c storage -n storage.txt --account-key $storage_account_key --query content -o tsv 2>/dev/null)
+  echo -e "   az storage account keys list -g Lab10_NetworkEgress_RG --account-name lab10hubf4fa"
+  if storage_account_key=$(timeout 5 az storage account keys list -g Lab10_NetworkEgress_RG --account-name lab10hubf4fa --query "[0].value" -o tsv 2>/dev/null); then
+    echo "   az storage blob download --account-name lab10hubf4fa -c storage -n storage.txt --account-key <KEY>"
+    blob_access=$(timeout 5 az storage blob download --account-name lab10hubf4fa -c storage -n storage.txt --account-key $storage_account_key --query content -o tsv 2>/dev/null)
   else
     echo -e "   Storage account key: timed out!"
     echo -e "   Fallback: Get access token for storage.azure.com via metadata ..."
     if ! storage_access_token=$(timeout 5 curl -H Metadata:true "http://169.254.169.254:80/metadata/identity/oauth2/token?resource=https%3A%2F%2Fstorage.azure.com&api-version=2018-02-01" -s | jq -r .access_token); then
       echo -e "   Storage access token: timed out!"
     else
-      echo "   curl https://lab10hubd16a.blob.core.windows.net/storage/storage.txt ..."
-      blob_access=$(timeout 5 curl -s -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "x-ms-version: 2019-02-02" -H "Authorization: Bearer $storage_access_token" "https://lab10hubd16a.blob.core.windows.net/storage/storage.txt")
+      echo "   curl https://lab10hubf4fa.blob.core.windows.net/storage/storage.txt ..."
+      blob_access=$(timeout 5 curl -s -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "x-ms-version: 2019-02-02" -H "Authorization: Bearer $storage_access_token" "https://lab10hubf4fa.blob.core.windows.net/storage/storage.txt")
     fi
   fi
 
@@ -241,22 +241,22 @@ function access_keyvault_secret() {
   #####################################################
   echo -e "\n7. KeyVault (Data Plane)"
   #####################################################
-  local host=$(echo https://lab10-hub-kvd16a.vault.azure.net/secrets/message | awk -F/ '{print $3}')
-  echo -e "   url: https://lab10-hub-kvd16a.vault.azure.net/secrets/message"
+  local host=$(echo https://lab10-hub1-kvf4fa.vault.azure.net/secrets/message | awk -F/ '{print $3}')
+  echo -e "   url: https://lab10-hub1-kvf4fa.vault.azure.net/secrets/message"
   echo -e "   host: $host"
   resolve_dns $host
   get_azure_service_tag_from_host $host 2>/dev/null
   secret_value=""
   vault_access_token=""
-  echo "   az keyvault secret show --vault-name lab10-hub-kvd16a --name message"
-  if ! secret_value=$(timeout 5 az keyvault secret show --vault-name lab10-hub-kvd16a --name message --query value -o tsv 2>/dev/null); then
+  echo "   az keyvault secret show --vault-name lab10-hub1-kvf4fa --name message"
+  if ! secret_value=$(timeout 5 az keyvault secret show --vault-name lab10-hub1-kvf4fa --name message --query value -o tsv 2>/dev/null); then
     echo -e "   message: timed out!"
     echo -e "   Fallback: Get access token for vault.azure.net via metadata ..."
     if ! vault_access_token=$(timeout 5 curl -H Metadata:true "http://169.254.169.254/metadata/identity/oauth2/token?resource=https%3A%2F%2Fvault.azure.net&api-version=2018-02-01" -s | jq -r .access_token); then
       echo -e "   Vault token: timed out!"
     else
-      echo "curl https://lab10-hub-kvd16a.vault.azure.net/secrets/message?api-version=7.2"
-      secret_value=$(timeout 5 curl -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "Authorization : Bearer $vault_access_token" "https://lab10-hub-kvd16a.vault.azure.net/secrets/message?api-version=7.2" -o secret.txt 2>/dev/null)
+      echo "curl https://lab10-hub1-kvf4fa.vault.azure.net/secrets/message?api-version=7.2"
+      secret_value=$(timeout 5 curl -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "Authorization : Bearer $vault_access_token" "https://lab10-hub1-kvf4fa.vault.azure.net/secrets/message?api-version=7.2" -o secret.txt 2>/dev/null)
     fi
   fi
 

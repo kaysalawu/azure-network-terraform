@@ -237,8 +237,8 @@ module "branch3_nva" {
   source_image_sku       = "20_04-lts"
   source_image_version   = "latest"
 
-  enable_ip_forwarding = true
-  enable_ipv6          = local.enable_ipv6
+  ip_forwarding_enabled = true
+  enable_ipv6           = local.enable_ipv6
   interfaces = [
     {
       name                 = "${local.branch3_prefix}nva-untrust-nic"

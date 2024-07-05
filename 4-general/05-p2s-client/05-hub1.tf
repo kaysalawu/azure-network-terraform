@@ -18,7 +18,7 @@ module "hub1" {
   #   module.common.nsg_main["region1"].id,
   # ]
   # network_watcher_name           = "NetworkWatcher_${local.region1}"
-  # network_watcher_resource_group = "NetworkWatcherRG"
+  # network_watcher_resource_group_name = "NetworkWatcherRG"
 
   dns_zones_linked_to_vnet = [
     { name = module.common.private_dns_zones[local.region1_dns_zone].name, registration_enabled = true },
@@ -68,7 +68,7 @@ module "hub1_vm" {
   custom_data     = base64encode(local.vm_startup)
   tags            = local.hub1_tags
 
-  enable_ip_forwarding = true
+  ip_forwarding_enabled = true
   interfaces = [
     {
       name               = "${local.hub1_prefix}vm-main-nic"

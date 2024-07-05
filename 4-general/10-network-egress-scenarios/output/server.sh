@@ -89,7 +89,6 @@ systemctl restart flaskapp.service
 
 cat <<EOF > /usr/local/bin/ping-ip
 echo -e "\n ping ip ...\n"
-echo "internet - contoso.com -\$(timeout 3 ping -qc2 -W1 contoso.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 EOF
 chmod a+x /usr/local/bin/ping-ip
 
@@ -97,7 +96,6 @@ chmod a+x /usr/local/bin/ping-ip
 
 cat <<EOF > /usr/local/bin/ping-dns
 echo -e "\n ping dns ...\n"
-echo "contoso.com - \$(timeout 3 dig +short contoso.com | tail -n1) -\$(timeout 3 ping -qc2 -W1 contoso.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "\$5" ms":"NA") }')"
 EOF
 chmod a+x /usr/local/bin/ping-dns
 
@@ -105,7 +103,6 @@ chmod a+x /usr/local/bin/ping-dns
 
 cat <<EOF > /usr/local/bin/curl-ip
 echo -e "\n curl ip ...\n"
-echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null contoso.com) - internet (contoso.com)"
 EOF
 chmod a+x /usr/local/bin/curl-ip
 
@@ -113,7 +110,11 @@ chmod a+x /usr/local/bin/curl-ip
 
 cat <<EOF > /usr/local/bin/curl-dns
 echo -e "\n curl dns ...\n"
-echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null contoso.com) - contoso.com"
+echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null proxy.eu.az.corp) - proxy.eu.az.corp"
+echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null server1.eu.az.corp) - server1.eu.az.corp"
+echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null server2.eu.az.corp) - server2.eu.az.corp"
+echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
+echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://lab10hub10625.blob.core.windows.net/storage/storage.txt) - https://lab10hub10625.blob.core.windows.net/storage/storage.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 
@@ -121,9 +122,6 @@ chmod a+x /usr/local/bin/curl-dns
 
 cat <<EOF > /usr/local/bin/trace-ip
 echo -e "\n trace ip ...\n"
-echo -e "\ninternet"
-echo -e "-------------------------------------"
-timeout 9 tracepath contoso.com
 EOF
 chmod a+x /usr/local/bin/trace-ip
 

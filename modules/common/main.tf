@@ -61,7 +61,7 @@ resource "azurerm_storage_account" "storage_accounts" {
 resource "azurerm_network_security_group" "nsg_default" {
   for_each            = var.regions
   resource_group_name = var.resource_group
-  name                = "${local.prefix}nsg-${each.value.name}-default"
+  name                = "${local.prefix}nsg-${each.key}-default"
   location            = each.value.name
   tags                = var.tags
 }
@@ -163,7 +163,7 @@ resource "azurerm_network_security_rule" "internet_inbound_ipv6" {
 resource "azurerm_network_security_group" "nsg_nva" {
   for_each            = var.regions
   resource_group_name = var.resource_group
-  name                = "${local.prefix}nsg-${each.value.name}-nva"
+  name                = "${local.prefix}nsg-${each.key}-nva"
   location            = each.value.name
   tags                = var.tags
 }
@@ -254,7 +254,7 @@ resource "azurerm_network_security_rule" "nsg_nva_outbound" {
 resource "azurerm_network_security_group" "nsg_lb" {
   for_each            = var.regions
   resource_group_name = var.resource_group
-  name                = "${local.prefix}nsg-${each.value.name}-appgw"
+  name                = "${local.prefix}nsg-${each.key}-appgw"
   location            = each.value.name
   tags                = var.tags
 }

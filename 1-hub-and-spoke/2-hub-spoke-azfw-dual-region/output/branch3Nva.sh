@@ -141,25 +141,25 @@ conn %default
 
 conn Tunnel0
     left=10.30.1.9
-    leftid=40.121.19.31
-    right=51.8.246.186
-    rightid=51.8.246.186
+    leftid=172.173.162.229
+    right=51.8.209.173
+    rightid=51.8.209.173
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.30.1.9
-    leftid=40.121.19.31
-    right=51.8.243.137
-    rightid=51.8.243.137
+    leftid=172.173.162.229
+    right=51.8.209.155
+    rightid=51.8.209.155
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.30.1.9
-    leftid=40.121.19.31
-    right=52.164.218.149
-    rightid=52.164.218.149
+    leftid=172.173.162.229
+    right=40.69.74.51
+    rightid=40.69.74.51
     auto=start
     mark=300
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -170,9 +170,9 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.30.1.9 51.8.246.186 : PSK "changeme"
-10.30.1.9 51.8.243.137 : PSK "changeme"
-10.30.1.9 52.164.218.149 : PSK "changeme"
+10.30.1.9 51.8.209.173 : PSK "changeme"
+10.30.1.9 51.8.209.155 : PSK "changeme"
+10.30.1.9 40.69.74.51 : PSK "changeme"
 
 EOF
 
@@ -191,12 +191,12 @@ case "$PLUTO_CONNECTION" in
   Tunnel0)
     VTI_INTERFACE=vti0
     VTI_LOCALADDR=10.10.10.1
-    VTI_REMOTEADDR=10.22.16.7
+    VTI_REMOTEADDR=10.22.16.6
     ;;
   Tunnel1)
     VTI_INTERFACE=vti1
     VTI_LOCALADDR=10.10.10.5
-    VTI_REMOTEADDR=10.22.16.6
+    VTI_REMOTEADDR=10.22.16.7
     ;;
   Tunnel2)
     VTI_INTERFACE=vti2
@@ -302,8 +302,8 @@ interface lo
 ! Static Routes
 !-----------------------------------------
 ip route 0.0.0.0/0 10.30.1.1
-ip route 10.22.16.7/32 vti0
-ip route 10.22.16.6/32 vti1
+ip route 10.22.16.6/32 vti0
+ip route 10.22.16.7/32 vti1
 ip route 192.168.10.10/32 vti2
 ip route 10.10.1.9 10.30.1.1
 ip route 10.30.0.0/24 10.30.1.1
@@ -322,20 +322,20 @@ ip route 10.30.0.0/24 10.30.1.1
 !-----------------------------------------
 router bgp 65003
 bgp router-id 192.168.30.30
-neighbor 10.22.16.7 remote-as 65515
-neighbor 10.22.16.7 ebgp-multihop 255
-neighbor 10.22.16.7 update-source lo
 neighbor 10.22.16.6 remote-as 65515
 neighbor 10.22.16.6 ebgp-multihop 255
 neighbor 10.22.16.6 update-source lo
+neighbor 10.22.16.7 remote-as 65515
+neighbor 10.22.16.7 ebgp-multihop 255
+neighbor 10.22.16.7 update-source lo
 neighbor 192.168.10.10 remote-as 65001
 neighbor 192.168.10.10 ebgp-multihop 255
 neighbor 192.168.10.10 update-source lo
 !
 address-family ipv4 unicast
   network 10.30.0.0/24
-  neighbor 10.22.16.7 soft-reconfiguration inbound
   neighbor 10.22.16.6 soft-reconfiguration inbound
+  neighbor 10.22.16.7 soft-reconfiguration inbound
   neighbor 192.168.10.10 soft-reconfiguration inbound
 exit-address-family
 !
@@ -385,7 +385,7 @@ chmod a+x /usr/local/bin/ipsec-debug
 #-----------------------------------
 
 cat <<EOF > /etc/cron.d/ipsec-auto-restart
-*/10 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
+*/30 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
 EOF
 
 crontab /etc/cron.d/ipsec-auto-restart

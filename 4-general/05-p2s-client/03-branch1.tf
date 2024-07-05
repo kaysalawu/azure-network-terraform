@@ -156,7 +156,7 @@ module "client1" {
   source_image_sku       = "20_04-lts"
   source_image_version   = "latest"
 
-  enable_ip_forwarding = true
+  ip_forwarding_enabled = true
   interfaces = [
     {
       name      = "${local.branch1_prefix}client1-untrust-nic"

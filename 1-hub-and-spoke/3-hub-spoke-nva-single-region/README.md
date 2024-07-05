@@ -534,7 +534,7 @@ Hello, World!
 
 Whilst still logged into the on-premises server `Hs13-branch1Vm` via the serial console, we will test connectivity to all virtual machines using a `trace-ip` script using the linux `tracepath` utility.
 
-**7.1.** Run the `trace-ip` script
+**7.1.** Run the tracepath script
 
 ```sh
 trace-ipv4

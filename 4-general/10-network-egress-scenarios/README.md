@@ -132,7 +132,7 @@ Environment
 VM Name:        Lab10-Proxy
 Resource Group: Lab10_NetworkEgress_RG
 Location:       northeurope
-VNET Name:      Lab10-hub-vnet
+VNET Name:      Lab10-hub1-vnet
 Subnet Name:    PublicSubnet
 Private IP:     10.0.2.4
 -------------------------------------
@@ -179,7 +179,7 @@ Environment
 VM Name:        Lab10-Proxy
 Resource Group: Lab10_NetworkEgress_RG
 Location:       northeurope
-VNET Name:      Lab10-hub-vnet
+VNET Name:      Lab10-hub1-vnet
 Subnet Name:    PublicSubnet
 Private IP:     10.0.2.4
 -------------------------------------
@@ -228,15 +228,15 @@ Private IP:     10.0.2.4
    Blob Dataplane: Pass
 
 7. KeyVault (Data Plane)
-   url: https://lab10-hub-kv481a.vault.azure.net/secrets/message
-   host: lab10-hub-kv481a.vault.azure.net
-   52.146.137.168 <-- lab10-hub-kv481a.vault.azure.net
+   url: https://lab10-hub1-kv481a.vault.azure.net/secrets/message
+   host: lab10-hub1-kv481a.vault.azure.net
+   52.146.137.168 <-- lab10-hub1-kv481a.vault.azure.net
    Searching for service tags matching IP (52.146.137.168)
    - 52.146.137.168/29 <-- AzureKeyVault ()
    - 52.146.137.168/29 <-- AzureKeyVault.NorthEurope (northeurope)
    - 52.146.128.0/17 <-- AzureCloud.northeurope (northeurope)
    - 52.146.128.0/17 <-- AzureCloud ()
-   az keyvault secret show --vault-name lab10-hub-kv481a --name message
+   az keyvault secret show --vault-name lab10-hub1-kv481a --name message
    message: Hello, World!
    Vault Dataplane: Pass
 
@@ -278,7 +278,7 @@ Environment
 VM Name:        Lab10-Server1
 Resource Group: Lab10_NetworkEgress_RG
 Location:       northeurope
-VNET Name:      Lab10-hub-vnet
+VNET Name:      Lab10-hub1-vnet
 Subnet Name:    ProductionSubnet
 Private IP:     10.0.3.4
 -------------------------------------
@@ -324,7 +324,7 @@ Environment
 VM Name:        Lab10-Server1
 Resource Group: Lab10_NetworkEgress_RG
 Location:       northeurope
-VNET Name:      Lab10-hub-vnet
+VNET Name:      Lab10-hub1-vnet
 Subnet Name:    ProductionSubnet
 Private IP:     10.0.3.4
 -------------------------------------
@@ -373,15 +373,15 @@ Private IP:     10.0.3.4
    Blob Dataplane: Pass
 
 7. KeyVault (Data Plane)
-   url: https://lab10-hub-kv481a.vault.azure.net/secrets/message
-   host: lab10-hub-kv481a.vault.azure.net
-   52.146.137.168 <-- lab10-hub-kv481a.vault.azure.net
+   url: https://lab10-hub1-kv481a.vault.azure.net/secrets/message
+   host: lab10-hub1-kv481a.vault.azure.net
+   52.146.137.168 <-- lab10-hub1-kv481a.vault.azure.net
    Searching for service tags matching IP (52.146.137.168)
    - 52.146.137.168/29 <-- AzureKeyVault ()
    - 52.146.137.168/29 <-- AzureKeyVault.NorthEurope (northeurope)
    - 52.146.128.0/17 <-- AzureCloud.northeurope (northeurope)
    - 52.146.128.0/17 <-- AzureCloud ()
-   az keyvault secret show --vault-name lab10-hub-kv481a --name message
+   az keyvault secret show --vault-name lab10-hub1-kv481a --name message
    message: Hello, World!
    Vault Dataplane: Pass
 
@@ -418,7 +418,7 @@ Environment
 VM Name:        Lab10-Server1
 Resource Group: Lab10_NetworkEgress_RG
 Location:       northeurope
-VNET Name:      Lab10-hub-vnet
+VNET Name:      Lab10-hub1-vnet
 Subnet Name:    ProductionSubnet
 Private IP:     10.0.3.4
 -------------------------------------
@@ -443,7 +443,7 @@ Results
 ```sh
 az network vnet subnet update \
 -g Lab10_NetworkEgress_RG \
---vnet-name Lab10-hub-vnet \
+--vnet-name Lab10-hub1-vnet \
 --name ProductionSubnet \
 --remove natGateway
 ```
@@ -469,7 +469,7 @@ Environment
 VM Name:        Lab10-Server1
 Resource Group: Lab10_NetworkEgress_RG
 Location:       northeurope
-VNET Name:      Lab10-hub-vnet
+VNET Name:      Lab10-hub1-vnet
 Subnet Name:    ProductionSubnet
 Private IP:     10.0.3.4
 -------------------------------------
@@ -521,18 +521,18 @@ Private IP:     10.0.3.4
    Blob Dataplane: Pass
 
 7. KeyVault (Data Plane)
-   url: https://lab10-hub-kv481a.vault.azure.net/secrets/message
-   host: lab10-hub-kv481a.vault.azure.net
-   52.146.137.168 <-- lab10-hub-kv481a.vault.azure.net
+   url: https://lab10-hub1-kv481a.vault.azure.net/secrets/message
+   host: lab10-hub1-kv481a.vault.azure.net
+   52.146.137.168 <-- lab10-hub1-kv481a.vault.azure.net
    Searching for service tags matching IP (52.146.137.168)
    - 52.146.137.168/29 <-- AzureKeyVault ()
    - 52.146.137.168/29 <-- AzureKeyVault.NorthEurope (northeurope)
    - 52.146.128.0/17 <-- AzureCloud.northeurope (northeurope)
    - 52.146.128.0/17 <-- AzureCloud ()
-   az keyvault secret show --vault-name lab10-hub-kv481a --name message
+   az keyvault secret show --vault-name lab10-hub1-kv481a --name message
    message: timed out!
    Fallback: Get access token for vault.azure.net via metadata ...
-curl https://lab10-hub-kv481a.vault.azure.net/secrets/message?api-version=7.2
+curl https://lab10-hub1-kv481a.vault.azure.net/secrets/message?api-version=7.2
    message: not found!
    Vault Dataplane: Fail
 
@@ -643,7 +643,7 @@ Environment
 VM Name:        Lab10-Server1
 Resource Group: Lab10_NetworkEgress_RG
 Location:       northeurope
-VNET Name:      Lab10-hub-vnet
+VNET Name:      Lab10-hub1-vnet
 Subnet Name:    ProductionSubnet
 Private IP:     10.0.3.4
 -------------------------------------
@@ -670,7 +670,7 @@ Results
 ```sh
 az network vnet subnet update \
 -g Lab10_NetworkEgress_RG \
---vnet-name Lab10-hub-vnet \
+--vnet-name Lab10-hub1-vnet \
 --name ProductionSubnet \
 --service-endpoints Microsoft.Storage Microsoft.KeyVault Microsoft.AzureActiveDirectory
 ```
@@ -696,7 +696,7 @@ Environment
 VM Name:        Lab10-Server1
 Resource Group: Lab10_NetworkEgress_RG
 Location:       northeurope
-VNET Name:      Lab10-hub-vnet
+VNET Name:      Lab10-hub1-vnet
 Subnet Name:    ProductionSubnet
 Private IP:     10.0.3.4
 -------------------------------------
@@ -748,15 +748,15 @@ Private IP:     10.0.3.4
    Blob Dataplane: Pass
 
 7. KeyVault (Data Plane)
-   url: https://lab10-hub-kv481a.vault.azure.net/secrets/message
-   host: lab10-hub-kv481a.vault.azure.net
-   52.146.137.168 <-- lab10-hub-kv481a.vault.azure.net
+   url: https://lab10-hub1-kv481a.vault.azure.net/secrets/message
+   host: lab10-hub1-kv481a.vault.azure.net
+   52.146.137.168 <-- lab10-hub1-kv481a.vault.azure.net
    Searching for service tags matching IP (52.146.137.168)
    - 52.146.137.168/29 <-- AzureKeyVault ()
    - 52.146.137.168/29 <-- AzureKeyVault.NorthEurope (northeurope)
    - 52.146.128.0/17 <-- AzureCloud.northeurope (northeurope)
    - 52.146.128.0/17 <-- AzureCloud ()
-   az keyvault secret show --vault-name lab10-hub-kv481a --name message
+   az keyvault secret show --vault-name lab10-hub1-kv481a --name message
    message: Hello, World!
    Vault Dataplane: Pass
 
@@ -800,7 +800,7 @@ Environment
 VM Name:        Lab10-Server2
 Resource Group: Lab10_NetworkEgress_RG
 Location:       northeurope
-VNET Name:      Lab10-hub-vnet
+VNET Name:      Lab10-hub1-vnet
 Subnet Name:    ProductionSubnet
 Private IP:     10.0.3.5
 -------------------------------------
@@ -843,7 +843,7 @@ Environment
 VM Name:        Lab10-Server2
 Resource Group: Lab10_NetworkEgress_RG
 Location:       northeurope
-VNET Name:      Lab10-hub-vnet
+VNET Name:      Lab10-hub1-vnet
 Subnet Name:    ProductionSubnet
 Private IP:     10.0.3.5
 -------------------------------------
@@ -895,15 +895,15 @@ Private IP:     10.0.3.5
    Blob Dataplane: Pass
 
 7. KeyVault (Data Plane)
-   url: https://lab10-hub-kv481a.vault.azure.net/secrets/message
-   host: lab10-hub-kv481a.vault.azure.net
-   52.146.137.168 <-- lab10-hub-kv481a.vault.azure.net
+   url: https://lab10-hub1-kv481a.vault.azure.net/secrets/message
+   host: lab10-hub1-kv481a.vault.azure.net
+   52.146.137.168 <-- lab10-hub1-kv481a.vault.azure.net
    Searching for service tags matching IP (52.146.137.168)
    - 52.146.137.168/29 <-- AzureKeyVault ()
    - 52.146.137.168/29 <-- AzureKeyVault.NorthEurope (northeurope)
    - 52.146.128.0/17 <-- AzureCloud.northeurope (northeurope)
    - 52.146.128.0/17 <-- AzureCloud ()
-   az keyvault secret show --vault-name lab10-hub-kv481a --name message
+   az keyvault secret show --vault-name lab10-hub1-kv481a --name message
    message: Hello, World!
    Vault Dataplane: Pass
 
@@ -942,7 +942,7 @@ bash ../../scripts/_cleanup.sh Lab10_NetworkEgress_RG
 <summary>Sample output</summary>
 
 ```sh
-3-hub-spoke-nva-single-region$    bash ../../scripts/_cleanup.sh Lab10_NetworkEgress_RG
+3-hub1-spoke-nva-single-region$    bash ../../scripts/_cleanup.sh Lab10_NetworkEgress_RG
 
 Resource group: Lab10RG
 

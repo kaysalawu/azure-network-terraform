@@ -82,15 +82,15 @@ resource "azurerm_public_ip" "untrust" {
 ####################################################
 
 module "nva" {
-  count                = var.scenario_option == "Active-Active" ? 2 : var.scenario_option == "TwoNics" ? 1 : 0
-  source               = "../../modules/virtual-machine-linux"
-  resource_group       = var.resource_group
-  name                 = "${local.prefix}-${count.index}"
-  computer_name        = "${local.prefix}-${count.index}"
-  location             = var.location
-  storage_account      = var.storage_account
-  user_assigned_ids    = var.user_assigned_ids
-  enable_ip_forwarding = true
+  count                 = var.scenario_option == "Active-Active" ? 2 : var.scenario_option == "TwoNics" ? 1 : 0
+  source                = "../../modules/virtual-machine-linux"
+  resource_group        = var.resource_group
+  name                  = "${local.prefix}-${count.index}"
+  computer_name         = "${local.prefix}-${count.index}"
+  location              = var.location
+  storage_account       = var.storage_account
+  user_assigned_ids     = var.user_assigned_ids
+  ip_forwarding_enabled = true
 
   source_image_publisher = var.source_image_publisher
   source_image_offer     = var.source_image_offer

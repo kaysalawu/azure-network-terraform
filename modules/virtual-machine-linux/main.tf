@@ -49,13 +49,13 @@ resource "azurerm_public_ip" "this_ipv6" {
 ####################################################
 
 resource "azurerm_network_interface" "this" {
-  for_each             = { for i in var.interfaces : i.name => i }
-  resource_group_name  = var.resource_group
-  name                 = each.value.name
-  location             = var.location
-  dns_servers          = var.dns_servers
-  tags                 = var.tags
-  enable_ip_forwarding = var.enable_ip_forwarding
+  for_each              = { for i in var.interfaces : i.name => i }
+  resource_group_name   = var.resource_group
+  name                  = each.value.name
+  location              = var.location
+  dns_servers           = var.dns_servers
+  tags                  = var.tags
+  ip_forwarding_enabled = var.ip_forwarding_enabled
 
   ip_configuration {
     primary                       = true

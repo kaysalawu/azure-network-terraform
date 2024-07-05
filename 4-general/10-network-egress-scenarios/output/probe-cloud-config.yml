@@ -165,6 +165,8 @@ write_files:
     content: |
       #! /bin/bash
       
+      exec > /var/log/azure-startup.log
+      
       apt update
       apt install -y python3-pip python3-dev python3-venv unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
       
@@ -179,6 +181,10 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/ping-ipv4
       echo -e "\n ping ipv4 ...\n"
+      echo "proxy    - 10.0.2.4 -$(timeout 3 ping -4 -qc2 -W1 10.0.2.4 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
+      echo "proxy    - 10.0.3.4 -$(timeout 3 ping -4 -qc2 -W1 10.0.3.4 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
+      echo "proxy    - 10.0.3.5 -$(timeout 3 ping -4 -qc2 -W1 10.0.3.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
+      echo "internet - icanhazip.com -$(timeout 3 ping -4 -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
       EOF
       chmod a+x /usr/local/bin/ping-ipv4
       
@@ -186,6 +192,10 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/ping-dns4
       echo -e "\n ping dns ipv4 ...\n"
+      echo "proxy.eu.az.corp - $(timeout 3 dig +short proxy.eu.az.corp | tail -n1) -$(timeout 3 ping -4 -qc2 -W1 proxy.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
+      echo "server1.eu.az.corp - $(timeout 3 dig +short server1.eu.az.corp | tail -n1) -$(timeout 3 ping -4 -qc2 -W1 server1.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
+      echo "server2.eu.az.corp - $(timeout 3 dig +short server2.eu.az.corp | tail -n1) -$(timeout 3 ping -4 -qc2 -W1 server2.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
+      echo "icanhazip.com - $(timeout 3 dig +short icanhazip.com | tail -n1) -$(timeout 3 ping -4 -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
       EOF
       chmod a+x /usr/local/bin/ping-dns4
       
@@ -193,6 +203,10 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/curl-ipv4
       echo -e "\n curl ipv4 ...\n"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null [10.0.2.4]) - proxy    [10.0.2.4]"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null [10.0.3.4]) - proxy    [10.0.3.4]"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null [10.0.3.5]) - proxy    [10.0.3.5]"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null [icanhazip.com]) - internet [icanhazip.com]"
       EOF
       chmod a+x /usr/local/bin/curl-ipv4
       
@@ -200,7 +214,11 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/curl-dns4
       echo -e "\n curl dns ipv4 ...\n"
-      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null contoso.com) - contoso.com"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null proxy.eu.az.corp) - proxy.eu.az.corp"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null server1.eu.az.corp) - server1.eu.az.corp"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null server2.eu.az.corp) - server2.eu.az.corp"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://lab10hub10625.blob.core.windows.net/storage/storage.txt) - https://lab10hub10625.blob.core.windows.net/storage/storage.txt"
       EOF
       chmod a+x /usr/local/bin/curl-dns4
       
@@ -208,6 +226,18 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/trace-ipv4
       echo -e "\n trace ipv4 ...\n"
+      echo -e "\nproxy   "
+      echo -e "-------------------------------------"
+      timeout 9 tracepath -4 10.0.2.4
+      echo -e "\nproxy   "
+      echo -e "-------------------------------------"
+      timeout 9 tracepath -4 10.0.3.4
+      echo -e "\nproxy   "
+      echo -e "-------------------------------------"
+      timeout 9 tracepath -4 10.0.3.5
+      echo -e "\ninternet"
+      echo -e "-------------------------------------"
+      timeout 9 tracepath -4 icanhazip.com
       EOF
       chmod a+x /usr/local/bin/trace-ipv4
       
@@ -219,6 +249,7 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/ping-ipv6
       echo -e "\n ping ipv6 ...\n"
+      echo "internet - icanhazip.com -$(timeout 3 ping -6 -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
       EOF
       chmod a+x /usr/local/bin/ping-ipv6
       
@@ -226,6 +257,7 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/ping-dns6
       echo -e "\n ping dns ipv6 ...\n"
+      echo "icanhazip.com - $(timeout 3 dig AAAA +short icanhazip.com | tail -n1) -$(timeout 3 ping -6 -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
       EOF
       chmod a+x /usr/local/bin/ping-dns6
       
@@ -233,6 +265,7 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/curl-ipv6
       echo -e "\n curl ipv6 ...\n"
+      echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null [icanhazip.com]) - internet [icanhazip.com]"
       EOF
       chmod a+x /usr/local/bin/curl-ipv6
       
@@ -240,7 +273,11 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/curl-dns6
       echo -e "\n curl dns ipv6 ...\n"
-      echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null contoso.com) - contoso.com"
+      echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null proxy.eu.az.corp) - proxy.eu.az.corp"
+      echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null server1.eu.az.corp) - server1.eu.az.corp"
+      echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null server2.eu.az.corp) - server2.eu.az.corp"
+      echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
+      echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://lab10hub10625.blob.core.windows.net/storage/storage.txt) - https://lab10hub10625.blob.core.windows.net/storage/storage.txt"
       EOF
       chmod a+x /usr/local/bin/curl-dns6
       
@@ -248,6 +285,9 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/trace-ipv6
       echo -e "\n trace ipv6 ...\n"
+      echo -e "\ninternet"
+      echo -e "-------------------------------------"
+      timeout 9 tracepath -6 icanhazip.com
       EOF
       chmod a+x /usr/local/bin/trace-ipv6
       
@@ -277,11 +317,28 @@ write_files:
       # light-traffic generator
       
       cat <<'EOF' > /usr/local/bin/light-traffic
+      nping -c 5 --tcp-connect -p 80,8080 proxy.eu.az.corp > /dev/null 2>&1
+      nping -c 5 --tcp-connect -p 80,8080 server1.eu.az.corp > /dev/null 2>&1
+      nping -c 5 --tcp-connect -p 80,8080 server2.eu.az.corp > /dev/null 2>&1
+      nping -c 5 --tcp-connect -p 80,8080 https://lab10hub10625.blob.core.windows.net/storage/storage.txt > /dev/null 2>&1
       EOF
       chmod a+x /usr/local/bin/light-traffic
       
       # heavy-traffic generator
       
+      cat <<'EOF' > /usr/local/bin/heavy-traffic
+      #! /bin/bash
+      i=0
+      while [ $i -lt 5 ]; do
+          ab -n $1 -c $2 proxy.eu.az.corp > /dev/null 2>&1
+          ab -n $1 -c $2 server1.eu.az.corp > /dev/null 2>&1
+          ab -n $1 -c $2 server2.eu.az.corp > /dev/null 2>&1
+          ab -n $1 -c $2 https://lab10hub10625.blob.core.windows.net/storage/storage.txt > /dev/null 2>&1
+          let i=i+1
+        sleep 5
+      done
+      EOF
+      chmod a+x /usr/local/bin/heavy-traffic
       
       ########################################################
       # traffic generators (ipv6)
@@ -290,11 +347,66 @@ write_files:
       # light-traffic generator
       
       cat <<'EOF' > /usr/local/bin/light-traffic-ipv6
+      nping -c 5 -6 --tcp-connect -p 80,8080 proxy.eu.az.corp > /dev/null 2>&1
+      nping -c 5 -6 --tcp-connect -p 80,8080 server1.eu.az.corp > /dev/null 2>&1
+      nping -c 5 -6 --tcp-connect -p 80,8080 server2.eu.az.corp > /dev/null 2>&1
+      nping -c 5 -6 --tcp-connect -p 80,8080 https://lab10hub10625.blob.core.windows.net/storage/storage.txt > /dev/null 2>&1
       EOF
       chmod a+x /usr/local/bin/light-traffic-ipv6
       
       # heavy-traffic generator
       
+      cat <<'EOF' > /usr/local/bin/heavy-traffic-ipv6
+      #! /bin/bash
+      
+      get_ipv6() {
+        ipv6=$(host -t AAAA $1 | awk '/has IPv6 address/ {print $5}')
+        if [ -z "$ipv6" ]; then
+          echo $1
+        else
+          echo $ipv6
+        fi
+      }
+      
+      i=0
+      while [ $i -lt 8 ]; do
+          ab -s 3 -n $1 -c $2 [$(get_ipv6 proxy.eu.az.corp)]/ > /dev/null 2>&1
+        # check if ab command was successful
+        if [ $? -ne 0 ]; then
+          echo "target: proxy.eu.az.corp failed"
+          exit 1
+        else
+          echo "target: proxy.eu.az.corp passed"
+        fi
+          ab -s 3 -n $1 -c $2 [$(get_ipv6 server1.eu.az.corp)]/ > /dev/null 2>&1
+        # check if ab command was successful
+        if [ $? -ne 0 ]; then
+          echo "target: server1.eu.az.corp failed"
+          exit 1
+        else
+          echo "target: server1.eu.az.corp passed"
+        fi
+          ab -s 3 -n $1 -c $2 [$(get_ipv6 server2.eu.az.corp)]/ > /dev/null 2>&1
+        # check if ab command was successful
+        if [ $? -ne 0 ]; then
+          echo "target: server2.eu.az.corp failed"
+          exit 1
+        else
+          echo "target: server2.eu.az.corp passed"
+        fi
+          ab -s 3 -n $1 -c $2 [$(get_ipv6 https://lab10hub10625.blob.core.windows.net/storage/storage.txt)]/ > /dev/null 2>&1
+        # check if ab command was successful
+        if [ $? -ne 0 ]; then
+          echo "target: https://lab10hub10625.blob.core.windows.net/storage/storage.txt failed"
+          exit 1
+        else
+          echo "target: https://lab10hub10625.blob.core.windows.net/storage/storage.txt passed"
+        fi
+          let i=i+1
+        sleep 5
+      done
+      EOF
+      chmod a+x /usr/local/bin/heavy-traffic-ipv6
       
       ########################################################
       # crontabs
@@ -302,6 +414,10 @@ write_files:
       
       cat <<'EOF' > /etc/cron.d/traffic-gen
       */1 * * * * /usr/local/bin/light-traffic 2>&1 > /dev/null
+      */1 * * * * /usr/local/bin/heavy-traffic 15 1 2>&1 > /dev/null
+      */2 * * * * /usr/local/bin/heavy-traffic 3 1 2>&1 > /dev/null
+      */3 * * * * /usr/local/bin/heavy-traffic 8 2 2>&1 > /dev/null
+      */5 * * * * /usr/local/bin/heavy-traffic 5 1 2>&1 > /dev/null
       EOF
       
       crontab /etc/cron.d/traffic-gen

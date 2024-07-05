@@ -1,55 +1,64 @@
 
 ####################################################
-# server 1
+# common
 ####################################################
 
 locals {
-  server1_crawler_vars = merge(local.base_crawler_vars, {
-    VNET_NAME   = module.hub.vnet.name
-    SUBNET_NAME = module.hub.subnets["ProductionSubnet"].name
-    VM_NAME     = "${local.prefix}-${local.hub_server1_hostname}"
-  })
-  server1_crawler_files = {
-    "${local.init_dir}/crawler/app/crawler.sh"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/crawler.sh", local.server1_crawler_vars) }
-    "${local.init_dir}/crawler/app/service_tags.py"  = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/service_tags.py", local.server1_crawler_vars) }
-    "${local.init_dir}/crawler/app/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/requirements.txt", local.server1_crawler_vars) }
-  }
-  hub_server1_files = merge(
+  hub1_server_files = merge(
     local.vm_init_files,
-    local.vm_startup_init_files,
-    local.server1_crawler_files,
+    local.probe_startup_init_files,
+    local.hub1_crawler_files,
   )
-}
-
-module "hub_server1_init" {
-  source = "../../modules/cloud-config-gen"
-  files  = local.hub_server1_files
-  run_commands = [
-    ". ${local.init_dir}/init/startup.sh",
-    "python3 -m venv ${local.init_dir}/crawler",
+  hub1_server2_no_proxy = [
+    "168.63.129.16",
+    "169.254.169.254",
+    "127.0.0.1",
+    "corp",
   ]
 }
 
-module "hub_server1_vm" {
+module "hub1_server_init" {
+  source   = "../../modules/cloud-config-gen"
+  packages = ["docker.io", "docker-compose", ]
+  files    = local.hub1_server_files
+  run_commands = [
+    ". ${local.init_dir}/init/startup.sh",
+    "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
+    "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app2-8080.yml up -d",
+  ]
+}
+
+####################################################
+# server 1
+####################################################
+
+module "hub1_server1_vm" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.prefix}-${local.hub_server1_hostname}"
-  computer_name   = local.hub_server1_hostname
-  location        = local.hub_location
+  name            = "${local.prefix}-${local.hub1_server1_hostname}"
+  computer_name   = local.hub1_server1_hostname
+  location        = local.hub1_location
   storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(module.hub_server1_init.cloud_config)
-  tags            = local.hub_tags
+  dns_servers     = [local.hub1_proxy_addr, ]
+  custom_data     = base64encode(module.hub1_server_init.cloud_config)
+  tags = merge(
+    local.hub1_tags,
+    local.hub1_crawler_vars,
+    {
+      VNET_NAME   = module.hub1.vnet.name
+      SUBNET_NAME = module.hub1.subnets["ProductionSubnet"].name
+    }
+  )
 
   interfaces = [
     {
-      name               = "${local.hub_prefix}server1-nic"
-      subnet_id          = module.hub.subnets["ProductionSubnet"].id
-      private_ip_address = local.hub_server1_addr
-      # create_public_ip   = true
+      name               = "${local.hub1_prefix}server1-nic"
+      subnet_id          = module.hub1.subnets["ProductionSubnet"].id
+      private_ip_address = local.hub1_server1_addr
     },
   ]
   depends_on = [
-    module.hub
+    time_sleep.hub1_proxy,
   ]
 }
 
@@ -57,63 +66,33 @@ module "hub_server1_vm" {
 # server 2 (using proxy)
 ####################################################
 
-locals {
-  hub_server2_no_proxy = [
-    "168.63.129.16",
-    "169.254.169.254",
-    "127.0.0.1",
-    "corp",
-  ]
-  server2_crawler_vars = merge(local.base_crawler_vars, {
-    VNET_NAME   = module.hub.vnet.name
-    SUBNET_NAME = module.hub.subnets["ProductionSubnet"].name
-    VM_NAME     = "${local.prefix}-${local.hub_server2_hostname}"
-  })
-  server2_crawler_files = {
-    "${local.init_dir}/crawler/app/crawler.sh"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/crawler.sh", local.server2_crawler_vars) }
-    "${local.init_dir}/crawler/app/service_tags.py"  = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/service_tags.py", local.server2_crawler_vars) }
-    "${local.init_dir}/crawler/app/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/requirements.txt", local.server2_crawler_vars) }
-  }
-  hub_server2_files = merge(
-    local.vm_init_files,
-    local.vm_startup_init_files,
-    local.server2_crawler_files,
-  )
-}
-
-module "hub_server2_init" {
-  source = "../../modules/cloud-config-gen"
-  files  = local.hub_server2_files
-  run_commands = [
-    ". ${local.init_dir}/init/startup.sh",
-    "/bin/bash -c 'echo export http_proxy=http://${local.hub_proxy_addr}:3128 >> /etc/environment'",
-    "/bin/bash -c 'echo export https_proxy=http://${local.hub_proxy_addr}:3128 >> /etc/environment'",
-    "/bin/bash -c 'echo export ftp_proxy=http://${local.hub_proxy_addr}:3128 >> /etc/environment'",
-    "/bin/bash -c 'echo export no_proxy=${join(",", local.hub_server2_no_proxy)} >> /etc/environment'",
-    "python3 -m venv ${local.init_dir}/crawler",
-  ]
-}
-
-module "hub_server2_vm" {
+module "hub1_server2_vm" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.prefix}-${local.hub_server2_hostname}"
-  computer_name   = local.hub_server2_hostname
-  location        = local.hub_location
+  name            = "${local.prefix}-${local.hub1_server2_hostname}"
+  computer_name   = local.hub1_server2_hostname
+  location        = local.hub1_location
   storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(module.hub_server2_init.cloud_config)
-  tags            = local.hub_tags
+  dns_servers     = [local.hub1_proxy_addr, ]
+  custom_data     = base64encode(module.hub1_server_init.cloud_config)
+  tags = merge(
+    local.hub1_tags,
+    local.hub1_crawler_vars,
+    {
+      VNET_NAME   = module.hub1.vnet.name
+      SUBNET_NAME = module.hub1.subnets["ProductionSubnet"].name
+    }
+  )
 
   interfaces = [
     {
-      name               = "${local.hub_prefix}server2-nic"
-      subnet_id          = module.hub.subnets["ProductionSubnet"].id
-      private_ip_address = local.hub_server2_addr
-      # create_public_ip   = true
+      name               = "${local.hub1_prefix}server2-nic"
+      subnet_id          = module.hub1.subnets["ProductionSubnet"].id
+      private_ip_address = local.hub1_server2_addr
     },
   ]
   depends_on = [
-    module.hub
+    time_sleep.hub1_proxy,
   ]
 }
 
@@ -123,38 +102,33 @@ module "hub_server2_vm" {
 
 # production
 
-resource "time_sleep" "hub_production_udr" {
+resource "time_sleep" "hub1_production_udr" {
   create_duration = "2m"
   depends_on = [
-    module.hub,
-    module.hub_proxy,
-    module.hub_server1_vm,
-    module.hub_server2_vm,
+    time_sleep.hub1_proxy,
+    module.hub1_server1_vm,
+    module.hub1_server2_vm,
   ]
 }
 
-module "hub_production_udr" {
+module "hub1_production_udr" {
   source         = "../../modules/route-table"
   resource_group = azurerm_resource_group.rg.name
-  prefix         = "${local.prefix}-hub-production"
-  location       = local.hub_location
-  subnet_id      = module.hub.subnets["ProductionSubnet"].id
+  prefix         = "${local.prefix}-hub1-production"
+  location       = local.hub1_location
+  subnet_ids = [
+    module.hub1.subnets["ProductionSubnet"].id
+  ]
   routes = [
     {
       name           = "azure-services"
       address_prefix = local.service_tags
       next_hop_type  = "Internet"
     },
-    # {
-    #   name                   = "default"
-    #   address_prefix         = ["0.0.0.0/1", "128.0.0.0/1", ]
-    #   next_hop_type          = "VirtualAppliance"
-    #   next_hop_in_ip_address = local.hub_proxy_addr
-    # },
   ]
 
   depends_on = [
-    time_sleep.hub_production_udr
+    time_sleep.hub1_production_udr
   ]
 }
 
@@ -163,16 +137,14 @@ module "hub_production_udr" {
 ####################################################
 
 locals {
-  hub_server_output_files = {
-    "output/server1-init.yaml"  = module.hub_server1_init.cloud_config
-    "output/server2-init.yaml"  = module.hub_server2_init.cloud_config
-    "output/server1-crawler.sh" = templatefile("../../scripts/init/crawler/app/crawler.sh", local.server1_crawler_vars)
-    "output/server2-crawler.sh" = templatefile("../../scripts/init/crawler/app/crawler.sh", local.server2_crawler_vars)
+  hub1_server_output_files = {
+    "output/server-init.yaml" = module.hub1_server_init.cloud_config
+    "output/hub1-crawler.sh"  = templatefile("../../scripts/init/crawler/app/crawler.sh", local.hub1_crawler_vars)
   }
 }
 
-resource "local_file" "hub_server_output_files" {
-  for_each = local.hub_server_output_files
+resource "local_file" "hub1_server_output_files" {
+  for_each = local.hub1_server_output_files
   filename = each.key
   content  = each.value
 }

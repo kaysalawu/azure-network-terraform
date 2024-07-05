@@ -1,0 +1,5 @@
+NTANetAnalytics
+| where TimeGenerated > ago(60d)
+| where DestIp == "${Ip}" and strlen(SrcIp)>0
+| summarize TotalBytes = sum(BytesDestToSrc + BytesSrcToDest) by SrcIp, DestIp
+| extend TotalGBytes = round(toreal(TotalBytes) / (1024*1024*1024), 4)
