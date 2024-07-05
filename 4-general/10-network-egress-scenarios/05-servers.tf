@@ -4,11 +4,6 @@
 ####################################################
 
 locals {
-  hub1_server_files = merge(
-    local.vm_init_files,
-    local.probe_startup_init_files,
-    local.hub1_crawler_files,
-  )
   hub1_server2_no_proxy = [
     "168.63.129.16",
     "169.254.169.254",
@@ -17,10 +12,29 @@ locals {
   ]
 }
 
-module "hub1_server_init" {
+module "hub1_server1_init" {
   source   = "../../modules/cloud-config-gen"
   packages = ["docker.io", "docker-compose", ]
-  files    = local.hub1_server_files
+  files = merge(
+    local.vm_init_files,
+    local.vm_startup_init_files,
+    local.hub1_crawler_files,
+  )
+  run_commands = [
+    ". ${local.init_dir}/init/startup.sh",
+    "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
+    "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app2-8080.yml up -d",
+  ]
+}
+
+module "hub1_server2_init" {
+  source   = "../../modules/cloud-config-gen"
+  packages = ["docker.io", "docker-compose", ]
+  files = merge(
+    local.vm_init_files,
+    local.probe_startup_init_files,
+    local.hub1_crawler_files,
+  )
   run_commands = [
     ". ${local.init_dir}/init/startup.sh",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
@@ -40,7 +54,7 @@ module "hub1_server1_vm" {
   location        = local.hub1_location
   storage_account = module.common.storage_accounts["region1"]
   dns_servers     = [local.hub1_proxy_addr, ]
-  custom_data     = base64encode(module.hub1_server_init.cloud_config)
+  custom_data     = base64encode(module.hub1_server1_init.cloud_config)
   tags = merge(
     local.hub1_tags,
     local.hub1_crawler_vars,
@@ -74,7 +88,7 @@ module "hub1_server2_vm" {
   location        = local.hub1_location
   storage_account = module.common.storage_accounts["region1"]
   dns_servers     = [local.hub1_proxy_addr, ]
-  custom_data     = base64encode(module.hub1_server_init.cloud_config)
+  custom_data     = base64encode(module.hub1_server2_init.cloud_config)
   tags = merge(
     local.hub1_tags,
     local.hub1_crawler_vars,
@@ -138,8 +152,9 @@ module "hub1_production_udr" {
 
 locals {
   hub1_server_output_files = {
-    "output/server-init.yaml" = module.hub1_server_init.cloud_config
-    "output/hub1-crawler.sh"  = templatefile("../../scripts/init/crawler/app/crawler.sh", local.hub1_crawler_vars)
+    "output/server1-init.yaml" = module.hub1_server1_init.cloud_config
+    "output/server2-init.yaml" = module.hub1_server2_init.cloud_config
+    "output/hub1-crawler.sh"   = templatefile("../../scripts/init/crawler/app/crawler.sh", local.hub1_crawler_vars)
   }
 }
 

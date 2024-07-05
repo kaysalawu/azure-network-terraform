@@ -119,13 +119,13 @@ locals {
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
         }
-        "azurewebsites" = {
+        "azurewebsites.net" = {
           domain = "privatelink.azurewebsites.net"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
         }
-        "blob" = {
+        "blob.core.windows.net" = {
           domain = "privatelink.blob.core.windows.net"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
@@ -282,6 +282,16 @@ locals {
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
   }
+  proxy_init_vars = {
+    ONPREM_LOCAL_RECORDS = []
+    REDIRECTED_HOSTS     = []
+    FORWARD_ZONES        = []
+    TARGETS              = local.vm_script_targets
+    ACCESS_CONTROL_PREFIXES = concat(
+      local.private_prefixes,
+      ["127.0.0.0/8", "35.199.192.0/19", "fd00::/8", ]
+    )
+  }
   vm_init_files = {
     "${local.init_dir}/fastapi/docker-compose-app1-80.yml"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/docker-compose-app1-80.yml", {}) }
     "${local.init_dir}/fastapi/docker-compose-app2-8080.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/docker-compose-app2-8080.yml", {}) }
@@ -295,6 +305,22 @@ locals {
   }
   probe_startup_init_files = {
     "${local.init_dir}/init/startup.sh" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/startup.sh", local.probe_init_vars) }
+  }
+  proxy_startup_files = {
+    "${local.init_dir}/unbound/Dockerfile"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/Dockerfile", {}) }
+    "${local.init_dir}/unbound/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
+    "${local.init_dir}/unbound/setup-unbound.sh"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/setup-unbound.sh", local.proxy_init_vars) }
+    "/etc/unbound/unbound.conf"                    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/unbound.conf", local.proxy_init_vars) }
+
+    "${local.init_dir}/squid/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/docker-compose.yml", local.proxy_init_vars) }
+    "${local.init_dir}/squid/setup-squid.sh"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/setup-squid.sh", local.proxy_init_vars) }
+    "/etc/squid/blocked_sites"                   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/blocked_sites", local.proxy_init_vars) }
+    "/etc/squid/squid.conf"                      = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/squid.conf", local.proxy_init_vars) }
+  }
+  service_crawler_files = {
+    "${local.init_dir}/crawler/app/crawler.sh"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/crawler.sh", {}) }
+    "${local.init_dir}/crawler/app/service_tags.py"  = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/service_tags.py", {}) }
+    "${local.init_dir}/crawler/app/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/requirements.txt", {}) }
   }
   onprem_local_records = [
     { name = lower(local.branch1_vm_fqdn), rdata = local.branch1_vm_addr, ttl = "300", type = "A" },
@@ -332,7 +358,7 @@ module "probe_vm_cloud_init" {
     local.probe_startup_init_files,
   )
   packages = [
-    "docker.io", "docker-compose", #npm,
+    "docker.io", "docker-compose",
   ]
   run_commands = [
     "systemctl enable docker",
@@ -340,6 +366,36 @@ module "probe_vm_cloud_init" {
     "bash ${local.init_dir}/init/startup.sh",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app2-8080.yml up -d",
+  ]
+}
+
+module "proxy_vm_cloud_init" {
+  source   = "../../modules/cloud-config-gen"
+  files    = local.proxy_startup_files
+  packages = ["docker.io", "docker-compose", ]
+  run_commands = [
+    "sysctl -w net.ipv4.ip_forward=1",
+    "sysctl -w net.ipv4.conf.eth0.disable_xfrm=1",
+    "sysctl -w net.ipv4.conf.eth0.disable_policy=1",
+    "echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf",
+    "sysctl -w net.ipv6.conf.all.forwarding=1",
+    "echo 'net.ipv6.conf.all.forwarding=1' >> /etc/sysctl.conf",
+    "sysctl -p",
+    "echo iptables-persistent iptables-persistent/autosave_v4 boolean false | debconf-set-selections",
+    "echo iptables-persistent iptables-persistent/autosave_v6 boolean false | debconf-set-selections",
+    "apt-get -y install iptables-persistent",
+    "iptables -P FORWARD ACCEPT",
+    "iptables -P INPUT ACCEPT",
+    "iptables -P OUTPUT ACCEPT",
+    "iptables -t nat -A POSTROUTING -d 10.0.0.0/8 -j ACCEPT",
+    "iptables -t nat -A POSTROUTING -d 172.16.0.0/12 -j ACCEPT",
+    "iptables -t nat -A POSTROUTING -d 192.168.0.0/16 -j ACCEPT",
+    "iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE",
+    ". ${local.init_dir}/init/startup.sh",
+    ". ${local.init_dir}/unbound/setup-unbound.sh",
+    ". ${local.init_dir}/squid/setup-squid.sh",
+    "docker-compose -f ${local.init_dir}/unbound/docker-compose.yml up -d",
+    "docker-compose -f ${local.init_dir}/squid/docker-compose.yml up -d",
   ]
 }
 

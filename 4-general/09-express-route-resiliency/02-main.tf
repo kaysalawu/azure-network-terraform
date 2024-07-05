@@ -8,7 +8,7 @@ locals {
   enable_onprem_wan_link = false
   enable_diagnostics     = true
   enable_ipv6            = false
-  enable_vnet_flow_logs  = true
+  enable_vnet_flow_logs  = false
 
   hub1_tags    = { "lab" = local.prefix, "env" = "prod", "nodeType" = "hub" }
   branch2_tags = { "lab" = local.prefix, "env" = "prod", "nodeType" = "branch" }
