@@ -309,7 +309,7 @@ module "branch3_udr_main" {
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.branch3_prefix}main"
   location       = local.branch3_location
-  subnet_id      = module.branch3.subnets["MainSubnet"].id
+  subnet_ids     = [module.branch3.subnets["MainSubnet"].id, ]
   routes         = local.branch3_routes_main
 
   disable_bgp_route_propagation = true

@@ -39,7 +39,7 @@ module "hub1_appliance_udr" {
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.hub1_prefix}azfw"
   location       = local.hub1_location
-  subnet_id      = module.hub1.subnets["AzureFirewallSubnet"].id
+  subnet_ids     = [module.hub1.subnets["AzureFirewallSubnet"].id, ]
   routes = [for r in local.hub1_appliance_udr_destinations : {
     name                   = r.name
     address_prefix         = r.address_prefix
@@ -56,7 +56,7 @@ module "hub2_appliance_udr" {
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.hub2_prefix}azfw"
   location       = local.hub2_location
-  subnet_id      = module.hub2.subnets["AzureFirewallSubnet"].id
+  subnet_ids     = [module.hub2.subnets["AzureFirewallSubnet"].id, ]
   routes = [for r in local.hub2_appliance_udr_destinations : {
     name                   = r.name
     address_prefix         = r.address_prefix

@@ -62,7 +62,7 @@ module "hub1_proxy" {
 }
 
 resource "time_sleep" "hub1_proxy" {
-  create_duration = "120s"
+  create_duration = "5m"
   depends_on = [
     module.hub1,
     module.hub1_proxy,
