@@ -37,12 +37,12 @@ No modules.
 | <a name="input_computer_name"></a> [computer\_name](#input\_computer\_name) | computer name | `string` | `""` | no |
 | <a name="input_custom_data"></a> [custom\_data](#input\_custom\_data) | base64 string containing virtual machine custom data | `string` | `null` | no |
 | <a name="input_dns_servers"></a> [dns\_servers](#input\_dns\_servers) | DNS servers | `list(any)` | `null` | no |
-| <a name="input_ip_forwarding_enabled"></a> [enable\_ip\_forwarding](#input\_enable\_ip\_forwarding) | enable ip forwarding | `bool` | `false` | no |
 | <a name="input_enable_ipv6"></a> [enable\_ipv6](#input\_enable\_ipv6) | enable dual stack networking | `bool` | `false` | no |
 | <a name="input_enable_plan"></a> [enable\_plan](#input\_enable\_plan) | enable plan | `bool` | `false` | no |
 | <a name="input_enable_public_ip"></a> [enable\_public\_ip](#input\_enable\_public\_ip) | enable public ip interface | `bool` | `false` | no |
 | <a name="input_images_with_plan"></a> [images\_with\_plan](#input\_images\_with\_plan) | images with plan | `list(string)` | <pre>[<br>  "cisco-csr-1000v",<br>  "cisco-c8000v",<br>  "freebsd-13"<br>]</pre> | no |
 | <a name="input_interfaces"></a> [interfaces](#input\_interfaces) | n/a | <pre>list(object({<br>    name                   = string<br>    subnet_id              = string<br>    private_ip_address     = optional(string, null)<br>    private_ipv6_address   = optional(string, null)<br>    create_public_ip       = optional(bool, false)<br>    public_ip_address_id   = optional(string, null)<br>    public_ipv6_address_id = optional(string, null)<br>  }))</pre> | n/a | yes |
+| <a name="input_ip_forwarding_enabled"></a> [ip\_forwarding\_enabled](#input\_ip\_forwarding\_enabled) | enable ip forwarding | `bool` | `false` | no |
 | <a name="input_location"></a> [location](#input\_location) | vnet region location | `string` | n/a | yes |
 | <a name="input_log_analytics_workspace_name"></a> [log\_analytics\_workspace\_name](#input\_log\_analytics\_workspace\_name) | log analytics workspace name | `string` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | virtual machine resource name | `string` | n/a | yes |

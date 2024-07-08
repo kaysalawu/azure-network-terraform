@@ -3,62 +3,11 @@
 # Proxy
 ####################################################
 
-locals {
-  hub_proxy_vars = {
-    ONPREM_LOCAL_RECORDS = local.hub_local_records
-    REDIRECTED_HOSTS     = local.hub_redirected_hosts
-    FORWARD_ZONES        = local.hub_forward_zones
-    TARGETS              = local.vm_script_targets
-    ACCESS_CONTROL_PREFIXES = concat(
-      local.private_prefixes,
-      ["127.0.0.0/8", "35.199.192.0/19", ]
-    )
-  }
-  proxy_crawler_vars = merge(local.base_crawler_vars, {
-    VNET_NAME   = module.hub.vnet.name
-    SUBNET_NAME = module.hub.subnets["PublicSubnet"].name
-    VM_NAME     = "${local.prefix}-${local.hub_proxy_hostname}"
-  })
-  proxy_crawler_files = {
-    "${local.init_dir}/crawler/app/crawler.sh"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/crawler.sh", local.proxy_crawler_vars) }
-    "${local.init_dir}/crawler/app/service_tags.py"  = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/service_tags.py", local.proxy_crawler_vars) }
-    "${local.init_dir}/crawler/app/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/requirements.txt", local.proxy_crawler_vars) }
-  }
-  hub_proxy_files = merge(
-    local.vm_init_files,
-    local.vm_startup_init_files,
-    local.proxy_crawler_files,
-    {
-      "${local.init_dir}/unbound/Dockerfile"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/Dockerfile", {}) }
-      "${local.init_dir}/unbound/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
-      "${local.init_dir}/unbound/setup-unbound.sh"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/setup-unbound.sh", local.hub_proxy_vars) }
-      "/etc/unbound/unbound.conf"                    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/unbound.conf", local.hub_proxy_vars) }
-
-      "${local.init_dir}/squid/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/docker-compose.yml", local.hub_proxy_vars) }
-      "${local.init_dir}/squid/setup-squid.sh"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/setup-squid.sh", local.hub_proxy_vars) }
-      "/etc/squid/blocked_sites"                   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/blocked_sites", local.hub_proxy_vars) }
-      "/etc/squid/squid.conf"                      = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/squid.conf", local.hub_proxy_vars) }
-    }
-  )
-  hub_local_records = [
-    { name = lower(local.hub_server1_fqdn), record = local.hub_server1_addr },
-    { name = lower(local.hub_server2_fqdn), record = local.hub_server2_addr },
-    { name = lower(local.hub_proxy_fqdn), record = local.hub_proxy_addr },
-  ]
-  hub_redirected_hosts = []
-  hub_forward_zones = [
-    { zone = ".", targets = [local.azuredns, ] },
-  ]
-}
-
-module "hub_proxy_init" {
+module "hub1_proxy_init" {
   source   = "../../modules/cloud-config-gen"
-  packages = ["docker.io", "docker-compose", ] #npm, "dnsutils", "net-tools",
-  files = merge(
-    local.vm_startup_init_files,
-    local.vm_startup_init_files,
-    local.hub_proxy_files,
-  )
+  packages = ["docker.io", "docker-compose", ]
+  files    = local.hub1_proxy_files
+
   run_commands = [
     "sysctl -w net.ipv4.ip_forward=1",
     "sysctl -w net.ipv4.conf.eth0.disable_xfrm=1",
@@ -82,28 +31,41 @@ module "hub_proxy_init" {
     ". ${local.init_dir}/squid/setup-squid.sh",
     "docker-compose -f ${local.init_dir}/unbound/docker-compose.yml up -d",
     "docker-compose -f ${local.init_dir}/squid/docker-compose.yml up -d",
-    "python3 -m venv ${local.init_dir}/crawler",
   ]
 }
 
-module "hub_proxy" {
+module "hub1_proxy" {
   source          = "../../modules/virtual-machine-linux"
   resource_group  = azurerm_resource_group.rg.name
-  name            = "${local.prefix}-${local.hub_proxy_hostname}"
-  computer_name   = local.hub_proxy_hostname
-  location        = local.hub_location
+  name            = "${local.prefix}-${local.hub1_proxy_hostname}"
+  computer_name   = local.hub1_proxy_hostname
+  location        = local.hub1_location
   storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(module.hub_proxy_init.cloud_config)
-  tags            = local.hub_tags
-
+  custom_data     = base64encode(module.hub1_proxy_init.cloud_config)
+  tags = merge(
+    local.hub1_tags,
+    local.hub1_crawler_vars,
+    {
+      VNET_NAME   = module.hub1.vnet.name
+      SUBNET_NAME = module.hub1.subnets["PublicSubnet"].name
+    }
+  )
   ip_forwarding_enabled = true
   interfaces = [
     {
-      name               = "${local.hub_prefix}proxy-nic"
-      subnet_id          = module.hub.subnets["PublicSubnet"].id
-      private_ip_address = local.hub_proxy_addr
+      name               = "${local.hub1_prefix}proxy-nic"
+      subnet_id          = module.hub1.subnets["PublicSubnet"].id
+      private_ip_address = local.hub1_proxy_addr
       create_public_ip   = true
     },
+  ]
+}
+
+resource "time_sleep" "hub1_proxy" {
+  create_duration = "5m"
+  depends_on = [
+    module.hub1,
+    module.hub1_proxy,
   ]
 }
 
@@ -112,14 +74,14 @@ module "hub_proxy" {
 ####################################################
 
 locals {
-  hub_proxy_output_files = {
-    "output/proxy-init.yaml"  = module.hub_proxy_init.cloud_config
-    "output/proxy-crawler.sh" = templatefile("../../scripts/init/crawler/app/crawler.sh", local.proxy_crawler_vars)
+  hub1_proxy_output_files = {
+    "output/proxy-init.yaml"  = module.hub1_proxy_init.cloud_config
+    "output/proxy-crawler.sh" = templatefile("../../scripts/init/crawler/app/crawler.sh", local.hub1_crawler_vars)
   }
 }
 
-resource "local_file" "hub_proxy_output_files" {
-  for_each = local.hub_proxy_output_files
+resource "local_file" "hub1_proxy_output_files" {
+  for_each = local.hub1_proxy_output_files
   filename = each.key
   content  = each.value
 }

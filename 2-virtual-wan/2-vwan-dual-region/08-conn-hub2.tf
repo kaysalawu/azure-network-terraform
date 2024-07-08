@@ -48,9 +48,7 @@ module "spoke5_udr_main" {
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.spoke5_prefix}main"
   location       = local.spoke5_location
-  subnet_ids = [
-    module.spoke5.subnets["MainSubnet"].id,
-  ]
+  subnet_ids     = [module.spoke5.subnets["MainSubnet"].id, ]
   routes = [for r in local.spoke5_udr_main_routes : {
     name                   = r.name
     address_prefix         = r.address_prefix
@@ -80,9 +78,7 @@ module "hub2_udr_main" {
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.hub2_prefix}main"
   location       = local.hub2_location
-  subnet_ids = [
-    module.hub2.subnets["MainSubnet"].id,
-  ]
+  subnet_ids     = [module.hub2.subnets["MainSubnet"].id, ]
   routes = [for r in local.hub2_udr_main_routes : {
     name                   = r.name
     address_prefix         = r.address_prefix

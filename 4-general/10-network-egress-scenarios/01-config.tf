@@ -59,7 +59,9 @@ locals {
     "192.168.0.0/16",
     "100.64.0.0/10",
   ]
-  private_prefixes_map = { for i, prefix in local.private_prefixes : i => prefix }
+  private_prefixes_v6 = [
+    "fd00::/8",
+  ]
 
   service_tags = [
     "AzureActiveDirectory",
@@ -72,7 +74,7 @@ locals {
     "Storage",
   ]
 
-  service_endpoints = local.enable_service_endpoints ? [
+  service_endpoints = [
     "Microsoft.Storage",
     # "Microsoft.Storage.Global",
     # "Microsoft.KeyVault",
@@ -84,30 +86,30 @@ locals {
     # "Microsoft.CognitiveServices",
     # "Microsoft.ContainerRegistry",
     # "Microsoft.AzureCosmosDB",
-  ] : []
+  ]
 }
 
 # hub
 #----------------------------
 
 locals {
-  hub_prefix        = local.prefix == "" ? "hub-" : join("-", [local.prefix, "hub-"])
-  hub_location      = local.region1
-  hub_address_space = ["10.0.0.0/21"]
-  hub_dns_zone      = local.region1_dns_zone
-  hub_subnets = {
+  hub1_prefix        = local.prefix == "" ? "hub1-" : join("-", [local.prefix, "hub1-"])
+  hub1_location      = local.region1
+  hub1_address_space = ["10.0.0.0/21"]
+  hub1_dns_zone      = local.region1_dns_zone
+  hub1_subnets = {
     ("GatewaySubnet")    = { address_prefixes = ["10.0.0.0/24"], default_outbound_access = [true] }
     ("AppGatewaySubnet") = { address_prefixes = ["10.0.1.0/24"], default_outbound_access = [true] }
     ("PublicSubnet")     = { address_prefixes = ["10.0.2.0/24"], default_outbound_access = [true], service_endpoints = [], }
     ("ProductionSubnet") = { address_prefixes = ["10.0.3.0/24"], default_outbound_access = [false], service_endpoints = local.service_endpoints, use_azapi = [true] }
   }
-  hub_proxy_addr       = cidrhost(local.hub_subnets["PublicSubnet"].address_prefixes[0], 4)
-  hub_server1_addr     = cidrhost(local.hub_subnets["ProductionSubnet"].address_prefixes[0], 4)
-  hub_server2_addr     = cidrhost(local.hub_subnets["ProductionSubnet"].address_prefixes[0], 5)
-  hub_proxy_hostname   = "Proxy"
-  hub_server1_hostname = "Server1"
-  hub_server2_hostname = "Server2"
-  hub_proxy_fqdn       = "${local.hub_proxy_hostname}.${local.hub_dns_zone}"
-  hub_server1_fqdn     = "${local.hub_server1_hostname}.${local.hub_dns_zone}"
-  hub_server2_fqdn     = "${local.hub_server2_hostname}.${local.hub_dns_zone}"
+  hub1_proxy_addr       = cidrhost(local.hub1_subnets["PublicSubnet"].address_prefixes[0], 4)
+  hub1_server1_addr     = cidrhost(local.hub1_subnets["ProductionSubnet"].address_prefixes[0], 4)
+  hub1_server2_addr     = cidrhost(local.hub1_subnets["ProductionSubnet"].address_prefixes[0], 5)
+  hub1_proxy_hostname   = "Proxy"
+  hub1_server1_hostname = "Server1"
+  hub1_server2_hostname = "Server2"
+  hub1_proxy_fqdn       = "${local.hub1_proxy_hostname}.${local.hub1_dns_zone}"
+  hub1_server1_fqdn     = "${local.hub1_server1_hostname}.${local.hub1_dns_zone}"
+  hub1_server2_fqdn     = "${local.hub1_server2_hostname}.${local.hub1_dns_zone}"
 }

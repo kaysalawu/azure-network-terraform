@@ -24,11 +24,11 @@ module "spoke4" {
   storage_account = module.common.storage_accounts["region2"]
   tags            = local.spoke4_tags
 
-  enable_diagnostics             = local.enable_diagnostics
-  enable_ipv6                    = local.enable_ipv6
-  log_analytics_workspace_name   = module.common.log_analytics_workspaces["region2"].name
-  network_watcher_name           = "NetworkWatcher_${local.region2}"
-  network_watcher_resource_group = "NetworkWatcherRG"
+  enable_diagnostics                  = local.enable_diagnostics
+  enable_ipv6                         = local.enable_ipv6
+  log_analytics_workspace_name        = module.common.log_analytics_workspaces["region2"].name
+  network_watcher_name                = "NetworkWatcher_${local.region2}"
+  network_watcher_resource_group_name = "NetworkWatcherRG"
 
   dns_zones_linked_to_vnet = [
     { name = module.common.private_dns_zones[local.region2_dns_zone].name, registration_enabled = true },
@@ -110,11 +110,11 @@ module "spoke5" {
   storage_account = module.common.storage_accounts["region2"]
   tags            = local.spoke5_tags
 
-  enable_diagnostics             = local.enable_diagnostics
-  enable_ipv6                    = local.enable_ipv6
-  log_analytics_workspace_name   = module.common.log_analytics_workspaces["region2"].name
-  network_watcher_name           = "NetworkWatcher_${local.region2}"
-  network_watcher_resource_group = "NetworkWatcherRG"
+  enable_diagnostics                  = local.enable_diagnostics
+  enable_ipv6                         = local.enable_ipv6
+  log_analytics_workspace_name        = module.common.log_analytics_workspaces["region2"].name
+  network_watcher_name                = "NetworkWatcher_${local.region2}"
+  network_watcher_resource_group_name = "NetworkWatcherRG"
 
   dns_zones_linked_to_vnet = [
     { name = module.common.private_dns_zones[local.region2_dns_zone].name, registration_enabled = true },
@@ -196,11 +196,11 @@ module "spoke6" {
   storage_account = module.common.storage_accounts["region2"]
   tags            = local.spoke6_tags
 
-  enable_diagnostics             = local.enable_diagnostics
-  enable_ipv6                    = local.enable_ipv6
-  log_analytics_workspace_name   = module.common.log_analytics_workspaces["region2"].name
-  network_watcher_name           = "NetworkWatcher_${local.region2}"
-  network_watcher_resource_group = "NetworkWatcherRG"
+  enable_diagnostics                  = local.enable_diagnostics
+  enable_ipv6                         = local.enable_ipv6
+  log_analytics_workspace_name        = module.common.log_analytics_workspaces["region2"].name
+  network_watcher_name                = "NetworkWatcher_${local.region2}"
+  network_watcher_resource_group_name = "NetworkWatcherRG"
 
   dns_zones_linked_to_vnet = [
     { name = module.common.private_dns_zones[local.region2_dns_zone].name, registration_enabled = true },

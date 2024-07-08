@@ -83,18 +83,15 @@ locals {
   region1_default_udr_destinations = [
     { name = "default-region1", address_prefix = ["0.0.0.0/0"], next_hop_ip = module.hub1.firewall_private_ip },
   ]
-  spoke1_udr_main_routes = concat(
-    local.region1_default_udr_destinations, [
-      { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
+  spoke1_udr_main_routes = concat(local.region1_default_udr_destinations, [
+    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
   ])
-  spoke2_udr_main_routes = concat(
-    local.region1_default_udr_destinations, [
-      { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
+  spoke2_udr_main_routes = concat(local.region1_default_udr_destinations, [
+    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
   ])
-  hub1_udr_main_routes = concat(
-    local.region1_default_udr_destinations, [
-      { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
-      { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
+  hub1_udr_main_routes = concat(local.region1_default_udr_destinations, [
+    { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
+    { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
   ])
   hub1_gateway_udr_destinations = [
     { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
@@ -110,18 +107,15 @@ locals {
   region2_default_udr_destinations = [
     { name = "default-region2", address_prefix = ["0.0.0.0/0"], next_hop_ip = module.hub2.firewall_private_ip },
   ]
-  spoke4_udr_main_routes = concat(
-    local.region2_default_udr_destinations, [
-      { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = module.hub2.firewall_private_ip },
+  spoke4_udr_main_routes = concat(local.region2_default_udr_destinations, [
+    { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = module.hub2.firewall_private_ip },
   ])
-  spoke5_udr_main_routes = concat(
-    local.region2_default_udr_destinations, [
-      { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = module.hub2.firewall_private_ip },
+  spoke5_udr_main_routes = concat(local.region2_default_udr_destinations, [
+    { name = "hub2", address_prefix = [local.hub2_address_space.0, ], next_hop_ip = module.hub2.firewall_private_ip },
   ])
-  hub2_udr_main_routes = concat(
-    local.region2_default_udr_destinations, [
-      { name = "spoke4", address_prefix = [local.spoke4_address_space.0, ], next_hop_ip = module.hub2.firewall_private_ip },
-      { name = "spoke5", address_prefix = [local.spoke5_address_space.0, ], next_hop_ip = module.hub2.firewall_private_ip },
+  hub2_udr_main_routes = concat(local.region2_default_udr_destinations, [
+    { name = "spoke4", address_prefix = [local.spoke4_address_space.0, ], next_hop_ip = module.hub2.firewall_private_ip },
+    { name = "spoke5", address_prefix = [local.spoke5_address_space.0, ], next_hop_ip = module.hub2.firewall_private_ip },
   ])
   hub2_gateway_udr_destinations = [
     { name = "spoke4", address_prefix = [local.spoke4_address_space.0, ], next_hop_ip = module.hub2.firewall_private_ip },

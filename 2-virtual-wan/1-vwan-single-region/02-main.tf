@@ -76,17 +76,15 @@ locals {
     { name = "default-region1", address_prefix = ["0.0.0.0/0"], next_hop_ip = local.hub1_nva_ilb_trust_addr },
     { name = "defaultv6-region1", address_prefix = ["::/0"], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 }
   ]
-  spoke2_udr_main_routes = concat(
-    local.region1_default_udr_destinations, [
-      { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-      { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+  spoke2_udr_main_routes = concat(local.region1_default_udr_destinations, [
+    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
   ])
-  hub1_udr_main_routes = concat(
-    local.region1_default_udr_destinations, [
-      { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-      { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-      { name = "spoke1v6", address_prefix = [local.spoke1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
-      { name = "spoke2v6", address_prefix = [local.spoke2_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+  hub1_udr_main_routes = concat(local.region1_default_udr_destinations, [
+    { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "spoke1v6", address_prefix = [local.spoke1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "spoke2v6", address_prefix = [local.spoke2_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
   ])
 
   firewall_sku = "Basic"

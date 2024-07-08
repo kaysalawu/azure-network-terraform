@@ -48,7 +48,7 @@ module "spoke1_udr_main" {
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.spoke1_prefix}main"
   location       = local.spoke1_location
-  subnet_id      = module.spoke1.subnets["MainSubnet"].id
+  subnet_ids     = [module.spoke1.subnets["MainSubnet"].id, ]
   routes = [for r in local.spoke1_udr_main_routes : {
     name                   = r.name
     address_prefix         = r.address_prefix
@@ -116,7 +116,7 @@ module "spoke2_udr_main" {
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.spoke2_prefix}main"
   location       = local.spoke2_location
-  subnet_id      = module.spoke2.subnets["MainSubnet"].id
+  subnet_ids     = [module.spoke2.subnets["MainSubnet"].id, ]
   routes = [for r in local.spoke2_udr_main_routes : {
     name                   = r.name
     address_prefix         = r.address_prefix
@@ -145,7 +145,7 @@ module "hub1_gateway_udr" {
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.hub1_prefix}gateway"
   location       = local.hub1_location
-  subnet_id      = module.hub1.subnets["GatewaySubnet"].id
+  subnet_ids     = [module.hub1.subnets["GatewaySubnet"].id, ]
   routes = [for r in local.hub1_gateway_udr_destinations : {
     name                   = r.name
     address_prefix         = r.address_prefix
@@ -165,7 +165,7 @@ module "hub1_udr_main" {
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.hub1_prefix}main"
   location       = local.hub1_location
-  subnet_id      = module.hub1.subnets["MainSubnet"].id
+  subnet_ids     = [module.hub1.subnets["MainSubnet"].id, ]
   routes = [for r in local.hub1_udr_main_routes : {
     name                   = r.name
     address_prefix         = r.address_prefix

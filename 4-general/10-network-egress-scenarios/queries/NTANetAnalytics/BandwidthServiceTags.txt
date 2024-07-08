@@ -1,0 +1,23 @@
+NTAIpDetails
+| distinct FlowType, PublicIpDetails, Location
+
+NTANetAnalytics
+| where TimeGenerated > ago(60d)
+| summarize TotalBytes = sum(BytesDestToSrc + BytesSrcToDest) by SrcIp, DestIp
+| extend TotalGBytes = round(toreal(TotalBytes) / (1024*1024*1024), 4)
+
+
+NTANetAnalytics
+//| where DestIp == ""
+| order by BytesSrcToDest desc
+| extend BytesSrcToDestGb = round(toreal(BytesSrcToDest) / (1024*1024*1024), 4)
+| distinct  DestPublicIps
+
+NTANetAnalytics
+| order by TimeGenerated desc
+| distinct SrcPublicIps
+| extend t = split(SrcPublicIps, " ")[0]
+| join NTAIpDetails  on $left.DestIp == $right.Ip
+
+NTAIpDetails
+| where Ip =="167.94.138.157"

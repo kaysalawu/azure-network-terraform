@@ -148,7 +148,7 @@ resource "azurerm_subnet_network_security_group_association" "this_azapi" {
 
 resource "azurerm_network_watcher_flow_log" "nsg" {
   count                = length(var.flow_log_nsg_ids)
-  resource_group_name  = var.network_watcher_resource_group
+  resource_group_name  = var.network_watcher_resource_group_name
   network_watcher_name = var.network_watcher_name
   name                 = "${local.prefix}flowlog-${count.index}"
 
@@ -177,7 +177,7 @@ resource "azurerm_network_watcher_flow_log" "nsg" {
 resource "azapi_resource" "vnet_flow_log" {
   count = (
     !var.config_vnet.enable_vnet_flow_logs ||
-    var.network_watcher_resource_group == null ||
+    var.network_watcher_resource_group_name == null ||
     var.network_watcher_name == null ? 0 : 1
   )
   type      = "Microsoft.Network/networkWatchers/flowLogs@2022-09-01"
@@ -198,7 +198,7 @@ resource "azapi_resource" "vnet_flow_log" {
         networkWatcherFlowAnalyticsConfiguration = {
           enabled                  = true
           workspaceResourceId      = data.azurerm_log_analytics_workspace.this[0].id
-          trafficAnalyticsInterval = 60
+          trafficAnalyticsInterval = 10
         }
       }
       retentionPolicy = {

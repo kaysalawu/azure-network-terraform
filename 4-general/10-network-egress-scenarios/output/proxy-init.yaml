@@ -73,43 +73,68 @@ write_files:
       color_red=$(tput setaf 1)
       reset=$(tput sgr0)
       
-      export ETH0_IP=$(hostname -I | awk '{print $1}')
       echo -e "\nExtracting az token..."
-      export TOKEN=$(timeout 5 az account get-access-token --query accessToken -o tsv 2>/dev/null)
+      export TOKEN=$(timeout 10 az account get-access-token --query accessToken -o tsv 2>/dev/null)
+      
+      echo -e "Extracting metadata information ..."
+      metadata=$(curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance?api-version=2021-02-01")
+      
+      # metadata
+      RESOURCE_GROUP=$(echo $metadata | jq -r '.compute.resourceGroupName')
+      LOCATION=$(echo $metadata | jq -r '.compute.location')
+      VM_NAME=$(echo $metadata | jq -r '.compute.name')
+      SUBNET_CIDR=$(echo $metadata | jq -r '.network.interface[0].ipv4.subnet[0] | "\(.address)/\(.prefix)"')
+      VM_ADRR=$(echo $metadata | jq -r '.network.interface[0].ipv4.ipAddress[0].privateIpAddress')
+      
+      # custom metadata
+      SUBNET_NAME=$(echo $metadata | jq -r '.compute.tagsList[] | select(.name == "SUBNET_NAME") | .value')
+      VNET_NAME=$(echo $metadata | jq -r '.compute.tagsList[] | select(.name == "VNET_NAME") | .value')
+      MANAGEMENT_URL=$(echo $metadata | jq -r '.compute.tagsList[] | select(.name == "MANAGEMENT_URL") | .value')
+      STORAGE_ACCOUNT_NAME=$(echo $metadata | jq -r '.compute.tagsList[] | select(.name == "STORAGE_ACCOUNT_NAME") | .value')
+      STORAGE_CONTAINER_NAME=$(echo $metadata | jq -r '.compute.tagsList[] | select(.name == "STORAGE_CONTAINER_NAME") | .value')
+      STORAGE_BLOB_URL=$(echo $metadata | jq -r '.compute.tagsList[] | select(.name == "STORAGE_BLOB_URL") | .value')
+      STORAGE_BLOB_NAME=$(echo $metadata | jq -r '.compute.tagsList[] | select(.name == "STORAGE_BLOB_NAME") | .value')
+      STORAGE_BLOB_CONTENT=$(echo $metadata | jq -r '.compute.tagsList[] | select(.name == "STORAGE_BLOB_CONTENT") | .value')
+      KEY_VAULT_NAME=$(echo $metadata | jq -r '.compute.tagsList[] | select(.name == "KEY_VAULT_NAME") | .value')
+      KEY_VAULT_SECRET_NAME=$(echo $metadata | jq -r '.compute.tagsList[] | select(.name == "KEY_VAULT_SECRET_NAME") | .value')
+      KEY_VAULT_SECRET_URL=$(echo $metadata | jq -r '.compute.tagsList[] | select(.name == "KEY_VAULT_SECRET_URL") | .value')
+      KEY_VAULT_SECRET_VALUE=$(echo $metadata | jq -r '.compute.tagsList[] | select(.name == "KEY_VAULT_SECRET_VALUE") | .value')
       
       download_json_file() {
-          local url="https://www.microsoft.com/en-us/download/details.aspx?id=56519"
-          local json_url=$(curl -s "$url" | grep -oP '(?<=href=")[^"]*\.json' | head -n 1)
-          if [ -n "$json_url" ]; then
-              if [[ ! "$json_url" =~ ^http ]]; then
-                  json_url="https://www.microsoft.com$json_url"
-              fi
-              curl -o service_tags.json "$json_url"
-              echo "JSON file downloaded as service_tags.json"
-          else
-              echo "JSON file not found on the page."
+        local url="https://www.microsoft.com/en-us/download/details.aspx?id=56519"
+        echo "Downloading Service tags JSON file from $url ..."
+        local json_url=$(curl -s "$url" | grep -oP '(?<=href=")[^"]*\.json' | head -n 1)
+        if [ -n "$json_url" ]; then
+          if [[ ! "$json_url" =~ ^http ]]; then
+            json_url="https://www.microsoft.com$json_url"
           fi
+          curl -s -o service_tags.json "$json_url"
+          echo "JSON file downloaded as service_tags.json"
+        else
+          echo "JSON file not found on the page."
+        fi
       }
       
-      echo -e "Downloading service tags JSON..."
       if [ ! -f service_tags.json ]; then
-          download_json_file
+        download_json_file
       else
-          echo "service_tags.json already exists."
+        echo "service_tags.json already exists."
       fi
       
-      echo -e "\n-------------------------------------"
+      echo -e "\n-------------------------------------------"
       echo -e "Environment"
-      echo -e "-------------------------------------"
-      echo "VM Name:        Lab10-Proxy"
-      echo "Resource Group: Lab10_NetworkEgress_RG"
-      echo "Location:       northeurope"
-      echo "VNET Name:      Lab10-hub-vnet"
-      echo "Subnet Name:    PublicSubnet"
-      echo "Private IP:     $ETH0_IP"
-      echo -e "-------------------------------------"
+      echo -e "-------------------------------------------"
+      echo "VM Name:        $VM_NAME"
+      echo "Subnet Name:    $SUBNET_NAME"
+      echo "Subnet CIDR:    $SUBNET_CIDR"
+      echo "Private IP:     $VM_ADRR"
+      echo "VNET Name:      $VNET_NAME"
+      echo "Location:       $LOCATION"
+      echo -e "-------------------------------------------"
       
       declare -a PUBLIC_ADDRESS_TYPE
+      declare -a PUBLIC_ADDRESS
+      declare -a SERVICE_ENDPOINT_STATUS
       declare -a SERVICE_ENDPOINTS
       declare -a PRIVATE_SUBNET
       declare -a INTERNET_ACCESS
@@ -140,39 +165,27 @@ write_files:
         echo -e "\n1. Check Public Address Type"
         #####################################################
         local internet_url="http://ifconfig.me/ip"
-        local public_ip=$(timeout 5 curl -s $internet_url)
-        echo -e "   Local IP:\t$ETH0_IP"
+        local public_ip=$(timeout 10 curl -s $internet_url)
+        echo -e "   Local IP:\t$VM_ADRR"
         echo -e "   Public IP:\t$public_ip"
       
-        ips=$(timeout 5 az network public-ip list -g Lab10_NetworkEgress_RG --query "[].{ip:ipAddress, name:name, id:id}" -o tsv 2>/dev/null)
+        ips=$(timeout 10 az network public-ip list -g $RESOURCE_GROUP --query "[].{ip:ipAddress, name:name, id:id}" -o tsv)
         local found=0
         while IFS= read -r line; do
-            ip=$(echo $line | awk '{print $1}')
-            name=$(echo $line | awk '{print $2}')
-            id=$(echo $line | awk '{print $3}')
+          ip=$(echo $line | awk '{print $1}')
+          name=$(echo $line | awk '{print $2}')
+          id=$(echo $line | awk '{print $3}')
       
-            if [[ "$ip" == "$public_ip" ]]; then
-                if [[ $name == *"snat-feip-pip"* ]]; then
-                    echo -e "   Address type: SnatIP"
-                    PUBLIC_ADDRESS_TYPE=("SnatIP")
-                elif [[ $name == *"natgw-pip"* ]]; then
-                    echo -e "   Address type: NatGw"
-                    PUBLIC_ADDRESS_TYPE=("NatGw")
-                elif [[ $name == *"nic-pip"* ]]; then
-                    echo -e "   Address type: VmPublicIp"
-                    PUBLIC_ADDRESS_TYPE=("VmPublicIp")
-                else
-                    echo -e "   Address type: None"
-                    PUBLIC_ADDRESS_TYPE=("None")
-                fi
-                found=1
-                break
-            fi
-        done <<< "$ips"
+          if [[ "$ip" == "$public_ip" ]]; then
+            PUBLIC_ADDRESS="$name"
+            found=1
+            break
+          fi
+        done <<<"$ips"
       
         if [[ $found -eq 0 ]]; then
-            PUBLIC_ADDRESS_TYPE=("None")
-            echo -e "   NAT_IP type:\tNone"
+          PUBLIC_ADDRESS_TYPE=("None")
+          echo -e "   NAT_IP type:\tNone"
         fi
       }
       
@@ -181,17 +194,18 @@ write_files:
         #####################################################
         echo -e "\n2. Check Service Endpoints"
         #####################################################
-        echo -e "   Subnet --> PublicSubnet"
-        if ! service_endpoints=$(timeout 5 az network vnet subnet show -g Lab10_NetworkEgress_RG --vnet-name Lab10-hub-vnet --name "PublicSubnet" --query "serviceEndpoints[].service" -o tsv 2>/dev/null); then
-        echo -e "   Service Endpoint: Timed out!"
-        SERVICE_ENDPOINTS=("Timed out!")
+        echo -e "   Subnet --> $SUBNET_NAME"
+        if ! service_endpoints=$(timeout 10 az network vnet subnet show -g $RESOURCE_GROUP --vnet-name $VNET_NAME --name "$SUBNET_NAME" --query "serviceEndpoints[].service" -o tsv 2>/dev/null); then
+          echo -e "   Service Endpoint: Timed out!"
+          SERVICE_ENDPOINT_STATUS=("Timed out!")
         elif [ -z "$service_endpoints" ]; then
           echo -e "   Service Endpoint: Disabled"
-          SERVICE_ENDPOINTS=("Disabled")
+          SERVICE_ENDPOINT_STATUS=("Disabled")
         else
-          echo -e "   Service Endpoint: Enabled"
-          echo "$service_endpoints" | tr '\t' '\n' | awk '{print "   - " $0}'
-          SERVICE_ENDPOINTS=("Enabled")
+          endpoints=$(echo "$service_endpoints" | tr '\t' ', ')
+          echo -e "   Service Endpoint: Enabled ($endpoints)"
+          SERVICE_ENDPOINT_STATUS=("Enabled")
+          SERVICE_ENDPOINTS=($service_endpoints)
         fi
       }
       
@@ -199,8 +213,8 @@ write_files:
         #####################################################
         echo -e "\n3. Check Private Subnet"
         #####################################################
-        echo -e "   Subnet --> PublicSubnet"
-        if ! default_outbound_access=$(timeout 5 az network vnet subnet list --resource-group Lab10_NetworkEgress_RG --vnet-name Lab10-hub-vnet --query "[?name=='PublicSubnet'].defaultOutboundAccess" -o tsv 2>/dev/null); then
+        echo -e "   Subnet --> $SUBNET_NAME"
+        if ! default_outbound_access=$(timeout 10 az network vnet subnet list --resource-group $RESOURCE_GROUP --vnet-name $VNET_NAME --query "[?name=='$SUBNET_NAME'].defaultOutboundAccess" -o tsv 2>/dev/null); then
           echo -e "   DefaultOutbound: Timed out!"
           default_outbound_access="Timed out!"
         fi
@@ -225,7 +239,7 @@ write_files:
         #####################################################
         url="https://ifconfig.me"
         echo "   curl $url"
-        if ! internet_access_code=$(timeout 5 curl -o /dev/null -s -w "%{http_code}\n" $url); then
+        if ! internet_access_code=$(timeout 10 curl -o /dev/null -s -w "%{http_code}\n" $url); then
           echo -e "   Internet Access: Timed out!"
           INTERNET_ACCESS="Timed out!"
         elif [[ "$internet_access_code" =~ ^2 ]] || [[ "$internet_access_code" =~ ^3 ]]; then
@@ -241,14 +255,14 @@ write_files:
         #####################################################
         echo -e "\n5. Management (Control Plane)"
         #####################################################
-        local host=$(echo https://management.azure.com/subscriptions?api-version=2020-01-01 | awk -F/ '{print $3}')
-        echo -e "   url = https://management.azure.com/subscriptions?api-version=2020-01-01"
+        local host=$(echo $MANAGEMENT_URL | awk -F/ '{print $3}')
+        echo -e "   url = $MANAGEMENT_URL"
         echo -e "   host = $host"
         resolve_dns $host 2>/dev/null
         get_azure_service_tag_from_host $host 2>/dev/null
       
-        echo -e "   curl -H "Authorization : Bearer TOKEN" https://management.azure.com/subscriptions?api-version=2020-01-01"
-        if ! management_access_code=$(timeout 5 curl -o /dev/null -s -w "%{http_code}\n" -H "Authorization : Bearer $TOKEN" https://management.azure.com/subscriptions?api-version=2020-01-01); then
+        echo -e "   curl -H "Authorization : Bearer TOKEN" $MANAGEMENT_URL"
+        if ! management_access_code=$(timeout 10 curl -o /dev/null -s -w "%{http_code}\n" -H "Authorization : Bearer $TOKEN" $MANAGEMENT_URL); then
           echo -e "   Management Access: Timed out!"
           MANAGEMENT_ACCESS="Timed out!"
         elif [[ "$management_access_code" =~ ^2 ]] || [[ "$management_access_code" =~ ^3 ]]; then
@@ -264,30 +278,30 @@ write_files:
         #####################################################
         echo -e "\n6. Blob (Data Plane)"
         #####################################################
-        local host=$(echo https://lab10hubd16a.blob.core.windows.net/storage/storage.txt | awk -F/ '{print $3}')
-        echo -e "   url = https://lab10hubd16a.blob.core.windows.net/storage/storage.txt"
+        local host=$(echo $STORAGE_BLOB_URL | awk -F/ '{print $3}')
+        echo -e "   url = $STORAGE_BLOB_URL"
         echo -e "   host = $host"
         resolve_dns $host 2>/dev/null
         get_azure_service_tag_from_host $host 2>/dev/null
         storage_account_key=""
         storage_access_token=""
         blob_access=""
-        echo -e "   az storage account keys list -g Lab10_NetworkEgress_RG --account-name lab10hubd16a"
-        if storage_account_key=$(timeout 5 az storage account keys list -g Lab10_NetworkEgress_RG --account-name lab10hubd16a --query "[0].value" -o tsv 2>/dev/null); then
-          echo "   az storage blob download --account-name lab10hubd16a -c storage -n storage.txt --account-key <KEY>"
-          blob_access=$(timeout 5 az storage blob download --account-name lab10hubd16a -c storage -n storage.txt --account-key $storage_account_key --query content -o tsv 2>/dev/null)
+        echo -e "   az storage account keys list -g $RESOURCE_GROUP --account-name $STORAGE_ACCOUNT_NAME"
+        if storage_account_key=$(timeout 10 az storage account keys list -g $RESOURCE_GROUP --account-name $STORAGE_ACCOUNT_NAME --query "[0].value" -o tsv 2>/dev/null); then
+          echo "   az storage blob download --account-name $STORAGE_ACCOUNT_NAME -c $STORAGE_CONTAINER_NAME -n $STORAGE_BLOB_NAME --account-key <KEY>"
+          blob_access=$(timeout 10 az storage blob download --account-name $STORAGE_ACCOUNT_NAME -c $STORAGE_CONTAINER_NAME -n $STORAGE_BLOB_NAME --account-key $storage_account_key --query content -o tsv 2>/dev/null)
         else
           echo -e "   Storage account key: timed out!"
           echo -e "   Fallback: Get access token for storage.azure.com via metadata ..."
-          if ! storage_access_token=$(timeout 5 curl -H Metadata:true "http://169.254.169.254:80/metadata/identity/oauth2/token?resource=https%3A%2F%2Fstorage.azure.com&api-version=2018-02-01" -s | jq -r .access_token); then
+          if ! storage_access_token=$(timeout 10 curl -H Metadata:true "http://169.254.169.254:80/metadata/identity/oauth2/token?resource=https%3A%2F%2Fstorage.azure.com&api-version=2018-02-01" -s | jq -r .access_token); then
             echo -e "   Storage access token: timed out!"
           else
-            echo "   curl https://lab10hubd16a.blob.core.windows.net/storage/storage.txt ..."
-            blob_access=$(timeout 5 curl -s -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "x-ms-version: 2019-02-02" -H "Authorization: Bearer $storage_access_token" "https://lab10hubd16a.blob.core.windows.net/storage/storage.txt")
+            echo "   curl https://$STORAGE_ACCOUNT_NAME.blob.core.windows.net/$STORAGE_CONTAINER_NAME/$STORAGE_BLOB_NAME ..."
+            blob_access=$(timeout 10 curl -s -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "x-ms-version: 2019-02-02" -H "Authorization: Bearer $storage_access_token" "https://$STORAGE_ACCOUNT_NAME.blob.core.windows.net/$STORAGE_CONTAINER_NAME/$STORAGE_BLOB_NAME")
           fi
         fi
       
-        if [ "$blob_access" = "Hello, World!" ]; then
+        if [ "$blob_access" = "$STORAGE_BLOB_CONTENT" ]; then
           echo -e "   Content: $blob_access"
           echo -e "   Blob Dataplane: Pass"
           BLOB_ACCESS=Pass
@@ -301,55 +315,55 @@ write_files:
         #####################################################
         echo -e "\n7. KeyVault (Data Plane)"
         #####################################################
-        local host=$(echo https://lab10-hub-kvd16a.vault.azure.net/secrets/message | awk -F/ '{print $3}')
-        echo -e "   url: https://lab10-hub-kvd16a.vault.azure.net/secrets/message"
+        local host=$(echo $KEY_VAULT_SECRET_URL | awk -F/ '{print $3}')
+        echo -e "   url: $KEY_VAULT_SECRET_URL"
         echo -e "   host: $host"
         resolve_dns $host
         get_azure_service_tag_from_host $host 2>/dev/null
         secret_value=""
         vault_access_token=""
-        echo "   az keyvault secret show --vault-name lab10-hub-kvd16a --name message"
-        if ! secret_value=$(timeout 5 az keyvault secret show --vault-name lab10-hub-kvd16a --name message --query value -o tsv 2>/dev/null); then
-          echo -e "   message: timed out!"
+        echo "   az keyvault secret show --vault-name $KEY_VAULT_NAME --name $KEY_VAULT_SECRET_NAME"
+        if ! secret_value=$(timeout 10 az keyvault secret show --vault-name $KEY_VAULT_NAME --name $KEY_VAULT_SECRET_NAME --query value -o tsv 2>/dev/null); then
+          echo -e "   $KEY_VAULT_SECRET_NAME: timed out!"
           echo -e "   Fallback: Get access token for vault.azure.net via metadata ..."
-          if ! vault_access_token=$(timeout 5 curl -H Metadata:true "http://169.254.169.254/metadata/identity/oauth2/token?resource=https%3A%2F%2Fvault.azure.net&api-version=2018-02-01" -s | jq -r .access_token); then
+          if ! vault_access_token=$(timeout 10 curl -H Metadata:true "http://169.254.169.254/metadata/identity/oauth2/token?resource=https%3A%2F%2Fvault.azure.net&api-version=2018-02-01" -s | jq -r .access_token); then
             echo -e "   Vault token: timed out!"
           else
-            echo "curl https://lab10-hub-kvd16a.vault.azure.net/secrets/message?api-version=7.2"
-            secret_value=$(timeout 5 curl -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "Authorization : Bearer $vault_access_token" "https://lab10-hub-kvd16a.vault.azure.net/secrets/message?api-version=7.2" -o secret.txt 2>/dev/null)
+            echo "curl https://$KEY_VAULT_NAME.vault.azure.net/secrets/message?api-version=7.2"
+            secret_value=$(timeout 10 curl -H "Cache-Control: no-cache" -H "Pragma: no-cache" -H "Authorization : Bearer $vault_access_token" "https://$KEY_VAULT_NAME.vault.azure.net/secrets/message?api-version=7.2" -o secret.txt 2>/dev/null)
           fi
         fi
       
-        if [ "$secret_value" = "Hello, World!" ]; then
-          echo -e "   message: $secret_value"
+        if [ "$secret_value" = "$KEY_VAULT_SECRET_VALUE" ]; then
+          echo -e "   $KEY_VAULT_SECRET_NAME: $secret_value"
           echo -e "   Vault Dataplane: Pass"
           KEYVAULT_ACCESS=Pass
         else
-          echo -e "   message: not found!"
+          echo -e "   $KEY_VAULT_SECRET_NAME: not found!"
           echo -e "   Vault Dataplane: Fail"
           KEYVAULT_ACCESS=Fail
         fi
       }
       
       check_address_type
-      check_service_endpoints "PublicSubnet"
-      check_private_subnet "PublicSubnet"
+      check_service_endpoints "$SUBNET_NAME"
+      check_private_subnet "$SUBNET_NAME"
       check_internet_access
       check_management_access
       download_blob
       access_keyvault_secret
       
-      echo -e "\n-------------------------------------"
+      echo -e "\n-------------------------------------------"
       echo -e "Results"
-      echo -e "-------------------------------------"
-      echo -e "1. NAT IP Type: \t$PUBLIC_ADDRESS_TYPE"
-      echo -e "2. Service Endpoints: \t$SERVICE_ENDPOINTS"
+      echo -e "-------------------------------------------"
+      echo -e "1. Public IP: \t$PUBLIC_ADDRESS"
+      echo -e "2. Service Endpoints: \t$SERVICE_ENDPOINT_STATUS ($SERVICE_ENDPOINTS)"
       echo -e "3. Private Subnet: \t$PRIVATE_SUBNET"
       echo -e "4. Internet Access: \t$INTERNET_ACCESS"
       echo -e "5. Management Access: \t$MANAGEMENT_ACCESS"
       echo -e "6. Blob Dataplane: \t$BLOB_ACCESS"
       echo -e "7. KeyVault Dataplane: \t$KEYVAULT_ACCESS"
-      echo -e "-------------------------------------\n"
+      echo -e "-------------------------------------------\n"
       
   - path: /var/lib/azure/crawler/app/requirements.txt
     owner: root
@@ -554,6 +568,8 @@ write_files:
     content: |
       #! /bin/bash
       
+      exec > /var/log/azure-startup.log
+      
       apt update
       apt install -y python3-pip python3-dev python3-venv unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
       
@@ -568,6 +584,10 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/ping-ipv4
       echo -e "\n ping ipv4 ...\n"
+      echo "proxy    - 10.0.2.4 -$(timeout 3 ping -4 -qc2 -W1 10.0.2.4 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
+      echo "proxy    - 10.0.3.4 -$(timeout 3 ping -4 -qc2 -W1 10.0.3.4 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
+      echo "proxy    - 10.0.3.5 -$(timeout 3 ping -4 -qc2 -W1 10.0.3.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
+      echo "internet - icanhazip.com -$(timeout 3 ping -4 -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
       EOF
       chmod a+x /usr/local/bin/ping-ipv4
       
@@ -575,6 +595,10 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/ping-dns4
       echo -e "\n ping dns ipv4 ...\n"
+      echo "proxy.eu.az.corp - $(timeout 3 dig +short proxy.eu.az.corp | tail -n1) -$(timeout 3 ping -4 -qc2 -W1 proxy.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
+      echo "server1.eu.az.corp - $(timeout 3 dig +short server1.eu.az.corp | tail -n1) -$(timeout 3 ping -4 -qc2 -W1 server1.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
+      echo "server2.eu.az.corp - $(timeout 3 dig +short server2.eu.az.corp | tail -n1) -$(timeout 3 ping -4 -qc2 -W1 server2.eu.az.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
+      echo "icanhazip.com - $(timeout 3 dig +short icanhazip.com | tail -n1) -$(timeout 3 ping -4 -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
       EOF
       chmod a+x /usr/local/bin/ping-dns4
       
@@ -582,6 +606,10 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/curl-ipv4
       echo -e "\n curl ipv4 ...\n"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null [10.0.2.4]) - proxy    [10.0.2.4]"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null [10.0.3.4]) - proxy    [10.0.3.4]"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null [10.0.3.5]) - proxy    [10.0.3.5]"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null [icanhazip.com]) - internet [icanhazip.com]"
       EOF
       chmod a+x /usr/local/bin/curl-ipv4
       
@@ -589,7 +617,11 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/curl-dns4
       echo -e "\n curl dns ipv4 ...\n"
-      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null contoso.com) - contoso.com"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null proxy.eu.az.corp) - proxy.eu.az.corp"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null server1.eu.az.corp) - server1.eu.az.corp"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null server2.eu.az.corp) - server2.eu.az.corp"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://lab10hub10625.blob.core.windows.net/storage/storage.txt) - https://lab10hub10625.blob.core.windows.net/storage/storage.txt"
       EOF
       chmod a+x /usr/local/bin/curl-dns4
       
@@ -597,6 +629,18 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/trace-ipv4
       echo -e "\n trace ipv4 ...\n"
+      echo -e "\nproxy   "
+      echo -e "-------------------------------------"
+      timeout 9 tracepath -4 10.0.2.4
+      echo -e "\nproxy   "
+      echo -e "-------------------------------------"
+      timeout 9 tracepath -4 10.0.3.4
+      echo -e "\nproxy   "
+      echo -e "-------------------------------------"
+      timeout 9 tracepath -4 10.0.3.5
+      echo -e "\ninternet"
+      echo -e "-------------------------------------"
+      timeout 9 tracepath -4 icanhazip.com
       EOF
       chmod a+x /usr/local/bin/trace-ipv4
       
@@ -608,6 +652,7 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/ping-ipv6
       echo -e "\n ping ipv6 ...\n"
+      echo "internet - icanhazip.com -$(timeout 3 ping -6 -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
       EOF
       chmod a+x /usr/local/bin/ping-ipv6
       
@@ -615,6 +660,7 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/ping-dns6
       echo -e "\n ping dns ipv6 ...\n"
+      echo "icanhazip.com - $(timeout 3 dig AAAA +short icanhazip.com | tail -n1) -$(timeout 3 ping -6 -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
       EOF
       chmod a+x /usr/local/bin/ping-dns6
       
@@ -622,6 +668,7 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/curl-ipv6
       echo -e "\n curl ipv6 ...\n"
+      echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null [icanhazip.com]) - internet [icanhazip.com]"
       EOF
       chmod a+x /usr/local/bin/curl-ipv6
       
@@ -629,7 +676,11 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/curl-dns6
       echo -e "\n curl dns ipv6 ...\n"
-      echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null contoso.com) - contoso.com"
+      echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null proxy.eu.az.corp) - proxy.eu.az.corp"
+      echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null server1.eu.az.corp) - server1.eu.az.corp"
+      echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null server2.eu.az.corp) - server2.eu.az.corp"
+      echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
+      echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://lab10hub10625.blob.core.windows.net/storage/storage.txt) - https://lab10hub10625.blob.core.windows.net/storage/storage.txt"
       EOF
       chmod a+x /usr/local/bin/curl-dns6
       
@@ -637,6 +688,9 @@ write_files:
       
       cat <<'EOF' > /usr/local/bin/trace-ipv6
       echo -e "\n trace ipv6 ...\n"
+      echo -e "\ninternet"
+      echo -e "-------------------------------------"
+      timeout 9 tracepath -6 icanhazip.com
       EOF
       chmod a+x /usr/local/bin/trace-ipv6
       
@@ -665,9 +719,29 @@ write_files:
       
       # light-traffic generator
       
+      cat <<'EOF' > /usr/local/bin/light-traffic
+      nping -c 5 --tcp-connect -p 80,8080 proxy.eu.az.corp > /dev/null 2>&1
+      nping -c 5 --tcp-connect -p 80,8080 server1.eu.az.corp > /dev/null 2>&1
+      nping -c 5 --tcp-connect -p 80,8080 server2.eu.az.corp > /dev/null 2>&1
+      nping -c 5 --tcp-connect -p 80,8080 https://lab10hub10625.blob.core.windows.net/storage/storage.txt > /dev/null 2>&1
+      EOF
+      chmod a+x /usr/local/bin/light-traffic
       
       # heavy-traffic generator
       
+      cat <<'EOF' > /usr/local/bin/heavy-traffic
+      #! /bin/bash
+      i=0
+      while [ $i -lt 5 ]; do
+          ab -n $1 -c $2 proxy.eu.az.corp > /dev/null 2>&1
+          ab -n $1 -c $2 server1.eu.az.corp > /dev/null 2>&1
+          ab -n $1 -c $2 server2.eu.az.corp > /dev/null 2>&1
+          ab -n $1 -c $2 https://lab10hub10625.blob.core.windows.net/storage/storage.txt > /dev/null 2>&1
+          let i=i+1
+        sleep 5
+      done
+      EOF
+      chmod a+x /usr/local/bin/heavy-traffic
       
       ########################################################
       # traffic generators (ipv6)
@@ -675,15 +749,78 @@ write_files:
       
       # light-traffic generator
       
+      cat <<'EOF' > /usr/local/bin/light-traffic-ipv6
+      nping -c 5 -6 --tcp-connect -p 80,8080 proxy.eu.az.corp > /dev/null 2>&1
+      nping -c 5 -6 --tcp-connect -p 80,8080 server1.eu.az.corp > /dev/null 2>&1
+      nping -c 5 -6 --tcp-connect -p 80,8080 server2.eu.az.corp > /dev/null 2>&1
+      nping -c 5 -6 --tcp-connect -p 80,8080 https://lab10hub10625.blob.core.windows.net/storage/storage.txt > /dev/null 2>&1
+      EOF
+      chmod a+x /usr/local/bin/light-traffic-ipv6
       
       # heavy-traffic generator
       
+      cat <<'EOF' > /usr/local/bin/heavy-traffic-ipv6
+      #! /bin/bash
+      
+      get_ipv6() {
+        ipv6=$(host -t AAAA $1 | awk '/has IPv6 address/ {print $5}')
+        if [ -z "$ipv6" ]; then
+          echo $1
+        else
+          echo $ipv6
+        fi
+      }
+      
+      i=0
+      while [ $i -lt 8 ]; do
+          ab -s 3 -n $1 -c $2 [$(get_ipv6 proxy.eu.az.corp)]/ > /dev/null 2>&1
+        # check if ab command was successful
+        if [ $? -ne 0 ]; then
+          echo "target: proxy.eu.az.corp failed"
+          exit 1
+        else
+          echo "target: proxy.eu.az.corp passed"
+        fi
+          ab -s 3 -n $1 -c $2 [$(get_ipv6 server1.eu.az.corp)]/ > /dev/null 2>&1
+        # check if ab command was successful
+        if [ $? -ne 0 ]; then
+          echo "target: server1.eu.az.corp failed"
+          exit 1
+        else
+          echo "target: server1.eu.az.corp passed"
+        fi
+          ab -s 3 -n $1 -c $2 [$(get_ipv6 server2.eu.az.corp)]/ > /dev/null 2>&1
+        # check if ab command was successful
+        if [ $? -ne 0 ]; then
+          echo "target: server2.eu.az.corp failed"
+          exit 1
+        else
+          echo "target: server2.eu.az.corp passed"
+        fi
+          ab -s 3 -n $1 -c $2 [$(get_ipv6 https://lab10hub10625.blob.core.windows.net/storage/storage.txt)]/ > /dev/null 2>&1
+        # check if ab command was successful
+        if [ $? -ne 0 ]; then
+          echo "target: https://lab10hub10625.blob.core.windows.net/storage/storage.txt failed"
+          exit 1
+        else
+          echo "target: https://lab10hub10625.blob.core.windows.net/storage/storage.txt passed"
+        fi
+          let i=i+1
+        sleep 5
+      done
+      EOF
+      chmod a+x /usr/local/bin/heavy-traffic-ipv6
       
       ########################################################
       # crontabs
       ########################################################
       
       cat <<'EOF' > /etc/cron.d/traffic-gen
+      */1 * * * * /usr/local/bin/light-traffic 2>&1 > /dev/null
+      */1 * * * * /usr/local/bin/heavy-traffic 15 1 2>&1 > /dev/null
+      */2 * * * * /usr/local/bin/heavy-traffic 3 1 2>&1 > /dev/null
+      */3 * * * * /usr/local/bin/heavy-traffic 8 2 2>&1 > /dev/null
+      */5 * * * * /usr/local/bin/heavy-traffic 5 1 2>&1 > /dev/null
       EOF
       
       crontab /etc/cron.d/traffic-gen
@@ -760,6 +897,8 @@ write_files:
     content: |
       #! /bin/bash
       
+      exec > /var/log/azure-setup-unbound.log
+      
       systemctl stop systemd-resolved
       systemctl disable systemd-resolved
       echo "nameserver 8.8.8.8" > /etc/resolv.conf
@@ -792,4 +931,3 @@ runcmd:
   - . /var/lib/azure/squid/setup-squid.sh
   - docker-compose -f /var/lib/azure/unbound/docker-compose.yml up -d
   - docker-compose -f /var/lib/azure/squid/docker-compose.yml up -d
-  - python3 -m venv /var/lib/azure/crawler

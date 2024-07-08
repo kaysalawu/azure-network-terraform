@@ -3,7 +3,6 @@
 # exec > /var/log/linux-nva.log 2>&1
 
 apt-get -y update
-apt-get -y install sipcalc
 
 #########################################################
 # ip forwarding
@@ -21,23 +20,24 @@ echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 
 sysctl -p
 
-# Disable ICMP redirects
-# sysctl -w net.ipv4.conf.all.send_redirects=0
-# sysctl -w net.ipv4.conf.all.accept_redirects=0
-# sysctl -w net.ipv4.conf.eth0.send_redirects=0
-# sysctl -w net.ipv4.conf.eth0.accept_redirects=0
-# echo "net.ipv4.conf.all.send_redirects=0" >> /etc/sysctl.conf
-# echo "net.ipv4.conf.all.accept_redirects=0" >> /etc/sysctl.conf
-# echo "net.ipv4.conf.eth0.send_redirects=0" >> /etc/sysctl.conf
-# echo "net.ipv4.conf.eth0.accept_redirects=0" >> /etc/sysctl.conf
-# sysctl -p
+Disable ICMP redirects
+sysctl -w net.ipv4.conf.all.send_redirects=0
+sysctl -w net.ipv4.conf.all.accept_redirects=0
+sysctl -w net.ipv4.conf.eth0.send_redirects=0
+sysctl -w net.ipv4.conf.eth0.accept_redirects=0
+echo "net.ipv4.conf.all.send_redirects=0" >> /etc/sysctl.conf
+echo "net.ipv4.conf.all.accept_redirects=0" >> /etc/sysctl.conf
+echo "net.ipv4.conf.eth0.send_redirects=0" >> /etc/sysctl.conf
+echo "net.ipv4.conf.eth0.accept_redirects=0" >> /etc/sysctl.conf
+sysctl -p
 
 #########################################################
 # route table for eth1 (trust interface)
 #########################################################
 
-ETH1_DGW=$(sipcalc eth1 | awk '/Usable range/ {print $4}')
-ETH1_MASK=$(ip addr show eth1 | awk '/inet / {print $2}' | cut -d'/' -f2)
+ETH1_SUBNET=$(ip -o -f inet addr show eth1 | awk '{print $4}')
+ETH1_DGW=$(echo $ETH1_SUBNET | awk -F. '{print $1"."$2"."$3".1"}')
+ETH1_MASK=$(echo $ETH1_SUBNET | cut -d'/' -f2)
 
 # eth1 routing
 echo "2 rt1" | tee -a /etc/iproute2/rt_tables
@@ -87,6 +87,8 @@ echo iptables-persistent iptables-persistent/autosave_v6 boolean false | debconf
 apt-get -y install iptables-persistent
 
 # Permit flows on all chains (for testing only and not for production)
+iptables -F
+iptables -t nat -F
 iptables -P FORWARD ACCEPT
 iptables -P INPUT ACCEPT
 iptables -P OUTPUT ACCEPT
@@ -141,23 +143,23 @@ conn %default
 
 conn Tunnel0
     left=10.10.1.9
-    leftid=40.87.157.126
-    right=172.205.44.18
-    rightid=172.205.44.18
+    leftid=40.85.89.61
+    right=135.236.144.199
+    rightid=135.236.144.199
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.10.1.9
-    leftid=40.87.157.126
-    right=172.205.44.150
-    rightid=172.205.44.150
+    leftid=40.85.89.61
+    right=135.236.145.126
+    rightid=135.236.145.126
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.10.1.9
-    leftid=40.87.157.126
+    leftid=40.85.89.61
     right=1.1.1.1
     rightid=1.1.1.1
     auto=start
@@ -170,8 +172,8 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.10.1.9 172.205.44.18 : PSK "changeme"
-10.10.1.9 172.205.44.150 : PSK "changeme"
+10.10.1.9 135.236.144.199 : PSK "changeme"
+10.10.1.9 135.236.145.126 : PSK "changeme"
 10.10.1.9 1.1.1.1 : PSK "changeme"
 
 EOF
@@ -191,12 +193,12 @@ case "$PLUTO_CONNECTION" in
   Tunnel0)
     VTI_INTERFACE=vti0
     VTI_LOCALADDR=10.10.10.1
-    VTI_REMOTEADDR=192.168.11.13
+    VTI_REMOTEADDR=192.168.11.12
     ;;
   Tunnel1)
     VTI_INTERFACE=vti1
     VTI_LOCALADDR=10.10.10.5
-    VTI_REMOTEADDR=192.168.11.12
+    VTI_REMOTEADDR=192.168.11.13
     ;;
   Tunnel2)
     VTI_INTERFACE=vti2
@@ -302,8 +304,8 @@ interface lo
 ! Static Routes
 !-----------------------------------------
 ip route 0.0.0.0/0 10.10.1.1
-ip route 192.168.11.13/32 vti0
-ip route 192.168.11.12/32 vti1
+ip route 192.168.11.12/32 vti0
+ip route 192.168.11.13/32 vti1
 ip route 192.168.30.30/32 vti2
 ip route 10.30.1.9 10.10.1.1
 ip route 10.10.0.0/24 10.10.1.1
@@ -322,20 +324,20 @@ ip route 10.10.0.0/24 10.10.1.1
 !-----------------------------------------
 router bgp 65001
 bgp router-id 192.168.10.10
-neighbor 192.168.11.13 remote-as 65515
-neighbor 192.168.11.13 ebgp-multihop 255
-neighbor 192.168.11.13 update-source lo
 neighbor 192.168.11.12 remote-as 65515
 neighbor 192.168.11.12 ebgp-multihop 255
 neighbor 192.168.11.12 update-source lo
+neighbor 192.168.11.13 remote-as 65515
+neighbor 192.168.11.13 ebgp-multihop 255
+neighbor 192.168.11.13 update-source lo
 neighbor 192.168.30.30 remote-as 65003
 neighbor 192.168.30.30 ebgp-multihop 255
 neighbor 192.168.30.30 update-source lo
 !
 address-family ipv4 unicast
   network 10.10.0.0/24
-  neighbor 192.168.11.13 soft-reconfiguration inbound
   neighbor 192.168.11.12 soft-reconfiguration inbound
+  neighbor 192.168.11.13 soft-reconfiguration inbound
   neighbor 192.168.30.30 soft-reconfiguration inbound
 exit-address-family
 !
@@ -385,7 +387,7 @@ chmod a+x /usr/local/bin/ipsec-debug
 #-----------------------------------
 
 cat <<EOF > /etc/cron.d/ipsec-auto-restart
-*/10 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
+*/30 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
 EOF
 
 crontab /etc/cron.d/ipsec-auto-restart

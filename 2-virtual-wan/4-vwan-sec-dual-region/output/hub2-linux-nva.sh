@@ -3,7 +3,6 @@
 # exec > /var/log/linux-nva.log 2>&1
 
 apt-get -y update
-apt-get -y install sipcalc
 
 #########################################################
 # ip forwarding
@@ -21,23 +20,24 @@ echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 
 sysctl -p
 
-# Disable ICMP redirects
-# sysctl -w net.ipv4.conf.all.send_redirects=0
-# sysctl -w net.ipv4.conf.all.accept_redirects=0
-# sysctl -w net.ipv4.conf.eth0.send_redirects=0
-# sysctl -w net.ipv4.conf.eth0.accept_redirects=0
-# echo "net.ipv4.conf.all.send_redirects=0" >> /etc/sysctl.conf
-# echo "net.ipv4.conf.all.accept_redirects=0" >> /etc/sysctl.conf
-# echo "net.ipv4.conf.eth0.send_redirects=0" >> /etc/sysctl.conf
-# echo "net.ipv4.conf.eth0.accept_redirects=0" >> /etc/sysctl.conf
-# sysctl -p
+Disable ICMP redirects
+sysctl -w net.ipv4.conf.all.send_redirects=0
+sysctl -w net.ipv4.conf.all.accept_redirects=0
+sysctl -w net.ipv4.conf.eth0.send_redirects=0
+sysctl -w net.ipv4.conf.eth0.accept_redirects=0
+echo "net.ipv4.conf.all.send_redirects=0" >> /etc/sysctl.conf
+echo "net.ipv4.conf.all.accept_redirects=0" >> /etc/sysctl.conf
+echo "net.ipv4.conf.eth0.send_redirects=0" >> /etc/sysctl.conf
+echo "net.ipv4.conf.eth0.accept_redirects=0" >> /etc/sysctl.conf
+sysctl -p
 
 #########################################################
 # route table for eth1 (trust interface)
 #########################################################
 
-ETH1_DGW=$(sipcalc eth1 | awk '/Usable range/ {print $4}')
-ETH1_MASK=$(ip addr show eth1 | awk '/inet / {print $2}' | cut -d'/' -f2)
+ETH1_SUBNET=$(ip -o -f inet addr show eth1 | awk '{print $4}')
+ETH1_DGW=$(echo $ETH1_SUBNET | awk -F. '{print $1"."$2"."$3".1"}')
+ETH1_MASK=$(echo $ETH1_SUBNET | cut -d'/' -f2)
 
 # eth1 routing
 echo "2 rt1" | tee -a /etc/iproute2/rt_tables
@@ -87,6 +87,8 @@ echo iptables-persistent iptables-persistent/autosave_v6 boolean false | debconf
 apt-get -y install iptables-persistent
 
 # Permit flows on all chains (for testing only and not for production)
+iptables -F
+iptables -t nat -F
 iptables -P FORWARD ACCEPT
 iptables -P INPUT ACCEPT
 iptables -P OUTPUT ACCEPT
@@ -169,8 +171,8 @@ interface lo
 ! Static Routes
 !-----------------------------------------
 ip route 0.0.0.0/0 10.22.2.1
-ip route 192.168.22.68/32 10.22.2.1
 ip route 192.168.22.69/32 10.22.2.1
+ip route 192.168.22.68/32 10.22.2.1
 ip route 10.5.0.0/16 10.22.2.1
 !
 !-----------------------------------------
@@ -182,18 +184,18 @@ ip route 10.5.0.0/16 10.22.2.1
 !-----------------------------------------
 router bgp 65020
 bgp router-id 10.22.22.22
-neighbor 192.168.22.68 remote-as 65515
-neighbor 192.168.22.68 ebgp-multihop 255
-neighbor 192.168.22.68 update-source lo
 neighbor 192.168.22.69 remote-as 65515
 neighbor 192.168.22.69 ebgp-multihop 255
 neighbor 192.168.22.69 update-source lo
+neighbor 192.168.22.68 remote-as 65515
+neighbor 192.168.22.68 ebgp-multihop 255
+neighbor 192.168.22.68 update-source lo
 !
 address-family ipv4 unicast
   network 10.22.0.0/24
   network 10.5.0.0/16
-  neighbor 192.168.22.68 soft-reconfiguration inbound
   neighbor 192.168.22.69 soft-reconfiguration inbound
+  neighbor 192.168.22.68 soft-reconfiguration inbound
 exit-address-family
 !
 line vty
@@ -242,7 +244,7 @@ chmod a+x /usr/local/bin/ipsec-debug
 #-----------------------------------
 
 cat <<EOF > /etc/cron.d/ipsec-auto-restart
-*/10 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
+*/30 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
 EOF
 
 crontab /etc/cron.d/ipsec-auto-restart

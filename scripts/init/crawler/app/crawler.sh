@@ -41,24 +41,24 @@ KEY_VAULT_SECRET_URL=$(echo $metadata | jq -r '.compute.tagsList[] | select(.nam
 KEY_VAULT_SECRET_VALUE=$(echo $metadata | jq -r '.compute.tagsList[] | select(.name == "KEY_VAULT_SECRET_VALUE") | .value')
 
 download_json_file() {
-    local url="https://www.microsoft.com/en-us/download/details.aspx?id=56519"
-    local json_url=$(curl -s "$url" | grep -oP '(?<=href=")[^"]*\.json' | head -n 1)
-    if [ -n "$json_url" ]; then
-        if [[ ! "$json_url" =~ ^http ]]; then
-            json_url="https://www.microsoft.com$json_url"
-        fi
-        curl -s -o service_tags.json "$json_url"
-        echo "JSON file downloaded as service_tags.json"
-    else
-        echo "JSON file not found on the page."
+  local url="https://www.microsoft.com/en-us/download/details.aspx?id=56519"
+  echo "Downloading Service tags JSON file from $url ..."
+  local json_url=$(curl -s "$url" | grep -oP '(?<=href=")[^"]*\.json' | head -n 1)
+  if [ -n "$json_url" ]; then
+    if [[ ! "$json_url" =~ ^http ]]; then
+      json_url="https://www.microsoft.com$json_url"
     fi
+    curl -s -o service_tags.json "$json_url"
+    echo "JSON file downloaded as service_tags.json"
+  else
+    echo "JSON file not found on the page."
+  fi
 }
 
-echo -e "Downloading service tags JSON..."
 if [ ! -f service_tags.json ]; then
-    download_json_file
+  download_json_file
 else
-    echo "service_tags.json already exists."
+  echo "service_tags.json already exists."
 fi
 
 echo -e "\n-------------------------------------------"
@@ -74,6 +74,7 @@ echo -e "-------------------------------------------"
 
 declare -a PUBLIC_ADDRESS_TYPE
 declare -a PUBLIC_ADDRESS
+declare -a SERVICE_ENDPOINT_STATUS
 declare -a SERVICE_ENDPOINTS
 declare -a PRIVATE_SUBNET
 declare -a INTERNET_ACCESS
@@ -105,26 +106,26 @@ function check_address_type() {
   #####################################################
   local internet_url="http://ifconfig.me/ip"
   local public_ip=$(timeout 10 curl -s $internet_url)
-  echo -e "   Local IP:\t$ETH0_IP"
+  echo -e "   Local IP:\t$VM_ADRR"
   echo -e "   Public IP:\t$public_ip"
 
   ips=$(timeout 10 az network public-ip list -g $RESOURCE_GROUP --query "[].{ip:ipAddress, name:name, id:id}" -o tsv)
   local found=0
   while IFS= read -r line; do
-      ip=$(echo $line | awk '{print $1}')
-      name=$(echo $line | awk '{print $2}')
-      id=$(echo $line | awk '{print $3}')
+    ip=$(echo $line | awk '{print $1}')
+    name=$(echo $line | awk '{print $2}')
+    id=$(echo $line | awk '{print $3}')
 
-      if [[ "$ip" == "$public_ip" ]]; then
-          PUBLIC_ADDRESS="$name"
-          found=1
-          break
-      fi
-  done <<< "$ips"
+    if [[ "$ip" == "$public_ip" ]]; then
+      PUBLIC_ADDRESS="$name"
+      found=1
+      break
+    fi
+  done <<<"$ips"
 
   if [[ $found -eq 0 ]]; then
-      PUBLIC_ADDRESS_TYPE=("None")
-      echo -e "   NAT_IP type:\tNone"
+    PUBLIC_ADDRESS_TYPE=("None")
+    echo -e "   NAT_IP type:\tNone"
   fi
 }
 
@@ -135,15 +136,16 @@ function check_service_endpoints() {
   #####################################################
   echo -e "   Subnet --> $SUBNET_NAME"
   if ! service_endpoints=$(timeout 10 az network vnet subnet show -g $RESOURCE_GROUP --vnet-name $VNET_NAME --name "$SUBNET_NAME" --query "serviceEndpoints[].service" -o tsv 2>/dev/null); then
-  echo -e "   Service Endpoint: Timed out!"
-  SERVICE_ENDPOINTS=("Timed out!")
+    echo -e "   Service Endpoint: Timed out!"
+    SERVICE_ENDPOINT_STATUS=("Timed out!")
   elif [ -z "$service_endpoints" ]; then
     echo -e "   Service Endpoint: Disabled"
-    SERVICE_ENDPOINTS=("Disabled")
+    SERVICE_ENDPOINT_STATUS=("Disabled")
   else
-    echo -e "   Service Endpoint: Enabled"
-    echo "$service_endpoints" | tr '\t' '\n' | awk '{print "   - " $0}'
-    SERVICE_ENDPOINTS=("Enabled")
+    endpoints=$(echo "$service_endpoints" | tr '\t' ', ')
+    echo -e "   Service Endpoint: Enabled ($endpoints)"
+    SERVICE_ENDPOINT_STATUS=("Enabled")
+    SERVICE_ENDPOINTS=($service_endpoints)
   fi
 }
 
@@ -295,7 +297,7 @@ echo -e "\n-------------------------------------------"
 echo -e "Results"
 echo -e "-------------------------------------------"
 echo -e "1. Public IP: \t$PUBLIC_ADDRESS"
-echo -e "2. Service Endpoints: \t$SERVICE_ENDPOINTS"
+echo -e "2. Service Endpoints: \t$SERVICE_ENDPOINT_STATUS ($SERVICE_ENDPOINTS)"
 echo -e "3. Private Subnet: \t$PRIVATE_SUBNET"
 echo -e "4. Internet Access: \t$INTERNET_ACCESS"
 echo -e "5. Management Access: \t$MANAGEMENT_ACCESS"

@@ -3,7 +3,6 @@
 # exec > /var/log/linux-nva.log 2>&1
 
 apt-get -y update
-apt-get -y install sipcalc
 
 #########################################################
 # ip forwarding
@@ -21,23 +20,24 @@ echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 
 sysctl -p
 
-# Disable ICMP redirects
-# sysctl -w net.ipv4.conf.all.send_redirects=0
-# sysctl -w net.ipv4.conf.all.accept_redirects=0
-# sysctl -w net.ipv4.conf.eth0.send_redirects=0
-# sysctl -w net.ipv4.conf.eth0.accept_redirects=0
-# echo "net.ipv4.conf.all.send_redirects=0" >> /etc/sysctl.conf
-# echo "net.ipv4.conf.all.accept_redirects=0" >> /etc/sysctl.conf
-# echo "net.ipv4.conf.eth0.send_redirects=0" >> /etc/sysctl.conf
-# echo "net.ipv4.conf.eth0.accept_redirects=0" >> /etc/sysctl.conf
-# sysctl -p
+Disable ICMP redirects
+sysctl -w net.ipv4.conf.all.send_redirects=0
+sysctl -w net.ipv4.conf.all.accept_redirects=0
+sysctl -w net.ipv4.conf.eth0.send_redirects=0
+sysctl -w net.ipv4.conf.eth0.accept_redirects=0
+echo "net.ipv4.conf.all.send_redirects=0" >> /etc/sysctl.conf
+echo "net.ipv4.conf.all.accept_redirects=0" >> /etc/sysctl.conf
+echo "net.ipv4.conf.eth0.send_redirects=0" >> /etc/sysctl.conf
+echo "net.ipv4.conf.eth0.accept_redirects=0" >> /etc/sysctl.conf
+sysctl -p
 
 #########################################################
 # route table for eth1 (trust interface)
 #########################################################
 
-ETH1_DGW=$(sipcalc eth1 | awk '/Usable range/ {print $4}')
-ETH1_MASK=$(ip addr show eth1 | awk '/inet / {print $2}' | cut -d'/' -f2)
+ETH1_SUBNET=$(ip -o -f inet addr show eth1 | awk '{print $4}')
+ETH1_DGW=$(echo $ETH1_SUBNET | awk -F. '{print $1"."$2"."$3".1"}')
+ETH1_MASK=$(echo $ETH1_SUBNET | cut -d'/' -f2)
 
 # eth1 routing
 echo "2 rt1" | tee -a /etc/iproute2/rt_tables
@@ -87,6 +87,8 @@ echo iptables-persistent iptables-persistent/autosave_v6 boolean false | debconf
 apt-get -y install iptables-persistent
 
 # Permit flows on all chains (for testing only and not for production)
+iptables -F
+iptables -t nat -F
 iptables -P FORWARD ACCEPT
 iptables -P INPUT ACCEPT
 iptables -P OUTPUT ACCEPT
@@ -141,25 +143,25 @@ conn %default
 
 conn Tunnel0
     left=10.30.1.9
-    leftid=52.142.52.48
-    right=51.8.227.5
-    rightid=51.8.227.5
+    leftid=74.235.222.96
+    right=4.246.250.213
+    rightid=4.246.250.213
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.30.1.9
-    leftid=52.142.52.48
-    right=51.8.227.8
-    rightid=51.8.227.8
+    leftid=74.235.222.96
+    right=172.212.117.28
+    rightid=172.212.117.28
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.30.1.9
-    leftid=52.142.52.48
-    right=40.87.157.126
-    rightid=40.87.157.126
+    leftid=74.235.222.96
+    right=40.85.89.61
+    rightid=40.85.89.61
     auto=start
     mark=300
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -170,9 +172,9 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.30.1.9 51.8.227.5 : PSK "changeme"
-10.30.1.9 51.8.227.8 : PSK "changeme"
-10.30.1.9 40.87.157.126 : PSK "changeme"
+10.30.1.9 4.246.250.213 : PSK "changeme"
+10.30.1.9 172.212.117.28 : PSK "changeme"
+10.30.1.9 40.85.89.61 : PSK "changeme"
 
 EOF
 
@@ -385,7 +387,7 @@ chmod a+x /usr/local/bin/ipsec-debug
 #-----------------------------------
 
 cat <<EOF > /etc/cron.d/ipsec-auto-restart
-*/10 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
+*/30 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
 EOF
 
 crontab /etc/cron.d/ipsec-auto-restart

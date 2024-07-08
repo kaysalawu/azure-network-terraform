@@ -1,9 +1,9 @@
 
 locals {
   object_ids = [
-    module.hub_server1_vm.vm.identity[0].principal_id,
-    module.hub_server2_vm.vm.identity[0].principal_id,
-    module.hub_proxy.vm.identity[0].principal_id,
+    module.hub1_server1_vm.vm.identity[0].principal_id,
+    module.hub1_server2_vm.vm.identity[0].principal_id,
+    module.hub1_proxy.vm.identity[0].principal_id,
   ]
   role_definitions = [
     "Network Contributor",
@@ -41,10 +41,10 @@ resource "azurerm_role_assignment" "combined_role_assignment" {
 resource "azurerm_storage_account" "storage" {
   resource_group_name      = azurerm_resource_group.rg.name
   name                     = local.storage_storage_account_name
-  location                 = local.hub_location
+  location                 = local.hub1_location
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  tags                     = local.hub_tags
+  tags                     = local.hub1_tags
 }
 
 # container
@@ -52,7 +52,7 @@ resource "azurerm_storage_account" "storage" {
 resource "azurerm_storage_container" "storage" {
   name                  = local.storage_container_name
   storage_account_name  = azurerm_storage_account.storage.name
-  container_access_type = "private"
+  container_access_type = "blob"
 }
 
 # blob
@@ -89,11 +89,11 @@ resource "azurerm_role_assignment" "blob" {
 
 resource "azurerm_key_vault" "key_vault" {
   resource_group_name = azurerm_resource_group.rg.name
-  location            = local.hub_location
-  name                = "${local.hub_prefix}kv${random_id.random.hex}"
+  location            = local.hub1_location
+  name                = "${local.hub1_prefix}kv${random_id.random.hex}"
   sku_name            = "standard"
   tenant_id           = data.azurerm_client_config.current.tenant_id
-  tags                = local.hub_tags
+  tags                = local.hub1_tags
 }
 
 # policies

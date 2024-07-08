@@ -6,8 +6,8 @@
 module "azure_lb_snat" {
   source              = "../../modules/azure-load-balancer"
   resource_group_name = azurerm_resource_group.rg.name
-  location            = local.hub_location
-  prefix              = trimsuffix(local.hub_prefix, "-")
+  location            = local.hub1_location
+  prefix              = trimsuffix(local.hub1_prefix, "-")
   name                = "lb-snat"
   type                = "public"
   lb_sku              = "Standard"
@@ -18,7 +18,7 @@ module "azure_lb_snat" {
     {
       name      = "feip"
       zones     = ["1", "2", "3"]
-      subnet_id = module.hub.subnets["PublicSubnet"].id
+      subnet_id = module.hub1.subnets["PublicSubnet"].id
     },
   ]
 
@@ -26,25 +26,21 @@ module "azure_lb_snat" {
     {
       name = "hub"
       interfaces = [
-        # {
-        #   ip_configuration_name = module.hub_cgs.interface_names["${local.hub_prefix}cgs-prod-nic"]
-        #   network_interface_id  = module.hub_cgs.interface_ids["${local.hub_prefix}cgs-prod-nic"]
-        # },
-        # {
-        #   ip_configuration_name = module.hub_server1_vm.interface_names["${local.hub_prefix}server1-nic"]
-        #   network_interface_id  = module.hub_server1_vm.interface_ids["${local.hub_prefix}server1-nic"]
-        # },
-        # {
-        #   ip_configuration_name = module.hub_server2_vm.interface_names["${local.hub_prefix}test-nic"]
-        #   network_interface_id  = module.hub_server2_vm.interface_ids["${local.hub_prefix}test-nic"]
-        # }
+        {
+          ip_configuration_name = module.hub1_server1_vm.interface_name
+          network_interface_id  = module.hub1_server1_vm.interface_id
+        },
+        {
+          ip_configuration_name = module.hub1_server2_vm.interface_name
+          network_interface_id  = module.hub1_server2_vm.interface_id
+        }
       ]
     }
   ]
 
   outbound_rules = [
     {
-      name                           = "hub-snat"
+      name                           = "hub1-snat"
       frontend_ip_configuration_name = "feip"
       backend_address_pool_name      = "hub"
       protocol                       = "All"
