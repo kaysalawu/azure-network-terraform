@@ -63,6 +63,17 @@ locals {
     "fd00::/8",
   ]
 
+  service_tags = [
+    "AzureActiveDirectory",
+    "AzureBackup",
+    "AzureKeyVault",
+    # "AzureLoadBalancer",
+    "AzureMonitor",
+    "AzureResourceManager",
+    "EventHub",
+    "Storage",
+  ]
+
   azure_asn          = 12076
   azure_internal_asn = 65515
   megaport_asn       = 64512
@@ -100,8 +111,14 @@ locals {
   hub1_location      = local.region1
   hub1_address_space = ["10.11.0.0/16", "fd00:db8:11::/56", ]
   hub1_bgp_community = "12076:20011"
-  hub1_nat_ranges    = {}
-  hub1_dns_zone      = local.region1_dns_zone
+  hub1_nat_ranges = {
+    "branch1" = {
+      "egress-static"  = "10.11.90.0/24"
+      "egress-dynamic" = "10.11.91.0/24"
+      "ingress-static" = "10.11.80.0/24"
+    }
+  }
+  hub1_dns_zone = local.region1_dns_zone
   hub1_subnets = {
     ("MainSubnet")                    = { address_prefixes = ["10.11.0.0/24", ], address_prefixes_v6 = ["fd00:db8:11::/64", ], }
     ("UntrustSubnet")                 = { address_prefixes = ["10.11.1.0/24", ], address_prefixes_v6 = ["fd00:db8:11:1::/64", ], }
@@ -109,8 +126,8 @@ locals {
     ("ManagementSubnet")              = { address_prefixes = ["10.11.3.0/24", ], address_prefixes_v6 = ["fd00:db8:11:3::/64", ], }
     ("AppGatewaySubnet")              = { address_prefixes = ["10.11.4.0/24", ], address_prefixes_v6 = ["fd00:db8:11:4::/64", ], }
     ("LoadBalancerSubnet")            = { address_prefixes = ["10.11.5.0/24", ], address_prefixes_v6 = ["fd00:db8:11:5::/64", ], }
-    ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.11.6.0/24", ], private_link_service_network_policies_enabled = [true] }
-    ("PrivateEndpointSubnet")         = { address_prefixes = ["10.11.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
+    ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.11.6.0/24", ], }
+    ("PrivateEndpointSubnet")         = { address_prefixes = ["10.11.7.0/24", ], private_endpoint_network_policies = ["Enabled", "RouteTableEnabled", ] }
     ("DnsResolverInboundSubnet")      = { address_prefixes = ["10.11.8.0/24", ], delegate = ["Microsoft.Network/dnsResolvers"] }
     ("DnsResolverOutboundSubnet")     = { address_prefixes = ["10.11.9.0/24", ], delegate = ["Microsoft.Network/dnsResolvers"] }
     ("RouteServerSubnet")             = { address_prefixes = ["10.11.10.0/24", ], address_prefixes_v6 = ["fd00:db8:11:10::/64", ], }
@@ -167,8 +184,8 @@ locals {
     ("ManagementSubnet")              = { address_prefixes = ["10.22.3.0/24", ], address_prefixes_v6 = ["fd00:db8:22:3::/64", ], }
     ("AppGatewaySubnet")              = { address_prefixes = ["10.22.4.0/24", ], address_prefixes_v6 = ["fd00:db8:22:4::/64", ], }
     ("LoadBalancerSubnet")            = { address_prefixes = ["10.22.5.0/24", ], address_prefixes_v6 = ["fd00:db8:22:5::/64", ], }
-    ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.22.6.0/24", ], private_link_service_network_policies_enabled = [true] }
-    ("PrivateEndpointSubnet")         = { address_prefixes = ["10.22.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
+    ("PrivateLinkServiceSubnet")      = { address_prefixes = ["10.22.6.0/24", ], }
+    ("PrivateEndpointSubnet")         = { address_prefixes = ["10.22.7.0/24", ], private_endpoint_network_policies = ["RouteTableEnabled", ] }
     ("DnsResolverInboundSubnet")      = { address_prefixes = ["10.22.8.0/24", ], delegate = ["Microsoft.Network/dnsResolvers"] }
     ("DnsResolverOutboundSubnet")     = { address_prefixes = ["10.22.9.0/24", ], delegate = ["Microsoft.Network/dnsResolvers"] }
     ("RouteServerSubnet")             = { address_prefixes = ["10.22.10.0/24", ], address_prefixes_v6 = ["fd00:db8:22:10::/64", ], }
@@ -178,9 +195,8 @@ locals {
     ("GatewaySubnet")                 = { address_prefixes = ["10.22.16.0/24", ], address_prefixes_v6 = ["fd00:db8:22:16::/64", ], }
     ("TestSubnet")                    = { address_prefixes = ["10.22.17.0/24", ], address_prefixes_v6 = ["fd00:db8:22:17::/64", ], }
   }
-  hub2_default_gw_main = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 1)
-  hub2_default_gw_nva  = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 1)
-
+  hub2_default_gw_main      = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 1)
+  hub2_default_gw_nva       = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 1)
   hub2_vm_addr              = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 5)
   hub2_nva_trust_addr       = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 4)
   hub2_nva_untrust_addr     = cidrhost(local.hub2_subnets["UntrustSubnet"].address_prefixes[0], 4)
@@ -350,7 +366,7 @@ locals {
     ("ManagementSubnet")         = { address_prefixes = ["10.1.3.0/24", ], address_prefixes_v6 = ["fd00:db8:1:3::/64", ], }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.1.4.0/24", ], address_prefixes_v6 = ["fd00:db8:1:4::/64", ], }
     ("LoadBalancerSubnet")       = { address_prefixes = ["10.1.5.0/24", ], address_prefixes_v6 = ["fd00:db8:1:5::/64", ], }
-    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.1.6.0/24", ], private_link_service_network_policies_enabled = [true] }
+    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.1.6.0/24", ], }
     ("PrivateEndpointSubnet")    = { address_prefixes = ["10.1.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
     ("AppServiceSubnet")         = { address_prefixes = ["10.1.8.0/24", ], address_prefixes_v6 = ["fd00:db8:1:8::/64", ], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.1.9.0/24", ], address_prefixes_v6 = ["fd00:db8:1:9::/64", ], }
@@ -386,7 +402,7 @@ locals {
     ("ManagementSubnet")         = { address_prefixes = ["10.2.3.0/24", ], address_prefixes_v6 = ["fd00:db8:2:3::/64"], }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.2.4.0/24", ], address_prefixes_v6 = ["fd00:db8:2:4::/64"], }
     ("LoadBalancerSubnet")       = { address_prefixes = ["10.2.5.0/24", ], address_prefixes_v6 = ["fd00:db8:2:5::/64"], }
-    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.2.6.0/24", ], private_link_service_network_policies_enabled = [true] }
+    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.2.6.0/24", ], }
     ("PrivateEndpointSubnet")    = { address_prefixes = ["10.2.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
     ("AppServiceSubnet")         = { address_prefixes = ["10.2.8.0/24", ], address_prefixes_v6 = ["fd00:db8:2:8::/64"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.2.9.0/24", ], address_prefixes_v6 = ["fd00:db8:2:9::/64"], }
@@ -422,7 +438,7 @@ locals {
     ("ManagementSubnet")         = { address_prefixes = ["10.3.3.0/24", ], address_prefixes_v6 = ["fd00:db8:3:3::/64"], }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.3.4.0/24", ], address_prefixes_v6 = ["fd00:db8:3:4::/64"], }
     ("LoadBalancerSubnet")       = { address_prefixes = ["10.3.5.0/24", ], address_prefixes_v6 = ["fd00:db8:3:5::/64"], }
-    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.3.6.0/24", ], private_link_service_network_policies_enabled = [true] }
+    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.3.6.0/24", ], }
     ("PrivateEndpointSubnet")    = { address_prefixes = ["10.3.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
     ("AppServiceSubnet")         = { address_prefixes = ["10.3.8.0/24", ], address_prefixes_v6 = ["fd00:db8:3:8::/64"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.3.9.0/24", ], address_prefixes_v6 = ["fd00:db8:3:9::/64"], }
@@ -458,7 +474,7 @@ locals {
     ("ManagementSubnet")         = { address_prefixes = ["10.4.3.0/24", ], address_prefixes_v6 = ["fd00:db8:4:3::/64"], }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.4.4.0/24", ], address_prefixes_v6 = ["fd00:db8:4:4::/64"], }
     ("LoadBalancerSubnet")       = { address_prefixes = ["10.4.5.0/24", ], address_prefixes_v6 = ["fd00:db8:4:5::/64"], }
-    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.4.6.0/24", ], private_link_service_network_policies_enabled = [true] }
+    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.4.6.0/24", ], }
     ("PrivateEndpointSubnet")    = { address_prefixes = ["10.4.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
     ("AppServiceSubnet")         = { address_prefixes = ["10.4.8.0/24", ], address_prefixes_v6 = ["fd00:db8:4:8::/64"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.4.9.0/24", ], address_prefixes_v6 = ["fd00:db8:4:9::/64"], }
@@ -530,8 +546,8 @@ locals {
     ("ManagementSubnet")         = { address_prefixes = ["10.6.3.0/24", ], address_prefixes_v6 = ["fd00:db8:6:3::/64"], }
     ("AppGatewaySubnet")         = { address_prefixes = ["10.6.4.0/24", ], address_prefixes_v6 = ["fd00:db8:6:4::/64"], }
     ("LoadBalancerSubnet")       = { address_prefixes = ["10.6.5.0/24", ], address_prefixes_v6 = ["fd00:db8:6:5::/64"], }
-    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.6.6.0/24", ], address_prefixes_v6 = ["fd00:db8:6:6::/64", ], private_link_service_network_policies_enabled = [true] }
-    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.6.7.0/24", ], address_prefixes_v6 = ["fd00:db8:6:7::/64", ], private_endpoint_network_policies = ["Enabled"] }
+    ("PrivateLinkServiceSubnet") = { address_prefixes = ["10.6.6.0/24", ], }
+    ("PrivateEndpointSubnet")    = { address_prefixes = ["10.6.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
     ("AppServiceSubnet")         = { address_prefixes = ["10.6.8.0/24", ], address_prefixes_v6 = ["fd00:db8:6:8::/64"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.6.9.0/24", ], address_prefixes_v6 = ["fd00:db8:6:9::/64"], }
     ("TestSubnet")               = { address_prefixes = ["10.6.10.0/24", ], address_prefixes_v6 = ["fd00:db8:6:10::/64"], use_azapi = [true], default_outbound_access = [false] }

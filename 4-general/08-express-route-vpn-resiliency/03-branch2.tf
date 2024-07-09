@@ -16,6 +16,7 @@ module "branch2" {
 
   enable_diagnostics           = local.enable_diagnostics
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
+  enable_ipv6                  = local.enable_ipv6
 
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region1"].id
@@ -73,7 +74,7 @@ locals {
     TARGETS              = local.vm_script_targets
     ACCESS_CONTROL_PREFIXES = concat(
       local.private_prefixes,
-      ["127.0.0.0/8", "35.199.192.0/19", ]
+      ["127.0.0.0/8", "35.199.192.0/19", "fd00::/8", ]
     )
   }
   branch2_forward_zones = [
@@ -98,11 +99,13 @@ module "branch2_dns" {
   custom_data     = base64encode(local.branch2_unbound_startup)
   tags            = local.branch2_tags
 
+  enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
-      name               = "${local.branch2_prefix}dns-main"
-      subnet_id          = module.branch2.subnets["MainSubnet"].id
-      private_ip_address = local.branch2_dns_addr
+      name                 = "${local.branch2_prefix}dns-main"
+      subnet_id            = module.branch2.subnets["MainSubnet"].id
+      private_ip_address   = local.branch2_dns_addr
+      private_ipv6_address = local.branch2_dns_addr_v6
     },
   ]
   depends_on = [
@@ -296,11 +299,14 @@ module "branch2_vm" {
   custom_data     = base64encode(module.probe_vm_cloud_init.cloud_config)
   tags            = local.branch2_tags
 
+  enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
-      name               = "${local.branch2_prefix}vm-main-nic"
-      subnet_id          = module.branch2.subnets["MainSubnet"].id
-      private_ip_address = local.branch2_vm_addr
+      name                 = "${local.branch2_prefix}vm-main-nic"
+      subnet_id            = module.branch2.subnets["MainSubnet"].id
+      private_ip_address   = local.branch2_vm_addr
+      private_ipv6_address = local.branch2_vm_addr_v6
+      create_public_ip     = true
     },
   ]
   depends_on = [
@@ -332,7 +338,7 @@ module "branch2_udr_main" {
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.branch2_prefix}main"
   location       = local.branch2_location
-  subnet_id      = module.branch2.subnets["MainSubnet"].id
+  subnet_ids     = [module.branch2.subnets["MainSubnet"].id, ]
   routes         = local.branch2_routes_main
 
   disable_bgp_route_propagation = true
@@ -361,7 +367,7 @@ module "branch2_udr_gateway" {
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.branch2_prefix}gateway"
   location       = local.branch2_location
-  subnet_id      = module.branch2.subnets["GatewaySubnet"].id
+  subnet_ids     = [module.branch2.subnets["GatewaySubnet"].id, ]
   routes         = local.branch2_routes_gateway
 
   depends_on = [

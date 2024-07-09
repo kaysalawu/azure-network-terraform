@@ -14,21 +14,27 @@ module "branch1" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.branch1_tags
 
-  enable_diagnostics = local.enable_diagnostics
+  enable_diagnostics           = local.enable_diagnostics
+  log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
+  enable_ipv6                  = local.enable_ipv6
 
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region1"].id
+    "UntrustSubnet"   = module.common.nsg_nva["region1"].id
     "TrustSubnet"     = module.common.nsg_main["region1"].id
     "DnsServerSubnet" = module.common.nsg_main["region1"].id
+    "TestSubnet"      = module.common.nsg_main["region1"].id
   }
 
   config_vnet = {
+    bgp_community = local.branch1_bgp_community
     address_space = local.branch1_address_space
     subnets       = local.branch1_subnets
     nat_gateway_subnet_names = [
       "MainSubnet",
       "TrustSubnet",
       "DnsServerSubnet",
+      "TestSubnet",
     ]
   }
 
@@ -62,7 +68,7 @@ locals {
     TARGETS              = local.vm_script_targets
     ACCESS_CONTROL_PREFIXES = concat(
       local.private_prefixes,
-      ["127.0.0.0/8", "35.199.192.0/19", ]
+      ["127.0.0.0/8", "35.199.192.0/19", "fd00::/8", ]
     )
   }
   branch1_forward_zones = [
@@ -88,11 +94,13 @@ module "branch1_dns" {
   custom_data     = base64encode(local.branch1_unbound_startup)
   tags            = local.branch1_tags
 
+  enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
-      name               = "${local.branch1_prefix}dns-main"
-      subnet_id          = module.branch1.subnets["MainSubnet"].id
-      private_ip_address = local.branch1_dns_addr
+      name                 = "${local.branch1_prefix}dns-main"
+      subnet_id            = module.branch1.subnets["MainSubnet"].id
+      private_ip_address   = local.branch1_dns_addr
+      private_ipv6_address = local.branch1_dns_addr_v6
     },
   ]
   depends_on = [
@@ -128,8 +136,8 @@ locals {
       "match ip address prefix-list all",
 
       # block inbound gateway subnet, allow all other hub and spoke cidrs
-      "route-map ${local.branch1_nva_route_map_block_azure} permit 120",
-      "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
+      # "route-map ${local.branch1_nva_route_map_block_azure} permit 120",
+      # "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
     ]
     STATIC_ROUTES = [
       { prefix = "0.0.0.0/0", next_hop = local.branch1_untrust_default_gw },
@@ -222,17 +230,20 @@ module "branch1_nva" {
   source_image_version   = "latest"
 
   ip_forwarding_enabled = true
+  enable_ipv6           = local.enable_ipv6
   interfaces = [
     {
       name                 = "${local.branch1_prefix}nva-untrust-nic"
       subnet_id            = module.branch1.subnets["UntrustSubnet"].id
       private_ip_address   = local.branch1_nva_untrust_addr
+      private_ipv6_address = local.branch1_nva_untrust_addr_v6
       public_ip_address_id = azurerm_public_ip.branch1_nva_pip.id
     },
     {
-      name               = "${local.branch1_prefix}nva-trust-nic"
-      subnet_id          = module.branch1.subnets["TrustSubnet"].id
-      private_ip_address = local.branch1_nva_trust_addr
+      name                 = "${local.branch1_prefix}nva-trust-nic"
+      subnet_id            = module.branch1.subnets["TrustSubnet"].id
+      private_ip_address   = local.branch1_nva_trust_addr
+      private_ipv6_address = local.branch1_nva_trust_addr_v6
     },
   ]
 }
@@ -240,14 +251,6 @@ module "branch1_nva" {
 ####################################################
 # workload
 ####################################################
-
-locals {
-  branch1_vm_init = templatefile("../../scripts/server.sh", {
-    TARGETS                   = local.vm_script_targets
-    TARGETS_LIGHT_TRAFFIC_GEN = local.vm_script_targets
-    TARGETS_HEAVY_TRAFFIC_GEN = [for target in local.vm_script_targets : target.dns if try(target.probe, false)]
-  })
-}
 
 module "branch1_vm" {
   source          = "../../modules/virtual-machine-linux"
@@ -257,14 +260,16 @@ module "branch1_vm" {
   location        = local.branch1_location
   storage_account = module.common.storage_accounts["region1"]
   dns_servers     = [local.branch1_dns_addr, ]
-  custom_data     = base64encode(local.branch1_vm_init)
+  custom_data     = base64encode(module.probe_vm_cloud_init.cloud_config)
   tags            = local.branch1_tags
 
+  enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
-      name               = "${local.branch1_prefix}vm-main-nic"
-      subnet_id          = module.branch1.subnets["MainSubnet"].id
-      private_ip_address = local.branch1_vm_addr
+      name                 = "${local.branch1_prefix}vm-main-nic"
+      subnet_id            = module.branch1.subnets["MainSubnet"].id
+      private_ip_address   = local.branch1_vm_addr
+      private_ipv6_address = local.branch1_vm_addr_v6
     },
   ]
   depends_on = [
@@ -296,7 +301,7 @@ module "branch1_udr_main" {
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.branch1_prefix}main"
   location       = local.branch1_location
-  subnet_id      = module.branch1.subnets["MainSubnet"].id
+  subnet_ids     = [module.branch1.subnets["MainSubnet"].id, ]
   routes         = local.branch1_routes_main
 
   disable_bgp_route_propagation = true
@@ -315,7 +320,6 @@ locals {
   branch1_files = {
     "output/branch1Dns.sh" = local.branch1_unbound_startup
     "output/branch1Nva.sh" = local.branch1_nva_init
-    "output/branch1Vm.sh"  = local.branch1_vm_init
   }
 }
 

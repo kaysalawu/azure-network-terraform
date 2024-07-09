@@ -52,8 +52,8 @@ module "spoke1_udr_main" {
   routes = [for r in local.spoke1_udr_main_routes : {
     name                   = r.name
     address_prefix         = r.address_prefix
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = r.next_hop_ip
+    next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
+    next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
   }]
 
   disable_bgp_route_propagation = true
@@ -120,8 +120,8 @@ module "spoke2_udr_main" {
   routes = [for r in local.spoke2_udr_main_routes : {
     name                   = r.name
     address_prefix         = r.address_prefix
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = r.next_hop_ip
+    next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
+    next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
   }]
 
   disable_bgp_route_propagation = true
@@ -149,8 +149,8 @@ module "hub1_gateway_udr" {
   routes = [for r in local.hub1_gateway_udr_destinations : {
     name                   = r.name
     address_prefix         = r.address_prefix
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = r.next_hop_ip
+    next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
+    next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
   }]
 
   depends_on = [
@@ -169,8 +169,8 @@ module "hub1_udr_main" {
   routes = [for r in local.hub1_udr_main_routes : {
     name                   = r.name
     address_prefix         = r.address_prefix
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = r.next_hop_ip
+    next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
+    next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
   }]
 
   disable_bgp_route_propagation = true

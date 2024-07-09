@@ -13,6 +13,7 @@ Error Messages
 - [8. Virtual Machine Extension - "Already Exists"](#8-virtual-machine-extension---already-exists)
 - [9. Virtual Machine - "Already Exists"](#9-virtual-machine---already-exists)
 - [10. RetryableError: A retryable error occurred"](#10-retryableerror-a-retryable-error-occurred)
+- [11. ExpressRoute Megaport - Error getting details](#11-expressroute-megaport---error-getting-details)
 
 Terraform serializes some resource creation which creates situations where some resources wait for a long time for dependent resources to be created. There are scenarios where you might encounter errors after running terraform to deploy any of the labs. This could be as a result of occasional race conditions that come up because some terraform resources are dependent on Azure resources that take a long time to deploy - such as virtual network gateways.
 
@@ -375,4 +376,29 @@ Re-apply terraform
 ```sh
 terraform plan
 terraform apply
+```
+
+## 11. ExpressRoute Megaport - Error getting details
+
+This error is a generic errro message that indicates that Megaport resource could not be created. It could be due to capacity constraints on the Megaport side or other issues. In the example below, the issue was related to the Megaport location used.
+
+**Example:**
+
+```sh
+module.megaport.megaport_azure_connection.primary["Lab07-er1"]: Creating...
+╷
+│ Error: Error getting details:
+│
+│   with module.megaport.megaport_azure_connection.primary["Lab07-er1"],
+│   on ../../modules/megaport/main.tf line 50, in resource "megaport_azure_connection" "primary":
+│   50: resource "megaport_azure_connection" "primary" {
+```
+
+**Solution:**
+
+In this example, we simply change the Megaport location information to another location where Megaport Cloud Router (MCR) is available
+
+```sh
+express_route_location = "London"
+megaport_location      = "Global Switch London East"
 ```

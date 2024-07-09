@@ -124,7 +124,7 @@ resource "megaport_azure_connection" "secondary" {
 #----------------------------
 
 resource "azurerm_express_route_circuit_peering" "this" {
-  for_each                      = { for c in var.circuits : c.name => c if !c.enable_mcr_peering }
+  for_each                      = { for c in var.circuits : c.name => c }
   resource_group_name           = var.resource_group
   express_route_circuit_name    = each.value.name
   peering_type                  = each.value.peering_type
@@ -151,6 +151,17 @@ resource "azurerm_express_route_circuit_peering" "this" {
 # gateway connections
 #----------------------------
 
+# time sleep
+
+resource "time_sleep" "wait_for_peering" {
+  create_duration = "3m"
+  depends_on = [
+    megaport_azure_connection.primary,
+    megaport_azure_connection.secondary,
+    azurerm_express_route_circuit_peering.this,
+  ]
+}
+
 # vnet
 
 data "azurerm_virtual_network_gateway" "vnet" {
@@ -158,8 +169,7 @@ data "azurerm_virtual_network_gateway" "vnet" {
   resource_group_name = var.resource_group
   name                = each.value.virtual_network_gateway_name
   depends_on = [
-    megaport_azure_connection.primary,
-    megaport_azure_connection.secondary,
+    time_sleep.wait_for_peering,
   ]
 }
 
@@ -180,8 +190,7 @@ resource "azurerm_virtual_network_gateway_connection" "vnet" {
   authorization_key          = azurerm_express_route_circuit_authorization.vnet[each.key].authorization_key
   express_route_circuit_id   = azurerm_express_route_circuit.this[each.value.express_route_circuit_name].id
   depends_on = [
-    megaport_azure_connection.primary,
-    megaport_azure_connection.secondary,
+    time_sleep.wait_for_peering,
   ]
 }
 
@@ -192,6 +201,11 @@ resource "azurerm_express_route_circuit_authorization" "vwan" {
   resource_group_name        = var.resource_group
   name                       = "${each.key}--auth"
   express_route_circuit_name = azurerm_express_route_circuit.this[each.value.express_route_circuit_name].name
+  depends_on = [
+    megaport_azure_connection.primary,
+    megaport_azure_connection.secondary,
+    azurerm_express_route_circuit_peering.this,
+  ]
 }
 
 resource "azurerm_express_route_connection" "vwan" {
@@ -199,6 +213,11 @@ resource "azurerm_express_route_connection" "vwan" {
   name                             = "${each.key}--conn"
   express_route_gateway_id         = "/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${var.resource_group}/providers/Microsoft.Network/expressRouteGateways/${each.value.express_route_gateway_name}"
   express_route_circuit_peering_id = azurerm_express_route_circuit_peering.this[each.value.express_route_circuit_name].id
+  depends_on = [
+    megaport_azure_connection.primary,
+    megaport_azure_connection.secondary,
+    azurerm_express_route_circuit_peering.this,
+  ]
 }
 
 ###################################################

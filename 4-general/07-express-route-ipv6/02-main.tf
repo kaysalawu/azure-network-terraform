@@ -5,9 +5,10 @@
 locals {
   prefix                      = "Lab07"
   lab_name                    = "ExpressRoute_IPv6"
-  enable_diagnostics          = false
   enable_onprem_wan_link      = false
+  enable_diagnostics          = false
   enable_ipv6                 = true
+  enable_vnet_flow_logs       = true
   spoke3_storage_account_name = lower(replace("${local.spoke3_prefix}sa${random_id.random.hex}", "-", ""))
   spoke3_blob_url             = "https://${local.spoke3_storage_account_name}.blob.core.windows.net/spoke3/spoke3.txt"
   spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
@@ -25,6 +26,7 @@ resource "random_id" "random" {
 }
 
 data "azurerm_client_config" "current" {}
+data "azurerm_subscription" "current" {}
 
 ####################################################
 # providers
@@ -40,6 +42,7 @@ provider "azurerm" {
 }
 
 provider "azapi" {}
+provider "cidrblock" {}
 
 terraform {
   required_providers {
@@ -54,6 +57,9 @@ terraform {
     azapi = {
       source = "azure/azapi"
     }
+    cidrblock = {
+      source = "amilevskiy/cidrblock"
+    }
   }
 }
 
@@ -65,20 +71,19 @@ locals {
   regions = {
     "region1" = { name = local.region1, dns_zone = local.region1_dns_zone }
   }
-  default_udr_destinations = [
-    { name = "default", address_prefix = ["0.0.0.0/0"], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "defaultv6", address_prefix = ["::/0"], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 }
+  region1_default_udr_destinations = [
+    { name = "default-region1", address_prefix = ["0.0.0.0/0"], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "defaultv6-region1", address_prefix = ["::/0"], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 }
   ]
-
-  spoke1_udr_main_routes = concat(local.default_udr_destinations, [
+  spoke1_udr_main_routes = concat(local.region1_default_udr_destinations, [
     { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "hub1v6", address_prefix = [local.hub1_address_space.2, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
   ])
-  spoke2_udr_main_routes = concat(local.default_udr_destinations, [
+  spoke2_udr_main_routes = concat(local.region1_default_udr_destinations, [
     { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
-    { name = "hub1v6", address_prefix = [local.hub1_address_space.2, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
   ])
-  hub1_udr_main_routes = concat(local.default_udr_destinations, [
+  hub1_udr_main_routes = concat(local.region1_default_udr_destinations, [
     { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
     { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
     { name = "spoke1v6", address_prefix = [local.spoke1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
@@ -90,17 +95,19 @@ locals {
     { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
     { name = "spoke1v6", address_prefix = [local.spoke1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
     { name = "spoke2v6", address_prefix = [local.spoke2_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
-    { name = "hub1v6", address_prefix = [local.hub1_address_space.2, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
   ]
 
   firewall_sku = "Basic"
 
   hub1_features = {
     config_vnet = {
+      bgp_community               = local.hub1_bgp_community
       address_space               = local.hub1_address_space
       subnets                     = local.hub1_subnets
       enable_private_dns_resolver = true
       enable_ars                  = false
+      enable_vnet_flow_logs       = local.enable_vnet_flow_logs
       nat_gateway_subnet_names = [
         "MainSubnet",
         "TrustSubnet",
@@ -120,13 +127,13 @@ locals {
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
         }
-        "azurewebsites" = {
+        "azurewebsites.net" = {
           domain = "privatelink.azurewebsites.net"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
           ]
         }
-        "blob" = {
+        "blob.core.windows.net" = {
           domain = "privatelink.blob.core.windows.net"
           target_dns_servers = [
             { ip_address = local.hub1_dns_in_addr, port = 53 },
@@ -165,8 +172,7 @@ locals {
 
     config_ergw = {
       enable = true
-      # sku    = "ErGw1AZ"
-      sku = "Standard"
+      sku    = "ErGw1AZ"
     }
 
     config_firewall = {
@@ -177,6 +183,7 @@ locals {
 
     config_nva = {
       enable           = true
+      enable_ipv6      = local.enable_ipv6
       type             = "linux"
       scenario_option  = "TwoNics"
       opn_type         = "TwoNics"
@@ -185,7 +192,6 @@ locals {
       ilb_trust_ip     = local.hub1_nva_ilb_trust_addr
       ilb_untrust_ipv6 = local.hub1_nva_ilb_untrust_addr_v6
       ilb_trust_ipv6   = local.hub1_nva_ilb_trust_addr_v6
-      enable_ipv6      = local.enable_ipv6
     }
   }
 }
@@ -285,6 +291,16 @@ locals {
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
   }
+  proxy_init_vars = {
+    ONPREM_LOCAL_RECORDS = []
+    REDIRECTED_HOSTS     = []
+    FORWARD_ZONES        = []
+    TARGETS              = local.vm_script_targets
+    ACCESS_CONTROL_PREFIXES = concat(
+      local.private_prefixes,
+      ["127.0.0.0/8", "35.199.192.0/19", "fd00::/8", ]
+    )
+  }
   vm_init_files = {
     "${local.init_dir}/fastapi/docker-compose-app1-80.yml"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/docker-compose-app1-80.yml", {}) }
     "${local.init_dir}/fastapi/docker-compose-app2-8080.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/fastapi/docker-compose-app2-8080.yml", {}) }
@@ -298,6 +314,22 @@ locals {
   }
   probe_startup_init_files = {
     "${local.init_dir}/init/startup.sh" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/startup.sh", local.probe_init_vars) }
+  }
+  proxy_startup_files = {
+    "${local.init_dir}/unbound/Dockerfile"         = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/Dockerfile", {}) }
+    "${local.init_dir}/unbound/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/docker-compose.yml", {}) }
+    "${local.init_dir}/unbound/setup-unbound.sh"   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/setup-unbound.sh", local.proxy_init_vars) }
+    "/etc/unbound/unbound.conf"                    = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/unbound/unbound.conf", local.proxy_init_vars) }
+
+    "${local.init_dir}/squid/docker-compose.yml" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/docker-compose.yml", local.proxy_init_vars) }
+    "${local.init_dir}/squid/setup-squid.sh"     = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/setup-squid.sh", local.proxy_init_vars) }
+    "/etc/squid/blocked_sites"                   = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/blocked_sites", local.proxy_init_vars) }
+    "/etc/squid/squid.conf"                      = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/squid/squid.conf", local.proxy_init_vars) }
+  }
+  service_crawler_files = {
+    "${local.init_dir}/crawler/app/crawler.sh"       = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/crawler.sh", {}) }
+    "${local.init_dir}/crawler/app/service_tags.py"  = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/service_tags.py", {}) }
+    "${local.init_dir}/crawler/app/requirements.txt" = { owner = "root", permissions = "0744", content = templatefile("../../scripts/init/crawler/app/requirements.txt", {}) }
   }
   onprem_local_records = [
     { name = lower(local.branch1_vm_fqdn), rdata = local.branch1_vm_addr, ttl = "300", type = "A" },
@@ -335,7 +367,7 @@ module "probe_vm_cloud_init" {
     local.probe_startup_init_files,
   )
   packages = [
-    "docker.io", "docker-compose", #npm,
+    "docker.io", "docker-compose",
   ]
   run_commands = [
     "systemctl enable docker",
@@ -343,6 +375,36 @@ module "probe_vm_cloud_init" {
     "bash ${local.init_dir}/init/startup.sh",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app2-8080.yml up -d",
+  ]
+}
+
+module "proxy_vm_cloud_init" {
+  source   = "../../modules/cloud-config-gen"
+  files    = local.proxy_startup_files
+  packages = ["docker.io", "docker-compose", ]
+  run_commands = [
+    "sysctl -w net.ipv4.ip_forward=1",
+    "sysctl -w net.ipv4.conf.eth0.disable_xfrm=1",
+    "sysctl -w net.ipv4.conf.eth0.disable_policy=1",
+    "echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf",
+    "sysctl -w net.ipv6.conf.all.forwarding=1",
+    "echo 'net.ipv6.conf.all.forwarding=1' >> /etc/sysctl.conf",
+    "sysctl -p",
+    "echo iptables-persistent iptables-persistent/autosave_v4 boolean false | debconf-set-selections",
+    "echo iptables-persistent iptables-persistent/autosave_v6 boolean false | debconf-set-selections",
+    "apt-get -y install iptables-persistent",
+    "iptables -P FORWARD ACCEPT",
+    "iptables -P INPUT ACCEPT",
+    "iptables -P OUTPUT ACCEPT",
+    "iptables -t nat -A POSTROUTING -d 10.0.0.0/8 -j ACCEPT",
+    "iptables -t nat -A POSTROUTING -d 172.16.0.0/12 -j ACCEPT",
+    "iptables -t nat -A POSTROUTING -d 192.168.0.0/16 -j ACCEPT",
+    "iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE",
+    ". ${local.init_dir}/init/startup.sh",
+    ". ${local.init_dir}/unbound/setup-unbound.sh",
+    ". ${local.init_dir}/squid/setup-squid.sh",
+    "docker-compose -f ${local.init_dir}/unbound/docker-compose.yml up -d",
+    "docker-compose -f ${local.init_dir}/squid/docker-compose.yml up -d",
   ]
 }
 
@@ -445,7 +507,24 @@ module "fw_policy_rule_collection_group" {
     }
   ]
   application_rule_collection = []
-  nat_rule_collection         = []
+  nat_rule_collection = [
+    # {
+    #   name     = "nat-rc"
+    #   priority = 200
+    #   action   = "Dnat"
+    #   rule = [
+    #     {
+    #       name                = "nat-rc-any-to-spoke1vm"
+    #       source_addresses    = ["*"]
+    #       destination_address = "52.169.147.205"
+    #       protocols           = ["TCP"]
+    #       destination_ports   = ["22"]
+    #       translated_address  = "10.1.0.5"
+    #       translated_port     = 22
+    #     }
+    #   ]
+    # }
+  ]
 }
 
 ####################################################
@@ -492,9 +571,10 @@ locals {
   main_files = {
     "output/server.sh"              = local.vm_startup
     "output/startup.sh"             = templatefile("../../scripts/startup.sh", local.vm_init_vars)
-    "output/hub1-linux-nva.sh"      = local.hub1_linux_nva_init
+    "output/startup-probe.sh"       = templatefile("../../scripts/startup.sh", local.probe_init_vars)
     "output/probe-cloud-config.yml" = module.probe_vm_cloud_init.cloud_config
     "output/vm-cloud-config.yml"    = module.vm_cloud_init.cloud_config
+    "output/hub1-linux-nva.sh"      = local.hub1_linux_nva_init
   }
 }
 
