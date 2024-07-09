@@ -14,12 +14,14 @@ module "branch1" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.branch1_tags
 
-  enable_diagnostics = local.enable_diagnostics
+  enable_diagnostics           = local.enable_diagnostics
+  log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
+  enable_ipv6                  = local.enable_ipv6
 
   nsg_subnet_map = {
     "MainSubnet"      = module.common.nsg_main["region1"].id
-    "TrustSubnet"     = module.common.nsg_main["region1"].id
     "UntrustSubnet"   = module.common.nsg_nva["region1"].id
+    "TrustSubnet"     = module.common.nsg_main["region1"].id
     "DnsServerSubnet" = module.common.nsg_main["region1"].id
   }
 
@@ -222,7 +224,7 @@ module "branch1_udr_main" {
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.branch1_prefix}main"
   location       = local.branch1_location
-  subnet_id      = module.branch1.subnets["MainSubnet"].id
+  subnet_ids     = [module.branch1.subnets["MainSubnet"].id, ]
   routes         = local.branch1_routes_main
 
   disable_bgp_route_propagation = true

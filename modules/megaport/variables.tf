@@ -48,15 +48,16 @@ variable "circuits" {
     mcr_name                   = string
     sku_tier                   = optional(string, "Standard")
     sku_family                 = optional(string, "MeteredData")
-    enable_mcr_auto_peering    = optional(bool, false)
-    enable_mcr_peering         = optional(bool, false)
+    enable_mcr_auto_peering    = optional(bool, false) # auto-assign circuit addresses
+    enable_mcr_peering         = optional(bool, false) # creates layer2 circuit only, layer3 peering will be created on azure side *
 
     ipv4_config = object({
       primary_peer_address_prefix   = optional(string, null)
       secondary_peer_address_prefix = optional(string, null)
     })
     ipv6_config = optional(object({
-      create_azure_private_peering  = optional(bool, false)
+      enabled                       = optional(bool, false)
+      create_azure_private_peering  = optional(bool, false) # * creates azure private peering, used when enable_mcr_peering = false and enable_mcr_auto_peering = false
       primary_peer_address_prefix   = optional(string, null)
       secondary_peer_address_prefix = optional(string, null)
     }), {})

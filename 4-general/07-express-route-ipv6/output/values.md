@@ -15,9 +15,28 @@
 | UntrustSubnet   | 10.10.1.0/24   |
 | - | -  |
 | VM_IP   | 10.10.0.5   |
-| VM_NAME   | Vwan21-branch1Vm   |
-| VNET_NAME   | Vwan21-branch1-vnet   |
+| VM_NAME   | Lab07-branch1Vm   |
+| VNET_NAME   | Lab07-branch1-vnet   |
 | VNET_RANGES   | 10.10.0.0/16, fd00:db8:10::/56   |
+
+## branch2
+
+| Item    | Value  |
+|--------|--------|
+| *Subnets*|        |
+| DnsServerSubnet   | 10.20.4.0/24   |
+| GatewaySubnet   | 10.20.16.0/24   |
+| MainSubnet   | 10.20.0.0/24   |
+| ManagementSubnet   | 10.20.3.0/24   |
+| RouteServerSubnet   | 10.20.17.0/24   |
+| TestSubnet   | 10.20.18.0/24   |
+| TrustSubnet   | 10.20.2.0/24   |
+| UntrustSubnet   | 10.20.1.0/24   |
+| - | -  |
+| VM_IP   | 10.20.0.5   |
+| VM_NAME   | Lab07-branch2Vm   |
+| VNET_NAME   | Lab07-branch2-vnet   |
+| VNET_RANGES   | 10.20.0.0/16, fd00:db8:20::/56   |
 
 ## hub1
 
@@ -28,7 +47,7 @@
 | PRIVATELINK_SERVICE_ENDPOINT_DNS   | spoke3pls.hub1.az.corp   |
 | PRIVATELINK_SERVICE_ENDPOINT_IP   | 10.11.7.88   |
 | PRIVATE_DNS_INBOUND_IP   | 10.11.8.4   |
-| SPOKE3_BLOB_URL (Sample)   | https://vwan21spoke3sa18a8.blob.core.windows.net/spoke3/spoke3.txt   |
+| SPOKE3_BLOB_URL (Sample)   | https://lab07spoke3sa7467.blob.core.windows.net/spoke3/spoke3.txt   |
 | *Subnets*|        |
 | AppGatewaySubnet   | 10.11.4.0/24   |
 | AppServiceSubnet   | 10.11.13.0/24   |
@@ -48,8 +67,8 @@
 | UntrustSubnet   | 10.11.1.0/24   |
 | - | -  |
 | VM_IP   | 10.11.0.5   |
-| VM_NAME   | Vwan21-hub1Vm   |
-| VNET_NAME   | Vwan21-hub1-vnet   |
+| VM_NAME   | Lab07-hub1Vm   |
+| VNET_NAME   | Lab07-hub1-vnet   |
 | VNET_RANGES   | 10.11.0.0/16, fd00:db8:11::/56   |
 
 ## spoke1
@@ -70,8 +89,8 @@
 | UntrustSubnet   | 10.1.1.0/24   |
 | - | -  |
 | VM_IP   | 10.1.0.5   |
-| VM_NAME   | Vwan21-spoke1Vm   |
-| VNET_NAME   | Vwan21-spoke1-vnet   |
+| VM_NAME   | Lab07-spoke1Vm   |
+| VNET_NAME   | Lab07-spoke1-vnet   |
 | VNET_RANGES   | 10.1.0.0/16, fd00:db8:1::/56   |
 
 ## spoke2
@@ -92,8 +111,8 @@
 | UntrustSubnet   | 10.2.1.0/24   |
 | - | -  |
 | VM_IP   | 10.2.0.5   |
-| VM_NAME   | Vwan21-spoke2Vm   |
-| VNET_NAME   | Vwan21-spoke2-vnet   |
+| VM_NAME   | Lab07-spoke2Vm   |
+| VNET_NAME   | Lab07-spoke2-vnet   |
 | VNET_RANGES   | 10.2.0.0/16, fd00:db8:2::/56   |
 
 ## spoke3
@@ -114,6 +133,6 @@
 | UntrustSubnet   | 10.3.1.0/24   |
 | - | -  |
 | VM_IP   | 10.3.0.5   |
-| VM_NAME   | Vwan21-spoke3Vm   |
-| VNET_NAME   | Vwan21-spoke3-vnet   |
+| VM_NAME   | Lab07-spoke3Vm   |
+| VNET_NAME   | Lab07-spoke3-vnet   |
 | VNET_RANGES   | 10.3.0.0/16, fd00:db8:3::/56   |

@@ -142,26 +142,26 @@ conn %default
     esp=aes256-sha1!
 
 conn Tunnel0
-    left=10.30.1.9
-    leftid=40.88.25.20
-    right=57.151.27.50
-    rightid=57.151.27.50
+    left=10.10.1.9
+    leftid=13.79.174.106
+    right=135.236.137.137
+    rightid=135.236.137.137
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
-    left=10.30.1.9
-    leftid=40.88.25.20
-    right=57.151.25.69
-    rightid=57.151.25.69
+    left=10.10.1.9
+    leftid=13.79.174.106
+    right=135.236.137.158
+    rightid=135.236.137.158
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
-    left=10.30.1.9
-    leftid=40.88.25.20
-    right=13.79.85.153
-    rightid=13.79.85.153
+    left=10.10.1.9
+    leftid=13.79.174.106
+    right=1.1.1.1
+    rightid=1.1.1.1
     auto=start
     mark=300
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -172,9 +172,9 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.30.1.9 57.151.27.50 : PSK "changeme"
-10.30.1.9 57.151.25.69 : PSK "changeme"
-10.30.1.9 13.79.85.153 : PSK "changeme"
+10.10.1.9 135.236.137.137 : PSK "changeme"
+10.10.1.9 135.236.137.158 : PSK "changeme"
+10.10.1.9 1.1.1.1 : PSK "changeme"
 
 EOF
 
@@ -193,17 +193,17 @@ case "$PLUTO_CONNECTION" in
   Tunnel0)
     VTI_INTERFACE=vti0
     VTI_LOCALADDR=10.10.10.1
-    VTI_REMOTEADDR=192.168.22.12
+    VTI_REMOTEADDR=10.11.16.13
     ;;
   Tunnel1)
     VTI_INTERFACE=vti1
     VTI_LOCALADDR=10.10.10.5
-    VTI_REMOTEADDR=192.168.22.13
+    VTI_REMOTEADDR=10.11.16.12
     ;;
   Tunnel2)
     VTI_INTERFACE=vti2
-    VTI_LOCALADDR=10.10.10.10
-    VTI_REMOTEADDR=10.10.10.9
+    VTI_LOCALADDR=10.10.10.9
+    VTI_REMOTEADDR=10.10.10.10
     ;;
 esac
 
@@ -291,54 +291,54 @@ service integrated-vtysh-config
 !-----------------------------------------
 ! Prefix Lists
 !-----------------------------------------
-ip prefix-list BLOCK_HUB_GW_SUBNET deny fd00:db8:22::/56
+ip prefix-list BLOCK_HUB_GW_SUBNET deny fd00:db8:11::/56
 ip prefix-list BLOCK_HUB_GW_SUBNET permit 0.0.0.0/0 le 32
 !
 !-----------------------------------------
 ! Interface
 !-----------------------------------------
 interface lo
-  ip address 192.168.30.30/32
+  ip address 192.168.10.10/32
 !
 !-----------------------------------------
 ! Static Routes
 !-----------------------------------------
-ip route 0.0.0.0/0 10.30.1.1
-ip route 192.168.22.12/32 vti0
-ip route 192.168.22.13/32 vti1
-ip route 192.168.10.10/32 vti2
-ip route 10.10.1.9 10.30.1.1
-ip route 10.30.0.0/24 10.30.1.1
+ip route 0.0.0.0/0 10.10.1.1
+ip route 10.11.16.13/32 vti0
+ip route 10.11.16.12/32 vti1
+ip route 192.168.30.30/32 vti2
+ip route 10.30.1.9 10.10.1.1
+ip route 10.10.0.0/24 10.10.1.1
 !
 !-----------------------------------------
 ! Route Maps
 !-----------------------------------------
   route-map ONPREM permit 100
   match ip address prefix-list all
-  set as-path prepend 65003 65003 65003
+  set as-path prepend 65001 65001 65001
   route-map AZURE permit 110
   match ip address prefix-list all
 !
 !-----------------------------------------
 ! BGP
 !-----------------------------------------
-router bgp 65003
-bgp router-id 192.168.30.30
-neighbor 192.168.22.12 remote-as 65515
-neighbor 192.168.22.12 ebgp-multihop 255
-neighbor 192.168.22.12 update-source lo
-neighbor 192.168.22.13 remote-as 65515
-neighbor 192.168.22.13 ebgp-multihop 255
-neighbor 192.168.22.13 update-source lo
-neighbor 192.168.10.10 remote-as 65001
-neighbor 192.168.10.10 ebgp-multihop 255
-neighbor 192.168.10.10 update-source lo
+router bgp 65001
+bgp router-id 192.168.10.10
+neighbor 10.11.16.13 remote-as 65515
+neighbor 10.11.16.13 ebgp-multihop 255
+neighbor 10.11.16.13 update-source lo
+neighbor 10.11.16.12 remote-as 65515
+neighbor 10.11.16.12 ebgp-multihop 255
+neighbor 10.11.16.12 update-source lo
+neighbor 192.168.30.30 remote-as 65003
+neighbor 192.168.30.30 ebgp-multihop 255
+neighbor 192.168.30.30 update-source lo
 !
 address-family ipv4 unicast
-  network 10.30.0.0/24
-  neighbor 192.168.22.12 soft-reconfiguration inbound
-  neighbor 192.168.22.13 soft-reconfiguration inbound
-  neighbor 192.168.10.10 soft-reconfiguration inbound
+  network 10.10.0.0/24
+  neighbor 10.11.16.13 soft-reconfiguration inbound
+  neighbor 10.11.16.12 soft-reconfiguration inbound
+  neighbor 192.168.30.30 soft-reconfiguration inbound
 exit-address-family
 !
 line vty
