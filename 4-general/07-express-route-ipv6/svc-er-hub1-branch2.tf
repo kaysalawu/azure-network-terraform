@@ -67,14 +67,14 @@ module "megaport" {
   ]
 
   gateway_connections = [
-    {
-      virtual_network_gateway_name = module.hub1.ergw_name
-      express_route_circuit_name   = "${local.prefix}-er1"
-    },
-    {
-      virtual_network_gateway_name = module.branch2.ergw_name
-      express_route_circuit_name   = "${local.prefix}-er1"
-    },
+    # {
+    #   virtual_network_gateway_name = module.hub1.ergw_name
+    #   express_route_circuit_name   = "${local.prefix}-er1"
+    # },
+    # {
+    #   virtual_network_gateway_name = module.branch2.ergw_name
+    #   express_route_circuit_name   = "${local.prefix}-er1"
+    # },
   ]
 
   depends_on = [
