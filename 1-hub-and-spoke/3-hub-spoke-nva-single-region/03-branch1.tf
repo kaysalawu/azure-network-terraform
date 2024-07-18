@@ -312,7 +312,7 @@ module "branch1_udr_main" {
   subnet_ids     = [module.branch1.subnets["MainSubnet"].id, ]
   routes         = local.branch1_routes_main
 
-  disable_bgp_route_propagation = true
+  bgp_route_propagation_enabled = false
   depends_on = [
     module.branch1_dns,
     module.branch1_nva,

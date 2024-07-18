@@ -162,7 +162,7 @@ module "branch2_udr_main" {
   subnet_ids     = [module.branch2.subnets["MainSubnet"].id, ]
   routes         = local.branch2_routes_main
 
-  disable_bgp_route_propagation = false
+  bgp_route_propagation_enabled = true
   depends_on = [
     module.branch2_dns,
     time_sleep.branch2,
