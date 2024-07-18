@@ -1,4 +1,10 @@
 
+# This example shows how to run IPv6 over ExpressRoute private peering.
+# ER circuit er1 only establishes layer 2 connection to megaport in order to bring the circuit up.
+# Once the circuit is up, gateway connections from branch2 and hub1 are established to the circuit.
+# Hairpinning over er1 allows branch2 to communicate directly with hub1.
+# mcr1 is not in the data path in this scenario.
+
 locals {
   megaport_vlan1         = 100
   megaport_vlan2         = 200
@@ -67,14 +73,14 @@ module "megaport" {
   ]
 
   gateway_connections = [
-    # {
-    #   virtual_network_gateway_name = module.hub1.ergw_name
-    #   express_route_circuit_name   = "${local.prefix}-er1"
-    # },
-    # {
-    #   virtual_network_gateway_name = module.branch2.ergw_name
-    #   express_route_circuit_name   = "${local.prefix}-er1"
-    # },
+    {
+      virtual_network_gateway_name = module.hub1.ergw_name
+      express_route_circuit_name   = "${local.prefix}-er1"
+    },
+    {
+      virtual_network_gateway_name = module.branch2.ergw_name
+      express_route_circuit_name   = "${local.prefix}-er1"
+    },
   ]
 
   depends_on = [
@@ -82,4 +88,3 @@ module "megaport" {
     module.branch2,
   ]
 }
-

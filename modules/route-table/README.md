@@ -27,7 +27,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_disable_bgp_route_propagation"></a> [disable\_bgp\_route\_propagation](#input\_disable\_bgp\_route\_propagation) | n/a | `bool` | `false` | no |
+| <a name="input_bgp_route_propagation_enabled"></a> [disable\_bgp\_route\_propagation](#input\_disable\_bgp\_route\_propagation) | n/a | `bool` | `false` | no |
 | <a name="input_location"></a> [location](#input\_location) | The location/region where the route table will be created | `string` | n/a | yes |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | A short prefix to identify the resource | `string` | n/a | yes |
 | <a name="input_resource_group"></a> [resource\_group](#input\_resource\_group) | The name of the resource group in which the route table will be created | `string` | n/a | yes |

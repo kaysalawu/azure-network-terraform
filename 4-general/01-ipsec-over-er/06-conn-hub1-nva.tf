@@ -62,7 +62,7 @@ module "spoke1_udr_main" {
     next_hop_in_ip_address = local.hub1_nva_ilb_trust_addr
   }]
 
-  disable_bgp_route_propagation = true
+  bgp_route_propagation_enabled = false
 
   depends_on = [
     module.hub1,
@@ -136,7 +136,7 @@ module "spoke2_udr_main" {
     next_hop_in_ip_address = local.hub1_nva_ilb_trust_addr
   }]
 
-  disable_bgp_route_propagation = true
+  bgp_route_propagation_enabled = false
 
   depends_on = [
     module.hub1,
@@ -192,7 +192,7 @@ module "hub1_udr_main" {
     next_hop_in_ip_address = local.hub1_nva_ilb_trust_addr
   }]
 
-  disable_bgp_route_propagation = true
+  bgp_route_propagation_enabled = false
 
   depends_on = [
     module.hub1,

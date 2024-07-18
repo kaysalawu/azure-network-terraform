@@ -94,7 +94,7 @@ iptables -P INPUT ACCEPT
 iptables -P OUTPUT ACCEPT
 
 # Iptables rules
-sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 8088 -j DNAT --to-destination 10.1.0.5:8080
+sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 50443 -j DNAT --to-destination 10.1.0.5:8080
 sudo iptables -A FORWARD -p tcp -d 10.1.0.5 --dport 8080 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 iptables -t nat -A POSTROUTING -d 10.0.0.0/8 -j ACCEPT
 iptables -t nat -A POSTROUTING -d 172.16.0.0/12 -j ACCEPT

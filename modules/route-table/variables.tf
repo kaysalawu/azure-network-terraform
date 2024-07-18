@@ -25,9 +25,9 @@ variable "subnet_ids" {
   type        = list(string)
 }
 
-variable "disable_bgp_route_propagation" {
+variable "bgp_route_propagation_enabled" {
   type    = bool
-  default = false
+  default = true
 }
 
 variable "routes" {

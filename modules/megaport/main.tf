@@ -154,8 +154,8 @@ resource "azurerm_express_route_circuit_peering" "this" {
 # time sleep
 
 resource "time_sleep" "wait_for_peering" {
-  create_duration = "3m"
-  delete_duration = "3m"
+  create_duration  = "3m"
+  destroy_duration = "3m"
   depends_on = [
     megaport_azure_connection.primary,
     megaport_azure_connection.secondary,

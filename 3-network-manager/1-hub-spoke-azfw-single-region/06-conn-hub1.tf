@@ -21,7 +21,7 @@ module "spoke1_udr_main" {
     next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
   }]
 
-  disable_bgp_route_propagation = true
+  bgp_route_propagation_enabled = false
 
   depends_on = [
     time_sleep.hub1,
@@ -50,7 +50,7 @@ module "spoke2_udr_main" {
     next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
   }]
 
-  disable_bgp_route_propagation = true
+  bgp_route_propagation_enabled = false
 
   depends_on = [
     time_sleep.hub1,
@@ -99,7 +99,7 @@ module "hub1_udr_main" {
     next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
   }]
 
-  disable_bgp_route_propagation = true
+  bgp_route_propagation_enabled = false
 
   depends_on = [
     time_sleep.hub1,
