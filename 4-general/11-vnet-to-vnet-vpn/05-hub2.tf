@@ -42,8 +42,6 @@ module "hub2" {
 
   vnets_linked_to_ruleset = [
     { name = "hub2", vnet_id = module.hub2.vnet.id },
-    { name = "spoke4", vnet_id = module.spoke4.vnet.id },
-    { name = "spoke5", vnet_id = module.spoke5.vnet.id },
   ]
 
   nsg_subnet_map = {
@@ -92,7 +90,6 @@ module "hub2_vm" {
   location        = local.hub2_location
   storage_account = module.common.storage_accounts["region2"]
   custom_data     = base64encode(module.vm_cloud_init.cloud_config)
-  vm_size         = "D4s_v3"
   tags            = local.hub2_tags
 
   enable_ipv6 = local.enable_ipv6
