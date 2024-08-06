@@ -8,8 +8,8 @@ locals {
   enable_diagnostics       = true
   enable_service_endpoints = false
   enable_lb_snat_outbound  = false
-  enable_service_tags      = false
-  enable_vnet_flow_logs    = false
+  enable_service_tags      = true
+  enable_vnet_flow_logs    = true
 
   storage_storage_account_name = lower(replace("${local.hub1_prefix}${random_id.random.hex}", "-", ""))
   storage_container_name       = "storage"

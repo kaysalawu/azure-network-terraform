@@ -7,53 +7,6 @@ packages:
   - docker-compose
 
 write_files:
-  - path: /etc/squid/blocked_sites
-    owner: root
-    permissions: 0744
-    content: |
-      google.com
-      bbc.co.uk
-      
-  - path: /etc/squid/squid.conf
-    owner: root
-    permissions: 0744
-    content: |
-      # squid.conf
-      http_port 3128
-      
-      acl blocked_sites dstdomain "/etc/squid/blocked_sites"
-      http_access deny blocked_sites
-      
-      http_access allow all
-      
-      # Enable logging
-      access_log /var/log/squid/access.log squid
-      cache_log /var/log/squid/cache.log
-      cache_store_log /var/log/squid/store.log
-      
-  - path: /etc/unbound/unbound.conf
-    owner: root
-    permissions: 0744
-    content: |
-      
-      server:
-          interface: 0.0.0.0
-      
-          access-control: 0.0.0.0 deny
-          access-control: 127.0.0.0/8 allow
-          access-control: 10.0.0.0/8 allow
-          access-control: 192.168.0.0/16 allow
-          access-control: 172.16.0.0/12 allow
-          access-control: 35.199.192.0/19 allow
-      
-          local-data: "server1.eu.az.corp 3600 IN A 10.0.3.4"
-          local-data: "server2.eu.az.corp 3600 IN A 10.0.3.5"
-          local-data: "proxy.eu.az.corp 3600 IN A 10.0.2.4"
-      
-      forward-zone:
-          name: "."
-          forward-addr: 168.63.129.16
-      
   - path: /var/lib/azure/crawler/app/crawler.sh
     owner: root
     permissions: 0744
@@ -719,29 +672,9 @@ write_files:
       
       # light-traffic generator
       
-      cat <<'EOF' > /usr/local/bin/light-traffic
-      nping -c 5 --tcp-connect -p 80,8080 proxy.eu.az.corp > /dev/null 2>&1
-      nping -c 5 --tcp-connect -p 80,8080 server1.eu.az.corp > /dev/null 2>&1
-      nping -c 5 --tcp-connect -p 80,8080 server2.eu.az.corp > /dev/null 2>&1
-      nping -c 5 --tcp-connect -p 80,8080 https://lab10hub140be.blob.core.windows.net/storage/storage.txt > /dev/null 2>&1
-      EOF
-      chmod a+x /usr/local/bin/light-traffic
       
       # heavy-traffic generator
       
-      cat <<'EOF' > /usr/local/bin/heavy-traffic
-      #! /bin/bash
-      i=0
-      while [ $i -lt 5 ]; do
-          ab -n $1 -c $2 proxy.eu.az.corp > /dev/null 2>&1
-          ab -n $1 -c $2 server1.eu.az.corp > /dev/null 2>&1
-          ab -n $1 -c $2 server2.eu.az.corp > /dev/null 2>&1
-          ab -n $1 -c $2 https://lab10hub140be.blob.core.windows.net/storage/storage.txt > /dev/null 2>&1
-          let i=i+1
-        sleep 5
-      done
-      EOF
-      chmod a+x /usr/local/bin/heavy-traffic
       
       ########################################################
       # traffic generators (ipv6)
@@ -749,185 +682,21 @@ write_files:
       
       # light-traffic generator
       
-      cat <<'EOF' > /usr/local/bin/light-traffic-ipv6
-      nping -c 5 -6 --tcp-connect -p 80,8080 proxy.eu.az.corp > /dev/null 2>&1
-      nping -c 5 -6 --tcp-connect -p 80,8080 server1.eu.az.corp > /dev/null 2>&1
-      nping -c 5 -6 --tcp-connect -p 80,8080 server2.eu.az.corp > /dev/null 2>&1
-      nping -c 5 -6 --tcp-connect -p 80,8080 https://lab10hub140be.blob.core.windows.net/storage/storage.txt > /dev/null 2>&1
-      EOF
-      chmod a+x /usr/local/bin/light-traffic-ipv6
       
       # heavy-traffic generator
       
-      cat <<'EOF' > /usr/local/bin/heavy-traffic-ipv6
-      #! /bin/bash
-      
-      get_ipv6() {
-        ipv6=$(host -t AAAA $1 | awk '/has IPv6 address/ {print $5}')
-        if [ -z "$ipv6" ]; then
-          echo $1
-        else
-          echo $ipv6
-        fi
-      }
-      
-      i=0
-      while [ $i -lt 8 ]; do
-          ab -s 3 -n $1 -c $2 [$(get_ipv6 proxy.eu.az.corp)]/ > /dev/null 2>&1
-        # check if ab command was successful
-        if [ $? -ne 0 ]; then
-          echo "target: proxy.eu.az.corp failed"
-          exit 1
-        else
-          echo "target: proxy.eu.az.corp passed"
-        fi
-          ab -s 3 -n $1 -c $2 [$(get_ipv6 server1.eu.az.corp)]/ > /dev/null 2>&1
-        # check if ab command was successful
-        if [ $? -ne 0 ]; then
-          echo "target: server1.eu.az.corp failed"
-          exit 1
-        else
-          echo "target: server1.eu.az.corp passed"
-        fi
-          ab -s 3 -n $1 -c $2 [$(get_ipv6 server2.eu.az.corp)]/ > /dev/null 2>&1
-        # check if ab command was successful
-        if [ $? -ne 0 ]; then
-          echo "target: server2.eu.az.corp failed"
-          exit 1
-        else
-          echo "target: server2.eu.az.corp passed"
-        fi
-          ab -s 3 -n $1 -c $2 [$(get_ipv6 https://lab10hub140be.blob.core.windows.net/storage/storage.txt)]/ > /dev/null 2>&1
-        # check if ab command was successful
-        if [ $? -ne 0 ]; then
-          echo "target: https://lab10hub140be.blob.core.windows.net/storage/storage.txt failed"
-          exit 1
-        else
-          echo "target: https://lab10hub140be.blob.core.windows.net/storage/storage.txt passed"
-        fi
-          let i=i+1
-        sleep 5
-      done
-      EOF
-      chmod a+x /usr/local/bin/heavy-traffic-ipv6
       
       ########################################################
       # crontabs
       ########################################################
       
       cat <<'EOF' > /etc/cron.d/traffic-gen
-      */1 * * * * /usr/local/bin/light-traffic 2>&1 > /dev/null
-      */1 * * * * /usr/local/bin/heavy-traffic 15 1 2>&1 > /dev/null
-      */2 * * * * /usr/local/bin/heavy-traffic 3 1 2>&1 > /dev/null
-      */3 * * * * /usr/local/bin/heavy-traffic 8 2 2>&1 > /dev/null
-      */5 * * * * /usr/local/bin/heavy-traffic 5 1 2>&1 > /dev/null
       EOF
       
       crontab /etc/cron.d/traffic-gen
       
-  - path: /var/lib/azure/squid/docker-compose.yml
-    owner: root
-    permissions: 0744
-    content: |
-      version: '3.7'
-      services:
-        squid:
-          container_name: squid
-          image: ubuntu/squid:latest
-          ports:
-            - "3128:3128"
-          network_mode: "host"
-          volumes:
-            - /etc/squid/squid.conf:/etc/squid/squid.conf
-            - /etc/squid/blocked_sites:/etc/squid/blocked_sites
-            - /var/log/squid/access.log:/var/log/squid/access.log
-            - /var/log/squid/cache.log:/var/log/squid/cache.log
-            - /var/log/squid/store.log:/var/log/squid/store.log
-          restart: always
-      
-  - path: /var/lib/azure/squid/setup-squid.sh
-    owner: root
-    permissions: 0744
-    content: |
-      #!/bin/bash
-      
-      mkdir -p /var/log/squid
-      touch /var/log/squid/access.log
-      touch /var/log/squid/cache.log
-      touch /var/log/squid/store.log
-      chown proxy:proxy /var/log/squid/*
-      chmod a+x /var/log/squid/*
-      
-  - path: /var/lib/azure/unbound/Dockerfile
-    owner: root
-    permissions: 0744
-    content: |
-      FROM alpine:3.19.0
-      RUN apk add --no-cache unbound
-      EXPOSE 53/tcp 53/udp
-      CMD ["unbound", "-d"]
-      
-  - path: /var/lib/azure/unbound/docker-compose.yml
-    owner: root
-    permissions: 0744
-    content: |
-      version: '3'
-      
-      services:
-        unbound:
-          container_name: unbound
-          build:
-            context: .
-            dockerfile: Dockerfile
-          ports:
-            - "53:53/tcp"
-            - "53:53/udp"
-          network_mode: "host"
-          volumes:
-            - /etc/unbound/unbound.log:/etc/unbound/unbound.log
-            - /etc/unbound/unbound.conf:/etc/unbound/unbound.conf
-          cap_add:
-            - NET_ADMIN
-          command: ["unbound", "-d"]
-          restart: always
-      
-  - path: /var/lib/azure/unbound/setup-unbound.sh
-    owner: root
-    permissions: 0744
-    content: |
-      #! /bin/bash
-      
-      exec > /var/log/azure-setup-unbound.log
-      
-      systemctl stop systemd-resolved
-      systemctl disable systemd-resolved
-      echo "nameserver 8.8.8.8" > /etc/resolv.conf
-      echo "$(hostname -I | cut -d' ' -f1) $(hostname)" | tee -a /etc/hosts >/dev/null
-      mkdir -p /etc/unbound
-      touch /etc/unbound/unbound.log && chmod a+x /etc/unbound/unbound.log
-      apt-get install -y resolvconf
-      
 
 runcmd:
-  - sysctl -w net.ipv4.ip_forward=1
-  - sysctl -w net.ipv4.conf.eth0.disable_xfrm=1
-  - sysctl -w net.ipv4.conf.eth0.disable_policy=1
-  - echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf
-  - sysctl -w net.ipv6.conf.all.forwarding=1
-  - echo 'net.ipv6.conf.all.forwarding=1' >> /etc/sysctl.conf
-  - sysctl -p
-  - echo iptables-persistent iptables-persistent/autosave_v4 boolean false | debconf-set-selections
-  - echo iptables-persistent iptables-persistent/autosave_v6 boolean false | debconf-set-selections
-  - apt-get -y install iptables-persistent
-  - iptables -P FORWARD ACCEPT
-  - iptables -P INPUT ACCEPT
-  - iptables -P OUTPUT ACCEPT
-  - iptables -t nat -A POSTROUTING -d 10.0.0.0/8 -j ACCEPT
-  - iptables -t nat -A POSTROUTING -d 172.16.0.0/12 -j ACCEPT
-  - iptables -t nat -A POSTROUTING -d 192.168.0.0/16 -j ACCEPT
-  - iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
   - . /var/lib/azure/init/startup.sh
-  - . /var/lib/azure/unbound/setup-unbound.sh
-  - . /var/lib/azure/squid/setup-squid.sh
-  - docker-compose -f /var/lib/azure/unbound/docker-compose.yml up -d
-  - docker-compose -f /var/lib/azure/squid/docker-compose.yml up -d
+  - docker-compose -f /var/lib/azure/fastapi/docker-compose-app1-80.yml up -d
+  - docker-compose -f /var/lib/azure/fastapi/docker-compose-app2-8080.yml up -d
