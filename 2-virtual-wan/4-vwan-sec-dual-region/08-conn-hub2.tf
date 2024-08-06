@@ -99,8 +99,8 @@ module "hub2_udr_main" {
 
 data "cidrblock_summarization" "vhub2_route_map_cidr_blocks" {
   cidr_blocks = [
-    local.hub2_address_space.0,
-    local.hub2_address_space.1,
+    local.spoke4_address_space.0,
+    local.spoke5_address_space.0,
   ]
 }
 

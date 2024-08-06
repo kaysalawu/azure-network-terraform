@@ -92,7 +92,6 @@ module "hub2_vm" {
   location        = local.hub2_location
   storage_account = module.common.storage_accounts["region2"]
   custom_data     = base64encode(module.vm_cloud_init.cloud_config)
-  vm_size         = "D4s_v3"
   tags            = local.hub2_tags
 
   enable_ipv6 = local.enable_ipv6
