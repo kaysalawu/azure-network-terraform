@@ -379,7 +379,7 @@ cd azure-network-terraform/4-general/08-network-paths-er-vpn
 2\. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
 ```sh
-bash ../../scripts/_cleanup.sh Lab08_ExR_VPN_RG
+bash ../../scripts/_cleanup.sh Lab08_ER_VPN_RG
 ```
 
 <details>
@@ -387,11 +387,11 @@ bash ../../scripts/_cleanup.sh Lab08_ExR_VPN_RG
 <summary>Sample output</summary>
 
 ```sh
-08-network-paths-er-vpn$ bash ../../scripts/_cleanup.sh Lab08_ExR_VPN_RG
+08-network-paths-er-vpn$ bash ../../scripts/_cleanup.sh Lab08_ER_VPN_RG
 
-Resource group: Lab08_ExR_VPN_RG
+Resource group: Lab08_ER_VPN_RG
 
-⏳ Checking for diagnostic settings on resources in Lab08_ExR_VPN_RG ...
+⏳ Checking for diagnostic settings on resources in Lab08_ER_VPN_RG ...
 ➜  Checking firewall ...
 ➜  Checking vnet gateway ...
     ❌ Deleting: diag setting [Lab08-branch2-ergw-diag] for vnet gateway [Lab08-branch2-ergw] ...
@@ -400,7 +400,7 @@ Resource group: Lab08_ExR_VPN_RG
 ➜  Checking vpn gateway ...
 ➜  Checking er gateway ...
 ➜  Checking app gateway ...
-⏳ Checking for azure policies in Lab08_ExR_VPN_RG ...
+⏳ Checking for azure policies in Lab08_ER_VPN_RG ...
 Done!
 ```
 
@@ -410,9 +410,9 @@ Done!
 3\. Delete ExpressRoute connections, peerings, circuits and Megaport configuration.
 
 ```sh
-bash ../../scripts/express-route/delete_ergw_connections.sh Lab08_ExR_VPN_RG
-bash ../../scripts/express-route/delete_private_peerings.sh Lab08_ExR_VPN_RG
-bash ../../scripts/express-route/delete_er_circuits.sh Lab08_ExR_VPN_RG
+bash ../../scripts/express-route/delete_ergw_connections.sh Lab08_ER_VPN_RG
+bash ../../scripts/express-route/delete_private_peerings.sh Lab08_ER_VPN_RG
+bash ../../scripts/express-route/delete_er_circuits.sh Lab08_ER_VPN_RG
 terraform destroy -target=module.megaport --auto-approve
 ```
 
@@ -421,13 +421,13 @@ terraform destroy -target=module.megaport --auto-approve
 <summary>Sample output</summary>
 
 ```sh
-08-network-paths-er-vpn$ bash ../../scripts/express-route/delete_ergw_connections.sh Lab08_ExR_VPN_RG
+08-network-paths-er-vpn$ bash ../../scripts/express-route/delete_ergw_connections.sh Lab08_ER_VPN_RG
 
 #######################################
 Script: delete_ergw_connections.sh
 #######################################
 
-Resource group: Lab08_ExR_VPN_RG
+Resource group: Lab08_ER_VPN_RG
 
 ⏳ Processing gateway: Lab08-branch2-ergw
 ❓ Deleting connection: Lab08-er3
@@ -465,7 +465,7 @@ Resource group: Lab08_ExR_VPN_RG
 Script: delete_private_peerings.sh
 #######################################
 
-Resource group: Lab08_ExR_VPN_RG
+Resource group: Lab08_ER_VPN_RG
 
 ⏳ Processing circuit: Lab08-er1
 ⏳ Processing circuit: Lab08-er2
@@ -475,13 +475,13 @@ Resource group: Lab08_ExR_VPN_RG
 ```
 
 ```sh
-08-network-paths-er-vpn$ bash ../../scripts/express-route/delete_er_circuits.sh Lab08_ExR_VPN_RG
+08-network-paths-er-vpn$ bash ../../scripts/express-route/delete_er_circuits.sh Lab08_ER_VPN_RG
 
 #######################################
 Script: delete_er_circuits.sh
 #######################################
 
-Resource group: Lab08_ExR_VPN_RG
+Resource group: Lab08_ER_VPN_RG
 
 ⏳ Deleting circuit: Lab08-er1
 ⏳ Deleting circuit: Lab08-er2
@@ -500,7 +500,7 @@ Resource group: Lab08_ExR_VPN_RG
 4\. Delete the resource group to remove all resources installed.
 
 ```sh
-az group delete -g Lab08_ExR_VPN_RG --no-wait
+az group delete -g Lab08_ER_VPN_RG --no-wait
 ```
 
 

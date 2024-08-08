@@ -3,8 +3,8 @@ locals {
   megaport_vlan1         = 100
   megaport_vlan2         = 200
   megaport_vlan3         = 300
-  express_route_location = "Dublin"
-  megaport_location      = "Equinix LD5"
+  express_route_location = "London"
+  megaport_location      = "Global Switch London East"
   bandwidth_in_mbps      = 50
 }
 
@@ -44,18 +44,29 @@ module "megaport" {
 
   circuits = [
     {
-      name                    = "${local.prefix}-er1"
-      mcr_name                = "mcr1"
-      location                = local.region1
-      peering_location        = local.express_route_location
-      bandwidth_in_mbps       = local.bandwidth_in_mbps
-      requested_vlan          = local.megaport_vlan1
-      enable_mcr_auto_peering = false
-      enable_mcr_peering      = true
+      name              = "${local.prefix}-er1"
+      mcr_name          = "mcr1"
+      location          = local.region1
+      peering_location  = local.express_route_location
+      bandwidth_in_mbps = local.bandwidth_in_mbps
+      requested_vlan    = local.megaport_vlan1
 
-      ipv4_config = {
-        primary_peer_address_prefix   = local.csp_range1
-        secondary_peer_address_prefix = local.csp_range2
+      primary_peer_address_prefix_ipv4   = local.csp_range1
+      secondary_peer_address_prefix_ipv4 = local.csp_range2
+      primary_peer_address_prefix_ipv6   = local.csp_range1_v6
+      secondary_peer_address_prefix_ipv6 = local.csp_range2_v6
+
+      # mcr_config_block creates layer2 and layer3 config on megaport and azure sides
+      mcr_config = {
+        enable_auto_peering    = false # auto-assign circuit addresses
+        create_private_peering = true  # use provided addresses
+      }
+
+      # azure_config_block is used only when all mcr_config attributes are false
+      # creates layer2 and layer3 config on azure and megaport sides
+      azure_config = {
+        create_ipv4_peering = false
+        create_ipv6_peering = false
       }
     },
     {
@@ -68,35 +79,49 @@ module "megaport" {
       enable_mcr_auto_peering = false
       enable_mcr_peering      = true
 
-      ipv4_config = {
-        primary_peer_address_prefix   = local.csp_range3
-        secondary_peer_address_prefix = local.csp_range4
+      primary_peer_address_prefix_ipv4   = local.csp_range3
+      secondary_peer_address_prefix_ipv4 = local.csp_range4
+      primary_peer_address_prefix_ipv6   = local.csp_range3_v6
+      secondary_peer_address_prefix_ipv6 = local.csp_range4_v6
+
+      mcr_config = {
+        enable_auto_peering    = false
+        create_private_peering = true
       }
-      ipv6_config = {
-        primary_peer_address_prefix   = local.csp_range3_v6
-        secondary_peer_address_prefix = local.csp_range4_v6
+
+      azure_config = {
+        create_ipv4_peering = false
+        create_ipv6_peering = false
       }
     },
     {
-      name                    = "${local.prefix}-er3"
-      mcr_name                = "mcr1"
-      location                = local.region1
-      peering_location        = local.express_route_location
-      bandwidth_in_mbps       = local.bandwidth_in_mbps
-      requested_vlan          = local.megaport_vlan3
-      enable_mcr_auto_peering = false
-      enable_mcr_peering      = true
+      name              = "${local.prefix}-er3"
+      mcr_name          = "mcr1"
+      location          = local.region1
+      peering_location  = local.express_route_location
+      bandwidth_in_mbps = local.bandwidth_in_mbps
+      requested_vlan    = local.megaport_vlan3
 
-      ipv4_config = {
-        primary_peer_address_prefix   = local.csp_range5
-        secondary_peer_address_prefix = local.csp_range6
+      primary_peer_address_prefix_ipv4   = local.csp_range5
+      secondary_peer_address_prefix_ipv4 = local.csp_range6
+      primary_peer_address_prefix_ipv6   = local.csp_range5_v6
+      secondary_peer_address_prefix_ipv6 = local.csp_range6_v6
+
+      mcr_config = {
+        enable_auto_peering    = false
+        create_private_peering = true
+      }
+
+      azure_config = {
+        create_ipv4_peering = false
+        create_ipv6_peering = false
       }
     },
   ]
 
   gateway_connections = [
     {
-      express_route_circuit_name   = "${local.prefix}-er1",
+      express_route_circuit_name   = "${local.prefix}-er1"
       virtual_network_gateway_name = module.hub1.ergw_name
     },
     {
@@ -108,26 +133,8 @@ module "megaport" {
       virtual_network_gateway_name = module.branch2.ergw_name
     },
   ]
-}
-
-###################################################
-# dashboard
-###################################################
-
-locals {
-  dashboard_vars = templatefile("./dashboard/system-dashboard.json", {
-    ER1_CIRCUIT_NAME = module.megaport.express_route_circuit["${local.prefix}-er1"].name,
-    ER2_CIRCUIT_NAME = module.megaport.express_route_circuit["${local.prefix}-er2"].name,
-    ER1_CIRCUIT_ID   = module.megaport.express_route_circuit["${local.prefix}-er1"].id,
-    ER2_CIRCUIT_ID   = module.megaport.express_route_circuit["${local.prefix}-er2"].id,
-    HUB1_ERGW_ID     = module.hub1.ergw.id,
-    HUB1_ERGW_NAME   = module.hub1.ergw_name,
-  })
-}
-
-resource "azurerm_portal_dashboard" "express_route" {
-  resource_group_name  = azurerm_resource_group.rg.name
-  location             = azurerm_resource_group.rg.location
-  name                 = "${local.prefix}-system-dashboard"
-  dashboard_properties = local.dashboard_vars
+  depends_on = [
+    module.hub1,
+    module.branch2,
+  ]
 }
