@@ -73,11 +73,29 @@ locals {
   }
   region1_default_udr_destinations = [
     { name = "default-region1", address_prefix = ["0.0.0.0/0"], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "defaultv6-region1", address_prefix = ["::/0"], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 }
   ]
+  spoke1_udr_main_routes = concat(local.region1_default_udr_destinations, [
+    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+  ])
+  spoke2_udr_main_routes = concat(local.region1_default_udr_destinations, [
+    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+  ])
+  hub1_udr_main_routes = concat(local.region1_default_udr_destinations, [
+    { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "spoke1v6", address_prefix = [local.spoke1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "spoke2v6", address_prefix = [local.spoke2_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+  ])
   hub1_gateway_udr_destinations = [
     { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
     { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
     { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_nva_ilb_trust_addr },
+    { name = "spoke1v6", address_prefix = [local.spoke1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "spoke2v6", address_prefix = [local.spoke2_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
+    { name = "hub1v6", address_prefix = [local.hub1_address_space.1, ], next_hop_ip = local.hub1_nva_ilb_trust_addr_v6 },
   ]
 
   firewall_sku = "Basic"
@@ -315,7 +333,8 @@ locals {
   onprem_local_records = [
     { name = lower(local.branch1_vm_fqdn), rdata = local.branch1_vm_addr, ttl = "300", type = "A" },
     { name = lower(local.branch2_vm_fqdn), rdata = local.branch2_vm_addr, ttl = "300", type = "A" },
-    { name = lower(local.branch3_vm_fqdn), rdata = local.branch3_vm_addr, ttl = "300", type = "A" },
+    { name = lower(local.branch1_vm_fqdn), rdata = local.branch1_vm_addr_v6, ttl = "300", type = "AAAA" },
+    { name = lower(local.branch2_vm_fqdn), rdata = local.branch2_vm_addr_v6, ttl = "300", type = "AAAA" },
   ]
   onprem_redirected_hosts = []
 }
@@ -410,17 +429,6 @@ resource "azurerm_public_ip" "branch2_nva_pip" {
   sku                 = "Standard"
   allocation_method   = "Static"
   tags                = local.branch2_tags
-}
-
-# branch3
-
-resource "azurerm_public_ip" "branch3_nva_pip" {
-  count               = length(local.regions) > 1 ? 1 : 0
-  resource_group_name = azurerm_resource_group.rg.name
-  name                = "${local.branch3_prefix}nva-pip"
-  location            = local.branch3_location
-  sku                 = "Standard"
-  allocation_method   = "Static"
 }
 
 # hub1
@@ -543,12 +551,15 @@ locals {
     TARGETS_LIGHT_TRAFFIC_GEN = []
     TARGETS_HEAVY_TRAFFIC_GEN = []
     ENABLE_TRAFFIC_GEN        = false
-    IPTABLES_RULES            = []
-    FRR_CONF                  = ""
-    STRONGSWAN_VTI_SCRIPT     = ""
-    STRONGSWAN_IPSEC_SECRETS  = ""
-    STRONGSWAN_IPSEC_CONF     = ""
-    STRONGSWAN_AUTO_RESTART   = ""
+    IPTABLES_RULES = [
+      "sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 50443 -j DNAT --to-destination ${local.spoke1_vm_addr}:8080",
+      "sudo iptables -A FORWARD -p tcp -d ${local.spoke1_vm_addr} --dport 8080 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT",
+    ]
+    FRR_CONF                 = ""
+    STRONGSWAN_VTI_SCRIPT    = ""
+    STRONGSWAN_IPSEC_SECRETS = ""
+    STRONGSWAN_IPSEC_CONF    = ""
+    STRONGSWAN_AUTO_RESTART  = ""
   }))
 }
 

@@ -57,8 +57,8 @@ check_peerings_status() {
       echo -e "   $char_pass All peerings deleted successfully."
       break
     else
-      echo -e "   $char_arrow Peerings are still deleting. Checking again in 10 seconds..."
-      sleep 10
+      echo -e "   $char_arrow Peerings are still deleting. Checking again in 30 seconds..."
+      sleep 30
     fi
   done
 }

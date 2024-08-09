@@ -114,6 +114,134 @@ module "branch2_dns" {
 }
 
 ####################################################
+# nva
+####################################################
+
+locals {
+  branch2_nva_route_map_onprem      = "ONPREM"
+  branch2_nva_route_map_azure       = "AZURE"
+  branch2_nva_route_map_block_azure = "BLOCK_HUB_GW_SUBNET"
+  branch2_nva_vars = {
+    LOCAL_ASN = local.branch2_nva_asn
+    LOOPBACK0 = local.branch2_nva_loopback0
+    LOOPBACKS = []
+
+    PREFIX_LISTS = [
+      "ip prefix-list ${local.branch2_nva_route_map_block_azure} deny ${local.hub1_address_space[1]}",
+      "ip prefix-list ${local.branch2_nva_route_map_block_azure} permit 0.0.0.0/0 le 32",
+    ]
+    ROUTE_MAPS = [
+      # do nothing (placeholder for future use)
+      "route-map ${local.branch2_nva_route_map_azure} permit 110",
+      "match ip address prefix-list all",
+
+      # block inbound gateway subnet, allow all other hub and spoke cidrs
+      "route-map ${local.branch2_nva_route_map_block_azure} permit 120",
+      "match ip address prefix-list BLOCK_HUB_GW_SUBNET",
+    ]
+    STATIC_ROUTES = [
+      { prefix = "0.0.0.0/0", next_hop = local.branch2_untrust_default_gw },
+      { prefix = "${module.hub1.s2s_vpngw_bgp_default_ip0}/32", next_hop = "vti0" },
+      { prefix = "${module.hub1.s2s_vpngw_bgp_default_ip1}/32", next_hop = "vti1" },
+      { prefix = "${module.hub1.s2s_vpngw_private_ip0}/32", next_hop = local.branch2_untrust_default_gw },
+      { prefix = "${module.hub1.s2s_vpngw_private_ip1}/32", next_hop = local.branch2_untrust_default_gw },
+      { prefix = local.branch2_subnets["MainSubnet"].address_prefixes[0], next_hop = local.branch2_untrust_default_gw },
+    ]
+    TUNNELS = [
+      {
+        name            = "Tunnel0"
+        vti_name        = "vti0"
+        unique_id       = 100
+        vti_local_addr  = cidrhost(local.vti_range2, 1)
+        vti_remote_addr = module.hub1.s2s_vpngw_bgp_default_ip0
+        local_ip        = local.branch2_nva_untrust_addr
+        local_id        = local.branch2_nva_untrust_addr
+        remote_ip       = module.hub1.s2s_vpngw_private_ip0
+        remote_id       = module.hub1.s2s_vpngw_private_ip0
+        psk             = local.psk
+      },
+      {
+        name            = "Tunnel1"
+        vti_name        = "vti1"
+        unique_id       = 200
+        vti_local_addr  = cidrhost(local.vti_range3, 1)
+        vti_remote_addr = module.hub1.s2s_vpngw_bgp_default_ip1
+        local_ip        = local.branch2_nva_untrust_addr
+        local_id        = local.branch2_nva_untrust_addr
+        remote_ip       = module.hub1.s2s_vpngw_private_ip1
+        remote_id       = module.hub1.s2s_vpngw_private_ip1
+        psk             = local.psk
+      },
+    ]
+    BGP_SESSIONS_IPV4 = [
+      {
+        peer_asn        = module.hub1.s2s_vpngw_bgp_asn
+        peer_ip         = module.hub1.s2s_vpngw_bgp_default_ip0
+        ebgp_multihop   = true
+        source_loopback = true
+        route_maps      = []
+      },
+      {
+        peer_asn        = module.hub1.s2s_vpngw_bgp_asn
+        peer_ip         = module.hub1.s2s_vpngw_bgp_default_ip1
+        ebgp_multihop   = true
+        source_loopback = true
+        route_maps      = []
+      },
+    ]
+    BGP_ADVERTISED_PREFIXES_IPV4 = [
+      local.branch2_subnets["MainSubnet"].address_prefixes[0],
+    ]
+  }
+  branch2_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.branch2_nva_vars, {
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = []
+    TARGETS_HEAVY_TRAFFIC_GEN = []
+
+    IPTABLES_RULES           = []
+    FRR_CONF                 = templatefile("../../scripts/frr/frr.conf", merge(local.branch2_nva_vars, {}))
+    STRONGSWAN_VTI_SCRIPT    = templatefile("../../scripts/strongswan/ipsec-vti.sh", local.branch2_nva_vars)
+    STRONGSWAN_IPSEC_SECRETS = templatefile("../../scripts/strongswan/ipsec.secrets", local.branch2_nva_vars)
+    STRONGSWAN_IPSEC_CONF    = templatefile("../../scripts/strongswan/ipsec.conf", local.branch2_nva_vars)
+    STRONGSWAN_AUTO_RESTART  = templatefile("../../scripts/strongswan/ipsec-auto-restart.sh", local.branch2_nva_vars)
+  }))
+}
+
+module "branch2_nva" {
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  name            = "${local.prefix}-${local.branch2_nva_hostname}"
+  computer_name   = local.branch2_nva_hostname
+  location        = local.branch2_location
+  storage_account = module.common.storage_accounts["region1"]
+  custom_data     = base64encode(local.branch2_nva_init)
+  tags            = local.branch2_tags
+
+  source_image_publisher = "Canonical"
+  source_image_offer     = "0001-com-ubuntu-server-focal"
+  source_image_sku       = "20_04-lts"
+  source_image_version   = "latest"
+
+  ip_forwarding_enabled = true
+  interfaces = [
+    {
+      name                 = "${local.branch2_prefix}nva-untrust-nic"
+      subnet_id            = module.branch2.subnets["UntrustSubnet"].id
+      private_ip_address   = local.branch2_nva_untrust_addr
+      public_ip_address_id = azurerm_public_ip.branch2_nva_pip.id
+    },
+    {
+      name               = "${local.branch2_prefix}nva-trust-nic"
+      subnet_id          = module.branch2.subnets["TrustSubnet"].id
+      private_ip_address = local.branch2_nva_trust_addr
+    },
+  ]
+  depends_on = [
+    module.branch2
+  ]
+}
+
+####################################################
 # workload
 ####################################################
 
@@ -182,7 +310,8 @@ module "branch2_udr_main" {
 
 locals {
   branch2_files = {
-    "output/branch2Dns.sh" = local.branch2_unbound_startup
+    "output/branch1Dns.sh" = local.branch2_unbound_startup
+    "output/branch2Nva.sh" = local.branch2_nva_init
   }
 }
 

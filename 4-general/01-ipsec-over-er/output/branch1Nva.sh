@@ -142,18 +142,18 @@ conn %default
     esp=aes256-sha1!
 
 conn Tunnel0
-    left=10.20.1.9
-    leftid=40.69.56.209
-    right=135.236.143.10
-    rightid=135.236.143.10
+    left=10.10.1.9
+    leftid=52.178.190.22
+    right=4.207.160.98
+    rightid=4.207.160.98
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
-    left=10.20.1.9
-    leftid=40.69.56.209
-    right=135.236.143.55
-    rightid=135.236.143.55
+    left=10.10.1.9
+    leftid=52.178.190.22
+    right=4.207.160.64
+    rightid=4.207.160.64
     auto=start
     mark=200
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -164,8 +164,8 @@ conn Tunnel1
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.20.1.9 135.236.143.10 : PSK "changeme"
-10.20.1.9 135.236.143.55 : PSK "changeme"
+10.10.1.9 4.207.160.98 : PSK "changeme"
+10.10.1.9 4.207.160.64 : PSK "changeme"
 
 EOF
 
@@ -184,12 +184,12 @@ case "$PLUTO_CONNECTION" in
   Tunnel0)
     VTI_INTERFACE=vti0
     VTI_LOCALADDR=10.10.10.1
-    VTI_REMOTEADDR=10.11.16.12
+    VTI_REMOTEADDR=10.11.16.15
     ;;
   Tunnel1)
     VTI_INTERFACE=vti1
     VTI_LOCALADDR=10.10.10.5
-    VTI_REMOTEADDR=10.11.16.13
+    VTI_REMOTEADDR=10.11.16.14
     ;;
 esac
 
@@ -277,75 +277,48 @@ service integrated-vtysh-config
 !-----------------------------------------
 ! Prefix Lists
 !-----------------------------------------
-ip prefix-list ALL permit 0.0.0.0/0 le 32
-bgp as-path access-list 10 permit ^65515_12076_64512_12076$
+ip prefix-list BLOCK_HUB_GW_SUBNET deny fd00:db8:11::/56
+ip prefix-list BLOCK_HUB_GW_SUBNET permit 0.0.0.0/0 le 32
 !
 !-----------------------------------------
 ! Interface
 !-----------------------------------------
 interface lo
-  ip address 192.168.20.20/32
+  ip address 192.168.10.10/32
 !
 !-----------------------------------------
 ! Static Routes
 !-----------------------------------------
-ip route 0.0.0.0/0 10.20.1.1
-ip route 10.20.17.4/32 10.20.1.1
-ip route 10.20.17.5/32 10.20.1.1
-ip route 10.11.16.12/32 vti0
-ip route 10.11.16.13/32 vti1
-ip route 10.20.0.0/24 10.20.1.1
+ip route 0.0.0.0/0 10.10.1.1
+ip route 10.11.16.15/32 vti0
+ip route 10.11.16.14/32 vti1
+ip route 10.10.0.0/24 10.10.1.1
 !
 !-----------------------------------------
 ! Route Maps
 !-----------------------------------------
-  route-map PREFER_EXPRESS_ROUTE_IN permit 10
-  match as-path 10
-  set local-preference 300
-  route-map AZURE_IPSEC_PRIMARY_IN permit 10
-  match ip address prefix-list ALL
-  set local-preference 200
-  route-map AZURE_IPSEC_SECONDARY_IN permit 10
-  match ip address prefix-list ALL
-  set local-preference 100
-  route-map AZURE_IPSEC_PRIMARY_OUT permit 10
-  match ip address prefix-list ALL
-  set as-path prepend 65002 65002 65002 65002 65002
-  route-map AZURE_IPSEC_SECONDARY_OUT permit 10
-  match ip address prefix-list ALL
-  set as-path prepend 65002 65002 65002 65002 65002 65002
+  route-map ONPREM permit 100
+  match ip address prefix-list all
+  set as-path prepend 65001 65001 65001
+  route-map AZURE permit 110
+  match ip address prefix-list all
 !
 !-----------------------------------------
 ! BGP
 !-----------------------------------------
-router bgp 65002
-bgp router-id 192.168.20.20
-neighbor 10.11.16.12 remote-as 65515
-neighbor 10.11.16.12 ebgp-multihop 255
-neighbor 10.11.16.12 update-source lo
-neighbor 10.11.16.13 remote-as 65515
-neighbor 10.11.16.13 ebgp-multihop 255
-neighbor 10.11.16.13 update-source lo
-neighbor 10.20.17.4 remote-as 65515
-neighbor 10.20.17.4 ebgp-multihop 255
-neighbor 10.20.17.5 remote-as 65515
-neighbor 10.20.17.5 ebgp-multihop 255
+router bgp 65001
+bgp router-id 192.168.10.10
+neighbor 10.11.16.15 remote-as 65515
+neighbor 10.11.16.15 ebgp-multihop 255
+neighbor 10.11.16.15 update-source lo
+neighbor 10.11.16.14 remote-as 65515
+neighbor 10.11.16.14 ebgp-multihop 255
+neighbor 10.11.16.14 update-source lo
 !
 address-family ipv4 unicast
-  network 10.20.0.0/16
-  network 10.20.0.0/16
-  neighbor 10.11.16.12 soft-reconfiguration inbound
-  neighbor 10.11.16.12 route-map AZURE_IPSEC_PRIMARY_IN in
-  neighbor 10.11.16.12 route-map AZURE_IPSEC_PRIMARY_OUT out
-  neighbor 10.11.16.13 soft-reconfiguration inbound
-  neighbor 10.11.16.13 route-map AZURE_IPSEC_SECONDARY_IN in
-  neighbor 10.11.16.13 route-map AZURE_IPSEC_SECONDARY_OUT out
-  neighbor 10.20.17.4 soft-reconfiguration inbound
-  neighbor 10.20.17.4 as-override
-  neighbor 10.20.17.4 route-map PREFER_EXPRESS_ROUTE_IN in
-  neighbor 10.20.17.5 soft-reconfiguration inbound
-  neighbor 10.20.17.5 as-override
-  neighbor 10.20.17.5 route-map PREFER_EXPRESS_ROUTE_IN in
+  network 10.10.0.0/24
+  neighbor 10.11.16.15 soft-reconfiguration inbound
+  neighbor 10.11.16.14 soft-reconfiguration inbound
 exit-address-family
 !
 line vty

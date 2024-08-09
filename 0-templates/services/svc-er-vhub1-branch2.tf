@@ -37,13 +37,13 @@ locals {
 
       auto_create_private_peering = false
 
-      ipv4_config = {
+      azure_config_ipv4 = {
         create_megaport_vxc_peering   = false
         create_azure_private_peering  = true
         primary_peer_address_prefix   = local.csp_range1
         secondary_peer_address_prefix = local.csp_range2
       }
-      ipv6_config = {
+      azure_config_ipv6 = {
         enabled                       = false
         create_megaport_vxc_peering   = false
         create_azure_private_peering  = true

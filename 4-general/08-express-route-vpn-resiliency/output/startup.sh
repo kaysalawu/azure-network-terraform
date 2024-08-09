@@ -1,5 +1,7 @@
 #! /bin/bash
 
+exec > /var/log/azure-startup.log
+
 apt update
 apt install -y python3-pip python3-dev python3-venv unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
 
