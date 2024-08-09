@@ -59,19 +59,22 @@ resource "megaport_azure_connection" "primary" {
 
   csp_settings {
     service_key                 = azurerm_express_route_circuit.this[each.value.name].service_key
-    auto_create_private_peering = each.value.enable_mcr_auto_peering
+    auto_create_private_peering = each.value.mcr_config.enable_auto_peering
 
+    # private_peering block:
+    # Megaport creates the layer3 config on BOTH megaport and azure sides.
+    # This means azurerm_express_route_circuit_peering resource will not be used - as this is the azure equivalent of creating peering on both sides.
+    # Either let megaport OR azure configure both sides, not both.
     dynamic "private_peering" {
-      for_each = each.value.enable_mcr_peering ? [1] : []
+      for_each = each.value.mcr_config.create_private_peering ? [1] : []
       content {
         peer_asn         = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
-        primary_subnet   = each.value.ipv4_config.primary_peer_address_prefix
-        secondary_subnet = each.value.ipv4_config.secondary_peer_address_prefix
+        primary_subnet   = each.value.primary_peer_address_prefix_ipv4
+        secondary_subnet = each.value.secondary_peer_address_prefix_ipv4
         requested_vlan   = each.value.requested_vlan
       }
     }
   }
-
   lifecycle {
     ignore_changes = [a_end, ]
   }
@@ -95,17 +98,20 @@ resource "megaport_azure_connection" "secondary" {
     port_id        = megaport_mcr.this[each.value.mcr_name].id
     requested_vlan = each.value.requested_vlan
   }
-
   csp_settings {
     service_key                 = azurerm_express_route_circuit.this[each.value.name].service_key
-    auto_create_private_peering = each.value.enable_mcr_auto_peering
+    auto_create_private_peering = each.value.mcr_config.enable_auto_peering
 
+    # private_peering block:
+    # Megaport creates the layer3 config on BOTH megaport and azure sides.
+    # This means azurerm_express_route_circuit_peering resource will not be used - as this is the azure equivalent of creating peering on both sides.
+    # Either let megaport OR azure configure both sides, not both.
     dynamic "private_peering" {
-      for_each = each.value.enable_mcr_peering ? [1] : []
+      for_each = each.value.mcr_config.create_private_peering ? [1] : []
       content {
         peer_asn         = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
-        primary_subnet   = each.value.ipv4_config.primary_peer_address_prefix
-        secondary_subnet = each.value.ipv4_config.secondary_peer_address_prefix
+        primary_subnet   = each.value.primary_peer_address_prefix_ipv4
+        secondary_subnet = each.value.secondary_peer_address_prefix_ipv4
         requested_vlan   = each.value.requested_vlan
       }
     }
@@ -123,22 +129,25 @@ resource "megaport_azure_connection" "secondary" {
 # peering
 #----------------------------
 
+# Azure creates the layer3 config on BOTH azure and megaport sides.
+# This means megaport_azure_connection "private_peering" block will not be used - as this is the megaport equivalent of creating peering on both sides.
+# Either let megaport OR azure configure both sides, not both.
 resource "azurerm_express_route_circuit_peering" "this" {
-  for_each                      = { for c in var.circuits : c.name => c }
+  for_each                      = { for c in var.circuits : c.name => c if c.mcr_config.create_private_peering == false }
   resource_group_name           = var.resource_group
   express_route_circuit_name    = each.value.name
   peering_type                  = each.value.peering_type
   peer_asn                      = [for mcr in var.mcr : mcr.requested_asn if mcr.name == each.value.mcr_name][0]
-  primary_peer_address_prefix   = each.value.ipv4_config.primary_peer_address_prefix
-  secondary_peer_address_prefix = each.value.ipv4_config.secondary_peer_address_prefix
-  ipv4_enabled                  = true
+  primary_peer_address_prefix   = each.value.primary_peer_address_prefix_ipv4
+  secondary_peer_address_prefix = each.value.secondary_peer_address_prefix_ipv4
+  ipv4_enabled                  = each.value.azure_config.create_ipv4_peering
   vlan_id                       = each.value.requested_vlan
 
   dynamic "ipv6" {
-    for_each = each.value.ipv6_config.create_azure_private_peering ? [1] : []
+    for_each = each.value.azure_config.create_ipv6_peering ? [1] : []
     content {
-      primary_peer_address_prefix   = each.value.ipv6_config.primary_peer_address_prefix
-      secondary_peer_address_prefix = each.value.ipv6_config.secondary_peer_address_prefix
+      primary_peer_address_prefix   = each.value.primary_peer_address_prefix_ipv6
+      secondary_peer_address_prefix = each.value.secondary_peer_address_prefix_ipv6
       enabled                       = true
     }
   }
@@ -154,8 +163,8 @@ resource "azurerm_express_route_circuit_peering" "this" {
 # time sleep
 
 resource "time_sleep" "wait_for_peering" {
-  create_duration  = "3m"
-  destroy_duration = "3m"
+  create_duration  = "1m"
+  destroy_duration = "1m"
   depends_on = [
     megaport_azure_connection.primary,
     megaport_azure_connection.secondary,
@@ -221,9 +230,9 @@ resource "azurerm_express_route_connection" "vwan" {
   ]
 }
 
-###################################################
-# dashboard
-###################################################
+# ###################################################
+# # dashboard
+# ###################################################
 
 locals {
   dashboard_vars = { for c in var.circuits : c.name => templatefile("${path.module}/dashboard/dashboard.json", {

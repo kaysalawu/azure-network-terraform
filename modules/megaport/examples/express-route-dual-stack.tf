@@ -50,24 +50,29 @@ module "megaport" {
 
   circuits = [
     {
-      name                    = "${local.prefix}-er1"
-      mcr_name                = "mcr1"
-      location                = local.region1
-      peering_location        = local.express_route_location
-      bandwidth_in_mbps       = local.bandwidth_in_mbps
-      requested_vlan          = local.megaport_vlan1
-      enable_mcr_auto_peering = false # auto-assign circuit addresses
-      enable_mcr_peering      = false # creates layer2 circuit only, layer3 peering will be created on azure side *
+      name              = "${local.prefix}-er1"
+      mcr_name          = "mcr1"
+      location          = local.region1
+      peering_location  = local.express_route_location
+      bandwidth_in_mbps = local.bandwidth_in_mbps
+      requested_vlan    = local.megaport_vlan1
 
-      ipv4_config = {
-        primary_peer_address_prefix   = local.csp_range1
-        secondary_peer_address_prefix = local.csp_range2
+      primary_peer_address_prefix_ipv4   = local.csp_range1
+      secondary_peer_address_prefix_ipv4 = local.csp_range2
+      primary_peer_address_prefix_ipv6   = local.csp_range1_v6
+      secondary_peer_address_prefix_ipv6 = local.csp_range2_v6
+
+      # mcr_config_block creates layer2 and layer3 config on megaport and azure sides
+      mcr_config = {
+        enable_auto_peering    = false # auto-assign circuit addresses
+        create_private_peering = false # use provided addresses
       }
-      ipv6_config = {
-        enabled                       = true # creates ipv6 peering
-        create_azure_private_peering  = true # * creates azure private peering, used when enable_mcr_peering = false and enable_mcr_auto_peering = false
-        primary_peer_address_prefix   = local.csp_range1_v6
-        secondary_peer_address_prefix = local.csp_range2_v6
+
+      # azure_config_block is only used when all mcr_config attributes are false
+      # creates layer2 and layer3 config on azure and megaport sides
+      azure_config = {
+        create_ipv4_peering = true
+        create_ipv6_peering = true
       }
     },
   ]
@@ -88,4 +93,3 @@ module "megaport" {
     module.branch2,
   ]
 }
-

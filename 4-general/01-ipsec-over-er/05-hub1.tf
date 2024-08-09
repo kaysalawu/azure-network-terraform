@@ -25,8 +25,14 @@ module "hub1" {
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.hub1_tags
 
-  enable_diagnostics           = local.enable_diagnostics
-  log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
+  enable_diagnostics                  = local.enable_diagnostics
+  enable_ipv6                         = local.enable_ipv6
+  log_analytics_workspace_name        = module.common.log_analytics_workspaces["region1"].name
+  network_watcher_name                = "NetworkWatcher_${local.region1}"
+  network_watcher_resource_group_name = "NetworkWatcherRG"
+  # flow_log_nsg_ids = [
+  #   module.common.nsg_main["region1"].id,
+  # ]
 
   dns_zones_linked_to_vnet = [
     { name = module.common.private_dns_zones[local.region1_dns_zone].name, registration_enabled = true },
@@ -52,6 +58,7 @@ module "hub1" {
     "AppServiceSubnet"          = module.common.nsg_default["region1"].id
     "DnsResolverInboundSubnet"  = module.common.nsg_default["region1"].id
     "DnsResolverOutboundSubnet" = module.common.nsg_default["region1"].id
+    "TestSubnet"                = module.common.nsg_main["region1"].id
   }
 
   config_vnet      = local.hub1_features.config_vnet
@@ -66,6 +73,13 @@ module "hub1" {
   ]
 }
 
+resource "time_sleep" "hub1" {
+  create_duration = "90s"
+  depends_on = [
+    module.hub1
+  ]
+}
+
 ####################################################
 # workload
 ####################################################
@@ -77,19 +91,20 @@ module "hub1_vm" {
   computer_name   = local.hub1_vm_hostname
   location        = local.hub1_location
   storage_account = module.common.storage_accounts["region1"]
-  custom_data     = base64encode(local.vm_startup)
+  custom_data     = base64encode(module.vm_cloud_init.cloud_config)
   tags            = local.hub1_tags
 
-  ip_forwarding_enabled = true
+  enable_ipv6 = local.enable_ipv6
   interfaces = [
     {
-      name               = "${local.hub1_prefix}vm-main-nic"
-      subnet_id          = module.hub1.subnets["MainSubnet"].id
-      private_ip_address = local.hub1_vm_addr
-      create_public_ip   = true
+      name                 = "${local.hub1_prefix}vm-main-nic"
+      subnet_id            = module.hub1.subnets["MainSubnet"].id
+      private_ip_address   = local.hub1_vm_addr
+      private_ipv6_address = local.hub1_vm_addr_v6
+      create_public_ip     = true
     },
   ]
   depends_on = [
-    module.hub1
+    time_sleep.hub1,
   ]
 }

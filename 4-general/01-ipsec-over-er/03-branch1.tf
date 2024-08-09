@@ -143,8 +143,6 @@ locals {
       { prefix = "0.0.0.0/0", next_hop = local.branch1_untrust_default_gw },
       { prefix = "${module.hub1.s2s_vpngw_bgp_default_ip0}/32", next_hop = "vti0" },
       { prefix = "${module.hub1.s2s_vpngw_bgp_default_ip1}/32", next_hop = "vti1" },
-      { prefix = "${local.branch3_nva_loopback0}/32", next_hop = "vti2" },
-      { prefix = local.branch3_nva_untrust_addr, next_hop = local.branch1_untrust_default_gw },
       { prefix = local.branch1_subnets["MainSubnet"].address_prefixes[0], next_hop = local.branch1_untrust_default_gw },
     ]
     TUNNELS = [
@@ -184,13 +182,6 @@ locals {
       {
         peer_asn        = module.hub1.s2s_vpngw_bgp_asn
         peer_ip         = module.hub1.s2s_vpngw_bgp_default_ip1
-        ebgp_multihop   = true
-        source_loopback = true
-        route_maps      = []
-      },
-      {
-        peer_asn        = local.branch3_nva_asn
-        peer_ip         = local.branch3_nva_loopback0
         ebgp_multihop   = true
         source_loopback = true
         route_maps      = []

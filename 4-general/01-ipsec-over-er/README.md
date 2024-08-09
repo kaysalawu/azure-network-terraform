@@ -1,7 +1,5 @@
 # Lab01 - IPsec over ExpressRoute <!-- omit from toc -->
 
-⚠️ Document update in progress ...
-
 Contents
 
 - [Overview](#overview)
@@ -10,7 +8,7 @@ Contents
 - [Results](#results)
   - [1. Spoke1](#1-spoke1)
   - [2. Branch2 VM](#2-branch2-vm)
-  - [3. Branch2](#3-branch2)
+  - [3. Branch2 NVA](#3-branch2-nva)
   - [4. Hub1](#4-hub1)
   - [6. Vnet Gateways](#6-vnet-gateways)
   - [6. Express Route Circuits](#6-express-route-circuits)
@@ -69,18 +67,17 @@ All packets from `spoke1Vm` to `branch2Vm` are routed through the NVA in the hub
 <summary>Spoke1Vm - Curl DNS</summary>
 
 ```sh
-azureuser@spoke1Vm:~$ curl-dns
+azureuser@spoke1Vm:~$ curl-dns4
 
- curl dns ...
+ curl dns ipv4 ...
 
-200 (0.026233s) - 10.10.0.5 - branch1vm.corp
-200 (0.089145s) - 10.20.0.5 - branch2vm.corp
-200 (0.019477s) - 10.11.0.5 - hub1vm.eu.az.corp
-200 (0.013727s) - 10.11.7.88 - spoke3pls.eu.az.corp
-200 (0.008463s) - 10.1.0.5 - spoke1vm.eu.az.corp
-200 (0.023157s) - 10.2.0.5 - spoke2vm.eu.az.corp
-200 (0.014426s) - 104.16.184.241 - icanhazip.com
-200 (0.033923s) - 10.11.7.99 - https://g01spoke3saf19d.blob.core.windows.net/spoke3/spoke3.txt
+200 (0.019035s) - 10.10.0.5 - branch1vm.corp
+200 (0.015482s) - 10.11.0.5 - hub1vm.eu.az.corp
+200 (0.010227s) - 10.11.7.88 - spoke3pls.eu.az.corp
+200 (0.009985s) - 10.1.0.5 - spoke1vm.eu.az.corp
+200 (0.016568s) - 10.2.0.5 - spoke2vm.eu.az.corp
+200 (0.039737s) - 104.16.185.241 - icanhazip.com
+200 (0.028677s) - 10.11.7.99 - https://lab01spoke3saf69f.blob.core.windows.net/spoke3/spoke3.txt
 ```
 
 </details>
@@ -90,53 +87,45 @@ azureuser@spoke1Vm:~$ curl-dns
 <summary>Spoke1Vm - Tracepath</summary>
 
 ```sh
-azureuser@spoke1Vm:~$ trace-ip
+azureuser@spoke1Vm:~$ trace-ipv4
 
- trace ip ...
+ trace ipv4 ...
 
 
 branch1
 -------------------------------------
  1?: [LOCALHOST]                      pmtu 1500
- 1:  10.11.1.4                                             3.464ms
- 1:  10.11.1.4                                             1.007ms
- 2:  10.10.10.5                                            3.158ms
- 3:  10.10.0.5                                             3.953ms reached
-     Resume: pmtu 1500 hops 3 back 3
-
-branch2
--------------------------------------
- 1?: [LOCALHOST]                      pmtu 1500
- 1:  10.11.1.4                                             1.139ms
- 1:  10.11.1.4                                             1.001ms
- 2:  10.10.10.9                                           27.916ms
- 3:  10.20.0.5                                            28.806ms reached
+ 1:  10.11.1.4                                             1.794ms
+ 1:  10.11.1.4                                             2.433ms
+ 2:  10.10.10.5                                           16.922ms
+ 3:  10.10.0.5                                             5.098ms reached
      Resume: pmtu 1500 hops 3 back 3
 
 hub1
 -------------------------------------
  1?: [LOCALHOST]                      pmtu 1500
- 1:  10.11.1.4                                             1.258ms
- 1:  10.11.1.4                                             0.815ms
- 2:  10.11.0.5                                             2.238ms reached
+ 1:  10.11.1.4                                             5.944ms
+ 1:  10.11.1.4                                             2.561ms
+ 2:  10.11.0.5                                             2.355ms reached
      Resume: pmtu 1500 hops 2 back 2
 
 spoke1
 -------------------------------------
- 1:  spoke1vm.internal.cloudapp.net                        0.064ms reached
+ 1:  spoke1vm.internal.cloudapp.net                        0.080ms reached
      Resume: pmtu 65535 hops 1 back 1
 
 spoke2
 -------------------------------------
  1?: [LOCALHOST]                      pmtu 1500
- 1:  10.11.1.4                                             1.437ms
- 2:  10.2.0.5                                              3.087ms reached
+ 1:  10.11.1.4                                             1.336ms
+ 1:  10.11.1.4                                             1.133ms
+ 2:  10.2.0.5                                              3.507ms reached
      Resume: pmtu 1500 hops 2 back 2
 
 internet
 -------------------------------------
  1?: [LOCALHOST]                      pmtu 1500
- 1:  10.11.1.4                                             1.321ms
+ 1:  10.11.1.4                                             1.607ms
  2:  no reply
  3:  no reply
 ```
@@ -148,46 +137,17 @@ internet
 <summary>Spoke1Vm - Effective Routes</summary>
 
 ```sh
-01-ipsec-over-er$ . ../../scripts/_routes_nic.sh G01_IPsecOverER_RG
-
-Resource group: G01_IPsecOverER_RG
-
-Available NICs:
-1. G01-branch1-dns-main
-2. G01-branch1-nva-trust-nic
-3. G01-branch1-nva-untrust-nic
-4. G01-branch1-vm-main-nic
-5. G01-branch2-dns-main
-6. G01-branch2-nva-trust-nic
-7. G01-branch2-nva-untrust-nic
-8. G01-branch2-vm-main-nic
-9. G01-hub1-nva-trust-nic
-10. G01-hub1-nva-untrust-nic
-11. G01-hub1-spoke3-blob-pep.nic.1d8c0b09-49a3-4122-b25b-7293a752621e
-12. G01-hub1-spoke3-pls-pep.nic.968982fc-e561-43bd-89c0-a8a8775bbde9
-13. G01-hub1-vm-main-nic
-14. G01-spoke1-vm-main-nic
-15. G01-spoke2-vm-main-nic
-16. G01-spoke3-pls.nic.afac48ba-5169-4de6-947c-43a261e4af84
-17. G01-spoke3-vm-main-nic
-
-Select NIC to view effective routes (enter the number)
-
-Selection: 14
-
-Effective routes for G01-spoke1-vm-main-nic
+Effective routes for Lab01-spoke1-vm-main-nic
 
 Source    Prefix         State    NextHopType        NextHopIP
 --------  -------------  -------  -----------------  -----------
-Default   10.1.0.0/20    Active   VnetLocal
-Default   10.11.0.0/20   Invalid  VNetPeering
-Default   10.11.16.0/20  Invalid  VNetPeering
+Default   10.1.0.0/16    Active   VnetLocal
+Default   10.11.0.0/16   Invalid  VNetPeering
 Default   0.0.0.0/0      Invalid  Internet
-User      10.11.0.0/20   Active   VirtualAppliance   10.11.2.99
+User      10.11.0.0/16   Active   VirtualAppliance   10.11.2.99
 User      0.0.0.0/0      Active   VirtualAppliance   10.11.2.99
-User      10.11.16.0/20  Active   VirtualAppliance   10.11.2.99
-Default   10.11.7.99/32  Active   InterfaceEndpoint
-Default   10.11.7.88/32  Active   InterfaceEndpoint
+Default   10.11.7.99/32  Invalid  InterfaceEndpoint
+Default   10.11.7.88/32  Invalid  InterfaceEndpoint
 ```
 
 </details>
@@ -199,18 +159,17 @@ Default   10.11.7.88/32  Active   InterfaceEndpoint
 <summary>Branch2Vm - Curl DNS</summary>
 
 ```sh
-azureuser@branch2Vm:~$ curl-dns
+azureuser@branch2Vm:~$ curl-dns4
 
- curl dns ...
+ curl dns ipv4 ...
 
-200 (0.076975s) - 10.10.0.5 - branch1vm.corp
-200 (0.010942s) - 10.20.0.5 - branch2vm.corp
-200 (0.106217s) - 10.11.0.5 - hub1vm.eu.az.corp
-200 (0.100717s) - 10.11.7.88 - spoke3pls.eu.az.corp
-200 (0.108893s) - 10.1.0.5 - spoke1vm.eu.az.corp
-200 (0.103099s) - 10.2.0.5 - spoke2vm.eu.az.corp
-200 (0.066517s) - 104.16.184.241 - icanhazip.com
-200 (0.119872s) - 10.11.7.99 - https://g01spoke3saf19d.blob.core.windows.net/spoke3/spoke3.txt
+200 (0.051003s) - 10.10.0.5 - branch1vm.corp
+200 (0.083165s) - 10.11.0.5 - hub1vm.eu.az.corp
+200 (0.052173s) - 10.11.7.88 - spoke3pls.eu.az.corp
+200 (0.084521s) - 10.1.0.5 - spoke1vm.eu.az.corp
+200 (0.077546s) - 10.2.0.5 - spoke2vm.eu.az.corp
+200 (0.056096s) - 104.16.184.241 - icanhazip.com
+200 (0.120274s) - 10.11.7.99 - https://lab01spoke3saf69f.blob.core.windows.net/spoke3/spoke3.txt
 ```
 
 </details>
@@ -220,54 +179,49 @@ azureuser@branch2Vm:~$ curl-dns
 <summary>Branch2Vm - Tracepath</summary>
 
 ```sh
-azureuser@branch2Vm:~$ trace-ip
+azureuser@branch2Vm:~$ trace-ipv4
 
- trace ip ...
+ trace ipv4 ...
 
 
 branch1
 -------------------------------------
  1?: [LOCALHOST]                      pmtu 1500
- 1:  10.20.1.9                                             1.148ms
- 1:  10.20.1.9                                             2.466ms
- 2:  10.20.1.9                                             2.650ms pmtu 1436
- 2:  10.10.10.5                                           26.555ms
- 3:  10.10.0.5                                            26.768ms reached
+ 1:  10.20.1.9                                             1.621ms
+ 1:  10.20.1.9                                             5.235ms
+ 2:  10.20.1.9                                             1.205ms pmtu 1436
+ 2:  no reply
+ 3:  10.10.0.5                                            25.104ms reached
      Resume: pmtu 1436 hops 3 back 3
-
-branch2
--------------------------------------
- 1:  branch2Vm                                             0.055ms reached
-     Resume: pmtu 65535 hops 1 back 1
 
 hub1
 -------------------------------------
  1?: [LOCALHOST]                      pmtu 1500
- 1:  10.20.1.9                                             1.014ms
- 1:  10.20.1.9                                             1.646ms
- 2:  10.20.1.9                                             1.186ms pmtu 1436
- 2:  10.11.1.4                                            26.242ms
- 3:  10.11.0.5                                            26.799ms reached
+ 1:  10.20.1.9                                             1.458ms
+ 1:  10.20.1.9                                             1.624ms
+ 2:  10.20.1.9                                             1.155ms pmtu 1436
+ 2:  10.11.1.4                                            23.947ms
+ 3:  10.11.0.5                                            24.433ms reached
      Resume: pmtu 1436 hops 3 back 3
 
 spoke1
 -------------------------------------
  1?: [LOCALHOST]                      pmtu 1500
- 1:  10.20.1.9                                             0.999ms
- 1:  10.20.1.9                                             0.910ms
- 2:  10.20.1.9                                             1.319ms pmtu 1436
- 2:  10.11.1.4                                            25.928ms
- 3:  10.1.0.5                                             26.361ms reached
+ 1:  10.20.1.9                                             1.443ms
+ 1:  10.20.1.9                                             1.647ms
+ 2:  10.20.1.9                                             1.280ms pmtu 1436
+ 2:  10.11.1.4                                            28.734ms
+ 3:  10.1.0.5                                             27.187ms reached
      Resume: pmtu 1436 hops 3 back 3
 
 spoke2
 -------------------------------------
  1?: [LOCALHOST]                      pmtu 1500
- 1:  10.20.1.9                                             1.310ms
- 1:  10.20.1.9                                             2.022ms
- 2:  10.20.1.9                                             2.643ms pmtu 1436
- 2:  10.11.1.4                                            30.055ms
- 3:  10.2.0.5                                             29.106ms reached
+ 1:  10.20.1.9                                             1.391ms
+ 1:  10.20.1.9                                             1.315ms
+ 2:  10.20.1.9                                             1.311ms pmtu 1436
+ 2:  10.11.1.4                                            22.552ms
+ 3:  10.2.0.5                                             26.385ms reached
      Resume: pmtu 1436 hops 3 back 3
 
 internet
@@ -280,7 +234,7 @@ internet
 </details>
 <p>
 
-### 3. Branch2
+### 3. Branch2 NVA
 
 Run `sudo vtysh` to enter the FRR shell.
 
@@ -313,30 +267,29 @@ Codes: K - kernel route, C - connected, S - static, R - RIP,
        F - PBR, f - OpenFabric,
        > - selected route, * - FIB route, q - queued route, r - rejected route
 
-S   0.0.0.0/0 [1/0] via 10.20.1.1, eth0, 00:18:42
-K>* 0.0.0.0/0 [0/100] via 10.20.1.1, eth0, src 10.20.1.9, 00:18:43
-B>* 10.1.0.0/20 [20/0] via 10.11.16.14, vti0, 00:18:41
-  *                    via 10.11.16.15, vti1, 00:18:41
-B>* 10.2.0.0/20 [20/0] via 10.11.16.14, vti0, 00:18:41
-  *                    via 10.11.16.15, vti1, 00:18:41
-B>* 10.10.0.0/24 [20/0] via 10.11.16.14, vti0, 00:18:30
-  *                     via 10.11.16.15, vti1, 00:18:30
-B>* 10.11.0.0/20 [20/0] via 10.11.16.14, vti0, 00:18:41
-  *                     via 10.11.16.15, vti1, 00:18:41
-B>* 10.11.16.0/20 [20/0] via 10.11.16.14, vti0, 00:18:41
-  *                      via 10.11.16.15, vti1, 00:18:41
-S>* 10.11.16.4/32 [1/0] via 10.20.1.1, eth0, 00:18:42
-S>* 10.11.16.5/32 [1/0] via 10.20.1.1, eth0, 00:18:42
-S   10.11.16.14/32 [1/0] is directly connected, vti0, 00:18:42
-C>* 10.11.16.14/32 is directly connected, vti0, 00:18:43
-S   10.11.16.15/32 [1/0] is directly connected, vti1, 00:18:42
-C>* 10.11.16.15/32 is directly connected, vti1, 00:18:43
-S>* 10.20.0.0/24 [1/0] via 10.20.1.1, eth0, 00:18:42
-C>* 10.20.1.0/24 is directly connected, eth0, 00:18:43
-C>* 10.20.2.0/24 is directly connected, eth1, 00:18:43
-K>* 168.63.129.16/32 [0/100] via 10.20.1.1, eth0, src 10.20.1.9, 00:18:43
-K>* 169.254.169.254/32 [0/100] via 10.20.1.1, eth0, src 10.20.1.9, 00:18:43
-C>* 192.168.20.20/32 is directly connected, lo, 00:18:43
+S   0.0.0.0/0 [1/0] via 10.20.1.1, eth0, 01:03:34
+K>* 0.0.0.0/0 [0/100] via 10.20.1.1, eth0, src 10.20.1.9, 01:03:35
+B>* 10.1.0.0/16 [20/0] via 10.11.16.14, vti1, 00:06:56
+  *                    via 10.11.16.15, vti0, 00:06:56
+B>* 10.2.0.0/16 [20/0] via 10.11.16.14, vti1, 00:06:56
+  *                    via 10.11.16.15, vti0, 00:06:56
+B>* 10.10.0.0/24 [20/0] via 10.11.16.14, vti1, 00:06:56
+  *                     via 10.11.16.15, vti0, 00:06:56
+B>* 10.11.0.0/16 [20/0] via 10.11.16.14, vti1, 00:06:56
+  *                     via 10.11.16.15, vti0, 00:06:56
+S>* 10.11.16.4/32 [1/0] via 10.20.1.1, eth0, 01:03:34
+S>* 10.11.16.5/32 [1/0] via 10.20.1.1, eth0, 01:03:34
+S   10.11.16.14/32 [1/0] is directly connected, vti1, 00:06:56
+C>* 10.11.16.14/32 is directly connected, vti1, 00:06:56
+S   10.11.16.15/32 [1/0] is directly connected, vti0, 00:08:13
+C>* 10.11.16.15/32 is directly connected, vti0, 00:08:13
+S>* 10.20.0.0/24 [1/0] via 10.20.1.1, eth0, 01:03:34
+C>* 10.20.1.0/24 is directly connected, eth0, 01:03:35
+C>* 10.20.2.0/24 is directly connected, eth1, 01:03:35
+K>* 168.63.129.16/32 [0/100] via 10.20.1.1, eth0, src 10.20.1.9, 01:03:35
+K>* 169.254.169.254/32 [0/100] via 10.20.1.1, eth0, src 10.20.1.9, 01:03:35
+B>* 192.168.10.10/32 [20/0] via 10.11.16.14, vti1, 00:06:56
+C>* 192.168.20.20/32 is directly connected, lo, 01:03:35
 ```
 
 </details>
@@ -347,7 +300,7 @@ C>* 192.168.20.20/32 is directly connected, lo, 00:18:43
 
 ```sh
 branch2Nva# show ip bgp
-BGP table version is 9, local router ID is 192.168.20.20, vrf id 0
+BGP table version is 10, local router ID is 192.168.20.20, vrf id 0
 Default local pref 100, local AS 65002
 Status codes:  s suppressed, d damped, h history, * valid, > best, = multipath,
                i internal, r RIB-failure, S Stale, R Removed
@@ -355,102 +308,18 @@ Nexthop codes: @NNN nexthop's vrf id, < announce-nh-self
 Origin codes:  i - IGP, e - EGP, ? - incomplete
 
    Network          Next Hop            Metric LocPrf Weight Path
-*= 10.1.0.0/20      10.11.16.15                            0 65515 i
+*= 10.1.0.0/16      10.11.16.15                            0 65515 i
 *>                  10.11.16.14                            0 65515 i
-*= 10.2.0.0/20      10.11.16.15                            0 65515 i
+*= 10.2.0.0/16      10.11.16.15                            0 65515 i
 *>                  10.11.16.14                            0 65515 i
-*= 10.10.0.0/24     10.11.16.14                            0 65515 65001 i
-*>                  10.11.16.15                            0 65515 65001 i
-*= 10.11.0.0/20     10.11.16.15                            0 65515 i
-*>                  10.11.16.14                            0 65515 i
-*= 10.11.16.0/20    10.11.16.15                            0 65515 i
+*= 10.10.0.0/24     10.11.16.15                            0 65515 65001 i
+*>                  10.11.16.14                            0 65515 65001 i
+*= 10.11.0.0/16     10.11.16.15                            0 65515 i
 *>                  10.11.16.14                            0 65515 i
 *> 10.20.0.0/24     0.0.0.0                  0         32768 i
-```
+*> 192.168.10.10/32 10.11.16.14                            0 65515 i
 
-</details>
-<p>
-
-<details>
-<summary>Branch2Vm - Curl DNS</summary>
-
-```sh
-azureuser@branch2Vm:~$ curl-dns
-
- curl dns ...
-
-200 (0.086913s) - 10.10.0.5 - branch1vm.corp
-200 (0.011955s) - 10.20.0.5 - branch2vm.corp
-200 (0.125528s) - 10.11.0.5 - hub1vm.eu.az.corp
-200 (0.119653s) - 10.11.7.88 - spoke3pls.eu.az.corp
-200 (0.102884s) - 10.1.0.5 - spoke1vm.eu.az.corp
-200 (0.109936s) - 10.2.0.5 - spoke2vm.eu.az.corp
-200 (0.023319s) - 104.16.184.241 - icanhazip.com
-200 (0.122121s) - 10.11.7.99 - https://g01spoke3saf19d.blob.core.windows.net/spoke3/spoke3.txt
-```
-
-</details>
-<p>
-
-<details>
-<summary>Branch2Vm - Tracepath</summary>
-
-```sh
-azureuser@branch2Vm:~$ trace-ip
-
- trace ip ...
-
-
-branch1
--------------------------------------
- 1?: [LOCALHOST]                      pmtu 1500
- 1:  10.20.1.9                                             1.148ms
- 1:  10.20.1.9                                             2.466ms
- 2:  10.20.1.9                                             2.650ms pmtu 1436
- 2:  10.10.10.5                                           26.555ms
- 3:  10.10.0.5                                            26.768ms reached
-     Resume: pmtu 1436 hops 3 back 3
-
-branch2
--------------------------------------
- 1:  branch2Vm                                             0.055ms reached
-     Resume: pmtu 65535 hops 1 back 1
-
-hub1
--------------------------------------
- 1?: [LOCALHOST]                      pmtu 1500
- 1:  10.20.1.9                                             1.014ms
- 1:  10.20.1.9                                             1.646ms
- 2:  10.20.1.9                                             1.186ms pmtu 1436
- 2:  10.11.1.4                                            26.242ms
- 3:  10.11.0.5                                            26.799ms reached
-     Resume: pmtu 1436 hops 3 back 3
-
-spoke1
--------------------------------------
- 1?: [LOCALHOST]                      pmtu 1500
- 1:  10.20.1.9                                             0.999ms
- 1:  10.20.1.9                                             0.910ms
- 2:  10.20.1.9                                             1.319ms pmtu 1436
- 2:  10.11.1.4                                            25.928ms
- 3:  10.1.0.5                                             26.361ms reached
-     Resume: pmtu 1436 hops 3 back 3
-
-spoke2
--------------------------------------
- 1?: [LOCALHOST]                      pmtu 1500
- 1:  10.20.1.9                                             1.310ms
- 1:  10.20.1.9                                             2.022ms
- 2:  10.20.1.9                                             2.643ms pmtu 1436
- 2:  10.11.1.4                                            30.055ms
- 3:  10.2.0.5                                             29.106ms reached
-     Resume: pmtu 1436 hops 3 back 3
-
-internet
--------------------------------------
- 1?: [LOCALHOST]                      pmtu 1500
- 1:  no reply
- 2:  no reply
+Displayed  6 routes and 10 total paths
 ```
 
 </details>
@@ -462,64 +331,28 @@ internet
 <summary>Hub1Nva Untrust NIC - Effective Routes</summary>
 
 ```sh
-01-ipsec-over-er$ . ../../scripts/_routes_nic.sh G01_IPsecOverER_RG
+Effective routes for Lab01-hub1-nva-untrust-nic
 
-Resource group: G01_IPsecOverER_RG
-
-Available NICs:
-1. G01-branch1-dns-main
-2. G01-branch1-nva-trust-nic
-3. G01-branch1-nva-untrust-nic
-4. G01-branch1-vm-main-nic
-5. G01-branch2-dns-main
-6. G01-branch2-nva-trust-nic
-7. G01-branch2-nva-untrust-nic
-8. G01-branch2-vm-main-nic
-9. G01-hub1-nva-trust-nic
-10. G01-hub1-nva-untrust-nic
-11. G01-hub1-spoke3-blob-pep.nic.1d8c0b09-49a3-4122-b25b-7293a752621e
-12. G01-hub1-spoke3-pls-pep.nic.968982fc-e561-43bd-89c0-a8a8775bbde9
-13. G01-hub1-vm-main-nic
-14. G01-spoke1-vm-main-nic
-15. G01-spoke2-vm-main-nic
-16. G01-spoke3-pls.nic.afac48ba-5169-4de6-947c-43a261e4af84
-17. G01-spoke3-vm-main-nic
-
-Select NIC to view effective routes (enter the number)
-
-Selection: 10
-
-Effective routes for G01-hub1-nva-untrust-nic
-
-Source                 Prefix          State    NextHopType            NextHopIP
----------------------  --------------  -------  ---------------------  ------------
-Default                10.11.0.0/20    Active   VnetLocal
-Default                10.11.16.0/20   Active   VnetLocal
-Default                10.1.0.0/20     Active   VNetPeering
-Default                10.2.0.0/20     Active   VNetPeering
-VirtualNetworkGateway  172.16.0.12/30  Active   VirtualNetworkGateway  10.20.88.110
-VirtualNetworkGateway  172.16.0.12/30  Active   VirtualNetworkGateway  10.20.88.111
-VirtualNetworkGateway  10.10.0.0/24    Active   VirtualNetworkGateway  10.11.16.14
-VirtualNetworkGateway  10.10.0.0/24    Active   VirtualNetworkGateway  10.11.16.15
-VirtualNetworkGateway  172.16.0.0/30   Active   VirtualNetworkGateway  10.20.88.110
-VirtualNetworkGateway  172.16.0.0/30   Active   VirtualNetworkGateway  10.20.88.111
-VirtualNetworkGateway  10.20.0.0/24    Active   VirtualNetworkGateway  10.11.16.14
-VirtualNetworkGateway  10.20.0.0/24    Active   VirtualNetworkGateway  10.11.16.15
-VirtualNetworkGateway  10.20.0.0/20    Active   VirtualNetworkGateway  10.20.88.110
-VirtualNetworkGateway  10.20.0.0/20    Active   VirtualNetworkGateway  10.20.88.111
-VirtualNetworkGateway  172.16.0.4/30   Active   VirtualNetworkGateway  10.20.88.110
-VirtualNetworkGateway  172.16.0.4/30   Active   VirtualNetworkGateway  10.20.88.111
-VirtualNetworkGateway  10.20.16.0/20   Active   VirtualNetworkGateway  10.20.88.110
-VirtualNetworkGateway  10.20.16.0/20   Active   VirtualNetworkGateway  10.20.88.111
-VirtualNetworkGateway  172.16.0.8/30   Active   VirtualNetworkGateway  10.20.88.110
-VirtualNetworkGateway  172.16.0.8/30   Active   VirtualNetworkGateway  10.20.88.111
-Default                0.0.0.0/0       Active   Internet
-Default                10.11.7.99/32   Active   InterfaceEndpoint
-Default                10.11.7.88/32   Active   InterfaceEndpoint
+Source                 Prefix         State    NextHopType            NextHopIP
+---------------------  -------------  -------  ---------------------  -----------
+Default                10.11.0.0/16   Active   VnetLocal
+Default                10.1.0.0/16    Active   VNetPeering
+Default                10.2.0.0/16    Active   VNetPeering
+VirtualNetworkGateway  10.10.0.0/24   Active   VirtualNetworkGateway  10.11.16.14
+VirtualNetworkGateway  10.10.0.0/24   Active   VirtualNetworkGateway  10.11.16.15
+VirtualNetworkGateway  10.20.0.0/24   Active   VirtualNetworkGateway  10.11.16.14
+VirtualNetworkGateway  10.20.0.0/24   Active   VirtualNetworkGateway  10.11.16.15
+VirtualNetworkGateway  10.20.0.0/16   Active   VirtualNetworkGateway  10.2.146.52
+VirtualNetworkGateway  10.20.0.0/16   Active   VirtualNetworkGateway  10.2.146.53
+Default                0.0.0.0/0      Active   Internet
+Default                10.11.7.99/32  Active   InterfaceEndpoint
+Default                10.11.7.88/32  Active   InterfaceEndpoint
 ```
 
 </details>
 <p>
+
+From **hub1**, the more specific prefixes for **branch2** **(10.10.0.0/24)**, are seen over the VPN tunnel. The wider **branch2** range **(10.20.0.0/16)** is seen over the ExpressRoute circuit.
 
 ### 6. Vnet Gateways
 
@@ -527,102 +360,78 @@ Default                10.11.7.88/32   Active   InterfaceEndpoint
 <summary>Vnet Gateway Route Tables</summary>
 
 ```sh
-01-ipsec-over-er$ ../../scripts/vnet-gateway/get_route_tables.sh G01_IPsecOverER_RG
+01-ipsec-over-er$ ../../scripts/vnet-gateway/get_route_tables.sh Lab01_IPsecOverER_RG
 
-Resource group: G01_IPsecOverER_RG
+Resource group: Lab01_IPsecOverER_RG
 
-Gateway: G01-branch2-ergw
+Gateway: Lab01-branch2-ergw
 Route tables:
-Network         NextHop     Origin    SourcePeer    AsPath             Weight
---------------  ----------  --------  ------------  -----------------  --------
-10.20.0.0/20                Network   10.20.16.13                      32768
-10.20.16.0/20               Network   10.20.16.13                      32768
-10.11.16.0/20   10.20.16.4  EBgp      10.20.16.4    12076-64512-12076  32769
-10.11.16.0/20   10.20.16.5  EBgp      10.20.16.5    12076-64512-12076  32769
-172.16.0.8/30   10.20.16.4  EBgp      10.20.16.4    12076-64512        32769
-172.16.0.8/30   10.20.16.5  EBgp      10.20.16.5    12076-64512        32769
-172.16.0.4/30   10.20.16.4  EBgp      10.20.16.4    12076-64512        32769
-172.16.0.4/30   10.20.16.5  EBgp      10.20.16.5    12076-64512        32769
-10.1.0.0/20     10.20.16.4  EBgp      10.20.16.4    12076-64512-12076  32769
-10.1.0.0/20     10.20.16.5  EBgp      10.20.16.5    12076-64512-12076  32769
-10.2.0.0/20     10.20.16.4  EBgp      10.20.16.4    12076-64512-12076  32769
-10.2.0.0/20     10.20.16.5  EBgp      10.20.16.5    12076-64512-12076  32769
-10.11.0.0/20    10.20.16.4  EBgp      10.20.16.4    12076-64512-12076  32769
-10.11.0.0/20    10.20.16.5  EBgp      10.20.16.5    12076-64512-12076  32769
-172.16.0.0/30   10.20.16.4  EBgp      10.20.16.4    12076-64512        32769
-172.16.0.0/30   10.20.16.5  EBgp      10.20.16.5    12076-64512        32769
-172.16.0.12/30  10.20.16.4  EBgp      10.20.16.4    12076-64512        32769
-172.16.0.12/30  10.20.16.5  EBgp      10.20.16.5    12076-64512        32769
+Network           NextHop     Origin    SourcePeer    AsPath       Weight
+----------------  ----------  --------  ------------  -----------  --------
+10.20.0.0/16                  Network   10.20.16.12                32768
+fd00:db8:20::/56              Network   10.20.16.12                32768
+10.11.0.0/16      10.20.16.5  EBgp      10.20.16.5    12076-12076  32769
+10.11.0.0/16      10.20.16.4  EBgp      10.20.16.4    12076-12076  32769
+10.1.0.0/16       10.20.16.5  EBgp      10.20.16.5    12076-12076  32769
+10.1.0.0/16       10.20.16.4  EBgp      10.20.16.4    12076-12076  32769
+10.2.0.0/16       10.20.16.5  EBgp      10.20.16.5    12076-12076  32769
+10.2.0.0/16       10.20.16.4  EBgp      10.20.16.4    12076-12076  32769
 
-Gateway: G01-hub1-ergw
+Gateway: Lab01-hub1-ergw
 Route tables:
-Network         NextHop      Origin    SourcePeer    AsPath             Weight
---------------  -----------  --------  ------------  -----------------  --------
-10.11.0.0/20                 Network   10.11.16.12                      32768
-10.11.16.0/20                Network   10.11.16.12                      32768
-10.1.0.0/20                  Network   10.11.16.12                      32768
-10.2.0.0/20                  Network   10.11.16.12                      32768
-10.10.0.0/24    10.11.16.15  IBgp      10.11.16.15   65001              32768
-10.10.0.0/24    10.11.16.14  IBgp      10.11.16.14   65001              32768
-172.16.0.4/30   10.11.16.6   EBgp      10.11.16.6    12076-64512        32769
-172.16.0.4/30   10.11.16.7   EBgp      10.11.16.7    12076-64512        32769
-172.16.0.0/30   10.11.16.6   EBgp      10.11.16.6    12076-64512        32769
-172.16.0.0/30   10.11.16.7   EBgp      10.11.16.7    12076-64512        32769
-172.16.0.8/30   10.11.16.6   EBgp      10.11.16.6    12076-64512        32769
-172.16.0.8/30   10.11.16.7   EBgp      10.11.16.7    12076-64512        32769
-10.20.16.0/20   10.11.16.6   EBgp      10.11.16.6    12076-64512-12076  32769
-10.20.16.0/20   10.11.16.7   EBgp      10.11.16.7    12076-64512-12076  32769
-10.20.0.0/20    10.11.16.6   EBgp      10.11.16.6    12076-64512-12076  32769
-10.20.0.0/20    10.11.16.7   EBgp      10.11.16.7    12076-64512-12076  32769
-172.16.0.12/30  10.11.16.6   EBgp      10.11.16.6    12076-64512        32769
-172.16.0.12/30  10.11.16.7   EBgp      10.11.16.7    12076-64512        32769
-10.20.0.0/24    10.11.16.14  IBgp      10.11.16.14   65002              32768
-10.20.0.0/24    10.11.16.15  IBgp      10.11.16.15   65002              32768
+Network           NextHop      Origin    SourcePeer    AsPath       Weight
+----------------  -----------  --------  ------------  -----------  --------
+10.11.0.0/16                   Network   10.11.16.12                32768
+fd00:db8:11::/56               Network   10.11.16.12                32768
+10.1.0.0/16                    Network   10.11.16.12                32768
+fd00:db8:1::/56                Network   10.11.16.12                32768
+10.10.0.0/24      10.11.16.14  IBgp      10.11.16.14   65001        32768
+10.10.0.0/24      10.11.16.15  IBgp      10.11.16.15   65001        32768
+10.2.0.0/16                    Network   10.11.16.12                32768
+fd00:db8:2::/56                Network   10.11.16.12                32768
+10.20.0.0/16      10.11.16.6   EBgp      10.11.16.6    12076-12076  32769
+10.20.0.0/16      10.11.16.7   EBgp      10.11.16.7    12076-12076  32769
+10.20.0.0/24      10.11.16.14  IBgp      10.11.16.14   65002        32768
+10.20.0.0/24      10.11.16.15  IBgp      10.11.16.15   65002        32768
 
-Gateway: G01-hub1-vpngw
+Gateway: Lab01-hub1-vpngw
 Route tables:
 Network           NextHop        Origin    SourcePeer     AsPath    Weight
 ----------------  -------------  --------  -------------  --------  --------
-10.11.0.0/20      10.11.16.12    IBgp      10.11.16.12              32769
-10.11.0.0/20      10.11.16.13    IBgp      10.11.16.13              32769
-10.11.16.0/20     10.11.16.12    IBgp      10.11.16.12              32769
-10.11.16.0/20     10.11.16.13    IBgp      10.11.16.13              32769
-10.1.0.0/20       10.11.16.12    IBgp      10.11.16.12              32769
-10.1.0.0/20       10.11.16.13    IBgp      10.11.16.13              32769
-10.2.0.0/20       10.11.16.12    IBgp      10.11.16.12              32769
-10.2.0.0/20       10.11.16.13    IBgp      10.11.16.13              32769
-10.20.0.0/24      192.168.20.20  EBgp      192.168.20.20  65002     32768
-10.20.0.0/24      10.11.16.15    IBgp      10.11.16.15    65002     32768
+10.11.0.0/16      10.11.16.12    IBgp      10.11.16.12              32769
+10.11.0.0/16      10.11.16.13    IBgp      10.11.16.13              32769
+10.1.0.0/16       10.11.16.12    IBgp      10.11.16.12              32769
+10.1.0.0/16       10.11.16.13    IBgp      10.11.16.13              32769
 192.168.10.10/32                 Network   10.11.16.14              32768
 192.168.10.10/32  10.11.16.15    IBgp      10.11.16.15              32768
 10.10.0.0/24      192.168.10.10  EBgp      192.168.10.10  65001     32768
 10.10.0.0/24      10.11.16.15    IBgp      10.11.16.15    65001     32768
+10.2.0.0/16       10.11.16.12    IBgp      10.11.16.12              32769
+10.2.0.0/16       10.11.16.13    IBgp      10.11.16.13              32769
 192.168.20.20/32                 Network   10.11.16.14              32768
 192.168.20.20/32  10.11.16.15    IBgp      10.11.16.15              32768
-10.11.0.0/20                     Network   10.11.16.14              32768
-10.11.16.0/20                    Network   10.11.16.14              32768
-10.1.0.0/20                      Network   10.11.16.14              32768
-10.2.0.0/20                      Network   10.11.16.14              32768
-10.11.0.0/20      10.11.16.12    IBgp      10.11.16.12              32769
-10.11.0.0/20      10.11.16.13    IBgp      10.11.16.13              32769
-10.11.16.0/20     10.11.16.12    IBgp      10.11.16.12              32769
-10.11.16.0/20     10.11.16.13    IBgp      10.11.16.13              32769
-10.1.0.0/20       10.11.16.12    IBgp      10.11.16.12              32769
-10.1.0.0/20       10.11.16.13    IBgp      10.11.16.13              32769
 10.20.0.0/24      192.168.20.20  EBgp      192.168.20.20  65002     32768
-10.20.0.0/24      10.11.16.14    IBgp      10.11.16.14    65002     32768
-10.2.0.0/20       10.11.16.12    IBgp      10.11.16.12              32769
-10.2.0.0/20       10.11.16.13    IBgp      10.11.16.13              32769
-192.168.20.20/32                 Network   10.11.16.15              32768
-192.168.20.20/32  10.11.16.14    IBgp      10.11.16.14              32768
+10.20.0.0/24      10.11.16.15    IBgp      10.11.16.15    65002     32768
+10.11.0.0/16                     Network   10.11.16.14              32768
+10.1.0.0/16                      Network   10.11.16.14              32768
+10.2.0.0/16                      Network   10.11.16.14              32768
+10.11.0.0/16      10.11.16.12    IBgp      10.11.16.12              32769
+10.11.0.0/16      10.11.16.13    IBgp      10.11.16.13              32769
+10.1.0.0/16       10.11.16.12    IBgp      10.11.16.12              32769
+10.1.0.0/16       10.11.16.13    IBgp      10.11.16.13              32769
 192.168.10.10/32                 Network   10.11.16.15              32768
 192.168.10.10/32  10.11.16.14    IBgp      10.11.16.14              32768
 10.10.0.0/24      192.168.10.10  EBgp      192.168.10.10  65001     32768
 10.10.0.0/24      10.11.16.14    IBgp      10.11.16.14    65001     32768
-10.11.0.0/20                     Network   10.11.16.15              32768
-10.11.16.0/20                    Network   10.11.16.15              32768
-10.1.0.0/20                      Network   10.11.16.15              32768
-10.2.0.0/20                      Network   10.11.16.15              32768
+10.2.0.0/16       10.11.16.12    IBgp      10.11.16.12              32769
+10.2.0.0/16       10.11.16.13    IBgp      10.11.16.13              32769
+192.168.20.20/32                 Network   10.11.16.15              32768
+192.168.20.20/32  10.11.16.14    IBgp      10.11.16.14              32768
+10.20.0.0/24      192.168.20.20  EBgp      192.168.20.20  65002     32768
+10.20.0.0/24      10.11.16.14    IBgp      10.11.16.14    65002     32768
+10.11.0.0/16                     Network   10.11.16.15              32768
+10.1.0.0/16                      Network   10.11.16.15              32768
+10.2.0.0/16                      Network   10.11.16.15              32768
 ```
 
 </details>
@@ -632,18 +441,18 @@ Network           NextHop        Origin    SourcePeer     AsPath    Weight
 <summary>Vnet Gateway -  BGP Peers</summary>
 
 ```sh
-01-ipsec-over-er$ ../../scripts/vnet-gateway/get_bgp_peer_status.sh G01_IPsecOverER_RG
+01-ipsec-over-er$ ../../scripts/vnet-gateway/get_bgp_peer_status.sh Lab01_IPsecOverER_RG
 
-Resource group: G01_IPsecOverER_RG
+Resource group: Lab01_IPsecOverER_RG
 
-Gateway: G01-branch2-ergw
+Gateway: Lab01-branch2-ergw
 Route tables:
 Neighbor    ASN    LocalAddress    RoutesReceived    State
 ----------  -----  --------------  ----------------  ---------
 10.20.16.4  12076  10.20.16.13     8                 Connected
 10.20.16.5  12076  10.20.16.13     8                 Connected
 
-Gateway: G01-hub1-ergw
+Gateway: Lab01-hub1-ergw
 Route tables:
 Neighbor     ASN    LocalAddress    RoutesReceived    State
 -----------  -----  --------------  ----------------  ---------
@@ -652,7 +461,7 @@ Neighbor     ASN    LocalAddress    RoutesReceived    State
 10.11.16.14  65515  10.11.16.12     2                 Connected
 10.11.16.15  65515  10.11.16.12     2                 Connected
 
-Gateway: G01-hub1-vpngw
+Gateway: Lab01-hub1-vpngw
 Route tables:
 Neighbor       ASN    LocalAddress    RoutesReceived    State
 -------------  -----  --------------  ----------------  ---------
@@ -679,80 +488,34 @@ Neighbor       ASN    LocalAddress    RoutesReceived    State
 <summary>Express Route Circuit - Route Tables</summary>
 
 ```sh
-01-ipsec-over-er$ ../../scripts/vnet-gateway/get_er_route_tables.sh G01_IPsecOverER_RG
+01-ipsec-over-er$ ../../scripts/vnet-gateway/get_er_route_tables.sh Lab01_IPsecOverER_RG
 
-Resource group: G01_IPsecOverER_RG
+Resource group: Lab01_IPsecOverER_RG
 
 
-⏳ AzurePrivatePeering (Primary): G01-branch2-er
-LocPrf    Network         NextHop       Path         Weight
---------  --------------  ------------  -----------  --------
-          10.1.0.0/20     172.16.0.9    64512 12076  0
-          10.2.0.0/20     172.16.0.9    64512 12076  0
-          10.11.0.0/20    172.16.0.9    64512 12076  0
-          10.11.16.0/20   172.16.0.9    64512 12076  0
-          10.20.0.0/20    10.20.16.12   65515        0
-          10.20.0.0/20    10.20.16.13*  65515        0
-          10.20.16.0/20   10.20.16.12   65515        0
-          10.20.16.0/20   10.20.16.13*  65515        0
-          172.16.0.0/30   172.16.0.9    64512 ?      0
-          172.16.0.4/30   172.16.0.9    64512 ?      0
-          172.16.0.12/30  172.16.0.9    64512 ?      0
+⏳ AzurePrivatePeering (Primary): Lab01-er1
+LocPrf    Network       NextHop       Path     Weight
+--------  ------------  ------------  -------  --------
+100       10.1.0.0/16   10.11.16.12*  65515 I  0
+100       10.1.0.0/16   10.11.16.13   65515 I  0
+100       10.2.0.0/16   10.11.16.12*  65515 I  0
+100       10.2.0.0/16   10.11.16.13   65515 I  0
+100       10.11.0.0/16  10.11.16.12*  65515 I  0
+100       10.11.0.0/16  10.11.16.13   65515 I  0
+100       10.20.0.0/16  10.20.16.12*  65515 I  0
+100       10.20.0.0/16  10.20.16.13   65515 I  0
 
-⏳ AzurePrivatePeering (Secondary): G01-branch2-er
-LocPrf    Network        NextHop       Path         Weight
---------  -------------  ------------  -----------  --------
-          10.1.0.0/20    172.16.0.13   64512 12076  0
-          10.2.0.0/20    172.16.0.13   64512 12076  0
-          10.11.0.0/20   172.16.0.13   64512 12076  0
-          10.11.16.0/20  172.16.0.13   64512 12076  0
-          10.20.0.0/20   172.16.0.13   64512 12076  0
-          10.20.0.0/20   10.20.16.13   65515        0
-          10.20.0.0/20   10.20.16.12*  65515        0
-          10.20.16.0/20  172.16.0.13   64512 12076  0
-          10.20.16.0/20  10.20.16.13   65515        0
-          10.20.16.0/20  10.20.16.12*  65515        0
-          172.16.0.0/30  172.16.0.13   64512 ?      0
-          172.16.0.4/30  172.16.0.13   64512 ?      0
-          172.16.0.8/30  172.16.0.13   64512 ?      0
-
-⏳ AzurePrivatePeering (Primary): G01-hub1-er
-LocPrf    Network         NextHop       Path         Weight
---------  --------------  ------------  -----------  --------
-          10.1.0.0/20     10.11.16.12   65515        0
-          10.1.0.0/20     10.11.16.13*  65515        0
-          10.2.0.0/20     10.11.16.12   65515        0
-          10.2.0.0/20     10.11.16.13*  65515        0
-          10.11.0.0/20    10.11.16.12   65515        0
-          10.11.0.0/20    10.11.16.13*  65515        0
-          10.11.16.0/20   10.11.16.12   65515        0
-          10.11.16.0/20   10.11.16.13*  65515        0
-          10.20.0.0/20    172.16.0.1    64512 12076  0
-          10.20.16.0/20   172.16.0.1    64512 12076  0
-          172.16.0.4/30   172.16.0.1    64512 ?      0
-          172.16.0.8/30   172.16.0.1    64512 ?      0
-          172.16.0.12/30  172.16.0.1    64512 ?      0
-
-⏳ AzurePrivatePeering (Secondary): G01-hub1-er
-LocPrf    Network         NextHop       Path         Weight
---------  --------------  ------------  -----------  --------
-          10.1.0.0/20     172.16.0.5    64512 12076  0
-          10.1.0.0/20     10.11.16.12   65515        0
-          10.1.0.0/20     10.11.16.13*  65515        0
-          10.2.0.0/20     172.16.0.5    64512 12076  0
-          10.2.0.0/20     10.11.16.12   65515        0
-          10.2.0.0/20     10.11.16.13*  65515        0
-          10.11.0.0/20    172.16.0.5    64512 12076  0
-          10.11.0.0/20    10.11.16.12   65515        0
-          10.11.0.0/20    10.11.16.13*  65515        0
-          10.11.16.0/20   172.16.0.5    64512 12076  0
-          10.11.16.0/20   10.11.16.12   65515        0
-          10.11.16.0/20   10.11.16.13*  65515        0
-          10.20.0.0/20    172.16.0.5    64512 12076  0
-          10.20.16.0/20   172.16.0.5    64512 12076  0
-          172.16.0.0/30   172.16.0.5    64512 ?      0
-          172.16.0.8/30   172.16.0.5    64512 ?      0
-          172.16.0.12/30  172.16.0.5    64512 ?      0
+⏳ AzurePrivatePeering (Secondary): Lab01-er1
+LocPrf    Network       NextHop       Path     Weight
+--------  ------------  ------------  -------  --------
+100       10.1.0.0/16   10.11.16.13*  65515 I  0
+100       10.1.0.0/16   10.11.16.12   65515 I  0
+100       10.2.0.0/16   10.11.16.13*  65515 I  0
+100       10.2.0.0/16   10.11.16.12   65515 I  0
+100       10.11.0.0/16  10.11.16.13*  65515 I  0
+100       10.11.0.0/16  10.11.16.12   65515 I  0
+100       10.20.0.0/16  10.20.16.12*  65515 I  0
+100       10.20.0.0/16  10.20.16.13   65515 I  0
 ⭐ Done!
 ```
 
@@ -774,7 +537,7 @@ cd azure-network-terraform/4-general/01-ipsec-over-er
 2\. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
 ```sh
-bash ../../scripts/_cleanup.sh G01_IPsecOverER_RG
+bash ../../scripts/_cleanup.sh Lab01_IPsecOverER_RG
 ```
 
 <details>
@@ -782,48 +545,37 @@ bash ../../scripts/_cleanup.sh G01_IPsecOverER_RG
 <summary>Sample output</summary>
 
 ```sh
-01-ipsec-over-er$ bash ../../scripts/_cleanup.sh G01_IPsecOverER_RG
+01-ipsec-over-er$ bash ../../scripts/_cleanup.sh Lab01_IPsecOverER_RG
 
-Resource group: G01_IPsecOverER_RG
+Resource group: Lab01_IPsecOverER_RG
 
-⏳ Checking for diagnostic settings on resources in G01_IPsecOverER_RG ...
+⏳ Checking for diagnostic settings on resources in Lab01_IPsecOverER_RG ...
 ➜  Checking firewall ...
 ➜  Checking vnet gateway ...
-    ❌ Deleting: diag setting [G01-hub1-ergw-diag] for vnet gateway [G01-hub1-ergw] ...
-    ❌ Deleting: diag setting [G01-hub1-vpngw-diag] for vnet gateway [G01-hub1-vpngw] ...
+    ❌ Deleting: diag setting [Lab01-hub1-ergw-diag] for vnet gateway [Lab01-hub1-ergw] ...
+    ❌ Deleting: diag setting [Lab01-hub1-vpngw-diag] for vnet gateway [Lab01-hub1-vpngw] ...
 ➜  Checking vpn gateway ...
 ➜  Checking er gateway ...
 ➜  Checking app gateway ...
-⏳ Checking for azure policies in G01_IPsecOverER_RG ...
+⏳ Checking for azure policies in Lab01_IPsecOverER_RG ...
 Done!
 ```
 
 </details>
 <p>
 
-3\. Delete Vnet gateway connections to express route circuits.
+3\. Delete ExpressRoute connections, peerings, circuits and Megaport configuration.
 
 ```sh
-01-ipsec-over-er$ bash ../../scripts/express-route/delete_ergw_connections.sh G01_IPsecOverER_RG
-
-Resource group: G01_IPsecOverER_RG
-
-⏳ Processing circuit: G01-branch2-er
-❓ Deleting connection: G01-branch2-er
-❌ Deleted connection: G01-branch2-er
-❓ Deleting connection: G01-hub1-er
-❌ Deleted connection: G01-hub1-er
-⏳ Processing circuit: G01-hub1-er
-❓ Deleting connection: G01-branch2-er
-❌ Deleted connection: G01-branch2-er
-❓ Deleting connection: G01-hub1-er
-❌ Deleted connection: G01-hub1-er
+bash ../../scripts/express-route/delete_ergw_connections.sh Lab01_IPsecOverER_RG
+bash ../../scripts/express-route/delete_private_peerings.sh Lab01_IPsecOverER_RG
+bash ../../scripts/express-route/delete_er_circuits.sh Lab01_IPsecOverER_RG
+terraform destroy -target=module.megaport --auto-approve
 ```
 
-</details>
-<p>
+<details>
 
-4\. Delete all express route private peerings.
+<summary>Sample output</summary>
 
 ```sh
 
@@ -832,15 +584,15 @@ Resource group: G01_IPsecOverER_RG
 </details>
 <p>
 
-5\. Delete the resource group to remove all resources installed.
+4\. Delete the resource group to remove all resources installed.
 
 ```sh
-az group delete -g G01_IPsecOverER_RG --no-wait
+az group delete -g Lab01_IPsecOverER_RG --no-wait
 ```
 
-6\. Go to Megaport portal and delete MCR and VXCs created.
+5\. Go to Megaport portal and delete MCR and VXCs created.
 
-7\. Delete terraform state files and other generated files.
+6\. Delete terraform state files and other generated files.
 
 ```sh
 rm -rf .terraform*

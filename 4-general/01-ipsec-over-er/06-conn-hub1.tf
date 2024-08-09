@@ -43,12 +43,6 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke1_peering" {
 
 # main
 
-locals {
-  spoke1_udr_main_routes = concat(local.region1_default_udr_destinations, [
-    { name = "hub1", address_prefix = local.hub1_address_space },
-  ])
-}
-
 module "spoke1_udr_main" {
   source         = "../../modules/route-table"
   resource_group = azurerm_resource_group.rg.name
@@ -58,14 +52,14 @@ module "spoke1_udr_main" {
   routes = [for r in local.spoke1_udr_main_routes : {
     name                   = r.name
     address_prefix         = r.address_prefix
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = local.hub1_nva_ilb_trust_addr
+    next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
+    next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
   }]
 
   bgp_route_propagation_enabled = false
 
   depends_on = [
-    module.hub1,
+    time_sleep.hub1,
   ]
 }
 
@@ -117,12 +111,6 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke2_peering" {
 
 # main
 
-locals {
-  spoke2_udr_main_routes = concat(local.region1_default_udr_destinations, [
-    { name = "hub1", address_prefix = local.hub1_address_space },
-  ])
-}
-
 module "spoke2_udr_main" {
   source         = "../../modules/route-table"
   resource_group = azurerm_resource_group.rg.name
@@ -132,14 +120,14 @@ module "spoke2_udr_main" {
   routes = [for r in local.spoke2_udr_main_routes : {
     name                   = r.name
     address_prefix         = r.address_prefix
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = local.hub1_nva_ilb_trust_addr
+    next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
+    next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
   }]
 
   bgp_route_propagation_enabled = false
 
   depends_on = [
-    module.hub1,
+    time_sleep.hub1,
   ]
 }
 
@@ -161,23 +149,16 @@ module "hub1_gateway_udr" {
   routes = [for r in local.hub1_gateway_udr_destinations : {
     name                   = r.name
     address_prefix         = r.address_prefix
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = local.hub1_nva_ilb_trust_addr
+    next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
+    next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
   }]
 
   depends_on = [
-    module.hub1,
+    time_sleep.hub1,
   ]
 }
 
 # main
-
-locals {
-  hub1_udr_main_routes = concat(local.region1_default_udr_destinations, [
-    { name = "spoke1", address_prefix = local.spoke1_address_space },
-    { name = "spoke2", address_prefix = local.spoke2_address_space },
-  ])
-}
 
 module "hub1_udr_main" {
   source         = "../../modules/route-table"
@@ -188,14 +169,14 @@ module "hub1_udr_main" {
   routes = [for r in local.hub1_udr_main_routes : {
     name                   = r.name
     address_prefix         = r.address_prefix
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = local.hub1_nva_ilb_trust_addr
+    next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
+    next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
   }]
 
   bgp_route_propagation_enabled = false
 
   depends_on = [
-    module.hub1,
+    time_sleep.hub1,
   ]
 }
 

@@ -62,7 +62,7 @@ module "megaport" {
         create_private_peering = true  # use provided addresses
       }
 
-      # azure_config_block is used only when all mcr_config attributes are false
+      # azure_config_block is only used when all mcr_config attributes are false
       # creates layer2 and layer3 config on azure and megaport sides
       azure_config = {
         create_ipv4_peering = false
@@ -70,14 +70,12 @@ module "megaport" {
       }
     },
     {
-      name                    = "${local.prefix}-er2"
-      mcr_name                = "mcr1"
-      location                = local.region1
-      peering_location        = local.express_route_location
-      bandwidth_in_mbps       = local.bandwidth_in_mbps
-      requested_vlan          = local.megaport_vlan2
-      enable_mcr_auto_peering = false
-      enable_mcr_peering      = true
+      name              = "${local.prefix}-er2"
+      mcr_name          = "mcr1"
+      location          = local.region1
+      peering_location  = local.express_route_location
+      bandwidth_in_mbps = local.bandwidth_in_mbps
+      requested_vlan    = local.megaport_vlan2
 
       primary_peer_address_prefix_ipv4   = local.csp_range3
       secondary_peer_address_prefix_ipv4 = local.csp_range4
@@ -125,11 +123,11 @@ module "megaport" {
       virtual_network_gateway_name = module.hub1.ergw_name
     },
     {
-      express_route_circuit_name   = "${local.prefix}-er2",
+      express_route_circuit_name   = "${local.prefix}-er2"
       virtual_network_gateway_name = module.hub1.ergw_name
     },
     {
-      express_route_circuit_name   = "${local.prefix}-er3",
+      express_route_circuit_name   = "${local.prefix}-er3"
       virtual_network_gateway_name = module.branch2.ergw_name
     },
   ]

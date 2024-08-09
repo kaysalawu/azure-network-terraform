@@ -48,19 +48,24 @@ variable "circuits" {
     mcr_name                   = string
     sku_tier                   = optional(string, "Standard")
     sku_family                 = optional(string, "MeteredData")
-    enable_mcr_auto_peering    = optional(bool, false) # auto-assign circuit addresses
-    enable_mcr_peering         = optional(bool, false) # creates layer2 circuit only, layer3 peering will be created on azure side *
 
-    ipv4_config = object({
-      primary_peer_address_prefix   = optional(string, null)
-      secondary_peer_address_prefix = optional(string, null)
+    primary_peer_address_prefix_ipv4   = optional(string, null)
+    secondary_peer_address_prefix_ipv4 = optional(string, null)
+    primary_peer_address_prefix_ipv6   = optional(string, null)
+    secondary_peer_address_prefix_ipv6 = optional(string, null)
+
+    # mcr_config_block creates layer2 and layer3 config on megaport and azure sides
+    mcr_config = object({
+      enable_auto_peering    = optional(bool, false) # auto-assign circuit addresses
+      create_private_peering = optional(bool, false) # use provided addresses
     })
-    ipv6_config = optional(object({
-      enabled                       = optional(bool, false)
-      create_azure_private_peering  = optional(bool, false) # * creates azure private peering, used when enable_mcr_peering = false and enable_mcr_auto_peering = false
-      primary_peer_address_prefix   = optional(string, null)
-      secondary_peer_address_prefix = optional(string, null)
-    }), {})
+
+    # azure_config_block is only used when all mcr_config attributes are false
+    # creates layer2 and layer3 config on azure and megaport sides
+    azure_config = object({
+      create_ipv4_peering = optional(bool, false)
+      create_ipv6_peering = optional(bool, false)
+    })
   }))
   default = []
 }
