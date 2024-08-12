@@ -273,6 +273,8 @@ variable "config_nva" {
     custom_data      = optional(string)
     scenario_option  = optional(string, "TwoNics") # Active-Active, TwoNics
     opn_type         = optional(string, "TwoNics") # Primary, Secondary, TwoNics
+    public_ip0_name  = optional(string, null)
+    public_ip1_name  = optional(string, null)
   })
   default = {
     enable           = false

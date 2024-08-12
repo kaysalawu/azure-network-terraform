@@ -162,3 +162,10 @@ output "firewall_public_ip" {
 output "firewall_private_ip" {
   value = try(module.azfw[0].private_ip, null)
 }
+
+# nva
+#-----------------------------
+
+output "nva_public_ip0" {
+  value = try(module.nva[0].public_ip_untrust_0, {})
+}

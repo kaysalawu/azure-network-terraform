@@ -547,6 +547,8 @@ module "nva" {
   ilb_trust_ip       = var.config_nva.ilb_trust_ip
   ilb_untrust_ipv6   = var.config_nva.ilb_untrust_ipv6
   ilb_trust_ipv6     = var.config_nva.ilb_trust_ipv6
+  public_ip0_name    = var.config_nva.public_ip0_name
+  public_ip1_name    = var.config_nva.scenario_option == "Active-Active" ? var.config_nva.public_ip1_name : null
   virtual_network_id = azurerm_virtual_network.this.id
 
   depends_on = [

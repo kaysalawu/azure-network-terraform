@@ -22,7 +22,7 @@ locals {
   backend_pools_trust = concat(
     [{
       name = "nva"
-      interfaces = [for nva in module.nva : {
+      interfaces = [for nva in module.nva_0 : {
         ip_configuration_name = nva.interfaces["${local.prefix}-trust-nic"].ip_configuration[0].name
         network_interface_id  = nva.interfaces["${local.prefix}-trust-nic"].id
       }]
@@ -32,7 +32,7 @@ locals {
       addresses = [{
         name               = "nva-ipv6"
         virtual_network_id = var.virtual_network_id
-        ip_address         = module.nva[0].private_ipv6_address
+        ip_address         = module.nva_0[0].private_ipv6_address
       }]
     }] : []
   )
@@ -63,10 +63,40 @@ locals {
 # ip addresses
 ####################################################
 
-resource "azurerm_public_ip" "untrust" {
-  count               = var.scenario_option == "Active-Active" ? 2 : var.scenario_option == "TwoNics" ? 1 : 0
+# untrust-0
+
+data "azurerm_public_ip" "untrust_0" {
+  count               = var.scenario_option == "TwoNics" && var.public_ip0_name != null ? 1 : 0
   resource_group_name = var.resource_group
-  name                = "${local.prefix}-pip-untrust-${count.index}"
+  name                = var.public_ip0_name
+}
+
+resource "azurerm_public_ip" "untrust_0" {
+  count               = var.scenario_option == "TwoNics" && var.public_ip0_name == null ? 1 : 0
+  resource_group_name = var.resource_group
+  name                = "${local.prefix}-pip-untrust-0"
+  location            = var.location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+  zones               = [1, 2, 3]
+  timeouts {
+    create = "60m"
+  }
+  tags = var.tags
+}
+
+# untrust-1
+
+data "azurerm_public_ip" "untrust_1" {
+  count               = var.scenario_option == "Active-Active" && var.public_ip1_name != null ? 1 : 0
+  resource_group_name = var.resource_group
+  name                = var.public_ip1_name
+}
+
+resource "azurerm_public_ip" "untrust_1" {
+  count               = var.scenario_option == "Active-Active" && var.public_ip1_name == null ? 1 : 0
+  resource_group_name = var.resource_group
+  name                = "${local.prefix}-pip-untrust-1"
   location            = var.location
   sku                 = "Standard"
   allocation_method   = "Static"
@@ -81,8 +111,8 @@ resource "azurerm_public_ip" "untrust" {
 # appliance
 ####################################################
 
-module "nva" {
-  count                 = var.scenario_option == "Active-Active" ? 2 : var.scenario_option == "TwoNics" ? 1 : 0
+module "nva_0" {
+  count                 = var.scenario_option == "TwoNics" ? 1 : 0
   source                = "../../modules/virtual-machine-linux"
   resource_group        = var.resource_group
   name                  = "${local.prefix}-${count.index}"
@@ -107,7 +137,7 @@ module "nva" {
     {
       name                 = "${local.prefix}-untrust-nic"
       subnet_id            = var.subnet_id_untrust
-      public_ip_address_id = azurerm_public_ip.untrust[count.index].id
+      public_ip_address_id = var.public_ip0_name != null ? data.azurerm_public_ip.untrust_0[0].id : azurerm_public_ip.untrust_0[0].id
     },
     {
       name      = "${local.prefix}-trust-nic"
@@ -146,7 +176,7 @@ module "ilb_untrust" {
   backend_pools = [
     {
       name = "nva"
-      interfaces = [for nva in module.nva : {
+      interfaces = [for nva in module.nva_0 : {
         ip_configuration_name = nva.interfaces["${local.prefix}-untrust-nic"].ip_configuration[0].name
         network_interface_id  = nva.interfaces["${local.prefix}-untrust-nic"].id
       }]
@@ -165,7 +195,7 @@ module "ilb_untrust" {
     },
   ]
   depends_on = [
-    module.nva,
+    module.nva_0,
   ]
 }
 
@@ -191,6 +221,6 @@ module "ilb_trust" {
   probes                    = var.health_probes
 
   depends_on = [
-    module.nva,
+    module.nva_0,
   ]
 }

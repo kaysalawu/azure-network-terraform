@@ -94,6 +94,8 @@ iptables -P INPUT ACCEPT
 iptables -P OUTPUT ACCEPT
 
 # Iptables rules
+sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 50443 -j DNAT --to-destination 10.4.0.5:8080
+sudo iptables -A FORWARD -p tcp -d 10.4.0.5 --dport 8080 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 iptables -t nat -A POSTROUTING -d 10.0.0.0/8 -j ACCEPT
 iptables -t nat -A POSTROUTING -d 172.16.0.0/12 -j ACCEPT
 iptables -t nat -A POSTROUTING -d 192.168.0.0/16 -j ACCEPT
@@ -141,37 +143,13 @@ conn %default
     ike=aes256-sha1-modp1024!
     esp=aes256-sha1!
 
-conn vti_hub1gw0
-    left=10.10.1.9
-    leftid=168.61.89.68
-    right=4.231.155.127
-    rightid=4.231.155.127
+conn vti_branch1
+    left=10.22.1.4
+    leftid=13.79.80.204
+    right=168.61.89.68
+    rightid=168.61.89.68
     auto=start
     mark=100
-    leftupdown="/etc/ipsec.d/ipsec-vti.sh"
-conn vti_hub1gw1
-    left=10.10.1.9
-    leftid=168.61.89.68
-    right=4.231.155.120
-    rightid=4.231.155.120
-    auto=start
-    mark=101
-    leftupdown="/etc/ipsec.d/ipsec-vti.sh"
-conn vti_branch3
-    left=10.10.1.9
-    leftid=168.61.89.68
-    right=168.61.89.65
-    rightid=168.61.89.65
-    auto=start
-    mark=102
-    leftupdown="/etc/ipsec.d/ipsec-vti.sh"
-conn vti_hub2
-    left=10.10.1.9
-    leftid=168.61.89.68
-    right=13.79.80.204
-    rightid=13.79.80.204
-    auto=start
-    mark=103
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 
 # https://gist.github.com/heri16/2f59d22d1d5980796bfb
@@ -179,10 +157,7 @@ conn vti_hub2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.10.1.9 4.231.155.127 : PSK "changeme"
-10.10.1.9 4.231.155.120 : PSK "changeme"
-10.10.1.9 168.61.89.65 : PSK "changeme"
-10.10.1.9 13.79.80.204 : PSK "changeme"
+10.22.1.4 168.61.89.68 : PSK "changeme"
 
 EOF
 
@@ -198,25 +173,10 @@ PLUTO_MARK_OUT_ARR=(${PLUTO_MARK_OUT//// })
 PLUTO_MARK_IN_ARR=(${PLUTO_MARK_IN//// })
 
 case "$PLUTO_CONNECTION" in
-  vti_hub1gw0)
-    VTI_INTERFACE=vti_hub1gw0
-    VTI_LOCALADDR=10.10.10.1
-    VTI_REMOTEADDR=10.11.16.7
-    ;;
-  vti_hub1gw1)
-    VTI_INTERFACE=vti_hub1gw1
-    VTI_LOCALADDR=10.10.10.5
-    VTI_REMOTEADDR=10.11.16.6
-    ;;
-  vti_branch3)
-    VTI_INTERFACE=vti_branch3
-    VTI_LOCALADDR=10.10.10.9
-    VTI_REMOTEADDR=10.10.10.10
-    ;;
-  vti_hub2)
-    VTI_INTERFACE=vti_hub2
-    VTI_LOCALADDR=10.10.10.13
-    VTI_REMOTEADDR=10.10.10.14
+  vti_branch1)
+    VTI_INTERFACE=vti_branch1
+    VTI_LOCALADDR=10.10.10.14
+    VTI_REMOTEADDR=10.10.10.13
     ;;
 esac
 
@@ -304,60 +264,39 @@ service integrated-vtysh-config
 !-----------------------------------------
 ! Prefix Lists
 !-----------------------------------------
-ip prefix-list BLOCK_HUB_GW_SUBNET deny fd00:db8:11::/56
-ip prefix-list BLOCK_HUB_GW_SUBNET permit 0.0.0.0/0 le 32
 !
 !-----------------------------------------
 ! Interface
 !-----------------------------------------
 interface lo
-  ip address 192.168.10.10/32
+  ip address 10.22.22.22/32
 !
 !-----------------------------------------
 ! Static Routes
 !-----------------------------------------
-ip route 0.0.0.0/0 10.10.1.1
-ip route 10.11.16.7/32 vti_hub1gw0
-ip route 10.11.16.6/32 vti_hub1gw1
-ip route 192.168.30.30/32 vti_branch3
-ip route 10.22.22.22/32 vti_hub2
-ip route 10.30.1.9/32 10.10.1.1
-ip route 10.22.1.4/32 10.10.1.1
-ip route 10.10.0.0/24 10.10.1.1
+ip route 0.0.0.0/0 10.22.2.1
+ip route 192.168.22.69/32 10.22.2.1
+ip route 192.168.22.68/32 10.22.2.1
+ip route 192.168.10.10/32 vti_branch1
+ip route 10.10.1.9/32 10.22.1.1
+ip route 10.22.0.0/24 10.22.1.1
 !
 !-----------------------------------------
 ! Route Maps
 !-----------------------------------------
-  route-map ONPREM permit 100
-  match ip address prefix-list all
-  set as-path prepend 65001 65001 65001
-  route-map AZURE permit 110
-  match ip address prefix-list all
 !
 !-----------------------------------------
 ! BGP
 !-----------------------------------------
-router bgp 65001
-bgp router-id 192.168.10.10
-neighbor 10.11.16.7 remote-as 65515
-neighbor 10.11.16.7 ebgp-multihop 255
-neighbor 10.11.16.7 update-source lo
-neighbor 10.11.16.6 remote-as 65515
-neighbor 10.11.16.6 ebgp-multihop 255
-neighbor 10.11.16.6 update-source lo
-neighbor 192.168.30.30 remote-as 65003
-neighbor 192.168.30.30 ebgp-multihop 255
-neighbor 192.168.30.30 update-source lo
-neighbor 10.22.22.22 remote-as 65000
-neighbor 10.22.22.22 ebgp-multihop 255
-neighbor 10.22.22.22 update-source lo
+router bgp 65000
+bgp router-id 10.22.22.22
+neighbor 192.168.10.10 remote-as 65001
+neighbor 192.168.10.10 ebgp-multihop 255
+neighbor 192.168.10.10 update-source lo
 !
 address-family ipv4 unicast
-  network 10.10.0.0/24
-  neighbor 10.11.16.7 soft-reconfiguration inbound
-  neighbor 10.11.16.6 soft-reconfiguration inbound
-  neighbor 192.168.30.30 soft-reconfiguration inbound
-  neighbor 10.22.22.22 soft-reconfiguration inbound
+  network 10.22.0.0/24
+  neighbor 192.168.10.10 soft-reconfiguration inbound
 exit-address-family
 !
 line vty

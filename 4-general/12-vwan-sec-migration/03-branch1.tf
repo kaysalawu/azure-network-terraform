@@ -137,41 +137,53 @@ locals {
     ]
     STATIC_ROUTES = [
       { prefix = "0.0.0.0/0", next_hop = local.branch1_untrust_default_gw },
-      { prefix = "${module.hub1.s2s_vpngw_bgp_default_ip0}/32", next_hop = "vti0" },
-      { prefix = "${module.hub1.s2s_vpngw_bgp_default_ip1}/32", next_hop = "vti1" },
-      { prefix = "${local.branch3_nva_loopback0}/32", next_hop = "vti2" },
-      { prefix = local.branch3_nva_untrust_addr, next_hop = local.branch1_untrust_default_gw },
+      { prefix = "${module.hub1.s2s_vpngw_bgp_default_ip0}/32", next_hop = "vti_hub1gw0" },
+      { prefix = "${module.hub1.s2s_vpngw_bgp_default_ip1}/32", next_hop = "vti_hub1gw1" },
+      { prefix = "${local.branch3_nva_loopback0}/32", next_hop = "vti_branch3" },
+      { prefix = "${local.hub2_nva_loopback0}/32", next_hop = "vti_hub2" },
+      { prefix = "${local.branch3_nva_untrust_addr}/32", next_hop = local.branch1_untrust_default_gw },
+      { prefix = "${local.hub2_nva_untrust_addr}/32", next_hop = local.branch1_untrust_default_gw },
       { prefix = local.branch1_subnets["MainSubnet"].address_prefixes[0], next_hop = local.branch1_untrust_default_gw },
     ]
     TUNNELS = [
       {
-        name            = "Tunnel0"
-        vti_name        = "vti0"
-        unique_id       = 100
+        name            = "vti_hub1gw0"
         vti_local_addr  = cidrhost(local.vti_range0, 1)
         vti_remote_addr = module.hub1.s2s_vpngw_bgp_default_ip0
         local_ip        = local.branch1_nva_untrust_addr
         local_id        = azurerm_public_ip.branch1_nva_pip.ip_address
         remote_ip       = module.hub1.s2s_vpngw_public_ip0
         remote_id       = module.hub1.s2s_vpngw_public_ip0
-        psk             = local.psk
+        # left_subnet = join(",",
+        #   [local.branch1_subnets["MainSubnet"].address_prefixes[0],
+        #   local.branch3_subnets["MainSubnet"].address_prefixes[0]]
+        # )
+        # right_subnet = join(",",
+        #   [local.hub1_subnets["MainSubnet"].address_prefixes[0],
+        #   local.spoke1_subnets["MainSubnet"].address_prefixes[0]]
+        # )
+        psk = local.psk
       },
       {
-        name            = "Tunnel1"
-        vti_name        = "vti1"
-        unique_id       = 200
+        name            = "vti_hub1gw1"
         vti_local_addr  = cidrhost(local.vti_range1, 1)
         vti_remote_addr = module.hub1.s2s_vpngw_bgp_default_ip1
         local_ip        = local.branch1_nva_untrust_addr
         local_id        = azurerm_public_ip.branch1_nva_pip.ip_address
         remote_ip       = module.hub1.s2s_vpngw_public_ip1
         remote_id       = module.hub1.s2s_vpngw_public_ip1
-        psk             = local.psk
+        # left_subnet = join(",",
+        #   [local.branch1_subnets["MainSubnet"].address_prefixes[0],
+        #   local.branch3_subnets["MainSubnet"].address_prefixes[0]]
+        # )
+        # right_subnet = join(",",
+        #   [local.hub1_subnets["MainSubnet"].address_prefixes[0],
+        #   local.spoke1_subnets["MainSubnet"].address_prefixes[0]]
+        # )
+        psk = local.psk
       },
       {
-        name            = "Tunnel2"
-        vti_name        = "vti2"
-        unique_id       = 300
+        name            = "vti_branch3"
         vti_local_addr  = cidrhost(local.vti_range2, 1)
         vti_remote_addr = cidrhost(local.vti_range2, 2)
         local_ip        = local.branch1_nva_untrust_addr
@@ -179,7 +191,17 @@ locals {
         remote_ip       = azurerm_public_ip.branch3_nva_pip.ip_address
         remote_id       = azurerm_public_ip.branch3_nva_pip.ip_address
         psk             = local.psk
-      }
+      },
+      {
+        name            = "vti_hub2"
+        vti_local_addr  = cidrhost(local.vti_range3, 1)
+        vti_remote_addr = cidrhost(local.vti_range3, 2)
+        local_ip        = local.branch1_nva_untrust_addr
+        local_id        = azurerm_public_ip.branch1_nva_pip.ip_address
+        remote_ip       = azurerm_public_ip.hub2_nva_pip0.ip_address
+        remote_id       = azurerm_public_ip.hub2_nva_pip0.ip_address
+        psk             = local.psk
+      },
     ]
     BGP_SESSIONS_IPV4 = [
       {
@@ -199,6 +221,13 @@ locals {
       {
         peer_asn        = local.branch3_nva_asn
         peer_ip         = local.branch3_nva_loopback0
+        ebgp_multihop   = true
+        source_loopback = true
+        route_maps      = []
+      },
+      {
+        peer_asn        = local.hub2_nva_asn
+        peer_ip         = local.hub2_nva_loopback0
         ebgp_multihop   = true
         source_loopback = true
         route_maps      = []

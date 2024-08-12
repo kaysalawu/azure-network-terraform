@@ -137,21 +137,17 @@ locals {
     ]
     STATIC_ROUTES = [
       { prefix = "0.0.0.0/0", next_hop = local.branch3_untrust_default_gw },
-      { prefix = "${module.hub2.s2s_vpngw_bgp_default_ip0}/32", next_hop = "vti0" },
-      { prefix = "${module.hub2.s2s_vpngw_bgp_default_ip1}/32", next_hop = "vti1" },
-      { prefix = "${local.branch1_nva_loopback0}/32", next_hop = "vti2" },
-      { prefix = local.branch1_nva_untrust_addr, next_hop = local.branch3_untrust_default_gw },
+      { prefix = "${local.branch1_nva_loopback0}/32", next_hop = "vti_branch1" },
+      { prefix = "${local.branch1_nva_untrust_addr}/32", next_hop = local.branch3_untrust_default_gw },
       { prefix = local.branch3_subnets["MainSubnet"].address_prefixes[0], next_hop = local.branch3_untrust_default_gw },
     ]
     TUNNELS = [
       {
-        name            = "Tunnel2"
-        vti_name        = "vti2"
-        unique_id       = 300
+        name            = "vti_branch1"
         vti_local_addr  = cidrhost(local.vti_range2, 2)
         vti_remote_addr = cidrhost(local.vti_range2, 1)
         local_ip        = local.branch3_nva_untrust_addr
-        local_id        = azurerm_public_ip.branch3_nva_pip[0].ip_address
+        local_id        = azurerm_public_ip.branch3_nva_pip.ip_address
         remote_ip       = azurerm_public_ip.branch1_nva_pip.ip_address
         remote_id       = azurerm_public_ip.branch1_nva_pip.ip_address
         psk             = local.psk
@@ -207,7 +203,7 @@ module "branch3_nva" {
       subnet_id            = module.branch3.subnets["UntrustSubnet"].id
       private_ip_address   = local.branch3_nva_untrust_addr
       private_ipv6_address = local.branch3_nva_untrust_addr_v6
-      public_ip_address_id = azurerm_public_ip.branch3_nva_pip[0].id
+      public_ip_address_id = azurerm_public_ip.branch3_nva_pip.id
     },
     {
       name                 = "${local.branch3_prefix}nva-trust-nic"

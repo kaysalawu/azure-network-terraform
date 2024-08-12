@@ -90,6 +90,18 @@ variable "ilb_trust_ipv6" {
   default     = null
 }
 
+variable "public_ip0_name" {
+  description = "public ip address name for untrust interface of instance 0"
+  type        = string
+  default     = null
+}
+
+variable "public_ip1_name" {
+  description = "public ip address name for untrust interface of instance 1"
+  type        = string
+  default     = null
+}
+
 variable "use_vm_extension" {
   description = "use virtual machine extension"
   type        = bool

@@ -15,8 +15,10 @@ locals {
   spoke3_apps_fqdn            = lower("${local.spoke3_prefix}${random_id.random.hex}.azurewebsites.net")
 
   hub1_tags    = { "lab" = local.prefix, "env" = "prod", "nodeType" = "hub" }
+  hub2_tags    = { "lab" = local.prefix, "env" = "prod", "nodeType" = "hub" }
   branch1_tags = { "lab" = local.prefix, "env" = "prod", "nodeType" = "branch" }
   branch2_tags = { "lab" = local.prefix, "env" = "prod", "nodeType" = "branch" }
+  branch3_tags = { "lab" = local.prefix, "env" = "prod", "nodeType" = "branch" }
   spoke1_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "spoke" }
   spoke2_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "spoke" }
   spoke3_tags  = { "lab" = local.prefix, "env" = "prod", "nodeType" = "float" }
@@ -86,6 +88,12 @@ locals {
     { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
     { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = module.hub1.firewall_private_ip },
   ]
+
+  region2_default_udr_destinations = [
+    { name = "default-region2", address_prefix = ["0.0.0.0/0"], next_hop_ip = local.hub2_nva_ilb_trust_addr },
+  ]
+  hub2_udr_main_routes = concat(local.region2_default_udr_destinations, [
+  ])
 
   firewall_sku = "Basic"
 
@@ -290,6 +298,7 @@ locals {
       ilb_trust_ip     = local.hub2_nva_ilb_trust_addr
       ilb_untrust_ipv6 = local.hub2_nva_ilb_untrust_addr_v6
       ilb_trust_ipv6   = local.hub2_nva_ilb_trust_addr_v6
+      public_ip0_name  = azurerm_public_ip.hub2_nva_pip0.name
     }
   }
 
@@ -600,6 +609,16 @@ resource "azurerm_public_ip" "hub1_s2s_vpngw_pip1" {
   tags                = local.hub1_tags
 }
 
+# hub2
+
+resource "azurerm_public_ip" "hub2_nva_pip0" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.hub2_prefix}nva-pip0"
+  location            = local.hub2_location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+}
+
 ####################################################
 # firewall policy
 ####################################################
@@ -696,23 +715,29 @@ locals {
       # "set ip next-hop ${local.hub2_nva_ilb_trust_addr}"
     ]
     STATIC_ROUTES = [
-      { prefix = "0.0.0.0/0", next_hop = local.hub2_default_gw_nva },
-      { prefix = "${module.vhub2.router_bgp_ip0}/32", next_hop = local.hub2_default_gw_nva },
-      { prefix = "${module.vhub2.router_bgp_ip1}/32", next_hop = local.hub2_default_gw_nva },
-      { prefix = local.spoke5_address_space[0], next_hop = local.hub2_default_gw_nva },
+      { prefix = "0.0.0.0/0", next_hop = local.hub2_trust_default_gw },
+      { prefix = "${module.vhub2.router_bgp_ip0}/32", next_hop = local.hub2_trust_default_gw },
+      { prefix = "${module.vhub2.router_bgp_ip1}/32", next_hop = local.hub2_trust_default_gw },
+      { prefix = "${local.branch1_nva_loopback0}/32", next_hop = "vti_branch1" },
+      { prefix = "${local.branch1_nva_untrust_addr}/32", next_hop = local.hub2_untrust_default_gw },
+      { prefix = local.hub2_subnets["MainSubnet"].address_prefixes[0], next_hop = local.hub2_untrust_default_gw },
     ]
-    TUNNELS = []
+    TUNNELS = [
+      {
+        name            = "vti_branch1"
+        vti_local_addr  = cidrhost(local.vti_range3, 2)
+        vti_remote_addr = cidrhost(local.vti_range3, 1)
+        local_ip        = local.hub2_nva_untrust_addr
+        local_id        = azurerm_public_ip.hub2_nva_pip0.ip_address
+        remote_ip       = azurerm_public_ip.branch1_nva_pip.ip_address
+        remote_id       = azurerm_public_ip.branch1_nva_pip.ip_address
+        psk             = local.psk
+      },
+    ]
     BGP_SESSIONS_IPV4 = [
       {
-        peer_asn        = module.vhub2.bgp_asn
-        peer_ip         = module.vhub2.router_bgp_ip0
-        ebgp_multihop   = true
-        source_loopback = true
-        route_maps      = []
-      },
-      {
-        peer_asn        = module.vhub2.bgp_asn
-        peer_ip         = module.vhub2.router_bgp_ip1
+        peer_asn        = local.branch1_nva_asn
+        peer_ip         = local.branch1_nva_loopback0
         ebgp_multihop   = true
         source_loopback = true
         route_maps      = []
@@ -720,7 +745,6 @@ locals {
     ]
     BGP_ADVERTISED_PREFIXES_IPV4 = [
       local.hub2_subnets["MainSubnet"].address_prefixes[0],
-      local.spoke5_address_space[0],
     ]
   }
   hub2_linux_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.hub2_nva_vars, {
@@ -733,10 +757,10 @@ locals {
       "sudo iptables -A FORWARD -p tcp -d ${local.spoke4_vm_addr} --dport 8080 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT",
     ]
     FRR_CONF                 = templatefile("../../scripts/frr/frr.conf", merge(local.hub2_nva_vars, {}))
-    STRONGSWAN_VTI_SCRIPT    = ""
-    STRONGSWAN_IPSEC_SECRETS = ""
-    STRONGSWAN_IPSEC_CONF    = ""
-    STRONGSWAN_AUTO_RESTART  = ""
+    STRONGSWAN_VTI_SCRIPT    = templatefile("../../scripts/strongswan/ipsec-vti.sh", local.hub2_nva_vars)
+    STRONGSWAN_IPSEC_SECRETS = templatefile("../../scripts/strongswan/ipsec.secrets", local.hub2_nva_vars)
+    STRONGSWAN_IPSEC_CONF    = templatefile("../../scripts/strongswan/ipsec.conf", local.hub2_nva_vars)
+    STRONGSWAN_AUTO_RESTART  = templatefile("../../scripts/strongswan/ipsec-auto-restart.sh", local.hub2_nva_vars)
   }))
 }
 
