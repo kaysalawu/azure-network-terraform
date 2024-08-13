@@ -736,6 +736,20 @@ locals {
     ]
     BGP_SESSIONS_IPV4 = [
       {
+        peer_asn        = module.vhub2.bgp_asn
+        peer_ip         = module.vhub2.router_bgp_ip0
+        ebgp_multihop   = true
+        source_loopback = true
+        route_maps      = []
+      },
+      {
+        peer_asn        = module.vhub2.bgp_asn
+        peer_ip         = module.vhub2.router_bgp_ip1
+        ebgp_multihop   = true
+        source_loopback = true
+        route_maps      = []
+      },
+      {
         peer_asn        = local.branch1_nva_asn
         peer_ip         = local.branch1_nva_loopback0
         ebgp_multihop   = true

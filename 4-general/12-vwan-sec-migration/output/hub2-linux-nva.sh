@@ -290,12 +290,20 @@ ip route 10.22.0.0/24 10.22.1.1
 !-----------------------------------------
 router bgp 65000
 bgp router-id 10.22.22.22
+neighbor 192.168.22.69 remote-as 65515
+neighbor 192.168.22.69 ebgp-multihop 255
+neighbor 192.168.22.69 update-source lo
+neighbor 192.168.22.68 remote-as 65515
+neighbor 192.168.22.68 ebgp-multihop 255
+neighbor 192.168.22.68 update-source lo
 neighbor 192.168.10.10 remote-as 65001
 neighbor 192.168.10.10 ebgp-multihop 255
 neighbor 192.168.10.10 update-source lo
 !
 address-family ipv4 unicast
   network 10.22.0.0/24
+  neighbor 192.168.22.69 soft-reconfiguration inbound
+  neighbor 192.168.22.68 soft-reconfiguration inbound
   neighbor 192.168.10.10 soft-reconfiguration inbound
 exit-address-family
 !
