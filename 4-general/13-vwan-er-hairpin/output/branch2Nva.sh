@@ -121,6 +121,28 @@ systemctl restart frr
 #########################################################
 
 tee /etc/ipsec.conf <<'EOF'
+config setup
+    charondebug="ike 2, knl 2, cfg 2, net 2, esp 2, dmn 2,  mgr 2"
+
+conn %default
+    type=tunnel
+    ikelifetime=60m
+    keylife=20m
+    rekeymargin=3m
+    keyingtries=1
+    authby=secret
+    keyexchange=ikev2
+    installpolicy=yes
+    compress=no
+    mobike=no
+    #left=%defaultroute
+    leftsubnet=0.0.0.0/0
+    rightsubnet=0.0.0.0/0
+    ike=aes256-sha1-modp1024!
+    esp=aes256-sha1!
+
+
+# https://gist.github.com/heri16/2f59d22d1d5980796bfb
 
 EOF
 
@@ -129,11 +151,77 @@ tee /etc/ipsec.secrets <<'EOF'
 EOF
 
 tee /etc/ipsec.d/ipsec-vti.sh <<'EOF'
+#!/bin/bash
+
+LOG_FILE="/var/log/ipsec-vti.log"
+
+IP=$(which ip)
+IPTABLES=$(which iptables)
+
+PLUTO_MARK_OUT_ARR=(${PLUTO_MARK_OUT//// })
+PLUTO_MARK_IN_ARR=(${PLUTO_MARK_IN//// })
+
+case "$PLUTO_CONNECTION" in
+esac
+
+echo "$(date): Trigger - CONN=${PLUTO_CONNECTION}, VERB=${PLUTO_VERB}, ME=${PLUTO_ME}, PEER=${PLUTO_PEER}], PEER_CLIENT=${PLUTO_PEER_CLIENT}, MARK_OUT=${PLUTO_MARK_OUT_ARR}, MARK_IN=${PLUTO_MARK_IN_ARR}" >> $LOG_FILE
+
+case "$PLUTO_VERB" in
+  up-client)
+    $IP link add ${VTI_INTERFACE} type vti local ${PLUTO_ME} remote ${PLUTO_PEER} okey ${PLUTO_MARK_OUT_ARR[0]} ikey ${PLUTO_MARK_IN_ARR[0]}
+    sysctl -w net.ipv4.conf.${VTI_INTERFACE}.disable_policy=1
+    sysctl -w net.ipv4.conf.${VTI_INTERFACE}.rp_filter=2 || sysctl -w net.ipv4.conf.${VTI_INTERFACE}.rp_filter=0
+    $IP addr add ${VTI_LOCALADDR} remote ${VTI_REMOTEADDR} dev ${VTI_INTERFACE}
+    $IP link set ${VTI_INTERFACE} up mtu 1436
+    $IPTABLES -t mangle -I FORWARD -o ${VTI_INTERFACE} -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+    $IPTABLES -t mangle -I INPUT -p esp -s ${PLUTO_PEER} -d ${PLUTO_ME} -j MARK --set-xmark ${PLUTO_MARK_IN}
+    $IP route flush table 220
+    #/etc/init.d/bgpd reload || /etc/init.d/quagga force-reload bgpd
+    ;;
+  down-client)
+    $IP link del ${VTI_INTERFACE}
+    $IPTABLES -t mangle -D FORWARD -o ${VTI_INTERFACE} -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+    $IPTABLES -t mangle -D INPUT -p esp -s ${PLUTO_PEER} -d ${PLUTO_ME} -j MARK --set-xmark ${PLUTO_MARK_IN}
+    ;;
+esac
+
+# github source used
+# https://gist.github.com/heri16/2f59d22d1d5980796bfb
 
 EOF
 chmod a+x /etc/ipsec.d/ipsec-vti.sh
 
 tee /usr/local/bin/ipsec-auto-restart.sh <<'EOF'
+#!/bin/bash
+
+export SHELL=/bin/bash
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+export HOME=/root
+export LANG=C.UTF-8
+export USER=root
+
+LOG_FILE="/var/log/ipsec-auto-restart.log"
+connections=$(grep '^conn' /etc/ipsec.conf | grep -v '%default' | awk '{print $2}')
+all_tunnels_active=true
+
+for conn in $connections; do
+  status=$(ipsec status | grep "$conn")
+  if ! [[ "$status" =~ ESTABLISHED ]]; then
+        all_tunnels_active=false
+        echo "$(date): $conn: down or inactive." >> "$LOG_FILE"
+    ipsec down $conn
+    ipsec up $conn
+    echo "$(date): $conn: restarting." >> "$LOG_FILE"
+else
+      echo "$(date): $conn: active." >> "$LOG_FILE"
+        fi
+done
+
+if ! $all_tunnels_active; then
+  echo "$(date): Not all tunnels active, restarting ipsec service..." >> "$LOG_FILE"
+  systemctl restart ipsec
+  echo "$(date): ipsec service restarted." >> "$LOG_FILE"
+fi
 
 EOF
 chmod a+x /usr/local/bin/ipsec-auto-restart.sh
@@ -160,20 +248,25 @@ service integrated-vtysh-config
 !-----------------------------------------
 ! Prefix Lists
 !-----------------------------------------
+ip prefix-list ALL permit 0.0.0.0/0 le 32
+bgp as-path access-list 10 permit ^65515_12076_64512_12076$
 !
 !-----------------------------------------
 ! Interface
 !-----------------------------------------
 interface lo
-  ip address 10.22.22.22/32
+  ip address 192.168.20.20/32
+interface lo5
+  ip address 5.5.5.5/32
+interface lo6
+  ip address 6.6.6.6/32
 !
 !-----------------------------------------
 ! Static Routes
 !-----------------------------------------
-ip route 0.0.0.0/0 10.22.2.1
-ip route 192.168.22.69/32 10.22.2.1
-ip route 192.168.22.68/32 10.22.2.1
-ip route 10.5.0.0/16 10.22.2.1
+ip route 0.0.0.0/0 10.20.1.1
+ip route 10.20.17.4/32 10.20.1.1
+ip route 10.20.17.5/32 10.20.1.1
 !
 !-----------------------------------------
 ! Route Maps
@@ -182,20 +275,20 @@ ip route 10.5.0.0/16 10.22.2.1
 !-----------------------------------------
 ! BGP
 !-----------------------------------------
-router bgp 65020
-bgp router-id 10.22.22.22
-neighbor 192.168.22.69 remote-as 65515
-neighbor 192.168.22.69 ebgp-multihop 255
-neighbor 192.168.22.69 update-source lo
-neighbor 192.168.22.68 remote-as 65515
-neighbor 192.168.22.68 ebgp-multihop 255
-neighbor 192.168.22.68 update-source lo
+router bgp 65002
+bgp router-id 192.168.20.20
+neighbor 10.20.17.4 remote-as 65515
+neighbor 10.20.17.4 ebgp-multihop 255
+neighbor 10.20.17.5 remote-as 65515
+neighbor 10.20.17.5 ebgp-multihop 255
 !
 address-family ipv4 unicast
-  network 10.22.0.0/24
-  network 10.5.0.0/16
-  neighbor 192.168.22.69 soft-reconfiguration inbound
-  neighbor 192.168.22.68 soft-reconfiguration inbound
+  network 5.5.5.5/32
+  network 6.6.6.6/32
+  neighbor 10.20.17.4 soft-reconfiguration inbound
+  neighbor 10.20.17.4 as-override
+  neighbor 10.20.17.5 soft-reconfiguration inbound
+  neighbor 10.20.17.5 as-override
 exit-address-family
 !
 line vty
@@ -220,7 +313,7 @@ chmod a+x /usr/local/bin/dns-info
 
 # azure service tester
 
-tee /usr/local/bin/crawlz <<'EOF'
+cat <<'EOF' > /usr/local/bin/crawlz
 sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
 EOF
 chmod a+x /usr/local/bin/crawlz

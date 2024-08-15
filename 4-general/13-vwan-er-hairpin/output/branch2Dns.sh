@@ -51,10 +51,6 @@ forward-zone:
         forward-addr: 10.11.8.4
 
 forward-zone:
-        name: "us.az.corp."
-        forward-addr: 10.22.8.4
-
-forward-zone:
         name: "privatelink.blob.core.windows.net."
         forward-addr: 10.11.8.4
 

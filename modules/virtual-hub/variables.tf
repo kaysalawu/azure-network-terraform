@@ -55,8 +55,12 @@ variable "config_security" {
 
 variable "express_route_gateway" {
   type = object({
-    enable = optional(bool, false)
-    sku    = optional(string, "ErGw1AZ")
+    enable      = optional(bool, false)
+    sku         = optional(string, "ErGw1AZ")
+    scale_units = optional(number, 1)
+    tags        = optional(map(any), {})
+
+    allow_non_virtual_wan_traffic = optional(bool, false)
   })
   default = {}
 }

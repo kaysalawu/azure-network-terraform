@@ -86,3 +86,8 @@ variable "log_analytics_workspace_name" {
   default     = null
 }
 
+variable "deploy" {
+  description = "deploy"
+  type        = bool
+  default     = true
+}

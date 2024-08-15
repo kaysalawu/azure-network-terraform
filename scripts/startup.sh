@@ -6,7 +6,6 @@ apt update
 apt install -y python3-pip python3-dev python3-venv unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
 
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-az login --identity || true
 
 ########################################################
 # test scripts (ipv4)
@@ -156,9 +155,9 @@ timeout 9 tracepath -6 ${target.ipv6}
 EOF
 chmod a+x /usr/local/bin/trace-ipv6
 
-########################################################
+#########################################################
 # other scripts
-########################################################
+#########################################################
 
 # dns-info
 
@@ -170,7 +169,7 @@ chmod a+x /usr/local/bin/dns-info
 
 # azure service tester
 
-tee /usr/local/bin/crawlz <<'EOF'
+cat <<'EOF' > /usr/local/bin/crawlz
 sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
 EOF
 chmod a+x /usr/local/bin/crawlz

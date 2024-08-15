@@ -10,7 +10,6 @@ apt install -y openvpn network-manager-openvpn
 sudo service network-manager restart
 
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-az login --identity || true
 
 # web server #
 pip3 install Flask requests
@@ -111,6 +110,7 @@ chmod a+x /usr/local/bin/curl-ip
 cat <<EOF > /usr/local/bin/curl-dns
 echo -e "\n curl dns ...\n"
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null branch1vm.corp) - branch1vm.corp"
+echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null branch2vm.corp) - branch2vm.corp"
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null hub1vm.eu.az.corp) - hub1vm.eu.az.corp"
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke3pls.eu.az.corp) - spoke3pls.eu.az.corp"
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1vm.eu.az.corp) - spoke1vm.eu.az.corp"
@@ -137,7 +137,7 @@ chmod a+x /usr/local/bin/dns-info
 
 # azure service tester
 
-tee /usr/local/bin/crawlz <<'EOF'
+cat <<'EOF' > /usr/local/bin/crawlz
 sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
 EOF
 chmod a+x /usr/local/bin/crawlz

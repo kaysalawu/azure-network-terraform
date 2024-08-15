@@ -27,7 +27,7 @@ Related articles and documentation:
 
 ## Prerequisites
 
-Ensure you meet all requirements in the [prerequisites](../../prerequisites/README.md) before proceeding.
+Ensure you meet all requirements in the [prerequisites](../../prerequisites/README.md) before proceeding. You will need a Megaport account to deploy the lab.
 
 > **NOTE**: You need to have an active [megaport](https://www.megaport.com/) account. You will need to supply the megaport credentials in order to deploy the lab:
 * `megaport_access_key`

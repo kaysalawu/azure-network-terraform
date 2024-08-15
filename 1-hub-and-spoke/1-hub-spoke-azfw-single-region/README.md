@@ -48,7 +48,7 @@ Ensure you meet all requirements in the [prerequisites](../../prerequisites/READ
    ```sh
    cd azure-network-terraform/1-hub-and-spoke/1-hub-spoke-azfw-single-region
    ```
-3. (Optional) If you wannt to enable additional features such as IPv6, Vnet flow logs and logging set the following variables to `true` in the [`main.tf`](./02-main.tf) file.
+3. (Optional) If you want to enable additional features such as IPv6, Vnet flow logs and logging set the following variables to `true` in the [`main.tf`](./02-main.tf) file.
 
    | Variable | Description | Default | Link |
    |----------|-------------|---------|------|

@@ -43,7 +43,6 @@ provider "azurerm" {
 }
 
 provider "azapi" {}
-provider "cidrblock" {}
 
 terraform {
   required_providers {
@@ -57,9 +56,6 @@ terraform {
     }
     azapi = {
       source = "azure/azapi"
-    }
-    cidrblock = {
-      source = "amilevskiy/cidrblock"
     }
   }
 }
@@ -188,6 +184,8 @@ locals {
     express_route_gateway = {
       enable = true
       sku    = "ErGw1AZ"
+
+      allow_non_virtual_wan_traffic = true
     }
 
     s2s_vpn_gateway = {
@@ -291,6 +289,7 @@ locals {
   init_dir = "/var/lib/azure"
   vm_script_targets_region1 = [
     { name = "branch1", dns = lower(local.branch1_vm_fqdn), ipv4 = local.branch1_vm_addr, ipv6 = local.branch1_vm_addr_v6, probe = true },
+    { name = "branch2", dns = lower(local.branch2_vm_fqdn), ipv4 = local.branch2_vm_addr, ipv6 = local.branch2_vm_addr_v6, probe = true },
     { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ipv4 = local.hub1_vm_addr, ipv6 = local.hub1_vm_addr_v6, probe = false },
     { name = "hub1-spoke3-pep", dns = lower(local.hub1_spoke3_pep_fqdn), ping = false, probe = true },
     { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ipv4 = local.spoke1_vm_addr, ipv6 = local.spoke1_vm_addr_v6, probe = true },
@@ -378,11 +377,9 @@ module "vm_cloud_init" {
     local.vm_startup_init_files
   )
   packages = [
-    "docker.io", "docker-compose", #npm,
+    "docker.io", "docker-compose",
   ]
   run_commands = [
-    "systemctl enable docker",
-    "systemctl start docker",
     "bash ${local.init_dir}/init/startup.sh",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app2-8080.yml up -d",
@@ -399,8 +396,6 @@ module "probe_vm_cloud_init" {
     "docker.io", "docker-compose",
   ]
   run_commands = [
-    "systemctl enable docker",
-    "systemctl start docker",
     "bash ${local.init_dir}/init/startup.sh",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app2-8080.yml up -d",
@@ -450,6 +445,15 @@ resource "azurerm_public_ip" "branch1_nva_pip" {
   sku                 = "Standard"
   allocation_method   = "Static"
   tags                = local.branch1_tags
+}
+
+resource "azurerm_public_ip" "branch2_nva_pip" {
+  resource_group_name = azurerm_resource_group.rg.name
+  name                = "${local.branch2_prefix}nva-pip"
+  location            = local.branch2_location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+  tags                = local.branch2_tags
 }
 
 # branch3

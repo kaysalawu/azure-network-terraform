@@ -97,8 +97,8 @@ module "hub1_udr_main" {
 # route maps
 #----------------------------
 
-data "cidrblock_summarization" "vhub1_route_map_cidr_blocks" {
-  cidr_blocks = [
+locals {
+  vhub1_route_map_cidr_blocks = [
     local.spoke1_address_space.0,
     local.spoke2_address_space.0,
   ]
@@ -110,14 +110,11 @@ resource "azurerm_route_map" "vhub1_route_map" {
   virtual_hub_id = module.vhub1.virtual_hub.id
 
   rule {
-    name = "aggregate-hub1"
+    name = "aggregate-spokes"
 
     match_criterion {
       match_condition = "Contains"
-      route_prefix = [
-        local.hub1_address_space.0,
-        local.hub1_address_space.1,
-      ]
+      route_prefix    = local.vhub1_route_map_cidr_blocks
     }
 
     next_step_if_matched = "Continue"
@@ -126,9 +123,12 @@ resource "azurerm_route_map" "vhub1_route_map" {
       type = "Replace"
 
       parameter {
-        route_prefix = data.cidrblock_summarization.vhub1_route_map_cidr_blocks.summarized_cidr_blocks
+        route_prefix = ["10.0.0.0/14", ]
       }
     }
+  }
+  timeouts {
+    create = "60m"
   }
 }
 

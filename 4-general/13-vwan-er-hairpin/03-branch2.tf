@@ -36,6 +36,7 @@ module "branch2" {
       "DnsServerSubnet",
       "TestSubnet",
     ]
+    enable_ars = true
   }
 
   config_ergw = {
@@ -78,7 +79,6 @@ locals {
   }
   branch2_forward_zones = [
     { zone = "${local.region1_dns_zone}.", targets = [local.hub1_dns_in_addr, ] },
-    { zone = "${local.region2_dns_zone}.", targets = [local.hub2_dns_in_addr, ] },
     { zone = "privatelink.blob.core.windows.net.", targets = [local.hub1_dns_in_addr, ] },
     { zone = "privatelink.azurewebsites.net.", targets = [local.hub1_dns_in_addr, ] },
     { zone = "privatelink.database.windows.net.", targets = [local.hub1_dns_in_addr, ] },
@@ -114,6 +114,97 @@ module "branch2_dns" {
 }
 
 ####################################################
+# nva
+####################################################
+
+locals {
+  branch2_nva_rmap_prefer_express_route_in = "PREFER_EXPRESS_ROUTE_IN"
+  branch2_loopbacks = {
+    lo5 = "5.5.5.5/32"
+    lo6 = "6.6.6.6/32"
+  }
+  branch2_nva_vars = {
+    LOCAL_ASN = local.branch2_nva_asn
+    LOOPBACK0 = local.branch2_nva_loopback0
+    LOOPBACKS = local.branch2_loopbacks
+
+    PREFIX_LISTS = [
+      "ip prefix-list ALL permit 0.0.0.0/0 le 32",
+      "bgp as-path access-list 10 permit ^${local.azure_internal_asn}_${local.azure_asn}_${local.megaport_asn}_${local.azure_asn}$",
+    ]
+    ROUTE_MAPS = []
+    STATIC_ROUTES = [
+      { prefix = "0.0.0.0/0", next_hop = local.branch2_untrust_default_gw },
+      { prefix = "${module.branch2.ars_bgp_ip0}/32", next_hop = local.branch2_untrust_default_gw },
+      { prefix = "${module.branch2.ars_bgp_ip1}/32", next_hop = local.branch2_untrust_default_gw },
+    ]
+    TUNNELS = []
+    BGP_SESSIONS_IPV4 = [
+      {
+        peer_asn        = module.branch2.ars_bgp_asn
+        peer_ip         = module.branch2.ars_bgp_ip0
+        ebgp_multihop   = true
+        source_loopback = false
+        as_override     = true
+        route_maps      = []
+      },
+      {
+        peer_asn        = module.branch2.ars_bgp_asn
+        peer_ip         = module.branch2.ars_bgp_ip1
+        ebgp_multihop   = true
+        source_loopback = false
+        as_override     = true
+        route_maps      = []
+      },
+    ]
+    BGP_ADVERTISED_PREFIXES_IPV4 = [for k, v in local.branch2_loopbacks : v]
+  }
+  branch2_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.branch2_nva_vars, {
+    TARGETS                   = local.vm_script_targets
+    TARGETS_LIGHT_TRAFFIC_GEN = []
+    TARGETS_HEAVY_TRAFFIC_GEN = []
+
+    IPTABLES_RULES           = []
+    FRR_CONF                 = templatefile("../../scripts/frr/frr.conf", merge(local.branch2_nva_vars, {}))
+    STRONGSWAN_VTI_SCRIPT    = templatefile("../../scripts/strongswan/ipsec-vti.sh", local.branch2_nva_vars)
+    STRONGSWAN_IPSEC_SECRETS = templatefile("../../scripts/strongswan/ipsec.secrets", local.branch2_nva_vars)
+    STRONGSWAN_IPSEC_CONF    = templatefile("../../scripts/strongswan/ipsec.conf", local.branch2_nva_vars)
+    STRONGSWAN_AUTO_RESTART  = templatefile("../../scripts/strongswan/ipsec-auto-restart.sh", local.branch2_nva_vars)
+  }))
+}
+
+module "branch2_nva" {
+  source          = "../../modules/virtual-machine-linux"
+  resource_group  = azurerm_resource_group.rg.name
+  name            = "${local.prefix}-${local.branch2_nva_hostname}"
+  computer_name   = local.branch2_nva_hostname
+  location        = local.branch2_location
+  storage_account = module.common.storage_accounts["region1"]
+  custom_data     = base64encode(local.branch2_nva_init)
+  tags            = local.branch2_tags
+
+  source_image_publisher = "Canonical"
+  source_image_offer     = "0001-com-ubuntu-server-focal"
+  source_image_sku       = "20_04-lts"
+  source_image_version   = "latest"
+
+  ip_forwarding_enabled = true
+  interfaces = [
+    {
+      name                 = "${local.branch2_prefix}nva-untrust-nic"
+      subnet_id            = module.branch2.subnets["UntrustSubnet"].id
+      private_ip_address   = local.branch2_nva_untrust_addr
+      public_ip_address_id = azurerm_public_ip.branch2_nva_pip.id
+    },
+    {
+      name               = "${local.branch2_prefix}nva-trust-nic"
+      subnet_id          = module.branch2.subnets["TrustSubnet"].id
+      private_ip_address = local.branch2_nva_trust_addr
+    },
+  ]
+}
+
+####################################################
 # workload
 ####################################################
 
@@ -140,6 +231,7 @@ module "branch2_vm" {
   ]
   depends_on = [
     module.branch2_dns,
+    module.branch2_nva,
     time_sleep.branch2,
   ]
 }
@@ -166,8 +258,22 @@ module "branch2_udr_main" {
   bgp_route_propagation_enabled = true
   depends_on = [
     module.branch2_dns,
+    module.branch2_nva,
     time_sleep.branch2,
   ]
+}
+
+####################################################
+# ars
+####################################################
+
+# bgp connection
+
+resource "azurerm_route_server_bgp_connection" "branch2_rs_bgp_conn" {
+  name            = "${local.branch2_prefix}rs-bgp-conn"
+  route_server_id = module.branch2.ars.id
+  peer_asn        = local.branch2_nva_asn
+  peer_ip         = local.branch2_nva_untrust_addr
 }
 
 ####################################################
@@ -177,6 +283,7 @@ module "branch2_udr_main" {
 locals {
   branch2_files = {
     "output/branch2Dns.sh" = local.branch2_unbound_startup
+    "output/branch2Nva.sh" = local.branch2_nva_init
   }
 }
 

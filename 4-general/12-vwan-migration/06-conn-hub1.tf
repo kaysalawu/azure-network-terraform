@@ -15,7 +15,7 @@ resource "azurerm_virtual_network_peering" "spoke1_to_hub1_peering" {
   remote_virtual_network_id    = module.hub1.vnet.id
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
-  use_remote_gateways          = true
+  use_remote_gateways          = false
   depends_on = [
     module.spoke1,
     module.hub1,

@@ -33,7 +33,7 @@ The dashboard marker shows that the primary and secondary links of ExpressRoute 
 
 ## Prerequisites
 
-Ensure you meet all requirements in the [prerequisites](../../prerequisites/README.md) before proceeding.
+Ensure you meet all requirements in the [prerequisites](../../prerequisites/README.md) before proceeding. You will need a Megaport account to deploy the lab.
 
 ## Deploy the Lab
 

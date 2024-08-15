@@ -49,6 +49,12 @@ variable "scale_unit" {
   default     = 1
 }
 
+variable "sku" {
+  description = "sku"
+  type        = string
+  default     = "VpnGw1AZ"
+}
+
 variable "bgp_settings" {
   type = object({
     asn                                       = optional(string, "65515")

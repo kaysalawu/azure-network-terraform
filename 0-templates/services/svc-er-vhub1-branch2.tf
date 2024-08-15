@@ -1,11 +1,10 @@
 
 locals {
-  azure_asn              = 12706
-  megaport_asn           = 64512
   megaport_vlan1         = 100
   megaport_vlan2         = 200
-  express_route_location = "Dublin"
-  megaport_location      = "Equinix LD5"
+  megaport_vlan3         = 300
+  express_route_location = "London"
+  megaport_location      = "Global Switch London East"
   bandwidth_in_mbps      = 50
 }
 
@@ -24,35 +23,6 @@ variable "megaport_secret_key" {}
 ####################################################
 # megaport
 ####################################################
-
-locals {
-  circuits = [
-    {
-      name              = "${local.prefix}-er1"
-      mcr_name          = "mcr1"
-      location          = local.region1
-      peering_location  = local.express_route_location
-      bandwidth_in_mbps = local.bandwidth_in_mbps
-      requested_vlan    = local.megaport_vlan1
-
-      auto_create_private_peering = false
-
-      azure_config_ipv4 = {
-        create_megaport_vxc_peering   = false
-        create_azure_private_peering  = true
-        primary_peer_address_prefix   = local.csp_range1
-        secondary_peer_address_prefix = local.csp_range2
-      }
-      azure_config_ipv6 = {
-        enabled                       = false
-        create_megaport_vxc_peering   = false
-        create_azure_private_peering  = true
-        primary_peer_address_prefix   = local.csp_range1_v6
-        secondary_peer_address_prefix = local.csp_range2_v6
-      }
-    },
-  ]
-}
 
 module "megaport" {
   source = "../../modules/megaport"
