@@ -1,0 +1,12 @@
+{
+    "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Lab13_Vwan_Er_Hairpin_RG/providers/Microsoft.Network/expressRouteGateways/Lab13-vhub1-ergw/expressRouteConnections/ExRConnection-northeurope-1723673056179",
+    "name": "ExRConnection-northeurope-1723673056179",
+    "type": "Microsoft.Network/expressRouteGateways/expressRouteConnections",
+    "properties": {
+        "expressRouteCircuitPeering": {
+            "id": "/subscriptions/b120edff-2b3e-4896-adb7-55d2918f337f/resourceGroups/Lab13_Vwan_Er_Hairpin_RG/providers/Microsoft.Network/expressRouteCircuits/Lab13-er1/peerings/AzurePrivatePeering"
+        },
+        "authorizationKey": "535c0c23-6287-4153-bf43-64f7eafdb1c3",
+        "routingConfiguration": {}
+    }
+}
