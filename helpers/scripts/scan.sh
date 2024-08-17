@@ -264,7 +264,7 @@ run_terraform_docs() {
     if [[ $yn == [Yy] ]]; then
         for dir in "$modules_dir"/*; do
             if [ -d "$dir" ]; then
-                terraform-docs markdown table "$dir" --output-file "$dir/README.md" --output-mode inject
+                terraform-docs markdown table "$dir" --output-file "$dir/README.md" --output-mode inject --show=requirements,inputs,outputs
             fi
         done
     elif [[ $yn == [Nn] ]]; then
