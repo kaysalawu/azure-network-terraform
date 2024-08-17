@@ -316,7 +316,7 @@ We can see that the route to Azure destinations `10.11.0.0`, `10.11.16.0` and `8
 cd azure-network-terraform/4-general/05-p2s-client
 ```
 
-2\. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
+2\. (Optional) This is not required if `enable_diagnostics = false` in the [`02-main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
 ```sh
 bash ../../scripts/_cleanup.sh Lab05_P2sClient_RG

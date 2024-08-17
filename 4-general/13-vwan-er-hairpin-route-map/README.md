@@ -39,7 +39,7 @@ Ensure you meet all requirements in the [prerequisites](../../prerequisites/READ
    cd azure-network-terraform/4-general/13-vwan-er-hairpin
    ```
 
-3. (Optional) If you want to enable additional features such as IPv6, Vnet flow logs and logging set the following variables to `true` in the [`main.tf`](./02-main.tf) file.
+3. (Optional) If you want to enable additional features such as IPv6, Vnet flow logs and logging set the following variables to `true` in the [`02-main.tf`](./02-main.tf) file.
 
    | Variable | Description | Default | Link |
    |----------|-------------|---------|------|
@@ -189,7 +189,7 @@ terraform apply -parallelism=50
 cd azure-network-terraform/2-virtual-wan/3-vwan-sec-single-region
 ```
 
-2\. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
+2\. (Optional) This is not required if `enable_diagnostics = false` in the [`02-main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
 ```sh
 bash ../../scripts/_cleanup.sh Lab13_Vnet_Vwan_Er_Hairpin_RG
