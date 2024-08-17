@@ -136,14 +136,6 @@ terraform_cleanup(){
     cd "$original_dir" || exit
 }
 
-terraform_docs(){
-    local original_dir=$(pwd)
-    cd "$1" || exit
-    terraform-docs markdown . > README.md
-    echo -e "  ${color_green}${char_pass} Success!${reset}\n"
-    cd "$original_dir" || exit
-}
-
 run_dir_diff() {
     for dir in "${main_dirs[@]}"; do
         if [ -d "$dir" ]; then
