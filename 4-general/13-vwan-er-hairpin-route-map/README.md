@@ -81,7 +81,7 @@ Run some test to verify virtual WAN routes for **Branch2** through the ExpressRo
 ### 1. Verify ExpressRoute Circuit Routes
 
 ```sh
-bash ../../scripts/vnet-gateway/get_er_route_tables.sh Lab13_Vwan_Er_Hairpin_RG
+bash ../../scripts/vnet-gateway/get_er_route_tables.sh Lab13_Vnet_Vwan_Er_Hairpin_RG
 ```
 
 Sample output:
@@ -134,7 +134,7 @@ The ExpressRoute circuit routing table learns about the **Branch2** route (**10.
 ### 2. Get the Virtual WAN Effective Routes
 
 ```sh
-bash ../../scripts/_routes_vwan.sh Lab13_Vwan_Er_Hairpin_RG
+bash ../../scripts/_routes_vwan.sh Lab13_Vnet_Vwan_Er_Hairpin_RG
 ```
 
 Sample output:
@@ -192,7 +192,7 @@ cd azure-network-terraform/2-virtual-wan/3-vwan-sec-single-region
 2\. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
 ```sh
-bash ../../scripts/_cleanup.sh Lab13_Vwan_Er_Hairpin_RG
+bash ../../scripts/_cleanup.sh Lab13_Vnet_Vwan_Er_Hairpin_RG
 ```
 
 <details>
@@ -200,26 +200,43 @@ bash ../../scripts/_cleanup.sh Lab13_Vwan_Er_Hairpin_RG
 <summary>Sample output</summary>
 
 ```sh
+13-vwan-er-hairpin$ bash ../../scripts/_cleanup.sh Lab13_Vnet_Vwan_Er_Hairpin_RG
 
+Resource group: Lab13_Vnet_Vwan_Er_Hairpin_RG
+
+⏳ Checking for diagnostic settings on resources in Lab13_Vnet_Vwan_Er_Hairpin_RG ...
+➜  Checking firewall ...
+➜  Checking vnet gateway ...
+➜  Checking vpn gateway ...
+➜  Checking er gateway ...
+➜  Checking app gateway ...
+➜  Checking NVA vm extensions ...
+❌ Deleting: vm extension [MDE.Linux] for vm [Lab13-hub1-nva-0] ...
+⏳ Checking for azure policies in Lab13_Vnet_Vwan_Er_Hairpin_RG ...
+➜  Checking express route private peerings ...
+Done!
 ```
 
 </details>
 <p>
 
-3\. Set the local variable `deploy = false` in the [`svc-er-vhub1-branch2.tf#L3`](./svc-er-vhub1-branch2.tf#L3) and re-apply terraform to delete all ExpressRoute and Megaport resources.
+3\. Set the local variable `deploy = false` in the file [`svc-er-vhub1-branch2.tf`](./svc-er-vhub1-branch2.tf#L3) and re-apply terraform to delete all ExpressRoute and Megaport resources.
 
 ```sh
 terraform plan
 terraform apply -parallelism=50
 ```
 
-4\. Delete the resource group to remove all resources installed.
+4\. Set the local variable `deploy = true` in the [`svc-er-vhub1-branch2.tf`](./svc-er-vhub1-branch2.tf#L3) to allow deployment on the next run.
+
+
+5\. Delete the resource group to remove all resources installed.
 
 ```sh
-az group delete -g Lab13_Vwan_Er_Hairpin_RG --no-wait
+az group delete -g Lab13_Vnet_Vwan_Er_Hairpin_RG --no-wait
 ```
 
-5\. Delete terraform state files and other generated files.
+6\. Delete terraform state files and other generated files.
 
 ```sh
 rm -rf .terraform*

@@ -97,8 +97,10 @@ module "hub1_udr_main" {
 # route maps
 #----------------------------
 
+# branch1
+
 locals {
-  vhub1_route_map_cidr_blocks = [
+  vhub1_branch1_route_map_cidr_blocks = [
     local.spoke1_address_space.0,
     local.spoke2_address_space.0,
   ]
@@ -110,18 +112,76 @@ resource "azurerm_route_map" "vhub1_route_map" {
   virtual_hub_id = module.vhub1.virtual_hub.id
 
   rule {
-    name = "aggregate-spokes"
+    name = "aggregate-spoke1-spoke2"
 
     match_criterion {
       match_condition = "Contains"
-      route_prefix    = local.vhub1_route_map_cidr_blocks
+      route_prefix    = local.vhub1_branch1_route_map_cidr_blocks
     }
 
     next_step_if_matched = "Continue"
 
     action {
       type = "Replace"
+      parameter {
+        route_prefix = ["10.0.0.0/14", ]
+      }
+    }
+  }
+  timeouts {
+    create = "60m"
+  }
+}
 
+# branch2
+
+resource "azurerm_route_map" "vhub1_branch2_route_map_in" {
+  count          = local.create_vwan_route_maps ? 1 : 0
+  name           = "vhub-one_branch-two_in"
+  virtual_hub_id = module.vhub1.virtual_hub.id
+
+  rule {
+    name = "add-prefixes"
+
+    match_criterion {
+      match_condition = "Contains"
+      route_prefix    = [local.branch2_address_space[0], ]
+    }
+
+    next_step_if_matched = "Continue"
+
+    action {
+      type = "Add"
+      parameter {
+        route_prefix = concat(
+          [local.branch2_address_space[0]],
+          [for k, v in local.branch2_loopbacks : v]
+        )
+      }
+    }
+  }
+  timeouts {
+    create = "60m"
+  }
+}
+
+resource "azurerm_route_map" "vhub1_branch2_route_map_out" {
+  count          = local.create_vwan_route_maps ? 1 : 0
+  name           = "vhub-one_branch-two_out"
+  virtual_hub_id = module.vhub1.virtual_hub.id
+
+  rule {
+    name = "aggregate-spoke1-spoke2"
+
+    match_criterion {
+      match_condition = "Contains"
+      route_prefix    = local.vhub1_branch1_route_map_cidr_blocks
+    }
+
+    next_step_if_matched = "Continue"
+
+    action {
+      type = "Replace"
       parameter {
         route_prefix = ["10.0.0.0/14", ]
       }

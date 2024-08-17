@@ -36,7 +36,6 @@ provider "azurerm" {
 }
 
 provider "azapi" {}
-provider "cidrblock" {}
 
 terraform {
   required_providers {
@@ -50,9 +49,6 @@ terraform {
     }
     azapi = {
       source = "azure/azapi"
-    }
-    cidrblock = {
-      source = "amilevskiy/cidrblock"
     }
   }
 }

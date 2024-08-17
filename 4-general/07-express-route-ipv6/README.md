@@ -948,13 +948,23 @@ Done!
 </details>
 <p>
 
-3\. Delete the resource group to remove all resources installed.
+3\. Set the local variable `deploy = false` in the file [`svc-er-hub1-branch2-ipv6.tf`](./svc-er-hub1-branch2-ipv6.tf#L9) and re-apply terraform to delete all ExpressRoute and Megaport resources.
 
 ```sh
-az group delete -g Lab07_ExpressRoute_IPv6_RG --no-wait
+terraform plan
+terraform apply -parallelism=50
 ```
 
-4\. Delete terraform state files and other generated files.
+4\. Set the local variable `deploy = true` in the [`svc-er-hub1-branch2-ipv6.tf`](./svc-er-hub1-branch2-ipv6.tf#L9) to allow deployment on the next run.
+
+
+5\. Delete the resource group to remove all resources installed.
+
+```sh
+az group delete -g Lab13_Vnet_Vwan_Er_Hairpin_RG --no-wait
+```
+
+6\. Delete terraform state files and other generated files.
 
 ```sh
 rm -rf .terraform*

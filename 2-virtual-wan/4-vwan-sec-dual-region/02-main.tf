@@ -51,7 +51,6 @@ provider "azurerm" {
 }
 
 provider "azapi" {}
-provider "cidrblock" {}
 
 terraform {
   required_providers {
@@ -65,9 +64,6 @@ terraform {
     }
     azapi = {
       source = "azure/azapi"
-    }
-    cidrblock = {
-      source = "amilevskiy/cidrblock"
     }
   }
 }
@@ -565,11 +561,9 @@ module "vm_cloud_init" {
     local.vm_startup_init_files
   )
   packages = [
-    "docker.io", "docker-compose", #npm,
+    "docker.io", "docker-compose",
   ]
   run_commands = [
-    "systemctl enable docker",
-    "systemctl start docker",
     "bash ${local.init_dir}/init/startup.sh",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app2-8080.yml up -d",
@@ -586,8 +580,6 @@ module "probe_vm_cloud_init" {
     "docker.io", "docker-compose",
   ]
   run_commands = [
-    "systemctl enable docker",
-    "systemctl start docker",
     "bash ${local.init_dir}/init/startup.sh",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app2-8080.yml up -d",

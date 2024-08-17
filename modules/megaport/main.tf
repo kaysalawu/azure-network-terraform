@@ -219,41 +219,56 @@ resource "azurerm_express_route_circuit_authorization" "vwan" {
   ]
 }
 
-resource "azapi_resource" "vwan_connection" {
-  for_each  = var.deploy ? local.vwan_connections : {}
-  type      = "Microsoft.Network/expressRouteGateways/expressRouteConnections@2023-11-01"
-  parent_id = "/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${var.resource_group}/providers/Microsoft.Network/expressRouteGateways/${each.value.express_route_gateway_name}"
-  name      = "${each.key}--conn"
+# resource "azapi_resource" "vwan_connection" {
+#   for_each  = var.deploy ? local.vwan_connections : {}
+#   type      = "Microsoft.Network/expressRouteGateways/expressRouteConnections@2023-11-01"
+#   parent_id = "/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${var.resource_group}/providers/Microsoft.Network/expressRouteGateways/${each.value.express_route_gateway_name}"
+#   name      = "${each.key}--conn"
 
-  body = jsonencode({
-    properties = {
-      expressRouteCircuitPeering = {
-        id = azurerm_express_route_circuit_peering.this[each.value.express_route_circuit_name].id
-      }
-      authorizationKey     = azurerm_express_route_circuit_authorization.vwan[each.key].authorization_key
-      routingConfiguration = {}
-    }
-  })
-  schema_validation_enabled = false
-  depends_on = [
-    megaport_azure_connection.primary,
-    megaport_azure_connection.secondary,
-    azurerm_express_route_circuit_peering.this,
-  ]
-}
-
-# resource "azurerm_express_route_connection" "vwan" {
-#   for_each                         = local.vwan_connections
-#   name                             = "${each.key}--conn"
-#   express_route_gateway_id         = "/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${var.resource_group}/providers/Microsoft.Network/expressRouteGateways/${each.value.express_route_gateway_name}"
-#   express_route_circuit_peering_id = azurerm_express_route_circuit_peering.this[each.value.express_route_circuit_name].id
-#   authorization_key                = azurerm_express_route_circuit_authorization.vwan[each.key].authorization_key
+#   body = jsonencode({
+#     properties = {
+#       expressRouteCircuitPeering = {
+#         id = azurerm_express_route_circuit_peering.this[each.value.express_route_circuit_name].id
+#       }
+#       authorizationKey     = azurerm_express_route_circuit_authorization.vwan[each.key].authorization_key
+#       routingConfiguration = {}
+#     }
+#   })
+#   schema_validation_enabled = false
 #   depends_on = [
 #     megaport_azure_connection.primary,
 #     megaport_azure_connection.secondary,
 #     azurerm_express_route_circuit_peering.this,
 #   ]
 # }
+
+resource "azurerm_express_route_connection" "vwan" {
+  for_each                         = var.deploy ? local.vwan_connections : {}
+  name                             = "${each.key}--conn"
+  express_route_gateway_id         = "/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${var.resource_group}/providers/Microsoft.Network/expressRouteGateways/${each.value.express_route_gateway_name}"
+  express_route_circuit_peering_id = azurerm_express_route_circuit_peering.this[each.value.express_route_circuit_name].id
+  authorization_key                = azurerm_express_route_circuit_authorization.vwan[each.key].authorization_key
+
+  routing {
+    associated_route_table_id = each.value.associated_route_table_id
+    inbound_route_map_id      = each.value.inbound_route_map_id
+    outbound_route_map_id     = each.value.outbound_route_map_id
+
+    dynamic "propagated_route_table" {
+      for_each = each.value.propagated_route_table != null ? each.value.propagated_route_table : []
+      content {
+        labels          = propagated_route_table.value.labels
+        route_table_ids = propagated_route_table.value.route_table_ids
+      }
+    }
+  }
+
+  depends_on = [
+    megaport_azure_connection.primary,
+    megaport_azure_connection.secondary,
+    azurerm_express_route_circuit_peering.this,
+  ]
+}
 
 # ###################################################
 # # dashboard

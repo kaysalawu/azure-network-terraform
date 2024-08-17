@@ -61,7 +61,7 @@ echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%
 echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1vm.eu.az.corp) - spoke1vm.eu.az.corp"
 echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke2vm.eu.az.corp) - spoke2vm.eu.az.corp"
 echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://lab13spoke3sa2b06.blob.core.windows.net/spoke3/spoke3.txt) - https://lab13spoke3sa2b06.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://lab13spoke3sada68.blob.core.windows.net/spoke3/spoke3.txt) - https://lab13spoke3sada68.blob.core.windows.net/spoke3/spoke3.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns4
 
@@ -144,7 +144,7 @@ echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%
 echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1vm.eu.az.corp) - spoke1vm.eu.az.corp"
 echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke2vm.eu.az.corp) - spoke2vm.eu.az.corp"
 echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://lab13spoke3sa2b06.blob.core.windows.net/spoke3/spoke3.txt) - https://lab13spoke3sa2b06.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://lab13spoke3sada68.blob.core.windows.net/spoke3/spoke3.txt) - https://lab13spoke3sada68.blob.core.windows.net/spoke3/spoke3.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns6
 
@@ -204,7 +204,7 @@ nping -c 5 --tcp-connect -p 80,8080 branch2vm.corp > /dev/null 2>&1
 nping -c 5 --tcp-connect -p 80,8080 spoke3pls.eu.az.corp > /dev/null 2>&1
 nping -c 5 --tcp-connect -p 80,8080 spoke1vm.eu.az.corp > /dev/null 2>&1
 nping -c 5 --tcp-connect -p 80,8080 spoke2vm.eu.az.corp > /dev/null 2>&1
-nping -c 5 --tcp-connect -p 80,8080 https://lab13spoke3sa2b06.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
+nping -c 5 --tcp-connect -p 80,8080 https://lab13spoke3sada68.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
 EOF
 chmod a+x /usr/local/bin/light-traffic
 
@@ -219,7 +219,7 @@ while [ $i -lt 5 ]; do
     ab -n $1 -c $2 spoke3pls.eu.az.corp > /dev/null 2>&1
     ab -n $1 -c $2 spoke1vm.eu.az.corp > /dev/null 2>&1
     ab -n $1 -c $2 spoke2vm.eu.az.corp > /dev/null 2>&1
-    ab -n $1 -c $2 https://lab13spoke3sa2b06.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
+    ab -n $1 -c $2 https://lab13spoke3sada68.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
     let i=i+1
   sleep 5
 done
@@ -238,7 +238,7 @@ nping -c 5 -6 --tcp-connect -p 80,8080 branch2vm.corp > /dev/null 2>&1
 nping -c 5 -6 --tcp-connect -p 80,8080 spoke3pls.eu.az.corp > /dev/null 2>&1
 nping -c 5 -6 --tcp-connect -p 80,8080 spoke1vm.eu.az.corp > /dev/null 2>&1
 nping -c 5 -6 --tcp-connect -p 80,8080 spoke2vm.eu.az.corp > /dev/null 2>&1
-nping -c 5 -6 --tcp-connect -p 80,8080 https://lab13spoke3sa2b06.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
+nping -c 5 -6 --tcp-connect -p 80,8080 https://lab13spoke3sada68.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
 EOF
 chmod a+x /usr/local/bin/light-traffic-ipv6
 
@@ -298,13 +298,13 @@ while [ $i -lt 8 ]; do
   else
     echo "target: spoke2vm.eu.az.corp passed"
   fi
-    ab -s 3 -n $1 -c $2 [$(get_ipv6 https://lab13spoke3sa2b06.blob.core.windows.net/spoke3/spoke3.txt)]/ > /dev/null 2>&1
+    ab -s 3 -n $1 -c $2 [$(get_ipv6 https://lab13spoke3sada68.blob.core.windows.net/spoke3/spoke3.txt)]/ > /dev/null 2>&1
   # check if ab command was successful
   if [ $? -ne 0 ]; then
-    echo "target: https://lab13spoke3sa2b06.blob.core.windows.net/spoke3/spoke3.txt failed"
+    echo "target: https://lab13spoke3sada68.blob.core.windows.net/spoke3/spoke3.txt failed"
     exit 1
   else
-    echo "target: https://lab13spoke3sa2b06.blob.core.windows.net/spoke3/spoke3.txt passed"
+    echo "target: https://lab13spoke3sada68.blob.core.windows.net/spoke3/spoke3.txt passed"
   fi
     let i=i+1
   sleep 5

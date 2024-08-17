@@ -5,7 +5,7 @@ locals {
   megaport_vlan2         = 200
   megaport_vlan3         = 300
   express_route_location = "London"
-  megaport_location      = "Global Switch London East"
+  megaport_location      = "Telehouse North"
   bandwidth_in_mbps      = 50
 }
 
@@ -80,7 +80,10 @@ module "megaport" {
     },
     {
       express_route_circuit_name = "${local.prefix}-er1"
-      express_route_gateway_name = module.vhub1.ergw.name
+      express_route_gateway_name = module.vhub1.ergw_name
+      associated_route_table_id  = data.azurerm_virtual_hub_route_table.vhub1_default.id
+      inbound_route_map_id       = local.create_vwan_route_maps ? azurerm_route_map.vhub1_branch2_route_map_in[0].id : null
+      outbound_route_map_id      = local.create_vwan_route_maps ? azurerm_route_map.vhub1_branch2_route_map_out[0].id : null
     },
   ]
 }

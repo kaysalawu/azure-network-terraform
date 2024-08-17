@@ -564,33 +564,21 @@ Done!
 </details>
 <p>
 
-3\. Delete ExpressRoute connections, peerings, circuits and Megaport configuration.
+3\. Set the local variable `deploy = false` in the file [`svc-er-hub1-branch2-ipsec.tf`](./svc-er-hub1-branch2-ipsec.tf#L3) and re-apply terraform to delete all ExpressRoute and Megaport resources.
 
 ```sh
-bash ../../scripts/express-route/delete_ergw_connections.sh Lab01_IPsecOverER_RG
-bash ../../scripts/express-route/delete_private_peerings.sh Lab01_IPsecOverER_RG
-bash ../../scripts/express-route/delete_er_circuits.sh Lab01_IPsecOverER_RG
-terraform destroy -target=module.megaport --auto-approve
+terraform plan
+terraform apply -parallelism=50
 ```
 
-<details>
+4\. Set the local variable `deploy = true` in the file [`svc-er-hub1-branch2-ipsec.tf`](./svc-er-hub1-branch2-ipsec.tf#L3) to allow deployment on the next run.
 
-<summary>Sample output</summary>
 
-```sh
-
-```
-
-</details>
-<p>
-
-4\. Delete the resource group to remove all resources installed.
+5\. Delete the resource group to remove all resources installed.
 
 ```sh
 az group delete -g Lab01_IPsecOverER_RG --no-wait
 ```
-
-5\. Go to Megaport portal and delete MCR and VXCs created.
 
 6\. Delete terraform state files and other generated files.
 

@@ -407,104 +407,23 @@ Done!
 </details>
 <p>
 
-3\. Delete ExpressRoute connections, peerings, circuits and Megaport configuration.
+3\. Set the local variable `deploy = false` in the file [`svc-er-hub1-branch2-max-resiliency.tf`](./svc-er-hub1-branch2-max-resiliency.tf#L3) and re-apply terraform to delete all ExpressRoute and Megaport resources.
 
 ```sh
-bash ../../scripts/express-route/delete_ergw_connections.sh Lab08_ER_VPN_RG
-bash ../../scripts/express-route/delete_private_peerings.sh Lab08_ER_VPN_RG
-bash ../../scripts/express-route/delete_er_circuits.sh Lab08_ER_VPN_RG
-terraform destroy -target=module.megaport --auto-approve
+terraform plan
+terraform apply -parallelism=50
 ```
 
-<details>
+4\. Set the local variable `deploy = true` in the file [`svc-er-hub1-branch2-max-resiliency.tf`](./svc-er-hub1-branch2-max-resiliency.tf#L3) to allow deployment on the next run.
 
-<summary>Sample output</summary>
 
-```sh
-08-network-paths-er-vpn$ bash ../../scripts/express-route/delete_ergw_connections.sh Lab08_ER_VPN_RG
-
-#######################################
-Script: delete_ergw_connections.sh
-#######################################
-
-Resource group: Lab08_ER_VPN_RG
-
-⏳ Processing gateway: Lab08-branch2-ergw
-❓ Deleting connection: Lab08-er3
-❌ Deleted connection: Lab08-er3
-⏳ Processing gateway: Lab08-hub1-ergw
-❓ Deleting connection: Lab08-er2
-❌ Deleted connection: Lab08-er2
-❓ Deleting connection: Lab08-er1
-❌ Deleted connection: Lab08-er1
-⏳ Processing gateway: Lab08-hub1-vpngw
-⏳ Checking status of gateway connections ...
-     - ⏳ Waiting for gateway/conn Lab08-branch2-ergw/Lab08-er3 to delete...
-     - ⏳ Waiting for gateway/conn Lab08-hub1-ergw/Lab08-er2 to delete...
-     - ⏳ Waiting for gateway/conn Lab08-hub1-ergw/Lab08-er1 to delete...
-   ➜ Gateway connections are still deleting. Checking again in 30 seconds...
-     - ⏳ Waiting for gateway/conn Lab08-branch2-ergw/Lab08-er3 to delete...
-     - ⏳ Waiting for gateway/conn Lab08-hub1-ergw/Lab08-er2 to delete...
-     - ⏳ Waiting for gateway/conn Lab08-hub1-ergw/Lab08-er1 to delete...
-   ➜ Gateway connections are still deleting. Checking again in 30 seconds...
-     - ⏳ Waiting for gateway/conn Lab08-branch2-ergw/Lab08-er3 to delete...
-     - ⏳ Waiting for gateway/conn Lab08-hub1-ergw/Lab08-er2 to delete...
-     - ⏳ Waiting for gateway/conn Lab08-hub1-ergw/Lab08-er1 to delete...
-   ➜ Gateway connections are still deleting. Checking again in 30 seconds...
-     - ⏳ Waiting for gateway/conn Lab08-branch2-ergw/Lab08-er3 to delete...
-     - ⏳ Waiting for gateway/conn Lab08-hub1-ergw/Lab08-er1 to delete...
-   ➜ Gateway connections are still deleting. Checking again in 30 seconds...
-     - ⏳ Waiting for gateway/conn Lab08-branch2-ergw/Lab08-er3 to delete...
-     - ⏳ Waiting for gateway/conn Lab08-hub1-ergw/Lab08-er1 to delete...
-   ➜ Gateway connections are still deleting. Checking again in 30 seconds...
-   ✔ All gateway connections deleted successfully.
-```
-
-```sh
-#######################################
-Script: delete_private_peerings.sh
-#######################################
-
-Resource group: Lab08_ER_VPN_RG
-
-⏳ Processing circuit: Lab08-er1
-⏳ Processing circuit: Lab08-er2
-⏳ Processing circuit: Lab08-er3
-⏳ Checking status of peerings ...
-   ✔ All peerings deleted successfully.
-```
-
-```sh
-08-network-paths-er-vpn$ bash ../../scripts/express-route/delete_er_circuits.sh Lab08_ER_VPN_RG
-
-#######################################
-Script: delete_er_circuits.sh
-#######################################
-
-Resource group: Lab08_ER_VPN_RG
-
-⏳ Deleting circuit: Lab08-er1
-⏳ Deleting circuit: Lab08-er2
-⏳ Deleting circuit: Lab08-er3
-⏳ Checking status of circuits ...
-     - Lab08-er1 still deleting ...
-     - Lab08-er2 still deleting ...
-     - Lab08-er3 still deleting ...
-   ➜ Circuits are still deleting. Checking again in 10 seconds...
-   ✔ All circuits deleted successfully.
-```
-
-</details>
-<p>
-
-4\. Delete the resource group to remove all resources installed.
+5\. Delete the resource group to remove all resources installed.
 
 ```sh
 az group delete -g Lab08_ER_VPN_RG --no-wait
 ```
 
-
-5\. Delete terraform state files and other generated files.
+6\. Delete terraform state files and other generated files.
 
 ```sh
 rm -rf .terraform*

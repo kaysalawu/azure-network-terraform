@@ -43,7 +43,6 @@ provider "azurerm" {
 }
 
 provider "azapi" {}
-provider "cidrblock" {}
 
 terraform {
   required_providers {
@@ -57,9 +56,6 @@ terraform {
     }
     azapi = {
       source = "azure/azapi"
-    }
-    cidrblock = {
-      source = "amilevskiy/cidrblock"
     }
   }
 }
@@ -595,11 +591,11 @@ locals {
       "sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 50443 -j DNAT --to-destination ${local.spoke1_vm_addr}:8080",
       "sudo iptables -A FORWARD -p tcp -d ${local.spoke1_vm_addr} --dport 8080 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT",
     ]
-    FRR_CONF                = templatefile("../../scripts/frr/frr.conf", merge(local.hub1_nva_vars, {}))
-    STRONGSWAN_VTI_SCRIPT   = ""
-    STRONGSWAN_IPSEC_SECRET = ""
-    STRONGSWAN_IPSEC_CONF   = ""
-    STRONGSWAN_AUTO_RESTART = ""
+    FRR_CONF                 = templatefile("../../scripts/frr/frr.conf", merge(local.hub1_nva_vars, {}))
+    STRONGSWAN_VTI_SCRIPT    = ""
+    STRONGSWAN_IPSEC_SECRETS = ""
+    STRONGSWAN_IPSEC_CONF    = ""
+    STRONGSWAN_AUTO_RESTART  = ""
   }))
 }
 

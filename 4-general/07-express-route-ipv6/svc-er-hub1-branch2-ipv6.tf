@@ -6,6 +6,7 @@
 # mcr1 is not in the data path in this scenario.
 
 locals {
+  deploy                 = true
   megaport_vlan1         = 100
   megaport_vlan2         = 200
   megaport_vlan3         = 300
@@ -39,6 +40,7 @@ module "megaport" {
   prefix            = lower("salawu-${local.prefix}")
   azure_location    = local.region1
   megaport_location = local.megaport_location
+  deploy            = local.deploy
 
   mcr = [
     {
