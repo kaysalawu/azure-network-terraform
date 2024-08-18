@@ -18,7 +18,10 @@ if [[ $PWD == '/' ]]; then
     echo "Could not find azure-network-terraform directory"
     exit 1
 fi
-modules_dir="$PWD/modules"
+
+terraform_docs_dirs=(
+modules
+)
 
 main_dirs=(
 1-hub-and-spoke
@@ -254,9 +257,17 @@ run_terraform_cleanup() {
 run_terraform_docs() {
     read -p "Generate terraform docs? (y/n): " yn
     if [[ $yn == [Yy] ]]; then
-        for dir in "$modules_dir"/*; do
+        local original_dir=$(pwd)
+        for dir in "${terraform_docs_dirs[@]}"; do
             if [ -d "$dir" ]; then
-                terraform-docs markdown table "$dir" --output-file "$dir/README.md" --output-mode inject --show=requirements,inputs,outputs
+                for subdir in "$dir"/*/; do
+                    if [ -d "$subdir" ]; then
+                        cd "$subdir" || exit
+                        terraform-docs markdown table . --output-file README.md --output-mode inject --show=requirements,inputs,outputs > /dev/null
+                        echo -e "${char_pass} ${subdir#${original_dir}/}README.md updated!${reset}"
+                        cd "$original_dir" || exit
+                    fi
+                done
             fi
         done
     elif [[ $yn == [Nn] ]]; then
