@@ -1,4 +1,4 @@
-# Secured Virtual WAN - Dual Region <!-- omit from toc -->
+# Secured Virtual WAN - Dual Region (Azure FW) <!-- omit from toc -->
 
 ## Lab: Vwan24 <!-- omit from toc -->
 

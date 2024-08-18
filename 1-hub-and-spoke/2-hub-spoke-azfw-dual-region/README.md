@@ -1,4 +1,4 @@
-# Secured Hub and Spoke - Dual Region <!-- omit from toc -->
+# Secured Hub and Spoke - Dual Region (Azure FW) <!-- omit from toc -->
 
 ## Lab: Hs12 <!-- omit from toc -->
 

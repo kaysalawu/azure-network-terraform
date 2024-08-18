@@ -1,4 +1,4 @@
-# Secured Hub and Spoke - Single Region <!-- omit from toc -->
+# Secured Hub and Spoke - Single Region (Azure FW) <!-- omit from toc -->
 
 ## Lab: Hs11 <!-- omit from toc -->
 

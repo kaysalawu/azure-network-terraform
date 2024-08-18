@@ -1,4 +1,4 @@
-# Secured Virtual WAN - Single Region <!-- omit from toc -->
+# Secured Virtual WAN - Single Region (Azure FW) <!-- omit from toc -->
 
 ## Lab: Vwan23 <!-- omit from toc -->
 

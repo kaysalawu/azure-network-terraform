@@ -1,4 +1,4 @@
-# Secured Hub and Spoke - Dual Region (Virtual Network Manager) <!-- omit from toc -->
+# Secured Hub and Spoke (Virtual Network Manager) - Dual Region <!-- omit from toc -->
 
 ## Lab: Ne32 <!-- omit from toc -->
 
