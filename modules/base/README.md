@@ -5,45 +5,6 @@
 
 No requirements.
 
-## Providers
-
-| Name | Version |
-|------|---------|
-| <a name="provider_azapi"></a> [azapi](#provider\_azapi) | n/a |
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
-
-## Modules
-
-| Name | Source | Version |
-|------|--------|---------|
-| <a name="module_azfw"></a> [azfw](#module\_azfw) | ../../modules/azure-firewall | n/a |
-| <a name="module_dns_resolver"></a> [dns\_resolver](#module\_dns\_resolver) | ../../modules/private-dns-resolver | n/a |
-| <a name="module_ergw"></a> [ergw](#module\_ergw) | ../../modules/vnet-gateway-express-route | n/a |
-| <a name="module_nva"></a> [nva](#module\_nva) | ../../modules/network-virtual-appliance | n/a |
-| <a name="module_p2s_vpngw"></a> [p2s\_vpngw](#module\_p2s\_vpngw) | ../../modules/vnet-gateway-p2s | n/a |
-| <a name="module_s2s_vpngw"></a> [s2s\_vpngw](#module\_s2s\_vpngw) | ../../modules/vnet-gateway-s2s | n/a |
-
-## Resources
-
-| Name | Type |
-|------|------|
-| [azapi_resource.subnets](https://registry.terraform.io/providers/azure/azapi/latest/docs/resources/resource) | resource |
-| [azapi_resource.vnet_flow_log](https://registry.terraform.io/providers/azure/azapi/latest/docs/resources/resource) | resource |
-| [azurerm_nat_gateway.nat](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/nat_gateway) | resource |
-| [azurerm_nat_gateway_public_ip_association.nat](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/nat_gateway_public_ip_association) | resource |
-| [azurerm_network_watcher_flow_log.nsg](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_watcher_flow_log) | resource |
-| [azurerm_private_dns_zone_virtual_network_link.dns](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_dns_zone_virtual_network_link) | resource |
-| [azurerm_public_ip.ars_pip](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/public_ip) | resource |
-| [azurerm_public_ip.nat](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/public_ip) | resource |
-| [azurerm_route_server.ars](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/route_server) | resource |
-| [azurerm_subnet.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet) | resource |
-| [azurerm_subnet_nat_gateway_association.nat](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_nat_gateway_association) | resource |
-| [azurerm_subnet_network_security_group_association.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_network_security_group_association) | resource |
-| [azurerm_subnet_network_security_group_association.this_azapi](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_network_security_group_association) | resource |
-| [azurerm_virtual_network.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network) | resource |
-| [azurerm_log_analytics_workspace.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/log_analytics_workspace) | data source |
-| [azurerm_network_watcher.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/network_watcher) | data source |
-
 ## Inputs
 
 | Name | Description | Type | Default | Required |
@@ -53,7 +14,7 @@ No requirements.
 | <a name="input_bgp_community"></a> [bgp\_community](#input\_bgp\_community) | bgp community | `string` | `null` | no |
 | <a name="input_config_ergw"></a> [config\_ergw](#input\_config\_ergw) | n/a | <pre>object({<br>    enable        = optional(bool, false)<br>    sku           = optional(string, "ErGw1AZ")<br>    active_active = optional(bool, false)<br>  })</pre> | <pre>{<br>  "enable": false,<br>  "sku": "ErGw1AZ"<br>}</pre> | no |
 | <a name="input_config_firewall"></a> [config\_firewall](#input\_config\_firewall) | n/a | <pre>object({<br>    enable             = optional(bool, false)<br>    firewall_sku       = optional(string, "Basic")<br>    firewall_policy_id = optional(string, null)<br>  })</pre> | <pre>{<br>  "enable": false,<br>  "firewall_policy_id": null,<br>  "firewall_sku": "Basic"<br>}</pre> | no |
-| <a name="input_config_nva"></a> [config\_nva](#input\_config\_nva) | n/a | <pre>object({<br>    enable           = optional(bool, false)<br>    enable_ipv6      = optional(bool, false)<br>    type             = optional(string, "cisco")<br>    ilb_untrust_ip   = optional(string)<br>    ilb_trust_ip     = optional(string)<br>    ilb_untrust_ipv6 = optional(string)<br>    ilb_trust_ipv6   = optional(string)<br>    custom_data      = optional(string)<br>    scenario_option  = optional(string, "TwoNics") # Active-Active, TwoNics<br>    opn_type         = optional(string, "TwoNics") # Primary, Secondary, TwoNics<br>  })</pre> | <pre>{<br>  "custom_data": null,<br>  "enable": false,<br>  "enable_ipv6": false,<br>  "internal_lb_addr": null,<br>  "opn_type": "TwoNics",<br>  "scenario_option": "TwoNics",<br>  "type": "cisco"<br>}</pre> | no |
+| <a name="input_config_nva"></a> [config\_nva](#input\_config\_nva) | n/a | <pre>object({<br>    enable           = optional(bool, false)<br>    enable_ipv6      = optional(bool, false)<br>    type             = optional(string, "cisco")<br>    ilb_untrust_ip   = optional(string)<br>    ilb_trust_ip     = optional(string)<br>    ilb_untrust_ipv6 = optional(string)<br>    ilb_trust_ipv6   = optional(string)<br>    custom_data      = optional(string)<br>    scenario_option  = optional(string, "TwoNics") # Active-Active, TwoNics<br>    opn_type         = optional(string, "TwoNics") # Primary, Secondary, TwoNics<br>    public_ip0_name  = optional(string, null)<br>    public_ip1_name  = optional(string, null)<br>  })</pre> | <pre>{<br>  "custom_data": null,<br>  "enable": false,<br>  "enable_ipv6": false,<br>  "internal_lb_addr": null,<br>  "opn_type": "TwoNics",<br>  "scenario_option": "TwoNics",<br>  "type": "cisco"<br>}</pre> | no |
 | <a name="input_config_p2s_vpngw"></a> [config\_p2s\_vpngw](#input\_config\_p2s\_vpngw) | n/a | <pre>object({<br>    enable        = optional(bool, false)<br>    sku           = optional(string, "VpnGw1AZ")<br>    active_active = optional(bool, false)<br><br>    custom_route_address_prefixes = optional(list(string), [])<br><br>    vpn_client_configuration = optional(object({<br>      address_space = optional(list(string))<br>      clients = optional(list(object({<br>        name = string<br>      })))<br>    }))<br><br>    ip_configuration = optional(list(object({<br>      name                   = string<br>      public_ip_address_name = optional(string)<br>    })))<br>  })</pre> | <pre>{<br>  "enable": false,<br>  "ip_configuration": [<br>    {<br>      "name": "ip-config",<br>      "public_ip_address_name": null<br>    }<br>  ],<br>  "sku": "VpnGw1AZ"<br>}</pre> | no |
 | <a name="input_config_s2s_vpngw"></a> [config\_s2s\_vpngw](#input\_config\_s2s\_vpngw) | n/a | <pre>object({<br>    enable        = optional(bool, false)<br>    sku           = optional(string, "VpnGw1AZ")<br>    active_active = optional(bool, true)<br><br>    private_ip_address_enabled  = optional(bool, true)<br>    remote_vnet_traffic_enabled = optional(bool, true)<br>    virtual_wan_traffic_enabled = optional(bool, true)<br><br>    ip_configuration = optional(list(object({<br>      name                          = string<br>      subnet_id                     = optional(string)<br>      public_ip_address_name        = optional(string)<br>      private_ip_address_allocation = optional(string)<br>      apipa_addresses               = optional(list(string))<br>      })),<br>      [<br>        { name = "ipconf0" },<br>        { name = "ipconf1" }<br>      ]<br>    )<br>    bgp_settings = optional(object({<br>      asn = optional(string)<br>    }))<br>  })</pre> | <pre>{<br>  "active_active": true,<br>  "bgp_settings": {<br>    "asn": 65515<br>  },<br>  "enable": false,<br>  "ip_configuration": [<br>    {<br>      "name": "ip-config0"<br>    },<br>    {<br>      "name": "ip-config1"<br>    }<br>  ],<br>  "sku": "VpnGw1AZ"<br>}</pre> | no |
 | <a name="input_config_vnet"></a> [config\_vnet](#input\_config\_vnet) | n/a | <pre>object({<br>    address_space = list(string)<br>    subnets = optional(map(object({<br>      use_azapi                                     = optional(list(bool), [false])<br>      address_prefixes                              = list(string)<br>      address_prefixes_v6                           = optional(list(string), [])<br>      service_endpoints                             = optional(list(string), [])<br>      delegate                                      = optional(list(string), [])<br>      private_endpoint_network_policies             = optional(list(string), ["Disabled"]) # Enabled, Disabled, NetworkSecurityGroupEnabled, RouteTableEnabled<br>      private_link_service_network_policies_enabled = optional(list(bool), [false])<br>    })), {})<br>    nsg_id                       = optional(string)<br>    dns_servers                  = optional(list(string))<br>    bgp_community                = optional(string, null)<br>    ddos_protection_plan_id      = optional(string, null)<br>    encryption_enabled           = optional(bool, false)<br>    encryption_enforcement       = optional(string, "AllowUnencrypted") # DropUnencrypted, AllowUnencrypted<br>    enable_private_dns_resolver  = optional(bool, false)<br>    enable_ars                   = optional(bool, false)<br>    enable_express_route_gateway = optional(bool, false)<br>    nat_gateway_subnet_names     = optional(list(string), [])<br>    subnet_names_private_dns     = optional(list(string), [])<br><br>    enable_vnet_flow_logs           = optional(bool, false)<br>    enable_vnet_flow_logs_analytics = optional(bool, true)<br><br>    private_dns_inbound_subnet_name  = optional(string, null)<br>    private_dns_outbound_subnet_name = optional(string, null)<br>    ruleset_dns_forwarding_rules     = optional(map(any), {})<br><br>    vpn_gateway_ip_config0_apipa_addresses = optional(list(string), ["169.254.21.1"])<br>    vpn_gateway_ip_config1_apipa_addresses = optional(list(string), ["169.254.21.5"])<br>  })</pre> | n/a | yes |
@@ -103,6 +64,7 @@ No requirements.
 | <a name="output_firewall"></a> [firewall](#output\_firewall) | n/a |
 | <a name="output_firewall_private_ip"></a> [firewall\_private\_ip](#output\_firewall\_private\_ip) | n/a |
 | <a name="output_firewall_public_ip"></a> [firewall\_public\_ip](#output\_firewall\_public\_ip) | n/a |
+| <a name="output_nva_public_ip0"></a> [nva\_public\_ip0](#output\_nva\_public\_ip0) | n/a |
 | <a name="output_p2s_client_certificates"></a> [p2s\_client\_certificates](#output\_p2s\_client\_certificates) | n/a |
 | <a name="output_p2s_client_certificates_cert_name"></a> [p2s\_client\_certificates\_cert\_name](#output\_p2s\_client\_certificates\_cert\_name) | n/a |
 | <a name="output_p2s_client_certificates_cert_pem"></a> [p2s\_client\_certificates\_cert\_pem](#output\_p2s\_client\_certificates\_cert\_pem) | n/a |

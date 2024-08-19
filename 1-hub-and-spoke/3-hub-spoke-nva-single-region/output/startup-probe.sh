@@ -7,7 +7,6 @@ apt install -y python3-pip python3-dev python3-venv unzip jq tcpdump dnsutils ne
 
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-
 ########################################################
 # test scripts (ipv4)
 ########################################################
@@ -40,11 +39,11 @@ chmod a+x /usr/local/bin/ping-dns4
 
 cat <<'EOF' > /usr/local/bin/curl-ipv4
 echo -e "\n curl ipv4 ...\n"
-echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null [10.10.0.5]) - branch1 [10.10.0.5]"
-echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null [10.11.0.5]) - hub1    [10.11.0.5]"
-echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null [10.1.0.5]) - spoke1  [10.1.0.5]"
-echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null [10.2.0.5]) - spoke2  [10.2.0.5]"
-echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null [icanhazip.com]) - internet [icanhazip.com]"
+echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.10.0.5) - branch1 [10.10.0.5]"
+echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.11.0.5) - hub1    [10.11.0.5]"
+echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.1.0.5) - spoke1  [10.1.0.5]"
+echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.2.0.5) - spoke2  [10.2.0.5]"
+echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - internet [icanhazip.com]"
 EOF
 chmod a+x /usr/local/bin/curl-ipv4
 
@@ -58,7 +57,7 @@ echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%
 echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1vm.eu.az.corp) - spoke1vm.eu.az.corp"
 echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke2vm.eu.az.corp) - spoke2vm.eu.az.corp"
 echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs13spoke3sa375d.blob.core.windows.net/spoke3/spoke3.txt) - https://hs13spoke3sa375d.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs13spoke3sa9133.blob.core.windows.net/spoke3/spoke3.txt) - https://hs13spoke3sa9133.blob.core.windows.net/spoke3/spoke3.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns4
 
@@ -134,7 +133,7 @@ echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%
 echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1vm.eu.az.corp) - spoke1vm.eu.az.corp"
 echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke2vm.eu.az.corp) - spoke2vm.eu.az.corp"
 echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs13spoke3sa375d.blob.core.windows.net/spoke3/spoke3.txt) - https://hs13spoke3sa375d.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://hs13spoke3sa9133.blob.core.windows.net/spoke3/spoke3.txt) - https://hs13spoke3sa9133.blob.core.windows.net/spoke3/spoke3.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns6
 
@@ -160,9 +159,9 @@ timeout 9 tracepath -6 icanhazip.com
 EOF
 chmod a+x /usr/local/bin/trace-ipv6
 
-########################################################
+#########################################################
 # other scripts
-########################################################
+#########################################################
 
 # dns-info
 
@@ -174,7 +173,7 @@ chmod a+x /usr/local/bin/dns-info
 
 # azure service tester
 
-tee /usr/local/bin/crawlz <<'EOF'
+cat <<'EOF' > /usr/local/bin/crawlz
 sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
 EOF
 chmod a+x /usr/local/bin/crawlz
@@ -190,7 +189,7 @@ nping -c 5 --tcp-connect -p 80,8080 branch1vm.corp > /dev/null 2>&1
 nping -c 5 --tcp-connect -p 80,8080 spoke3pls.eu.az.corp > /dev/null 2>&1
 nping -c 5 --tcp-connect -p 80,8080 spoke1vm.eu.az.corp > /dev/null 2>&1
 nping -c 5 --tcp-connect -p 80,8080 spoke2vm.eu.az.corp > /dev/null 2>&1
-nping -c 5 --tcp-connect -p 80,8080 https://hs13spoke3sa375d.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
+nping -c 5 --tcp-connect -p 80,8080 https://hs13spoke3sa9133.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
 EOF
 chmod a+x /usr/local/bin/light-traffic
 
@@ -204,7 +203,7 @@ while [ $i -lt 5 ]; do
     ab -n $1 -c $2 spoke3pls.eu.az.corp > /dev/null 2>&1
     ab -n $1 -c $2 spoke1vm.eu.az.corp > /dev/null 2>&1
     ab -n $1 -c $2 spoke2vm.eu.az.corp > /dev/null 2>&1
-    ab -n $1 -c $2 https://hs13spoke3sa375d.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
+    ab -n $1 -c $2 https://hs13spoke3sa9133.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
     let i=i+1
   sleep 5
 done
@@ -222,7 +221,7 @@ nping -c 5 -6 --tcp-connect -p 80,8080 branch1vm.corp > /dev/null 2>&1
 nping -c 5 -6 --tcp-connect -p 80,8080 spoke3pls.eu.az.corp > /dev/null 2>&1
 nping -c 5 -6 --tcp-connect -p 80,8080 spoke1vm.eu.az.corp > /dev/null 2>&1
 nping -c 5 -6 --tcp-connect -p 80,8080 spoke2vm.eu.az.corp > /dev/null 2>&1
-nping -c 5 -6 --tcp-connect -p 80,8080 https://hs13spoke3sa375d.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
+nping -c 5 -6 --tcp-connect -p 80,8080 https://hs13spoke3sa9133.blob.core.windows.net/spoke3/spoke3.txt > /dev/null 2>&1
 EOF
 chmod a+x /usr/local/bin/light-traffic-ipv6
 
@@ -274,13 +273,13 @@ while [ $i -lt 8 ]; do
   else
     echo "target: spoke2vm.eu.az.corp passed"
   fi
-    ab -s 3 -n $1 -c $2 [$(get_ipv6 https://hs13spoke3sa375d.blob.core.windows.net/spoke3/spoke3.txt)]/ > /dev/null 2>&1
+    ab -s 3 -n $1 -c $2 [$(get_ipv6 https://hs13spoke3sa9133.blob.core.windows.net/spoke3/spoke3.txt)]/ > /dev/null 2>&1
   # check if ab command was successful
   if [ $? -ne 0 ]; then
-    echo "target: https://hs13spoke3sa375d.blob.core.windows.net/spoke3/spoke3.txt failed"
+    echo "target: https://hs13spoke3sa9133.blob.core.windows.net/spoke3/spoke3.txt failed"
     exit 1
   else
-    echo "target: https://hs13spoke3sa375d.blob.core.windows.net/spoke3/spoke3.txt passed"
+    echo "target: https://hs13spoke3sa9133.blob.core.windows.net/spoke3/spoke3.txt passed"
   fi
     let i=i+1
   sleep 5

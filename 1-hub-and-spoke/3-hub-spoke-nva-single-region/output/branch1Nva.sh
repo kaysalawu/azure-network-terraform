@@ -143,37 +143,36 @@ conn %default
 
 conn Tunnel0
     left=10.10.1.9
-    leftid=52.169.113.129
-    right=135.236.129.6
-    rightid=135.236.129.6
+    leftid=52.169.151.35
+    right=135.236.145.17
+    rightid=135.236.145.17
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.10.1.9
-    leftid=52.169.113.129
-    right=135.236.129.14
-    rightid=135.236.129.14
+    leftid=52.169.151.35
+    right=135.236.146.114
+    rightid=135.236.146.114
     auto=start
-    mark=200
+    mark=101
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel2
     left=10.10.1.9
-    leftid=52.169.113.129
+    leftid=52.169.151.35
     right=1.1.1.1
     rightid=1.1.1.1
     auto=start
-    mark=300
+    mark=102
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 
-# github source used
 # https://gist.github.com/heri16/2f59d22d1d5980796bfb
 
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.10.1.9 135.236.129.6 : PSK "changeme"
-10.10.1.9 135.236.129.14 : PSK "changeme"
+10.10.1.9 135.236.145.17 : PSK "changeme"
+10.10.1.9 135.236.146.114 : PSK "changeme"
 10.10.1.9 1.1.1.1 : PSK "changeme"
 
 EOF
@@ -191,17 +190,17 @@ PLUTO_MARK_IN_ARR=(${PLUTO_MARK_IN//// })
 
 case "$PLUTO_CONNECTION" in
   Tunnel0)
-    VTI_INTERFACE=vti0
+    VTI_INTERFACE=Tunnel0
     VTI_LOCALADDR=10.10.10.1
     VTI_REMOTEADDR=10.11.16.7
     ;;
   Tunnel1)
-    VTI_INTERFACE=vti1
+    VTI_INTERFACE=Tunnel1
     VTI_LOCALADDR=10.10.10.5
     VTI_REMOTEADDR=10.11.16.6
     ;;
   Tunnel2)
-    VTI_INTERFACE=vti2
+    VTI_INTERFACE=Tunnel2
     VTI_LOCALADDR=10.10.10.9
     VTI_REMOTEADDR=10.10.10.10
     ;;
@@ -363,7 +362,7 @@ chmod a+x /usr/local/bin/dns-info
 
 # azure service tester
 
-tee /usr/local/bin/crawlz <<'EOF'
+cat <<'EOF' > /usr/local/bin/crawlz
 sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
 EOF
 chmod a+x /usr/local/bin/crawlz

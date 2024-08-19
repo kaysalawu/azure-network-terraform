@@ -5,28 +5,11 @@
 
 No requirements.
 
-## Providers
-
-| Name | Version |
-|------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
-
-## Modules
-
-No modules.
-
-## Resources
-
-| Name | Type |
-|------|------|
-| [azurerm_express_route_gateway.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/express_route_gateway) | resource |
-| [azurerm_log_analytics_workspace.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/log_analytics_workspace) | resource |
-| [azurerm_portal_dashboard.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/portal_dashboard) | resource |
-
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_allow_non_virtual_wan_traffic"></a> [allow\_non\_virtual\_wan\_traffic](#input\_allow\_non\_virtual\_wan\_traffic) | allow non virtual wan traffic | `bool` | `false` | no |
 | <a name="input_bgp_route_translation_for_nat_enabled"></a> [bgp\_route\_translation\_for\_nat\_enabled](#input\_bgp\_route\_translation\_for\_nat\_enabled) | enable bgp route translation for nat | `bool` | `false` | no |
 | <a name="input_env"></a> [env](#input\_env) | environment name | `string` | `"dev"` | no |
 | <a name="input_location"></a> [location](#input\_location) | vnet region location | `string` | n/a | yes |
@@ -35,6 +18,7 @@ No modules.
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | prefix to append before all resources | `string` | n/a | yes |
 | <a name="input_resource_group"></a> [resource\_group](#input\_resource\_group) | resource group name | `any` | n/a | yes |
 | <a name="input_scale_units"></a> [scale\_units](#input\_scale\_units) | scale units | `number` | `1` | no |
+| <a name="input_sku"></a> [sku](#input\_sku) | sku | `string` | `"ErGw1AZ"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | tags for all hub resources | `map(any)` | `{}` | no |
 | <a name="input_virtual_hub_id"></a> [virtual\_hub\_id](#input\_virtual\_hub\_id) | virtual hub id | `string` | n/a | yes |
 
@@ -43,4 +27,5 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_gateway"></a> [gateway](#output\_gateway) | n/a |
+| <a name="output_gateway_name"></a> [gateway\_name](#output\_gateway\_name) | n/a |
 <!-- END_TF_DOCS -->
