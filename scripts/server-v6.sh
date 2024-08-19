@@ -10,7 +10,6 @@ apt install -y openvpn network-manager-openvpn
 sudo service network-manager restart
 
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-az login --identity || true
 
 # web server #
 pip3 install Flask requests
@@ -169,7 +168,7 @@ chmod a+x /usr/local/bin/dns-info
 
 # azure service tester
 
-tee /usr/local/bin/crawlz <<'EOF'
+cat <<'EOF' > /usr/local/bin/crawlz
 sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
 EOF
 chmod a+x /usr/local/bin/crawlz

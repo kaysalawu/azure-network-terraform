@@ -5,31 +5,6 @@
 
 No requirements.
 
-## Providers
-
-| Name | Version |
-|------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
-| <a name="provider_local"></a> [local](#provider\_local) | n/a |
-| <a name="provider_tls"></a> [tls](#provider\_tls) | n/a |
-
-## Modules
-
-| Name | Source | Version |
-|------|--------|---------|
-| <a name="module_client_certificates"></a> [client\_certificates](#module\_client\_certificates) | ../../modules/cert-self-signed | n/a |
-
-## Resources
-
-| Name | Type |
-|------|------|
-| [azurerm_point_to_site_vpn_gateway.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/point_to_site_vpn_gateway) | resource |
-| [azurerm_vpn_server_configuration.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/vpn_server_configuration) | resource |
-| [local_file.certificate_files](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
-| [tls_private_key.root_ca](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) | resource |
-| [tls_self_signed_cert.root_ca](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/self_signed_cert) | resource |
-| [azurerm_log_analytics_workspace.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/log_analytics_workspace) | data source |
-
 ## Inputs
 
 | Name | Description | Type | Default | Required |

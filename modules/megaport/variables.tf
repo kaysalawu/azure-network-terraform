@@ -76,6 +76,13 @@ variable "gateway_connections" {
     express_route_circuit_name   = string
     virtual_network_gateway_name = optional(string, null)
     express_route_gateway_name   = optional(string, null)
+    associated_route_table_id    = optional(string, null)
+    inbound_route_map_id         = optional(string, null)
+    outbound_route_map_id        = optional(string, null)
+    propagated_route_table = optional(list(object({
+      labels          = optional(list(string), [])
+      route_table_ids = optional(list(string), [])
+    })), null)
   }))
   default = []
 }
@@ -86,3 +93,8 @@ variable "log_analytics_workspace_name" {
   default     = null
 }
 
+variable "deploy" {
+  description = "deploy"
+  type        = bool
+  default     = true
+}

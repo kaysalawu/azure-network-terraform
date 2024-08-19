@@ -5,26 +5,6 @@
 
 No requirements.
 
-## Providers
-
-| Name | Version |
-|------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
-
-## Modules
-
-| Name | Source | Version |
-|------|--------|---------|
-| <a name="module_ilb_trust"></a> [ilb\_trust](#module\_ilb\_trust) | ../../modules/azure-load-balancer | n/a |
-| <a name="module_ilb_untrust"></a> [ilb\_untrust](#module\_ilb\_untrust) | ../../modules/azure-load-balancer | n/a |
-| <a name="module_nva"></a> [nva](#module\_nva) | ../../modules/virtual-machine-linux | n/a |
-
-## Resources
-
-| Name | Type |
-|------|------|
-| [azurerm_public_ip.untrust](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/public_ip) | resource |
-
 ## Inputs
 
 | Name | Description | Type | Default | Required |
@@ -42,6 +22,8 @@ No requirements.
 | <a name="input_name"></a> [name](#input\_name) | virtual machine resource name | `string` | n/a | yes |
 | <a name="input_nva_type"></a> [nva\_type](#input\_nva\_type) | type of network virtual appliance - opnsense, linux | `string` | `"opnsense"` | no |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | prefix to append before all resources | `string` | `""` | no |
+| <a name="input_public_ip0_name"></a> [public\_ip0\_name](#input\_public\_ip0\_name) | public ip address name for untrust interface of instance 0 | `string` | `null` | no |
+| <a name="input_public_ip1_name"></a> [public\_ip1\_name](#input\_public\_ip1\_name) | public ip address name for untrust interface of instance 1 | `string` | `null` | no |
 | <a name="input_resource_group"></a> [resource\_group](#input\_resource\_group) | resource group name | `any` | n/a | yes |
 | <a name="input_scenario_option"></a> [scenario\_option](#input\_scenario\_option) | scenario\_option = Active-Active, TwoNics | `string` | `"TwoNics"` | no |
 | <a name="input_source_image_offer"></a> [source\_image\_offer](#input\_source\_image\_offer) | source image reference offer | `string` | `"0001-com-ubuntu-server-focal"` | no |
@@ -66,6 +48,7 @@ No requirements.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_nva"></a> [nva](#output\_nva) | n/a |
-| <a name="output_public_ip_untrust"></a> [public\_ip\_untrust](#output\_public\_ip\_untrust) | n/a |
+| <a name="output_nva_0"></a> [nva\_0](#output\_nva\_0) | n/a |
+| <a name="output_public_ip_untrust_0"></a> [public\_ip\_untrust\_0](#output\_public\_ip\_untrust\_0) | n/a |
+| <a name="output_public_ip_untrust_1"></a> [public\_ip\_untrust\_1](#output\_public\_ip\_untrust\_1) | n/a |
 <!-- END_TF_DOCS -->

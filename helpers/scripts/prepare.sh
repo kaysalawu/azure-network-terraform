@@ -97,7 +97,7 @@ terraform_cleanup(){
 terraform_docs(){
     read -p "Update terraform docs? (y/n): " yn
     if [[ $yn == [Yy] ]]; then
-        terraform-docs markdown table . --output-file "./README.md" --output-mode inject
+        terraform-docs markdown table . --output-file "./README.md" --output-mode inject --show=requirements,inputs,outputs
         echo -e "  ${color_green}${char_pass} Updated!${reset}"
     fi
 }

@@ -34,7 +34,7 @@ This lab deploys a single-region Hub and Spoke Vnet topology using Virtual Netwo
 
 ## Prerequisites
 
-Ensure you meet all requirements in the [prerequisites](../../prerequisites/README.md) before proceeding.
+Ensure you meet all requirements in the [prerequisites](../../prerequisites/README.md) before proceeding. You will need a Megaport account to deploy the lab.
 
 ## Deploy the Lab
 
@@ -77,7 +77,7 @@ The table below shows the auto-generated output files from the lab. They are loc
 
 ## Dashboards (Optional)
 
-This lab contains a number of pre-configured dashboards for monitoring gateways, VPN gateways, and Azure Firewall. To deploy the dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf) file. Then run `terraform apply` to update the deployment.
+This lab contains a number of pre-configured dashboards for monitoring gateways, VPN gateways, and Azure Firewall. To deploy the dashboards, set `enable_diagnostics = true` in the [`02-main.tf`](./02-main.tf) file. Then run `terraform apply` to update the deployment.
 
 <details>
 
@@ -919,7 +919,7 @@ See the [Branch2 Tests](./tests/EXPRESS-ROUTE.md) for tests to run on the on-pre
 cd azure-network-terraform/4-general/07-express-route-ipv6
 ```
 
-2\. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
+2\. (Optional) This is not required if `enable_diagnostics = false` in the [`02-main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
 ```sh
 bash ../../scripts/_cleanup.sh Lab07_ExpressRoute_IPv6_RG
@@ -948,13 +948,23 @@ Done!
 </details>
 <p>
 
-3\. Delete the resource group to remove all resources installed.
+3\. Set the local variable `deploy = false` in the file [`svc-er-hub1-branch2-ipv6.tf`](./svc-er-hub1-branch2-ipv6.tf#L9) and re-apply terraform to delete all ExpressRoute and Megaport resources.
 
 ```sh
-az group delete -g Lab07_ExpressRoute_IPv6_RG --no-wait
+terraform plan
+terraform apply -parallelism=50
 ```
 
-4\. Delete terraform state files and other generated files.
+4\. Set the local variable `deploy = true` in the [`svc-er-hub1-branch2-ipv6.tf`](./svc-er-hub1-branch2-ipv6.tf#L9) to allow deployment on the next run.
+
+
+5\. Delete the resource group to remove all resources installed.
+
+```sh
+az group delete -g Lab13_Vnet_Vwan_Er_Hairpin_RG --no-wait
+```
+
+6\. Delete terraform state files and other generated files.
 
 ```sh
 rm -rf .terraform*

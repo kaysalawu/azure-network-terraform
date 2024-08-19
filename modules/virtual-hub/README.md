@@ -5,29 +5,6 @@
 
 No requirements.
 
-## Providers
-
-| Name | Version |
-|------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
-
-## Modules
-
-| Name | Source | Version |
-|------|--------|---------|
-| <a name="module_azfw"></a> [azfw](#module\_azfw) | ../../modules/azure-firewall | n/a |
-| <a name="module_ergw"></a> [ergw](#module\_ergw) | ../../modules/express-route-gateway | n/a |
-| <a name="module_p2sgw"></a> [p2sgw](#module\_p2sgw) | ../../modules/point-to-site-gateway | n/a |
-| <a name="module_vpngw"></a> [vpngw](#module\_vpngw) | ../../modules/vpn-gateway | n/a |
-
-## Resources
-
-| Name | Type |
-|------|------|
-| [azurerm_virtual_hub.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_hub) | resource |
-| [azurerm_virtual_hub_routing_intent.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_hub_routing_intent) | resource |
-| [azurerm_virtual_hub_route_table.default](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/virtual_hub_route_table) | data source |
-
 ## Inputs
 
 | Name | Description | Type | Default | Required |
@@ -36,7 +13,7 @@ No requirements.
 | <a name="input_config_security"></a> [config\_security](#input\_config\_security) | n/a | <pre>object({<br>    create_firewall    = optional(bool, false)<br>    firewall_sku       = optional(string, "Basic")<br>    firewall_policy_id = optional(string, null)<br>    routing_policies = optional(list(object({<br>      name         = string<br>      destinations = optional(list(string), ["Internet", "PrivateTraffic"])<br>    })), [])<br>    static_routes = optional(list(object({<br>      name         = string<br>      destinations = list(string)<br>    })), [])<br>  })</pre> | `{}` | no |
 | <a name="input_enable_diagnostics"></a> [enable\_diagnostics](#input\_enable\_diagnostics) | enable diagnostics | `bool` | `false` | no |
 | <a name="input_env"></a> [env](#input\_env) | environment name | `string` | `"dev"` | no |
-| <a name="input_express_route_gateway"></a> [express\_route\_gateway](#input\_express\_route\_gateway) | n/a | <pre>object({<br>    enable = optional(bool, false)<br>    sku    = optional(string, "ErGw1AZ")<br>  })</pre> | `{}` | no |
+| <a name="input_express_route_gateway"></a> [express\_route\_gateway](#input\_express\_route\_gateway) | n/a | <pre>object({<br>    enable      = optional(bool, false)<br>    sku         = optional(string, "ErGw1AZ")<br>    scale_units = optional(number, 1)<br>    tags        = optional(map(any), {})<br><br>    allow_non_virtual_wan_traffic = optional(bool, false)<br>  })</pre> | `{}` | no |
 | <a name="input_hub_routing_preference"></a> [hub\_routing\_preference](#input\_hub\_routing\_preference) | Hub routing preference: ExpressRoute \| ASPath \| VpnGateway | `string` | `"ASPath"` | no |
 | <a name="input_location"></a> [location](#input\_location) | Location for all resources | `string` | n/a | yes |
 | <a name="input_log_analytics_workspace_name"></a> [log\_analytics\_workspace\_name](#input\_log\_analytics\_workspace\_name) | log analytics workspace name | `string` | `null` | no |
@@ -56,6 +33,7 @@ No requirements.
 |------|-------------|
 | <a name="output_bgp_asn"></a> [bgp\_asn](#output\_bgp\_asn) | n/a |
 | <a name="output_ergw"></a> [ergw](#output\_ergw) | n/a |
+| <a name="output_ergw_name"></a> [ergw\_name](#output\_ergw\_name) | n/a |
 | <a name="output_firewall"></a> [firewall](#output\_firewall) | n/a |
 | <a name="output_firewall_private_ip"></a> [firewall\_private\_ip](#output\_firewall\_private\_ip) | n/a |
 | <a name="output_p2sgw"></a> [p2sgw](#output\_p2sgw) | n/a |

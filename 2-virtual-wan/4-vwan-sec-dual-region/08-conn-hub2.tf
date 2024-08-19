@@ -97,41 +97,6 @@ module "hub2_udr_main" {
 # route maps
 #----------------------------
 
-data "cidrblock_summarization" "vhub2_route_map_cidr_blocks" {
-  cidr_blocks = [
-    local.spoke4_address_space.0,
-    local.spoke5_address_space.0,
-  ]
-}
-
-resource "azurerm_route_map" "vhub2_route_map" {
-  count          = local.create_vwan_route_maps ? 1 : 0
-  name           = "route-map"
-  virtual_hub_id = module.vhub2.virtual_hub.id
-
-  rule {
-    name = "aggregate-hub2"
-
-    match_criterion {
-      match_condition = "Contains"
-      route_prefix = [
-        local.hub2_address_space.0,
-        local.hub2_address_space.1,
-      ]
-    }
-
-    next_step_if_matched = "Continue"
-
-    action {
-      type = "Replace"
-
-      parameter {
-        route_prefix = data.cidrblock_summarization.vhub2_route_map_cidr_blocks.summarized_cidr_blocks
-      }
-    }
-  }
-}
-
 ####################################################
 # vpn-site connection
 ####################################################
@@ -168,7 +133,6 @@ resource "azurerm_vpn_gateway_connection" "vhub2_site_branch3_conn" {
 
   routing {
     associated_route_table = data.azurerm_virtual_hub_route_table.vhub2_default.id
-    outbound_route_map_id  = local.create_vwan_route_maps ? azurerm_route_map.vhub2_route_map[0].id : null
   }
 
   vpn_link {

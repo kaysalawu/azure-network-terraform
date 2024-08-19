@@ -33,7 +33,7 @@ The dashboard marker shows all ExpressRoute circuits active. The ExpressRoute ga
 
 ## Prerequisites
 
-Ensure you meet all requirements in the [prerequisites](../../prerequisites/README.md) before proceeding.
+Ensure you meet all requirements in the [prerequisites](../../prerequisites/README.md) before proceeding. You will need a Megaport account to deploy the lab.
 
 ## Deploy the Lab
 
@@ -182,7 +182,7 @@ azureuser@spoke1Vm:~$ curl-dns4
 cd azure-network-terraform/4-general/08-network-paths-er-vpn
 ```
 
-2\. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
+2\. (Optional) This is not required if `enable_diagnostics = false` in the [`02-main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
 ```sh
 bash ../../scripts/_cleanup.sh Lab09_ER_Resiliency_RG
@@ -212,104 +212,23 @@ Done!
 </details>
 <p>
 
-3\. Delete ExpressRoute connections, peerings, circuits and Megaport configuration.
+3\. Set the local variable `deploy = false` in the file [`svc-er-hub1-branch2-max-resiliency.tf`](./svc-er-hub1-branch2-max-resiliency.tf#L3) and re-apply terraform to delete all ExpressRoute and Megaport resources.
 
 ```sh
-bash ../../scripts/express-route/delete_ergw_connections.sh Lab09_ER_Resiliency_RG || true
-bash ../../scripts/express-route/delete_private_peerings.sh Lab09_ER_Resiliency_RG || true
-bash ../../scripts/express-route/delete_er_circuits.sh Lab09_ER_Resiliency_RG
-terraform destroy -target=module.megaport --auto-approve
+terraform plan
+terraform apply -parallelism=50
 ```
 
-<details>
+4\. Set the local variable `deploy = true` in the file [`svc-er-hub1-branch2-max-resiliency.tf`](./svc-er-hub1-branch2-max-resiliency.tf#L3)  to allow deployment on the next run.
 
-<summary>Sample output</summary>
 
-```sh
-08-network-paths-er-vpn$ bash ../../scripts/express-route/delete_ergw_connections.sh Lab09_ER_Resiliency_RG
-
-#######################################
-Script: delete_ergw_connections.sh
-#######################################
-
-Resource group: Lab09_ER_Resiliency_RG
-
-⏳ Processing gateway: Lab09-branch2-ergw
-❓ Deleting connection: Lab09-er3
-❌ Deleted connection: Lab09-er3
-⏳ Processing gateway: Lab09-hub1-ergw
-❓ Deleting connection: Lab09-er2
-❌ Deleted connection: Lab09-er2
-❓ Deleting connection: Lab09-er1
-❌ Deleted connection: Lab09-er1
-⏳ Processing gateway: Lab09-hub1-vpngw
-⏳ Checking status of gateway connections ...
-     - ⏳ Waiting for gateway/conn Lab09-branch2-ergw/Lab09-er3 to delete...
-     - ⏳ Waiting for gateway/conn Lab09-hub1-ergw/Lab09-er2 to delete...
-     - ⏳ Waiting for gateway/conn Lab09-hub1-ergw/Lab09-er1 to delete...
-   ➜ Gateway connections are still deleting. Checking again in 30 seconds...
-     - ⏳ Waiting for gateway/conn Lab09-branch2-ergw/Lab09-er3 to delete...
-     - ⏳ Waiting for gateway/conn Lab09-hub1-ergw/Lab09-er2 to delete...
-     - ⏳ Waiting for gateway/conn Lab09-hub1-ergw/Lab09-er1 to delete...
-   ➜ Gateway connections are still deleting. Checking again in 30 seconds...
-     - ⏳ Waiting for gateway/conn Lab09-branch2-ergw/Lab09-er3 to delete...
-     - ⏳ Waiting for gateway/conn Lab09-hub1-ergw/Lab09-er2 to delete...
-     - ⏳ Waiting for gateway/conn Lab09-hub1-ergw/Lab09-er1 to delete...
-   ➜ Gateway connections are still deleting. Checking again in 30 seconds...
-     - ⏳ Waiting for gateway/conn Lab09-branch2-ergw/Lab09-er3 to delete...
-     - ⏳ Waiting for gateway/conn Lab09-hub1-ergw/Lab09-er1 to delete...
-   ➜ Gateway connections are still deleting. Checking again in 30 seconds...
-     - ⏳ Waiting for gateway/conn Lab09-branch2-ergw/Lab09-er3 to delete...
-     - ⏳ Waiting for gateway/conn Lab09-hub1-ergw/Lab09-er1 to delete...
-   ➜ Gateway connections are still deleting. Checking again in 30 seconds...
-   ✔ All gateway connections deleted successfully.
-```
-
-```sh
-#######################################
-Script: delete_private_peerings.sh
-#######################################
-
-Resource group: Lab09_ER_Resiliency_RG
-
-⏳ Processing circuit: Lab09-er1
-⏳ Processing circuit: Lab09-er2
-⏳ Processing circuit: Lab09-er3
-⏳ Checking status of peerings ...
-   ✔ All peerings deleted successfully.
-```
-
-```sh
-08-network-paths-er-vpn$ bash ../../scripts/express-route/delete_er_circuits.sh Lab09_ER_Resiliency_RG
-
-#######################################
-Script: delete_er_circuits.sh
-#######################################
-
-Resource group: Lab09_ER_Resiliency_RG
-
-⏳ Deleting circuit: Lab09-er1
-⏳ Deleting circuit: Lab09-er2
-⏳ Deleting circuit: Lab09-er3
-⏳ Checking status of circuits ...
-     - Lab09-er1 still deleting ...
-     - Lab09-er2 still deleting ...
-     - Lab09-er3 still deleting ...
-   ➜ Circuits are still deleting. Checking again in 10 seconds...
-   ✔ All circuits deleted successfully.
-```
-
-</details>
-<p>
-
-4\. Delete the resource group to remove all resources installed.
+5\. Delete the resource group to remove all resources installed.
 
 ```sh
 az group delete -g Lab09_ER_Resiliency_RG --no-wait
 ```
 
-
-5\. Delete terraform state files and other generated files.
+6\. Delete terraform state files and other generated files.
 
 ```sh
 rm -rf .terraform*

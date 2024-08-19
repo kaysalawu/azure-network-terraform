@@ -46,6 +46,7 @@ module "vpngw" {
   location       = var.location
   virtual_hub_id = azurerm_virtual_hub.this.id
   bgp_settings   = var.s2s_vpn_gateway.bgp_settings
+  sku            = var.s2s_vpn_gateway.sku
 
   log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 }
@@ -61,8 +62,11 @@ module "ergw" {
   prefix         = local.prefix
   location       = var.location
   virtual_hub_id = azurerm_virtual_hub.this.id
+  scale_units    = var.express_route_gateway.scale_units
+  sku            = var.express_route_gateway.sku
 
-  log_analytics_workspace_name = var.enable_diagnostics ? var.log_analytics_workspace_name : null
+  allow_non_virtual_wan_traffic = var.express_route_gateway.allow_non_virtual_wan_traffic
+  log_analytics_workspace_name  = var.enable_diagnostics ? var.log_analytics_workspace_name : null
 }
 
 ####################################################

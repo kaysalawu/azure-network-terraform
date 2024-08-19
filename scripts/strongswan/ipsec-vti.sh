@@ -11,7 +11,7 @@ PLUTO_MARK_IN_ARR=($${PLUTO_MARK_IN//// })
 case "$PLUTO_CONNECTION" in
 %{~ for v in TUNNELS }
   ${v.name})
-    VTI_INTERFACE=${v.vti_name}
+    VTI_INTERFACE=${v.name}
     VTI_LOCALADDR=${v.vti_local_addr}
     VTI_REMOTEADDR=${v.vti_remote_addr}
     ;;

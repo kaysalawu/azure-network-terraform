@@ -24,6 +24,8 @@ resource "azurerm_express_route_gateway" "this" {
   scale_units         = var.scale_units
   tags                = var.tags
 
+  allow_non_virtual_wan_traffic = var.allow_non_virtual_wan_traffic
+
   timeouts {
     create = "60m"
   }

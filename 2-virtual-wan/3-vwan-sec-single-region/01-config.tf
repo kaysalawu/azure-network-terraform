@@ -46,6 +46,10 @@ locals {
   vti_range1 = "10.10.10.4/30"
   vti_range2 = "10.10.10.8/30"
   vti_range3 = "10.10.10.12/30"
+  vti_range4 = "10.10.10.16/30"
+  vti_range5 = "10.10.10.20/30"
+  vti_range6 = "10.10.10.24/30"
+  vti_range7 = "10.10.10.28/30"
 
   default_region = "westeurope"
 

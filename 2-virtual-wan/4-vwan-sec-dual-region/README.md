@@ -1,4 +1,4 @@
-# Secured Virtual WAN - Dual Region <!-- omit from toc -->
+# Secured Virtual WAN - Dual Region (Azure FW) <!-- omit from toc -->
 
 ## Lab: Vwan24 <!-- omit from toc -->
 
@@ -51,7 +51,7 @@ Ensure you meet all requirements in the [prerequisites](../../prerequisites/READ
    ```sh
    cd azure-network-terraform/2-virtual-wan/4-vwan-sec-dual-region
    ```
-3. (Optional) If you wannt to enable additional features such as IPv6, Vnet flow logs and logging set the following variables to `true` in the [`main.tf`](./02-main.tf) file.
+3. (Optional) If you want to enable additional features such as IPv6, Vnet flow logs and logging set the following variables to `true` in the [`02-main.tf`](./02-main.tf) file.
 
    | Variable | Description | Default | Link |
    |----------|-------------|---------|------|
@@ -89,7 +89,7 @@ The table below shows the auto-generated output files from the lab. They are loc
 
 ## Dashboards (Optional)
 
-This lab contains a number of pre-configured dashboards for monitoring gateways, VPN gateways, and Azure Firewall. To deploy the dashboards, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf) file. Then run `terraform apply` to update the deployment.
+This lab contains a number of pre-configured dashboards for monitoring gateways, VPN gateways, and Azure Firewall. To deploy the dashboards, set `enable_diagnostics = true` in the [`02-main.tf`](./02-main.tf) file. Then run `terraform apply` to update the deployment.
 
 <details>
 
@@ -825,7 +825,7 @@ We can see the hub and spoke Vnet ranges being learned dynamically in the BGP ta
 
 ### 9. Azure Firewall (Optional)
 
-To view firewall logs, set `enable_diagnostics = true` in the [`main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment. Wait for about 15 minutes to get some logs.
+To view firewall logs, set `enable_diagnostics = true` in the [`02-main.tf`](./02-main.tf). Then run `terraform apply` to update the deployment. Wait for about 15 minutes to get some logs.
 
 <details>
 
@@ -857,7 +857,7 @@ Observe the firewall logs based on traffic flows generated from our tests.
 cd azure-network-terraform/2-virtual-wan/4-vwan-sec-dual-region
 ```
 
-2\. (Optional) This is not required if `enable_diagnostics = false` in the [`main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
+2\. (Optional) This is not required if `enable_diagnostics = false` in the [`02-main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
 ```sh
 bash ../../scripts/_cleanup.sh Vwan24_SecVwan_2Region_RG

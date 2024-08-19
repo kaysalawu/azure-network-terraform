@@ -1,7 +1,7 @@
 
 locals {
-  vnet_connections = { for c in var.gateway_connections : "${c.virtual_network_gateway_name}--${c.express_route_circuit_name}" => c if c.virtual_network_gateway_name != null }
-  vwan_connections = { for c in var.gateway_connections : "${c.express_route_circuit_name}--${c.express_route_circuit_name}" => c if c.express_route_gateway_name != null }
+  vnet_connections = { for c in var.gateway_connections : "${c.virtual_network_gateway_name}--${c.express_route_circuit_name}" => c if c.virtual_network_gateway_name != null && var.deploy }
+  vwan_connections = { for c in var.gateway_connections : "${c.express_route_gateway_name}--${c.express_route_circuit_name}" => c if c.express_route_gateway_name != null && var.deploy }
 }
 
 # locations
@@ -16,7 +16,7 @@ data "megaport_location" "this" {
 #----------------------------
 
 resource "azurerm_express_route_circuit" "this" {
-  for_each              = { for c in var.circuits : c.name => c }
+  for_each              = { for c in var.circuits : c.name => c if var.deploy }
   resource_group_name   = var.resource_group
   name                  = each.value.name
   location              = each.value.location
@@ -33,7 +33,7 @@ resource "azurerm_express_route_circuit" "this" {
 #----------------------------
 
 resource "megaport_mcr" "this" {
-  for_each    = { for mcr in var.mcr : mcr.name => mcr }
+  for_each    = { for mcr in var.mcr : mcr.name => mcr if var.deploy }
   mcr_name    = "${var.prefix}-${each.value.name}"
   location_id = data.megaport_location.this.id
   router {
@@ -48,7 +48,7 @@ resource "megaport_mcr" "this" {
 # primary
 
 resource "megaport_azure_connection" "primary" {
-  for_each   = { for c in var.circuits : c.name => c }
+  for_each   = { for c in var.circuits : c.name => c if var.deploy }
   vxc_name   = "${each.value.name}-pri"
   rate_limit = each.value.bandwidth_in_mbps
 
@@ -90,7 +90,7 @@ resource "time_sleep" "wait_for_primary" {
 # secondary
 
 resource "megaport_azure_connection" "secondary" {
-  for_each   = { for c in var.circuits : c.name => c }
+  for_each   = { for c in var.circuits : c.name => c if var.deploy }
   vxc_name   = "${each.value.name}-sec"
   rate_limit = each.value.bandwidth_in_mbps
 
@@ -129,11 +129,11 @@ resource "megaport_azure_connection" "secondary" {
 # peering
 #----------------------------
 
-# Azure creates the layer3 config on BOTH azure and megaport sides.
+# Azure creates the layer2 and layer3 config on BOTH azure and megaport sides.
 # This means megaport_azure_connection "private_peering" block will not be used - as this is the megaport equivalent of creating peering on both sides.
 # Either let megaport OR azure configure both sides, not both.
 resource "azurerm_express_route_circuit_peering" "this" {
-  for_each                      = { for c in var.circuits : c.name => c if c.mcr_config.create_private_peering == false }
+  for_each                      = { for c in var.circuits : c.name => c if c.mcr_config.create_private_peering == false && var.deploy }
   resource_group_name           = var.resource_group
   express_route_circuit_name    = each.value.name
   peering_type                  = each.value.peering_type
@@ -163,6 +163,7 @@ resource "azurerm_express_route_circuit_peering" "this" {
 # time sleep
 
 resource "time_sleep" "wait_for_peering" {
+  count            = var.deploy ? 1 : 0
   create_duration  = "1m"
   destroy_duration = "1m"
   depends_on = [
@@ -175,23 +176,23 @@ resource "time_sleep" "wait_for_peering" {
 # vnet
 
 data "azurerm_virtual_network_gateway" "vnet" {
-  for_each            = local.vnet_connections
+  for_each            = var.deploy ? local.vnet_connections : {}
   resource_group_name = var.resource_group
   name                = each.value.virtual_network_gateway_name
   depends_on = [
-    time_sleep.wait_for_peering,
+    time_sleep.wait_for_peering[0],
   ]
 }
 
 resource "azurerm_express_route_circuit_authorization" "vnet" {
-  for_each                   = local.vnet_connections
+  for_each                   = var.deploy ? local.vnet_connections : {}
   resource_group_name        = var.resource_group
   name                       = "${each.key}--auth"
   express_route_circuit_name = azurerm_express_route_circuit.this[each.value.express_route_circuit_name].name
 }
 
 resource "azurerm_virtual_network_gateway_connection" "vnet" {
-  for_each                   = local.vnet_connections
+  for_each                   = var.deploy ? local.vnet_connections : {}
   resource_group_name        = var.resource_group
   name                       = "${each.key}--conn"
   location                   = azurerm_express_route_circuit.this[each.value.express_route_circuit_name].location
@@ -200,14 +201,14 @@ resource "azurerm_virtual_network_gateway_connection" "vnet" {
   authorization_key          = azurerm_express_route_circuit_authorization.vnet[each.key].authorization_key
   express_route_circuit_id   = azurerm_express_route_circuit.this[each.value.express_route_circuit_name].id
   depends_on = [
-    time_sleep.wait_for_peering,
+    time_sleep.wait_for_peering[0],
   ]
 }
 
 # vwan
 
 resource "azurerm_express_route_circuit_authorization" "vwan" {
-  for_each                   = local.vwan_connections
+  for_each                   = var.deploy ? local.vwan_connections : {}
   resource_group_name        = var.resource_group
   name                       = "${each.key}--auth"
   express_route_circuit_name = azurerm_express_route_circuit.this[each.value.express_route_circuit_name].name
@@ -218,11 +219,50 @@ resource "azurerm_express_route_circuit_authorization" "vwan" {
   ]
 }
 
+# resource "azapi_resource" "vwan_connection" {
+#   for_each  = var.deploy ? local.vwan_connections : {}
+#   type      = "Microsoft.Network/expressRouteGateways/expressRouteConnections@2023-11-01"
+#   parent_id = "/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${var.resource_group}/providers/Microsoft.Network/expressRouteGateways/${each.value.express_route_gateway_name}"
+#   name      = "${each.key}--conn"
+
+#   body = jsonencode({
+#     properties = {
+#       expressRouteCircuitPeering = {
+#         id = azurerm_express_route_circuit_peering.this[each.value.express_route_circuit_name].id
+#       }
+#       authorizationKey     = azurerm_express_route_circuit_authorization.vwan[each.key].authorization_key
+#       routingConfiguration = {}
+#     }
+#   })
+#   schema_validation_enabled = false
+#   depends_on = [
+#     megaport_azure_connection.primary,
+#     megaport_azure_connection.secondary,
+#     azurerm_express_route_circuit_peering.this,
+#   ]
+# }
+
 resource "azurerm_express_route_connection" "vwan" {
-  for_each                         = local.vwan_connections
+  for_each                         = var.deploy ? local.vwan_connections : {}
   name                             = "${each.key}--conn"
   express_route_gateway_id         = "/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${var.resource_group}/providers/Microsoft.Network/expressRouteGateways/${each.value.express_route_gateway_name}"
   express_route_circuit_peering_id = azurerm_express_route_circuit_peering.this[each.value.express_route_circuit_name].id
+  authorization_key                = azurerm_express_route_circuit_authorization.vwan[each.key].authorization_key
+
+  routing {
+    associated_route_table_id = each.value.associated_route_table_id
+    inbound_route_map_id      = each.value.inbound_route_map_id
+    outbound_route_map_id     = each.value.outbound_route_map_id
+
+    dynamic "propagated_route_table" {
+      for_each = each.value.propagated_route_table != null ? each.value.propagated_route_table : []
+      content {
+        labels          = propagated_route_table.value.labels
+        route_table_ids = propagated_route_table.value.route_table_ids
+      }
+    }
+  }
+
   depends_on = [
     megaport_azure_connection.primary,
     megaport_azure_connection.secondary,
@@ -237,12 +277,12 @@ resource "azurerm_express_route_connection" "vwan" {
 locals {
   dashboard_vars = { for c in var.circuits : c.name => templatefile("${path.module}/dashboard/dashboard.json", {
     ER_CIRCUIT_ID = azurerm_express_route_circuit.this[c.name].id
-    })
+    }) if var.deploy
   }
 }
 
 resource "azurerm_portal_dashboard" "express_route" {
-  for_each             = local.dashboard_vars
+  for_each             = var.deploy ? local.dashboard_vars : {}
   resource_group_name  = var.resource_group
   location             = var.azure_location
   name                 = "${each.key}-dashb"

@@ -6,7 +6,6 @@ apt update
 apt install -y python3-pip python3-dev python3-venv unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
 
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-az login --identity || true
 
 ########################################################
 # test scripts (ipv4)
@@ -47,7 +46,7 @@ echo -e "\n curl ipv4 ...\n"
 %{ for target in TARGETS ~}
 %{~ if try(target.curl, true) ~}
 %{~ if try(target.ipv4, "") != "" ~}
-echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null [${target.ipv4}]) - ${target.name} [${target.ipv4}]"
+echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%%{http_code} (%%{time_total}s) - %%{remote_ip}" -s -o /dev/null ${target.ipv4}) - ${target.name} [${target.ipv4}]"
 %{ endif ~}
 %{ endif ~}
 %{ endfor ~}
@@ -156,9 +155,9 @@ timeout 9 tracepath -6 ${target.ipv6}
 EOF
 chmod a+x /usr/local/bin/trace-ipv6
 
-########################################################
+#########################################################
 # other scripts
-########################################################
+#########################################################
 
 # dns-info
 
@@ -170,7 +169,7 @@ chmod a+x /usr/local/bin/dns-info
 
 # azure service tester
 
-tee /usr/local/bin/crawlz <<'EOF'
+cat <<'EOF' > /usr/local/bin/crawlz
 sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
 EOF
 chmod a+x /usr/local/bin/crawlz
