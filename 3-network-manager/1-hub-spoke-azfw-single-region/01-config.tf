@@ -142,6 +142,7 @@ locals {
     ("TestSubnet")                    = { address_prefixes = ["10.11.17.0/24", ], address_prefixes_v6 = ["fd00:db8:11:17::/64", ], }
   }
   hub1_default_gw_main      = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 1)
+  hub1_default_gw_untrust   = cidrhost(local.hub1_subnets["UntrustSubnet"].address_prefixes[0], 1)
   hub1_default_gw_trust     = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 1)
   hub1_vm_addr              = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 5)
   hub1_nva_trust_addr       = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 4)

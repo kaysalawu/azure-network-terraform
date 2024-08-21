@@ -718,24 +718,24 @@ locals {
       "set ip next-hop ${local.hub1_nva_ilb_trust_addr}"
     ]
     STATIC_ROUTES = [
-      { prefix = "0.0.0.0/0", next_hop = local.hub1_default_gw_trust },
-      { prefix = "${local.hub1_ars_bgp_ip0}/32", next_hop = local.hub1_default_gw_trust },
-      { prefix = "${local.hub1_ars_bgp_ip1}/32", next_hop = local.hub1_default_gw_trust },
-      { prefix = "${local.hub2_nva_trust_addr}/32", next_hop = local.hub1_default_gw_trust },
+      # { prefix = "0.0.0.0/0", next_hop = local.hub1_default_gw_untrust },
+      { prefix = "${local.hub1_ars_bgp_ip0}/32", next_hop = local.hub1_default_gw_untrust },
+      { prefix = "${local.hub1_ars_bgp_ip1}/32", next_hop = local.hub1_default_gw_untrust },
+      { prefix = "${local.hub2_nva_untrust_addr}/32", next_hop = local.hub1_default_gw_untrust },
       { prefix = "${local.hub2_nva_loopback0}/32", next_hop = "vti_hub2" },
     ]
     TUNNELS = [
       {
         name            = "vti_hub2"
         vti_name        = "vti_hub2"
-        vti_local_addr  = cidrhost(local.vti_range1, 1)
-        vti_remote_addr = cidrhost(local.vti_range1, 2)
-        local_ip        = local.hub1_nva_trust_addr
-        local_id        = local.hub1_nva_trust_addr
-        remote_ip       = local.hub2_nva_trust_addr
-        remote_id       = local.hub2_nva_trust_addr
+        vti_local_addr  = cidrhost(local.vti_range4, 1)
+        vti_remote_addr = cidrhost(local.vti_range4, 2)
+        local_ip        = local.hub1_nva_untrust_addr
+        local_id        = local.hub1_nva_untrust_addr
+        remote_ip       = local.hub2_nva_untrust_addr
+        remote_id       = local.hub2_nva_untrust_addr
         psk             = local.psk
-      }
+      },
     ]
     BGP_SESSIONS_IPV4 = [
       {
@@ -811,22 +811,22 @@ locals {
       "set ip next-hop ${local.hub2_nva_ilb_trust_addr}"
     ]
     STATIC_ROUTES = [
-      { prefix = "0.0.0.0/0", next_hop = local.hub2_default_gw_trust },
-      { prefix = "${local.hub2_ars_bgp_ip0}/32", next_hop = local.hub2_default_gw_trust },
-      { prefix = "${local.hub2_ars_bgp_ip0}/32", next_hop = local.hub2_default_gw_trust },
-      { prefix = "${local.hub1_nva_trust_addr}/32", next_hop = local.hub2_default_gw_trust },
+      # { prefix = "0.0.0.0/0", next_hop = local.hub2_default_gw_untrust },
+      { prefix = "${local.hub2_ars_bgp_ip0}/32", next_hop = local.hub2_default_gw_untrust },
+      { prefix = "${local.hub2_ars_bgp_ip0}/32", next_hop = local.hub2_default_gw_untrust },
+      { prefix = "${local.hub1_nva_untrust_addr}/32", next_hop = local.hub2_default_gw_untrust },
       { prefix = "${local.hub1_nva_loopback0}/32", next_hop = "vti_hub1" },
     ]
     TUNNELS = [
       {
         name            = "vti_hub1"
         vti_name        = "vti_hub1"
-        vti_local_addr  = cidrhost(local.vti_range1, 2)
-        vti_remote_addr = cidrhost(local.vti_range1, 1)
-        local_ip        = local.hub2_nva_trust_addr
-        local_id        = local.hub2_nva_trust_addr
-        remote_ip       = local.hub1_nva_trust_addr
-        remote_id       = local.hub1_nva_trust_addr
+        vti_local_addr  = cidrhost(local.vti_range4, 2)
+        vti_remote_addr = cidrhost(local.vti_range4, 1)
+        local_ip        = local.hub2_nva_untrust_addr
+        local_id        = local.hub2_nva_untrust_addr
+        remote_ip       = local.hub1_nva_untrust_addr
+        remote_id       = local.hub1_nva_untrust_addr
         psk             = local.psk
       }
     ]

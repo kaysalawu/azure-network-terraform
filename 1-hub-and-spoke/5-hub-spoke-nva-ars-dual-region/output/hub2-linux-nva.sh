@@ -144,10 +144,10 @@ conn %default
     esp=aes256-sha1!
 
 conn vti_hub1
-    left=10.22.2.4
-    leftid=10.22.2.4
-    right=10.11.2.4
-    rightid=10.11.2.4
+    left=10.22.1.4
+    leftid=10.22.1.4
+    right=10.11.1.4
+    rightid=10.11.1.4
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -157,7 +157,7 @@ conn vti_hub1
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.22.2.4 10.11.2.4 : PSK "changeme"
+10.22.1.4 10.11.1.4 : PSK "changeme"
 
 EOF
 
@@ -175,8 +175,8 @@ PLUTO_MARK_IN_ARR=(${PLUTO_MARK_IN//// })
 case "$PLUTO_CONNECTION" in
   vti_hub1)
     VTI_INTERFACE=vti_hub1
-    VTI_LOCALADDR=10.10.10.6
-    VTI_REMOTEADDR=10.10.10.5
+    VTI_LOCALADDR=10.10.10.18
+    VTI_REMOTEADDR=10.10.10.17
     ;;
 esac
 
@@ -275,10 +275,9 @@ interface lo
 !-----------------------------------------
 ! Static Routes
 !-----------------------------------------
-ip route 0.0.0.0/0 10.22.2.1
-ip route 10.22.10.4/32 10.22.2.1
-ip route 10.22.10.4/32 10.22.2.1
-ip route 10.11.2.4/32 10.22.2.1
+ip route 10.22.10.4/32 10.22.1.1
+ip route 10.22.10.4/32 10.22.1.1
+ip route 10.11.1.4/32 10.22.1.1
 ip route 10.11.11.11/32 vti_hub1
 !
 !-----------------------------------------
