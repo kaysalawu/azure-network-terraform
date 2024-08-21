@@ -711,12 +711,12 @@ locals {
       # "set ip next-hop ${local.hub2_nva_ilb_trust_addr}"
     ]
     STATIC_ROUTES = [
-      { prefix = "0.0.0.0/0", next_hop = local.hub2_trust_default_gw },
-      { prefix = "${module.vhub2.router_bgp_ip0}/32", next_hop = local.hub2_trust_default_gw },
-      { prefix = "${module.vhub2.router_bgp_ip1}/32", next_hop = local.hub2_trust_default_gw },
+      { prefix = "0.0.0.0/0", next_hop = local.hub2_default_gw_trust },
+      { prefix = "${module.vhub2.router_bgp_ip0}/32", next_hop = local.hub2_default_gw_trust },
+      { prefix = "${module.vhub2.router_bgp_ip1}/32", next_hop = local.hub2_default_gw_trust },
       { prefix = "${local.branch1_nva_loopback0}/32", next_hop = "vti_branch1" },
-      { prefix = "${local.branch1_nva_untrust_addr}/32", next_hop = local.hub2_untrust_default_gw },
-      { prefix = local.hub2_subnets["MainSubnet"].address_prefixes[0], next_hop = local.hub2_untrust_default_gw },
+      { prefix = "${local.branch1_nva_untrust_addr}/32", next_hop = local.hub2_default_gw_untrust },
+      { prefix = local.hub2_subnets["MainSubnet"].address_prefixes[0], next_hop = local.hub2_default_gw_untrust },
     ]
     TUNNELS = [
       {

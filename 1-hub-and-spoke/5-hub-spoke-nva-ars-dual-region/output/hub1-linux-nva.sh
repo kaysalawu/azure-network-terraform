@@ -123,19 +123,121 @@ systemctl restart frr
 #########################################################
 
 tee /etc/ipsec.conf <<'EOF'
+config setup
+    charondebug="ike 2, knl 2, cfg 2, net 2, esp 2, dmn 2,  mgr 2"
+
+conn %default
+    type=tunnel
+    ikelifetime=60m
+    keylife=20m
+    rekeymargin=3m
+    keyingtries=1
+    authby=secret
+    keyexchange=ikev2
+    installpolicy=yes
+    compress=no
+    mobike=no
+    #left=%defaultroute
+    leftsubnet=0.0.0.0/0
+    rightsubnet=0.0.0.0/0
+    ike=aes256-sha1-modp1024!
+    esp=aes256-sha1!
+
+conn vti_hub2
+    left=10.11.2.4
+    leftid=10.11.2.4
+    right=10.22.2.4
+    rightid=10.22.2.4
+    auto=start
+    mark=100
+    leftupdown="/etc/ipsec.d/ipsec-vti.sh"
+
+# https://gist.github.com/heri16/2f59d22d1d5980796bfb
 
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
+10.11.2.4 10.22.2.4 : PSK "changeme"
 
 EOF
 
 tee /etc/ipsec.d/ipsec-vti.sh <<'EOF'
+#!/bin/bash
+
+LOG_FILE="/var/log/ipsec-vti.log"
+
+IP=$(which ip)
+IPTABLES=$(which iptables)
+
+PLUTO_MARK_OUT_ARR=(${PLUTO_MARK_OUT//// })
+PLUTO_MARK_IN_ARR=(${PLUTO_MARK_IN//// })
+
+case "$PLUTO_CONNECTION" in
+  vti_hub2)
+    VTI_INTERFACE=vti_hub2
+    VTI_LOCALADDR=10.10.10.5
+    VTI_REMOTEADDR=10.10.10.6
+    ;;
+esac
+
+echo "$(date): Trigger - CONN=${PLUTO_CONNECTION}, VERB=${PLUTO_VERB}, ME=${PLUTO_ME}, PEER=${PLUTO_PEER}], PEER_CLIENT=${PLUTO_PEER_CLIENT}, MARK_OUT=${PLUTO_MARK_OUT_ARR}, MARK_IN=${PLUTO_MARK_IN_ARR}" >> $LOG_FILE
+
+case "$PLUTO_VERB" in
+  up-client)
+    $IP link add ${VTI_INTERFACE} type vti local ${PLUTO_ME} remote ${PLUTO_PEER} okey ${PLUTO_MARK_OUT_ARR[0]} ikey ${PLUTO_MARK_IN_ARR[0]}
+    sysctl -w net.ipv4.conf.${VTI_INTERFACE}.disable_policy=1
+    sysctl -w net.ipv4.conf.${VTI_INTERFACE}.rp_filter=2 || sysctl -w net.ipv4.conf.${VTI_INTERFACE}.rp_filter=0
+    $IP addr add ${VTI_LOCALADDR} remote ${VTI_REMOTEADDR} dev ${VTI_INTERFACE}
+    $IP link set ${VTI_INTERFACE} up mtu 1436
+    $IPTABLES -t mangle -I FORWARD -o ${VTI_INTERFACE} -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+    $IPTABLES -t mangle -I INPUT -p esp -s ${PLUTO_PEER} -d ${PLUTO_ME} -j MARK --set-xmark ${PLUTO_MARK_IN}
+    $IP route flush table 220
+    #/etc/init.d/bgpd reload || /etc/init.d/quagga force-reload bgpd
+    ;;
+  down-client)
+    $IP link del ${VTI_INTERFACE}
+    $IPTABLES -t mangle -D FORWARD -o ${VTI_INTERFACE} -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+    $IPTABLES -t mangle -D INPUT -p esp -s ${PLUTO_PEER} -d ${PLUTO_ME} -j MARK --set-xmark ${PLUTO_MARK_IN}
+    ;;
+esac
+
+# github source used
+# https://gist.github.com/heri16/2f59d22d1d5980796bfb
 
 EOF
 chmod a+x /etc/ipsec.d/ipsec-vti.sh
 
 tee /usr/local/bin/ipsec-auto-restart.sh <<'EOF'
+#!/bin/bash
+
+export SHELL=/bin/bash
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+export HOME=/root
+export LANG=C.UTF-8
+export USER=root
+
+LOG_FILE="/var/log/ipsec-auto-restart.log"
+connections=$(grep '^conn' /etc/ipsec.conf | grep -v '%default' | awk '{print $2}')
+all_tunnels_active=true
+
+for conn in $connections; do
+  status=$(ipsec status | grep "$conn")
+  if ! [[ "$status" =~ ESTABLISHED ]]; then
+        all_tunnels_active=false
+        echo "$(date): $conn: down or inactive." >> "$LOG_FILE"
+    ipsec down $conn
+    ipsec up $conn
+    echo "$(date): $conn: restarting." >> "$LOG_FILE"
+else
+      echo "$(date): $conn: active." >> "$LOG_FILE"
+        fi
+done
+
+if ! $all_tunnels_active; then
+  echo "$(date): Not all tunnels active, restarting ipsec service..." >> "$LOG_FILE"
+  systemctl restart ipsec
+  echo "$(date): ipsec service restarted." >> "$LOG_FILE"
+fi
 
 EOF
 chmod a+x /usr/local/bin/ipsec-auto-restart.sh
@@ -149,6 +251,68 @@ systemctl restart ipsec
 #########################################################
 
 tee /etc/frr/frr.conf <<'EOF'
+!
+!-----------------------------------------
+! Global
+!-----------------------------------------
+frr version 7.2
+frr defaults traditional
+hostname $(hostname)
+log syslog informational
+service integrated-vtysh-config
+!
+!-----------------------------------------
+! Prefix Lists
+!-----------------------------------------
+ip prefix-list ALL permit 0.0.0.0/0 le 32
+!
+!-----------------------------------------
+! Interface
+!-----------------------------------------
+interface lo
+  ip address 10.11.11.11/32
+!
+!-----------------------------------------
+! Static Routes
+!-----------------------------------------
+ip route 0.0.0.0/0 10.11.2.1
+ip route 10.11.10.4/32 10.11.2.1
+ip route 10.11.10.5/32 10.11.2.1
+ip route 10.22.2.4/32 10.11.2.1
+ip route 10.22.22.22/32 vti_hub2
+!
+!-----------------------------------------
+! Route Maps
+!-----------------------------------------
+  route-map AZURE permit 100
+  match ip address prefix-list ALL
+  set ip next-hop 10.11.2.99
+!
+!-----------------------------------------
+! BGP
+!-----------------------------------------
+router bgp 65000
+bgp router-id 10.11.11.11
+neighbor 10.11.10.4 remote-as 65515
+neighbor 10.11.10.4 ebgp-multihop 255
+neighbor 10.11.10.5 remote-as 65515
+neighbor 10.11.10.5 ebgp-multihop 255
+neighbor 10.22.22.22 remote-as 65000
+neighbor 10.22.22.22 update-source lo
+!
+address-family ipv4 unicast
+  neighbor 10.11.10.4 soft-reconfiguration inbound
+  neighbor 10.11.10.4 as-override
+  neighbor 10.11.10.4 route-map AZURE out
+  neighbor 10.11.10.5 soft-reconfiguration inbound
+  neighbor 10.11.10.5 as-override
+  neighbor 10.11.10.5 route-map AZURE out
+  neighbor 10.22.22.22 soft-reconfiguration inbound
+  neighbor 10.22.22.22 next-hop-self
+exit-address-family
+!
+line vty
+!
 
 EOF
 

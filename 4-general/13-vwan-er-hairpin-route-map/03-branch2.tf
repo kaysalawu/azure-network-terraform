@@ -269,8 +269,8 @@ module "branch2_udr_main" {
 
 # bgp connection
 
-resource "azurerm_route_server_bgp_connection" "branch2_rs_bgp_conn" {
-  name            = "${local.branch2_prefix}rs-bgp-conn"
+resource "azurerm_route_server_bgp_connection" "branch2_ars_bgp_conn" {
+  name            = "${local.branch2_prefix}ars-bgp-conn"
   route_server_id = module.branch2.ars.id
   peer_asn        = local.branch2_nva_asn
   peer_ip         = local.branch2_nva_untrust_addr

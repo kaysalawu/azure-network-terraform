@@ -9,7 +9,7 @@ locals {
   psk      = "changeme"
 
   region1          = "northeurope"
-  region2          = "eastus"
+  region2          = "eastus2"
   region1_code     = "eu"
   region2_code     = "us"
   region1_dns_zone = "${local.region1_code}.${local.cloud_domain}"
@@ -143,7 +143,7 @@ locals {
     ("GatewaySubnet")                 = { address_prefixes = ["10.22.16.0/24", ] }
   }
   hub2_default_gw_main      = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 1)
-  hub2_default_gw_nva       = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 1)
+  hub2_default_gw_trust     = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 1)
   hub2_vm_addr              = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 5)
   hub2_nva_trust_addr       = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 4)
   hub2_nva_untrust_addr     = cidrhost(local.hub2_subnets["UntrustSubnet"].address_prefixes[0], 4)

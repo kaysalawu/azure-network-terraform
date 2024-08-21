@@ -211,15 +211,42 @@ module "ilb_trust" {
   name                = "trust"
   type                = "private"
   lb_sku              = "Standard"
-  enable_dual_stack   = var.enable_ipv6
 
   log_analytics_workspace_name = var.log_analytics_workspace_name
 
-  frontend_ip_configuration = local.frontend_ip_configuration_trust
-  backend_pools             = local.backend_pools_trust
-  lb_rules                  = local.lb_rules_trust
-  probes                    = var.health_probes
+  frontend_ip_configuration = [
+    {
+      name                          = "nva"
+      zones                         = ["1", "2", "3"]
+      subnet_id                     = var.subnet_id_trust
+      private_ip_address            = var.ilb_trust_ip
+      private_ip_address_allocation = "Static"
+    }
+  ]
 
+  probes = var.health_probes
+
+  backend_pools = [
+    {
+      name = "nva"
+      interfaces = [for nva in module.nva_0 : {
+        ip_configuration_name = nva.interfaces["${local.prefix}-trust-nic"].ip_configuration[0].name
+        network_interface_id  = nva.interfaces["${local.prefix}-trust-nic"].id
+      }]
+    }
+  ]
+
+  lb_rules = [
+    {
+      name                           = "nva-ha"
+      protocol                       = "All"
+      frontend_port                  = "0"
+      backend_port                   = "0"
+      frontend_ip_configuration_name = "nva"
+      backend_address_pool_name      = ["nva", ]
+      probe_name                     = var.health_probes[0].name
+    },
+  ]
   depends_on = [
     module.nva_0,
   ]

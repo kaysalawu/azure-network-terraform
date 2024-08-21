@@ -7,7 +7,7 @@
 ../../0-templates/05-hub2.tf
 ../../0-templates/hub-spoke/06-conn-hub1.tf
 ../../0-templates/hub-spoke/06-conn-hub2.tf
-../../0-templates/hub-spoke/06-conn-interhub-nva.tf
+../../0-templates/hub-spoke/06-conn-interhub-nva-bgp.tf
 ../../0-templates/services/services-region1.tf
 ../../0-templates/services/services-region2.tf
 ../../0-templates/outputs/outputs-dual-region.tf

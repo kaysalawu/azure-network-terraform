@@ -145,9 +145,7 @@ locals {
     ]
     TUNNELS = [
       {
-        name            = "Tunnel0"
-        vti_name        = "vti0"
-        unique_id       = 100
+        name            = "vti0"
         vti_local_addr  = cidrhost(local.vti_range0, 1)
         vti_remote_addr = module.hub1.s2s_vpngw_bgp_default_ip0
         local_ip        = local.branch1_nva_untrust_addr
@@ -157,9 +155,7 @@ locals {
         psk             = local.psk
       },
       {
-        name            = "Tunnel1"
-        vti_name        = "vti1"
-        unique_id       = 200
+        name            = "vti1"
         vti_local_addr  = cidrhost(local.vti_range1, 1)
         vti_remote_addr = module.hub1.s2s_vpngw_bgp_default_ip1
         local_ip        = local.branch1_nva_untrust_addr
@@ -169,9 +165,7 @@ locals {
         psk             = local.psk
       },
       {
-        name            = "Tunnel2"
-        vti_name        = "vti2"
-        unique_id       = 300
+        name            = "vti2"
         vti_local_addr  = cidrhost(local.vti_range2, 1)
         vti_remote_addr = cidrhost(local.vti_range2, 2)
         local_ip        = local.branch1_nva_untrust_addr

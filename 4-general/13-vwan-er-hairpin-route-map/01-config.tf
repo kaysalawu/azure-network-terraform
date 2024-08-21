@@ -9,7 +9,7 @@ locals {
   psk      = "changeme"
 
   region1          = "northeurope"
-  region2          = "eastus"
+  region2          = "eastus2"
   region1_code     = "eu"
   region2_code     = "us"
   region1_dns_zone = "${local.region1_code}.${local.cloud_domain}"
@@ -46,6 +46,10 @@ locals {
   vti_range1 = "10.10.10.4/30"
   vti_range2 = "10.10.10.8/30"
   vti_range3 = "10.10.10.12/30"
+  vti_range4 = "10.10.10.16/30"
+  vti_range5 = "10.10.10.20/30"
+  vti_range6 = "10.10.10.24/30"
+  vti_range7 = "10.10.10.28/30"
 
   default_region = "westeurope"
 
@@ -138,7 +142,7 @@ locals {
     ("TestSubnet")                    = { address_prefixes = ["10.11.17.0/24", ], address_prefixes_v6 = ["fd00:db8:11:17::/64", ], }
   }
   hub1_default_gw_main      = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 1)
-  hub1_default_gw_nva       = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 1)
+  hub1_default_gw_trust     = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 1)
   hub1_vm_addr              = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 5)
   hub1_nva_trust_addr       = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 4)
   hub1_nva_untrust_addr     = cidrhost(local.hub1_subnets["UntrustSubnet"].address_prefixes[0], 4)
@@ -196,7 +200,7 @@ locals {
     ("TestSubnet")                    = { address_prefixes = ["10.22.17.0/24", ], address_prefixes_v6 = ["fd00:db8:22:17::/64", ], }
   }
   hub2_default_gw_main      = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 1)
-  hub2_default_gw_nva       = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 1)
+  hub2_default_gw_trust     = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 1)
   hub2_vm_addr              = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 5)
   hub2_nva_trust_addr       = cidrhost(local.hub2_subnets["TrustSubnet"].address_prefixes[0], 4)
   hub2_nva_untrust_addr     = cidrhost(local.hub2_subnets["UntrustSubnet"].address_prefixes[0], 4)
