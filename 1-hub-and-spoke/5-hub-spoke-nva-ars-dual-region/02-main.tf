@@ -4,7 +4,7 @@
 
 locals {
   prefix                      = "Hs15"
-  lab_name                    = "HubSpoke_Nva_2Region"
+  lab_name                    = "HubSpoke_Nva_Ars_2Region"
   enable_onprem_wan_link      = false
   enable_diagnostics          = false
   enable_ipv6                 = false

@@ -312,7 +312,7 @@ Where ***\<AAAA\>*** and ***\<BBBB\>*** are randomly generated two-byte strings.
 **5.1.** On your Cloudshell (or local machine), get the storage account hostname and blob URL.
 
 ```sh
-spoke3_storage_account=$(az storage account list -g Hs15_HubSpoke_Nva_2Region_RG --query "[?contains(name, 'hs15spoke3sa')].name" -o tsv)
+spoke3_storage_account=$(az storage account list -g Hs15_HubSpoke_Nva_Ars_2Region_RG --query "[?contains(name, 'hs15spoke3sa')].name" -o tsv)
 
 spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
 spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
@@ -424,7 +424,7 @@ azureuser@branch1Vm:~$ az login --identity
 **6.3.** Get the storage account hostname and blob URL.
 
 ```sh
-spoke3_storage_account=$(az storage account list -g Hs15_HubSpoke_Nva_2Region_RG --query "[?contains(name, 'hs15spoke3sa')].name" -o tsv)
+spoke3_storage_account=$(az storage account list -g Hs15_HubSpoke_Nva_Ars_2Region_RG --query "[?contains(name, 'hs15spoke3sa')].name" -o tsv)
 
 spoke3_sgtacct_host="$spoke3_storage_account.blob.core.windows.net"
 spoke3_blob_url="https://$spoke3_sgtacct_host/spoke3/spoke3.txt"
@@ -747,7 +747,7 @@ cd azure-network-terraform/1-hub-and-spoke/5-hub-spoke-nva-ars-dual-region
 2\. (Optional) This is not required if `enable_diagnostics = false` in the [`02-main.tf`](./02-main.tf). If you deployed the lab with `enable_diagnostics = true`, in order to avoid terraform errors when re-deploying this lab, run a cleanup script to remove diagnostic settings that are not removed after the resource group is deleted.
 
 ```sh
-bash ../../scripts/_cleanup.sh Hs15_HubSpoke_Nva_2Region_RG
+bash ../../scripts/_cleanup.sh Hs15_HubSpoke_Nva_Ars_2Region_RG
 ```
 
 <details>
@@ -755,11 +755,11 @@ bash ../../scripts/_cleanup.sh Hs15_HubSpoke_Nva_2Region_RG
 <summary>Sample output</summary>
 
 ```sh
-4-hub-spoke-nva-dual-region$ . ../../scripts/_cleanup.sh Hs15_HubSpoke_Nva_2Region_RG
+4-hub-spoke-nva-dual-region$ . ../../scripts/_cleanup.sh Hs15_HubSpoke_Nva_Ars_2Region_RG
 
-Resource group: Hs15_HubSpoke_Nva_2Region_RG
+Resource group: Hs15_HubSpoke_Nva_Ars_2Region_RG
 
-⏳ Checking for diagnostic settings on resources in Hs15_HubSpoke_Nva_2Region_RG ...
+⏳ Checking for diagnostic settings on resources in Hs15_HubSpoke_Nva_Ars_2Region_RG ...
 ➜  Checking firewall ...
 ➜  Checking vnet gateway ...
     ❌ Deleting: diag setting [Hs15-hub1-vpngw-diag] for vnet gateway [Hs15-hub1-vpngw] ...
@@ -767,7 +767,7 @@ Resource group: Hs15_HubSpoke_Nva_2Region_RG
 ➜  Checking vpn gateway ...
 ➜  Checking er gateway ...
 ➜  Checking app gateway ...
-⏳ Checking for azure policies in Hs15_HubSpoke_Nva_2Region_RG ...
+⏳ Checking for azure policies in Hs15_HubSpoke_Nva_Ars_2Region_RG ...
 Done!
 ```
 
@@ -777,7 +777,7 @@ Done!
 3\. Delete the resource group to remove all resources installed.
 
 ```sh
-az group delete -g Hs15_HubSpoke_Nva_2Region_RG --no-wait
+az group delete -g Hs15_HubSpoke_Nva_Ars_2Region_RG --no-wait
 ```
 
 4\. Delete terraform state files and other generated files.
