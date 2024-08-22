@@ -33,6 +33,7 @@ server:
         access-control: 100.64.0.0/10 allow
         access-control: 127.0.0.0/8 allow
         access-control: 35.199.192.0/19 allow
+        access-control: fd00::/8 allow
 
         # local data records
         local-data: "branch1vm.corp 300 IN A 10.10.0.5"

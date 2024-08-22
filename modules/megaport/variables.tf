@@ -56,7 +56,7 @@ variable "circuits" {
 
     # mcr_config_block creates layer2 and layer3 config on megaport and azure sides
     mcr_config = object({
-      enable_auto_peering    = optional(bool, false) # auto-assign circuit addresses
+      enable_auto_peering    = optional(bool, false) # auto-assign addresses
       create_private_peering = optional(bool, false) # use provided addresses
     })
 

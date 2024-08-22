@@ -43,7 +43,6 @@ module "hub1" {
   vnets_linked_to_ruleset = [
     { name = "hub1", vnet_id = module.hub1.vnet.id },
     { name = "spoke1", vnet_id = module.spoke1.vnet.id },
-    { name = "spoke2", vnet_id = module.spoke2.vnet.id },
   ]
 
   nsg_subnet_map = {

@@ -51,15 +51,15 @@ module "megaport" {
       bandwidth_in_mbps = local.bandwidth_in_mbps
       requested_vlan    = local.megaport_vlan1
 
-      primary_peer_address_prefix_ipv4   = local.csp_range5
-      secondary_peer_address_prefix_ipv4 = local.csp_range6
-      primary_peer_address_prefix_ipv6   = local.csp_range5_v6
-      secondary_peer_address_prefix_ipv6 = local.csp_range6_v6
+      primary_peer_address_prefix_ipv4   = local.csp_range1
+      secondary_peer_address_prefix_ipv4 = local.csp_range2
+      primary_peer_address_prefix_ipv6   = local.csp_range1_v6
+      secondary_peer_address_prefix_ipv6 = local.csp_range2_v6
 
       # mcr_config_block creates layer2 and layer3 config on megaport and azure sides
       mcr_config = {
         enable_auto_peering    = false # auto-assign addresses
-        create_private_peering = false # use provided addresses
+        create_private_peering = true  # use provided addresses
       }
 
       # azure_config_block is only used when all mcr_config attributes are false
@@ -78,8 +78,16 @@ module "megaport" {
     },
     {
       express_route_circuit_name   = "${local.prefix}-er1"
+      virtual_network_gateway_name = module.spoke1.ergw_name
+    },
+    {
+      express_route_circuit_name   = "${local.prefix}-er1"
       virtual_network_gateway_name = module.branch2.ergw_name
     },
   ]
+  depends_on = [
+    module.hub1,
+    module.spoke1,
+    module.branch2,
+  ]
 }
-

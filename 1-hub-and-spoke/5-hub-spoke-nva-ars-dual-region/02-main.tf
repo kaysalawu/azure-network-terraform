@@ -715,10 +715,9 @@ locals {
     ROUTE_MAPS = [
       "route-map ${local.hub1_nva_route_map_azure} permit 100",
       "match ip address prefix-list ALL",
-      "set ip next-hop ${local.hub1_nva_ilb_trust_addr}"
+      "set ip next-hop ${local.hub1_nva_ilb_untrust_addr}"
     ]
     STATIC_ROUTES = [
-      # { prefix = "0.0.0.0/0", next_hop = local.hub1_default_gw_untrust },
       { prefix = "${local.hub1_ars_bgp_ip0}/32", next_hop = local.hub1_default_gw_untrust },
       { prefix = "${local.hub1_ars_bgp_ip1}/32", next_hop = local.hub1_default_gw_untrust },
       { prefix = "${local.hub2_nva_untrust_addr}/32", next_hop = local.hub1_default_gw_untrust },
@@ -811,7 +810,6 @@ locals {
       "set ip next-hop ${local.hub2_nva_ilb_trust_addr}"
     ]
     STATIC_ROUTES = [
-      # { prefix = "0.0.0.0/0", next_hop = local.hub2_default_gw_untrust },
       { prefix = "${local.hub2_ars_bgp_ip0}/32", next_hop = local.hub2_default_gw_untrust },
       { prefix = "${local.hub2_ars_bgp_ip0}/32", next_hop = local.hub2_default_gw_untrust },
       { prefix = "${local.hub1_nva_untrust_addr}/32", next_hop = local.hub2_default_gw_untrust },
