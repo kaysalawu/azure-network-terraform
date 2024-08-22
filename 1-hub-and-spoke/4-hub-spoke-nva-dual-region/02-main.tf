@@ -523,8 +523,6 @@ module "vm_cloud_init" {
     "docker.io", "docker-compose", #npm,
   ]
   run_commands = [
-    "systemctl enable docker",
-    "systemctl start docker",
     "bash ${local.init_dir}/init/startup.sh",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app2-8080.yml up -d",
@@ -541,8 +539,6 @@ module "probe_vm_cloud_init" {
     "docker.io", "docker-compose",
   ]
   run_commands = [
-    "systemctl enable docker",
-    "systemctl start docker",
     "bash ${local.init_dir}/init/startup.sh",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app2-8080.yml up -d",
@@ -762,9 +758,8 @@ locals {
 # hub2
 
 locals {
-  hub2_nva_route_map_onprem      = "ONPREM"
-  hub2_nva_route_map_azure       = "AZURE"
-  hub2_nva_route_map_block_azure = "BLOCK_HUB_GW_SUBNET"
+  hub2_nva_route_map_onprem = "ONPREM"
+  hub2_nva_route_map_azure  = "AZURE"
   hub2_nva_vars = {
     LOCAL_ASN = local.hub2_nva_asn
     LOOPBACK0 = local.hub2_nva_loopback0
