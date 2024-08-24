@@ -73,6 +73,7 @@ variable "circuits" {
 variable "gateway_connections" {
   description = "express route connection to gateway"
   type = list(object({
+    shared_key                   = optional(string, "nokey")
     express_route_circuit_name   = string
     virtual_network_gateway_name = optional(string, null)
     express_route_gateway_name   = optional(string, null)

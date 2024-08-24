@@ -18,7 +18,8 @@ locals {
 ####################################################
 
 provider "azurerm" {
-  skip_provider_registration = true
+  resource_provider_registrations = "none"
+  subscription_id                 = var.subscription_id
   features {
     resource_group {
       prevent_deletion_if_contains_resources = false

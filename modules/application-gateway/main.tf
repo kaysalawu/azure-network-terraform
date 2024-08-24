@@ -513,6 +513,6 @@ resource "azurerm_monitor_diagnostic_setting" "agw-diag" {
   }
 
   lifecycle {
-    ignore_changes = [log, metric]
+    ignore_changes = [enabled_log, metric]
   }
 }

@@ -29,12 +29,15 @@ main_dirs=(
 3-network-manager
 )
 
+main_dirs_excluded=(
+)
+
 custom_dirs=(
 4-general
 )
 
 function showUsage() {
-  echo -e "\nUsage: $0\n\
+  echo -e "\nUsage: $0 [options]\n\
   --diff, -f     : Run diff between local and template blueprints\n\
   --copy, -c     : Copy templates files to local\n\
   --delete, -x   : Delete local files specified in templates\n\
@@ -45,6 +48,44 @@ function showUsage() {
   --custom-plan, -cp  : Run custom terraform plan\n\
   --custom-validate, -cv : Run custom terraform validate\n\
   --custom-cleanup, -cu : Run custom terraform cleanup"
+}
+
+is_excluded() {
+    local dir_name=$(basename "$1")
+    for excluded in "${main_dirs_excluded[@]}"; do
+        if [[ "$dir_name" == "$excluded" ]]; then
+            return 0 # True
+        fi
+    done
+    return 1 # False
+}
+
+run_task_on_dirs() {
+    local task=$1
+    local prompt_option=$2
+    shift 2
+
+    if [[ $prompt_option == "--prompt" ]]; then
+        read -p "Run $task on all directories? (y/n): " yn
+        if [[ $yn != [Yy] ]]; then
+            echo -e "Skipping $task...\n"
+            return
+        fi
+    fi
+
+    for dir in "${main_dirs[@]}"; do
+        if [ -d "$dir" ]; then
+            echo && echo -e "$dir"
+            echo "----------------------------------"
+            for subdir in "$dir"/*/; do
+                if [ -d "$subdir" ] && ! is_excluded "$subdir"; then
+                    echo -e "${subdir#*/}"
+                    $task "$subdir" "$@"
+                fi
+            done
+        fi
+    done
+    echo -e "\n${char_celebrate} done!"
 }
 
 dir_diff() {
@@ -81,7 +122,7 @@ copy_files(){
         local_file=$(basename "$file")
         if [ ! -e "$local_file" ]; then
             echo -e "  ${char_pass} cp: $file"
-        cp "$file" .
+            cp "$file" .
         fi
     done
     cd "$original_dir" || exit
@@ -95,7 +136,7 @@ delete_files(){
         local_file=$(basename "$file")
         if [ -e "$local_file" ]; then
             echo -e "    ${char_fail} rm: $local_file"
-        rm "$local_file"
+            rm "$local_file"
         fi
     done
     cd "$original_dir" || exit
@@ -139,121 +180,6 @@ terraform_cleanup(){
     cd "$original_dir" || exit
 }
 
-run_dir_diff() {
-    for dir in "${main_dirs[@]}"; do
-        if [ -d "$dir" ]; then
-            echo && echo -e "$dir"
-            echo "----------------------------------"
-            for subdir in "$dir"/*/; do
-                if [ -d "$subdir" ]; then
-                    echo -e "${subdir#*/}"
-                    dir_diff "$subdir"
-                fi
-            done
-        fi
-    done
-    echo -e "\n${char_celebrate} done!"
-}
-
-run_copy_files() {
-    for dir in "${main_dirs[@]}"; do
-        if [ -d "$dir" ]; then
-            echo && echo -e "$dir"
-            echo "----------------------------------"
-            for subdir in "$dir"/*/; do
-                if [ -d "$subdir" ]; then
-                    echo -e "${subdir#*/}"
-                    copy_files "$subdir"
-                fi
-            done
-        fi
-    done
-    echo -e "\n${char_celebrate} done!"
-}
-
-run_delete_files() {
-    read -p "Delete all template files? (y/n): " yn
-    if [[ $yn == [Yy] ]]; then
-        for dir in "${main_dirs[@]}"; do
-            if [ -d "$dir" ]; then
-                echo && echo -e "$dir"
-                echo "----------------------------------"
-                for subdir in "$dir"/*/; do
-                    if [ -d "$subdir" ]; then
-                        echo -e "${subdir#*/}"
-                        delete_files "$subdir"
-                    fi
-                done
-            fi
-        done
-    elif [[ $yn == [Nn] ]]; then
-        return 1
-    else
-        echo -e "Invalid input. Please answer y or n."
-        return 1
-    fi
-    echo -e "\n${char_celebrate} done!"
-}
-
-run_terraform_plan() {
-    echo
-    for dir in "${main_dirs[@]}"; do
-        if [ -d "$dir" ]; then
-            echo && echo -e "$dir"
-            echo "----------------------------------"
-            for subdir in "$dir"/*/; do
-                if [ -d "$subdir" ]; then
-                    echo -e "${subdir#*/}"
-                    terraform_plan "$subdir"
-                fi
-            done
-        fi
-    done
-    echo -e "\n${char_celebrate} done!"
-}
-
-run_terraform_validate() {
-    echo
-    for dir in "${main_dirs[@]}"; do
-        if [ -d "$dir" ]; then
-            echo && echo -e "$dir"
-            echo "----------------------------------"
-            for subdir in "$dir"/*/; do
-                if [ -d "$subdir" ]; then
-                    echo -e "${subdir#*/}"
-                    terraform_validate "$subdir"
-                fi
-            done
-        fi
-    done
-    echo -e "\n${char_celebrate} done!"
-}
-
-run_terraform_cleanup() {
-    read -p "Delete terraform state? (y/n): " yn
-    if [[ $yn == [Yy] ]]; then
-        echo
-        for dir in "${main_dirs[@]}"; do
-            if [ -d "$dir" ]; then
-                echo && echo -e "$dir"
-                echo "----------------------------------"
-                for subdir in "$dir"/*/; do
-                    if [ -d "$subdir" ]; then
-                        echo -e "${subdir#*/}"
-                        terraform_cleanup "$subdir"
-                    fi
-                done
-            fi
-        done
-    elif [[ $yn == [Nn] ]]; then
-        return 1
-    else
-        echo -e "Invalid input. Please answer y or n."
-        return 1
-    fi
-    echo -e "\n${char_celebrate} done!"
-}
-
 run_terraform_docs() {
     read -p "Generate terraform docs? (y/n): " yn
     if [[ $yn == [Yy] ]]; then
@@ -261,7 +187,7 @@ run_terraform_docs() {
         for dir in "${terraform_docs_dirs[@]}"; do
             if [ -d "$dir" ]; then
                 for subdir in "$dir"/*/; do
-                    if [ -d "$subdir" ]; then
+                    if [ -d "$subdir" ] && ! is_excluded "$subdir"; then
                         cd "$subdir" || exit
                         terraform-docs markdown table . --output-file README.md --output-mode inject --show=requirements,inputs,outputs > /dev/null
                         echo -e "${char_pass} ${subdir#${original_dir}/}README.md updated!${reset}"
@@ -331,25 +257,25 @@ function run_terraform_cleanup_custom() {
 
 case "$1" in
   "--diff" | "-f")
-    echo && run_dir_diff
+    echo && run_task_on_dirs dir_diff --no-prompt
     ;;
   "--copy" | "-c")
-    echo && run_copy_files
+    echo && run_task_on_dirs copy_files --no-prompt
     ;;
   "--delete" | "-x")
-    echo && run_delete_files
+    echo && run_task_on_dirs delete_files --prompt
     ;;
   "--plan" | "-p")
-    echo && run_terraform_plan
+    echo && run_task_on_dirs terraform_plan --no-prompt
     ;;
   "--validate" | "-v")
-    echo && run_terraform_validate
+    echo && run_task_on_dirs terraform_validate --no-prompt
     ;;
   "--cleanup" | "-u")
-    echo && run_terraform_cleanup
+    echo && run_task_on_dirs terraform_cleanup --prompt
     ;;
   "--docs" | "-d")
-    echo && run_terraform_docs
+    echo && run_terraform_docs --prompt
     ;;
   "--custom-plan" | "-cp")
     echo && run_terraform_plan_custom
