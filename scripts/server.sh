@@ -14,10 +14,7 @@ curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 # web server #
 pip3 install Flask requests
 
-mkdir /var/flaskapp
-mkdir /var/flaskapp/flaskapp
-mkdir /var/flaskapp/flaskapp/static
-mkdir /var/flaskapp/flaskapp/templates
+mkdir -p /var/flaskapp/flaskapp/{static,templates}
 
 cat <<EOF > /var/flaskapp/flaskapp/__init__.py
 import socket
