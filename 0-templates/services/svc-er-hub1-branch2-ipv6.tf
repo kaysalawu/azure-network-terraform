@@ -64,7 +64,7 @@ module "megaport" {
 
       # mcr_config_block creates layer2 and layer3 config on megaport and azure sides
       mcr_config = {
-        enable_auto_peering    = false # auto-assign circuit addresses
+        enable_auto_peering    = false # auto-assign addresses
         create_private_peering = false # use provided addresses
       }
 

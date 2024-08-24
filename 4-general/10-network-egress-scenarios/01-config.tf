@@ -9,7 +9,7 @@ locals {
   psk      = "changeme"
 
   region1          = "northeurope"
-  region2          = "eastus"
+  region2          = "eastus2"
   region1_code     = "eu"
   region2_code     = "us"
   region1_dns_zone = "${local.region1_code}.${local.cloud_domain}"

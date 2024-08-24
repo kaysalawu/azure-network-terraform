@@ -41,7 +41,8 @@ data "azurerm_subscription" "current" {}
 ####################################################
 
 provider "azurerm" {
-  skip_provider_registration = true
+  resource_provider_registrations = "none"
+  subscription_id                 = var.subscription_id
   features {
     resource_group {
       prevent_deletion_if_contains_resources = false
@@ -500,8 +501,6 @@ module "vm_cloud_init" {
     "docker.io", "docker-compose", #npm,
   ]
   run_commands = [
-    "systemctl enable docker",
-    "systemctl start docker",
     "bash ${local.init_dir}/init/startup.sh",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app2-8080.yml up -d",
@@ -518,8 +517,6 @@ module "probe_vm_cloud_init" {
     "docker.io", "docker-compose",
   ]
   run_commands = [
-    "systemctl enable docker",
-    "systemctl start docker",
     "bash ${local.init_dir}/init/startup.sh",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app2-8080.yml up -d",

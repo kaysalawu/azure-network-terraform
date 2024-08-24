@@ -200,6 +200,7 @@ resource "azurerm_virtual_network_gateway_connection" "vnet" {
   virtual_network_gateway_id = data.azurerm_virtual_network_gateway.vnet[each.key].id
   authorization_key          = azurerm_express_route_circuit_authorization.vnet[each.key].authorization_key
   express_route_circuit_id   = azurerm_express_route_circuit.this[each.value.express_route_circuit_name].id
+  shared_key                 = each.value.shared_key
   depends_on = [
     time_sleep.wait_for_peering[0],
   ]

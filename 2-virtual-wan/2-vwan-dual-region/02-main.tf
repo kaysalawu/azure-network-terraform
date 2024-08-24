@@ -42,7 +42,8 @@ data "azurerm_subscription" "current" {}
 ####################################################
 
 provider "azurerm" {
-  skip_provider_registration = true
+  resource_provider_registrations = "none"
+  subscription_id                 = var.subscription_id
   features {
     resource_group {
       prevent_deletion_if_contains_resources = false
@@ -564,8 +565,6 @@ module "vm_cloud_init" {
     "docker.io", "docker-compose", #npm,
   ]
   run_commands = [
-    "systemctl enable docker",
-    "systemctl start docker",
     "bash ${local.init_dir}/init/startup.sh",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app2-8080.yml up -d",
@@ -582,8 +581,6 @@ module "probe_vm_cloud_init" {
     "docker.io", "docker-compose",
   ]
   run_commands = [
-    "systemctl enable docker",
-    "systemctl start docker",
     "bash ${local.init_dir}/init/startup.sh",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app1-80.yml up -d",
     "docker-compose -f ${local.init_dir}/fastapi/docker-compose-app2-8080.yml up -d",
@@ -742,10 +739,10 @@ locals {
       # "set ip next-hop ${local.hub1_nva_ilb_trust_addr}"
     ]
     STATIC_ROUTES = [
-      { prefix = "0.0.0.0/0", next_hop = local.hub1_default_gw_nva },
-      { prefix = "${module.vhub1.router_bgp_ip0}/32", next_hop = local.hub1_default_gw_nva },
-      { prefix = "${module.vhub1.router_bgp_ip1}/32", next_hop = local.hub1_default_gw_nva },
-      { prefix = local.spoke2_address_space[0], next_hop = local.hub1_default_gw_nva },
+      { prefix = "0.0.0.0/0", next_hop = local.hub1_default_gw_trust },
+      { prefix = "${module.vhub1.router_bgp_ip0}/32", next_hop = local.hub1_default_gw_trust },
+      { prefix = "${module.vhub1.router_bgp_ip1}/32", next_hop = local.hub1_default_gw_trust },
+      { prefix = local.spoke2_address_space[0], next_hop = local.hub1_default_gw_trust },
     ]
     TUNNELS = []
     BGP_SESSIONS_IPV4 = [
@@ -807,10 +804,10 @@ locals {
       # "set ip next-hop ${local.hub2_nva_ilb_trust_addr}"
     ]
     STATIC_ROUTES = [
-      { prefix = "0.0.0.0/0", next_hop = local.hub2_default_gw_nva },
-      { prefix = "${module.vhub2.router_bgp_ip0}/32", next_hop = local.hub2_default_gw_nva },
-      { prefix = "${module.vhub2.router_bgp_ip1}/32", next_hop = local.hub2_default_gw_nva },
-      { prefix = local.spoke5_address_space[0], next_hop = local.hub2_default_gw_nva },
+      { prefix = "0.0.0.0/0", next_hop = local.hub2_default_gw_trust },
+      { prefix = "${module.vhub2.router_bgp_ip0}/32", next_hop = local.hub2_default_gw_trust },
+      { prefix = "${module.vhub2.router_bgp_ip1}/32", next_hop = local.hub2_default_gw_trust },
+      { prefix = local.spoke5_address_space[0], next_hop = local.hub2_default_gw_trust },
     ]
     TUNNELS = []
     BGP_SESSIONS_IPV4 = [

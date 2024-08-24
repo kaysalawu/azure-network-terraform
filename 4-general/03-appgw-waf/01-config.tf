@@ -9,7 +9,7 @@ locals {
   psk      = "changeme"
 
   region1          = "northeurope"
-  region2          = "eastus"
+  region2          = "eastus2"
   region1_code     = "eu"
   region2_code     = "us"
   region1_dns_zone = "${local.region1_code}.${local.cloud_domain}"
@@ -85,9 +85,9 @@ locals {
     ("AppServiceSubnet")              = { address_prefixes = ["10.11.13.0/24"], delegate = ["Microsoft.Web/serverFarms", ] }
     ("GatewaySubnet")                 = { address_prefixes = ["10.11.16.0/24", ] }
   }
-  hub1_default_gw_main = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 1)
-  hub1_default_gw_nva  = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 1)
-  hub1_good_addr       = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 4)
-  hub1_bad_addr        = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 5)
-  hub1_appgw_addr      = cidrhost(local.hub1_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
+  hub1_default_gw_main  = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 1)
+  hub1_default_gw_trust = cidrhost(local.hub1_subnets["TrustSubnet"].address_prefixes[0], 1)
+  hub1_good_addr        = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 4)
+  hub1_bad_addr         = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 5)
+  hub1_appgw_addr       = cidrhost(local.hub1_subnets["AppGatewaySubnet"].address_prefixes[0], 99)
 }

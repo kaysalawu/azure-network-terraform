@@ -22,8 +22,6 @@ module "vm_websocket_client_init" {
   packages = ["docker.io", "docker-compose", "npm", "python3-pip", "python3-dev", "python3-venv", ]
   files    = local.vm_websocket_client_init
   run_commands = [
-    "systemctl enable docker",
-    "systemctl start docker",
     "npm install -g wscat",
   ]
 }
@@ -59,8 +57,6 @@ module "vm_websocket_server_init" {
   files    = local.vm_websocket_server_init
   packages = ["docker.io", "docker-compose", "npm", ]
   run_commands = [
-    "systemctl enable docker",
-    "systemctl start docker",
     "npm install -g wscat",
     "cd ${local.vm_startup_container_dir}",
     "docker build -t server .",
