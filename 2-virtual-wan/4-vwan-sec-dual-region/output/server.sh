@@ -2,6 +2,7 @@
 
 apt update
 apt install -y python3-pip python3-dev python3-venv unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
+apt install -y python3-flask python3-requests
 
 pip3 install azure-identity
 pip3 install azure-mgmt-network
@@ -12,12 +13,8 @@ sudo service network-manager restart
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 # web server #
-pip3 install Flask requests
 
-mkdir /var/flaskapp
-mkdir /var/flaskapp/flaskapp
-mkdir /var/flaskapp/flaskapp/static
-mkdir /var/flaskapp/flaskapp/templates
+mkdir -p /var/flaskapp/flaskapp/{static,templates}
 
 cat <<EOF > /var/flaskapp/flaskapp/__init__.py
 import socket
@@ -120,8 +117,8 @@ echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{h
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke4vm.us.az.corp) - spoke4vm.us.az.corp"
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke5vm.us.az.corp) - spoke5vm.us.az.corp"
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke3sace78.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan24spoke3sace78.blob.core.windows.net/spoke3/spoke3.txt"
-echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke6sace78.blob.core.windows.net/spoke6/spoke6.txt) - https://vwan24spoke6sace78.blob.core.windows.net/spoke6/spoke6.txt"
+echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke3sa26f9.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan24spoke3sa26f9.blob.core.windows.net/spoke3/spoke3.txt"
+echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan24spoke6sa26f9.blob.core.windows.net/spoke6/spoke6.txt) - https://vwan24spoke6sa26f9.blob.core.windows.net/spoke6/spoke6.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 

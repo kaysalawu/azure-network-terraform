@@ -141,25 +141,25 @@ conn %default
     ike=aes256-sha1-modp1024!
     esp=aes256-sha1!
 
-conn Tunnel0
+conn vti0
     left=10.10.1.9
-    leftid=13.79.77.115
-    right=4.208.6.217
-    rightid=4.208.6.217
+    leftid=40.69.215.92
+    right=135.236.216.144
+    rightid=135.236.216.144
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
-conn Tunnel1
+conn vti1
     left=10.10.1.9
-    leftid=13.79.77.115
-    right=4.208.6.230
-    rightid=4.208.6.230
+    leftid=40.69.215.92
+    right=135.236.216.99
+    rightid=135.236.216.99
     auto=start
     mark=101
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
-conn Tunnel2
+conn vti2
     left=10.10.1.9
-    leftid=13.79.77.115
+    leftid=40.69.215.92
     right=1.1.1.1
     rightid=1.1.1.1
     auto=start
@@ -171,8 +171,8 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.10.1.9 4.208.6.217 : PSK "changeme"
-10.10.1.9 4.208.6.230 : PSK "changeme"
+10.10.1.9 135.236.216.144 : PSK "changeme"
+10.10.1.9 135.236.216.99 : PSK "changeme"
 10.10.1.9 1.1.1.1 : PSK "changeme"
 
 EOF
@@ -189,18 +189,18 @@ PLUTO_MARK_OUT_ARR=(${PLUTO_MARK_OUT//// })
 PLUTO_MARK_IN_ARR=(${PLUTO_MARK_IN//// })
 
 case "$PLUTO_CONNECTION" in
-  Tunnel0)
-    VTI_INTERFACE=Tunnel0
+  vti0)
+    VTI_INTERFACE=vti0
     VTI_LOCALADDR=10.10.10.1
-    VTI_REMOTEADDR=192.168.11.13
-    ;;
-  Tunnel1)
-    VTI_INTERFACE=Tunnel1
-    VTI_LOCALADDR=10.10.10.5
     VTI_REMOTEADDR=192.168.11.12
     ;;
-  Tunnel2)
-    VTI_INTERFACE=Tunnel2
+  vti1)
+    VTI_INTERFACE=vti1
+    VTI_LOCALADDR=10.10.10.5
+    VTI_REMOTEADDR=192.168.11.13
+    ;;
+  vti2)
+    VTI_INTERFACE=vti2
     VTI_LOCALADDR=10.10.10.9
     VTI_REMOTEADDR=10.10.10.10
     ;;
@@ -303,8 +303,8 @@ interface lo
 ! Static Routes
 !-----------------------------------------
 ip route 0.0.0.0/0 10.10.1.1
-ip route 192.168.11.13/32 vti0
-ip route 192.168.11.12/32 vti1
+ip route 192.168.11.12/32 vti0
+ip route 192.168.11.13/32 vti1
 ip route 192.168.30.30/32 vti2
 ip route 10.30.1.9 10.10.1.1
 ip route 10.10.0.0/24 10.10.1.1
@@ -323,20 +323,20 @@ ip route 10.10.0.0/24 10.10.1.1
 !-----------------------------------------
 router bgp 65001
 bgp router-id 192.168.10.10
-neighbor 192.168.11.13 remote-as 65515
-neighbor 192.168.11.13 ebgp-multihop 255
-neighbor 192.168.11.13 update-source lo
 neighbor 192.168.11.12 remote-as 65515
 neighbor 192.168.11.12 ebgp-multihop 255
 neighbor 192.168.11.12 update-source lo
+neighbor 192.168.11.13 remote-as 65515
+neighbor 192.168.11.13 ebgp-multihop 255
+neighbor 192.168.11.13 update-source lo
 neighbor 192.168.30.30 remote-as 65003
 neighbor 192.168.30.30 ebgp-multihop 255
 neighbor 192.168.30.30 update-source lo
 !
 address-family ipv4 unicast
   network 10.10.0.0/24
-  neighbor 192.168.11.13 soft-reconfiguration inbound
   neighbor 192.168.11.12 soft-reconfiguration inbound
+  neighbor 192.168.11.13 soft-reconfiguration inbound
   neighbor 192.168.30.30 soft-reconfiguration inbound
 exit-address-family
 !
@@ -362,7 +362,7 @@ chmod a+x /usr/local/bin/dns-info
 
 # azure service tester
 
-tee /usr/local/bin/crawlz <<'EOF'
+cat <<'EOF' > /usr/local/bin/crawlz
 sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
 EOF
 chmod a+x /usr/local/bin/crawlz
