@@ -12,12 +12,12 @@ write_files:
     permissions: 0744
     content: |
       FROM python:3.12-alpine
-
+      
       WORKDIR /app
       COPY . .
       RUN pip install --verbose --no-cache-dir -r requirements.txt
       CMD ["python3", "main.py"]
-
+      
   - path: /var/lib/azure/fastapi/app/app/_app.py
     owner: root
     permissions: 0744
@@ -25,17 +25,17 @@ write_files:
       import os
       import socket
       from fastapi import APIRouter, Request, HTTPException
-
+      
       router = APIRouter()
-
+      
       hostname = socket.gethostname()
       ipv4_address = socket.gethostbyname(hostname)
-
+      
       try:
           ipv6_address = socket.getaddrinfo(hostname, None, socket.AF_INET6)[0][4][0]
       except socket.gaierror:
           ipv6_address = "NotFound"
-
+      
       def generate_data_dict(app_name, request):
           return {
               'app': app_name,
@@ -45,19 +45,19 @@ write_files:
               'remote-addr': request.client.host,
               'headers': dict(request.headers)
           }
-
+      
       @router.get("/")
       async def default(request: Request):
           return generate_data_dict('SERVER', request)
-
+      
       @router.get("/path1")
       async def path1(request: Request):
           return generate_data_dict('SERVER-PATH1', request)
-
+      
       @router.get("/path2")
       async def path2(request: Request):
           return generate_data_dict('SERVER-PATH2', request)
-
+      
       @router.get("/healthz")
       async def healthz(request: Request):
           # Example of adding specific logic for a particular endpoint if needed
@@ -65,7 +65,7 @@ write_files:
           # if request.client.host not in allowed_hosts:
           #     raise HTTPException(status_code=403, detail="Access denied")
           return "OK"
-
+      
   - path: /var/lib/azure/fastapi/app/app/main.py
     owner: root
     permissions: 0744
@@ -77,15 +77,15 @@ write_files:
       import json
       import ssl
       import uvicorn
-
+      
       class PrettyJSONResponse(Response):
           media_type = "application/json"
-
+      
           def render(self, content: any) -> bytes:
               return json.dumps(content, indent=2).encode('utf-8')
-
+      
       app = FastAPI(default_response_class=PrettyJSONResponse)
-
+      
       # CORS middleware
       app.add_middleware(
           CORSMiddleware,
@@ -94,17 +94,17 @@ write_files:
           allow_methods=["*"],
           allow_headers=["*"],
       )
-
+      
       # Custom middleware to add Access-Control-Allow-Origin header
       @app.middleware("http")
       async def add_cors_header(request, call_next):
           response = await call_next(request)
           response.headers["Access-Control-Allow-Origin"] = "*"
           return response
-
+      
       # Include the API router
       app.include_router(app_router, tags=["Features"])
-
+      
   - path: /var/lib/azure/fastapi/app/app/requirements.txt
     owner: root
     permissions: 0744
@@ -112,7 +112,7 @@ write_files:
       cryptography==41.0.7
       fastapi==0.105.0
       uvicorn==0.25.0
-
+      
   - path: /var/lib/azure/fastapi/docker-compose-app1-80.yml
     owner: root
     permissions: 0744
@@ -135,7 +135,7 @@ write_files:
           network_mode: host
           command: uvicorn main:app --host '::' --port 80
           restart: always
-
+      
   - path: /var/lib/azure/fastapi/docker-compose-app2-8080.yml
     owner: root
     permissions: 0744
@@ -158,27 +158,26 @@ write_files:
           network_mode: host
           command: uvicorn main:app --host '::' --port 8080
           restart: always
-
+      
   - path: /var/lib/azure/init/startup.sh
     owner: root
     permissions: 0744
     content: |
       #! /bin/bash
-
+      
       exec > /var/log/azure-startup.log
-
+      
       apt update
       apt install -y python3-pip python3-dev python3-venv unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
-
+      
       curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-
-
+      
       ########################################################
       # test scripts (ipv4)
       ########################################################
-
+      
       # ping-ipv4
-
+      
       cat <<'EOF' > /usr/local/bin/ping-ipv4
       echo -e "\n ping ipv4 ...\n"
       echo "branch1 - 10.10.0.5 -$(timeout 3 ping -4 -qc2 -W1 10.10.0.5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
@@ -188,9 +187,9 @@ write_files:
       echo "internet - icanhazip.com -$(timeout 3 ping -4 -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
       EOF
       chmod a+x /usr/local/bin/ping-ipv4
-
+      
       # ping-dns4
-
+      
       cat <<'EOF' > /usr/local/bin/ping-dns4
       echo -e "\n ping dns ipv4 ...\n"
       echo "branch1vm.corp - $(timeout 3 dig +short branch1vm.corp | tail -n1) -$(timeout 3 ping -4 -qc2 -W1 branch1vm.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
@@ -200,9 +199,9 @@ write_files:
       echo "icanhazip.com - $(timeout 3 dig +short icanhazip.com | tail -n1) -$(timeout 3 ping -4 -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
       EOF
       chmod a+x /usr/local/bin/ping-dns4
-
+      
       # curl-ipv4
-
+      
       cat <<'EOF' > /usr/local/bin/curl-ipv4
       echo -e "\n curl ipv4 ...\n"
       echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null 10.10.0.5) - branch1 [10.10.0.5]"
@@ -212,9 +211,9 @@ write_files:
       echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - internet [icanhazip.com]"
       EOF
       chmod a+x /usr/local/bin/curl-ipv4
-
+      
       # curl-dns4
-
+      
       cat <<'EOF' > /usr/local/bin/curl-dns4
       echo -e "\n curl dns ipv4 ...\n"
       echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null branch1vm.corp) - branch1vm.corp"
@@ -223,12 +222,12 @@ write_files:
       echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1vm.eu.az.corp) - spoke1vm.eu.az.corp"
       echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke2vm.eu.az.corp) - spoke2vm.eu.az.corp"
       echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan23spoke3sa81cc.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan23spoke3sa81cc.blob.core.windows.net/spoke3/spoke3.txt"
+      echo  "$(timeout 3 curl -4 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan23spoke3sab567.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan23spoke3sab567.blob.core.windows.net/spoke3/spoke3.txt"
       EOF
       chmod a+x /usr/local/bin/curl-dns4
-
+      
       # trace-ipv4
-
+      
       cat <<'EOF' > /usr/local/bin/trace-ipv4
       echo -e "\n trace ipv4 ...\n"
       echo -e "\nbranch1"
@@ -248,13 +247,13 @@ write_files:
       timeout 9 tracepath -4 icanhazip.com
       EOF
       chmod a+x /usr/local/bin/trace-ipv4
-
+      
       ########################################################
       # test scripts (ipv6)
       ########################################################
-
+      
       # ping-ipv6
-
+      
       cat <<'EOF' > /usr/local/bin/ping-ipv6
       echo -e "\n ping ipv6 ...\n"
       echo "branch1 - fd00:db8:10::5 -$(timeout 3 ping -6 -qc2 -W1 fd00:db8:10::5 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
@@ -264,9 +263,9 @@ write_files:
       echo "internet - icanhazip.com -$(timeout 3 ping -6 -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
       EOF
       chmod a+x /usr/local/bin/ping-ipv6
-
+      
       # ping-dns6
-
+      
       cat <<'EOF' > /usr/local/bin/ping-dns6
       echo -e "\n ping dns ipv6 ...\n"
       echo "branch1vm.corp - $(timeout 3 dig AAAA +short branch1vm.corp | tail -n1) -$(timeout 3 ping -6 -qc2 -W1 branch1vm.corp 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
@@ -276,9 +275,9 @@ write_files:
       echo "icanhazip.com - $(timeout 3 dig AAAA +short icanhazip.com | tail -n1) -$(timeout 3 ping -6 -qc2 -W1 icanhazip.com 2>&1 | awk -F'/' 'END{ print (/^rtt/? "OK "$5" ms":"NA") }')"
       EOF
       chmod a+x /usr/local/bin/ping-dns6
-
+      
       # curl-ipv6
-
+      
       cat <<'EOF' > /usr/local/bin/curl-ipv6
       echo -e "\n curl ipv6 ...\n"
       echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null [fd00:db8:10::5]) - branch1 [fd00:db8:10::5]"
@@ -288,9 +287,9 @@ write_files:
       echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null [icanhazip.com]) - internet [icanhazip.com]"
       EOF
       chmod a+x /usr/local/bin/curl-ipv6
-
+      
       # curl-dns6
-
+      
       cat <<'EOF' > /usr/local/bin/curl-dns6
       echo -e "\n curl dns ipv6 ...\n"
       echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null branch1vm.corp) - branch1vm.corp"
@@ -299,12 +298,12 @@ write_files:
       echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke1vm.eu.az.corp) - spoke1vm.eu.az.corp"
       echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null spoke2vm.eu.az.corp) - spoke2vm.eu.az.corp"
       echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-      echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan23spoke3sa81cc.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan23spoke3sa81cc.blob.core.windows.net/spoke3/spoke3.txt"
+      echo  "$(timeout 3 curl -6 -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://vwan23spoke3sab567.blob.core.windows.net/spoke3/spoke3.txt) - https://vwan23spoke3sab567.blob.core.windows.net/spoke3/spoke3.txt"
       EOF
       chmod a+x /usr/local/bin/curl-dns6
-
+      
       # trace-ipv6
-
+      
       cat <<'EOF' > /usr/local/bin/trace-ipv6
       echo -e "\n trace ipv6 ...\n"
       echo -e "\nbranch1"
@@ -324,59 +323,57 @@ write_files:
       timeout 9 tracepath -6 icanhazip.com
       EOF
       chmod a+x /usr/local/bin/trace-ipv6
-
-      ########################################################
+      
+      #########################################################
       # other scripts
-      ########################################################
-
+      #########################################################
+      
       # dns-info
-
+      
       cat <<'EOF' > /usr/local/bin/dns-info
       echo -e "\n resolvectl ...\n"
       resolvectl status
       EOF
       chmod a+x /usr/local/bin/dns-info
-
+      
       # azure service tester
-
-      tee /usr/local/bin/crawlz <<'EOF'
+      
+      cat <<'EOF' > /usr/local/bin/crawlz
       sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
       EOF
       chmod a+x /usr/local/bin/crawlz
-
+      
       ########################################################
       # traffic generators (ipv4)
       ########################################################
-
+      
       # light-traffic generator
-
-
+      
+      
       # heavy-traffic generator
-
-
+      
+      
       ########################################################
       # traffic generators (ipv6)
       ########################################################
-
+      
       # light-traffic generator
-
-
+      
+      
       # heavy-traffic generator
-
-
+      
+      
       ########################################################
       # crontabs
       ########################################################
-
+      
       cat <<'EOF' > /etc/cron.d/traffic-gen
       EOF
-
+      
       crontab /etc/cron.d/traffic-gen
-
+      
 
 runcmd:
-  - systemctl enable docker
-  - systemctl start docker
   - bash /var/lib/azure/init/startup.sh
   - docker-compose -f /var/lib/azure/fastapi/docker-compose-app1-80.yml up -d
   - docker-compose -f /var/lib/azure/fastapi/docker-compose-app2-8080.yml up -d

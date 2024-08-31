@@ -141,27 +141,27 @@ conn %default
     ike=aes256-sha1-modp1024!
     esp=aes256-sha1!
 
-conn Tunnel0
+conn vti0
     left=10.30.1.9
-    leftid=137.117.41.133
-    right=52.150.55.78
-    rightid=52.150.55.78
+    leftid=40.79.40.234
+    right=20.96.217.67
+    rightid=20.96.217.67
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
-conn Tunnel1
+conn vti1
     left=10.30.1.9
-    leftid=137.117.41.133
-    right=52.150.55.90
-    rightid=52.150.55.90
+    leftid=40.79.40.234
+    right=20.96.217.75
+    rightid=20.96.217.75
     auto=start
     mark=101
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
-conn Tunnel2
+conn vti2
     left=10.30.1.9
-    leftid=137.117.41.133
-    right=52.164.212.76
-    rightid=52.164.212.76
+    leftid=40.79.40.234
+    right=52.169.13.106
+    rightid=52.169.13.106
     auto=start
     mark=102
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
@@ -171,9 +171,9 @@ conn Tunnel2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.30.1.9 52.150.55.78 : PSK "changeme"
-10.30.1.9 52.150.55.90 : PSK "changeme"
-10.30.1.9 52.164.212.76 : PSK "changeme"
+10.30.1.9 20.96.217.67 : PSK "changeme"
+10.30.1.9 20.96.217.75 : PSK "changeme"
+10.30.1.9 52.169.13.106 : PSK "changeme"
 
 EOF
 
@@ -189,18 +189,18 @@ PLUTO_MARK_OUT_ARR=(${PLUTO_MARK_OUT//// })
 PLUTO_MARK_IN_ARR=(${PLUTO_MARK_IN//// })
 
 case "$PLUTO_CONNECTION" in
-  Tunnel0)
-    VTI_INTERFACE=Tunnel0
+  vti0)
+    VTI_INTERFACE=vti0
     VTI_LOCALADDR=10.10.10.1
     VTI_REMOTEADDR=192.168.22.13
     ;;
-  Tunnel1)
-    VTI_INTERFACE=Tunnel1
+  vti1)
+    VTI_INTERFACE=vti1
     VTI_LOCALADDR=10.10.10.5
     VTI_REMOTEADDR=192.168.22.12
     ;;
-  Tunnel2)
-    VTI_INTERFACE=Tunnel2
+  vti2)
+    VTI_INTERFACE=vti2
     VTI_LOCALADDR=10.10.10.10
     VTI_REMOTEADDR=10.10.10.9
     ;;
