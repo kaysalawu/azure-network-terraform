@@ -285,7 +285,7 @@ ip route 10.22.22.22/32 vti_hub2
 !-----------------------------------------
   route-map AZURE permit 100
   match ip address prefix-list ALL
-  set ip next-hop 10.11.2.99
+  set ip next-hop 10.11.1.99
 !
 !-----------------------------------------
 ! BGP
