@@ -143,23 +143,23 @@ conn %default
 
 conn vti0
     left=10.10.1.9
-    leftid=52.169.80.156
-    right=172.205.2.250
-    rightid=172.205.2.250
+    leftid=13.79.17.107
+    right=135.236.221.16
+    rightid=135.236.221.16
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn vti1
     left=10.10.1.9
-    leftid=52.169.80.156
-    right=172.205.3.10
-    rightid=172.205.3.10
+    leftid=13.79.17.107
+    right=48.209.180.88
+    rightid=48.209.180.88
     auto=start
     mark=101
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn vti2
     left=10.10.1.9
-    leftid=52.169.80.156
+    leftid=13.79.17.107
     right=1.1.1.1
     rightid=1.1.1.1
     auto=start
@@ -171,8 +171,8 @@ conn vti2
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.10.1.9 172.205.2.250 : PSK "changeme"
-10.10.1.9 172.205.3.10 : PSK "changeme"
+10.10.1.9 135.236.221.16 : PSK "changeme"
+10.10.1.9 48.209.180.88 : PSK "changeme"
 10.10.1.9 1.1.1.1 : PSK "changeme"
 
 EOF

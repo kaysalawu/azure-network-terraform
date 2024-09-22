@@ -2,6 +2,7 @@
 
 apt update
 apt install -y python3-pip python3-dev python3-venv unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
+apt install -y python3-flask python3-requests
 
 pip3 install azure-identity
 pip3 install azure-mgmt-network
@@ -11,14 +12,9 @@ sudo service network-manager restart
 
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-
 # web server #
-pip3 install Flask requests
 
-mkdir /var/flaskapp
-mkdir /var/flaskapp/flaskapp
-mkdir /var/flaskapp/flaskapp/static
-mkdir /var/flaskapp/flaskapp/templates
+mkdir -p /var/flaskapp/flaskapp/{static,templates}
 
 cat <<EOF > /var/flaskapp/flaskapp/__init__.py
 import socket
@@ -114,7 +110,7 @@ echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{h
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null server1.eu.az.corp) - server1.eu.az.corp"
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null server2.eu.az.corp) - server2.eu.az.corp"
 echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null icanhazip.com) - icanhazip.com"
-echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://lab10hub140be.blob.core.windows.net/storage/storage.txt) - https://lab10hub140be.blob.core.windows.net/storage/storage.txt"
+echo  "\$(timeout 3 curl -kL --max-time 3.0 -H 'Cache-Control: no-cache' -w "%{http_code} (%{time_total}s) - %{remote_ip}" -s -o /dev/null https://lab10hub1026d.blob.core.windows.net/storage/storage.txt) - https://lab10hub1026d.blob.core.windows.net/storage/storage.txt"
 EOF
 chmod a+x /usr/local/bin/curl-dns
 
@@ -135,7 +131,7 @@ chmod a+x /usr/local/bin/dns-info
 
 # azure service tester
 
-tee /usr/local/bin/crawlz <<'EOF'
+cat <<'EOF' > /usr/local/bin/crawlz
 sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
 EOF
 chmod a+x /usr/local/bin/crawlz

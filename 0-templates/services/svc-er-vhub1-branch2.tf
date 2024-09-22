@@ -1,10 +1,11 @@
 
 locals {
+  deploy                 = true
   megaport_vlan1         = 100
   megaport_vlan2         = 200
   megaport_vlan3         = 300
   express_route_location = "London"
-  megaport_location      = "Global Switch London East"
+  megaport_location      = "Telehouse North"
   bandwidth_in_mbps      = 50
 }
 
@@ -33,6 +34,7 @@ module "megaport" {
   prefix            = lower("salawu-${local.prefix}")
   azure_location    = local.region1
   megaport_location = local.megaport_location
+  deploy            = local.deploy
 
   mcr = [
     {
@@ -41,66 +43,47 @@ module "megaport" {
       requested_asn = local.megaport_asn
     },
   ]
-  circuits = local.circuits
-}
 
-####################################################
-# gateway connections
-####################################################
+  circuits = [
+    {
+      name              = "${local.prefix}-er1"
+      mcr_name          = "mcr1"
+      location          = local.region1
+      peering_location  = local.express_route_location
+      bandwidth_in_mbps = local.bandwidth_in_mbps
+      requested_vlan    = local.megaport_vlan1
 
-# branch2
+      primary_peer_address_prefix_ipv4   = local.csp_range1
+      secondary_peer_address_prefix_ipv4 = local.csp_range2
+      primary_peer_address_prefix_ipv6   = local.csp_range1_v6
+      secondary_peer_address_prefix_ipv6 = local.csp_range2_v6
 
-resource "azurerm_express_route_circuit_authorization" "er1_branch2" {
-  resource_group_name        = azurerm_resource_group.rg.name
-  name                       = "${local.prefix}-er1-branch2"
-  express_route_circuit_name = module.megaport.express_route_circuit["${local.prefix}-er1"].name
-  depends_on = [
-    module.megaport,
-  ]
-}
-
-resource "azurerm_virtual_network_gateway_connection" "er1_branch2" {
-  resource_group_name        = azurerm_resource_group.rg.name
-  name                       = "${local.prefix}-er1-branch2"
-  location                   = local.region1
-  type                       = "ExpressRoute"
-  virtual_network_gateway_id = module.branch2.ergw.id
-  authorization_key          = azurerm_express_route_circuit_authorization.er1_branch2.authorization_key
-  express_route_circuit_id   = module.megaport.express_route_circuit["${local.prefix}-er1"].id
-  depends_on = [
-    module.megaport,
-  ]
-}
-
-# hub1
-
-resource "azurerm_express_route_circuit_authorization" "er1_hub1" {
-  resource_group_name        = azurerm_resource_group.rg.name
-  name                       = "${local.prefix}-er1-hub1"
-  express_route_circuit_name = module.megaport.express_route_circuit["${local.prefix}-er1"].name
-  depends_on = [
-    module.megaport,
-  ]
-}
-
-# resource "azurerm_express_route_connection" "er_vhub1" {
-#   name                             = "${local.prefix}-er1-vhub1"
-#   express_route_gateway_id         = module.vhub1.ergw.id
-#   express_route_circuit_peering_id = module.megaport.express_route_circuit_peering["${local.prefix}-er1"].id
-# }
-
-resource "azapi_resource" "express_route_connection_er_vhub1" {
-  type      = "Microsoft.Network/expressRouteGateways/expressRouteConnections@2019-12-01"
-  name      = "${local.prefix}-er1-vhub1"
-  parent_id = module.vhub1.ergw.id
-
-  body = jsonencode({
-    properties = {
-      routingWeight = 0
-      expressRouteCircuitPeering = {
-        id = module.megaport.express_route_circuit_peering["${local.prefix}-er1"].id
+      # mcr_config_block creates layer2 and layer3 config on megaport and azure sides
+      mcr_config = {
+        enable_auto_peering    = false # auto-assign addresses
+        create_private_peering = false # use provided addresses
       }
-    }
-  })
-  schema_validation_enabled = false
+
+      # azure_config_block is only used when all mcr_config attributes are false
+      # creates layer2 and layer3 config on azure and megaport sides
+      azure_config = {
+        create_ipv4_peering = false
+        create_ipv6_peering = false
+      }
+    },
+  ]
+
+  gateway_connections = [
+    {
+      express_route_circuit_name   = "${local.prefix}-er1"
+      virtual_network_gateway_name = module.branch2.ergw_name
+    },
+    {
+      express_route_circuit_name = "${local.prefix}-er1"
+      express_route_gateway_name = module.vhub1.ergw_name
+      associated_route_table_id  = data.azurerm_virtual_hub_route_table.vhub1_default.id
+      inbound_route_map_id       = local.create_vwan_route_maps ? azurerm_route_map.vhub1_branch2_route_map_in[0].id : null
+      outbound_route_map_id      = local.create_vwan_route_maps ? azurerm_route_map.vhub1_branch2_route_map_out[0].id : null
+    },
+  ]
 }

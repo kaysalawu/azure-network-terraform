@@ -94,6 +94,8 @@ iptables -P INPUT ACCEPT
 iptables -P OUTPUT ACCEPT
 
 # Iptables rules
+sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 50443 -j DNAT --to-destination 10.1.0.5:8080
+sudo iptables -A FORWARD -p tcp -d 10.1.0.5 --dport 8080 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 iptables -t nat -A POSTROUTING -d 10.0.0.0/8 -j ACCEPT
 iptables -t nat -A POSTROUTING -d 172.16.0.0/12 -j ACCEPT
 iptables -t nat -A POSTROUTING -d 192.168.0.0/16 -j ACCEPT
@@ -171,8 +173,8 @@ interface lo
 ! Static Routes
 !-----------------------------------------
 ip route 0.0.0.0/0 10.11.2.1
-ip route 192.168.11.69/32 10.11.2.1
 ip route 192.168.11.68/32 10.11.2.1
+ip route 192.168.11.69/32 10.11.2.1
 ip route 10.2.0.0/16 10.11.2.1
 !
 !-----------------------------------------
@@ -184,18 +186,18 @@ ip route 10.2.0.0/16 10.11.2.1
 !-----------------------------------------
 router bgp 65010
 bgp router-id 10.11.11.11
-neighbor 192.168.11.69 remote-as 65515
-neighbor 192.168.11.69 ebgp-multihop 255
-neighbor 192.168.11.69 update-source lo
 neighbor 192.168.11.68 remote-as 65515
 neighbor 192.168.11.68 ebgp-multihop 255
 neighbor 192.168.11.68 update-source lo
+neighbor 192.168.11.69 remote-as 65515
+neighbor 192.168.11.69 ebgp-multihop 255
+neighbor 192.168.11.69 update-source lo
 !
 address-family ipv4 unicast
   network 10.11.0.0/24
   network 10.2.0.0/16
-  neighbor 192.168.11.69 soft-reconfiguration inbound
   neighbor 192.168.11.68 soft-reconfiguration inbound
+  neighbor 192.168.11.69 soft-reconfiguration inbound
 exit-address-family
 !
 line vty
@@ -220,7 +222,7 @@ chmod a+x /usr/local/bin/dns-info
 
 # azure service tester
 
-tee /usr/local/bin/crawlz <<'EOF'
+cat <<'EOF' > /usr/local/bin/crawlz
 sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
 EOF
 chmod a+x /usr/local/bin/crawlz
