@@ -44,7 +44,7 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke1_peering" {
 # main
 
 module "spoke1_udr_main" {
-  count          = local.spoke1_features.config_firewall.enable ? 1 : 0
+  count          = local.hub1_features.config_firewall.enable ? 1 : 0
   source         = "../../modules/route-table"
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.spoke1_prefix}main"
@@ -80,7 +80,7 @@ resource "azurerm_virtual_network_peering" "spoke2_to_hub1_peering" {
   remote_virtual_network_id    = module.hub1.vnet.id
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
-  use_remote_gateways          = true
+  use_remote_gateways          = local.hub1_features.config_s2s_vpngw.enable ? true : false
   depends_on = [
     module.spoke2,
     module.hub1,
@@ -113,7 +113,7 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke2_peering" {
 # main
 
 module "spoke2_udr_main" {
-  count          = local.spoke2_features.config_firewall.enable ? 1 : 0
+  count          = local.hub1_features.config_firewall.enable ? 1 : 0
   source         = "../../modules/route-table"
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.spoke2_prefix}main"

@@ -140,6 +140,8 @@ locals {
     ("AppServiceSubnet")              = { address_prefixes = ["10.11.13.0/24", ], address_prefixes_v6 = ["fd00:db8:11:13::/64", ], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")                 = { address_prefixes = ["10.11.16.0/24", ], address_prefixes_v6 = ["fd00:db8:11:16::/64", ], }
     ("TestSubnet")                    = { address_prefixes = ["10.11.17.0/24", ], address_prefixes_v6 = ["fd00:db8:11:17::/64", ], }
+    ("AksSubnet")                     = { address_prefixes = ["10.11.18.0/24", ], address_prefixes_v6 = ["fd00:db8:11:18::/64", ], }
+    ("AksPodSubnet")                  = { address_prefixes = ["10.11.19.0/24", ], address_prefixes_v6 = ["fd00:db8:11:19::/64", ], }
   }
   hub1_default_gw_main      = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 1)
   hub1_default_gw_untrust   = cidrhost(local.hub1_subnets["UntrustSubnet"].address_prefixes[0], 1)
@@ -199,6 +201,8 @@ locals {
     ("AppServiceSubnet")              = { address_prefixes = ["10.22.13.0/24", ], address_prefixes_v6 = ["fd00:db8:22:13::/64", ], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")                 = { address_prefixes = ["10.22.16.0/24", ], address_prefixes_v6 = ["fd00:db8:22:16::/64", ], }
     ("TestSubnet")                    = { address_prefixes = ["10.22.17.0/24", ], address_prefixes_v6 = ["fd00:db8:22:17::/64", ], }
+    ("AksSubnet")                     = { address_prefixes = ["10.22.18.0/24", ], address_prefixes_v6 = ["fd00:db8:22:18::/64", ], }
+    ("AksPodSubnet")                  = { address_prefixes = ["10.22.19.0/22", ], address_prefixes_v6 = ["fd00:db8:22:19::/64", ], }
   }
   hub2_default_gw_main      = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 1)
   hub2_default_gw_untrust   = cidrhost(local.hub2_subnets["UntrustSubnet"].address_prefixes[0], 1)
@@ -377,6 +381,8 @@ locals {
     ("AppServiceSubnet")         = { address_prefixes = ["10.1.8.0/24", ], address_prefixes_v6 = ["fd00:db8:1:8::/64", ], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.1.9.0/24", ], address_prefixes_v6 = ["fd00:db8:1:9::/64", ], }
     ("TestSubnet")               = { address_prefixes = ["10.1.10.0/24"], }
+    ("AksSubnet")                = { address_prefixes = ["10.1.11.0/24", ], address_prefixes_v6 = ["fd00:db8:1:11::/64", ], }
+    ("AksPodSubnet")             = { address_prefixes = ["10.1.12.0/22", ], address_prefixes_v6 = ["fd00:db8:1:12::/64", ], }
   }
   spoke1_vm_addr    = cidrhost(local.spoke1_subnets["MainSubnet"].address_prefixes[0], 5)
   spoke1_ilb_addr   = cidrhost(local.spoke1_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
@@ -413,6 +419,8 @@ locals {
     ("AppServiceSubnet")         = { address_prefixes = ["10.2.8.0/24", ], address_prefixes_v6 = ["fd00:db8:2:8::/64"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.2.9.0/24", ], address_prefixes_v6 = ["fd00:db8:2:9::/64"], }
     ("TestSubnet")               = { address_prefixes = ["10.2.10.0/24"], }
+    ("AksSubnet")                = { address_prefixes = ["10.2.11.0/24", ], address_prefixes_v6 = ["fd00:db8:2:11::/64", ], }
+    ("AksPodSubnet")             = { address_prefixes = ["10.2.12.0/22", ], address_prefixes_v6 = ["fd00:db8:2:12::/64", ], }
   }
   spoke2_vm_addr    = cidrhost(local.spoke2_subnets["MainSubnet"].address_prefixes[0], 5)
   spoke2_ilb_addr   = cidrhost(local.spoke2_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
@@ -449,6 +457,8 @@ locals {
     ("AppServiceSubnet")         = { address_prefixes = ["10.3.8.0/24", ], address_prefixes_v6 = ["fd00:db8:3:8::/64"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.3.9.0/24", ], address_prefixes_v6 = ["fd00:db8:3:9::/64"], }
     ("TestSubnet")               = { address_prefixes = ["10.3.10.0/24", ], address_prefixes_v6 = ["fd00:db8:3:10::/64"], use_azapi = [true], default_outbound_access = [false] }
+    ("AksSubnet")                = { address_prefixes = ["10.3.11.0/24", ], address_prefixes_v6 = ["fd00:db8:3:11::/64", ], }
+    ("AksPodSubnet")             = { address_prefixes = ["10.3.12.0/22", ], address_prefixes_v6 = ["fd00:db8:3:12::/64", ], }
   }
   spoke3_vm_addr    = cidrhost(local.spoke3_subnets["MainSubnet"].address_prefixes[0], 5)
   spoke3_ilb_addr   = cidrhost(local.spoke3_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
@@ -485,6 +495,8 @@ locals {
     ("AppServiceSubnet")         = { address_prefixes = ["10.4.8.0/24", ], address_prefixes_v6 = ["fd00:db8:4:8::/64"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.4.9.0/24", ], address_prefixes_v6 = ["fd00:db8:4:9::/64"], }
     ("TestSubnet")               = { address_prefixes = ["10.4.10.0/24"], }
+    ("AksSubnet")                = { address_prefixes = ["10.4.11.0/24", ], address_prefixes_v6 = ["fd00:db8:4:11::/64", ], }
+    ("AksPodSubnet")             = { address_prefixes = ["10.4.12.0/22", ], address_prefixes_v6 = ["fd00:db8:4:12::/64", ], }
   }
   spoke4_vm_addr    = cidrhost(local.spoke4_subnets["MainSubnet"].address_prefixes[0], 5)
   spoke4_ilb_addr   = cidrhost(local.spoke4_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
@@ -521,6 +533,8 @@ locals {
     ("AppServiceSubnet")         = { address_prefixes = ["10.5.8.0/24", ], address_prefixes_v6 = ["fd00:db8:5:8::/64"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.5.9.0/24", ], address_prefixes_v6 = ["fd00:db8:5:9::/64"], }
     ("TestSubnet")               = { address_prefixes = ["10.5.10.0/24"], }
+    ("AksSubnet")                = { address_prefixes = ["10.5.11.0/24", ], address_prefixes_v6 = ["fd00:db8:5:11::/64", ], }
+    ("AksPodSubnet")             = { address_prefixes = ["10.5.12.0/22", ], address_prefixes_v6 = ["fd00:db8:5:12::/64", ], }
   }
   spoke5_vm_addr    = cidrhost(local.spoke5_subnets["MainSubnet"].address_prefixes[0], 5)
   spoke5_ilb_addr   = cidrhost(local.spoke5_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
@@ -557,6 +571,8 @@ locals {
     ("AppServiceSubnet")         = { address_prefixes = ["10.6.8.0/24", ], address_prefixes_v6 = ["fd00:db8:6:8::/64"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.6.9.0/24", ], address_prefixes_v6 = ["fd00:db8:6:9::/64"], }
     ("TestSubnet")               = { address_prefixes = ["10.6.10.0/24", ], address_prefixes_v6 = ["fd00:db8:6:10::/64"], use_azapi = [true], default_outbound_access = [false] }
+    ("AksSubnet")                = { address_prefixes = ["10.6.11.0/24", ], address_prefixes_v6 = ["fd00:db8:6:11::/64", ], }
+    ("AksPodSubnet")             = { address_prefixes = ["10.6.12.0/22", ], address_prefixes_v6 = ["fd00:db8:6:12::/64", ], }
   }
   spoke6_vm_addr    = cidrhost(local.spoke6_subnets["MainSubnet"].address_prefixes[0], 5)
   spoke6_ilb_addr   = cidrhost(local.spoke6_subnets["LoadBalancerSubnet"].address_prefixes[0], 99)
