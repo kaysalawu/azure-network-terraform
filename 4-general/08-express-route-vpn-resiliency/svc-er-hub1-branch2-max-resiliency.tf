@@ -5,7 +5,7 @@ locals {
   megaport_vlan2         = 200
   megaport_vlan3         = 300
   express_route_location = "London"
-  megaport_location      = "Global Switch London East"
+  megaport_location      = "Equinix LD5"
   bandwidth_in_mbps      = 50
 }
 
