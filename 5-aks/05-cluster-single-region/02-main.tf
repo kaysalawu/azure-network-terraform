@@ -65,7 +65,7 @@ terraform {
 ####################################################
 
 locals {
-  hub1_firewall_ip = coalesce(module.hub1.firewall_private_ip, "none")
+  hub1_firewall_ip = coalesce(try(module.hub1.firewall_private_ip, null), "none")
   regions = {
     "region1" = { name = local.region1, dns_zone = local.region1_dns_zone }
   }

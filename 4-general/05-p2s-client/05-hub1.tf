@@ -18,7 +18,7 @@ module "hub1" {
   #   module.common.nsg_main["region1"].id,
   # ]
   # network_watcher_name           = "NetworkWatcher_${local.region1}"
-  # network_watcher_resource_group_name = "NetworkWatcherRG"
+  # network_watcher_resource_group_name = local.enable_vnet_flow_logs ? "NetworkWatcherRG" : null
 
   dns_zones_linked_to_vnet = [
     { name = module.common.private_dns_zones[local.region1_dns_zone].name, registration_enabled = true },

@@ -27,8 +27,8 @@ module "spoke1" {
   enable_diagnostics                  = local.enable_diagnostics
   enable_ipv6                         = local.enable_ipv6
   log_analytics_workspace_name        = module.common.log_analytics_workspaces["region1"].name
-  network_watcher_name                = "NetworkWatcher_${local.region1}"
-  network_watcher_resource_group_name = "NetworkWatcherRG"
+  network_watcher_name                = local.enable_vnet_flow_logs ? "NetworkWatcher_${local.region1}" : null
+  network_watcher_resource_group_name = local.enable_vnet_flow_logs ? "NetworkWatcherRG" : null
 
   dns_zones_linked_to_vnet = [
     { name = module.common.private_dns_zones[local.region1_dns_zone].name, registration_enabled = true },
@@ -113,8 +113,8 @@ module "spoke2" {
   enable_diagnostics                  = local.enable_diagnostics
   enable_ipv6                         = local.enable_ipv6
   log_analytics_workspace_name        = module.common.log_analytics_workspaces["region1"].name
-  network_watcher_name                = "NetworkWatcher_${local.region1}"
-  network_watcher_resource_group_name = "NetworkWatcherRG"
+  network_watcher_name                = local.enable_vnet_flow_logs ? "NetworkWatcher_${local.region1}" : null
+  network_watcher_resource_group_name = local.enable_vnet_flow_logs ? "NetworkWatcherRG" : null
 
   dns_zones_linked_to_vnet = [
     { name = module.common.private_dns_zones[local.region1_dns_zone].name, registration_enabled = true },
@@ -199,8 +199,8 @@ module "spoke3" {
   enable_diagnostics                  = local.enable_diagnostics
   enable_ipv6                         = local.enable_ipv6
   log_analytics_workspace_name        = module.common.log_analytics_workspaces["region1"].name
-  network_watcher_name                = "NetworkWatcher_${local.region1}"
-  network_watcher_resource_group_name = "NetworkWatcherRG"
+  network_watcher_name                = local.enable_vnet_flow_logs ? "NetworkWatcher_${local.region1}" : null
+  network_watcher_resource_group_name = local.enable_vnet_flow_logs ? "NetworkWatcherRG" : null
 
   dns_zones_linked_to_vnet = [
     { name = module.common.private_dns_zones[local.region1_dns_zone].name, registration_enabled = true },

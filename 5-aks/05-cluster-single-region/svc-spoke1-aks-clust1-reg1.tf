@@ -4,11 +4,6 @@ locals {
   spoke1_aks_cluster_name = "${local.spoke1_prefix}aks"
 }
 
-module "spoke1_naming" {
-  source  = "Azure/naming/azurerm"
-  version = ">= 0.3.0"
-}
-
 resource "random_string" "spoke1_acr_suffix" {
   length  = 8
   numeric = true
@@ -48,40 +43,29 @@ resource "azurerm_user_assigned_identity" "spoke1_aks" {
 ####################################################
 
 module "spoke1_aks" {
-  source               = "Azure/avm-ptn-aks-production/azurerm"
-  version              = "0.1.0"
-  resource_group_name  = azurerm_resource_group.rg.name
-  location             = local.spoke1_location
-  virtual_network_name = module.spoke1.vnet_name
+  source  = "Azure/aks/azurerm"
+  version = "9.1.0"
 
-  name               = local.spoke1_aks_cluster_name
-  kubernetes_version = "1.28"
-  enable_telemetry   = true
-  managed_identities = {
-    user_assigned_resource_ids = [
-      azurerm_user_assigned_identity.spoke1_aks.id,
-    ]
-  }
+  resource_group_name       = azurerm_resource_group.rg.name
+  prefix                    = trimsuffix(local.spoke1_prefix, "-")
+  location                  = local.spoke1_location
+  kubernetes_version        = "1.30"
+  automatic_channel_upgrade = "patch"
+  agents_availability_zones = ["1", "2"]
 
-  node_pools = {
-    workload = {
-      name                 = "workload"
-      vm_size              = "Standard_D2_v2"
-      orchestrator_version = "1.28"
-      max_count            = 1
-      min_count            = 1
-      os_sku               = "Ubuntu"
-      mode                 = "User"
-    },
-    ingress = {
-      name                 = "ingress"
-      vm_size              = "Standard_D2_v2"
-      orchestrator_version = "1.28"
-      max_count            = 1
-      min_count            = 1
-      os_sku               = "Ubuntu"
-      mode                 = "User"
-    }
+  os_disk_size_gb = 60
+  sku_tier        = "Standard"
+  rbac_aad        = false
+  vnet_subnet_id  = module.spoke1.subnets["AksSubnet"].id
+  # pod_subnet_id   = module.spoke1.subnets["AksPodSubnet"].id
+
+  network_plugin      = "azure"
+  network_policy      = "cilium"
+  network_plugin_mode = "overlay"
+  ebpf_data_plane     = "cilium"
+
+  attached_acr_id_map = {
+    spoke1 = azurerm_container_registry.spoke1_cr.id
   }
 }
 
@@ -94,9 +78,8 @@ module "spoke1_aks" {
 #   tags                = local.spoke1_tags
 
 #   private_cluster_enabled = false
-#   private_dns_zone_id     = module.common.private_dns_zones[local.region1_dns_zone].id
-#   sku_tier                = "Standard"
-
+#   # private_dns_zone_id     = module.common.private_dns_zones[local.region1_dns_zone].id
+#   sku_tier = "Standard"
 
 #   default_node_pool {
 #     name                 = "default"
@@ -110,7 +93,10 @@ module "spoke1_aks" {
 #   }
 
 #   identity {
-#     type = "SystemAssigned"
+#     type = "UserAssigned"
+#     identity_ids = [
+#       azurerm_user_assigned_identity.spoke1_aks.id,
+#     ]
 #   }
 
 #   lifecycle {
@@ -119,6 +105,3 @@ module "spoke1_aks" {
 #     ]
 #   }
 # }
-
-
-
