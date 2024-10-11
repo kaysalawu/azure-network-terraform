@@ -2,6 +2,7 @@
 
 apt update
 apt install -y python3-pip python3-dev python3-venv unzip jq tcpdump dnsutils net-tools nmap apache2-utils iperf3
+apt install -y python3-flask python3-requests
 
 pip3 install azure-identity
 pip3 install azure-mgmt-network
@@ -11,14 +12,9 @@ sudo service network-manager restart
 
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-
 # web server #
-pip3 install Flask requests
 
-mkdir /var/flaskapp
-mkdir /var/flaskapp/flaskapp
-mkdir /var/flaskapp/flaskapp/static
-mkdir /var/flaskapp/flaskapp/templates
+mkdir -p /var/flaskapp/flaskapp/{static,templates}
 
 cat <<EOF > /var/flaskapp/flaskapp/__init__.py
 import socket
@@ -134,7 +130,7 @@ chmod a+x /usr/local/bin/dns-info
 
 # azure service tester
 
-tee /usr/local/bin/crawlz <<'EOF'
+cat <<'EOF' > /usr/local/bin/crawlz
 sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
 EOF
 chmod a+x /usr/local/bin/crawlz

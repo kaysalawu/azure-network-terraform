@@ -27,6 +27,7 @@ main_dirs=(
 1-hub-and-spoke
 2-virtual-wan
 3-network-manager
+5-aks
 )
 
 main_dirs_excluded=(

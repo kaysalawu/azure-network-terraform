@@ -236,7 +236,6 @@ locals {
     ]
     BGP_ADVERTISED_PREFIXES_IPV4 = [
       local.branch2_address_space[0],
-      local.branch2_address_space[0],
     ]
   }
   branch2_nva_init = templatefile("../../scripts/linux-nva.sh", merge(local.branch2_nva_vars, {

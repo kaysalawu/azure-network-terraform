@@ -143,29 +143,28 @@ conn %default
 
 conn Tunnel0
     left=10.20.1.9
-    leftid=40.69.56.209
-    right=135.236.143.10
-    rightid=135.236.143.10
+    leftid=40.87.134.217
+    right=48.209.164.246
+    rightid=48.209.164.246
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 conn Tunnel1
     left=10.20.1.9
-    leftid=40.69.56.209
-    right=135.236.143.55
-    rightid=135.236.143.55
+    leftid=40.87.134.217
+    right=48.209.164.233
+    rightid=48.209.164.233
     auto=start
-    mark=200
+    mark=101
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 
-# github source used
 # https://gist.github.com/heri16/2f59d22d1d5980796bfb
 
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.20.1.9 135.236.143.10 : PSK "changeme"
-10.20.1.9 135.236.143.55 : PSK "changeme"
+10.20.1.9 48.209.164.246 : PSK "changeme"
+10.20.1.9 48.209.164.233 : PSK "changeme"
 
 EOF
 
@@ -182,14 +181,14 @@ PLUTO_MARK_IN_ARR=(${PLUTO_MARK_IN//// })
 
 case "$PLUTO_CONNECTION" in
   Tunnel0)
-    VTI_INTERFACE=vti0
+    VTI_INTERFACE=Tunnel0
     VTI_LOCALADDR=10.10.10.1
-    VTI_REMOTEADDR=10.11.16.12
+    VTI_REMOTEADDR=10.11.16.15
     ;;
   Tunnel1)
-    VTI_INTERFACE=vti1
+    VTI_INTERFACE=Tunnel1
     VTI_LOCALADDR=10.10.10.5
-    VTI_REMOTEADDR=10.11.16.13
+    VTI_REMOTEADDR=10.11.16.14
     ;;
 esac
 
@@ -292,8 +291,8 @@ interface lo
 ip route 0.0.0.0/0 10.20.1.1
 ip route 10.20.17.4/32 10.20.1.1
 ip route 10.20.17.5/32 10.20.1.1
-ip route 10.11.16.12/32 vti0
-ip route 10.11.16.13/32 vti1
+ip route 10.11.16.15/32 vti0
+ip route 10.11.16.14/32 vti1
 ip route 10.20.0.0/24 10.20.1.1
 !
 !-----------------------------------------
@@ -320,12 +319,12 @@ ip route 10.20.0.0/24 10.20.1.1
 !-----------------------------------------
 router bgp 65002
 bgp router-id 192.168.20.20
-neighbor 10.11.16.12 remote-as 65515
-neighbor 10.11.16.12 ebgp-multihop 255
-neighbor 10.11.16.12 update-source lo
-neighbor 10.11.16.13 remote-as 65515
-neighbor 10.11.16.13 ebgp-multihop 255
-neighbor 10.11.16.13 update-source lo
+neighbor 10.11.16.15 remote-as 65515
+neighbor 10.11.16.15 ebgp-multihop 255
+neighbor 10.11.16.15 update-source lo
+neighbor 10.11.16.14 remote-as 65515
+neighbor 10.11.16.14 ebgp-multihop 255
+neighbor 10.11.16.14 update-source lo
 neighbor 10.20.17.4 remote-as 65515
 neighbor 10.20.17.4 ebgp-multihop 255
 neighbor 10.20.17.5 remote-as 65515
@@ -333,13 +332,13 @@ neighbor 10.20.17.5 ebgp-multihop 255
 !
 address-family ipv4 unicast
   network 10.20.0.0/16
-  network 10.20.0.0/16
-  neighbor 10.11.16.12 soft-reconfiguration inbound
-  neighbor 10.11.16.12 route-map AZURE_IPSEC_PRIMARY_IN in
-  neighbor 10.11.16.12 route-map AZURE_IPSEC_PRIMARY_OUT out
-  neighbor 10.11.16.13 soft-reconfiguration inbound
-  neighbor 10.11.16.13 route-map AZURE_IPSEC_SECONDARY_IN in
-  neighbor 10.11.16.13 route-map AZURE_IPSEC_SECONDARY_OUT out
+  network 0.0.0.0/0
+  neighbor 10.11.16.15 soft-reconfiguration inbound
+  neighbor 10.11.16.15 route-map AZURE_IPSEC_PRIMARY_IN in
+  neighbor 10.11.16.15 route-map AZURE_IPSEC_PRIMARY_OUT out
+  neighbor 10.11.16.14 soft-reconfiguration inbound
+  neighbor 10.11.16.14 route-map AZURE_IPSEC_SECONDARY_IN in
+  neighbor 10.11.16.14 route-map AZURE_IPSEC_SECONDARY_OUT out
   neighbor 10.20.17.4 soft-reconfiguration inbound
   neighbor 10.20.17.4 as-override
   neighbor 10.20.17.4 route-map PREFER_EXPRESS_ROUTE_IN in
@@ -370,7 +369,7 @@ chmod a+x /usr/local/bin/dns-info
 
 # azure service tester
 
-tee /usr/local/bin/crawlz <<'EOF'
+cat <<'EOF' > /usr/local/bin/crawlz
 sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
 EOF
 chmod a+x /usr/local/bin/crawlz

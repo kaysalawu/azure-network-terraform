@@ -197,7 +197,7 @@ resource "azurerm_virtual_network_gateway_connection" "vnet" {
   name                       = "${each.key}--conn"
   location                   = azurerm_express_route_circuit.this[each.value.express_route_circuit_name].location
   type                       = "ExpressRoute"
-  virtual_network_gateway_id = data.azurerm_virtual_network_gateway.vnet[each.key].id
+  virtual_network_gateway_id = data.azurerm_virtual_network_gateway.vnet[each.key].idJ
   authorization_key          = azurerm_express_route_circuit_authorization.vnet[each.key].authorization_key
   express_route_circuit_id   = azurerm_express_route_circuit.this[each.value.express_route_circuit_name].id
   shared_key                 = each.value.shared_key
