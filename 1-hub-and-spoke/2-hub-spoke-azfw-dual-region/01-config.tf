@@ -141,7 +141,7 @@ locals {
     ("GatewaySubnet")                 = { address_prefixes = ["10.11.16.0/24", ], address_prefixes_v6 = ["fd00:db8:11:16::/64", ], }
     ("TestSubnet")                    = { address_prefixes = ["10.11.17.0/24", ], address_prefixes_v6 = ["fd00:db8:11:17::/64", ], }
     ("AksSubnet")                     = { address_prefixes = ["10.11.18.0/24", ], address_prefixes_v6 = ["fd00:db8:11:18::/64", ], }
-    ("AksPodSubnet")                  = { address_prefixes = ["10.11.19.0/24", ], address_prefixes_v6 = ["fd00:db8:11:19::/64", ], }
+    ("AksPodSubnet")                  = { address_prefixes = ["10.11.20.0/22", ], address_prefixes_v6 = ["fd00:db8:11:20::/64", ], }
   }
   hub1_default_gw_main      = cidrhost(local.hub1_subnets["MainSubnet"].address_prefixes[0], 1)
   hub1_default_gw_untrust   = cidrhost(local.hub1_subnets["UntrustSubnet"].address_prefixes[0], 1)
@@ -202,7 +202,7 @@ locals {
     ("GatewaySubnet")                 = { address_prefixes = ["10.22.16.0/24", ], address_prefixes_v6 = ["fd00:db8:22:16::/64", ], }
     ("TestSubnet")                    = { address_prefixes = ["10.22.17.0/24", ], address_prefixes_v6 = ["fd00:db8:22:17::/64", ], }
     ("AksSubnet")                     = { address_prefixes = ["10.22.18.0/24", ], address_prefixes_v6 = ["fd00:db8:22:18::/64", ], }
-    ("AksPodSubnet")                  = { address_prefixes = ["10.22.19.0/22", ], address_prefixes_v6 = ["fd00:db8:22:19::/64", ], }
+    ("AksPodSubnet")                  = { address_prefixes = ["10.22.20.0/22", ], address_prefixes_v6 = ["fd00:db8:22:20::/64", ], }
   }
   hub2_default_gw_main      = cidrhost(local.hub2_subnets["MainSubnet"].address_prefixes[0], 1)
   hub2_default_gw_untrust   = cidrhost(local.hub2_subnets["UntrustSubnet"].address_prefixes[0], 1)

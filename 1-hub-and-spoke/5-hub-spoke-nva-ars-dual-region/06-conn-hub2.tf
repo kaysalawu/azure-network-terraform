@@ -15,7 +15,7 @@ resource "azurerm_virtual_network_peering" "spoke4_to_hub2_peering" {
   remote_virtual_network_id    = module.hub2.vnet.id
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
-  use_remote_gateways          = true
+  use_remote_gateways          = local.hub2_features.config_s2s_vpngw.enable ? true : false
   depends_on = [
     module.spoke4,
     module.hub2,
@@ -44,6 +44,7 @@ resource "azurerm_virtual_network_peering" "hub2_to_spoke4_peering" {
 # main
 
 module "spoke4_udr_main" {
+  count          = local.hub2_features.config_firewall.enable ? 1 : 0
   source         = "../../modules/route-table"
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.spoke4_prefix}main"
@@ -79,7 +80,7 @@ resource "azurerm_virtual_network_peering" "spoke5_to_hub2_peering" {
   remote_virtual_network_id    = module.hub2.vnet.id
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
-  use_remote_gateways          = true
+  use_remote_gateways          = local.hub2_features.config_s2s_vpngw.enable ? true : false
   depends_on = [
     module.spoke5,
     module.hub2,
@@ -112,6 +113,7 @@ resource "azurerm_virtual_network_peering" "hub2_to_spoke5_peering" {
 # main
 
 module "spoke5_udr_main" {
+  count          = local.hub2_features.config_firewall.enable ? 1 : 0
   source         = "../../modules/route-table"
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.spoke5_prefix}main"
@@ -141,6 +143,7 @@ module "spoke5_udr_main" {
 # gateway
 
 module "hub2_gateway_udr" {
+  count          = local.hub2_features.config_firewall.enable ? 1 : 0
   source         = "../../modules/route-table"
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.hub2_prefix}gateway"
@@ -161,6 +164,7 @@ module "hub2_gateway_udr" {
 # main
 
 module "hub2_udr_main" {
+  count          = local.hub2_features.config_firewall.enable ? 1 : 0
   source         = "../../modules/route-table"
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.hub2_prefix}main"
@@ -207,6 +211,7 @@ resource "azurerm_local_network_gateway" "hub2_branch3_lng" {
 # branch3
 
 resource "azurerm_virtual_network_gateway_connection" "hub2_branch3_lng" {
+  count                          = local.hub2_features.config_s2s_vpngw.enable ? 1 : 0
   resource_group_name            = azurerm_resource_group.rg.name
   name                           = "${local.hub2_prefix}branch3-lng-conn"
   location                       = local.hub2_location

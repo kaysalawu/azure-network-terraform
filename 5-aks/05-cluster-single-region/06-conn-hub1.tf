@@ -55,9 +55,9 @@ module "spoke1_udr_main" {
     address_prefix         = r.address_prefix
     next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
     next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
-  }]
+  } if local.hub1_features.config_firewall.enable]
 
-  bgp_route_propagation_enabled = false
+  bgp_route_propagation_enabled = local.hub1_features.config_firewall.enable ? false : true
 
   depends_on = [
     time_sleep.hub1,
@@ -124,9 +124,9 @@ module "spoke2_udr_main" {
     address_prefix         = r.address_prefix
     next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
     next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
-  }]
+  } if local.hub1_features.config_firewall.enable]
 
-  bgp_route_propagation_enabled = false
+  bgp_route_propagation_enabled = local.hub1_features.config_firewall.enable ? false : true
 
   depends_on = [
     time_sleep.hub1,
@@ -154,7 +154,7 @@ module "hub1_gateway_udr" {
     address_prefix         = r.address_prefix
     next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
     next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
-  }]
+  } if local.hub1_features.config_firewall.enable]
 
   depends_on = [
     time_sleep.hub1,
@@ -175,9 +175,9 @@ module "hub1_udr_main" {
     address_prefix         = r.address_prefix
     next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
     next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
-  }]
+  } if local.hub1_features.config_firewall.enable]
 
-  bgp_route_propagation_enabled = false
+  bgp_route_propagation_enabled = local.hub1_features.config_firewall.enable ? false : true
 
   depends_on = [
     time_sleep.hub1,
@@ -238,3 +238,4 @@ resource "local_file" "hub1_files" {
   filename = each.key
   content  = each.value
 }
+

@@ -15,7 +15,7 @@ resource "azurerm_virtual_network_peering" "spoke1_to_hub1_peering" {
   remote_virtual_network_id    = module.hub1.vnet.id
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
-  use_remote_gateways          = true
+  use_remote_gateways          = local.hub1_features.config_s2s_vpngw.enable ? true : false
   depends_on = [
     module.spoke1,
     module.hub1,
@@ -44,6 +44,7 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke1_peering" {
 # main
 
 module "spoke1_udr_main" {
+  count          = local.hub1_features.config_firewall.enable ? 1 : 0
   source         = "../../modules/route-table"
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.spoke1_prefix}main"
@@ -54,9 +55,9 @@ module "spoke1_udr_main" {
     address_prefix         = r.address_prefix
     next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
     next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
-  }]
+  } if local.hub1_features.config_firewall.enable]
 
-  bgp_route_propagation_enabled = false
+  bgp_route_propagation_enabled = local.hub1_features.config_firewall.enable ? false : true
 
   depends_on = [
     time_sleep.hub1,
@@ -79,7 +80,7 @@ resource "azurerm_virtual_network_peering" "spoke2_to_hub1_peering" {
   remote_virtual_network_id    = module.hub1.vnet.id
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
-  use_remote_gateways          = true
+  use_remote_gateways          = local.hub1_features.config_s2s_vpngw.enable ? true : false
   depends_on = [
     module.spoke2,
     module.hub1,
@@ -112,6 +113,7 @@ resource "azurerm_virtual_network_peering" "hub1_to_spoke2_peering" {
 # main
 
 module "spoke2_udr_main" {
+  count          = local.hub1_features.config_firewall.enable ? 1 : 0
   source         = "../../modules/route-table"
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.spoke2_prefix}main"
@@ -122,9 +124,9 @@ module "spoke2_udr_main" {
     address_prefix         = r.address_prefix
     next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
     next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
-  }]
+  } if local.hub1_features.config_firewall.enable]
 
-  bgp_route_propagation_enabled = false
+  bgp_route_propagation_enabled = local.hub1_features.config_firewall.enable ? false : true
 
   depends_on = [
     time_sleep.hub1,
@@ -141,6 +143,7 @@ module "spoke2_udr_main" {
 # gateway
 
 module "hub1_gateway_udr" {
+  count          = local.hub1_features.config_firewall.enable ? 1 : 0
   source         = "../../modules/route-table"
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.hub1_prefix}gateway"
@@ -151,7 +154,7 @@ module "hub1_gateway_udr" {
     address_prefix         = r.address_prefix
     next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
     next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
-  }]
+  } if local.hub1_features.config_firewall.enable]
 
   depends_on = [
     time_sleep.hub1,
@@ -161,6 +164,7 @@ module "hub1_gateway_udr" {
 # main
 
 module "hub1_udr_main" {
+  count          = local.hub1_features.config_firewall.enable ? 1 : 0
   source         = "../../modules/route-table"
   resource_group = azurerm_resource_group.rg.name
   prefix         = "${local.hub1_prefix}main"
@@ -171,9 +175,9 @@ module "hub1_udr_main" {
     address_prefix         = r.address_prefix
     next_hop_type          = length(try(r.next_hop_ip, "")) > 0 ? "VirtualAppliance" : "Internet"
     next_hop_in_ip_address = length(try(r.next_hop_ip, "")) > 0 ? r.next_hop_ip : null
-  }]
+  } if local.hub1_features.config_firewall.enable]
 
-  bgp_route_propagation_enabled = false
+  bgp_route_propagation_enabled = local.hub1_features.config_firewall.enable ? false : true
 
   depends_on = [
     time_sleep.hub1,
@@ -207,6 +211,7 @@ resource "azurerm_local_network_gateway" "hub1_branch1_lng" {
 # branch1
 
 resource "azurerm_virtual_network_gateway_connection" "hub1_branch1_lng" {
+  count                          = local.hub1_features.config_s2s_vpngw.enable ? 1 : 0
   resource_group_name            = azurerm_resource_group.rg.name
   name                           = "${local.hub1_prefix}branch1-lng-conn"
   location                       = local.hub1_location
