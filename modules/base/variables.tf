@@ -116,6 +116,15 @@ variable "vnets_linked_to_ruleset" {
   default = []
 }
 
+variable "private_dns_zones" {
+  description = "private dns zones"
+  type = list(object({
+    name           = string
+    resource_group = optional(string)
+  }))
+  default = []
+}
+
 variable "config_vnet" {
   type = object({
     address_space = list(string)

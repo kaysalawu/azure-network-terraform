@@ -28,6 +28,11 @@ resource "random_id" "random" {
 data "azurerm_client_config" "current" {}
 data "azurerm_subscription" "current" {}
 
+data "azurerm_dns_zone" "spoke1" {
+  resource_group_name = var.dns_resource_group
+  name                = "salawu.net"
+}
+
 ####################################################
 # providers
 ####################################################

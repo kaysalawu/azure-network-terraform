@@ -219,6 +219,18 @@ resource "azapi_resource" "vnet_flow_log" {
 # dns
 ####################################################
 
+# create private dns zones
+
+resource "azurerm_private_dns_zone" "this" {
+  for_each            = { for v in var.private_dns_zones : v.name => v }
+  resource_group_name = try(each.value.resource_group, null) == null ? var.resource_group : each.value.resource_group
+  name                = each.key
+  tags                = var.tags
+  depends_on = [
+    azurerm_virtual_network.this,
+  ]
+}
+
 # dns zones linked to vnet
 
 resource "azurerm_private_dns_zone_virtual_network_link" "dns" {
