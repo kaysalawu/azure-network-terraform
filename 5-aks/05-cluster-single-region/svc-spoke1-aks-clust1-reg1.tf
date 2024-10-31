@@ -67,8 +67,9 @@ resource "azurerm_role_assignment" "spoke1_resource_group_uami" {
 ####################################################
 
 module "spoke1_aks" {
-  source  = "Azure/aks/azurerm"
-  version = "9.1.0"
+  source     = "Azure/aks/azurerm"
+  version    = "9.1.0"
+  depends_on = [azurerm_resource_group.rg, ]
 
   resource_group_name       = azurerm_resource_group.rg.name
   prefix                    = trimsuffix(local.spoke1_prefix, "-")
@@ -76,7 +77,7 @@ module "spoke1_aks" {
   kubernetes_version        = "1.30"
   automatic_channel_upgrade = "patch"
   agents_availability_zones = ["1", "2", ]
-  agents_size               = "Standard_D4s_v3"
+  agents_size               = "Standard_D2s_v3"
 
   # workload_identity_enabled = true
   # oidc_issuer_enabled = true

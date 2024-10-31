@@ -70,28 +70,9 @@ terraform {
 ####################################################
 
 locals {
-  hub1_firewall_ip = coalesce(try(module.hub1.firewall_private_ip, null), "none")
   regions = {
     "region1" = { name = local.region1, dns_zone = local.region1_dns_zone }
   }
-  region1_default_udr_destinations = [
-    { name = "default-region1", address_prefix = ["0.0.0.0/0"], next_hop_ip = local.hub1_firewall_ip },
-  ]
-  spoke1_udr_main_routes = concat(local.region1_default_udr_destinations, [
-    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_firewall_ip },
-  ])
-  spoke2_udr_main_routes = concat(local.region1_default_udr_destinations, [
-    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_firewall_ip },
-  ])
-  hub1_udr_main_routes = concat(local.region1_default_udr_destinations, [
-    { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_firewall_ip },
-    { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = local.hub1_firewall_ip },
-  ])
-  hub1_gateway_udr_destinations = [
-    { name = "spoke1", address_prefix = [local.spoke1_address_space.0, ], next_hop_ip = local.hub1_firewall_ip },
-    { name = "spoke2", address_prefix = [local.spoke2_address_space.0, ], next_hop_ip = local.hub1_firewall_ip },
-    { name = "hub1", address_prefix = [local.hub1_address_space.0, ], next_hop_ip = local.hub1_firewall_ip },
-  ]
 
   firewall_sku = "Basic"
 
@@ -100,7 +81,7 @@ locals {
       bgp_community               = local.hub1_bgp_community
       address_space               = local.hub1_address_space
       subnets                     = local.hub1_subnets
-      enable_private_dns_resolver = true
+      enable_private_dns_resolver = false
       enable_ars                  = false
       enable_vnet_flow_logs       = local.enable_vnet_flow_logs
       nat_gateway_subnet_names = [
@@ -110,30 +91,30 @@ locals {
       ]
 
       ruleset_dns_forwarding_rules = {
-        "onprem" = {
-          domain = local.onprem_domain
-          target_dns_servers = [
-            { ip_address = local.branch1_dns_addr, port = 53 },
-          ]
-        }
-        "${local.region1_code}" = {
-          domain = local.region1_dns_zone
-          target_dns_servers = [
-            { ip_address = local.hub1_dns_in_addr, port = 53 },
-          ]
-        }
-        "azurewebsites.net" = {
-          domain = "privatelink.azurewebsites.net"
-          target_dns_servers = [
-            { ip_address = local.hub1_dns_in_addr, port = 53 },
-          ]
-        }
-        "blob.core.windows.net" = {
-          domain = "privatelink.blob.core.windows.net"
-          target_dns_servers = [
-            { ip_address = local.hub1_dns_in_addr, port = 53 },
-          ]
-        }
+        # "onprem" = {
+        #   domain = local.onprem_domain
+        #   target_dns_servers = [
+        #     { ip_address = local.branch1_dns_addr, port = 53 },
+        #   ]
+        # }
+        # "${local.region1_code}" = {
+        #   domain = local.region1_dns_zone
+        #   target_dns_servers = [
+        #     { ip_address = local.hub1_dns_in_addr, port = 53 },
+        #   ]
+        # }
+        # "azurewebsites.net" = {
+        #   domain = "privatelink.azurewebsites.net"
+        #   target_dns_servers = [
+        #     { ip_address = local.hub1_dns_in_addr, port = 53 },
+        #   ]
+        # }
+        # "blob.core.windows.net" = {
+        #   domain = "privatelink.blob.core.windows.net"
+        #   target_dns_servers = [
+        #     { ip_address = local.hub1_dns_in_addr, port = 53 },
+        #   ]
+        # }
       }
     }
 
