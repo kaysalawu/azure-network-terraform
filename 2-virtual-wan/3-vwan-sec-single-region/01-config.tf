@@ -268,8 +268,6 @@ locals {
   branch1_dns_addr_v6         = cidrhost(local.branch1_subnets["MainSubnet"].address_prefixes_v6[0], 6)
 
   branch1_nva_loopback0 = "192.168.10.10"
-  branch1_bgp_apipa_0   = cidrhost(local.bgp_apipa_range3, 2)
-  branch1_bgp_apipa_1   = cidrhost(local.bgp_apipa_range4, 2)
   branch1_vm_hostname   = "branch1Vm"
   branch1_nva_hostname  = "branch1Nva"
   branch1_dns_hostname  = "branch1Dns"
@@ -308,15 +306,11 @@ locals {
   branch2_vm_addr_v6          = cidrhost(local.branch2_subnets["MainSubnet"].address_prefixes_v6[0], 5)
   branch2_dns_addr_v6         = cidrhost(local.branch2_subnets["MainSubnet"].address_prefixes_v6[0], 6)
 
-  branch2_nva_loopback0  = "192.168.20.20"
-  branch2_nva_tun_range0 = "10.20.20.0/30"
-  branch2_nva_tun_range1 = "10.20.20.4/30"
-  branch2_nva_tun_range2 = "10.20.20.8/30"
-  branch2_nva_tun_range3 = "10.20.20.12/30"
-  branch2_vm_hostname    = "branch2Vm"
-  branch2_nva_hostname   = "branch2Nva"
-  branch2_dns_hostname   = "branch2Dns"
-  branch2_vm_fqdn        = "${local.branch2_vm_hostname}.${local.onprem_domain}"
+  branch2_nva_loopback0 = "192.168.20.20"
+  branch2_vm_hostname   = "branch2Vm"
+  branch2_nva_hostname  = "branch2Nva"
+  branch2_dns_hostname  = "branch2Dns"
+  branch2_vm_fqdn       = "${local.branch2_vm_hostname}.${local.onprem_domain}"
 }
 
 # branch3
