@@ -450,7 +450,7 @@ locals {
     ("PrivateEndpointSubnet")    = { address_prefixes = ["10.3.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
     ("AppServiceSubnet")         = { address_prefixes = ["10.3.8.0/24", ], address_prefixes_v6 = ["fd00:db8:3:8::/64"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.3.9.0/24", ], address_prefixes_v6 = ["fd00:db8:3:9::/64"], }
-    ("TestSubnet")               = { address_prefixes = ["10.3.10.0/24", ], address_prefixes_v6 = ["fd00:db8:3:10::/64"], use_azapi = [true], default_outbound_access = [false] }
+    ("TestSubnet")               = { address_prefixes = ["10.3.10.0/24", ], address_prefixes_v6 = ["fd00:db8:3:10::/64"], use_azapi = [false], default_outbound_access = [false] }
     ("AksSubnet")                = { address_prefixes = ["10.3.11.0/24", ], address_prefixes_v6 = ["fd00:db8:3:11::/64", ], }
     ("AksPodSubnet")             = { address_prefixes = ["10.3.12.0/22", ], address_prefixes_v6 = ["fd00:db8:3:12::/64", ], }
   }
@@ -564,7 +564,7 @@ locals {
     ("PrivateEndpointSubnet")    = { address_prefixes = ["10.6.7.0/24", ], private_endpoint_network_policies = ["Enabled"] }
     ("AppServiceSubnet")         = { address_prefixes = ["10.6.8.0/24", ], address_prefixes_v6 = ["fd00:db8:6:8::/64"], delegate = ["Microsoft.Web/serverFarms"] }
     ("GatewaySubnet")            = { address_prefixes = ["10.6.9.0/24", ], address_prefixes_v6 = ["fd00:db8:6:9::/64"], }
-    ("TestSubnet")               = { address_prefixes = ["10.6.10.0/24", ], address_prefixes_v6 = ["fd00:db8:6:10::/64"], use_azapi = [true], default_outbound_access = [false] }
+    ("TestSubnet")               = { address_prefixes = ["10.6.10.0/24", ], address_prefixes_v6 = ["fd00:db8:6:10::/64"], use_azapi = [false], default_outbound_access = [false] }
     ("AksSubnet")                = { address_prefixes = ["10.6.11.0/24", ], address_prefixes_v6 = ["fd00:db8:6:11::/64", ], }
     ("AksPodSubnet")             = { address_prefixes = ["10.6.12.0/22", ], address_prefixes_v6 = ["fd00:db8:6:12::/64", ], }
   }
