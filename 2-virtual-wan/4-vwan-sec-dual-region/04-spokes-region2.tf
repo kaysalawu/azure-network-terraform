@@ -45,7 +45,7 @@ module "spoke4" {
     "PrivateEndpointSubnet"    = module.common.nsg_default["region2"].id
     "AppServiceSubnet"         = module.common.nsg_default["region2"].id
     "TestSubnet"               = module.common.nsg_main["region2"].id
-    "AksSubnet"                = module.common.nsg_main["region2"].id
+    "AksSubnet"                = module.common.nsg_aks["region2"].id
   }
 
   config_vnet = {
@@ -132,7 +132,7 @@ module "spoke5" {
     "PrivateEndpointSubnet"    = module.common.nsg_default["region2"].id
     "AppServiceSubnet"         = module.common.nsg_default["region2"].id
     "TestSubnet"               = module.common.nsg_main["region2"].id
-    "AksSubnet"                = module.common.nsg_main["region2"].id
+    "AksSubnet"                = module.common.nsg_aks["region2"].id
   }
 
   config_vnet = {
@@ -219,7 +219,7 @@ module "spoke6" {
     "PrivateEndpointSubnet"    = module.common.nsg_default["region2"].id
     "AppServiceSubnet"         = module.common.nsg_default["region2"].id
     "TestSubnet"               = module.common.nsg_main["region2"].id
-    "AksSubnet"                = module.common.nsg_main["region2"].id
+    "AksSubnet"                = module.common.nsg_aks["region2"].id
   }
 
   config_vnet = {

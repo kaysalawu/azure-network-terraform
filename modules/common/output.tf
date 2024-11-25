@@ -15,6 +15,10 @@ output "nsg_main" {
   value = azurerm_network_security_group.nsg_main
 }
 
+output "nsg_aks" {
+  value = azurerm_network_security_group.nsg_aks
+}
+
 output "nsg_nva" {
   value = azurerm_network_security_group.nsg_nva
 }

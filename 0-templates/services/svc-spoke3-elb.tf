@@ -8,7 +8,7 @@ locals {
 # external load balancer
 ###################################################
 
-module "azure_lb_dual_stack" {
+module "spoke3_elb" {
   source              = "../../modules/azure-load-balancer"
   resource_group_name = azurerm_resource_group.rg.name
   location            = local.spoke3_location
