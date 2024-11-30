@@ -3,7 +3,6 @@
 # exec > /var/log/linux-nva.log 2>&1
 
 apt-get -y update
-apt-get -y install sipcalc
 
 #########################################################
 # ip forwarding
@@ -21,23 +20,24 @@ echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 
 sysctl -p
 
-# Disable ICMP redirects
-# sysctl -w net.ipv4.conf.all.send_redirects=0
-# sysctl -w net.ipv4.conf.all.accept_redirects=0
-# sysctl -w net.ipv4.conf.eth0.send_redirects=0
-# sysctl -w net.ipv4.conf.eth0.accept_redirects=0
-# echo "net.ipv4.conf.all.send_redirects=0" >> /etc/sysctl.conf
-# echo "net.ipv4.conf.all.accept_redirects=0" >> /etc/sysctl.conf
-# echo "net.ipv4.conf.eth0.send_redirects=0" >> /etc/sysctl.conf
-# echo "net.ipv4.conf.eth0.accept_redirects=0" >> /etc/sysctl.conf
-# sysctl -p
+Disable ICMP redirects
+sysctl -w net.ipv4.conf.all.send_redirects=0
+sysctl -w net.ipv4.conf.all.accept_redirects=0
+sysctl -w net.ipv4.conf.eth0.send_redirects=0
+sysctl -w net.ipv4.conf.eth0.accept_redirects=0
+echo "net.ipv4.conf.all.send_redirects=0" >> /etc/sysctl.conf
+echo "net.ipv4.conf.all.accept_redirects=0" >> /etc/sysctl.conf
+echo "net.ipv4.conf.eth0.send_redirects=0" >> /etc/sysctl.conf
+echo "net.ipv4.conf.eth0.accept_redirects=0" >> /etc/sysctl.conf
+sysctl -p
 
 #########################################################
 # route table for eth1 (trust interface)
 #########################################################
 
-ETH1_DGW=$(sipcalc eth1 | awk '/Usable range/ {print $4}')
-ETH1_MASK=$(ip addr show eth1 | awk '/inet / {print $2}' | cut -d'/' -f2)
+ETH1_SUBNET=$(ip -o -f inet addr show eth1 | awk '{print $4}')
+ETH1_DGW=$(echo $ETH1_SUBNET | awk -F. '{print $1"."$2"."$3".1"}')
+ETH1_MASK=$(echo $ETH1_SUBNET | cut -d'/' -f2)
 
 # eth1 routing
 echo "2 rt1" | tee -a /etc/iproute2/rt_tables
@@ -87,6 +87,8 @@ echo iptables-persistent iptables-persistent/autosave_v6 boolean false | debconf
 apt-get -y install iptables-persistent
 
 # Permit flows on all chains (for testing only and not for production)
+iptables -F
+iptables -t nat -F
 iptables -P FORWARD ACCEPT
 iptables -P INPUT ACCEPT
 iptables -P OUTPUT ACCEPT
@@ -139,40 +141,39 @@ conn %default
     ike=aes256-sha1-modp1024!
     esp=aes256-sha1!
 
-conn Tunnel0
+conn vti0
     left=10.10.1.9
-    leftid=52.138.215.62
-    right=4.209.162.177
-    rightid=4.209.162.177
+    leftid=52.169.227.121
+    right=135.236.236.60
+    rightid=135.236.236.60
     auto=start
     mark=100
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
-conn Tunnel1
+conn vti1
     left=10.10.1.9
-    leftid=52.138.215.62
-    right=4.209.162.158
-    rightid=4.209.162.158
+    leftid=52.169.227.121
+    right=135.236.236.183
+    rightid=135.236.236.183
     auto=start
-    mark=200
+    mark=101
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
-conn Tunnel2
+conn vti2
     left=10.10.1.9
-    leftid=52.138.215.62
-    right=52.170.64.127
-    rightid=52.170.64.127
+    leftid=52.169.227.121
+    right=52.242.77.175
+    rightid=52.242.77.175
     auto=start
-    mark=300
+    mark=102
     leftupdown="/etc/ipsec.d/ipsec-vti.sh"
 
-# github source used
 # https://gist.github.com/heri16/2f59d22d1d5980796bfb
 
 EOF
 
 tee /etc/ipsec.secrets <<'EOF'
-10.10.1.9 4.209.162.177 : PSK "changeme"
-10.10.1.9 4.209.162.158 : PSK "changeme"
-10.10.1.9 52.170.64.127 : PSK "changeme"
+10.10.1.9 135.236.236.60 : PSK "changeme"
+10.10.1.9 135.236.236.183 : PSK "changeme"
+10.10.1.9 52.242.77.175 : PSK "changeme"
 
 EOF
 
@@ -188,17 +189,17 @@ PLUTO_MARK_OUT_ARR=(${PLUTO_MARK_OUT//// })
 PLUTO_MARK_IN_ARR=(${PLUTO_MARK_IN//// })
 
 case "$PLUTO_CONNECTION" in
-  Tunnel0)
+  vti0)
     VTI_INTERFACE=vti0
     VTI_LOCALADDR=10.10.10.1
     VTI_REMOTEADDR=10.11.16.6
     ;;
-  Tunnel1)
+  vti1)
     VTI_INTERFACE=vti1
     VTI_LOCALADDR=10.10.10.5
     VTI_REMOTEADDR=10.11.16.7
     ;;
-  Tunnel2)
+  vti2)
     VTI_INTERFACE=vti2
     VTI_LOCALADDR=10.10.10.9
     VTI_REMOTEADDR=10.10.10.10
@@ -361,7 +362,7 @@ chmod a+x /usr/local/bin/dns-info
 
 # azure service tester
 
-tee /usr/local/bin/crawlz <<'EOF'
+cat <<'EOF' > /usr/local/bin/crawlz
 sudo bash -c "cd /var/lib/azure/crawler/app && ./crawler.sh"
 EOF
 chmod a+x /usr/local/bin/crawlz
@@ -385,7 +386,7 @@ chmod a+x /usr/local/bin/ipsec-debug
 #-----------------------------------
 
 cat <<EOF > /etc/cron.d/ipsec-auto-restart
-*/10 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
+*/30 * * * * /bin/bash /usr/local/bin/ipsec-auto-restart.sh 2>&1 > /dev/null
 EOF
 
 crontab /etc/cron.d/ipsec-auto-restart

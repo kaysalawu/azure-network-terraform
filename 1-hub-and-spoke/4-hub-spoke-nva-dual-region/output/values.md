@@ -47,8 +47,10 @@
 | PRIVATELINK_SERVICE_ENDPOINT_DNS   | spoke3pls.hub1.az.corp   |
 | PRIVATELINK_SERVICE_ENDPOINT_IP   | 10.11.7.88   |
 | PRIVATE_DNS_INBOUND_IP   | 10.11.8.4   |
-| SPOKE3_BLOB_URL (Sample)   | https://hs14spoke3sadbe6.blob.core.windows.net/spoke3/spoke3.txt   |
+| SPOKE3_BLOB_URL (Sample)   | https://hs14spoke3sa33b0.blob.core.windows.net/spoke3/spoke3.txt   |
 | *Subnets*|        |
+| AksPodSubnet   | 10.11.20.0/22   |
+| AksSubnet   | 10.11.18.0/24   |
 | AppGatewaySubnet   | 10.11.4.0/24   |
 | AppServiceSubnet   | 10.11.13.0/24   |
 | AzureFirewallManagementSubnet   | 10.11.12.0/24   |
@@ -80,8 +82,10 @@
 | PRIVATELINK_SERVICE_ENDPOINT_DNS   | spoke6pls.hub2.az.corp   |
 | PRIVATELINK_SERVICE_ENDPOINT_IP   | 10.22.7.88   |
 | PRIVATE_DNS_INBOUND_IP   | 10.22.8.4   |
-| SPOKE6_BLOB_URL (Sample)   | https://hs14spoke6sadbe6.blob.core.windows.net/spoke6/spoke6.txt   |
+| SPOKE6_BLOB_URL (Sample)   | https://hs14spoke6sa33b0.blob.core.windows.net/spoke6/spoke6.txt   |
 | *Subnets*|        |
+| AksPodSubnet   | 10.22.20.0/22   |
+| AksSubnet   | 10.22.18.0/24   |
 | AppGatewaySubnet   | 10.22.4.0/24   |
 | AppServiceSubnet   | 10.22.13.0/24   |
 | AzureFirewallManagementSubnet   | 10.22.12.0/24   |
@@ -109,6 +113,8 @@
 | Item    | Value  |
 |--------|--------|
 | *Subnets*|        |
+| AksPodSubnet   | 10.1.12.0/22   |
+| AksSubnet   | 10.1.11.0/24   |
 | AppGatewaySubnet   | 10.1.4.0/24   |
 | AppServiceSubnet   | 10.1.8.0/24   |
 | GatewaySubnet   | 10.1.9.0/24   |
@@ -131,6 +137,8 @@
 | Item    | Value  |
 |--------|--------|
 | *Subnets*|        |
+| AksPodSubnet   | 10.2.12.0/22   |
+| AksSubnet   | 10.2.11.0/24   |
 | AppGatewaySubnet   | 10.2.4.0/24   |
 | AppServiceSubnet   | 10.2.8.0/24   |
 | GatewaySubnet   | 10.2.9.0/24   |
@@ -153,6 +161,8 @@
 | Item    | Value  |
 |--------|--------|
 | *Subnets*|        |
+| AksPodSubnet   | 10.3.12.0/22   |
+| AksSubnet   | 10.3.11.0/24   |
 | AppGatewaySubnet   | 10.3.4.0/24   |
 | AppServiceSubnet   | 10.3.8.0/24   |
 | GatewaySubnet   | 10.3.9.0/24   |
@@ -175,6 +185,8 @@
 | Item    | Value  |
 |--------|--------|
 | *Subnets*|        |
+| AksPodSubnet   | 10.4.12.0/22   |
+| AksSubnet   | 10.4.11.0/24   |
 | AppGatewaySubnet   | 10.4.4.0/24   |
 | AppServiceSubnet   | 10.4.8.0/24   |
 | GatewaySubnet   | 10.4.9.0/24   |
@@ -197,6 +209,8 @@
 | Item    | Value  |
 |--------|--------|
 | *Subnets*|        |
+| AksPodSubnet   | 10.5.12.0/22   |
+| AksSubnet   | 10.5.11.0/24   |
 | AppGatewaySubnet   | 10.5.4.0/24   |
 | AppServiceSubnet   | 10.5.8.0/24   |
 | GatewaySubnet   | 10.5.9.0/24   |
@@ -219,6 +233,8 @@
 | Item    | Value  |
 |--------|--------|
 | *Subnets*|        |
+| AksPodSubnet   | 10.6.12.0/22   |
+| AksSubnet   | 10.6.11.0/24   |
 | AppGatewaySubnet   | 10.6.4.0/24   |
 | AppServiceSubnet   | 10.6.8.0/24   |
 | GatewaySubnet   | 10.6.9.0/24   |
