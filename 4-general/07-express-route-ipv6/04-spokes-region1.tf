@@ -16,10 +16,10 @@ NSGs are assigned to selected subnets.
 # base
 
 module "spoke1" {
-  source          = "../../modules/base"
-  resource_group  = azurerm_resource_group.rg.name
-  prefix          = trimsuffix(local.spoke1_prefix, "-")
-  env             = "prod"
+  source         = "../../modules/base"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = trimsuffix(local.spoke1_prefix, "-")
+
   location        = local.spoke1_location
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.spoke1_tags
@@ -100,10 +100,10 @@ module "spoke1_vm" {
 # base
 
 module "spoke2" {
-  source          = "../../modules/base"
-  resource_group  = azurerm_resource_group.rg.name
-  prefix          = trimsuffix(local.spoke2_prefix, "-")
-  env             = "prod"
+  source         = "../../modules/base"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = trimsuffix(local.spoke2_prefix, "-")
+
   location        = local.spoke2_location
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.spoke2_tags
@@ -184,10 +184,10 @@ module "spoke2_vm" {
 # base
 
 module "spoke3" {
-  source          = "../../modules/base"
-  resource_group  = azurerm_resource_group.rg.name
-  prefix          = trimsuffix(local.spoke3_prefix, "-")
-  env             = "prod"
+  source         = "../../modules/base"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = trimsuffix(local.spoke3_prefix, "-")
+
   location        = local.spoke3_location
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.spoke3_tags

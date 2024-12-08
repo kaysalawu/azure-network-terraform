@@ -16,10 +16,10 @@ NSGs are assigned to selected subnets.
 # base
 
 module "spoke1" {
-  source          = "../../modules/base"
-  resource_group  = azurerm_resource_group.rg.name
-  prefix          = trimsuffix(local.spoke1_prefix, "-")
-  env             = "prod"
+  source         = "../../modules/base"
+  resource_group = azurerm_resource_group.rg.name
+  prefix         = trimsuffix(local.spoke1_prefix, "-")
+
   location        = local.spoke1_location
   storage_account = module.common.storage_accounts["region1"]
   tags            = local.spoke1_tags
