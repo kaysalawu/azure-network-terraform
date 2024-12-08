@@ -120,7 +120,7 @@ resource "azurerm_private_dns_a_record" "hub1_spoke3_pls_pep" {
 }
 
 ####################################################
-# stoarge account
+# storage account
 ####################################################
 
 # storage account

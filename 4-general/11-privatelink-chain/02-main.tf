@@ -5,7 +5,7 @@
 locals {
   prefix                      = "Hs14"
   lab_name                    = "HubSpoke_Nva_2Region"
-  enable_onprem_wan_link      = true
+  enable_onprem_wan_link      = false
   enable_diagnostics          = false
   enable_ipv6                 = false
   enable_vnet_flow_logs       = false
@@ -102,7 +102,7 @@ locals {
       bgp_community               = local.hub1_bgp_community
       address_space               = local.hub1_address_space
       subnets                     = local.hub1_subnets
-      enable_private_dns_resolver = true
+      enable_private_dns_resolver = false
       enable_ars                  = false
       enable_vnet_flow_logs       = local.enable_vnet_flow_logs
       nat_gateway_subnet_names = [
@@ -140,7 +140,7 @@ locals {
     }
 
     config_s2s_vpngw = {
-      enable = true
+      enable = false
       sku    = "VpnGw1AZ"
       ip_configuration = [
         { name = "ipconf0", public_ip_address_name = azurerm_public_ip.hub1_s2s_vpngw_pip0.name, apipa_addresses = ["169.254.21.1"] },
@@ -179,7 +179,7 @@ locals {
     }
 
     config_nva = {
-      enable           = true
+      enable           = false
       enable_ipv6      = local.enable_ipv6
       type             = "linux"
       scenario_option  = "TwoNics"
@@ -257,15 +257,16 @@ locals {
 
   init_dir = "/var/lib/azure"
   vm_script_targets_region1 = [
-    { name = "branch1", dns = lower(local.branch1_vm_fqdn), ipv4 = local.branch1_vm_addr, ipv6 = local.branch1_vm_addr_v6, probe = true },
+    { name = "branch1", dns = lower(local.branch1_vm_fqdn), ipv4 = local.branch1_vm_addr, ipv6 = local.branch1_vm_addr_v6 },
     { name = "hub1   ", dns = lower(local.hub1_vm_fqdn), ipv4 = local.hub1_vm_addr, ipv6 = local.hub1_vm_addr_v6, probe = false },
-    { name = "hub1-spoke3-pep", dns = lower(local.hub1_spoke3_pep_fqdn), ping = false, probe = true },
-    { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ipv4 = local.spoke1_vm_addr, ipv6 = local.spoke1_vm_addr_v6, probe = true },
-    { name = "spoke2 ", dns = lower(local.spoke2_vm_fqdn), ipv4 = local.spoke2_vm_addr, ipv6 = local.spoke2_vm_addr_v6, probe = true },
+    { name = "branch1-hub1-pep", dns = lower("hub1pls.${local.hub1_dns_zone}"), ping = false },
+    { name = "hub1-spoke1-pep", dns = lower(local.hub1_spoke1_pep_fqdn), ping = false },
+    { name = "spoke1 ", dns = lower(local.spoke1_vm_fqdn), ipv4 = local.spoke1_vm_addr, ipv6 = local.spoke1_vm_addr_v6 },
+    { name = "spoke2 ", dns = lower(local.spoke2_vm_fqdn), ipv4 = local.spoke2_vm_addr, ipv6 = local.spoke2_vm_addr_v6 },
   ]
   vm_script_targets_misc = [
     { name = "internet", dns = "icanhazip.com", ipv4 = "icanhazip.com", ipv6 = "icanhazip.com" },
-    { name = "hub1-spoke3-blob", dns = local.spoke3_blob_url, ping = false, probe = true },
+    { name = "hub1-spoke3-blob", dns = local.spoke3_blob_url, ping = false, },
   ]
   vm_script_targets = concat(
     local.vm_script_targets_region1,
@@ -468,10 +469,6 @@ resource "azurerm_firewall_policy" "firewall_policy" {
       local.internet_proxy,
     ]
   )
-
-  #dns {
-  #  proxy_enabled = true
-  #}
 }
 
 # collection

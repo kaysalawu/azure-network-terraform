@@ -156,10 +156,10 @@ module "common_user2" {
 # base
 
 module "user1" {
-  source          = "../../modules/base"
-  resource_group  = azurerm_resource_group.user1_rg.name
-  prefix          = trimsuffix(local.user1_prefix, "-")
-  env             = "prod"
+  source         = "../../modules/base"
+  resource_group = azurerm_resource_group.user1_rg.name
+  prefix         = trimsuffix(local.user1_prefix, "-")
+
   location        = local.user1_location
   storage_account = module.common_user1.storage_accounts["region1"]
   tags            = local.user1_tags
@@ -246,7 +246,6 @@ module "user2" {
   source          = "../../modules/base"
   resource_group  = azurerm_resource_group.user2_rg.name
   prefix          = trimsuffix(local.user2_prefix, "-")
-  env             = "prod"
   location        = local.user2_location
   storage_account = module.common_user2.storage_accounts["region1"]
   tags            = local.user2_tags

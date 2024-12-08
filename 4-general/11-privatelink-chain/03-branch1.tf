@@ -18,12 +18,18 @@ module "branch1" {
   log_analytics_workspace_name = module.common.log_analytics_workspaces["region1"].name
   enable_ipv6                  = local.enable_ipv6
 
+  dns_zones_linked_to_vnet = [
+    { name = module.common.private_dns_zones[local.region1_dns_zone].name, registration_enabled = true },
+  ]
+
   nsg_subnet_map = {
-    "MainSubnet"      = module.common.nsg_main["region1"].id
-    "UntrustSubnet"   = module.common.nsg_nva["region1"].id
-    "TrustSubnet"     = module.common.nsg_main["region1"].id
-    "DnsServerSubnet" = module.common.nsg_main["region1"].id
-    "TestSubnet"      = module.common.nsg_main["region1"].id
+    "MainSubnet"               = module.common.nsg_main["region1"].id
+    "UntrustSubnet"            = module.common.nsg_nva["region1"].id
+    "TrustSubnet"              = module.common.nsg_main["region1"].id
+    "ManagementSubnet"         = module.common.nsg_main["region1"].id
+    "LoadBalancerSubnet"       = module.common.nsg_default["region1"].id
+    "PrivateLinkServiceSubnet" = module.common.nsg_default["region1"].id
+    "PrivateEndpointSubnet"    = module.common.nsg_default["region1"].id
   }
 
   config_vnet = {
@@ -33,16 +39,8 @@ module "branch1" {
     nat_gateway_subnet_names = [
       "MainSubnet",
       "TrustSubnet",
-      "DnsServerSubnet",
-      "TestSubnet",
     ]
   }
-
-  config_ergw = {
-    enable = false
-    sku    = "ErGw1AZ"
-  }
-
   depends_on = [
     module.common,
   ]
@@ -84,46 +82,11 @@ module "branch1_vm" {
 }
 
 ####################################################
-# udr
-####################################################
-
-# main
-
-locals {
-  branch1_routes_main = [
-    {
-      name                   = "private"
-      address_prefix         = local.private_prefixes
-      next_hop_type          = "VirtualAppliance"
-      next_hop_in_ip_address = local.branch1_nva_untrust_addr
-    },
-  ]
-}
-
-module "branch1_udr_main" {
-  source         = "../../modules/route-table"
-  resource_group = azurerm_resource_group.rg.name
-  prefix         = "${local.branch1_prefix}main"
-  location       = local.branch1_location
-  subnet_ids     = [module.branch1.subnets["MainSubnet"].id, ]
-  routes         = local.branch1_routes_main
-
-  bgp_route_propagation_enabled = false
-  depends_on = [
-    module.branch1_dns,
-    module.branch1_nva,
-    time_sleep.branch1,
-  ]
-}
-
-####################################################
 # output files
 ####################################################
 
 locals {
   branch1_files = {
-    "output/branch1Dns.sh" = local.branch1_unbound_startup
-    "output/branch1Nva.sh" = local.branch1_nva_init
   }
 }
 

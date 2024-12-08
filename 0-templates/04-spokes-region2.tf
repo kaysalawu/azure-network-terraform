@@ -19,7 +19,6 @@ module "spoke4" {
   source          = "../../modules/base"
   resource_group  = azurerm_resource_group.rg.name
   prefix          = trimsuffix(local.spoke4_prefix, "-")
-  env             = "prod"
   location        = local.spoke4_location
   storage_account = module.common.storage_accounts["region2"]
   tags            = local.spoke4_tags
@@ -106,7 +105,6 @@ module "spoke5" {
   source          = "../../modules/base"
   resource_group  = azurerm_resource_group.rg.name
   prefix          = trimsuffix(local.spoke5_prefix, "-")
-  env             = "prod"
   location        = local.spoke5_location
   storage_account = module.common.storage_accounts["region2"]
   tags            = local.spoke5_tags
@@ -193,7 +191,6 @@ module "spoke6" {
   source          = "../../modules/base"
   resource_group  = azurerm_resource_group.rg.name
   prefix          = trimsuffix(local.spoke6_prefix, "-")
-  env             = "prod"
   location        = local.spoke6_location
   storage_account = module.common.storage_accounts["region2"]
   tags            = local.spoke6_tags
