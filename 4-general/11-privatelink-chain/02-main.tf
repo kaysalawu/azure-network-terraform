@@ -3,8 +3,8 @@
 ####################################################
 
 locals {
-  prefix                      = "Hs14"
-  lab_name                    = "HubSpoke_Nva_2Region"
+  prefix                      = "Lab11"
+  lab_name                    = "PrivateLink"
   enable_onprem_wan_link      = false
   enable_diagnostics          = false
   enable_ipv6                 = false
