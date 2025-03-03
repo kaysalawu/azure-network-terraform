@@ -7,7 +7,7 @@ terraform_plan() {
 }
 
 terraform_apply() {
-  terraform apply -auto-approve -parallelism=50 "tfplan"
+  terraform apply -auto-approve "tfplan"
   rm -f tfplan
 }
 
